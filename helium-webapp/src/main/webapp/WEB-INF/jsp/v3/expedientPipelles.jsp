@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
 <head>
@@ -12,6 +13,10 @@
 	<meta name="title" content="${expedient.identificador}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 <style>
 #expedient-info h3 {
 	font-weight: bold;
@@ -73,32 +78,32 @@
 		})
 		$('#expedient-pipelles a:first').click();
 
-		/*$('select[name=definicioProcesJbpmId]').on('change', function () {
+		$('select[name=definicioProcesJbpmId]').on('change', function () {
 			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
 				$.ajax({
 				    url:'${expedient.id}/' + $(this).val(),
 				    type:'GET',
 				    dataType: 'json',
 				    success: function(data) {
-				        $("#imatgeproces").text(data);
-				        $("#definicioProcesJbpmId").toggle();
+				        $("#desc_def_proc").text(data);
+				        $("#s2id_definicioProcesJbpmId").toggle();
 				        $.ajax({
 							url: '<c:url value="/nodeco/v3/missatges"/>',
 							async: false,
 							timeout: 20000,
 							success: function (data) {
-								$('.contingut-alertes *').remove();
-								$('.contingut-alertes').append(data);
+								$('#contingut-alertes *').remove();
+								$('#contingut-alertes').append(data);
 							}
 					    });
 				    },
-				  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
+				  	error: function(XMLHttpRequest, textStatus, errorThrown) {
 					}
 				});
 			}
 		});
 		
-		$("#pipella-dades").click(function() {
+		/*$("#pipella-dades").click(function() {
 			$('#contingut-carregant').hide();
 			if (!$('#contingut-dades').data('carregat')) {
 				$('#contingut-carregant').show();
@@ -251,17 +256,18 @@
 					</dd>
 					<dt>Definició de procés</dt>
 					<dd>	
-						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span> <c:out value="${definicioProcesDescripcio}"/>&nbsp;
-						<%--span class="fa fa-pencil" onclick="$('#definicioProcesJbpmId').toggle();" style="cursor: pointer"></span--%>
+						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
+						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProcesDescripcio}"/></label>&nbsp;
+						<span class="fa fa-pencil" onclick="$('#s2id_definicioProcesJbpmId').toggle();" style="cursor: pointer"></span>
 						<div id="imgDefinicioProcesJbpm" class="hide">
 							<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
 						</div>
 					</dd>
-					<%--select class="span12 hide" id="definicioProcesJbpmId" name="definicioProcesJbpmId">
+					<select class="span12" id="definicioProcesJbpmId" name="definicioProcesJbpmId" style="display: none;">
 						<c:forEach var="definicioProcesJbpm" items="${definicionsProces}">
 							<option <c:if test="${definicioProcesJbpmId == definicioProcesJbpm.jbpmId}">selected="selected"</c:if> value="${definicioProcesJbpm.jbpmId}"><c:out value="${definicioProcesJbpm.descripcio}"/></option>
 						</c:forEach>
-					</select--%>
+					</select>
 				</dl>
 				<%--div class="buttonList">
 					<button class="btn btn-primary span12" type="button">Modificar informació</button>
@@ -367,31 +373,23 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
+		$("#definicioProcesJbpmId").select2({
+		    allowClear: true,
+		    minimumResultsForSearch: 10
+		});
 		$('#expedient-info-accio a').click(function() {
 			if ($(this).data('modificar-modal')) {
 				$('#expedient-modificar-modal').heliumModal({
 					modalUrl: $(this).attr('href'),
-					refrescarTaula: false,
-					refrescarAlertes: true,
-					refrescarPagina: false,
-					adjustWidth: false,
+					adjustWidth: true,
 					adjustHeight: true,
 					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
 				return false;
 			} else if ($(this).data('aturar-modal')) {
 				$('#expedient-aturar-modal').heliumModal({
 					modalUrl: $(this).attr('href'),
-					refrescarTaula: false,
-					refrescarAlertes: true,
-					refrescarPagina: false,
-					adjustWidth: false,
-					adjustHeight: true,
-					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
@@ -399,14 +397,6 @@
 			} else if ($(this).data('exec-modal')) {
 				$('#expedient-exec-modal').heliumModal({
 					modalUrl: $(this).attr('href'),
-					refrescarTaula: false,
-					refrescarAlertes: true,
-					refrescarPagina: false,
-					adjustWidth: false,
-					adjustHeight: true,
-					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-					valignTop: true,
 					buttonContainerId: 'formButtons'
 				});
 				return false;

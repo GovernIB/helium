@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <html>
 <head>
@@ -9,32 +10,29 @@
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<hel:modalHead/>
+	<style>
+		.col-xs-4 {width: auto;}
+		.col-xs-8 {width: 77%;}
+		.form-group {width: 100%;}
+	</style>
 </head>
 <body>
-	<form:form action="reassignar" cssClass="form-horizontal form-tasca">
-		<input type="hidden" name="tascaId" value="${tasca.id}"/>
+	<form:form action="reassignar" cssClass="form-horizontal form-tasca" commandName="expedientTascaReassignarCommand">
+		<input type="hidden" name="taskId" value="${tasca.id}"/>
 
 		<div class="control-group fila_reducida">
-			<label class="control-label" for="expression"><spring:message code='expedient.tasca.expresio_assignacio' /></label>
-			<div class="controls">
-				<input type="text" id="expression" name="expression" class="span11" style="text-align:right" data-required="true" value="${expression}"/>
-			</div>
+			<hel:inputText required="true" name="expression" textKey="expedient.tasca.expresio_assignacio" placeholderKey="expedient.tasca.expresio_assignacio"/>
 		</div>
-		<br/>
-		<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class='icon-asterisk'></i> <spring:message code='comuns.son_oblig' /></p>
 		
 		<div id="formReasignar">
+			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+				<spring:message code='comuns.cancelar' />
+			</button>
 			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">
 				<spring:message code='comuns.reassignar' />
 			</button>
 		</div>
 	</form:form>
-	
-	<script>
-		$( '[data-required="true"]' )
-			.closest(".control-group")
-			.children("label")
-			.prepend("<i class='icon-asterisk'></i> ");
-	</script>
 </body>
 </html>

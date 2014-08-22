@@ -26,6 +26,9 @@
 		</div>
 	</div>
 	<div id="formButtons">
+		<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+			<spring:message code='comuns.cancelar' />
+		</button>
 		<button type="submit" class="btn btn-primary"><spring:message code="expedient.info.relacionar"/></button>
 	</div>
 </form:form>

@@ -11,6 +11,11 @@
 <%@ attribute name="urlConsultaInicial" required="true" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+<script src="<c:url value="/js/select2.min.js"/>"></script>
+<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:choose>

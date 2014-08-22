@@ -1,9 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <c:import url="../common/formIncludes.jsp"/>
 <script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
@@ -18,155 +18,160 @@
 	}
 	
 	function recargarRegistro() {
-		$('#contingut-carregant').show();
+		$("#spinner").html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
+		$('#registro_tasques').hide();
 		$('#contingut-registre').load(
 				'<c:url value="/nodeco/v3/expedient/${expedient.id}/registre?tipus_retroces='+$('#tipus_retroces').val()+'"/>',
 				function() {
-					$('#contingut-carregant').hide();
+					$("#spinner").html('');
+					$('#registro_tasques').show();
 		});
 	}
 </script>
 
+<div id="spinner"></div>
 <c:set var="numBloquejos" value="${0}"/>
 <c:forEach var="log" items="${logs}">
 	<c:if test="${log.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos + 1}"/></c:if>
 </c:forEach>
 
-<div class="buttonHolder">
-	<button type="button" onclick='recargarRegistro()' class="btn btn-primary dropdown-toggle">
-		<c:if test="${param.tipus_retroces == 0}">
-			<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="1"/>
-			<spring:message code="expedient.log.tipus.tasca"/>
-		</c:if>
-		<c:if test="${param.tipus_retroces != 0}">
-			<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="0"/>
-			<spring:message code="expedient.log.tipus.detall"/>
-		</c:if>
-	</button>
-</div>
-<br/>
-<c:choose>
-	<c:when test="${not empty logs}">
-		<table class="table table-bordered">
-			<thead>
-				<tr>
-					<th><spring:message code="expedient.document.data"/></th>
-					<th><spring:message code="expedient.editar.responsable"/></th>
-					<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
-						<th><spring:message code="expedient.log.objecte"/></th>
-					</c:if>
-					<th>
+<div id="registro_tasques">
+	<div class="buttonHolder">
+		<button type="button" onclick='recargarRegistro()' class="btn btn-primary">
+			<c:if test="${param.tipus_retroces == 0}">
+				<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="1"/>
+				<spring:message code="expedient.log.tipus.tasca"/>
+			</c:if>
+			<c:if test="${param.tipus_retroces != 0}">
+				<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="0"/>
+				<spring:message code="expedient.log.tipus.detall"/>
+			</c:if>
+		</button>
+	</div>
+	<br/>
+	<c:choose>
+		<c:when test="${not empty logs}">
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th><spring:message code="expedient.document.data"/></th>
+						<th><spring:message code="expedient.editar.responsable"/></th>
 						<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
-							<spring:message code="expedient.log.accio"/>
+							<th><spring:message code="expedient.log.objecte"/></th>
 						</c:if>
-						<c:if test="${not (param.tipus_retroces == 0 && not isAdmin)}">
-							<spring:message code="expedient.log.objecte.TASCA"/>
+						<th>
+							<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
+								<spring:message code="expedient.log.accio"/>
+							</c:if>
+							<c:if test="${not (param.tipus_retroces == 0 && not isAdmin)}">
+								<spring:message code="expedient.log.objecte.TASCA"/>
+							</c:if>
+						</th>
+						<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
+							<th><spring:message code="expedient.log.info"/></th>
+							<th><spring:message code="expedient.lot.token"/></th>
 						</c:if>
-					</th>
-					<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
-						<th><spring:message code="expedient.log.info"/></th>
-						<th><spring:message code="expedient.lot.token"/></th>
-					</c:if>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<c:forEach var="log" items="${logs}">
-					<c:if test="${((log.targetTasca && not isAdmin) || param.tipus_retroces == 0) || isAdmin}">
-						<tr>
-							<c:set var="cellStyle" value=""/>
-							<c:if test="${log.estat == 'RETROCEDIT' or log.estat == 'RETROCEDIT_TASQUES'}">
-								<c:set var="cellStyle" value="text-decoration:line-through"/>
-							</c:if>
-							<td style="${cellStyle}">
-								<fmt:formatDate value="${log.data}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate>
-							</td>
-							<td style="${cellStyle}">
-								${log.usuari}
-							</td>
-							<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
-								<td style="${cellStyle}">
-									<c:choose>
-										<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${param.tipus_retroces == 0}">: ${tasques[log.targetId].nom}</c:if></c:when>
-										<c:when test="${log.targetProces}"><spring:message code="expedient.log.objecte.PROCES"/>: ${log.targetId}</c:when>
-										<c:when test="${log.targetExpedient}"><spring:message code="expedient.log.objecte.EXPEDIENT"/></c:when>
-										<c:otherwise>???: ${log.targetId}</c:otherwise>
-									</c:choose>
-								</td>
-							</c:if>
-							<td style="${cellStyle}">
-								<c:choose>
-									<c:when test="${log.targetTasca and param.tipus_retroces != 0}">
-										${tasques[log.targetId].nom}
-										<span class="right">
-											<a class="a-modal-registre" href="<c:url value="/v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="icon-search"></i></a>
-										</span>
-									</c:when>
-									<c:otherwise>
-										<spring:message code="expedient.log.accio.${log.accioTipus}"/>
-									</c:otherwise>
-								</c:choose>
-							</td>
-							<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
-								<td style="${cellStyle}">
-									<c:choose>
-										<c:when test="${log.accioTipus == 'PROCES_VARIABLE_CREAR'}"><spring:message code="expedient.log.info.variable"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_VARIABLE_MODIFICAR'}"><spring:message code="expedient.log.info.variable"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_VARIABLE_ESBORRAR'}"><spring:message code="expedient.log.info.variable"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_AFEGIR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_MODIFICAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ESBORRAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ADJUNTAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_REASSIGNAR'}"><spring:message code="expedient.log.info.abans"/>: ${fn:split(log.accioParams, "::")[0]}, <spring:message code="expedient.log.info.despres"/>: ${fn:split(log.accioParams, "::")[1]}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_ACCIO_EXECUTAR'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_AFEGIR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_MODIFICAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_ESBORRAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_SIGNAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'TASCA_COMPLETAR'}"><c:if test="${not empty log.accioParams}"><spring:message code="expedient.log.info.opcio"/>: ${log.accioParams}</c:if></c:when>
-										<c:when test="${log.accioTipus == 'EXPEDIENT_ATURAR'}"><spring:message code="expedient.log.info.missatges"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'EXPEDIENT_ACCIO'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
-										<c:when test="${log.accioTipus == 'EXPEDIENT_RETROCEDIR' or log.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">
-											<a class="a-modal-registre" href="<c:url value="/v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" ><i  class="icon-search"></i></a>
-										</c:when>
-										<c:otherwise></c:otherwise>
-									</c:choose>
-								</td>
-								<td style="${cellStyle}">
-									${log.tokenName}
-								</td>
-							</c:if>
-							<td style="${cellStyle}">
-								<c:if test="${log.estat == 'NORMAL' && numBloquejos == 0}">
-									<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
-										<a href="<c:url value="/v3/expedient/retrocedir">
-												<c:param name="id" value="${expedient.id}"/>
-												<c:param name="logId" value="${log.id}"/>
-												<c:param name="tipus_retroces" value="${param.tipus_retroces}"/>
-												<c:param name="retorn" value="r"/>
-											</c:url>" onclick="return confirmarRetrocedir(event)" class="retroces">
-											<i class="icon-reply" 
-												alt="<spring:message code="expedient.log.retrocedir"/>" 
-												title="<spring:message code="expedient.log.retrocedir"/>" 
-												border="0">
-											</i>
-										</a>
-									</security:accesscontrollist>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="log" items="${logs}">
+						<c:if test="${((log.targetTasca && not isAdmin) || param.tipus_retroces == 0) || isAdmin}">
+							<tr>
+								<c:set var="cellStyle" value=""/>
+								<c:if test="${log.estat == 'RETROCEDIT' or log.estat == 'RETROCEDIT_TASQUES'}">
+									<c:set var="cellStyle" value="text-decoration:line-through"/>
 								</c:if>
-								<c:if test="${numBloquejos gt 0}">B</c:if>
-							</td>
-							<c:if test="${log.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
-						</tr>
-					</c:if>
-				</c:forEach>
-			</tbody>
-		</table>
-	</c:when>
-	<c:otherwise>
-		<div class="well well-small">No hi ha logs per a mostrar</div>
-	</c:otherwise>
-</c:choose>
+								<td style="${cellStyle}">
+									<fmt:formatDate value="${log.data}" pattern="dd/MM/yyyy HH:mm:ss"></fmt:formatDate>
+								</td>
+								<td style="${cellStyle}">
+									${log.usuari}
+								</td>
+								<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
+									<td style="${cellStyle}">
+										<c:choose>
+											<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${param.tipus_retroces == 0}">: ${tasques[log.targetId].nom}</c:if></c:when>
+											<c:when test="${log.targetProces}"><spring:message code="expedient.log.objecte.PROCES"/>: ${log.targetId}</c:when>
+											<c:when test="${log.targetExpedient}"><spring:message code="expedient.log.objecte.EXPEDIENT"/></c:when>
+											<c:otherwise>???: ${log.targetId}</c:otherwise>
+										</c:choose>
+									</td>
+								</c:if>
+								<td style="${cellStyle}">
+									<c:choose>
+										<c:when test="${log.targetTasca and param.tipus_retroces != 0}">
+											${tasques[log.targetId].nom}
+											<span class="right">
+												<a class="a-modal-registre" href="<c:url value="/v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="icon-search"></i></a>
+											</span>
+										</c:when>
+										<c:otherwise>
+											<spring:message code="expedient.log.accio.${log.accioTipus}"/>
+										</c:otherwise>
+									</c:choose>
+								</td>
+								<c:if test="${isAdmin || (param.tipus_retroces == 0 && not isAdmin)}">
+									<td style="${cellStyle}">
+										<c:choose>
+											<c:when test="${log.accioTipus == 'PROCES_VARIABLE_CREAR'}"><spring:message code="expedient.log.info.variable"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_VARIABLE_MODIFICAR'}"><spring:message code="expedient.log.info.variable"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_VARIABLE_ESBORRAR'}"><spring:message code="expedient.log.info.variable"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_AFEGIR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_MODIFICAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ESBORRAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ADJUNTAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_REASSIGNAR'}"><spring:message code="expedient.log.info.abans"/>: ${fn:split(log.accioParams, "::")[0]}, <spring:message code="expedient.log.info.despres"/>: ${fn:split(log.accioParams, "::")[1]}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_ACCIO_EXECUTAR'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_AFEGIR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_MODIFICAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_ESBORRAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_DOCUMENT_SIGNAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'TASCA_COMPLETAR'}"><c:if test="${not empty log.accioParams}"><spring:message code="expedient.log.info.opcio"/>: ${log.accioParams}</c:if></c:when>
+											<c:when test="${log.accioTipus == 'EXPEDIENT_ATURAR'}"><spring:message code="expedient.log.info.missatges"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'EXPEDIENT_ACCIO'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
+											<c:when test="${log.accioTipus == 'EXPEDIENT_RETROCEDIR' or log.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">
+												<a class="a-modal-registre" href="<c:url value="/v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" ><i  class="icon-search"></i></a>
+											</c:when>
+											<c:otherwise></c:otherwise>
+										</c:choose>
+									</td>
+									<td style="${cellStyle}">
+										${log.tokenName}
+									</td>
+								</c:if>
+								<td style="${cellStyle}">
+									<c:if test="${log.estat == 'NORMAL' && numBloquejos == 0}">
+										<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
+											<a href="<c:url value="/v3/expedient/retrocedir">
+													<c:param name="id" value="${expedient.id}"/>
+													<c:param name="logId" value="${log.id}"/>
+													<c:param name="tipus_retroces" value="${param.tipus_retroces}"/>
+													<c:param name="retorn" value="r"/>
+												</c:url>" onclick="return confirmarRetrocedir(event)" class="retroces">
+												<i class="icon-reply" 
+													alt="<spring:message code="expedient.log.retrocedir"/>" 
+													title="<spring:message code="expedient.log.retrocedir"/>" 
+													border="0">
+												</i>
+											</a>
+										</security:accesscontrollist>
+									</c:if>
+									<c:if test="${numBloquejos gt 0}">B</c:if>
+								</td>
+								<c:if test="${log.estat == 'BLOCAR'}"><c:set var="numBloquejos" value="${numBloquejos - 1}"/></c:if>
+							</tr>
+						</c:if>
+					</c:forEach>
+				</tbody>
+			</table>
+		</c:when>
+		<c:otherwise>
+			<div class="well well-small">No hi ha logs per a mostrar</div>
+		</c:otherwise>
+	</c:choose>
+</div>
 
 <div id="expedient-registre-modal"></div>
 

@@ -19,13 +19,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,27 +45,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	@Autowired
 	private ExpedientService expedientService;
 
-	@ModelAttribute("command")
-	public ExpedientTascaReassignarCommand populateCommand(
-			@RequestParam(value = "tascaId", required = false) String tascaId) {
-		
-		ExpedientTascaReassignarCommand command = new ExpedientTascaReassignarCommand();
-		if (tascaId != null) {
-			command.setTaskId(tascaId);
-		}
-		
-		return command;
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", 
-			method = RequestMethod.GET)
-	public String tramitar(HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			@PathVariable String tascaId, Model model) {
-		return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/reasignarForm";
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reasignarForm", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.GET)
 	public String tascaReassignarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -82,8 +60,6 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	        			expedient,
 	        			tascaId,
 	        			model);
-				// TODO
-				// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 				return "v3/expedient/tasca/reassignar";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
@@ -100,7 +76,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "submit", required = false) String submit,
-			@ModelAttribute("command") ExpedientTascaReassignarCommand command,
+			ExpedientTascaReassignarCommand expedientTascaReassignarCommand,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
@@ -109,39 +85,34 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarOReassignarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
-					new TascaReassignarValidator().validate(command, result);
+					new TascaReassignarValidator().validate(expedientTascaReassignarCommand, result);
 			        if (result.hasErrors()) {
 			        	atributsModel(
 			        			entorn,
 			        			expedient,
 			        			tascaId,
 			        			model);
-			        	// TODO
-			    		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-
 						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 			        	return "v3/expedient/tasca/reassignar";
 			        }
 					try {
 						expedientService.reassignarTasca(
 								entorn.getId(),
-								command.getTaskId(),
-								command.getExpression());
+								expedientTascaReassignarCommand.getTaskId(),
+								expedientTascaReassignarCommand.getExpression());
 						MissatgesHelper.info(request, getMessage(request, "info.tasca.reassignada"));
 					} catch (Exception ex) {
 						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 							MissatgesHelper.error(request, getMessage(request, ex.getCause().getMessage()));
 						} else {
-							MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { command.getTaskId() } ));
+							MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { expedientTascaReassignarCommand.getTaskId() } ));
 						}
 						atributsModel(
 			        			entorn,
 			        			expedient,
 			        			tascaId,
 			        			model);
-			        	logger.error("No s'ha pogut reassignar la tasca " + command.getTaskId(), ex);
-			        	// TODO
-			    		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
+			        	logger.error("No s'ha pogut reassignar la tasca " + expedientTascaReassignarCommand.getTaskId(), ex);
 			        	return "v3/expedient/tasca/reassignar";
 					}
 				}
@@ -171,7 +142,12 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			String tascaId,
 			ModelMap model) {
 		ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
-    	
+		
+		ExpedientTascaReassignarCommand expedientTascaReassignarCommand = new ExpedientTascaReassignarCommand();
+		if (tascaId != null) {
+			expedientTascaReassignarCommand.setTaskId(tascaId);
+		}
+		model.addAttribute(expedientTascaReassignarCommand);
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("arbreProcessos",expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));

@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
 <!DOCTYPE html>
 <html lang="es">
@@ -193,7 +194,7 @@ body {
 				</div>
 			</c:if>
 			<div class="panel-body">
-				<div class="contingut-alertes"></div>
+				<div id="contingut-alertes"><hel:missatges/></div>
 				<decorator:body />
 			</div>
 		</div>
@@ -208,7 +209,7 @@ body {
 body {background-image:none;}
 </style>
 	<div class="row-fluid container">
-		<jsp:include page="../v3/missatges.jsp"/>
+		<div id="contingut-alertes"><hel:missatges/></div>
 		<decorator:body />
 	</div>
 </c:otherwise>

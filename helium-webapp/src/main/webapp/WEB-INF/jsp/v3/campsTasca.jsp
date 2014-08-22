@@ -17,10 +17,10 @@
 <c:if test="${!dada.readOnly && !tasca.validada}">
 	<div class="controls<c:if test="${not empty campErrors}"> error</c:if>">
 		<c:if test="${dada.campTipus == 'STRING'}">
-			<input placeholder="${dada.campEtiqueta}" type="text" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="span11" ${obligatorio}/>
+			<input placeholder="${dada.campEtiqueta}" type="text" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="form-control span11" ${obligatorio}/>
 		</c:if>
 		<c:if test="${dada.campTipus == 'TEXTAREA'}">
-			<textarea placeholder="${dada.campEtiqueta}" id="${campCodi}" name="${campCodi}" class="span11" ${obligatorio}>${dada.text}</textarea>
+			<textarea placeholder="${dada.campEtiqueta}" id="${campCodi}" name="${campCodi}" class="form-control span11" ${obligatorio}>${dada.text}</textarea>
 		</c:if>
 		<c:if test="${dada.campTipus == 'SUGGEST'}">
 			<c:set var="extraParams">taskId:'${tasca.tascaId}',campId:'${dada.campId}',valors:function(){return canvisSelectValorsAddicionals}</c:set>
@@ -86,13 +86,13 @@
 			</button>
 		</c:if>
 		<c:if test="${dada.campTipus == 'INTEGER'}">
-			<input placeholder="${dada.campEtiqueta}" type="number" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="span11" style="text-align:right" ${obligatorio}/>
+			<input placeholder="${dada.campEtiqueta}" type="number" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="form-control span11" style="text-align:right" ${obligatorio}/>
 		</c:if>
 		<c:if test="${dada.campTipus == 'FLOAT'}">
-			<input placeholder="${dada.campEtiqueta}" type="number" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="span11" style="text-align:right" ${obligatorio}/>
+			<input placeholder="${dada.campEtiqueta}" type="number" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="form-control span11" style="text-align:right" ${obligatorio}/>
 		</c:if>
 		<c:if test="${dada.campTipus == 'PRICE'}">
-			<input placeholder="${dada.campEtiqueta}" type="text" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="span11" style="text-align:right" ${obligatorio}/>
+			<input placeholder="${dada.campEtiqueta}" type="text" id="${campCodi}" name="${campCodi}" value="${dada.text}" class="form-control span11" style="text-align:right" ${obligatorio}/>
 			<script>
 				$("#${dada.varCodi}").priceFormat({
 					prefix: '',
@@ -116,7 +116,7 @@
 			<input type="checkbox" id="${campCodi}" name="${campCodi}" <c:if test="${dada.varValor}"> checked="checked"</c:if> ${obligatorio}/>
 		</c:if>
 		<c:if test="${dada.campTipus == 'SELECCIO'}">
-			<select id="${campCodi}" name="${campCodi}" class="span11"><option value="" <c:if test="${dada.varValor == '' || empty dada.varValor}"> selected="selected"</c:if>>&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option></select>
+			<select id="${campCodi}" name="${campCodi}" class="form-control span11"><option value="" <c:if test="${dada.varValor == '' || empty dada.varValor}"> selected="selected"</c:if>>&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option></select>
 			<script>
 		       	$.ajax({
 				    url: 'camp/${dada.campId}/valorsSeleccio',

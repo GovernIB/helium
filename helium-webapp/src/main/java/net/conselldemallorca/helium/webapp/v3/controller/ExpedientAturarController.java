@@ -43,9 +43,9 @@ public class ExpedientAturarController extends BaseExpedientController {
 
 	@RequestMapping(value = "/{expedientId}/stop", method = RequestMethod.GET)
 	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		// TODO
-		// NodecoHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);
+		ExpedientEinesAturarCommand aturarExpedient = new ExpedientEinesAturarCommand();
+		model.addAttribute(aturarExpedient);
 		return "v3/expedient/aturar";
 	}
 
@@ -64,14 +64,18 @@ public class ExpedientAturarController extends BaseExpedientController {
 			if (potModificarExpedient(expedient)) {
 				if (!expedient.isAturat()) {
 					new ExpedientAturarValidator().validate(aturarExpedient, result);
-					if (!result.hasErrors()) {
-						try {
-							expedientService.aturar(expedientId, aturarExpedient.getMotiu());
-							MissatgesHelper.info(request, getMessage(request, "info.expedient.aturat"));
-						} catch (Exception ex) {
-							MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
-							ex.getLocalizedMessage();
-						}
+					if (result.hasErrors()) {
+						MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+						model.addAttribute("expedientId", expedientId);
+						model.addAttribute(aturarExpedient);
+						return "v3/expedient/aturar";
+					}
+					try {
+						expedientService.aturar(expedientId, aturarExpedient.getMotiu());
+						MissatgesHelper.info(request, getMessage(request, "info.expedient.aturat"));
+					} catch (Exception ex) {
+						MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
+						ex.getLocalizedMessage();
 					}
 				} else {
 					MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.aturat"));

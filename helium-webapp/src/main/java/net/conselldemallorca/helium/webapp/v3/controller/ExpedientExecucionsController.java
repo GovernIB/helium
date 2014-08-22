@@ -28,7 +28,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,16 +55,11 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 	@Resource
 	private JbpmHelper jbpmHelper;
 
-	@ModelAttribute("scriptCommand")
-	public ExpedientEinesScriptCommand populateScriptCommand() {
-		return new ExpedientEinesScriptCommand();
-	}
-
 	@RequestMapping(value = "/{expedientId}/execucions", method = RequestMethod.GET)
 	public String execucions(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
-		// TODO
-		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);
+		ExpedientEinesScriptCommand expedientEinesScriptCommand = new ExpedientEinesScriptCommand();
+		model.addAttribute(expedientEinesScriptCommand);
 		return "v3/expedient/execucions";
 	}
 
@@ -74,28 +68,30 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model, 
-			@ModelAttribute("scriptCommand") 
-			ExpedientEinesScriptCommand command, 
+			ExpedientEinesScriptCommand expedientEinesScriptCommand, 
 			BindingResult result, 
 			SessionStatus status) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
-				new ExpedientScriptValidator().validate(command, result);
-				if (!result.hasErrors()) {
-					try {
-						jbpmHelper.evaluateScript(
-								expedient.getProcessInstanceId(),
-								command.getScript(),
-								null);
-						MissatgesHelper.info(request, getMessage(request, "info.script.executat"));
-					} catch (Exception ex) {
-						Long entornId = entorn.getId();
-						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
-						MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ command.getScript());
-			        }
+				new ExpedientScriptValidator().validate(expedientEinesScriptCommand, result);
+				if (result.hasErrors()) {
+					model.addAttribute("expedientId", expedientId);
+					model.addAttribute(expedientEinesScriptCommand);
+					return "v3/expedient/execucions";
 				}
+				try {
+					jbpmHelper.evaluateScript(
+							expedient.getProcessInstanceId(),
+							expedientEinesScriptCommand.getScript(),
+							null);
+					MissatgesHelper.info(request, getMessage(request, "info.script.executat"));
+				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
+					MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ expedientEinesScriptCommand.getScript());
+		        }
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
 			}

@@ -8,7 +8,7 @@
 		<spring:hasBindErrors name="${attributeName}">
 			<c:if test="${not empty errors.globalErrors}">
 				<c:forEach var="error" items="${errors.globalErrors}">
-					<div class="alert alert-error">
+					<div class="alert alert-danger">
 						<button class="close" data-dismiss="alert">×</button>
 						<spring:message message="${error}"/>
 					</div>
@@ -22,7 +22,7 @@
 		"sessionErrors",
 		session.getAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_ERROR));%>
 <c:forEach var="text" items="${sessionErrors}">
-	<div class="alert alert-error">
+	<div class="alert alert-danger">
 		<button class="close" data-dismiss="alert">×</button>
 		${text}
 	</div>

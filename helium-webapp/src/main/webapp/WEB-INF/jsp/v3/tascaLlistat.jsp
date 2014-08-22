@@ -1,13 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
-	<title><fmt:message key="index.inici" /></title>
+	<title><spring:message code="index.inici" /></title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
@@ -99,20 +99,6 @@ function confirmarAlliberar(e) {
 				</div>
 				<div class="col-md-3">
 					<hel:inputSelect name="expedientTipusId" text="Tipus d'expedient" placeholder="Tipus d'expedient" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
-					<%--c:set var="campPath" value="expedientTipusId"/>
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<c:choose>
-						<c:when test="${not empty expedientTipusActual}">
-							<input type="hidden" id="${campPath}" name="${campPath}" value="${expedientTipusActual.id}"/>
-							<input type="text" name="${campPath}_actual" value="${expedientTipusActual.nom}" class="span12" disabled="disabled"/>
-						</c:when>
-						<c:otherwise>
-							<form:select path="${campPath}" cssClass="span12">
-								<option value="">Tipus d'expedient</option>
-								<form:options items="${expedientTipusAccessibles}" itemLabel="nom" itemValue="id"/>
-							</form:select>
-						</c:otherwise>
-					</c:choose--%>
 				</div>
 			</div>
 			<div class="row">
@@ -232,40 +218,42 @@ function confirmarAlliberar(e) {
 			</tr>
 		</thead>
 	</table>
-<script type="text/javascript">
-$('#taulaDades a').click(function() {
-	if ($(this).data('tramitar-modal')) {
-		$('#tasca-tramitacio-modal').heliumModal({
-			modalUrl: $(this).attr('href'),
-			refrescarTaula: false,
-			refrescarAlertes: false,
-			refrescarPagina: false,
-			adjustWidth: false,
-			adjustHeight: true,
-			maximize: true,
-			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-			valignTop: true,
-			buttonContainerId: 'formFinalitzar',
+	<script type="text/javascript">
+		// <![CDATA[
+		$('#taulaDades a').click(function() {
+			if ($(this).data('tramitar-modal')) {
+				$('#tasca-tramitacio-modal').heliumModal({
+					modalUrl: $(this).attr('href'),
+					refrescarTaula: false,
+					refrescarAlertes: false,
+					refrescarPagina: false,
+					adjustWidth: false,
+					adjustHeight: true,
+					maximize: true,
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+					valignTop: true,
+					buttonContainerId: 'formFinalitzar',
+				});
+				return false;
+			} else if ($(this).data('reasignar-modal')) {
+				$('#tasca-reasignar-modal').heliumModal({
+					modalUrl: $(this).attr('href'),
+					refrescarTaula: false,
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					adjustWidth: false,
+					adjustHeight: true,
+					maximize: true,
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+					valignTop: true,
+					buttonContainerId: 'formReasignar'
+				});
+				return false;
+			} else {
+				return true;
+			}
 		});
-		return false;
-	} else if ($(this).data('reasignar-modal')) {
-		$('#tasca-reasignar-modal').heliumModal({
-			modalUrl: $(this).attr('href'),
-			refrescarTaula: false,
-			refrescarAlertes: true,
-			refrescarPagina: false,
-			adjustWidth: false,
-			adjustHeight: true,
-			maximize: true,
-			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-			valignTop: true,
-			buttonContainerId: 'formReasignar'
-		});
-		return false;
-	} else {
-		return true;
-	}
-});
-</script>
+		//]]>
+	</script>
 </body>
 </html>

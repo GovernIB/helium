@@ -84,8 +84,6 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model)  {
-		// TODO
-		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
@@ -113,17 +111,21 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
 				new ExpedientEditarValidator().validate(command, result);
-				if (!result.hasErrors()) {
-					try {
-						expedientService.editar(entorn.getId(), command.getExpedientId(), command.getNumero(), command.getTitol(), command.getResponsableCodi(), command.getDataInici(), command.getComentari(), command.getEstatId(), command.getGeoPosX(), command.getGeoPosY(), command.getGeoReferencia(), command.getGrupCodi());
-						MissatgesHelper.info(request, getMessage(request, "info.informacio.modificat"));
-					} catch (Exception ex) {
-						Long entornId = entorn.getId();
-						String numeroExpedient = expedient.getIdentificador();
-						logger.error("ENTORNID:" + entornId + " NUMEROEXPEDIENT:" + numeroExpedient + " No s'han pogut modificar les dades de l'expedient", ex);
-						MissatgesHelper.error(request, getMessage(request, "error.modificar.dades.exp"));
-						return "expedient/editar";
-					}
+				if (result.hasErrors()) {
+					model.addAttribute("estats", dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId()));
+					model.addAttribute("expedient", expedient); 
+					model.addAttribute(command);
+					return "v3/expedient/modificarInformacio";
+				}
+				try {
+					expedientService.editar(entorn.getId(), command.getExpedientId(), command.getNumero(), command.getTitol(), command.getResponsableCodi(), command.getDataInici(), command.getComentari(), command.getEstatId(), command.getGeoPosX(), command.getGeoPosY(), command.getGeoReferencia(), command.getGrupCodi());
+					MissatgesHelper.info(request, getMessage(request, "info.informacio.modificat"));
+				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = expedient.getIdentificador();
+					logger.error("ENTORNID:" + entornId + " NUMEROEXPEDIENT:" + numeroExpedient + " No s'han pogut modificar les dades de l'expedient", ex);
+					MissatgesHelper.error(request, getMessage(request, "error.modificar.dades.exp"));
+					return "expedient/editar";
 				}
 			} else {
 				MissatgesHelper.info(request, getMessage(request, "error.permisos.modificar.expedient"));

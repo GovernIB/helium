@@ -247,3 +247,9 @@
 		});
 	};
 }(jQuery));
+
+function modalTancarIRefrescar(iframe) {
+	$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
+	$(iframe).parent().parent().parent().parent().modal('hide');
+	window.parent.location.reload();
+}

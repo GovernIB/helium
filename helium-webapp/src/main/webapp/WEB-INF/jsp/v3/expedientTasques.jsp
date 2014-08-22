@@ -47,7 +47,7 @@
 										<c:if test="${tasca.completed}">
 											<span class="label label-success" title="Finalitzada">FI</span>
 										</c:if>
-										<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+										<c:if test="${tasca.agafada}">
 											<span class="label label-default" title="Agafada">AG</span>
 										</c:if>
 									</div>
@@ -73,7 +73,7 @@
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-													<li><a data-tramitar-modal="true" href="../../v3/tasca/${expedientId}/${tasca.id}/tramitar"><span class="fa fa-folder-open"></span> Tramitar</a></li>
+													<li><a data-tramitar-modal="true" href="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"><span class="fa fa-folder-open"></span> Tramitar</a></li>
 													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
@@ -193,14 +193,6 @@
 		} else if ($(this).data('reasignar-modal')) {
 			$('#tasca-reasignar-modal').heliumModal({
 				modalUrl: $(this).attr('href'),
-				refrescarTaula: false,
-				refrescarAlertes: true,
-				refrescarPagina: false,
-				adjustWidth: false,
-				adjustHeight: true,
-				maximize: true,
-				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-				valignTop: true,
 				buttonContainerId: 'formReasignar'
 			});
 			return false;
