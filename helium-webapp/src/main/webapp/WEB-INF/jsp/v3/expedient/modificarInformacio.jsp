@@ -37,19 +37,7 @@
 			<hel:inputDate name="dataInici" textKey="expedient.consulta.datainici" placeholderKey="expedient.consulta.datainici" placeholder="dd/MM/yyyy HH:mm"/>
 		</div>
 		<div class="control-group fila_reducida">
-			<div class="form-group">
-				<label class="control-label col-xs-4" for="responsableCodi"><spring:message code='expedient.editar.responsable' /></label>
-				<div class="col-xs-8">
-					<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="responsableCodi"/>
-						<c:param name="type" value="suggest"/>
-						<c:param name="label"><spring:message code='expedient.editar.responsable' /></c:param>
-						<c:param name="suggestUrl"><c:url value="persona/suggest"/></c:param>
-						<c:param name="suggestText">${expedientEditarCommand.responsableNomSencer}</c:param>
-						<c:param name="value" value="${expedientEditarCommand.responsableCodi}"/>
-					</c:import>
-				</div>
-			</div>
+			<hel:inputSuggest name="responsableCodi" urlConsultaInicial="persona/suggest" urlConsultaLlistat="persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 		</div>
 		<div class="control-group fila_reducida">
 			<hel:inputTextarea name="comentari" textKey="expedient.editar.comentari" placeholderKey="expedient.editar.comentari"/>

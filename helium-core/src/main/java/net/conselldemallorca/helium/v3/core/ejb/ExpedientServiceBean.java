@@ -211,14 +211,14 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
-		return delegate.getLogsPerTascaOrdenatsPerData(expedient);
+	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, String piId) {
+		return delegate.getLogsPerTascaOrdenatsPerData(expedient, piId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
-		return delegate.getLogsOrdenatsPerData(expedient);
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient, String piId) {
+		return delegate.getLogsOrdenatsPerData(expedient, piId);
 	}
 
 	@Override
@@ -397,5 +397,11 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void changeProcessInstanceVersion(String id, int versio) {
 		delegate.changeProcessInstanceVersion(id, versio);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Object evaluateScript(String processInstanceId, String script, String outputVar) {
+		return delegate.evaluateScript(processInstanceId, script, outputVar);
 	}
 }

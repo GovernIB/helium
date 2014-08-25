@@ -3,10 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -51,9 +49,6 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 	
 	@Autowired
 	private PluginService pluginService;
-	
-	@Resource
-	private JbpmHelper jbpmHelper;
 
 	@RequestMapping(value = "/{expedientId}/execucions", method = RequestMethod.GET)
 	public String execucions(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
@@ -82,7 +77,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 					return "v3/expedient/execucions";
 				}
 				try {
-					jbpmHelper.evaluateScript(
+					expedientService.evaluateScript(
 							expedient.getProcessInstanceId(),
 							expedientEinesScriptCommand.getScript(),
 							null);

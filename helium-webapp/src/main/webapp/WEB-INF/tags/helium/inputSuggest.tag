@@ -65,10 +65,10 @@ $(document).ready(function() {
 	    },
 	    initSelection: function(element, callback) {
 	    	if ($(element).val()) {
-		    	$.ajax("${urlConsultaInicial}/" + $(element).val(), {
+	    		return $.ajax("${urlConsultaInicial}/" + $(element).val(), {
 	                dataType: "json"
 	            }).done(function(data) {
-	            	callback({id: data.codi, text: data.nom});
+	            	callback({id: data[0].codi, text: data[0].nom});
 	            });
 	    	}
 	    },

@@ -164,7 +164,6 @@ function confirmarCancelar(e) {
 				adjustWidth: false,
 				adjustHeight: true,
 				maximize: true,
-				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 				valignTop: true,
 				buttonContainerId: 'formButtons'
 			});

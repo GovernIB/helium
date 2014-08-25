@@ -3,9 +3,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <html>
 	<head>
 		<title><spring:message code="expedient.log.accions.llistat"/></title>
+		<hel:modalHead/>
 	</head>
 	<body>
 		<br/>

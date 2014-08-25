@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -81,7 +84,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
-		return "/v3/utils/modalTancar";
+		return modalUrlTancar();
 	}
 
 	@RequestMapping(value = "/{expedientId}/relacioDelete", method = RequestMethod.POST)
@@ -113,20 +116,25 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/expedient/suggest", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/expedient/suggest/{text}", method = RequestMethod.GET)
+	@ResponseBody
 	public String suggestAction(
 			HttpServletRequest request,
-			@RequestParam(value = "q", required = true) String text,
+			@PathVariable String text,
 			ModelMap model) {
+		String json = "[";
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
-			model.addAttribute(
-					"expedients",
-					expedientService.findAmbEntornLikeIdentificador(
-							entorn.getId(),
-							text));
+			List<ExpedientDto> lista = expedientService.findAmbEntornLikeIdentificador(
+					entorn.getId(),
+					text);
+			for (ExpedientDto expediente: lista) {
+				json += "{\"codi\":\"" + expediente.getId() + "\", \"nom\":\"" + expediente.getIdentificador() + "\"},";
+			}
+			if (json.length() > 1) json = json.substring(0, json.length() - 1);
 		}
-		return "expedient/suggest";
+		json += "]";
+		return json;
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientExecucionsController.class);

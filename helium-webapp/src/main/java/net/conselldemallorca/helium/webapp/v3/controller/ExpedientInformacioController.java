@@ -3,6 +3,10 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -17,6 +21,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -24,11 +29,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -46,12 +53,25 @@ public class ExpedientInformacioController extends BaseExpedientController {
 	@Autowired
 	private PluginService pluginService;
 
-	@RequestMapping(value = "/{expedientId}/persona/suggest", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/persona/suggest/{text}", method = RequestMethod.GET)
+	@ResponseBody
 	public String suggestAction(
-			@RequestParam(value = "q", required = true) String text, 
+			@PathVariable String text,
 			ModelMap model) {
-		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
-		return "persona/suggest";
+		List<PersonaDto> lista = pluginService.findPersonaLikeNomSencer(text);
+		if (lista.isEmpty()) {
+			PersonaDto pers = pluginService.findPersonaAmbCodi(text);
+			if (pers != null) {
+				lista.add(pers);
+			}
+		}
+		String json = "[";
+		for (PersonaDto persona: lista) {
+			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
 	}
 	
 	public ExpedientEditarCommand populateCommand(ExpedientDto expedient) {		
@@ -125,7 +145,6 @@ public class ExpedientInformacioController extends BaseExpedientController {
 					String numeroExpedient = expedient.getIdentificador();
 					logger.error("ENTORNID:" + entornId + " NUMEROEXPEDIENT:" + numeroExpedient + " No s'han pogut modificar les dades de l'expedient", ex);
 					MissatgesHelper.error(request, getMessage(request, "error.modificar.dades.exp"));
-					return "expedient/editar";
 				}
 			} else {
 				MissatgesHelper.info(request, getMessage(request, "error.permisos.modificar.expedient"));
@@ -134,6 +153,13 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
 		return modalUrlTancar();
+	}
+
+	@InitBinder
+	public void bindingPreparation(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 
 	private class ExpedientEditarValidator implements Validator {

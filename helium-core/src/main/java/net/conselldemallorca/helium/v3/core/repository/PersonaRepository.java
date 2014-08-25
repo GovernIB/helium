@@ -22,6 +22,6 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
 
 	public Persona findByCodi(String codi);
 
-	@Query("select e from Persona e where nomSencer like '%'||:nomSencer||'%'")
+	@Query("select e from Persona e where UPPER(nomSencer) like '%'||UPPER(:nomSencer)||'%'")
 	List<Persona> findLikeNomSencer(@Param("nomSencer") String nomSencer);
 }

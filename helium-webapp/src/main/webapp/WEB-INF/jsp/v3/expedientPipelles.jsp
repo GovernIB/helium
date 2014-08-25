@@ -59,6 +59,7 @@
 	margin-top: 4em;
 	text-align: center;
 }
+.formRelacioDelete {float: right;}
 </style>
 <script>
 	$(document).ready(function() {
@@ -298,15 +299,15 @@
 					<ul class="list-unstyled">
 						<c:forEach var="expedientRelacionat" items="${relacionats}">
 							<li>
-								<span class="fa fa-user"></span>&nbsp;
+								<span class="fa fa-file-text-o"></span>&nbsp;
 								<a href="${expedientRelacionat.id}">${expedientRelacionat.identificador}</a>
-								<security:accesscontrollist domainObject="${expedientRelacionat.tipus}" hasPermission="16,8">
+<%-- 								<security:accesscontrollist domainObject="${expedientRelacionat.tipus}" hasPermission="16,8"> --%>
 									<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
 										<input type="hidden" id="expedientIdOrigen" name="expedientIdOrigen" value="${expedientId}"/>
 										<input type="hidden" id="expedientIdDesti" name="expedientIdDesti" value="${expedientRelacionat.id}"/>
 										<span class="fa fa-trash-o" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span>
 									</form>
-								</security:accesscontrollist>
+<%-- 								</security:accesscontrollist> --%>
 							</li>
 						</c:forEach>
 					</ul>
@@ -391,7 +392,7 @@
 				$('#expedient-aturar-modal').heliumModal({
 					modalUrl: $(this).attr('href'),
 					valignTop: true,
-					buttonContainerId: 'formButtons'
+					buttonContainerId: 'modal-botons'
 				});
 				return false;
 			} else if ($(this).data('exec-modal')) {

@@ -340,7 +340,7 @@ public class VariableHelper {
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
 		} else {
 			dto.setCampEtiqueta(varCodi);
-			dto.setText((String) varValor);
+			dto.setText(String.valueOf(varValor));
 			dto.setCampTipus(CampTipusDto.STRING);
 		}
 		boolean esCampTipusAccio = camp != null && TipusCamp.ACCIO.equals(camp.getTipus());

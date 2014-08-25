@@ -67,9 +67,9 @@ public class ExpedientRegistroController extends BaseExpedientController {
 						expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
 				List<ExpedientLogDto> logs = null;
 				if (tipus_retroces == null || tipus_retroces != 0) {
-					logs = expedientService.getLogsPerTascaOrdenatsPerData(expedient);
+					logs = expedientService.getLogsPerTascaOrdenatsPerData(expedient, expedient.getProcessInstanceId());
 				} else {
-					logs = expedientService.getLogsOrdenatsPerData(expedient);
+					logs = expedientService.getLogsOrdenatsPerData(expedient, expedient.getProcessInstanceId());
 				}
 				if (logs == null || logs.isEmpty()) {
 					model.addAttribute(
@@ -81,8 +81,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 					Iterator<ExpedientLogDto> itLogs = logs.iterator();
 					while (itLogs.hasNext()) {
 						ExpedientLogDto log = itLogs.next();
-						if ("RETROCEDIT".equals(log.getEstat()) ||
-								"RETROCEDIT_TASQUES".equals(log.getEstat()))
+						if ("RETROCEDIT".equals(log.getEstat()) || "RETROCEDIT_TASQUES".equals(log.getEstat()) || ("EXPEDIENT_MODIFICAR".equals(log.getAccioTipus()) && (tipus_retroces == null || tipus_retroces != 0)))
 							itLogs.remove();
 					}
 					model.addAttribute("logs", logs);

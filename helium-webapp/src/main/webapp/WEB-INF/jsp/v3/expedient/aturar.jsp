@@ -16,7 +16,7 @@
 		<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmar(event)">
 			<hel:inputTextarea required="true" name="motiu" textKey="expedient.eines.motiu" placeholderKey="expedient.eines.motiu"/>
 		
-			<div id="formButtons" class="well">
+			<div id="modal-botons" class="well">
 				<button type="button" class="modal-tancar btn" name="submit" value="cancel">
 					<spring:message code='comuns.cancelar' />
 				</button>

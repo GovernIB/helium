@@ -197,9 +197,9 @@ public interface ExpedientService {
 
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
 
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient);
+	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, String piId);
 
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient);
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient, String piId);
 
 	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId);
 
@@ -271,4 +271,5 @@ public interface ExpedientService {
 
 	public void changeProcessInstanceVersion(String id, int versio);
 
+	public Object evaluateScript(String processInstanceId, String script, String outputVar);
 }

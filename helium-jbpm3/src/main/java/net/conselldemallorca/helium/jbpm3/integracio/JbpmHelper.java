@@ -920,7 +920,7 @@ public class JbpmHelper {
 		resultat = (Map<String,Object>)executeCommandWithAutoSave(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);;
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 		adminService.mesuraCalcular("jBPM evaluateScript", "jbpmDao");
 		return resultat;
 	}

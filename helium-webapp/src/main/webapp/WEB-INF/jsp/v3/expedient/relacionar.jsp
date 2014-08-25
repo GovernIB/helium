@@ -4,27 +4,22 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <html>
 	<head>
-		<title>Relacionar expediente</title>
+		<title><spring:message code="expedient.info.relacionats"/></title>
 		<c:import url="../common/formIncludes.jsp"/>
+		<hel:modalHead/>
+		<style>
+			.col-xs-4 {width: auto;}
+			.col-xs-8 {width: 100%;padding-bottom: 100px;}
+			#select2-drop{left: 15px !important;}
+		</style>
 	</head>
 	<body>		
 <form:form id="relacionarExpediente" name="relacionarExpedient" action="relacionarExpediente" method="post" commandName="relacionarCommand" cssClass="uniForm">
-	<div class="inlineLabels">
-		<div class="control-group">
-			<label class="control-label"><spring:message code='expedient.info.relacionar.amb'/></label>
-			<div class="controls">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="expedientIdDesti"/>
-					<c:param name="type" value="suggest"/>
-					<c:param name="label"></c:param>
-					<c:param name="suggestUrl"><c:url value="expedient/suggest"/></c:param>
-				</c:import>
-			</div>
-		</div>
-	</div>
+	<hel:inputSuggest name="expedientIdDesti" urlConsultaLlistat="expedient/suggest" urlConsultaInicial="expedient/suggest" textKey="expedient.info.relacionar.amb" placeholderKey="expedient.info.relacionar.amb"/>
 	<div id="formButtons">
 		<button type="button" class="modal-tancar btn" name="submit" value="cancel">
 			<spring:message code='comuns.cancelar' />
