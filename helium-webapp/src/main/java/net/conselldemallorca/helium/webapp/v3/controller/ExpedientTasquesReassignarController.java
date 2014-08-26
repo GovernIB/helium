@@ -96,10 +96,11 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			        	return "v3/expedient/tasca/reassignar";
 			        }
 					try {
-						expedientService.reassignarTasca(
+						// TODO
+						/*expedientService.reassignarTasca(
 								entorn.getId(),
 								expedientTascaReassignarCommand.getTaskId(),
-								expedientTascaReassignarCommand.getExpression());
+								expedientTascaReassignarCommand.getExpression());*/
 						MissatgesHelper.info(request, getMessage(request, "info.tasca.reassignada"));
 					} catch (Exception ex) {
 						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -150,8 +151,9 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		model.addAttribute(expedientTascaReassignarCommand);
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("tasca", tasca);
-		model.addAttribute("arbreProcessos",expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));
-		model.addAttribute("instanciaProces",expedientService.getInstanciaProcesById(tasca.getProcessInstanceId()));
+		// TODO
+		/*model.addAttribute("arbreProcessos",expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));
+		model.addAttribute("instanciaProces",expedientService.getInstanciaProcesById(tasca.getProcessInstanceId()));*/
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);

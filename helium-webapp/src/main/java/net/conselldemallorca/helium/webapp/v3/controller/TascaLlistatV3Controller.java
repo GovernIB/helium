@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @Controller
 @RequestMapping("/v3/tasca")
-public class TascaLlistatControllerV3 extends BaseExpedientController {
+public class TascaLlistatV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private TascaService tascaService;
@@ -114,7 +114,7 @@ public class TascaLlistatControllerV3 extends BaseExpedientController {
 				filtreCommand);
 		return PaginacioHelper.getPaginaPerDatatables(
 				request,
-				tascaService.findTasquesConsultaFiltre(
+				tascaService.findPerFiltrePaginat(
 						entornActual.getId(),
 						filtreCommand.getExpedientTipusId(),
 						request.getUserPrincipal().getName(),

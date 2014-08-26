@@ -19,7 +19,6 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -48,7 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientInicioController extends BaseExpedientController {
+public class ExpedientIniciController extends BaseExpedientController {
 
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
@@ -116,7 +115,7 @@ public class ExpedientInicioController extends BaseExpedientController {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(expedientTipus)) {
 				netejarSessio(request);
-				request.getSession().setAttribute(ExpedientInicioController.CLAU_SESSIO_TASKID,"TIE_" + System.currentTimeMillis());
+				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID,"TIE_" + System.currentTimeMillis());
 				
 				// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
 				DefinicioProcesDto definicioProces = null;
@@ -141,11 +140,12 @@ public class ExpedientInicioController extends BaseExpedientController {
 					ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
 					command.setAny(Calendar.getInstance().get(Calendar.YEAR));
 					command.setExpedientTipusId(expedientTipusId);
-					command.setNumero(
+					// TODO
+					/*command.setNumero(
 							expedientService.getNumeroExpedientActual(
 									entorn.getId(),
 									expedientTipus,
-									command.getAny()));
+									command.getAny()));*/
 					command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 					command.setEntornId(entorn.getId());
 					model.addAttribute(command);
@@ -159,7 +159,7 @@ public class ExpedientInicioController extends BaseExpedientController {
 					try {
 						ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProces.getId());
 						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-					    ExpedientInicioController.netejarSessio(request);
+					    ExpedientIniciController.netejarSessio(request);
 					} catch (Exception ex) {
 						MissatgesHelper.error( request, getMessage(request, "error.iniciar.expedient"));
 			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
@@ -191,22 +191,23 @@ public class ExpedientInicioController extends BaseExpedientController {
 		Enumeration<String> atributs = request.getSession().getAttributeNames();
 		while (atributs.hasMoreElements()) {
 			String atribut = atributs.nextElement();
-			if (atribut.startsWith(ExpedientInicioController.CLAU_SESSIO_PREFIX_REGISTRE))
+			if (atribut.startsWith(ExpedientIniciController.CLAU_SESSIO_PREFIX_REGISTRE))
 				request.getSession().removeAttribute(atribut);
 		}
-		request.getSession().removeAttribute(ExpedientInicioController.CLAU_SESSIO_TASKID);
-		request.getSession().removeAttribute(ExpedientInicioController.CLAU_SESSIO_NUMERO);
-		request.getSession().removeAttribute(ExpedientInicioController.CLAU_SESSIO_TITOL);
-		request.getSession().removeAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALIDAT);
-		request.getSession().removeAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_COMMAND);
-		request.getSession().removeAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALORS);
+		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID);
+		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL);
+		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT);
+		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_COMMAND);
+		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 	}
 
 	private synchronized ExpedientDto iniciarExpedient(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
-		return expedientService.iniciar(
+		// TODO
+		/*return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
@@ -235,7 +236,8 @@ public class ExpedientInicioController extends BaseExpedientController {
 				null,
 				null,
 				null,
-				null);
+				null);*/
+		return null;
 	}
 	
 	private ExpedientTascaDto obtenirTascaInicial(
@@ -244,13 +246,15 @@ public class ExpedientInicioController extends BaseExpedientController {
 			Long definicioProcesId,
 			Map<String, Object> valors,
 			HttpServletRequest request) {
-		ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);
-		tasca.setId((String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TASKID));
-		Object validat = request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALIDAT); 
+		ExpedientTascaDto tasca = new ExpedientTascaDto();
+		// TODO
+		/*ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);*/
+		tasca.setId((String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT); 
 		if (validat != null)
 			tasca.setValidada(true);
 		return tasca;
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientInicioController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientIniciController.class);
 }

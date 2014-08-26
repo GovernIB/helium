@@ -86,7 +86,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			if (dto.getExpedientIds() != null) {
 				
 				for (Long expedientId: dto.getExpedientIds()) {
-					Expedient expedient = expedientRepository.findById(expedientId);
+					Expedient expedient = expedientRepository.findOne(expedientId);
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
 							execucioMassiva,
 							expedient,
@@ -97,7 +97,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
 					ExpedientTascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
-					Expedient expedient = expedientRepository.findById(tasca.getExpedientId());
+					Expedient expedient = expedientRepository.findOne(tasca.getExpedientId());
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
 							execucioMassiva,
 							expedient,

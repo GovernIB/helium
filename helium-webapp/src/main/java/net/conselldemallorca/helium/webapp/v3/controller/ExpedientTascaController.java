@@ -33,14 +33,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientTasquesController extends BaseExpedientController {
+public class ExpedientTascaController extends BaseExpedientController {
 
 	@Autowired
 	protected ExpedientService expedientService;
 	@Autowired
 	protected TascaService tascaService;
 
-	@RequestMapping(value = "/{expedientId}/tasques", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca", method = RequestMethod.GET)
 	public String tasques(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -54,10 +54,13 @@ public class ExpedientTasquesController extends BaseExpedientController {
 					expedientService);
 		}
 		model.addAttribute("expedientId", expedientId);
-		List<ExpedientTascaDto> tasques = expedientService.findTasquesPerExpedient(expedientId);
+		List<ExpedientTascaDto> tasques = expedientService.findTasques(
+				expedientId);
 		model.addAttribute("tasques", tasques);
-		model.addAttribute("expedientLogIds", expedientService.findLogIdTasquesById(tasques));
-		return "v3/expedientTasques";
+		/*model.addAttribute(
+				"expedientLogIds",
+				expedientService.findLogIdTasquesById(tasques));*/
+		return "v3/expedientTasca";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasquesPendents", method = RequestMethod.GET)
@@ -75,7 +78,7 @@ public class ExpedientTasquesController extends BaseExpedientController {
 		}
 		model.addAttribute(
 				"tasques",
-				expedientService.findTasquesPendentsPerExpedient(
+				expedientService.findTasquesPendents(
 						expedientId));
 		return "v3/expedientTasquesPendents";
 	}
@@ -91,7 +94,8 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
 				try {
-					expedientService.cancelarTasca(entorn.getId(), String.valueOf(tascaId));
+					// TODO
+					/*expedientService.cancelarTasca(entorn.getId(), String.valueOf(tascaId));*/
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId)} ));
 		        	logger.error("No s'ha pogut cancel·lar la tasca " + String.valueOf(tascaId), ex);
@@ -116,7 +120,8 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
 				try {
-					expedientService.suspendreTasca(entorn.getId(), String.valueOf(tascaId));
+					// TODO
+					/*expedientService.suspendreTasca(entorn.getId(), String.valueOf(tascaId));*/
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.suspendre.tasca", new Object[] {tascaId} ));
 		        	logger.error("No s'ha pogut suspendre la tasca " + tascaId, ex);
@@ -141,7 +146,8 @@ public class ExpedientTasquesController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
 				try {
-					expedientService.reprendreTasca(entorn.getId(), String.valueOf(tascaId));
+					// TODO
+					/*expedientService.reprendreTasca(entorn.getId(), String.valueOf(tascaId));*/
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.reprendre.tasca", new Object[] {tascaId} ));
 		        	logger.error("No s'ha pogut reprendre la tasca " + tascaId, ex);
@@ -178,5 +184,5 @@ public class ExpedientTasquesController extends BaseExpedientController {
 		return "redirect:/v3/expedient/"+expedientId;
 	}
 	
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientTasquesController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);
 }

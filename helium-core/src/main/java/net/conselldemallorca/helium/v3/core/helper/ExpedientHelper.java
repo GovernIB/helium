@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -12,14 +14,21 @@ import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -27,10 +36,14 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
 import org.springframework.context.MessageSource;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -74,7 +87,7 @@ public class ExpedientHelper {
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
 
-	public Expedient geExpedientComprovantPermisosAny(
+	/*public Expedient getExpedientComprovantPermisosAny(
 			Long expedientId,
 			Permission[] permisos) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
@@ -91,6 +104,96 @@ public class ExpedientHelper {
 			throw new ExpedientNotFoundException();
 		}
 		return expedient;
+	}*/
+	public Expedient getExpedientComprovantPermisos(
+			Long id,
+			boolean comprovarPermisRead,
+			boolean comprovarPermisWrite,
+			boolean comprovarPermisDelete) throws NotFoundException, NotAllowedException {
+		Expedient expedient = expedientRepository.findOne(id);
+		if (expedient == null) {
+			throw new NotFoundException(
+					id,
+					Expedient.class);
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Entorn entorn = expedient.getEntorn();
+		if (!permisosHelper.isGrantedAll(
+				entorn.getId(),
+				Entorn.class,
+				new Permission[] {
+					ExtendedPermission.READ},
+				auth)) {
+			throw new NotAllowedException(
+					id,
+					Entorn.class,
+					PermisTipusEnumDto.READ);
+		}
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		if (comprovarPermisRead) {
+			if (!permisosHelper.isGrantedAll(
+					expedientTipus.getId(),
+					ExpedientTipus.class,
+					new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION},
+					auth)) {
+				throw new NotAllowedException(
+						id,
+						Expedient.class,
+						PermisTipusEnumDto.READ);
+			}
+		}
+		if (comprovarPermisWrite) {
+			if (!permisosHelper.isGrantedAll(
+					expedientTipus.getId(),
+					Expedient.class,
+					new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION},
+					auth)) {
+				throw new NotAllowedException(
+						id,
+						Expedient.class,
+						PermisTipusEnumDto.WRITE);
+			}
+		}
+		if (comprovarPermisDelete) {
+			if (!permisosHelper.isGrantedAll(
+					expedientTipus.getId(),
+					Expedient.class,
+					new Permission[] {
+						ExtendedPermission.DELETE,
+						ExtendedPermission.ADMINISTRATION},
+					auth)) {
+				throw new NotAllowedException(
+						id,
+						Expedient.class,
+						PermisTipusEnumDto.DELETE);
+			}
+		}
+		return expedient;
+	}
+
+	public void comprovarInstanciaProces(
+			Expedient expedient,
+			String processInstanceId) {
+		if (!expedient.getProcessInstanceId().equals(processInstanceId)) {
+			List<JbpmProcessInstance> processInstanceFills = jbpmHelper.getProcessInstanceTree(
+					expedient.getProcessInstanceId());
+			boolean trobada = false;
+			for (JbpmProcessInstance processInstance: processInstanceFills) {
+				if (expedient.getProcessInstanceId().equals(processInstance.getId())) {
+					trobada = true;
+					break;
+				}
+			}
+			if (!trobada) {
+				throw new NotFoundException(
+						new Long(processInstanceId),
+						JbpmProcessInstance.class);
+			}
+		}
 	}
 
 	public Expedient findAmbEntornIId(Long entornId, Long id) {
@@ -190,7 +293,37 @@ public class ExpedientHelper {
 		}
 		return null;
 	}
+
+	public String getNumeroExpedientActual(
+			ExpedientTipus expedientTipus,
+			int any,
+			long increment) {
+		long seq = expedientTipus.getSequencia();
+		return getNumeroExpedientExpressio(
+				expedientTipus,
+				expedientTipus.getExpressioNumero(),
+				seq,
+				increment,
+				any,
+				expedientTipus.isReiniciarCadaAny(),
+				false);
+	}
 	
+	public String getNumeroExpedientDefaultActual(
+			ExpedientTipus expedientTipus,
+			int any,
+			long increment) {
+		long seq = expedientTipus.getSequenciaDefault();
+		return getNumeroExpedientExpressio(
+				expedientTipus,
+				getNumexpDefaultExpression(),
+				seq,
+				increment,
+				any,
+				expedientTipus.isReiniciarCadaAny(),
+				true);
+	}
+
 //	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
 //			Long entornId,
 //			Long consultaId,
@@ -291,7 +424,9 @@ public class ExpedientHelper {
 //		}
 //		return resposta;
 //	}
-	
+
+
+
 	private Expedient findAmbProcessInstanceId(String processInstanceId) {
 		List<Expedient> expedients = expedientRepository.findByProcessInstanceId(processInstanceId);
 		if (expedients.size() > 0) {
@@ -304,5 +439,69 @@ public class ExpedientHelper {
 		return null;
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);
+	private String getNumeroExpedientExpressio(
+			ExpedientTipus expedientTipus,
+			String expressio,
+			long seq,
+			long increment,
+			int any,
+			boolean reiniciarCadaAny,
+			boolean numeroDefault) {
+		if (reiniciarCadaAny) {
+			if (any != 0) {
+				if (numeroDefault) {
+					if (expedientTipus.getSequenciaDefaultAny().containsKey(any)) {
+						seq = expedientTipus.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment;
+					} else {
+						// TODO: podriem comprovar, segons el format del número per defecte si hi ha expedients ja creats de 
+						// l'any, i d'aquesta manera assignar com a número inicial el major utilitzat + 1
+						SequenciaDefaultAny sda = new SequenciaDefaultAny(
+								expedientTipus, any, 1L);
+						expedientTipus.getSequenciaDefaultAny().put(any, sda);
+						seq = 1;
+					}
+				} else {
+					if (expedientTipus.getSequenciaAny().containsKey(any)) {
+						seq = expedientTipus.getSequenciaAny().get(any).getSequencia() + increment;
+					} else {
+						SequenciaAny sa = new SequenciaAny(expedientTipus, any, 1L);
+						expedientTipus.getSequenciaAny().put(any, sa);
+						seq = 1;
+					}
+				}
+			}
+		} else {
+			seq = seq + increment;
+		}
+		if (expressio != null) {
+			try {
+				final Map<String, Object> context = new HashMap<String, Object>();
+				context.put("entorn_cod", expedientTipus.getEntorn().getCodi());
+				context.put("tipexp_cod", expedientTipus.getCodi());
+				context.put("any", any);
+				context.put("seq", seq);
+				ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
+				String resultat = (String)evaluator.evaluate(
+						expressio,
+						String.class,
+						new VariableResolver() {
+							public Object resolveVariable(String name)
+									throws ELException {
+								return context.get(name);
+							}
+						},
+						null);
+				return resultat;
+			} catch (Exception ex) {
+				return "#invalid expression#";
+			}
+		} else {
+			return new Long(seq).toString();
+		}
+	}
+
+	private String getNumexpDefaultExpression() {
+		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
+	}
+
 }

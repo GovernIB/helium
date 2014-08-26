@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,11 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
@@ -44,10 +40,10 @@ public class BaseExpedientController extends BaseController {
 			ExpedientService expedientService) {
 		ExpedientDto expedient = expedientService.findById(expedientId);
 		model.addAttribute("expedient", expedient);
-		model.addAttribute("participants", expedientService.findParticipantsPerExpedient(expedientId));
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
-		List<AccioDto> accions = dissenyService.findAccionsVisiblesAmbDefinicioProces(instanciaProces.getDefinicioProces().getId());
-		boolean hiHaAccionsPubliques = false;
+		model.addAttribute(
+				"participants",
+				expedientService.findParticipants(expedientId));
+		/*List<AccioDto> accions = expedientService.findAccionsVisibles(expedientId);
 		Iterator<AccioDto> it = accions.iterator();
 		while (it.hasNext()) {
 			AccioDto accio = it.next();
@@ -68,10 +64,14 @@ public class BaseExpedientController extends BaseController {
 					it.remove();
 			}
 		}
-		model.addAttribute("accions", accions);
-		model.addAttribute("hiHaAccionsPubliques", hiHaAccionsPubliques);
-		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
-		DefinicioProcesDto def = dissenyService.getById(instanciaProces.getDefinicioProces().getId());
+		model.addAttribute("accions", accions);*/
+		model.addAttribute(
+				"accions",
+				expedientService.findAccionsVisibles(expedientId));
+		model.addAttribute(
+				"relacionats",
+				expedientService.findRelacionats(expedientId));
+		/*DefinicioProcesDto def = dissenyService.getById(instanciaProces.getDefinicioProces().getId());
 		model.addAttribute("definicioProcesJbpmId",def.getId());
 		model.addAttribute("definicioProcesDescripcio",def.getEtiqueta());
 		model.addAttribute("definicionsProces",def.getJbpmIdsAmbDescripcio());
@@ -80,7 +80,7 @@ public class BaseExpedientController extends BaseController {
 		else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
-			model.addAttribute("pipellaActiva", "tasques");
+			model.addAttribute("pipellaActiva", "tasques");*/
 		return "v3/expedientPipelles";
 	}
 

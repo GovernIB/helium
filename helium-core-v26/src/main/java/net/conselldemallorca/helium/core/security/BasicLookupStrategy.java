@@ -36,7 +36,6 @@ import org.springframework.security.acls.domain.AccessControlEntryImpl;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AclImpl;
 import org.springframework.security.acls.domain.AuditLogger;
-import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -109,7 +108,7 @@ public final class BasicLookupStrategy implements LookupStrategy {
     //~ Instance fields ================================================================================================
 
     private final AclAuthorizationStrategy aclAuthorizationStrategy;
-    private PermissionFactory permissionFactory = new DefaultPermissionFactory();
+    private PermissionFactory permissionFactory = new ExtendedPermissionFactory();
     private final AclCache aclCache;
     private final PermissionGrantingStrategy grantingStrategy;
     private final JdbcTemplate jdbcTemplate;

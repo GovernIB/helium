@@ -6,14 +6,12 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -66,10 +64,12 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			@PathVariable Long entornId,
 			@PathVariable Long expedientTipusId) {
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		String number = expedientService.getNumeroExpedientActual(
+		// TODO
+		String number = "0";
+		/*String number = expedientService.getNumeroExpedientActual(
 				entornId,
 				expedientTipus,
-				anySel);
+				anySel);*/
 		return JSONValue.toJSONString(number);
 	}
 
@@ -115,7 +115,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 							expedientInicioPasTitolCommand.getTitol(),
 							expedientInicioPasTitolCommand.getAny());
 					MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-				    ExpedientInicioController.netejarSessio(request);
+				    ExpedientIniciController.netejarSessio(request);
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
 					logger.error("No s'ha pogut iniciar l'expedient", ex);
@@ -163,7 +163,8 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				boolean teTitol = (tipus.isTeNumero() && tipus.isDemanaTitol());
 				if (teTitol && (command.getTitol() == null || command.getTitol().length() == 0))
 					errors.rejectValue("titol", "not.blank");
-				if (teTitol && expedientService.existsExpedientAmbEntornTipusITitol(
+				// TODO
+				/*if (teTitol && expedientService.existsExpedientAmbEntornTipusITitol(
 						command.getEntornId(),
 						command.getExpedientTipusId(),
 						command.getTitol())) {
@@ -174,7 +175,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 						command.getExpedientTipusId(),
 						command.getNumero())) {
 					errors.rejectValue("numero", "error.expedient.numerorepetit");
-				}
+				}*/
 			}
 		}
 	}
@@ -188,7 +189,9 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			String numero,
 			String titol,
 			Integer any) {
-		Map<String, Object> valorsSessio = (Map<String, Object>)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALORS);
+		return new ExpedientDto();
+		// TODO
+		/*Map<String, Object> valorsSessio = (Map<String, Object>)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 		return expedientService.iniciar(
 				entornId,
 				null,
@@ -218,8 +221,8 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				null,
 				null,
 				null,
-				null);
+				null);*/
 	}
 
-	protected static final Log logger = LogFactory.getLog(ExpedientInicioController.class);
+	protected static final Log logger = LogFactory.getLog(ExpedientIniciController.class);
 }

@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -42,11 +40,16 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 	private ExpedientService expedientService;
 
 	@RequestMapping(value = "/{expedientId}/relacionats", method = RequestMethod.GET)
-	public String relacionarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
+	public String relacionarForm(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
 		// TODO
 		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);		
-		model.addAttribute("relacionats",expedientService.getExpedientsRelacionats(expedientId));
+		model.addAttribute(
+				"relacionats",
+				expedientService.findRelacionats(expedientId));
 		return "v3/expedient/relacionar";
 	}
 
@@ -123,7 +126,8 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			@PathVariable String text,
 			ModelMap model) {
 		String json = "[";
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		// TODO
+		/*EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			List<ExpedientDto> lista = expedientService.findAmbEntornLikeIdentificador(
 					entorn.getId(),
@@ -132,7 +136,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 				json += "{\"codi\":\"" + expediente.getId() + "\", \"nom\":\"" + expediente.getIdentificador() + "\"},";
 			}
 			if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		}
+		}*/
 		json += "]";
 		return json;
 	}

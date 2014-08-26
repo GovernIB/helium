@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -159,11 +158,12 @@ public class TascaFormValidatorHelper implements Validator {
 			if (PropertyUtils.getSimpleProperty(command, "listaDadas") != null) {
 				tascas =  (List<TascaDadaDto>) PropertyUtils.getSimpleProperty(command, "listaDadas");
 			} else {
-				Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
+				// TODO
+				/*Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
 				Long expedientTipusId = (Long) PropertyUtils.getSimpleProperty(command, "expedientTipusId");
 				Long definicioProcesId = (Long) PropertyUtils.getSimpleProperty(command, "definicioProcesId");
 				ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, null);
-				tascas = tascaService.findDadesPerTasca(tasca.getId());
+				tascas = tascaService.findDadesPerTasca(tasca.getId());*/
 			}
 			return tascas;
 		} else {
@@ -173,4 +173,5 @@ public class TascaFormValidatorHelper implements Validator {
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormValidatorHelper.class);
+
 }

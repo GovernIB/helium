@@ -19,7 +19,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -34,12 +33,10 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -545,38 +542,37 @@ public class VariableHelper {
 						}
 					}
 				}
-			} else if (camp.getConsulta() != null) {
+			}/* else if (camp.getConsulta() != null) {
 				Consulta consulta = camp.getConsulta();
 				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
 						consulta.getEntorn().getId(),
 						consulta.getId(),
 						new HashMap<String, Object>(),
 						null);
-				
 				Iterator<ExpedientConsultaDissenyDto> it = dadesExpedients.iterator();
 				while(it.hasNext()){
 					ExpedientConsultaDissenyDto exp = it.next();
 					DadaIndexadaDto valorDto = exp.getDadesExpedient().get(camp.getConsultaCampValor());
-					if(valorDto == null){
+					if (valorDto == null){
 						valorDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampValor());
 					}
-					if(valorDto != null){
+					if (valorDto != null){
 						if (valorDto.getValor().toString().equals(valor)){
 							DadaIndexadaDto textDto = exp.getDadesExpedient().get(camp.getConsultaCampText());
 							if(textDto == null){
 								textDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampText());
 							}
-							resposta.add(new ParellaCodiValorDto(
-									valorDto.getValorMostrar(),
-									textDto.getValorMostrar()
-									));
+							resposta.add(
+									new ParellaCodiValorDto(
+											valorDto.getValorMostrar(),
+											textDto.getValorMostrar()));
 							if (valor != null) {
 								break;
 							}
 						}
 					}
 				}
-			}
+			}*/
 		}
 		return resposta;
 	}

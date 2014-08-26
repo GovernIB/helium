@@ -28,6 +28,7 @@
 		<property name="basenames">
 			<list>
 				<value>classpath:net/conselldemallorca/helium/webapp/i18n/messages</value>
+				<value>classpath:net/conselldemallorca/helium/webapp/i18n/messages_v3</value>
 				<value>classpath:net/conselldemallorca/helium/webapp/i18n/errors</value>
 				<value>classpath:net/conselldemallorca/helium/webapp/i18n/displaytag</value>
 			</list>

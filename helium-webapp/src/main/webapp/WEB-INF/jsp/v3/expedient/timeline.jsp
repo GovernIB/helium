@@ -11,6 +11,14 @@
 	display: none;
 }
 </style>
+<script type="text/javascript">
+// <![CDATA[
+	Timeline_ajax_url="<c:url value="/js/timeline_2.3.0/timeline_ajax/simile-ajax-api.js"/>";
+	Timeline_urlPrefix="<c:url value="/js/timeline_2.3.0/timeline_js/"/>";       
+	Timeline_parameters="bundle=true";
+// ]]>
+</script>
+<script src="<c:url value="/js/timeline_2.3.0/timeline_js/timeline-api.js?defaultLocale=ca"/>" type="text/javascript"></script>
 
 <div id="cronograma" style="height: 400px; border: 1px solid #aaa"></div>
 

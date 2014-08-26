@@ -9,7 +9,7 @@
 
 <html>
 <head>
-	<title>Informació de l'expedient</title>
+	<title><spring:message code="expedient.info.titol"/></title>
 	<meta name="title" content="${expedient.identificador}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
@@ -233,29 +233,33 @@
 	<div class="row">
 		<div class="col-md-3">
 			<div id="expedient-info" class="well">
-				<h3>Informació</h3>
+				<h3><spring:message code="expedient.info.informacio"/></h3>
 				<dl>
 					<c:if test="${expedient.tipus.teNumero}">
-						<dt>Número</dt>
+						<dt><spring:message code="expedient.info.camp.numero"/></dt>
 						<dd>${expedient.numero}</dd>
 					</c:if>
 					<c:if test="${expedient.tipus.teTitol}">
-						<dt>Títol</dt>
+						<dt><spring:message code="expedient.info.camp.titol"/></dt>
 						<dd>${expedient.titol}</dd>
 					</c:if>
-					<dt>Tipus</dt>
+					<dt><spring:message code="expedient.info.camp.tipus"/></dt>
 					<dd>${expedient.tipus.nom}</dd>
-					<dt>Iniciat el:</dt>
-					<dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
-					<dt>Estat</dt>
+					<dt><spring:message code="expedient.info.camp.data.inici"/></dt>
+					<dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
+					<c:if test="${not empty expedient.dataFi}">
+						<dt><spring:message code="expedient.info.camp.data.fi"/></dt>
+						<dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd>
+					</c:if>
+					<dt><spring:message code="expedient.info.camp.estat"/></dt>
 					<dd>
 						<c:choose>
 							<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
-								<c:when test="${not empty expedient.dataFi}">Finalitzat</c:when>
-							<c:otherwise>Iniciat</c:otherwise>
+							<c:when test="${not empty expedient.dataFi}"><spring:message code="comu.estat.finalitzat"/></c:when>
+							<c:otherwise><spring:message code="comu.estat.iniciat"/></c:otherwise>
 						</c:choose>					
 					</dd>
-					<dt>Definició de procés</dt>
+					<dt><spring:message code="expedient.info.camp.defproc"/></dt>
 					<dd>	
 						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProcesDescripcio}"/></label>&nbsp;
@@ -286,16 +290,8 @@
 						</div>
 					</dd>
 				</dl--%>
-				<c:if test="${not empty participants}">
-					<h4 id="expedient-info-participants">Persones participants</h4>
-					<ul class="list-unstyled">
-						<c:forEach var="participant" items="${participants}">
-							<li><span class="fa fa-user"></span>&nbsp;${participant.nomSencer}</li>
-						</c:forEach>
-					</ul>
-				</c:if>
 				<c:if test="${not empty relacionats}">
-					<h4 id="expedient-info-relacionats">Expedients relacionats</h4>
+					<h4 id="expedient-info-relacionats"><spring:message code="expedient.info.relacionats"/></h4>
 					<ul class="list-unstyled">
 						<c:forEach var="expedientRelacionat" items="${relacionats}">
 							<li>
@@ -312,13 +308,21 @@
 						</c:forEach>
 					</ul>
 				</c:if>
+				<c:if test="${not empty participants}">
+					<h4 id="expedient-info-participants"><spring:message code="expedient.info.participants"/></h4>
+					<ul class="list-unstyled">
+						<c:forEach var="participant" items="${participants}">
+							<li><span class="fa fa-user"></span>&nbsp;${participant.nomSencer}</li>
+						</c:forEach>
+					</ul>
+				</c:if>
 				<div id="expedient-info-accio" class="dropdown">
-					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span> Accions <span class="caret"></span></a>
+					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a data-modificar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;Modificar informació</a></li>
-						<li><a data-aturar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/stop"/>"><span class="fa fa-stop"></span>&nbsp;Aturar tramitació</a></li>
-						<li><a data-exec-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;Executar script</a></li>
-						<li><a data-relacionar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;Relacionar</a></li>
+						<li><a data-modificar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
+						<li><a data-relacionar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
+						<li><a data-aturar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/stop"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+						<li><a data-exec-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 						<c:if test="${not empty accions}">
 							<c:set var="tePermisAccions" value="${false}"/>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
@@ -337,24 +341,24 @@
 		</div>
 		<div id="expedient-pipelles" class="col-md-9">
 			<ul class="nav nav-tabs" role="tablist">
-				<li><a href="#contingut-tasques" role="tab" data-toggle="tab">Tasques</a></li>
-				<li><a href="#contingut-dades" role="tab" data-toggle="tab">Dades</a></li>
-				<li><a href="#contingut-documents" role="tab" data-toggle="tab">Documents</a></li>
-				<li><a href="#contingut-terminis" role="tab" data-toggle="tab">Terminis</a></li>
-				<li><a href="#contingut-registre" role="tab" data-toggle="tab">Registre</a></li>
-				<li><a href="#contingut-cronograma" role="tab" data-toggle="tab">Cronograma</a></li>
+				<li><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
+				<li><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
+				<li><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
+				<li><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
+				<li><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
+				<%--li><a href="#contingut-cronograma" role="tab" data-toggle="tab">Cronograma</a></li--%>
 			</ul>
 			<div class="tab-content">
-				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasques"/>">
+				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dades"/>">
+				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dada"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/documents"/>">
+				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>">
+				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/termini"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">

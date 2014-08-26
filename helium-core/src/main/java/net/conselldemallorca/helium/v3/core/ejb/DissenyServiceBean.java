@@ -151,12 +151,6 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId) {
-		return delegate.findAccionsVisiblesAmbDefinicioProces(definicioProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AccioDto findAccioAmbId(Long idAccio) {
 		return delegate.findAccioAmbId(idAccio);
 	}

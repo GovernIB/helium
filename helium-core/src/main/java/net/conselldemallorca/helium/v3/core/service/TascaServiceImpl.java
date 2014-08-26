@@ -58,15 +58,16 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
+import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
@@ -127,10 +128,15 @@ public class TascaServiceImpl implements TascaService {
 	private RegistreRepository registreRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+
+	@Resource
+	private TascaHelper tascaHelper;
+	@Resource
+	private EntornHelper entornHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
-	private TascaHelper tascaHelper;
+	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private EntornRepository entornRepository;
 	@Resource
@@ -151,6 +157,222 @@ public class TascaServiceImpl implements TascaService {
 	private AlertaRepository alertaRepository;
 	@Resource
 	private RegistreDao registreDao;
+
+
+
+	@Transactional(readOnly = true)
+	@Override
+	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+			Long entornId,
+			Long expedientTipusId,
+			String responsable,
+			String tasca,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			Integer prioritat,
+			boolean mostrarTasquesPersonals,
+			boolean mostrarTasquesGrup,
+			final PaginacioParamsDto paginacioParams) {
+		logger.debug("Consulta de tasques segons filtre (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"responsable=" + responsable + ", " +
+				"tasca=" + tasca + ", " +
+				"tasca=" + tasca + ", " +
+				"dataCreacioInici=" + dataCreacioInici + ", " +
+				"dataCreacioFi=" + dataCreacioFi + ", " +
+				"dataLimitInici=" + dataLimitInici + ", " +
+				"dataLimitFi=" + dataLimitFi + ", " +
+				"prioritat=" + prioritat + ", " +
+				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
+				"mostrarTasquesGrup=" + mostrarTasquesGrup + ")");
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				false,
+				false);
+		// Comprova l'accés al tipus d'expedient
+		if (expedientTipusId != null) {
+			expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					expedientTipusId,
+					true,
+					false,
+					false);
+		}
+		// Obté la llista de tipus d'expedient permesos
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
+		String sort = null;
+		boolean asc = false;
+		for (OrdreDto or : paginacioParams.getOrdres()) {
+			asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+			sort = or.getCamp();
+			break;
+		}
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				responsable,
+				expedient, 
+				null,
+				expedientTipusId,
+				sort,
+				asc);	
+		// Calcula la data d'creacio fi pel filtre
+		if (dataCreacioFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataCreacioFi);
+			cal.add(Calendar.DATE, 1);
+			dataCreacioFi.setTime(cal.getTime().getTime());
+		}
+		// Calcula la data limit fi pel filtre
+		if (dataLimitFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataLimitFi);
+			cal.add(Calendar.DATE, 1);
+			dataLimitFi.setTime(cal.getTime().getTime());
+		}
+		final LlistatIds ids = jbpmHelper.findListTasks(
+				responsable, 
+				tasca,
+				idsExpedients, 
+				dataCreacioInici, 
+				dataCreacioFi,
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi, 
+				paginacioParams,
+				mostrarTasquesPersonals,
+				mostrarTasquesGrup);
+		final List<JbpmTask> tasques = jbpmHelper.findTasks(ids.getIds());
+		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
+			@Override
+			public Iterator<ExpedientTascaDto> iterator() {
+				return getContent().iterator();
+			}
+			@Override
+			public boolean isLastPage() {
+				return false;
+			}
+			@Override
+			public boolean isFirstPage() {
+				return paginacioParams.getPaginaNum() == 0;
+			}
+			@Override
+			public boolean hasPreviousPage() {
+				return paginacioParams.getPaginaNum() > 0;
+			}
+			@Override
+			public boolean hasNextPage() {
+				return false;
+			}
+			@Override
+			public boolean hasContent() {
+				return !tasques.isEmpty();
+			}
+			@Override
+			public int getTotalPages() {
+				return 0;
+			}
+			@Override
+			public long getTotalElements() {
+				return ids.getCount();
+			}
+			@Override
+			public Sort getSort() {
+				List<Order> orders = new ArrayList<Order>();
+				for (OrdreDto or : paginacioParams.getOrdres()) {
+					orders.add(new Order(or.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, or.getCamp()));
+				}
+				return new Sort(orders);
+			}
+			@Override
+			public int getSize() {
+				return paginacioParams.getPaginaTamany();
+			}
+			@Override
+			public int getNumberOfElements() {
+				return 0;
+			}
+			@Override
+			public int getNumber() {
+				return 0;
+			}
+			@Override
+			public List<ExpedientTascaDto> getContent() {
+				List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
+				for (JbpmTask tasca : tasques) {
+					expedientTasques.add(tascaHelper.getExpedientTascaLlistatDto(tasca));
+				}
+				Collections.sort(expedientTasques, comparador);
+				return expedientTasques;
+			}
+			Comparator<ExpedientTascaDto> comparador = new Comparator<ExpedientTascaDto>() {				
+				public int compare(ExpedientTascaDto t1, ExpedientTascaDto t2) {				
+					String finalSort = null;
+					boolean finalAsc = false;
+					for (OrdreDto or : paginacioParams.getOrdres()) {
+						finalAsc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+						finalSort = or.getCamp();
+						break;
+					}
+					int result = 0;
+					NullComparator nullComparator = new NullComparator();
+					if ("titol".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getTitol(), t2.getTitol());
+						else
+							result = nullComparator.compare(t2.getTitol(), t1.getTitol());
+					} else if ("expedientIdentificador".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getExpedientIdentificador(), t2.getExpedientIdentificador());
+						else 
+							result = nullComparator.compare(t2.getExpedientIdentificador(), t1.getExpedientIdentificador());
+					} else if ("expedientTipusNom".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getExpedientTipusNom(), t2.getExpedientTipusNom());
+						else
+							result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
+					} else if ("dataCreacio".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getDataCreacio(), t2.getDataCreacio());
+						else
+							result = nullComparator.compare(t2.getDataCreacio(), t1.getDataCreacio());
+					} else if ("prioritat".equals(finalSort)) {
+						if (finalAsc)
+							result = t1.getPriority() - t2.getPriority();
+						else
+							result = t2.getPriority() - t1.getPriority();
+					} else if ("dataLimit".equals(finalSort)) {
+						if (finalAsc)
+							result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
+						else
+							result = nullComparator.compare(t2.getDataLimit(), t1.getDataLimit());
+					}
+					return result;
+				}
+			};
+		};
+		PaginaDto<ExpedientTascaDto> resposta = paginacioHelper.toPaginaDto(
+				paginaResultats,
+				ExpedientTascaDto.class);
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES LLISTAT", "consulta");
+		return resposta;
+	}
 
 	@Transactional(readOnly = true)
 	@Override
@@ -958,7 +1180,7 @@ public class TascaServiceImpl implements TascaService {
 	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		JbpmTask task = jbpmHelper.getTaskById(tascaId);
-		Expedient expedient = expedientRepository.findById(expedientId);
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (task != null) {
 			return tascaHelper.getTascaPerExpedient(expedient, task.getId(), false, false);
 		} else {
@@ -966,14 +1188,14 @@ public class TascaServiceImpl implements TascaService {
 			return null;
 		}
 	}
-	
+
 	@Transactional
 	@Override
 	public ExpedientTascaDto agafar(Long entornId, String taskId) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return agafar(entornId, auth.getName(), taskId);
 	}
-	
+
 	@Transactional
 	private ExpedientTascaDto agafar(Long entornId, String usuari, String taskId) {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
@@ -1033,239 +1255,7 @@ public class TascaServiceImpl implements TascaService {
 		return tasca;
 	}
 
-	@Transactional(readOnly = true)
-	@Override
-	public PaginaDto<ExpedientTascaDto> findTasquesConsultaFiltre(
-			Long entornId,
-			Long expedientTipusId,
-			String responsable,
-			String tasca,
-			String expedient,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup,
-			final PaginacioParamsDto paginacioParams) {
-
-		if (responsable == null) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			responsable = auth.getName();
-		}
-		
-		// Comprova l'accés a l'entorn
-		Entorn entorn = entornRepository.findOne(entornId);
-		if (entorn == null) {
-			logger.debug("No s'ha trobat l'entorn (entornId=" + entornId + ")");
-			throw new EntornNotFoundException();
-		} else {
-			boolean ambPermis = permisosHelper.isGrantedAny(
-					entorn.getId(),
-					Entorn.class,
-					new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION});
-			if (!ambPermis) {
-				logger.debug("No es tenen permisos per accedir a l'entorn (entornId=" + entornId + ")");
-				throw new EntornNotFoundException();
-			}
-		}
-		
-		// Obté la llista de tipus d'expedient permesos
-		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
-		permisosHelper.filterGrantedAny(
-				tipusPermesos,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION});
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
-		
-		String sort = null;
-		boolean asc = false;
-		for (OrdreDto or : paginacioParams.getOrdres()) {
-			asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
-			sort = or.getCamp();
-			break;
-		}
-		
-		List<Long> idsExpedients = expedientDao.findListExpedients(
-				entornId, 
-				responsable,
-				expedient, 
-				null,
-				expedientTipusId,
-				sort,
-				asc);	
-		
-
-		// Calcula la data d'creacio fi pel filtre
-		if (dataCreacioFi != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dataCreacioFi);
-			cal.add(Calendar.DATE, 1);
-			dataCreacioFi.setTime(cal.getTime().getTime());
-		}
-
-		// Calcula la data limit fi pel filtre
-		if (dataLimitFi != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dataLimitFi);
-			cal.add(Calendar.DATE, 1);
-			dataLimitFi.setTime(cal.getTime().getTime());
-		}
-		
-		final LlistatIds ids = jbpmHelper.findListTasks(
-				responsable, 
-				tasca,
-				idsExpedients, 
-				dataCreacioInici, 
-				dataCreacioFi,
-				prioritat, 
-				dataLimitInici, 
-				dataLimitFi, 
-				paginacioParams,
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup);
-		
-		final List<JbpmTask> tasques = jbpmHelper.findTasks(ids.getIds());
-		
-		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
-			
-			@Override
-			public Iterator<ExpedientTascaDto> iterator() {
-				return getContent().iterator();
-			}
-			
-			@Override
-			public boolean isLastPage() {
-				return false;
-			}
-			
-			@Override
-			public boolean isFirstPage() {
-				return paginacioParams.getPaginaNum() == 0;
-			}
-			
-			@Override
-			public boolean hasPreviousPage() {
-				return paginacioParams.getPaginaNum() > 0;
-			}
-			
-			@Override
-			public boolean hasNextPage() {
-				return false;
-			}
-			
-			@Override
-			public boolean hasContent() {
-				return !tasques.isEmpty();
-			}
-			
-			@Override
-			public int getTotalPages() {
-				return 0;
-			}
-			
-			@Override
-			public long getTotalElements() {
-				return ids.getCount();
-			}
-			
-			@Override
-			public Sort getSort() {
-				List<Order> orders = new ArrayList<Order>();
-				for (OrdreDto or : paginacioParams.getOrdres()) {
-					orders.add(new Order(or.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, or.getCamp()));
-				}
-				return new Sort(orders);
-			}
-			
-			@Override
-			public int getSize() {
-				return paginacioParams.getPaginaTamany();
-			}
-			
-			@Override
-			public int getNumberOfElements() {
-				return 0;
-			}
-			
-			@Override
-			public int getNumber() {
-				return 0;
-			}
-			
-			@Override
-			public List<ExpedientTascaDto> getContent() {
-				List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
-				for (JbpmTask tasca : tasques) {
-					expedientTasques.add(tascaHelper.getExpedientTascaLlistatDto(tasca));
-				}
-				Collections.sort(expedientTasques, comparador);
-				return expedientTasques;
-			}
-			
-			Comparator<ExpedientTascaDto> comparador = new Comparator<ExpedientTascaDto>() {				
-				public int compare(ExpedientTascaDto t1, ExpedientTascaDto t2) {				
-					String finalSort = null;
-					boolean finalAsc = false;
-					for (OrdreDto or : paginacioParams.getOrdres()) {
-						finalAsc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
-						finalSort = or.getCamp();
-						break;
-					}
-					int result = 0;
-					NullComparator nullComparator = new NullComparator();
-					if ("titol".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getTitol(), t2.getTitol());
-						else
-							result = nullComparator.compare(t2.getTitol(), t1.getTitol());
-					} else if ("expedientIdentificador".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getExpedientIdentificador(), t2.getExpedientIdentificador());
-						else 
-							result = nullComparator.compare(t2.getExpedientIdentificador(), t1.getExpedientIdentificador());
-					} else if ("expedientTipusNom".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getExpedientTipusNom(), t2.getExpedientTipusNom());
-						else
-							result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
-					} else if ("dataCreacio".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getDataCreacio(), t2.getDataCreacio());
-						else
-							result = nullComparator.compare(t2.getDataCreacio(), t1.getDataCreacio());
-					} else if ("prioritat".equals(finalSort)) {
-						if (finalAsc)
-							result = t1.getPriority() - t2.getPriority();
-						else
-							result = t2.getPriority() - t1.getPriority();
-					} else if ("dataLimit".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
-						else
-							result = nullComparator.compare(t2.getDataLimit(), t1.getDataLimit());
-					}
-					return result;
-				}
-			};
-		};
-
-		PaginaDto<ExpedientTascaDto> resposta = paginacioHelper.toPaginaDto(
-				paginaResultats,
-				ExpedientTascaDto.class);
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES LLISTAT", "consulta");
-		return resposta;
-	}
+	
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);	
 }

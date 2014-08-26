@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -106,11 +105,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 					ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
 					command.setAny(Calendar.getInstance().get(Calendar.YEAR));
 					command.setExpedientTipusId(expedientTipusId);
-					command.setNumero(
+					// TODO
+					/*command.setNumero(
 							expedientService.getNumeroExpedientActual(
 									entorn.getId(),
 									expedientTipus,
-									command.getAny()));
+									command.getAny()));*/
 					command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 					command.setEntornId(entorn.getId());
 					model.addAttribute(command);
@@ -120,7 +120,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 					model.addAttribute("expedientTipus", expedientTipus);
 					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
 					
-					request.getSession().setAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALORS,valors);
+					request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS,valors);
 					
 					return "v3/expedient/iniciarPasTitol";
 				} else {
@@ -129,12 +129,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 								entorn.getId(),
 								expedientTipusId,
 								definicioProcesId,
-								(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_NUMERO),
-								(String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TITOL),
-								(Integer)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_ANY),
+								(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO),
+								(String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL),
+								(Integer)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY),
 								valors);
 						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-					    ExpedientInicioController.netejarSessio(request);
+					    ExpedientIniciController.netejarSessio(request);
 					} catch (Exception ex) {
 						MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
 						logger.error("No s'ha pogut iniciar l'expedient", ex);
@@ -197,9 +197,11 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			Long definicioProcesId,
 			Map<String, Object> valors,
 			HttpServletRequest request) {
-		ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);
-		tasca.setId((String)request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_TASKID));
-		Object validat = request.getSession().getAttribute(ExpedientInicioController.CLAU_SESSIO_FORM_VALIDAT); 
+		// TODO
+		ExpedientTascaDto tasca = new ExpedientTascaDto();
+		/*ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);*/
+		tasca.setId((String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT); 
 		if (validat != null)
 			tasca.setValidada(true);
 		return tasca;
@@ -225,7 +227,9 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			String titol,
 			Integer any,
 			Map<String, Object> valors) {
-		return expedientService.iniciar(
+		return new ExpedientDto();
+		// TODO
+		/*return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
@@ -254,8 +258,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				null,
 				null,
 				null,
-				null);
+				null);*/
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientInicioController.class);
+	private static final Log logger = LogFactory.getLog(ExpedientIniciController.class);
 }

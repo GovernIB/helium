@@ -5,15 +5,11 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -60,7 +56,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		/*EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potConsultarExpedient(expedient)) {
@@ -80,7 +76,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
 		}
-		
+		*/
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 
@@ -89,7 +85,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		/*EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potConsultarExpedient(expedient)) {
@@ -105,7 +101,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-		}
+		}*/
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 }

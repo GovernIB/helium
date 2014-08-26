@@ -44,7 +44,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 	@Autowired
 	private PluginService pluginService;
 
-	@RequestMapping(value = "/{expedientId}/registre", method = RequestMethod.GET)
+	/*@RequestMapping(value = "/{expedientId}/registre", method = RequestMethod.GET)
 	public String registre(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
@@ -195,7 +195,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
 		}
 		return "redirect:/v3/expedient/" + expedientId;
-	}
+	}*/
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientRegistroController.class);
 

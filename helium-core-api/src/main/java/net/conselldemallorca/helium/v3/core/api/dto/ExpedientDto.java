@@ -75,12 +75,13 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 	private boolean notificacioTelematicaHabilitada = false;
 	private String tramitExpedientIdentificador;
 	private String tramitExpedientClau;
+	private String bantelEntradaNum;
 
 	private EntornDto entorn;
 	private ExpedientTipusDto tipus;
 	private EstatTipusDto estatTipus;
 	private EstatDto estat;
-	
+
 	private String errorDesc;
 	private String errorFull;
 
@@ -88,57 +89,7 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 
 	private PersonaDto iniciadorPersona;
 	private PersonaDto responsablePersona;
-	private String bantelEntradaNum;
 
-	public PersonaDto getIniciadorPersona() {
-		return iniciadorPersona;
-	}
-	public void setIniciadorPersona(PersonaDto iniciadorPersona) {
-		this.iniciadorPersona = iniciadorPersona;
-	}
-	public PersonaDto getResponsablePersona() {
-		return responsablePersona;
-	}
-	public void setResponsablePersona(PersonaDto responsablePersona) {
-		this.responsablePersona = responsablePersona;
-	}
-	public String getBantelEntradaNum() {
-		return bantelEntradaNum;
-	}
-	public void setBantelEntradaNum(String bantelEntradaNum) {
-		this.bantelEntradaNum = bantelEntradaNum;
-	}
-
-	public String getErrorDesc() {
-		return errorDesc;
-	}
-
-	public void setErrorDesc(String errorDesc) {
-		this.errorDesc = errorDesc;
-	}
-
-	public String getErrorFull() {
-		return errorFull;
-	}
-
-	public void setErrorFull(String errorFull) {
-		this.errorFull = errorFull;
-	}
-
-	public boolean isErrorsIntegracions() {
-		return errorsIntegracions;
-	}
-
-	public void setErrorsIntegracions(boolean errorsIntegracions) {
-		this.errorsIntegracions = errorsIntegracions;
-	}
-
-	public String getIdentificadorLimitat() {
-		if (getIdentificador() != null && getIdentificador().length() > 100)
-			return getIdentificador().substring(0, 100) + " (...)";
-		else
-			return getIdentificador();
-	}
 
 
 	public Long getId() {
@@ -352,6 +303,12 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 	public void setTramitExpedientClau(String tramitExpedientClau) {
 		this.tramitExpedientClau = tramitExpedientClau;
 	}
+	public String getBantelEntradaNum() {
+		return bantelEntradaNum;
+	}
+	public void setBantelEntradaNum(String bantelEntradaNum) {
+		this.bantelEntradaNum = bantelEntradaNum;
+	}
 	public EntornDto getEntorn() {
 		return entorn;
 	}
@@ -375,6 +332,36 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 	}
 	public void setEstat(EstatDto estat) {
 		this.estat = estat;
+	}
+	public String getErrorDesc() {
+		return errorDesc;
+	}
+	public void setErrorDesc(String errorDesc) {
+		this.errorDesc = errorDesc;
+	}
+	public String getErrorFull() {
+		return errorFull;
+	}
+	public void setErrorFull(String errorFull) {
+		this.errorFull = errorFull;
+	}
+	public boolean isErrorsIntegracions() {
+		return errorsIntegracions;
+	}
+	public void setErrorsIntegracions(boolean errorsIntegracions) {
+		this.errorsIntegracions = errorsIntegracions;
+	}
+	public PersonaDto getIniciadorPersona() {
+		return iniciadorPersona;
+	}
+	public void setIniciadorPersona(PersonaDto iniciadorPersona) {
+		this.iniciadorPersona = iniciadorPersona;
+	}
+	public PersonaDto getResponsablePersona() {
+		return responsablePersona;
+	}
+	public void setResponsablePersona(PersonaDto responsablePersona) {
+		this.responsablePersona = responsablePersona;
 	}
 
 	public String getNumeroIdentificador() {
@@ -404,6 +391,12 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 			int anyInici = cal.get(Calendar.YEAR);
 			return new Integer(anyInici).toString() + new DecimalFormat("0000000000000000000").format(id);
 		}
+	}
+	public String getIdentificadorLimitat() {
+		if (getIdentificador() != null && getIdentificador().length() > 100)
+			return getIdentificador().substring(0, 100) + " (...)";
+		else
+			return getIdentificador();
 	}
 
 	public String getNumeroEntradaSistra() {

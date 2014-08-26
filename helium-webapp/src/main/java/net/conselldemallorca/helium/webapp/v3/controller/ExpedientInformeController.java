@@ -30,7 +30,6 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
@@ -149,7 +148,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 			campsAddicionalsClasses.put("filtreDesplegat", Boolean.class);
 			campsAddicionalsClasses.put("tramitacioMassivaActivada", Boolean.class);
 			
-			List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+			// TODO
+			List<TascaDadaDto> campsFiltre = new ArrayList<TascaDadaDto>();
+			/*List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);*/
 			filtreCommand = TascaFormHelper.getCommandForFiltre(campsFiltre, null, campsAddicionals, campsAddicionalsClasses);
 			
 			SessionHelper.getSessionManager(request).setFiltreInforme(
@@ -181,8 +182,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 		Object filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
 		if (consultaId != null) {
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-			campsFiltre = expedientService.findConsultaFiltre(consultaId);
-			campsInforme = expedientService.findConsultaInforme(consultaId);
+			// TODO
+			/*campsFiltre = expedientService.findConsultaFiltre(consultaId);
+			campsInforme = expedientService.findConsultaInforme(consultaId);*/
 			
 			if (consulta.getExpedientTipus() != null) {
 				List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
@@ -306,7 +308,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 					filtreCommand,
 					true);
 
-			listaExpedients = expedientService.findPerConsultaInformePaginat(
+			// TODO
+			/*listaExpedients = expedientService.findPerConsultaInformePaginat(
 				entornActual.getId(),
 				consultaId,
 				expedientTipusId,
@@ -316,7 +319,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
 				PaginacioHelper.getPaginacioDtoFromDatatable(request)
-			);
+			);*/
 		}
 		
 		SessionHelper.setAttribute(
@@ -351,13 +354,17 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-			List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(consultaId);
+			List<TascaDadaDto> campsInforme = null;
+			// TODO
+			/*expedientService.findConsultaInforme(consultaId);_*/
 			
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
+			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = new ArrayList<ExpedientConsultaDissenyDto>();
+			// TODO
+			/*List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
 					consulta.getId(),
 					valors,
-					null);
+					null);*/
 			
 			exportXLS(request, response, session, consulta, campsInforme, expedientsConsultaDissenyDto);
 		} else {
@@ -378,12 +385,14 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-						
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
+			
+			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = new ArrayList<ExpedientConsultaDissenyDto>();
+			// TODO
+			/*List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findAmbEntornConsultaDisseny(
 					entornActual.getId(),
 					consulta.getId(),
 					valors,
-					null);
+					null);*/
 			
 			model.addAttribute(
 					JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
@@ -704,7 +713,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 				filtreCommand,
 				true);
 
-		List<Long> ids = expedientService.findIdsPerConsultaInformePaginat(
+		List<Long> ids = new ArrayList<Long>();
+		// TODO
+		/*List<Long> ids = expedientService.findIdsPerConsultaInformePaginat(
 			entornActual.getId(),
 			consultaId,
 			expedientTipusId,
@@ -713,7 +724,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats")
-		);
+		);*/
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
 		if (seleccio == null) {
@@ -759,7 +770,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
 				try {
-					expedientService.anular(entorn.getId(), expedientId, motiu);
+					// TODO
+					/*expedientService.anular(entorn.getId(), expedientId, motiu);*/
 					MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.anular.expedient"));
@@ -784,7 +796,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potModificarExpedient(expedient)) {
 				try {
-					expedientService.delete(entorn.getId(), expedientId);
+					// TODO
+					/*expedientService.delete(entorn.getId(), expedientId);*/
 					MissatgesHelper.info(request, getMessage(request, "info.expedient.esborrat") );
 				} catch (Exception ex) {
 					MissatgesHelper.error(request, getMessage(request, "error.esborrar.expedient") );

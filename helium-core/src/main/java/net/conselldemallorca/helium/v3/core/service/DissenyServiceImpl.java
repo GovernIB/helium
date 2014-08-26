@@ -240,12 +240,6 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	@Transactional(readOnly=true)
 	@Override
-	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId) {
-		return conversioTipusHelper.convertirList(accioRepository.findVisiblesAmbDefinicioProces(definicioProcesId), AccioDto.class);
-	}
-	
-	@Transactional(readOnly=true)
-	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws EntornNotFoundException {
 		return findExpedientTipusAmbPermisosUsuariActual(
@@ -374,7 +368,10 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<TerminiDto> findTerminisAmbDefinicioProcesId(Long definicioProcesId) {
-		return conversioTipusHelper.convertirList(terminiRepository.findByDefinicioProcesId(definicioProcesId) , TerminiDto.class);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		return conversioTipusHelper.convertirList(
+				terminiRepository.findByDefinicioProces(definicioProces),
+				TerminiDto.class);
 	}
 
 	@Transactional(readOnly=true)

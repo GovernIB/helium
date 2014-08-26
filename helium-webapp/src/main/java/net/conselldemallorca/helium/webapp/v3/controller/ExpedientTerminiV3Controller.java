@@ -10,7 +10,6 @@ import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
@@ -39,35 +38,35 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientTerminisController extends BaseExpedientController {
+public class ExpedientTerminiV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-	
+
 	@Autowired
 	private TerminiService terminiService;
 
-	@RequestMapping(value = "/{expedientId}/terminis", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/termini", method = RequestMethod.GET)
 	public String terminis(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
+		model.addAttribute(
+				"terminis",
+				expedientService.findTerminis(
+						expedientId,
+						null));
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findById(expedientId);
 			if (potConsultarExpedient(expedient)) {
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
+				//InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 				model.addAttribute(
 						"expedient",
 						expedient);
-				model.addAttribute(
-						"terminis",
-						dissenyService.findTerminisAmbDefinicioProcesId(instanciaProces.getDefinicioProces().getId()));
-				model.addAttribute(
-						"iniciats",
-						dissenyService.findIniciatsAmbProcessInstanceId(expedient.getProcessInstanceId()));
 				
-				return "v3/expedient/terminis";
+				
+				return "v3/expedient/termini";
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));
 			}
@@ -232,5 +231,6 @@ public class ExpedientTerminisController extends BaseExpedientController {
 		return modalUrlTancar();
 	}	
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientTerminisController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientTerminiV3Controller.class);
+
 }

@@ -77,10 +77,11 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 					return "v3/expedient/execucions";
 				}
 				try {
-					expedientService.evaluateScript(
+					// TODO
+					/*expedientService.evaluateScript(
 							expedient.getProcessInstanceId(),
 							expedientEinesScriptCommand.getScript(),
-							null);
+							null);*/
 					MissatgesHelper.info(request, getMessage(request, "info.script.executat"));
 				} catch (Exception ex) {
 					Long entornId = entorn.getId();

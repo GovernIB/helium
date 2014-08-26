@@ -68,7 +68,7 @@ import org.springframework.stereotype.Component;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component("PluginHelperV3")
+@Component("pluginHelperV3")
 public class PluginHelper {
 
 	@Resource

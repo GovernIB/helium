@@ -127,7 +127,7 @@ public class ExpedientLoggerHelper {
 			Long expedientId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
-		Expedient expedient = expedientRepository.findById(expedientId);
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		String processInstanceId = expedient.getProcessInstanceId();
 		String usuari = "Timer";
 		try {

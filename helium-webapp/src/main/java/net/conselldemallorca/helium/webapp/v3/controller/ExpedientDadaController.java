@@ -16,18 +16,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * Controlador per a la pàgina d'informació de l'expedient.
+ * Controlador per a la pipella de dades de l'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientDadesController extends BaseExpedientController {
+public class ExpedientDadaController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
 
-	@RequestMapping(value = "/{expedientId}/dades", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/dada", method = RequestMethod.GET)
 	public String dades(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -43,13 +43,15 @@ public class ExpedientDadesController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(
 				"dades",
-				expedientService.findDadesPerExpedient(
-						expedientId));
+				expedientService.findDadesPerInstanciaProces(
+						expedientId,
+						null));
 		model.addAttribute(
 				"agrupacions",
-				expedientService.findAgrupacionsDadesExpedient(
-						expedientId));
-		return "v3/expedientDades";
+				expedientService.findAgrupacionsDadesPerInstanciaProces(
+						expedientId,
+						null));
+		return "v3/expedientDada";
 	}
 
 }

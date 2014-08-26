@@ -25,12 +25,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -165,9 +163,10 @@ public class TascaTramitacioController extends BaseController {
 			@PathVariable String tascaId,
 			Model model) {
 		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		model.addAttribute(
+		// TODO
+		/*model.addAttribute(
 				"tasca",
-				expedientService.getTascaPerExpedient(expedientId, tascaId));
+				expedientService.getTascaPerExpedient(expedientId, tascaId));*/
 		// Omple les dades del formulari i les de només lectura
 		List<TascaDadaDto> dades = tascaService.findDadesPerTasca(tascaId);
 		model.addAttribute("dades", dades);
@@ -874,8 +873,9 @@ public class TascaTramitacioController extends BaseController {
 	}
 
 	private void afegirVariablesDelProces(Object command, ExpedientTascaDto tasca) throws Exception {
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(tasca.getProcessInstanceId());
-		PropertyUtils.setSimpleProperty(command, "procesScope", instanciaProces.getVariables());
+		// TODO
+		/*InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(tasca.getProcessInstanceId());
+		PropertyUtils.setSimpleProperty(command, "procesScope", instanciaProces.getVariables());*/
 	}
 
 	private boolean accioGuardarForm(HttpServletRequest request, Long entornId, String id, List<TascaDadaDto> tascaDadas, Object command) {

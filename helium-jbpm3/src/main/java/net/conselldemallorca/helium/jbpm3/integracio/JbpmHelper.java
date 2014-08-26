@@ -1425,13 +1425,21 @@ public class JbpmHelper {
 	
 	
 	@SuppressWarnings("unchecked")
-	public List<Long> findRootProcessInstancesForExpedientsWithActiveTasksCommand(String actorId,List<Long> idsExpedients) {
+	public List<String> findRootProcessInstancesWithActiveTasksCommand(
+			String actorId,
+			List<String> processInstanceIds) {
 		adminService.mesuraIniciar("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
-		List<Long> resultat = new ArrayList<Long>();
-		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, idsExpedients, false);
-		resultat.addAll((List<Long>)commandService.execute(commandPersonal));
-		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, idsExpedients, true);
-		resultat.addAll((List<Long>)commandService.execute(commandGroup));
+		List<String> resultat = new ArrayList<String>();
+		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
+				actorId,
+				processInstanceIds,
+				false);
+		resultat.addAll((List<String>)commandService.execute(commandPersonal));
+		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
+				actorId,
+				processInstanceIds,
+				true);
+		resultat.addAll((List<String>)commandService.execute(commandGroup));
 		adminService.mesuraCalcular("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		return resultat;
 	}

@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
@@ -24,31 +26,36 @@ import org.springframework.data.repository.query.Param;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
-	Expedient findById(Long id);
-	
+
 	List<Expedient> findByProcessInstanceId(String processInstanceId);
 
-	Expedient findByTipusAndNumero(
+	Expedient findByEntornAndTipusAndNumero(
+			Entorn entorn,
 			ExpedientTipus tipus,
 			String numero);
+
+	Expedient findByEntornAndTipusAndNumeroDefault(
+			Entorn entorn,
+			ExpedientTipus tipus,
+			String numeroDefault);
 
 	Expedient findByEntornIdAndId(
 			Long entornId,
 			Long id);
-	
+
 	@Query(	"select e " +
 			"from Expedient e " +
 			"where " +
-			"    e.entorn.id = :entornId " +
+			"    e.entorn = :entorn " +
 			"and e.tipus in (:tipusPermesos) " +
-			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
+			"and (:esNullExpedientTipus = true or e.tipus = :expedientTipus) " +
 			"and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) " +
 			"and (:esNullNumero = true or lower(e.numero) like lower('%'||:numero||'%')) " +
 			"and (:esNullDataInici1 = true or e.dataInici >= :dataInici1) " +
 			"and (:esNullDataInici2 = true or e.dataInici <= :dataInici2) " +
 			"and (:nomesIniciats = false or e.dataFi is null) " +
 			"and (:nomesFinalitzats = false or e.dataFi is not null) " +
-			"and (:esNullEstatId = true or e.estat.id = :estatId) " +
+			"and (:esNullEstat = true or e.estat = :estat) " +
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
@@ -59,11 +66,11 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
 			"and (:mostrarAnulats = true or e.anulat = false)")
-	public Page<Expedient> findByFiltreGeneralPaginat(
-			@Param("entornId") Long entornId,
+	Page<Expedient> findByFiltreGeneralPaginat(
+			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
-			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
-			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullExpedientTipus") boolean esNullExpedientTipus,
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
 			@Param("esNullTitol") boolean esNullTitol,
 			@Param("titol") String titol,
 			@Param("esNullNumero") boolean esNullNumero,
@@ -74,8 +81,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("dataInici2") Date dataInici2,
 			@Param("nomesIniciats") boolean nomesIniciats,
 			@Param("nomesFinalitzats") boolean nomesFinalitzats,
-			@Param("esNullEstatId") boolean esNullEstatId,
-			@Param("estatId") Long estatId,
+			@Param("esNullEstat") boolean esNullEstat,
+			@Param("estat") Estat estat,
 			@Param("esNullGeoPosX") boolean esNullGeoPosX,
 			@Param("geoPosX") Double geoPosX,
 			@Param("esNullGeoPosY") boolean esNullGeoPosY,
@@ -90,20 +97,20 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
 			Pageable pageable);
-	
+
 	@Query(	"select e.id " +
 			"from Expedient e " +
 			"where " +
-			"    e.entorn.id = :entornId " +
+			"    e.entorn = :entorn " +
 			"and e.tipus in (:tipusPermesos) " +
-			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
+			"and (:esNullExpedientTipus = true or e.tipus = :expedientTipus) " +
 			"and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) " +
 			"and (:esNullNumero = true or lower(e.numero) like lower('%'||:numero||'%')) " +
 			"and (:esNullDataInici1 = true or e.dataInici >= :dataInici1) " +
 			"and (:esNullDataInici2 = true or e.dataInici <= :dataInici2) " +
 			"and (:nomesIniciats = false or e.dataFi is null) " +
 			"and (:nomesFinalitzats = false or e.dataFi is not null) " +
-			"and (:esNullEstatId = true or e.estat.id = :estatId) " +
+			"and (:esNullEstat = true or e.estat = :estat) " +
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
@@ -114,11 +121,11 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
 			"and (:mostrarAnulats = true or e.anulat = false)")
-	public List<Long> findIdsByFiltreGeneral(
-			@Param("entornId") Long entornId,
+	List<Long> findIdsByFiltreGeneral(
+			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
-			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
-			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullExpedientTipus") boolean esNullExpedientTipus,
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
 			@Param("esNullTitol") boolean esNullTitol,
 			@Param("titol") String titol,
 			@Param("esNullNumero") boolean esNullNumero,
@@ -129,8 +136,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("dataInici2") Date dataInici2,
 			@Param("nomesIniciats") boolean nomesIniciats,
 			@Param("nomesFinalitzats") boolean nomesFinalitzats,
-			@Param("esNullEstatId") boolean esNullEstatId,
-			@Param("estatId") Long estatId,
+			@Param("esNullEstat") boolean esNullEstat,
+			@Param("estat") Estat estat,
 			@Param("esNullGeoPosX") boolean esNullGeoPosX,
 			@Param("geoPosX") Double geoPosX,
 			@Param("esNullGeoPosY") boolean esNullGeoPosY,
@@ -144,29 +151,29 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats);
-	
-	@Query(	"select cast(e.processInstanceId as long) " +
+
+	@Query(	"select e.processInstanceId " +
 			"from Expedient e " +
 			"where " +
-			"    e.entorn.id = :entornId " +
+			"    e.entorn = :entorn " +
 			"and e.tipus in (:tipusPermesos) " +
-			"and (:esNullExpedientTipusId = true or e.tipus.id = :expedientTipusId) " +
+			"and (:esNullExpedientTipus = true or e.tipus = :expedientTipus) " +
 			"and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) " +
 			"and (:esNullNumero = true or lower(e.numero) like lower('%'||:numero||'%')) " +
 			"and (:esNullDataInici1 = true or e.dataInici >= :dataInici1) " +
 			"and (:esNullDataInici2 = true or e.dataInici <= :dataInici2) " +
 			"and (:nomesIniciats = false or e.dataFi is null) " +
 			"and (:nomesFinalitzats = false or e.dataFi is not null) " +
-			"and (:esNullEstatId = true or e.estat.id = :estatId) " +
+			"and (:esNullEstat = true or e.estat = :estat) " +
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
 			"and (:mostrarAnulats = true or e.anulat = false)")
-	public List<Long> findByIdFiltreGeneralPaginat(
-			@Param("entornId") Long entornId,
+	List<String> findProcessInstanceIdsByFiltreGeneral(
+			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
-			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
-			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullExpedientTipus") boolean esNullExpedientTipus,
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
 			@Param("esNullTitol") boolean esNullTitol,
 			@Param("titol") String titol,
 			@Param("esNullNumero") boolean esNullNumero,
@@ -177,8 +184,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("dataInici2") Date dataInici2,
 			@Param("nomesIniciats") boolean nomesIniciats,
 			@Param("nomesFinalitzats") boolean nomesFinalitzats,
-			@Param("esNullEstatId") boolean esNullEstatId,
-			@Param("estatId") Long estatId,
+			@Param("esNullEstat") boolean esNullEstat,
+			@Param("estat") Estat estat,
 			@Param("esNullGeoPosX") boolean esNullGeoPosX,
 			@Param("geoPosX") Double geoPosX,
 			@Param("esNullGeoPosY") boolean esNullGeoPosY,
@@ -186,8 +193,10 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("esNullGeoReferencia") boolean esNullGeoReferencia,
 			@Param("geoReferencia") String geoReferencia,
 			@Param("mostrarAnulats") boolean mostrarAnulats);
-	
+
 	@Query("select e from Expedient e where entorn.id = :entornId AND (titol like '%'||:text||'%' or numero like '%'||:text||'%') order by numero, titol")
-	List<Expedient> findAmbEntornLikeIdentificador(@Param("entornId") Long entornId, @Param("text") String text);
+	List<Expedient> findAmbEntornLikeIdentificador(
+			@Param("entornId") Long entornId,
+			@Param("text") String text);
 
 }

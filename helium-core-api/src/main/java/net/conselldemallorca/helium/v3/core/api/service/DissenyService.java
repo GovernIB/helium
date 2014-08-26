@@ -109,7 +109,7 @@ public interface DissenyService {
 
 	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi);
 
-	public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId);
+	/*public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId);*/
 
 	public AccioDto findAccioAmbId(Long idAccio);
 

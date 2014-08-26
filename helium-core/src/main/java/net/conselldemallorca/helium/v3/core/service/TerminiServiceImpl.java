@@ -50,31 +50,27 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class TerminiServiceImpl implements TerminiService {
+
 	@Resource
 	private TerminiDao terminiDao;
-	
 	@Resource
 	private TerminiIniciatDao terminiIniciatDao;
-	
 	@Resource
 	private FestiuDao festiuDao;
-	
 	@Resource
 	private RegistreDao registreDao;
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
-	
 	@Resource
 	private ExpedientDao expedientDao;
-	
 	@Resource
 	private AlertaDao alertaDao;
-	
+
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	
+
 	private MessageSource messageSource;
 
 	@Transactional
@@ -108,7 +104,7 @@ public class TerminiServiceImpl implements TerminiService {
 					esDataFi);
 		}
 	}
-	
+
 	@Transactional
 	@Override
 	public TerminiIniciatDto iniciar(
@@ -194,7 +190,7 @@ public class TerminiServiceImpl implements TerminiService {
 		TerminiIniciat terminiObj = terminiIniciatDao.saveOrUpdate(terminiIniciat);
 		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
-		
+
 	@Transactional
 	@Override
 	public void pausar(Long terminiIniciatId, Date data) {
@@ -213,7 +209,7 @@ public class TerminiServiceImpl implements TerminiService {
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
-		
+
 	@Transactional
 	@Override
 	public void continuar(Long terminiIniciatId, Date data) {
@@ -234,7 +230,7 @@ public class TerminiServiceImpl implements TerminiService {
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
-		
+
 	@Transactional
 	@Override
 	public void cancelar(Long terminiIniciatId, Date data) {
@@ -253,7 +249,7 @@ public class TerminiServiceImpl implements TerminiService {
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
-	
+
 	@Transactional
 	@Override
 	public Date getDataFiTermini(
@@ -290,7 +286,7 @@ public class TerminiServiceImpl implements TerminiService {
 		}
 		return dataFi.getTime();
 	}
-	
+
 	@Transactional
 	@Override
 	public Date getDataIniciTermini(
@@ -327,7 +323,7 @@ public class TerminiServiceImpl implements TerminiService {
 		}
 		return dataInici.getTime();
 	}
-	
+
 	@Transactional
 	@Override
 	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
@@ -339,7 +335,7 @@ public class TerminiServiceImpl implements TerminiService {
 		}
 		return terminiDto;
 	}
-	
+
 	@Transactional
 	@Override
 	public TerminiIniciatDto findIniciatAmbTerminiIdIProcessInstanceId(
@@ -349,7 +345,7 @@ public class TerminiServiceImpl implements TerminiService {
 		TerminiIniciat terminiObj = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(terminiId, processInstanceId);
 		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
-	
+
 	@Transactional
 	@Override
 	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(String[] taskInstanceIds) {

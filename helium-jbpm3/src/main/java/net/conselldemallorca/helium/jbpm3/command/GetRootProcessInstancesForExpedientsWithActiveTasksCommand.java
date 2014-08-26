@@ -20,22 +20,28 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private String actorId;
-	private List<Long> idsPIExpedients;
+	private List<String> ids;
 	private boolean pooled;
 
 	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand() {}
 
-	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand(String actorId, List<Long> idsPIExpedients, boolean pooled) {
+	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
+			String actorId,
+			List<String> ids,
+			boolean pooled) {
 		super();
 		this.actorId = actorId;
-		this.idsPIExpedients = idsPIExpedients;
+		this.ids = ids;
 		this.pooled = pooled;
 	}
 
-	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand(String actorId, String tasca, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, boolean pooled) {
+	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
+			String actorId, String tasca, 
+			List<String> ids,
+			Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, boolean pooled) {
 		super();
 		this.actorId = actorId;
-		this.idsPIExpedients = idsPIExpedients;
+		this.ids = ids;
 		this.pooled = pooled;
 	}
 
@@ -114,13 +120,13 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		} while (superProcessTokenIds.size() > 0);
 		
 		List<Long> listadoTask = new ArrayList<Long>();
-		List<Long> listadoExpedientes = new ArrayList<Long>();
+		List<String> listadoExpedientes = new ArrayList<String>();
 
 		// Quitamos los expedientes sin tareas activas
-    	for (Long id : idsPIExpedients) {
+    	for (String id: ids) {
 	    	for (Object[] fila : llistaActorId) {
 	    		if (id.equals(fila[0]) && !listadoTask.contains(fila[2])) {
-	    			listadoTask.add((Long) fila[2]);
+	    			listadoTask.add((Long)fila[2]);
 	    			listadoExpedientes.add(id);
 	    		}
 	    	}	
@@ -139,7 +145,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 
 	@Override
 	public String toString() {
-		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", pooled=" + pooled + "]";
+		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", ids=" + ids + ", pooled=" + pooled + "]";
 	}
 
 	@Override

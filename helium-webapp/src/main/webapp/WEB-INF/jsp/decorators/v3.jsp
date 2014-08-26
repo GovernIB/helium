@@ -8,12 +8,12 @@
 <html lang="es">
 <head>
 	<meta charset="utf-8">
-	<title>Helium 3: <decorator:title default="<fmt:message key='decorators.default.benvinguts' />"/></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<spring:message code="decorator.titol.default" var="titolDefault"/>
+	<title>Helium: <decorator:title default="${titolDefault}"/></title>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="description" content=""/>
 	<meta name="author" content=""/>
-	<!-- Estils CSS -->
 	<link href="<c:url value="/css/bootstrap.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/font-awesome.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/estils-v3.css"/>" rel="stylesheet">
@@ -27,28 +27,9 @@
 		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
 	<![endif]-->
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
-
-<script type="text/javascript">
-// <![CDATA[
-	Timeline_ajax_url="<c:url value="/js/timeline_2.3.0/timeline_ajax/simile-ajax-api.js"/>";
-	Timeline_urlPrefix="<c:url value="/js/timeline_2.3.0/timeline_js/"/>";       
-	Timeline_parameters="bundle=true";
-// ]]>
-</script>
-	<script src="<c:url value="/js/timeline_2.3.0/timeline_js/timeline-api.js?defaultLocale=ca"/>" type="text/javascript"></script>
-<style>
-body {
-	background-image:url(<c:url value="/img/background-pattern.jpg"/>);
-	color:#666666;
-	padding-top: 120px;
-}
-</style>
-
 	<decorator:head />
 </head>
 <body>
-<c:choose>
-<c:when test="${not isNoCapsaleraPeu}">
 	<div class="navbar navbar-default navbar-fixed-top navbar-app" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
@@ -99,7 +80,7 @@ body {
 						</li>
 						<li>
 							<span class="fa fa-bookmark"></span>
-							Usuari
+							<spring:message code="decorator.rol.usuari"/>
 						</li>
 						<li>
 							<a href="<c:url value="/v3/perfil"/>">
@@ -110,13 +91,13 @@ body {
 					</ul>
 					<div class="clearfix"></div>
 					<div class="btn-group navbar-btn navbar-right">
-						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="comuns.expedients"/></a>
-						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="comuns.tasques"/></a>
+						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
+						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
 						<div class="btn-group">
 							<c:choose>
 								<c:when test="${not empty expedientTipusActual}"><a href="<c:url value="/v3/informe/${expedientTipusActual.id}"></c:url>" class="btn btn-primary"><spring:message code="comuns.informes"/></a></c:when>
 								<c:otherwise>
-									<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.informes"/> <span class="caret"></span></button>
+									<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
 									<ul class="dropdown-menu">
 										<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
 											<c:if test="${expedientTipus.conConsultasActivasPorTipo}">
@@ -133,53 +114,6 @@ body {
 		</div>
 	</div>
 	<div class="container container-main">
-		<%--c:set var="capsaleraTipus"><decorator:getProperty property="meta.capsaleraTipus"/></c:set>
-		<c:set var="tabActiu"><decorator:getProperty property="meta.tabActiu"/></c:set>
-		<c:choose>
-			<c:when test="${capsaleraTipus == 'expedient'}">
-				<header>
-					<div class="row-fluid">
-						<div class="span12">
-							<div class="contingut-alertes"><jsp:include page="../v3/missatges.jsp"/></div>						
-							<div class="lead">
-								<strong>${expedient.identificador}</strong>
-								<a id="refrescar-btn" class="btn btn-small pull-right" href="<c:url value="/v3/expedient/${expedient.id}"/>"><i class="icon-refresh"></i></a>
-							</div>
-						</div>
-					</div>
-				</header>
-				<div class="clearfix"></div>
-				<ul id="pipelles-expedient" class="nav nav-tabs custom-submenu">
-					<li id="pipella-tasques" class="pipella<c:if test="${tabActiu == 'tasques'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/tasques"/>">Tasques</a></li>
-					<li id="pipella-dades" class="pipella<c:if test="${tabActiu == 'dades'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/dades"/>">Dades</a></li>
-					<li id="pipella-documents" class="pipella<c:if test="${tabActiu == 'documents'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/documents"/>">Documents</a></li>
-					<li id="pipella-terminis" class="pipella<c:if test="${tabActiu == 'terminis'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/terminis"/>">Terminis</a></li>
-					<li id="pipella-registre" class="pipella<c:if test="${tabActiu == 'registre'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/registre"/>">Registre</a></li>
-					<li id="pipella-cronograma" class="pipella<c:if test="${tabActiu == 'cronograma'}"> active</c:if>"><a href="<c:url value="/v3/expedient/${expedient.id}/timeline"/>">Cronograma</a></li>
-				</ul>
-				<div class="well well-white">
-					<decorator:body />
-				</div>
-			</c:when>
-			<c:when test="${capsaleraTipus == 'llistat'}">
-				<div class="well well-white">
-					<div class="row-fluid">
-						<div class="contingut-alertes"><jsp:include page="../v3/missatges.jsp"/></div>
-						<decorator:body />
-					</div>
-					<div class="clearfix"></div>
-				</div>
-			</c:when>
-			<c:otherwise>
-				<div class="well well-white">
-					<div class="row-fluid">
-						<div class="contingut-alertes"></div>
-						<decorator:body />
-					</div>
-					<div class="clearfix"></div>
-				</div>
-			</c:otherwise>
-		</c:choose--%>
 		<div class="panel panel-default">
 			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
 			<c:if test="${not empty decoratorMetaTitle}">
@@ -200,27 +134,9 @@ body {
 		</div>
 	</div>
     <div class="container container-foot">
-    	<div class="pull-left app-version"><p>Helium v${versioNom}</p></div>
+    	<div class="pull-left app-version"><p>Helium ${versioNom}</p></div>
         <div class="pull-right govern-footer"><p><img src="<c:url value="/img/govern-logo-neg.png"/>" width="129" height="30" alt="Govern de les Illes Balears" /></p></div>
     </div>
-</c:when>
-<c:otherwise>
-<style>
-body {background-image:none;}
-</style>
-	<div class="row-fluid container">
-		<div id="contingut-alertes"><hel:missatges/></div>
-		<decorator:body />
-	</div>
-</c:otherwise>
-</c:choose>
-<%--script>
-	$(document).ready(function() { $("select").select2(); });
-	$( '[data-required="true"]' )
-		.closest(".control-group")
-		.children("label")
-		.prepend("<i class='icon-asterisk'></i> ");
-</script--%>
 
 </body>
 </html>

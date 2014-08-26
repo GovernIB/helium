@@ -15,6 +15,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 
@@ -34,6 +36,56 @@ public interface TascaService {
 	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
 	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
 	public static final String DEFAULT_KEY_ALGORITHM = "DES";
+
+	/**
+	 *  Consulta de tasques per entorn paginada.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn l'expedient que es vol consultar.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param tasca
+	 *            Fragment del títol de la tasca.
+	 * @param expedient
+	 *            Fragment del títol de l'expedient.
+	 * @param dataCreacioInici
+	 *            Data de creació inicial.
+	 * @param dataCreacioFi
+	 *            Data de creació final.
+	 * @param dataLimitInici
+	 *            Data límit inicial.
+	 * @param dataLimitFi
+	 *            Data límit final.
+	 * @param prioritat
+	 *            Prioritat de l atasca.
+	 * @param mostrarTasquesPersonals
+	 *            Check de mostrar tasques personals.
+	 * @param mostrarTasquesGrup
+	 *            Check de mostrar tasques de grup.
+	 * @param paginacioParams
+	 *            Paràmetres de paginació.
+	 * @return La pàgina del llistat de tasques.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat algun dels elements especificats
+	 *             mitjançant el seu id (entorn, tipus, estat).
+	 * @throws NotAllowedException
+	 *             Si no es tenen permisos per a accedir als elements
+	 *             especificats mitjançant el seu id (entorn, tipus, estat).
+	 */
+	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+			Long entornId,
+			Long expedientTipusId,
+			String responsable,
+			String tasca,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			Integer prioritat,
+			boolean mostrarTasquesPersonals,
+			boolean mostrarTasquesGrup,
+			PaginacioParamsDto paginacioParams);
 
 	/**
 	 * Retorna les dades d'una instància de tasca.
@@ -203,7 +255,6 @@ public interface TascaService {
 
 	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
 
-	public PaginaDto<ExpedientTascaDto> findTasquesConsultaFiltre(Long entornId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup, PaginacioParamsDto paginacioParams);
-
 	public void createDadesTasca(Long taskId);
+
 }
