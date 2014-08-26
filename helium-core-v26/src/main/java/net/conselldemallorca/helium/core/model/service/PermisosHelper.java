@@ -57,6 +57,11 @@ public class PermisosHelper {
 			Class<?> objectClass,
 			Long objectIdentifier,
 			Permission permission) {
+		System.out.println("PERMISOS : " + 
+				"userName : " + userName + ", " +
+				"objectClass : " + objectClass.getName() + ", " +
+				"objectIdentifier : " + objectIdentifier + ", " +
+				"permission : " + permission);
 		assignarPermisos(
 				new PrincipalSid(userName),
 				objectClass,
@@ -68,6 +73,11 @@ public class PermisosHelper {
 			Class<?> objectClass,
 			Long objectIdentifier,
 			Permission permission) {
+		System.out.println("PERMISOS : " + 
+				"ROL : " +
+				"objectClass : " + objectClass.getName() + ", " +
+				"objectIdentifier : " + objectIdentifier + ", " +
+				"permission : " + permission);
 		assignarPermisos(
 				new GrantedAuthoritySid(getMapeigRol(roleName)),
 				objectClass,
@@ -217,8 +227,6 @@ public class PermisosHelper {
 		return result;
 	}
 
-
-
 	private void assignarPermisos(
 			Sid sid,
 			Class<?> objectClass,
@@ -229,9 +237,12 @@ public class PermisosHelper {
 		try {
 			acl = (MutableAcl)aclService.readAclById(oid);
 		} catch (NotFoundException nfex) {
+			System.out.println("PERMISOS : NotFoundException : " + nfex);
+			nfex.printStackTrace();
 			acl = aclService.createAcl(oid);
 		}
 		for (Permission permission: permissions) {
+			System.out.println("PERMISOS : permission : " + permission);
 			boolean insertar;
 			try {
 				List<Permission> permisos = new ArrayList<Permission>();
@@ -249,6 +260,7 @@ public class PermisosHelper {
 						sid,
 						true);
 		}
+		System.out.println("PERMISOS : assignarPermisos : acl : " + acl);
 		aclService.updateAcl(acl);
 	}
 
@@ -258,13 +270,15 @@ public class PermisosHelper {
 			Serializable objectIdentifier,
 			Permission[] permissions) throws NotFoundException {
 		ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
-//		try {
+		try {
 			MutableAcl acl = (MutableAcl)aclService.readAclById(oid);
+			System.out.println("PERMISOS : revocarPermisos : acl : " + acl);
 			List<Integer> indexosPerEsborrar = new ArrayList<Integer>();
 			int aceIndex = 0;
 			for (AccessControlEntry ace: acl.getEntries()) {
 				if (ace.getSid().equals(sid)) {
 					for (Permission p: permissions) {
+						System.out.println("PERMISOS : revocarPermisos : Permission : " + p);
 						if (p.equals(ace.getPermission()))
 							indexosPerEsborrar.add(aceIndex);
 					}
@@ -273,10 +287,11 @@ public class PermisosHelper {
 			}
 			for (Integer index: indexosPerEsborrar)
 				acl.deleteAce(index);
+			System.out.println("PERMISOS : revocarPermisos : acl : " + acl);
 			aclService.updateAcl(acl);
-//		} catch (NotFoundException nfex) {
-//			// Si no troba l'ACL no fa res
-//		}
+		} catch (NotFoundException nfex) {
+			// Si no troba l'ACL no fa res
+		}
 	}
 
 	private boolean[] verificarPermisos(
@@ -328,5 +343,4 @@ public class PermisosHelper {
 	public interface ObjectIdentifierExtractor<T> {
 		public Long getObjectIdentifier(T object);
 	}
-
 }

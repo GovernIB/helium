@@ -127,6 +127,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
      * @param acl containing the ACEs to insert
      */
     protected void createEntries(final MutableAcl acl) {
+    	System.out.println("PERMISOS : createEntries : " + acl);
         jdbcTemplate.batchUpdate(insertEntry,
             new BatchPreparedStatementSetter() {
                 public int getBatchSize() {
@@ -137,14 +138,20 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
                     AccessControlEntry entry_ = acl.getEntries().get(i);
                     Assert.isTrue(entry_ instanceof AccessControlEntryImpl, "Unknown ACE class");
                     AccessControlEntryImpl entry = (AccessControlEntryImpl) entry_;
-
                     stmt.setLong(1, ((Long) acl.getId()).longValue());
+                    System.out.println("PERMISOS : createEntries : -> 1 - " + ((Long) acl.getId()).longValue());
                     stmt.setInt(2, i);
+                    System.out.println("PERMISOS : createEntries : -> 2 - " + i);
                     stmt.setLong(3, createOrRetrieveSidPrimaryKey(entry.getSid(), true).longValue());
+                    System.out.println("PERMISOS : createEntries : -> 3 - " + createOrRetrieveSidPrimaryKey(entry.getSid(), true).longValue());
                     stmt.setInt(4, entry.getPermission().getMask());
+                    System.out.println("PERMISOS : createEntries : -> 4 - " + entry.getPermission().getMask());
                     stmt.setBoolean(5, entry.isGranting());
+                    System.out.println("PERMISOS : createEntries : -> 5 - " + entry.isGranting());
                     stmt.setBoolean(6, entry.isAuditSuccess());
+                    System.out.println("PERMISOS : createEntries : -> 6 - " + entry.isAuditSuccess());
                     stmt.setBoolean(7, entry.isAuditFailure());
+                    System.out.println("PERMISOS : createEntries : -> 7 - " + entry.isAuditFailure());
                 }
             });
     }
