@@ -26,7 +26,7 @@ import org.springframework.ui.Model;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseExpedientController extends BaseController {
-
+	
 	@Autowired
 	protected PermissionService permissionService;
 	@Autowired
@@ -74,13 +74,13 @@ public class BaseExpedientController extends BaseController {
 		/*DefinicioProcesDto def = dissenyService.getById(instanciaProces.getDefinicioProces().getId());
 		model.addAttribute("definicioProcesJbpmId",def.getId());
 		model.addAttribute("definicioProcesDescripcio",def.getEtiqueta());
-		model.addAttribute("definicionsProces",def.getJbpmIdsAmbDescripcio());
+		model.addAttribute("definicionsProces",def.getJbpmIdsAmbDescripcio());*/
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
-			model.addAttribute("pipellaActiva", "tasques");*/
+			model.addAttribute("pipellaActiva", "tasques");
 		return "v3/expedientPipelles";
 	}
 

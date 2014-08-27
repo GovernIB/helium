@@ -21,12 +21,12 @@ import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.exception.DominiException;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -55,7 +55,7 @@ public class DominiHelper {
 
 	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
-			DominiDto domini,
+			Domini domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
 		List<FilaResultat> resultat = null;
@@ -91,7 +91,7 @@ public class DominiHelper {
 
 
 	private List<FilaResultat> consultaWs(
-			DominiDto domini,
+			Domini domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
 		DominiHelium client = getClientWsFromDomini(domini);
@@ -114,7 +114,7 @@ public class DominiHelper {
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<FilaResultat> consultaSql(
-			DominiDto domini,
+			Domini domini,
 			Map<String, Object> parametres) throws DominiException {
 		try {
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
@@ -144,7 +144,7 @@ public class DominiHelper {
 		}
 	}
 
-	private DominiHelium getClientWsFromDomini(DominiDto domini) {
+	private DominiHelium getClientWsFromDomini(Domini domini) {
 		DominiHelium clientWs = wsCache.get(domini.getId());
 		if (clientWs == null) {
 			String usuari = null;
@@ -177,7 +177,7 @@ public class DominiHelper {
 		return clientWs;
 	}
 
-	private NamedParameterJdbcTemplate getJdbcTemplateFromDomini(DominiDto domini) throws NamingException {
+	private NamedParameterJdbcTemplate getJdbcTemplateFromDomini(Domini domini) throws NamingException {
 		NamedParameterJdbcTemplate jdbcTemplate = jdbcTemplates.get(domini.getId());
 		if (jdbcTemplate == null) {
 			Context initContext = new InitialContext();

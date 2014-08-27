@@ -30,7 +30,7 @@ $(document).ready(function() {
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		rowClickCallback: function(row) {
-			$('a.obrir-expedient', $(row))[0].click();
+			$('a.consultar-expedient', $(row))[0].click();
 			/*var url = $('ul a:first', $(row)).attr("href");
 			var idExpedient = url.substr("expedient/".length, url.length);
 			if ($("tr.info-" + idExpedient, $(row).parent()).length) {
@@ -182,13 +182,13 @@ $(document).ready(function() {
 			<tr>
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="identificador" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
+				<th data-rdt-property="tipus.nom" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/></th>
 				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.iniciat"/></th>
 				<th data-rdt-property="dataFi" data-rdt-type="datetime" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.finalitzat"/></th>
-				<th data-rdt-property="tipus.nom" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/></th>
 				<th data-rdt-property="estat.nom" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
 					<spring:message code="expedient.llistat.columna.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
-					{{if dataFi}}<spring:message code="comu.estat.iniciat"/>{{else estat_nom}}{{:estat_nom}}{{else}}<spring:message code="comu.estat.finalitzat"/>{{/if}}
+					{{if dataFi}}<spring:message code="comu.estat.finalitzat"/>{{else estat_nom}}{{:estat_nom}}{{else}}<spring:message code="comu.estat.iniciat"/>{{/if}}
 					</script>
 				</th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
@@ -198,7 +198,7 @@ $(document).ready(function() {
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="expedient/{{:id}}" class="obrir-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.obrir"/></a></li>
+								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
 								<li><a href="../v3/expedient/{{:id}}/suspend"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>
 								<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>
 								<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
@@ -216,12 +216,12 @@ $(document).ready(function() {
 				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 				<a class="btn btn-default" href="#"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
-			<a id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>" data-iniciar-modal="true"><span class="fa fa-plus"></span>&nbsp;Nou expedient</a>
+			<a id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>" data-iniciar-modal="true"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 		</div>
 	</script>
 
-	<div id="expedient-iniciar-modal"></div>
-	<div id="expedient-aturar-modal"></div>
+	<%--div id="expedient-iniciar-modal"></div>
+	<div id="expedient-aturar-modal"></div--%>
 	
 </body>
 </html>

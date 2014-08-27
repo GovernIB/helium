@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -69,7 +67,7 @@ import org.springframework.web.bind.support.SessionStatus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/tasca")
+@RequestMapping("/v3/expedient")
 public class TascaTramitacioController extends BaseController {
 
 	protected String TAG_PARAM_REGEXP = "<!--helium:param-(.+?)-->";
@@ -77,19 +75,16 @@ public class TascaTramitacioController extends BaseController {
 
 	@Autowired
 	protected ExpedientService expedientService;
-	
 	@Autowired
 	protected TascaService tascaService;
-	
 	@Autowired
 	protected DissenyService dissenyService;
-	
 	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
 
 	protected Validator validatorGuardar;
 	protected Validator validatorValidar;
-	
+
 	/*@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 
@@ -144,19 +139,19 @@ public class TascaTramitacioController extends BaseController {
 		return null;
 	}*/
 
-	@RequestMapping(value = "/{expedientId}/{tascaId}/tramitar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}", method = RequestMethod.GET)
 	public String tramitar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		if (ModalHelper.isModal(request))
-			return "redirect:/modal/v3/tasca/" + expedientId + "/" + tascaId + "/form";
+			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
 		else
-			return "redirect:/v3/tasca/" + expedientId + "/" + tascaId + "/form";
+			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
 	}
 
-	@RequestMapping(value = "/{expedientId}/{tascaId}/form", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -197,7 +192,7 @@ public class TascaTramitacioController extends BaseController {
 		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
 		return "v3/expedientTascaTramitacio";
 	}
-	@RequestMapping(value = "/{expedientId}/{tascaId}/form", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -435,7 +430,7 @@ public class TascaTramitacioController extends BaseController {
 
 
 
-	private Map<String, String> getFormRecursParams(String text) {
+	/*private Map<String, String> getFormRecursParams(String text) {
 		Map<String, String> params = new HashMap<String, String>();
 		Pattern pattern = Pattern.compile(TAG_PARAM_REGEXP);
 		Matcher matcher = pattern.matcher(text);
@@ -446,7 +441,7 @@ public class TascaTramitacioController extends BaseController {
 			}
 		}
 		return params;
-	}
+	}*/
 
 	private void guardarVariablesReg(HttpServletRequest request, TascaDadaDto camp, String id) {	
 		int i = 1;

@@ -77,7 +77,10 @@
 				);
 			}
 		})
-		$('#expedient-pipelles a:first').click();
+		<c:choose>
+			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
+			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
+		</c:choose>
 
 		$('select[name=definicioProcesJbpmId]').on('change', function () {
 			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
@@ -254,8 +257,8 @@
 					<dt><spring:message code="expedient.info.camp.estat"/></dt>
 					<dd>
 						<c:choose>
-							<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
 							<c:when test="${not empty expedient.dataFi}"><spring:message code="comu.estat.finalitzat"/></c:when>
+							<c:when test="${not empty expedient.estat}">${expedient.estat.nom}</c:when>
 							<c:otherwise><spring:message code="comu.estat.iniciat"/></c:otherwise>
 						</c:choose>					
 					</dd>
@@ -341,12 +344,12 @@
 		</div>
 		<div id="expedient-pipelles" class="col-md-9">
 			<ul class="nav nav-tabs" role="tablist">
-				<li><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
-				<li><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
-				<li><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
-				<li><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
-				<li><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
-				<%--li><a href="#contingut-cronograma" role="tab" data-toggle="tab">Cronograma</a></li--%>
+				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
+				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
+				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
+				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
+				<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
+				<%--li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab">Cronograma</a></li--%>
 			</ul>
 			<div class="tab-content">
 				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">

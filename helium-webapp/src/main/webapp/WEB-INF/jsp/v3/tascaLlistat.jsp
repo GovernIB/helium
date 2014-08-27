@@ -7,7 +7,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
-	<title><spring:message code="index.inici" /></title>
+	<title><spring:message code="tasca.llistat.titol"/></title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
@@ -30,9 +30,6 @@ $(document).ready(function() {
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 	});
-	$("#tascaConsultaCommand button[value='netejar']").click(function() {
-		$('#tascaConsultaCommand')[0].reset();
-	});
 	$("#mostrarTasquesPersonalsCheck").click(function() {
 		$("input[name=mostrarTasquesPersonals]").val(!$("#mostrarTasquesPersonalsCheck").hasClass('active'));
 		$('#tascaConsultaCommand').submit();
@@ -41,86 +38,48 @@ $(document).ready(function() {
 		$("input[name=mostrarTasquesGrup]").val(!$("#mostrarTasquesGrupCheck").hasClass('active'));
 		$('#tascaConsultaCommand').submit();
 	});
-	$('#filtresCollapsable').on('hide', function () {
-		$('#filtresCollapse i').attr("class", "icon-chevron-down");
-		$("input[name=filtreDesplegat]").val("false");
-	});
-	$('#filtresCollapsable').on('show', function () {
-		$('#filtresCollapse i').attr("class", "icon-chevron-up");
-		$("input[name=filtreDesplegat]").val("true");
-	});
-	$('.datepicker').datepicker({language: 'ca', autoclose: true});
 });
-
-function confirmarSuspendre(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu suspendre aquesta tasca?");
-}
-function confirmarReprendre(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu reprendre aquesta tasca?");
-}
-function confirmarCancelar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu cancel·lar aquesta tasca? Aquesta acció no es podrà desfer.");
-}
-function confirmarAlliberar(e) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-	return confirm("Estau segur que voleu alliberar aquesta tasca?");
-}
 </script>
 </head>
 <body>
 
-	<div id="tasca-reasignar-modal"></div>
-	<div id="tasca-tramitacio-modal"></div>
-	
-	<input type="hidden" id="netejar" value="false"/>
 	<form:form action="" method="post" cssClass="well formbox" commandName="tascaConsultaCommand">
 		<form:hidden path="filtreDesplegat"/>
 		<div id="filtresCollapsable" class="collapse<c:if test="${true or tascaConsultaCommand.filtreDesplegat}"> in</c:if>">
 			<div class="row">
 				<div class="col-md-2">
-					<hel:inputText name="tasca" text="Tasca" placeholder="Tasca" inline="true"/>
+					<hel:inputText name="tasca" textKey="tasca.llistat.filtre.camp.titol" placeholderKey="tasca.llistat.filtre.camp.titol" inline="true"/>
 				</div>
 				<div class="col-md-4">
-					<hel:inputText name="expedient" text="Expedient" placeholder="Expedient" inline="true"/>
+					<hel:inputText name="expedient" textKey="tasca.llistat.filtre.camp.expedient" placeholderKey="tasca.llistat.filtre.camp.expedient" inline="true"/>
 				</div>
 				<div class="col-md-3">
-					<hel:inputSelect name="prioritat" text="Prioritat" placeholder="Prioritat" optionItems="${prioritats}" optionValueAttribute="valor" optionTextAttribute="codi" inline="true"/>
+					<hel:inputSelect name="prioritat" textKey="tasca.llistat.filtre.camp.prioritat" placeholderKey="tasca.llistat.filtre.camp.prioritat" optionItems="${prioritats}" optionValueAttribute="valor" optionTextAttribute="codi" inline="true"/>
 				</div>
 				<div class="col-md-3">
-					<hel:inputSelect name="expedientTipusId" text="Tipus d'expedient" placeholder="Tipus d'expedient" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
+					<hel:inputSelect name="expedientTipusId" textKey="tasca.llistat.filtre.camp.tipexp" placeholderKey="tasca.llistat.filtre.camp.tipexp" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-4">
-					<label>Data creació</label>
+					<label><spring:message code="tasca.llistat.filtre.camp.datcre"/></label>
 					<div class="row">
 						<div class="col-md-6">
-							<hel:inputDate name="dataCreacioInicial" text="Data creació inicial" placeholder="dd/mm/yyyy" inline="true"/>
+							<hel:inputDate name="dataCreacioInicial" textKey="tasca.llistat.filtre.camp.datcre.ini" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
 						<div class="col-md-6">
-							<hel:inputDate name="dataCreacioFinal" text="Data creació final" placeholder="dd/mm/yyyy" inline="true"/>
+							<hel:inputDate name="dataCreacioFinal" textKey="tasca.llistat.filtre.camp.datcre.fin" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
 					</div>
 				</div>
 				<div class="col-md-4">
-					<label>Data límit</label>
+					<label><spring:message code="tasca.llistat.filtre.camp.datlim"/></label>
 					<div class="row">
 						<div class="col-md-6">
-							<hel:inputDate name="dataLimitInicial" text="Data límit inicial" placeholder="dd/mm/yyyy" inline="true"/>
+							<hel:inputDate name="dataLimitInicial" textKey="tasca.llistat.filtre.camp.datlim.ini" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
 						<div class="col-md-6">
-							<hel:inputDate name="dataLimitFinal" text="Data límit final" placeholder="dd/mm/yyyy" inline="true"/>
+							<hel:inputDate name="dataLimitFinal" textKey="tasca.llistat.filtre.camp.datlim.fin" placeholder="dd/mm/yyyy" inline="true"/>
 						</div>
 					</div>
 				</div>
@@ -131,15 +90,15 @@ function confirmarAlliberar(e) {
 				<form:hidden path="mostrarTasquesPersonals"/>
 				<form:hidden path="mostrarTasquesGrup"/>
 				<div class="btn-group">
-					<a id="mostrarTasquesPersonalsCheck" href="javascript:void(0)" title="Mostrar tareas personales" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></a>
-					<a id="mostrarTasquesGrupCheck" href="javascript:void(0)" title="Mostrar tareas de grupo" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></a>
+					<button id="mostrarTasquesPersonalsCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.usuari"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+					<button id="mostrarTasquesGrupCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 				</div>
 			</div>
 			<div class="col-md-6">
 				<div class="pull-right">
 					<input type="hidden" name="consultaRealitzada" value="true"/>
-					<button type="submit" name="accio" value="netejar" class="btn btn-default">Netejar</button>
-					<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;Filtrar</button>
+					<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+					<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 				</div>
 			</div>
 		</div>
@@ -149,7 +108,7 @@ function confirmarAlliberar(e) {
 		<thead>
 			<tr>
 				<th data-rdt-property="titol" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >
-					Tasca
+					<spring:message code="tasca.llistat.columna.titol"/>
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
 						{{:titol}}
 						{{if responsables != null && !agafada}}
@@ -157,52 +116,52 @@ function confirmarAlliberar(e) {
 						{{/if}}
 						<div class="pull-right">
 						{{if cancelada}}
-							<span class="label label-danger" title="Cancel·lada">CA</span>
+							<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
 						{{/if}}
 						{{if suspesa}}
-							<span class="label label-info" title="Suspesa">SU</span>
+							<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 						{{/if}}
 						{{if oberta}}
-							<span class="label label-warning" title="Oberta">OB</span>
+							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>">PD</span>
 						{{/if}}
 						{{if completed}}
-							<span class="label label-success" title="Finalitzada">FI</span>
+							<span class="label label-success" title="<spring:message code="enum.tasca.etiqueta.FI"/>">FI</span>
 						{{/if}}
 						{{if agafada}}
-							<span class="label label-default" title="Agafada">AG</span>
+							<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 						{{/if}}
 						</div>
 					</script>
 				</th>
-				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true">Expedient</th>
-				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true">Creada el</th>
-				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true">Tipus d'expedient</th>
-				<th data-rdt-property="dataLimit" data-rdt-visible="true">Data límit</th>
-				<th data-rdt-property="prioritat" data-rdt-visible="true">Prioritat</th>
+				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.expedient"/></th>
+				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.tipexp"/></th>
+				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
+				<th data-rdt-property="dataLimit" data-rdt-type="datetime" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
+				<th data-rdt-property="prioritat" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.prioritat"/></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
  						<div class="dropdown"> 
- 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;Accions&nbsp;<span class="caret"></span></button> 
+ 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
 								{{if oberta && !suspesa}}
- 									<li><a rdt-link-modal="true" href="<c:url value="/v3/tasca/{{:expedientId}}/{{:id}}/tramitar"/>" data-tramitar-modal="true"><span class="fa fa-folder-open"></span> Tramitar</a></li>
-									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
+ 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 								{{/if}}
 								{{if responsables != null && !agafada && oberta && !suspesa}}
- 									<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAgafar"/>"><span class="fa fa-chain"></span> Agafar</a></li>
+ 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" data-rdt-link-ajax="true"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 								{{/if}}
-								<li><a rdt-link-modal="true" data-reasignar-modal="true" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar"/>"><span class="fa fa-share-square-o"></span>&nbsp;Reasignar</a></li>
+								<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 								{{if oberta && !suspesa}}
-									<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre"/>"><span class="fa fa-pause"></span> Suspendre</a></li>
+									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
 								{{if suspesa}}
-									<li><a onclick="return confirmarReprendre(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre"/>"><span class="fa fa-play"></span> Reprendre</a></li>
+									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 								{{/if}}
 								{{if !cancelada}}
-									<li><a onclick="return confirmarCancelar(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar"/>"><span class="fa fa-times"></span> Cancelar</a></li>
+									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 								{{/if}}
 								{{if agafada && oberta}}
-									<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="/v3/expedient/{{:expedientId}}/tasca/{{:id}}/tascaAlliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.pllistat.alliberar"/></a></li>
+									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}} 
  							</ul> 
  						</div>
@@ -218,42 +177,6 @@ function confirmarAlliberar(e) {
 			</tr>
 		</thead>
 	</table>
-	<script type="text/javascript">
-		// <![CDATA[
-		$('#taulaDades a').click(function() {
-			if ($(this).data('tramitar-modal')) {
-				$('#tasca-tramitacio-modal').heliumModal({
-					modalUrl: $(this).attr('href'),
-					refrescarTaula: false,
-					refrescarAlertes: false,
-					refrescarPagina: false,
-					adjustWidth: false,
-					adjustHeight: true,
-					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-					valignTop: true,
-					buttonContainerId: 'formFinalitzar',
-				});
-				return false;
-			} else if ($(this).data('reasignar-modal')) {
-				$('#tasca-reasignar-modal').heliumModal({
-					modalUrl: $(this).attr('href'),
-					refrescarTaula: false,
-					refrescarAlertes: true,
-					refrescarPagina: false,
-					adjustWidth: false,
-					adjustHeight: true,
-					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-					valignTop: true,
-					buttonContainerId: 'formReasignar'
-				});
-				return false;
-			} else {
-				return true;
-			}
-		});
-		//]]>
-	</script>
+
 </body>
 </html>

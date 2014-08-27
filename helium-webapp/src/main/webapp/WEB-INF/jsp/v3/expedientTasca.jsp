@@ -3,7 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-
 <c:choose>
 	<c:when test="${not empty tasques}">
 		<c:set var="hiHaPendentsMeves" value="${false}"/>
@@ -17,11 +16,10 @@
 			<table id="tasques-pendents-meves" class="dataTable table table-bordered table-hover">
 				<thead>
 					<tr>
-						<th>Tasca</th>
-						<th>Asignada</th>
-						<th>Data creació</th>
-						<th>Data límit</th>
-						<th>Flags</th>
+						<th><spring:message code="expedient.tasca.columna.tasca"/></th>
+						<th><spring:message code="expedient.tasca.columna.responsable"/></th>
+						<th><spring:message code="expedient.tasca.columna.datcre"/></th>
+						<th><spring:message code="expedient.tasca.columna.datlim"/></th>
 						<th></th>
 					</tr>
 				</thead>
@@ -36,60 +34,48 @@
 									</c:if>
 									<div class="pull-right">
 										<c:if test="${tasca.cancelada}">
-											<span class="label label-danger" title="Cancel·lada">CA</span>
+											<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
 										</c:if>
 										<c:if test="${tasca.suspesa}">
-											<span class="label label-info" title="Suspesa">SU</span>
+											<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 										</c:if>
 										<c:if test="${tasca.oberta}">
-											<span class="label label-warning" title="Oberta">OB</span>
+											<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>">PD</span>
 										</c:if>
 										<c:if test="${tasca.completed}">
-											<span class="label label-success" title="Finalitzada">FI</span>
+											<span class="label label-success" title="<spring:message code="enum.tasca.etiqueta.FI"/>">FI</span>
 										</c:if>
 										<c:if test="${tasca.agafada}">
-											<span class="label label-default" title="Agafada">AG</span>
+											<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 										</c:if>
 									</div>
 								</td>
-								<td>
-									<c:if test="${not empty tasca.responsable}">
-										${tasca.responsable.nomSencer}
-									</c:if>
-								</td>
+								<td><c:if test="${not empty tasca.responsable}">${tasca.responsable.nomSencer}</c:if></td>
 								<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 								<td><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>
 								<td>
-									<c:if test="${tasca.cancelada}">C</c:if>
-									<c:if test="${tasca.suspesa}">S</c:if>
-									<c:if test="${expedientLogIds[cont][2] eq tasca.id}">
-										<c:if test="${expedientLogIds[cont][1] eq 'RETROCEDIT_TASQUES'}">R</c:if>
-										<c:set var="cont" value="${cont + 1}"/>
-									</c:if>
-								</td>
-								<td>
 									<div class="btn-group">
-										<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;Accions <span class="caret"></span></a>
+										<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-													<li><a data-tramitar-modal="true" href="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tramitar"><span class="fa fa-folder-open"></span> Tramitar</a></li>
-													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>"><span class="fa fa-hand-o-right"></span> Delegar</a></li>
+													<li><a href="../../v3/expedient/${expedientId}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
 													<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAgafar"/>"><span class="fa fa-chain"></span> Agafar</a></li>
 												</c:if>
-												<li><a data-reasignar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>"><span class="fa fa-share-square-o"></span> Reasignar</a></li>
-												<li><a onclick="return confirmarSuspendre(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>"><span class="fa fa-pause"></span> Suspendre</a></li>
+												<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/reassignar"/>" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li>
+												<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>" data-rdt-link-modal="true"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 											</c:if>
 											<c:if test="${tasca.suspesa}">
-												<li><a onclick="return confirmarReprendre(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>"><span class="fa fa-play"></span> Reprendre</a></li>
+												<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 											</c:if>
 											<c:if test="${not tasca.cancelada}">
-												<li><a onclick="return confirmarCancelar(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>"><span class="fa fa-times"></span> Cancelar</a></li>
+												<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 											</c:if>
 											<c:if test="${not empty tasca.responsables && tasca.responsableCodi == dadesPersona.codi and tasca.oberta}">
-												<li><a onclick="return confirmarAlliberar(event)" href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.pllistat.alliberar"/></a></li>
+												<li><a href="<c:url value="../../v3/expedient/${expedientId}/tasca/${tasca.id}/tascaAlliberar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 											</c:if>													
 										</ul>
 									</div>
@@ -102,15 +88,14 @@
 		</c:if>
 		<c:if test="${hiHaNoPendents}">
 			<div class="well well-sm">
-				<h4>Tasques finalitzades</h4>
+				<h4><spring:message code="expedient.tasca.grup.finalitzades"/></h4>
 				<table class="table table-bordered">
 					<thead>
 						<tr>
-							<th>Tasca</th>
-							<th>Responsable</th>
-							<th>Data creació</th>
-							<th>Data finalització</th>
-							<th>Estat</th>
+							<th><spring:message code="expedient.tasca.columna.tasca"/></th>
+							<th><spring:message code="expedient.tasca.columna.responsable"/></th>
+							<th><spring:message code="expedient.tasca.columna.datcre"/></th>
+							<th><spring:message code="expedient.tasca.columna.datfi"/></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -131,7 +116,6 @@
 									</td>
 									<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 									<td><fmt:formatDate value="${tasca.dataFi}" pattern="dd/MM/yyyy HH:mm"/></td>
-									<td>${tasca.estat}</td>
 								</tr>
 							</c:if>
 						</c:forEach>
@@ -141,64 +125,13 @@
 		</c:if>
 	</c:when>
 	<c:otherwise>
-		<div class="well well-small">No hi ha tasques per a mostrar</div>
+		<div class="well well-small"><spring:message code="expedient.tasca.nohiha"/></div>
 	</c:otherwise>
 </c:choose>
 
-<div id="tasca-tramitacio-modal"></div>
-<div id="tasca-reasignar-modal"></div>
-
 <script type="text/javascript">
-// <![CDATA[
-	function confirmarSuspendre(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu suspendre aquesta tasca?");
-	}
-	function confirmarReprendre(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu reprendre aquesta tasca?");
-	}
-	function confirmarCancelar(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu cancel·lar aquesta tasca? Aquesta acció no es podrà desfer.");
-	}
-	function confirmarAlliberar(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("Estau segur que voleu alliberar aquesta tasca?");
-	}
-
-	$('#tasques-pendents-meves a').click(function() {
-		if ($(this).data('tramitar-modal')) {
-			$('#tasca-tramitacio-modal').heliumModal({
-				modalUrl: $(this).attr('href'),
-				refrescarTaula: false,
-				refrescarAlertes: false,
-				refrescarPagina: false,
-				adjustWidth: false,
-				adjustHeight: true,
-				maximize: true,
-				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-				valignTop: true,
-				buttonContainerId: 'formFinalitzar',
-			});
-			return false;
-		} else if ($(this).data('reasignar-modal')) {
-			$('#tasca-reasignar-modal').heliumModal({
-				modalUrl: $(this).attr('href'),
-				buttonContainerId: 'formReasignar'
-			});
-			return false;
-		} else {
-			return true;
-		}
+	$("#tasques-pendents-meves a").heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false
 	});
-//]]>
 </script>

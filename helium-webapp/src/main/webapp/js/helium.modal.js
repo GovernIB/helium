@@ -232,6 +232,7 @@
 							$('body').append('<div id="' + modalDivId + '"></div>');
 						$('#' + modalDivId).heliumModal({
 							modalUrl: $(this).attr("href"),
+							maximize: $(this).data("rdt-link-modal-maximize"),
 							modalCloseFunction: modalCloseFunction,
 							refrescarPagina: settings.refrescarPagina,
 							refrescarAlertes: settings.refrescarAlertes

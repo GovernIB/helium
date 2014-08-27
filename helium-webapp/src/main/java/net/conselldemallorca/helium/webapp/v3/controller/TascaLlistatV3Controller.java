@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Controlador per al llistat d'tasques.
+ * Controlador per al llistat de tasques.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -61,7 +61,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		model.addAttribute(filtreCommand);
 		return "v3/tascaLlistat";
 	}
-	
+
 	@ModelAttribute("prioritats")
 	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -72,7 +72,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "txt.m_baixa"), -2));
 		return resposta;
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST)
 	public String post(
 			HttpServletRequest request,

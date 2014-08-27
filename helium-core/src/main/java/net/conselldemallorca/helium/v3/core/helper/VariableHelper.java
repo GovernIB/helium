@@ -21,6 +21,10 @@ import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -33,10 +37,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -484,17 +484,11 @@ public class VariableHelper {
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
-				DominiDto domini;
+				Domini domini;
 				if (camp.isDominiIntern()) {
-					EntornDto entorn = conversioTipusHelper.convertir(camp.getDefinicioProces().getEntorn(), EntornDto.class);
-					domini = findAmbEntornICodi(entorn, "intern");
+					domini = getDominiIntern(camp.getDefinicioProces().getEntorn());
 				} else {
-					domini = new DominiDto();
-					domini.setCacheSegons(camp.getDomini().getCacheSegons());
-					domini.setTipus(conversioTipusHelper.convertir(camp.getDomini().getTipus(),TipusDomini.class));
-					domini.setId(camp.getDomini().getId());
-					domini.setSql(camp.getDomini().getSql());
-					domini.setJndiDatasource(camp.getDomini().getJndiDatasource());
+					domini = camp.getDomini();
 				}
 				try {
 					List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
@@ -528,6 +522,7 @@ public class VariableHelper {
 						}
 					}
 				} catch (Exception ex) {
+					logger.error("Error en la consulta del domini (processInstanceId=" + processInstanceId + ", dominiCodi=" + domini.getCodi() + ", variable=" + camp.getCodi() + "): " + ex.getMessage(), ex);
 					throw new Exception("Error en la consulta del domini (processInstanceId=" + processInstanceId + ", dominiCodi=" + domini.getCodi() + ", variable=" + camp.getCodi() + "): " + ex.getMessage(), ex);
 				}
 			} else if (camp.getEnumeracio() != null) {
@@ -576,8 +571,8 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
-	public DominiDto findAmbEntornICodi(EntornDto entorn, String codi) {
-		DominiDto domini = new DominiDto();
+	public Domini getDominiIntern(Entorn entorn) {
+		Domini domini = new Domini();
 		domini.setId((long) 0);
 		domini.setCacheSegons(30);
 		domini.setCodi("intern");
