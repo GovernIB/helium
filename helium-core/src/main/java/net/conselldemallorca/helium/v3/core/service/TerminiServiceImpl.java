@@ -10,16 +10,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.AlertaDao;
-import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FestiuDao;
-import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.dao.TerminiDao;
-import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
+import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat.TerminiIniciatEstat;
@@ -32,6 +28,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
+import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,44 +51,41 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class TerminiServiceImpl implements TerminiService {
-
 	@Resource
-	private TerminiDao terminiDao;
+	private TerminiRepository terminiRepository;	
 	@Resource
-	private TerminiIniciatDao terminiIniciatDao;
+	private TerminiIniciatRepository terminiIniciatRepository;	
 	@Resource
 	private FestiuDao festiuDao;
 	@Resource
-	private RegistreDao registreDao;
+	private RegistreRepository registreRepository;
 	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
+	private DtoConverter dtoConverter;	
 	@Resource
-	private ExpedientDao expedientDao;
+	private ExpedientRepository expedientRepository;	
 	@Resource
-	private AlertaDao alertaDao;
-
+	private AlertaRepository alertaRepository;	
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-
+	
 	private MessageSource messageSource;
 
 	@Transactional
 	@Override
 	public TerminiIniciatDto iniciar(
 			Long terminiId,
-			String processInstanceId,
+			Long expedientId,
 			Date data,
 			boolean esDataFi) {
-		Termini termini = terminiDao.getById(terminiId, false);
-		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
-				terminiId,
-				processInstanceId);
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		Termini termini = terminiRepository.findOne(terminiId);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(termini, expedient.getProcessInstanceId());
 		if (terminiIniciat == null) {
 			return iniciar(
 					terminiId,
-					processInstanceId,
+					expedient,
 					data,
 					termini.getAnys(),
 					termini.getMesos(),
@@ -96,7 +94,7 @@ public class TerminiServiceImpl implements TerminiService {
 		} else {
 			return iniciar(
 					terminiId,
-					processInstanceId,
+					expedient,
 					data,
 					terminiIniciat.getAnys(),
 					terminiIniciat.getMesos(),
@@ -104,21 +102,40 @@ public class TerminiServiceImpl implements TerminiService {
 					esDataFi);
 		}
 	}
-
+	
 	@Transactional
 	@Override
 	public TerminiIniciatDto iniciar(
 			Long terminiId,
-			String processInstanceId,
+			Long expedientId,
 			Date data,
 			int anys,
 			int mesos,
 			int dies,
 			boolean esDataFi) {
-		Termini termini = terminiDao.getById(terminiId, false);
-		TerminiIniciat terminiIniciat = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		return iniciar(
 				terminiId,
-				processInstanceId);
+				expedient,
+				data,
+				anys,
+				mesos,
+				dies,
+				esDataFi);
+	}
+	
+	private TerminiIniciatDto iniciar(
+			Long terminiId,
+			Expedient expedient,
+			Date data,
+			int anys,
+			int mesos,
+			int dies,
+			boolean esDataFi) {		
+		Termini termini = terminiRepository.findOne(terminiId);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(
+				termini,
+				expedient.getProcessInstanceId());
 		if (terminiIniciat == null) {
 			if (esDataFi) {
 				Date dataInici = getDataIniciTermini(
@@ -132,7 +149,7 @@ public class TerminiServiceImpl implements TerminiService {
 						anys,
 						mesos,
 						dies,
-						processInstanceId,
+						expedient.getProcessInstanceId(),
 						dataInici,
 						data);
 			} else {
@@ -147,7 +164,7 @@ public class TerminiServiceImpl implements TerminiService {
 						anys,
 						mesos,
 						dies,
-						processInstanceId,
+						expedient.getProcessInstanceId(),
 						data,
 						dataFi);
 			}
@@ -178,23 +195,22 @@ public class TerminiServiceImpl implements TerminiService {
 			terminiIniciat.setAnys(anys);
 			resumeTimers(terminiIniciat);
 		}
-		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-		if (expedientId != null) {
-			registreDao.crearRegistreIniciarTermini(
-					getExpedientForProcessInstanceId(processInstanceId).getId(),
-					processInstanceId,
-					terminiId.toString(),
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		}
 		
-		TerminiIniciat terminiObj = terminiIniciatDao.saveOrUpdate(terminiIniciat);
+		crearRegistreTermini(
+					getExpedientForProcessInstanceId(expedient.getProcessInstanceId()).getId(),
+					expedient.getProcessInstanceId(),
+					terminiId,
+					Registre.Accio.INICIAR,
+					SecurityContextHolder.getContext().getAuthentication().getName());
+		
+		TerminiIniciat terminiObj = terminiIniciatRepository.save(terminiIniciat);
 		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
-
+		
 	@Transactional
 	@Override
 	public void pausar(Long terminiIniciatId, Date data) {
-		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
 			throw new IllegalStateException( getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataAturada(data);
@@ -202,18 +218,19 @@ public class TerminiServiceImpl implements TerminiService {
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
 		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
 		if (expedientId != null) {
-			registreDao.crearRegistreAturarTermini(
+			crearRegistreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId().toString(),
+					terminiIniciat.getTermini().getId(),
+					Registre.Accio.ATURAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
-
+		
 	@Transactional
 	@Override
 	public void continuar(Long terminiIniciatId, Date data) {
-		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataAturada() == null)
 			throw new IllegalStateException( getMessage("error.terminiService.noPausat") );
 		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
@@ -223,18 +240,19 @@ public class TerminiServiceImpl implements TerminiService {
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
 		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
 		if (expedientId != null) {
-			registreDao.crearRegistreReprendreTermini(
+			crearRegistreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId().toString(),
+					terminiIniciat.getTermini().getId(),
+					Registre.Accio.REPRENDRE,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
-
+		
 	@Transactional
 	@Override
 	public void cancelar(Long terminiIniciatId, Date data) {
-		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
 			throw new IllegalStateException( getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataCancelacio(data);
@@ -242,14 +260,15 @@ public class TerminiServiceImpl implements TerminiService {
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
 		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
 		if (expedientId != null) {
-			registreDao.crearRegistreCancelarTermini(
+			crearRegistreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId().toString(),
+					terminiIniciat.getTermini().getId(),
+					Registre.Accio.CANCELAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
-
+	
 	@Transactional
 	@Override
 	public Date getDataFiTermini(
@@ -286,7 +305,7 @@ public class TerminiServiceImpl implements TerminiService {
 		}
 		return dataFi.getTime();
 	}
-
+	
 	@Transactional
 	@Override
 	public Date getDataIniciTermini(
@@ -323,36 +342,36 @@ public class TerminiServiceImpl implements TerminiService {
 		}
 		return dataInici.getTime();
 	}
-
+	
 	@Transactional
 	@Override
 	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
 		
-		List<TerminiIniciat> terminisObj = terminiIniciatDao.findAmbProcessInstanceId(processInstanceId);
+		List<TerminiIniciat> terminisObj = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
 		List<TerminiIniciatDto> terminiDto = new ArrayList<TerminiIniciatDto>();
 		for(TerminiIniciat terminiObj : terminisObj) {
 			terminiDto.add(conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class));
 		}
 		return terminiDto;
 	}
-
+	
 	@Transactional
 	@Override
 	public TerminiIniciatDto findIniciatAmbTerminiIdIProcessInstanceId(
 			Long terminiId,
 			String processInstanceId) {
-		
-		TerminiIniciat terminiObj = terminiIniciatDao.findAmbTerminiIdIProcessInstanceId(terminiId, processInstanceId);
-		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
+		Termini termini = terminiRepository.findOne(terminiId);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(termini, processInstanceId);
+		return conversioTipusHelper.convertir(terminiIniciat, TerminiIniciatDto.class);
 	}
-
+	
 	@Transactional
 	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(String[] taskInstanceIds) {
-		if (taskInstanceIds == null || taskInstanceIds.length == 0)
+	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(List<String> taskInstanceIds) {
+		if (taskInstanceIds == null || taskInstanceIds.isEmpty())
 			return new ArrayList<TerminiIniciatDto>();
 		
-		List<TerminiIniciat> terminisObj = terminiIniciatDao.findAmbTaskInstanceIds(taskInstanceIds);
+		List<TerminiIniciat> terminisObj = terminiIniciatRepository.findByTaskInstanceIds(taskInstanceIds);
 		List<TerminiIniciatDto> terminiDto = new ArrayList<TerminiIniciatDto>();
 		for(TerminiIniciat terminiObj : terminisObj) {
 			terminiDto.add(conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class));
@@ -366,7 +385,7 @@ public class TerminiServiceImpl implements TerminiService {
 			Long terminiIniciatId,
 			String taskInstanceId,
 			Long timerId) {
-		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		terminiIniciat.setTaskInstanceId(taskInstanceId);
 		if (timerId != null)
 			terminiIniciat.afegirTimerId(timerId.longValue());
@@ -442,7 +461,7 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	public void comprovarTerminisIniciats() {
 		logger.debug("Inici de la comprovació de terminis");
-		List<TerminiIniciat> iniciatsActius = terminiIniciatDao.findIniciatsActius();
+		List<TerminiIniciat> iniciatsActius = terminiIniciatRepository.findIniciatsActius();
 		for (TerminiIniciat terminiIniciat: iniciatsActius) {
 			if (terminiIniciat.getTaskInstanceId() != null) {
 				if (terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
@@ -501,7 +520,7 @@ public class TerminiServiceImpl implements TerminiService {
 			int anys,
 			int mesos,
 			int dies) {
-		TerminiIniciat terminiIniciat = terminiIniciatDao.getById(terminiIniciatId, false);
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat != null) {
 			boolean modificat = false;
 			if (terminiIniciat.getDataInici().getTime() != dataInici.getTime()) {
@@ -525,15 +544,18 @@ public class TerminiServiceImpl implements TerminiService {
 				String processInstanceId = terminiIniciat.getProcessInstanceId();
 				Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
 				if (expedientId != null) {
-					registreDao.crearRegistreAturarTermini(
+					crearRegistreTermini(
 							getExpedientForProcessInstanceId(processInstanceId).getId(),
 							processInstanceId,
-							terminiIniciat.getTermini().getId().toString(),
+							terminiIniciat.getTermini().getId(),
+							Registre.Accio.ATURAR,
 							SecurityContextHolder.getContext().getAuthentication().getName());
-					registreDao.crearRegistreIniciarTermini(
+					
+					crearRegistreTermini(
 							getExpedientForProcessInstanceId(processInstanceId).getId(),
 							processInstanceId,
-							terminiIniciat.getTermini().getId().toString(),
+							terminiIniciat.getTermini().getId(),
+							Registre.Accio.INICIAR,
 							SecurityContextHolder.getContext().getAuthentication().getName());
 				}
 			}
@@ -595,7 +617,7 @@ public class TerminiServiceImpl implements TerminiService {
 		if (pi == null) {
 			return null;
 		}
-		return expedientDao.findAmbProcessInstanceId(pi.getId());
+		return expedientRepository.findByProcessInstanceId(pi.getId()).get(0);
 	}
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
@@ -615,7 +637,7 @@ public class TerminiServiceImpl implements TerminiService {
 
 	private Expedient getExpedientPerTask(JbpmTask task) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(task.getProcessInstanceId());
-		return expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		return expedientRepository.findByProcessInstanceId(rootProcessInstance.getId()).get(0);
 	}
 	
 	private void crearAlertaAmbTerminiAssociat(
@@ -642,12 +664,29 @@ public class TerminiServiceImpl implements TerminiService {
 					terminiIniciat.getTermini().getDefinicioProces().getEntorn());
 			alerta.setExpedient(expedient);
 			alerta.setTerminiIniciat(terminiIniciat);
-			alertaDao.saveOrUpdate(alerta);
+			alertaRepository.save(alerta);
 		}
+	}
+
+	private Registre crearRegistreTermini(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiId,
+			Registre.Accio accio,
+			String responsableCodi) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi.toString(),
+				accio,
+				Registre.Entitat.TERMINI,
+				expedientId.toString());
+		registre.setProcessInstanceId(processInstanceId);
+		return registreRepository.save(registre);
 	}
 	
 	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
-		List<Alerta> antigues = alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
+		List<Alerta> antigues = alertaRepository.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
 		for (Alerta antiga: antigues) {
 			antiga.setDataEliminacio(new Date());
 		}

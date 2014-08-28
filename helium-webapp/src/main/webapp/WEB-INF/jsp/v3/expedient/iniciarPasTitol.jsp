@@ -10,6 +10,9 @@
 	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<hel:modalHead/>
+	<style>
+		body {background-image: none; padding-top: 0px;}
+	</style>
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
@@ -20,14 +23,9 @@
 	<script type="text/javascript">
 		// <![CDATA[
 		function confirmar(e) {
-			if ($('#nomesRefrescar').val() == 'true') {
-				$('#submit').remove();
-				return true;
-			}
 			var e = e || window.event;
 			e.cancelBubble = true;
 			if (e.stopPropagation) e.stopPropagation();
-			
 			return confirm("<spring:message code='expedient.iniciar.confirm_iniciar' />");
 		}
 
@@ -49,7 +47,7 @@
 	</script>
 </head>
 <body>
-	<form:form method="post" action="form" id="command" name="command" cssClass="form-horizontal form-tasca" commandName="expedientInicioPasTitolCommand">
+	<form:form method="post" action="form" id="command" name="command" cssClass="form-horizontal form-tasca" commandName="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 		<input type="hidden" name="entornId" value="${entornId}"/>
 		<input type="hidden" name="responsableCodi" value="${responsableCodi}"/>
@@ -93,9 +91,11 @@
 				</div>
 			</div>
 		</c:if>
-		<div id="formButtons">
-			<button type="submit" id="cancelar" name="accio" class="btn" value="cancelar"><spring:message code='comuns.cancelar' /></button>			
-			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar" onclick="return confirmar(event)">
+		<div id="modal-botons">
+			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+				<spring:message code='comuns.cancelar' />
+			</button>			
+			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar">
 				<spring:message code='comuns.iniciar' />
 			</button>
 		</div>

@@ -29,6 +29,16 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 
 	List<Expedient> findByProcessInstanceId(String processInstanceId);
 
+	Expedient findByEntornIdAndTipusIdAndNumero(
+			Long entornId,
+			Long tipusId,
+			String numero);
+	
+	Expedient findByEntornIdAndTipusIdAndTitol(
+			Long entornId,
+			Long tipusId,
+			String titol);
+	
 	Expedient findByEntornAndTipusAndNumero(
 			Entorn entorn,
 			ExpedientTipus tipus,

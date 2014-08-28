@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -57,10 +58,10 @@ public class ExpedientIniciController extends BaseExpedientController {
 	public static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
 	public static final String CLAU_SESSIO_PREFIX_REGISTRE = "ExpedientIniciarController_reg_";
-	
+
 	@Autowired
 	private ExpedientService expedientService;
-	
+
 	@Autowired
 	private TascaService tascaService;
 
@@ -68,108 +69,83 @@ public class ExpedientIniciController extends BaseExpedientController {
 	private PluginService pluginService;
 
 	@RequestMapping(value = "/iniciar", method = RequestMethod.GET)
-	public String iniciarGet(
-			HttpServletRequest request,
-			Model model) {
+	public String iniciarGet(HttpServletRequest request, Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn);
-			permissionService.filterAllowed(
-					tipus,
-					new ObjectIdentifierExtractor<ExpedientTipusDto>() {
-						public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
-							return expedientTipus.getId();
-						}
-					},
-					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.ADMINISTRATION,
-						ExtendedPermission.CREATE});
-			Map<Long, DefinicioProcesDto> definicionsProces = new HashMap<Long, DefinicioProcesDto>();
-			Iterator<ExpedientTipusDto> it = tipus.iterator();
-			while (it.hasNext()) {
-				ExpedientTipusDto expedientTipus = it.next();
-				DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
-				if (darrera != null)
-					definicionsProces.put(expedientTipus.getId(), darrera);
-				else
-					it.remove();
+		List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn);
+		permissionService.filterAllowed(tipus, new ObjectIdentifierExtractor<ExpedientTipusDto>() {
+			public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
+				return expedientTipus.getId();
 			}
-			model.addAttribute("expedientTipus", tipus);
-			model.addAttribute("definicionsProces", definicionsProces);
-		}  else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		}, ExpedientTipus.class, new Permission[] { ExtendedPermission.ADMINISTRATION, ExtendedPermission.CREATE });
+		Map<Long, DefinicioProcesDto> definicionsProces = new HashMap<Long, DefinicioProcesDto>();
+		Iterator<ExpedientTipusDto> it = tipus.iterator();
+		while (it.hasNext()) {
+			ExpedientTipusDto expedientTipus = it.next();
+			DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
+			if (darrera != null)
+				definicionsProces.put(expedientTipus.getId(), darrera);
+			else
+				it.remove();
 		}
-		
+		model.addAttribute("expedientTipus", tipus);
+		model.addAttribute("definicionsProces", definicionsProces);
+
 		return "v3/expedient/iniciar";
 	}
-	
+
 	@RequestMapping(value = "/iniciar", method = RequestMethod.POST)
 	public String iniciarPost(
-			HttpServletRequest request,
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			HttpServletRequest request, 
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, 
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId, 
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			if (potIniciarExpedientTipus(expedientTipus)) {
-				netejarSessio(request);
-				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID,"TIE_" + System.currentTimeMillis());
-				
-				// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
-				DefinicioProcesDto definicioProces = null;
-				if (definicioProcesId != null) {
-					definicioProces = dissenyService.getById(definicioProcesId);
-				} else {
-					definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
-				}
-				model.addAttribute("definicioProces", definicioProces);
-				if (definicioProces.isHasStartTask()) {					
-					ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProces.getId(), new HashMap<String, Object>(), request);
-					List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
-					model.addAttribute("tasca", tasca);
-					model.addAttribute("dades", dades);
-					model.addAttribute("entornId", entorn.getId());
-					model.addAttribute("expedientTipus", expedientTipus);
-					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-					return "v3/expedient/iniciarPasForm";
-				} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-					// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
-					
-					ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
-					command.setAny(Calendar.getInstance().get(Calendar.YEAR));
-					command.setExpedientTipusId(expedientTipusId);
-					// TODO
-					/*command.setNumero(
-							expedientService.getNumeroExpedientActual(
-									entorn.getId(),
-									expedientTipus,
-									command.getAny()));*/
-					command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
-					command.setEntornId(entorn.getId());
-					model.addAttribute(command);
-					model.addAttribute("entornId", entorn.getId());
-					model.addAttribute("anysSeleccionables", getAnysSeleccionables());
-					model.addAttribute("expedientTipus", expedientTipus);
-					model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-					return "v3/expedient/iniciarPasTitol";
-				} else {
-					// Si no requereix cap pas addicional inicia l'expedient directament
-					try {
-						ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProces.getId());
-						MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] {iniciat.getIdentificador()}));
-					    ExpedientIniciController.netejarSessio(request);
-					} catch (Exception ex) {
-						MissatgesHelper.error( request, getMessage(request, "error.iniciar.expedient"));
-			        	logger.error("No s'ha pogut iniciar l'expedient", ex);
-					}
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.iniciar.tipus.exp") );
-			}
+		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		netejarSessio(request);
+		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
+
+		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
+		DefinicioProcesDto definicioProces = null;
+		if (definicioProcesId != null) {
+			definicioProces = dissenyService.getById(definicioProcesId);
 		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+			definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+		}
+		model.addAttribute("definicioProces", definicioProces);
+		if (definicioProces.isHasStartTask()) {
+			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProces.getId(), new HashMap<String, Object>(), request);
+			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+			model.addAttribute("tasca", tasca);
+			model.addAttribute("dades", dades);
+			model.addAttribute("entornId", entorn.getId());
+			model.addAttribute("expedientTipus", expedientTipus);
+			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+			return "v3/expedient/iniciarPasForm";
+		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+			// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
+
+			ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
+			command.setAny(Calendar.getInstance().get(Calendar.YEAR));
+			command.setExpedientTipusId(expedientTipusId);
+			command.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, command.getAny()));
+			command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
+			command.setEntornId(entorn.getId());
+			model.addAttribute(command);
+			model.addAttribute("entornId", entorn.getId());
+			model.addAttribute("anysSeleccionables", getAnysSeleccionables());
+			model.addAttribute("expedientTipus", expedientTipus);
+			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+			return "v3/expedient/iniciarPasTitol";
+		} else {
+			// Si no requereix cap pas addicional inicia l'expedient directament
+			try {
+				ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProces.getId());
+				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+				ExpedientIniciController.netejarSessio(request);
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
+			}
 		}
 		return iniciarGet(request, model);
 	}
@@ -202,57 +178,15 @@ public class ExpedientIniciController extends BaseExpedientController {
 		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 	}
 
-	private synchronized ExpedientDto iniciarExpedient(
-			Long entornId,
-			Long expedientTipusId,
-			Long definicioProcesId) {
-		// TODO
-		/*return expedientService.iniciar(
-				entornId,
-				null,
-				expedientTipusId,
-				definicioProcesId,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				false,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				false,
-				null,
-				null,
-				false,
-				null,
-				null,
-				IniciadorTipusDto.INTERN,
-				null,
-				null,
-				null,
-				null);*/
-		return null;
+	private synchronized ExpedientDto iniciarExpedient(Long entornId, Long expedientTipusId, Long definicioProcesId) {
+		return expedientService.create(entornId, null, expedientTipusId, definicioProcesId, null, null, null, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, null, null, IniciadorTipusDto.INTERN, null, null, null, null);
 	}
-	
-	private ExpedientTascaDto obtenirTascaInicial(
-			Long entornId,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			Map<String, Object> valors,
-			HttpServletRequest request) {
-		ExpedientTascaDto tasca = new ExpedientTascaDto();
-		// TODO
-		/*ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);*/
-		tasca.setId((String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
-		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT); 
-		if (validat != null)
-			tasca.setValidada(true);
+
+	private ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
+		ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, valors);
+		tasca.setId((String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
+		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT);
+		tasca.setValidada(validat != null);
 		return tasca;
 	}
 

@@ -5,7 +5,7 @@
 
 <html>
 	<head>
-		<title><spring:message code='expedient.eines.aturar_tramitacio' /></title>
+		<title><spring:message code='comuns.anular' /></title>
 		<hel:modalHead/>
 		<style>
 			body {background-image: none; padding-top: 0px;}
@@ -14,7 +14,7 @@
 		</style>
 	</head>
 	<body>		
-		<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmar(event)">
+		<form:form id="cancelExpedient" name="cancelExpedient" action="cancelExpedient" method="post" commandName="expedientEinesCancelCommand" onsubmit="return confirmar(event)">
 			<hel:inputTextarea required="true" name="motiu" textKey="expedient.eines.motiu" placeholderKey="expedient.eines.motiu"/>
 		
 			<div id="modal-botons" class="well">
@@ -29,7 +29,7 @@
 				var e = e || window.event;
 				e.cancelBubble = true;
 				if (e.stopPropagation) e.stopPropagation();
-				return confirm('<spring:message code="expedient.eines.confirm_aturar"/>');
+				return confirm('<spring:message code="expedient.consulta.confirm.anular"/>');
 			}
 		</script>
 	</body>

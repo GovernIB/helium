@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesCancelCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientAturarController extends BaseExpedientController {
+public class ExpedientCancelController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
@@ -39,49 +39,50 @@ public class ExpedientAturarController extends BaseExpedientController {
 	@Autowired
 	private PluginService pluginService;
 
-	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.GET)
-	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
+	@RequestMapping(value = "/{expedientId}/cancel", method = RequestMethod.GET)
+	public String cancelForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		model.addAttribute("expedientId", expedientId);
-		ExpedientEinesAturarCommand aturarExpedient = new ExpedientEinesAturarCommand();
-		model.addAttribute(aturarExpedient);
-		return "v3/expedient/aturar";
+		ExpedientEinesCancelCommand cancelExpedient = new ExpedientEinesCancelCommand();
+		model.addAttribute(cancelExpedient);
+		return "v3/expedient/cancel";
 	}
 
-	@RequestMapping(value = "/{expedientId}/aturarExpedient", method = RequestMethod.POST)
-	public String aturar(
+	@RequestMapping(value = "/{expedientId}/cancelExpedient", method = RequestMethod.POST)
+	public String cancel(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model, 
-			@ModelAttribute("aturarExpedient") 
-			ExpedientEinesAturarCommand aturarExpedient, 
+			@ModelAttribute("cancelExpedient") 
+			ExpedientEinesCancelCommand cancelExpedient, 
 			BindingResult result, 
 			SessionStatus status) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
-		if (!expedient.isAturat()) {
-			new ExpedientAturarValidator().validate(aturarExpedient, result);
+		ExpedientDto expedient = expedientService.findById(expedientId);			
+		if (!expedient.isAnulat()) {
+			new ExpedientCancelValidator().validate(cancelExpedient, result);
 			if (result.hasErrors()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 				model.addAttribute("expedientId", expedientId);
-				model.addAttribute(aturarExpedient);
-				return "v3/expedient/aturar";
+				model.addAttribute(cancelExpedient);
+				return "v3/expedient/cancel";
 			}
 			try {
-				expedientService.aturar(expedientId, aturarExpedient.getMotiu());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.aturat"));
+				expedientService.cancel(expedientId, cancelExpedient.getMotiu());
+				MissatgesHelper.info(request, getMessage(request, "info.expedient.cancelat") );
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
+				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
 				ex.getLocalizedMessage();
 			}
 		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.aturat"));
+			MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.anulat"));
 		}
+		
 		return modalUrlTancar();
 	}
 
-	private class ExpedientAturarValidator implements Validator {
+	private class ExpedientCancelValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(ExpedientEinesAturarCommand.class);
+			return clazz.isAssignableFrom(ExpedientEinesCancelCommand.class);
 		}
 
 		public void validate(Object target, Errors errors) {

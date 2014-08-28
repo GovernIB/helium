@@ -11,16 +11,24 @@ import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 
@@ -490,7 +498,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void anular(
+	public void cancel(
 			Long id,
 			String motiu);
 
@@ -549,14 +557,14 @@ public interface ExpedientService {
 	 *            Atribut id de la instància de procés que es vol actualitzar.
 	 * @param versio
 	 *            Número de versió de la nova definició de procés.
+	 * @return 
 	 * @throws NotFoundException
 	 *             Si no es troba l'expedient amb l'id especificat.
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void canviVersioDefinicioProces(
+	public String canviVersioDefinicioProces(
 			Long id,
-			String processInstanceId,
 			int versio);
 
 	/**
@@ -574,6 +582,11 @@ public interface ExpedientService {
 			Long id,
 			String processInstanceId);
 
+	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
+
+	public List<InstanciaProcesDto> getArbreInstanciesProces(
+			Long processInstanceId);
+	
 	/*public ExpedientTascaDto getTascaPerExpedient(
 			Long expedientId,
 			String tascaId);
@@ -661,30 +674,29 @@ public interface ExpedientService {
 			String grupCodi,
 			boolean executatEnHandler);
 
-	public List<InstanciaProcesDto> getArbreInstanciesProces(
-			Long processInstanceId);
-
+	
+*/
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
 
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
 
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, String piId);
+	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient);
 
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient, String piId);
-
+	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient);
+	
 	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId);
-
-	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId);
-
-	public void retrocedirFinsLog(Long logId, boolean b);
+	
+	public void retrocedirFinsLog(Long logId, boolean retrocedirPerTasques);
+	
+	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId);	
 
 	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId);
-
+	
+	/*
 	public void deleteConsulta(Long expedientId);
 
 	
 
-	public List<ExpedientDto> findAmbEntornLikeIdentificador(Long id, String text);
 
 	public void deleteRelacioExpedient(Long expedientIdOrigen, Long expedientIdDesti);
 	
@@ -694,26 +706,30 @@ public interface ExpedientService {
 
 	public String getNumeroExpedientActual(Long id, ExpedientTipusDto expedientTipus, Integer any);
 
+	
+	public void anular(Long id, Long expedientId, String motiu);
+*/
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 
-	public void anular(Long id, Long expedientId, String motiu);
+	public void cancelarTasca(Long expedientId, Long taskId);
 
-	public void cancelarTasca(Long entornId, String taskId);
+	public void suspendreTasca(Long expedientId, Long taskId);
 
-	public void suspendreTasca(Long entornId, String taskId);
-
-	public void reprendreTasca(Long entornId, String taskId);
-
-	public void reassignarTasca(Long id, String taskId, String expression);
-
+	public void reprendreTasca(Long expedientId, Long taskId);
+	
 	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques);
+
+	public void reassignarTasca(String taskId, String expression);
 
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);
 
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId);
-
-	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParamsDto);
-
+	
+	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+			Long consultaId,
+			Map<String, Object> valors,
+			PaginacioParamsDto paginacioParams);
+	/*
 	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
 
 	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId);
@@ -736,11 +752,13 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
-	public List<Long> findIdsPerConsultaInformePaginat(Long id, Long consultaId, Long expedientTipusId, Map<String, Object> valorsPerService, String expedientCampId, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
+	
 
 	public void changeProcessInstanceVersion(String id, int versio);
+*/
+	public List<Long> findIdsPerConsultaInformePaginat(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
 
-	public Object evaluateScript(String processInstanceId, String script, String outputVar);*/
+	public void evaluateScript(Long expedientId, String script);
 
 	public enum FiltreAnulat {
 		ACTIUS		("expedient.consulta.anulats.actius"),
@@ -760,4 +778,9 @@ public interface ExpedientService {
 		}
 	}
 
+	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+
+	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
+
+	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);	
 }

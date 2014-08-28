@@ -20,18 +20,6 @@ public class TerminiServiceBean implements TerminiService {
 	
 	@Autowired
 	TerminiService delegate;
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TerminiIniciatDto iniciar(Long terminiId, String processInstanceId, Date data, boolean esDataFi) {
-		return delegate.iniciar(terminiId, processInstanceId, data, esDataFi);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TerminiIniciatDto iniciar(Long terminiId, String processInstanceId, Date data, int anys, int mesos, int dies, boolean esDataFi) {
-		return delegate.iniciar(terminiId, processInstanceId, data, anys, mesos, dies, esDataFi);
-	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -71,7 +59,7 @@ public class TerminiServiceBean implements TerminiService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(String[] taskInstanceIds) {
+	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(List<String> taskInstanceIds) {
 		return delegate.findIniciatsAmbTaskInstanceIds(taskInstanceIds);
 	}
 
@@ -133,6 +121,18 @@ public class TerminiServiceBean implements TerminiService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void modificarTerminiIniciat(Long terminiIniciatId, Date dataInici, int anys, int mesos, int dies) {
 		delegate.modificarTerminiIniciat(terminiIniciatId, dataInici, anys, mesos, dies);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiIniciatDto iniciar(Long terminiId, Long expedientId, Date data, boolean esDataFi) {
+		return delegate.iniciar(terminiId, expedientId, data, esDataFi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiIniciatDto iniciar(Long terminiId, Long expedientId, Date data, int anys, int mesos, int dies, boolean esDataFi) {
+		return delegate.iniciar(terminiId, expedientId, data, anys, mesos, dies, esDataFi);
 	}
 
 }

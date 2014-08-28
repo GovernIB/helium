@@ -6,14 +6,11 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTascaReassignarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,24 +47,12 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {		
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarOReassignarExpedient(expedient)) {
-				atributsModel(
-	        			entorn,
-	        			expedient,
-	        			tascaId,
-	        			model);
-				return "v3/expedient/tasca/reassignar";
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-		}		
-		return modalUrlTancar();
+			ModelMap model) {		
+		atributsModel(
+    			expedientId,
+    			tascaId,
+    			model);
+		return "v3/expedient/tasca/reassignar";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.POST)
@@ -80,48 +65,34 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {		
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarOReassignarExpedient(expedient)) {
-				if ("submit".equals(submit) || submit.length() == 0) {
-					new TascaReassignarValidator().validate(expedientTascaReassignarCommand, result);
-			        if (result.hasErrors()) {
-			        	atributsModel(
-			        			entorn,
-			        			expedient,
-			        			tascaId,
-			        			model);
-						MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
-			        	return "v3/expedient/tasca/reassignar";
-			        }
-					try {
-						// TODO
-						/*expedientService.reassignarTasca(
-								entorn.getId(),
-								expedientTascaReassignarCommand.getTaskId(),
-								expedientTascaReassignarCommand.getExpression());*/
-						MissatgesHelper.info(request, getMessage(request, "info.tasca.reassignada"));
-					} catch (Exception ex) {
-						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
-							MissatgesHelper.error(request, getMessage(request, ex.getCause().getMessage()));
-						} else {
-							MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { expedientTascaReassignarCommand.getTaskId() } ));
-						}
-						atributsModel(
-			        			entorn,
-			        			expedient,
-			        			tascaId,
-			        			model);
-			        	logger.error("No s'ha pogut reassignar la tasca " + expedientTascaReassignarCommand.getTaskId(), ex);
-			        	return "v3/expedient/tasca/reassignar";
-					}
+		if ("submit".equals(submit) || submit.length() == 0) {
+			new TascaReassignarValidator().validate(expedientTascaReassignarCommand, result);
+	        if (result.hasErrors()) {
+	        	atributsModel(
+	        			expedientId,
+	        			tascaId,
+	        			model);
+				MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
+	        	return "v3/expedient/tasca/reassignar";
+	        }
+			try {
+				expedientService.reassignarTasca(
+						expedientTascaReassignarCommand.getTaskId(),
+						expedientTascaReassignarCommand.getExpression());
+				MissatgesHelper.info(request, getMessage(request, "info.tasca.reassignada"));
+			} catch (Exception ex) {
+				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+					MissatgesHelper.error(request, getMessage(request, ex.getCause().getMessage()));
+				} else {
+					MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { expedientTascaReassignarCommand.getTaskId() } ));
 				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
+				atributsModel(
+	        			expedientId,
+	        			tascaId,
+	        			model);
+	        	logger.error("No s'ha pogut reassignar la tasca " + expedientTascaReassignarCommand.getTaskId(), ex);
+	        	return "v3/expedient/tasca/reassignar";
 			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
 		}
 		
 		return modalUrlTancar();
@@ -138,22 +109,16 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	}
 	
 	private void atributsModel(
-			EntornDto entorn,
-			ExpedientDto expedient,
+			Long expedientId,
 			String tascaId,
 			ModelMap model) {
-		ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedient.getId(), tascaId);
+		ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedientId, tascaId);
 		
 		ExpedientTascaReassignarCommand expedientTascaReassignarCommand = new ExpedientTascaReassignarCommand();
-		if (tascaId != null) {
-			expedientTascaReassignarCommand.setTaskId(tascaId);
-		}
+		expedientTascaReassignarCommand.setTaskId(tascaId);
+		
 		model.addAttribute(expedientTascaReassignarCommand);
-		model.addAttribute("expedient",expedient);
-		model.addAttribute("tasca", tasca);
-		// TODO
-		/*model.addAttribute("arbreProcessos",expedientService.getArbreInstanciesProces(Long.valueOf(tasca.getProcessInstanceId())));
-		model.addAttribute("instanciaProces",expedientService.getInstanciaProcesById(tasca.getProcessInstanceId()));*/
+		model.addAttribute("expedientIdentificador",tasca.getExpedientIdentificador());
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);

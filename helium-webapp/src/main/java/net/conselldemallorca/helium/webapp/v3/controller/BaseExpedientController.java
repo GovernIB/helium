@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -42,39 +43,16 @@ public class BaseExpedientController extends BaseController {
 		model.addAttribute("expedient", expedient);
 		model.addAttribute(
 				"participants",
-				expedientService.findParticipants(expedientId));
-		/*List<AccioDto> accions = expedientService.findAccionsVisibles(expedientId);
-		Iterator<AccioDto> it = accions.iterator();
-		while (it.hasNext()) {
-			AccioDto accio = it.next();
-			String rols = accio.getRols();
-			if (accio.isPublica()) {
-				hiHaAccionsPubliques = true;
-				break;
-			} else if (rols != null && rols.length() > 0) {
-				boolean permesa = false;
-				String[] llistaRols = rols.split(",");
-				for (String rol: llistaRols) {
-					if (request.isUserInRole(rol)) {
-						permesa = true;
-						break;
-					}
-				}
-				if (!permesa)
-					it.remove();
-			}
-		}
-		model.addAttribute("accions", accions);*/
+				expedientService.findParticipants(expedientId));		
 		model.addAttribute(
 				"accions",
 				expedientService.findAccionsVisibles(expedientId));
 		model.addAttribute(
 				"relacionats",
-				expedientService.findRelacionats(expedientId));
-		/*DefinicioProcesDto def = dissenyService.getById(instanciaProces.getDefinicioProces().getId());
-		model.addAttribute("definicioProcesJbpmId",def.getId());
-		model.addAttribute("definicioProcesDescripcio",def.getEtiqueta());
-		model.addAttribute("definicionsProces",def.getJbpmIdsAmbDescripcio());*/
+				expedientService.findRelacionats(expedientId));		
+		DefinicioProcesDto definicioProces = dissenyService.getByInstanciaProcesById(expedient.getProcessInstanceId());
+		model.addAttribute("definicioProces",definicioProces);
+		model.addAttribute("definicioProcesJbpmId",definicioProces.getJbpmId());
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)

@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
@@ -82,20 +83,22 @@
 			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
 
-		$('select[name=definicioProcesJbpmId]').on('change', function () {
+		$('#definicioProcesJbpmId').on('change', function () {
 			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
 				$.ajax({
-				    url:'${expedient.id}/' + $(this).val(),
+				    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
 				    type:'GET',
 				    dataType: 'json',
 				    success: function(data) {
-				        $("#desc_def_proc").text(data);
-				        $("#s2id_definicioProcesJbpmId").toggle();
+				        $("#canviDefinicioProcesJbpm").toggleClass('hide');
 				        $.ajax({
 							url: '<c:url value="/nodeco/v3/missatges"/>',
 							async: false,
 							timeout: 20000,
 							success: function (data) {
+								if (data.contains("alert alert-info")) {
+									$("#desc_def_proc").text(data);
+								}
 								$('#contingut-alertes *').remove();
 								$('#contingut-alertes').append(data);
 							}
@@ -265,17 +268,17 @@
 					<dt><spring:message code="expedient.info.camp.defproc"/></dt>
 					<dd>	
 						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
-						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProcesDescripcio}"/></label>&nbsp;
-						<span class="fa fa-pencil" onclick="$('#s2id_definicioProcesJbpmId').toggle();" style="cursor: pointer"></span>
+						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
+						<span class="fa fa-pencil" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span>
+						<%-- 				
 						<div id="imgDefinicioProcesJbpm" class="hide">
 							<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
-						</div>
+						</div> 
+						--%>
 					</dd>
-					<select class="span12" id="definicioProcesJbpmId" name="definicioProcesJbpmId" style="display: none;">
-						<c:forEach var="definicioProcesJbpm" items="${definicionsProces}">
-							<option <c:if test="${definicioProcesJbpmId == definicioProcesJbpm.jbpmId}">selected="selected"</c:if> value="${definicioProcesJbpm.jbpmId}"><c:out value="${definicioProcesJbpm.descripcio}"/></option>
-						</c:forEach>
-					</select>
+					<div id="canviDefinicioProcesJbpm" class="hide">
+						<hel:inputSelect inline="true" name="definicioProcesJbpmId" optionItems="${definicioProces.jbpmIdsAmbDescripcio}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
+					</div>
 				</dl>
 				<%--div class="buttonList">
 					<button class="btn btn-primary span12" type="button">Modificar informació</button>
@@ -322,10 +325,11 @@
 				<div id="expedient-info-accio" class="dropdown">
 					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></a>
 					<ul class="dropdown-menu">
-						<li><a data-modificar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
-						<li><a data-relacionar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
-						<li><a data-aturar-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/stop"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
-						<li><a data-exec-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 						<c:if test="${not empty accions}">
 							<c:set var="tePermisAccions" value="${false}"/>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
@@ -349,7 +353,7 @@
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
 				<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
-				<%--li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab">Cronograma</a></li--%>
+				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab">Cronograma</a></li>
 			</ul>
 			<div class="tab-content">
 				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
@@ -361,7 +365,7 @@
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/termini"/>">
+				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">
@@ -373,11 +377,6 @@
 			</div>
 		</div>
 	</div>
-		
-	<div id="expedient-modificar-modal"></div>	
-	<div id="expedient-aturar-modal"></div>
-	<div id="expedient-exec-modal"></div>
-	<div id="expedient-relacionar-modal"></div>
 	
 	<script type="text/javascript">
 	// <![CDATA[
@@ -385,46 +384,9 @@
 		    allowClear: true,
 		    minimumResultsForSearch: 10
 		});
-		$('#expedient-info-accio a').click(function() {
-			if ($(this).data('modificar-modal')) {
-				$('#expedient-modificar-modal').heliumModal({
-					modalUrl: $(this).attr('href'),
-					adjustWidth: true,
-					adjustHeight: true,
-					maximize: true,
-					buttonContainerId: 'formButtons'
-				});
-				return false;
-			} else if ($(this).data('aturar-modal')) {
-				$('#expedient-aturar-modal').heliumModal({
-					modalUrl: $(this).attr('href'),
-					valignTop: true,
-					buttonContainerId: 'modal-botons'
-				});
-				return false;
-			} else if ($(this).data('exec-modal')) {
-				$('#expedient-exec-modal').heliumModal({
-					modalUrl: $(this).attr('href'),
-					buttonContainerId: 'formButtons'
-				});
-				return false;
-			} else if ($(this).data('relacionar-modal')) {
-				$('#expedient-relacionar-modal').heliumModal({
-					modalUrl: $(this).attr('href'),
-					refrescarTaula: false,
-					refrescarAlertes: true,
-					refrescarPagina: false,
-					adjustWidth: false,
-					adjustHeight: false,
-					maximize: true,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-					valignTop: true,
-					buttonContainerId: 'formButtons'
-				});
-				return false;
-			} else { 
-				return true;
-			}
+		$("#expedient-info-accio a").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: false
 		});
 	//]]>
 	</script>

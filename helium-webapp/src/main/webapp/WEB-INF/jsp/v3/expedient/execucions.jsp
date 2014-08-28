@@ -10,6 +10,9 @@
 	<head>
 		<title><spring:message code='expedient.eines.execucio_scripts' /></title>
 		<hel:modalHead/>
+		<style>
+			body {background-image: none; padding-top: 0px;}
+		</style>
 	</head>
 	<body>
 		
@@ -18,7 +21,7 @@
 		
 			<hel:inputTextarea required="true" name="script" placeholder="Script" inline="true"/>
 				
-			<div id="formButtons" class="well">
+			<div id="modal-botons" class="well">
 				<button type="button" class="modal-tancar btn" name="submit" value="cancel">
 					<spring:message code='comuns.cancelar' />
 				</button>

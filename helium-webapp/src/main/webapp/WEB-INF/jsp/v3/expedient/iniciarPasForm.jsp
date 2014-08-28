@@ -16,6 +16,9 @@
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
 	<hel:modalHead/>
+	<style>
+		body {background-image: none; padding-top: 0px;}
+	</style>
 	<script type="text/javascript">
 	// <![CDATA[		
 		var accioInici;
@@ -126,8 +129,10 @@
 				</c:if>
 			</c:forEach>
 		</c:if>
-		<div id="formButtons">
-			<button type="submit" id="cancelar" name="accio" class="btn" value="cancelar"><spring:message code='comuns.cancelar' /></button>	
+		<div id="modal-botons">
+			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+				<spring:message code='comuns.cancelar' />
+			</button>			
 			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar" onclick="accioInici=this.value">
 				<spring:message code='comuns.iniciar' />
 			</button>

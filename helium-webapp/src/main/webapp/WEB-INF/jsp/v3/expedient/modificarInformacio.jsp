@@ -4,13 +4,28 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
 <head>
 	<title><spring:message code='expedient.info.informacio' /></title>
-	<c:import url="../common/formIncludes.jsp"/>
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
+	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
+	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
+	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<hel:modalHead/>
 	<style>
+		body {background-image: none; padding-top: 0px;}
 		.form-group {width: 100%;}
 		.fila_reducida {width: 100%;}		
 		.col-xs-4 {width: 20%;}		
@@ -73,7 +88,7 @@
 		<div class="control-group fila_reducida">
 			<hel:inputText name="grupCodi" textKey="expedient.editar.grup_codi" placeholderKey="expedient.editar.grup_codi"/>
 		</div>
-		<div id="formButtons">
+		<div id="modal-botons">
 			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
 			</button>
@@ -84,3 +99,4 @@
 	</form:form>
  		
 </body>
+</html>

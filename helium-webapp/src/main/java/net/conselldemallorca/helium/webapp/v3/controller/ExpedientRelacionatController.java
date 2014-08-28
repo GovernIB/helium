@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -44,8 +46,6 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		// TODO
-		// NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
 		model.addAttribute("expedientId", expedientId);		
 		model.addAttribute(
 				"relacionats",
@@ -67,25 +67,15 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			ExpedientRelacionarCommand command, 
 			BindingResult result, 
 			SessionStatus status) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientDto expedientOrig = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedientOrig)) {
-				try {
-					ExpedientDto expedientDest = expedientService.findById(command.getExpedientIdDesti());
-					expedientService.createRelacioExpedient(
-							expedientId,
-							expedientDest.getId());
-					MissatgesHelper.info(request, getMessage(request, "expedient.relacionar.ok"));
-				} catch (Exception ex) {
-				  	MissatgesHelper.error(request, getMessage(request, "error.expedient.relacionar"));
-				  	logger.error("No s'ha pogut relacionar l'expedient " + expedientOrig.getIdentificador(), ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		ExpedientDto expedientOrig = expedientService.findById(expedientId);
+		try {
+			expedientService.createRelacioExpedient(
+					expedientId,
+					command.getExpedientIdDesti());
+			MissatgesHelper.info(request, getMessage(request, "expedient.relacionar.ok"));
+		} catch (Exception ex) {
+		  	MissatgesHelper.error(request, getMessage(request, "error.expedient.relacionar"));
+		  	logger.error("No s'ha pogut relacionar l'expedient " + expedientOrig.getIdentificador(), ex);
 		}
 		return modalUrlTancar();
 	}
@@ -97,24 +87,12 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			@RequestParam(value = "expedientIdOrigen", required = true) Long expedientIdOrigen,
 			@RequestParam(value = "expedientIdDesti", required = true) Long expedientIdDesti,
 			Model model) {
-	EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-	if (entorn != null) {
-		ExpedientDto expedient = expedientService.findById(expedientId);
-		if (potModificarExpedient(expedient)) {
-				try {
-					expedientService.deleteRelacioExpedient(
-							expedientIdOrigen,
-							expedientIdDesti);
-					MissatgesHelper.info(request, getMessage(request, "expedient.relacio.esborrar.ok"));
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"));
-		        	logger.error("No s'ha pogut relacionar l'expedient " + expedient.getIdentificador(), ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+		try {
+			expedientService.deleteRelacioExpedient(expedientIdOrigen, expedientIdDesti);
+			MissatgesHelper.info(request, getMessage(request, "expedient.relacio.esborrar.ok"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"));
+			logger.error("No s'ha pogut relacionar l'expedient " + expedientId, ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -126,17 +104,14 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			@PathVariable String text,
 			ModelMap model) {
 		String json = "[";
-		// TODO
-		/*EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			List<ExpedientDto> lista = expedientService.findAmbEntornLikeIdentificador(
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		List<ExpedientDto> lista = expedientService.findSuggestAmbEntornLikeIdentificador(
 					entorn.getId(),
 					text);
-			for (ExpedientDto expediente: lista) {
-				json += "{\"codi\":\"" + expediente.getId() + "\", \"nom\":\"" + expediente.getIdentificador() + "\"},";
-			}
-			if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		}*/
+		for (ExpedientDto expediente: lista) {
+			json += "{\"codi\":\"" + expediente.getId() + "\", \"nom\":\"" + expediente.getIdentificador() + "\"},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
 		json += "]";
 		return json;
 	}

@@ -67,33 +67,22 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			BindingResult result, 
 			SessionStatus status) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedient)) {
-				new ExpedientScriptValidator().validate(expedientEinesScriptCommand, result);
-				if (result.hasErrors()) {
-					model.addAttribute("expedientId", expedientId);
-					model.addAttribute(expedientEinesScriptCommand);
-					return "v3/expedient/execucions";
-				}
-				try {
-					// TODO
-					/*expedientService.evaluateScript(
-							expedient.getProcessInstanceId(),
-							expedientEinesScriptCommand.getScript(),
-							null);*/
-					MissatgesHelper.info(request, getMessage(request, "info.script.executat"));
-				} catch (Exception ex) {
-					Long entornId = entorn.getId();
-					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
-					MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ expedientEinesScriptCommand.getScript());
-		        }
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
-		}	
+		new ExpedientScriptValidator().validate(expedientEinesScriptCommand, result);
+		if (result.hasErrors()) {
+			model.addAttribute("expedientId", expedientId);
+			model.addAttribute(expedientEinesScriptCommand);
+			return "v3/expedient/execucions";
+		}
+		try {
+			expedientService.evaluateScript(
+					expedientId,
+					expedientEinesScriptCommand.getScript());
+			MissatgesHelper.info(request, getMessage(request, "info.script.executat"));
+		} catch (Exception ex) {
+			Long entornId = entorn.getId();
+			logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
+			MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ expedientEinesScriptCommand.getScript());
+        }
 		return modalUrlTancar();
 	}
 	
@@ -113,39 +102,34 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			@RequestParam(value = "accioId", required = true) Long accioId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			boolean permesa = false;
-			AccioDto accio = dissenyService.findAccioAmbId(accioId);
-			if (accio.getRols() == null || accio.getRols().length() == 0) {
-				permesa = true;
-			} else {
-				String[] llistaRols = accio.getRols().split(",");
-				for (String rol: llistaRols) {
-					if (request.isUserInRole(rol)) {
-						permesa = true;
-						break;
-					}
+		boolean permesa = false;
+		AccioDto accio = dissenyService.findAccioAmbId(accioId);
+		if (accio.getRols() == null || accio.getRols().length() == 0) {
+			permesa = true;
+		} else {
+			String[] llistaRols = accio.getRols().split(",");
+			for (String rol: llistaRols) {
+				if (request.isUserInRole(rol)) {
+					permesa = true;
+					break;
 				}
 			}
-			if (permesa) {
-				ExpedientDto expedient = expedientService.findById(expedientId);
-				if (accio.isPublica() || potModificarExpedient(expedient)) {
-					try {
-						dissenyService.executarAccio(accio, expedient);
-						MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
-					} catch (JbpmException ex ) {
-						MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accio.getJbpmAction() + ": "+ ex.getCause().getMessage());
-			        	logger.error("ENTORNID:"+expedient.getEntorn().getId()+" NUMEROEXPEDIENT:"+expedient.getId()+" Error al executar la accio", ex);
-					}
-				} else {
-					MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
+		}
+		if (permesa) {
+			ExpedientDto expedient = expedientService.findById(expedientId);
+			if (accio.isPublica() || potModificarExpedient(expedient)) {
+				try {
+					dissenyService.executarAccio(accio, expedient);
+					MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
+				} catch (JbpmException ex ) {
+					MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accio.getJbpmAction() + ": "+ ex.getCause().getMessage());
+		        	logger.error("ENTORNID:"+expedient.getEntorn().getId()+" NUMEROEXPEDIENT:"+expedient.getId()+" Error al executar la accio", ex);
 				}
 			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.accio.no.permesa"));
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
 			}
 		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
+			MissatgesHelper.error(request, getMessage(request, "error.accio.no.permesa"));
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}

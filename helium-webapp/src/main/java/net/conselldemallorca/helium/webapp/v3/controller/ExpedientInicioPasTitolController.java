@@ -6,12 +6,14 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -63,13 +65,10 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			@PathVariable int anySel,
 			@PathVariable Long entornId,
 			@PathVariable Long expedientTipusId) {
-		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		// TODO
-		String number = "0";
-		/*String number = expedientService.getNumeroExpedientActual(
+		String number = expedientService.getNumeroExpedientActual(
 				entornId,
-				expedientTipus,
-				anySel);*/
+				expedientTipusId,
+				anySel);
 		return JSONValue.toJSONString(number);
 	}
 
@@ -163,19 +162,16 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				boolean teTitol = (tipus.isTeNumero() && tipus.isDemanaTitol());
 				if (teTitol && (command.getTitol() == null || command.getTitol().length() == 0))
 					errors.rejectValue("titol", "not.blank");
-				// TODO
-				/*if (teTitol && expedientService.existsExpedientAmbEntornTipusITitol(
+				boolean existsExpedientAmbEntornTipusITitol = expedientService.existsExpedientAmbEntornTipusITitol(
 						command.getEntornId(),
 						command.getExpedientTipusId(),
-						command.getTitol())) {
+						command.getTitol());
+				if (teTitol && existsExpedientAmbEntornTipusITitol) {
 					errors.rejectValue("titol", "error.expedient.titolrepetit");
 				}
-				if (teNumero && expedientService.existsExpedientAmbEntornTipusITitol(
-						command.getEntornId(),
-						command.getExpedientTipusId(),
-						command.getNumero())) {
+				if (teNumero && existsExpedientAmbEntornTipusITitol) {
 					errors.rejectValue("numero", "error.expedient.numerorepetit");
-				}*/
+				}
 			}
 		}
 	}
@@ -189,10 +185,8 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			String numero,
 			String titol,
 			Integer any) {
-		return new ExpedientDto();
-		// TODO
-		/*Map<String, Object> valorsSessio = (Map<String, Object>)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
-		return expedientService.iniciar(
+		Map<String, Object> valorsSessio = (Map<String, Object>)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
+		return expedientService.create(
 				entornId,
 				null,
 				expedientTipusId,
@@ -221,7 +215,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				null,
 				null,
 				null,
-				null);*/
+				null);
 	}
 
 	protected static final Log logger = LogFactory.getLog(ExpedientIniciController.class);

@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
@@ -33,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -50,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -87,6 +90,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private EstatRepository estatRepository;
 	@Resource
@@ -136,6 +141,16 @@ public class DissenyServiceImpl implements DissenyService {
 			definicioProcesDto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
 		}
 		return definicioProcesDto;
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public DefinicioProcesDto getByInstanciaProcesById(String processInstanceId) {
+		InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(processInstanceId);;
+		if (instanciaProces.getDefinicioProces() != null) {	
+			return getById(instanciaProces.getDefinicioProces().getId());
+		}
+		return null;
 	}
 	
 	@Transactional(readOnly=true)
@@ -367,17 +382,19 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<TerminiDto> findTerminisAmbDefinicioProcesId(Long definicioProcesId) {
-		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(expedient.getProcessInstanceId());
 		return conversioTipusHelper.convertirList(
-				terminiRepository.findByDefinicioProces(definicioProces),
+				terminiRepository.findByDefinicioProcesId(instanciaProces.getDefinicioProces().getId()),
 				TerminiDto.class);
 	}
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
-		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
+	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
 	}
 

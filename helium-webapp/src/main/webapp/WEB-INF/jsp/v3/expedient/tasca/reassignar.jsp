@@ -6,12 +6,13 @@
 
 <html>
 <head>
-	<title><spring:message code='alerta.llistat.expedient' />: ${expedient.identificadorLimitat}</title>
+	<title><spring:message code='alerta.llistat.expedient' />: ${expedientIdentificador}</title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<hel:modalHead/>
 	<style>
+		body {background-image: none;}
 		.col-xs-4 {width: auto;}
 		.col-xs-8 {width: 77%;}
 		.form-group {width: 100%;}
@@ -19,13 +20,13 @@
 </head>
 <body>
 	<form:form action="reassignar" cssClass="form-horizontal form-tasca" commandName="expedientTascaReassignarCommand">
-		<input type="hidden" name="taskId" value="${tasca.id}"/>
+		<form:hidden path="taskId"/>
 
 		<div class="control-group fila_reducida">
 			<hel:inputText required="true" name="expression" textKey="expedient.tasca.expresio_assignacio" placeholderKey="expedient.tasca.expresio_assignacio"/>
 		</div>
 		
-		<div id="formReasignar">
+		<div id="modal-botons">
 			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
 			</button>

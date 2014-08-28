@@ -134,10 +134,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignarCancelar", method = RequestMethod.POST)
 	public String deleteAction(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) Long id) {
-		// TODO
-		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		
+			@RequestParam(value = "id", required = true) Long id) {		
 		reassignacioUsuarisService.deleteReassignacio(id);
 		MissatgesHelper.info(request, getMessage(request, "info.reassignacio.cancelat") );
 		return "v3/expedient/tasca/reassignarUsuaris";

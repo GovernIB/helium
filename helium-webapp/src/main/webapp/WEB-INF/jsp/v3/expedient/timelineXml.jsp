@@ -1,8 +1,6 @@
 <%@ page language="java" contentType="application/xml; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 
 <data>
 <c:forEach var="camp" items="${instanciaProces.camps}"><c:if test="${not empty instanciaProces.variables[camp.codi]}">

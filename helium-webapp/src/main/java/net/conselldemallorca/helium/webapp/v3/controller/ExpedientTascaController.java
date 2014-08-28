@@ -8,7 +8,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -57,9 +56,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 		List<ExpedientTascaDto> tasques = expedientService.findTasques(
 				expedientId);
 		model.addAttribute("tasques", tasques);
-		/*model.addAttribute(
+		model.addAttribute(
 				"expedientLogIds",
-				expedientService.findLogIdTasquesById(tasques));*/
+				expedientService.findLogIdTasquesById(tasques));
 		return "v3/expedientTasca";
 	}
 
@@ -89,22 +88,11 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long tascaId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();	
-		if (entorn != null) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedient)) {
-				try {
-					// TODO
-					/*expedientService.cancelarTasca(entorn.getId(), String.valueOf(tascaId));*/
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId)} ));
-		        	logger.error("No s'ha pogut cancel·lar la tasca " + String.valueOf(tascaId), ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		try {
+			expedientService.cancelarTasca(expedientId, tascaId);
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId)} ));
+        	logger.error("No s'ha pogut cancel·lar la tasca " + String.valueOf(tascaId), ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -114,24 +102,14 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long tascaId,
-			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();	
-		if (entorn != null) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedient)) {
-				try {
-					// TODO
-					/*expedientService.suspendreTasca(entorn.getId(), String.valueOf(tascaId));*/
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.suspendre.tasca", new Object[] {tascaId} ));
-		        	logger.error("No s'ha pogut suspendre la tasca " + tascaId, ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+			ModelMap model) {		
+		try {
+			expedientService.suspendreTasca(expedientId, tascaId);
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.suspendre.tasca", new Object[] {tascaId} ));
+        	logger.error("No s'ha pogut suspendre la tasca " + tascaId, ex);
 		}
+			
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 
@@ -141,22 +119,11 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long tascaId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();	
-		if (entorn != null) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
-			if (potModificarExpedient(expedient)) {
-				try {
-					// TODO
-					/*expedientService.reprendreTasca(entorn.getId(), String.valueOf(tascaId));*/
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.reprendre.tasca", new Object[] {tascaId} ));
-		        	logger.error("No s'ha pogut reprendre la tasca " + tascaId, ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		try {
+			expedientService.reprendreTasca(expedientId, tascaId);
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.reprendre.tasca", new Object[] {tascaId} ));
+        	logger.error("No s'ha pogut reprendre la tasca " + tascaId, ex);
 		}
 		
 		return "redirect:/v3/expedient/"+expedientId;
@@ -169,17 +136,13 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long tascaId,
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();	
-		if (entorn != null) {
-			try {
-				tascaService.delegacioCancelar(entorn.getId(), String.valueOf(tascaId));
+		try{
+			tascaService.delegacioCancelar(entorn.getId(), String.valueOf(tascaId));
 				MissatgesHelper.info(request, getMessage(request, "info.delegacio.cancelat") );
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
 	        	logger.error("No s'ha pogut cancel·lar la delegació de la tasca " + tascaId, ex);
 			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
-		}
 		
 		return "redirect:/v3/expedient/"+expedientId;
 	}

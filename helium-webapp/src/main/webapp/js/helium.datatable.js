@@ -2,6 +2,7 @@
 	$.fn.heliumDataTable = function(options) {
 		return this.filter("table").each(function() {
 			var settings = $.extend({
+				paginacio: true,
 				backgroundColor: "white",
 				infoOcultar: false,
 				ajaxRefrescarTaula: true,
@@ -174,7 +175,7 @@
 				});
 			}
 			var dataTableParams = {
-				"iDisplayLength": 10,
+				"iDisplayLength": ($(this).data("rdt-display-length-default") != undefined) ? $(this).data("rdt-display-length-default") : 10,
 				"aLengthMenu": [[10, 50, 100], [10, 50, 100]],
 				"aaSorting": aaSorting,
 				"aoColumns": aoColumns,

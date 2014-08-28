@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +27,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -63,7 +64,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				dissenyService.findEstatByExpedientTipus(
 						expedient.getTipus().getId()));
 		model.addAttribute(getCommandModificar(expedient));
-		return "v3/expedient/modificar";
+		return "v3/expedient/modificarInformacio";
 	}
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.POST)
@@ -98,21 +99,6 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return modalUrlTancar();
 	}
 
-	@RequestMapping(value = "/{expedientId}/anular", method = RequestMethod.POST)
-	public String suspend(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			@RequestParam(value = "motiu", required = true) String motiu,
-			Model model) {
-		expedientService.anular(expedientId, motiu);
-		MissatgesHelper.info(
-				request,
-				getMessage(
-						request,
-						"info.expedient.anulat"));
-		return "redirect:/v3/expedient/" + expedientId;
-	}
-
 	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
 	public String delete(
 			HttpServletRequest request,
@@ -126,7 +112,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient";
 	}
 
-	@RequestMapping(value = "/{expedientId}/imatgeProces", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/imatgeDefProces", method = RequestMethod.GET)
 	public String imatgeProces(
 			HttpServletRequest request,
 			@PathVariable(value = "expedientId") Long expedientId, 
@@ -144,19 +130,24 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	}
 	
 	@RequestMapping(value = "/{expedientId}/updateDefinicioProces/{versio}", method = RequestMethod.GET)
+	@ResponseBody
 	public String changeDefProc(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable int versio,
 			ModelMap model) {
-		expedientService.canviVersioDefinicioProces(
-				expedientId,
-				null,
-				versio);
-		return "redirect:/v3/expedient";
+		String nom = null;
+		try {
+			nom = expedientService.canviVersioDefinicioProces(
+					expedientId,
+					versio);
+			MissatgesHelper.info(request, getMessage(request, "info.canvi.versio.realitzat") );
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+		}
+	        	
+		return JSONValue.toJSONString(nom);
 	}
-
-
 
 	private ExpedientEditarCommand getCommandModificar(ExpedientDto expedient) {		
 		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();
@@ -195,5 +186,4 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
 		}
 	}
-
 }

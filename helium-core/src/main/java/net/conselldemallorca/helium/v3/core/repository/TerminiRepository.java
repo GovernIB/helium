@@ -9,6 +9,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -23,6 +25,10 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 			DefinicioProces definicioProces,
 			String codi);
 	
-	List<Termini> findByDefinicioProces(DefinicioProces definicioProces);
+	@Query(	"select t from " +
+			"    Termini t " +
+			"where " +
+			"    t.definicioProces.id = :definicioProcesId")
+	List<Termini> findByDefinicioProcesId(@Param("definicioProcesId") Long definicioProcesId);
 
 }

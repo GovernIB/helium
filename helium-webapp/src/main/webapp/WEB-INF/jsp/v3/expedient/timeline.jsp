@@ -1,11 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
-<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
-
+<html>
+<head>
 <style>
 .timeline-event-bubble-time {
 	display: none;
@@ -13,13 +11,15 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
-	Timeline_ajax_url="<c:url value="/js/timeline_2.3.0/timeline_ajax/simile-ajax-api.js"/>";
-	Timeline_urlPrefix="<c:url value="/js/timeline_2.3.0/timeline_js/"/>";       
+	Timeline_ajax_url='<c:url value="/js/timeline_2.3.0/timeline_ajax/simile-ajax-api.js"/>';
+	Timeline_urlPrefix='<c:url value="/js/timeline_2.3.0/timeline_js/"/>';       
 	Timeline_parameters="bundle=true";
 // ]]>
 </script>
 <script src="<c:url value="/js/timeline_2.3.0/timeline_js/timeline-api.js?defaultLocale=ca"/>" type="text/javascript"></script>
 
+</head>
+<body>
 <div id="cronograma" style="height: 400px; border: 1px solid #aaa"></div>
 
 <script type="text/javascript">
@@ -56,7 +56,7 @@
 	bandInfos[1].syncWith = 0;
 	bandInfos[1].highlight = true;
 	tl = Timeline.create(document.getElementById("cronograma"), bandInfos);
-	Timeline.loadXML("${expedient.id}/timelineXml?id=${instanciaProces.id}", function(xml, url) { eventSource.loadXML(xml, url); });
+	Timeline.loadXML("timelineXml", function(xml, url) { eventSource.loadXML(xml, url); });
 	
 	
 	var resizeTimerID = null;
@@ -72,3 +72,5 @@
 	window.onresize = onResize;
 // ]]>
 </script>
+</body>
+</html>

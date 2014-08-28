@@ -10,6 +10,9 @@
 <head>
 	<title><spring:message code="expedient.iniciar.disponibles"/></title>
 	<hel:modalHead/>
+		<style>
+			body {background-image: none; padding-top: 0px;}
+		</style>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 <script type="text/javascript">
@@ -45,7 +48,7 @@ function confirmar(e, form) {
 			</form>
 		</display:column>
 	</display:table>
-	<div id="formButtons" class="well">
+	<div id="modal-botons" class="well">
 		<button type="button" class="modal-tancar btn" name="submit" value="cancel">
 			<spring:message code='comuns.cancelar' />
 		</button>

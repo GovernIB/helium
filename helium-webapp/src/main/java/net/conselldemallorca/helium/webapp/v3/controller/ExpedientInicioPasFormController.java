@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -105,12 +106,11 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 					ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
 					command.setAny(Calendar.getInstance().get(Calendar.YEAR));
 					command.setExpedientTipusId(expedientTipusId);
-					// TODO
-					/*command.setNumero(
+					command.setNumero(
 							expedientService.getNumeroExpedientActual(
 									entorn.getId(),
-									expedientTipus,
-									command.getAny()));*/
+									expedientTipusId,
+									command.getAny()));
 					command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
 					command.setEntornId(entorn.getId());
 					model.addAttribute(command);
@@ -197,9 +197,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			Long definicioProcesId,
 			Map<String, Object> valors,
 			HttpServletRequest request) {
-		// TODO
-		ExpedientTascaDto tasca = new ExpedientTascaDto();
-		/*ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);*/
+		ExpedientTascaDto tasca = expedientService.getStartTask( entornId, expedientTipusId, definicioProcesId, valors);
 		tasca.setId((String)request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
 		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT); 
 		if (validat != null)
@@ -227,9 +225,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			String titol,
 			Integer any,
 			Map<String, Object> valors) {
-		return new ExpedientDto();
-		// TODO
-		/*return expedientService.iniciar(
+		return expedientService.create(
 				entornId,
 				null,
 				expedientTipusId,
@@ -258,7 +254,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				null,
 				null,
 				null,
-				null);*/
+				null);
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientIniciController.class);

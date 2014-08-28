@@ -169,19 +169,25 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
-		return delegate.findIniciatsAmbProcessInstanceId(processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiDto> findTerminisAmbDefinicioProcesId(Long definicioProcesId) {
-		return delegate.findTerminisAmbDefinicioProcesId(definicioProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TerminiIniciatDto findIniciatAmbId(Long id) {
 		return delegate.findIniciatAmbId(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId) {
+		return delegate.findIniciatsAmbExpedientId(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId) {
+		return delegate.findTerminisAmbExpedientId(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto getByInstanciaProcesById(String processInstanceId) {
+		return delegate.getByInstanciaProcesById(processInstanceId);
 	}
 }

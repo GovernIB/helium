@@ -8,9 +8,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 
 public interface TerminiService {
 
-	public TerminiIniciatDto iniciar(Long terminiId, String processInstanceId, Date data, boolean esDataFi);
+	public TerminiIniciatDto iniciar(Long terminiId, Long expedientId, Date data, boolean esDataFi);
 
-	public TerminiIniciatDto iniciar(Long terminiId, String processInstanceId, Date data, int anys, int mesos, int dies, boolean esDataFi);
+	public TerminiIniciatDto iniciar(Long terminiId, Long expedientId, Date data, int anys, int mesos, int dies, boolean esDataFi);
 
 	public void pausar(Long terminiIniciatId, Date data);
 
@@ -24,7 +24,7 @@ public interface TerminiService {
 
 	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId);
 
-	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(String[] taskInstanceIds);
+	public List<TerminiIniciatDto> findIniciatsAmbTaskInstanceIds(List<String> taskInstanceIds);
 
 	public TerminiIniciatDto findIniciatAmbTerminiIdIProcessInstanceId(Long terminiId, String processInstanceId);
 
