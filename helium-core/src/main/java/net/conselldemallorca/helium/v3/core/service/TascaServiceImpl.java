@@ -247,17 +247,18 @@ public class TascaServiceImpl implements TascaService {
 			dataLimitFi.setTime(cal.getTime().getTime());
 		}
 		final LlistatIds ids = jbpmHelper.findListTasks(
-				responsable, 
+				responsable,
 				tasca,
-				idsExpedients, 
-				dataCreacioInici, 
+				idsExpedients,
+				dataCreacioInici,
 				dataCreacioFi,
-				prioritat, 
-				dataLimitInici, 
-				dataLimitFi, 
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
 				paginacioParams,
 				mostrarTasquesPersonals,
-				mostrarTasquesGrup);
+				mostrarTasquesGrup,
+				true);
 		final List<JbpmTask> tasques = jbpmHelper.findTasks(ids.getIds());
 		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
 			@Override

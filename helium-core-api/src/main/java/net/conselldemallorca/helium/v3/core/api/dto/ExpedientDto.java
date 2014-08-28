@@ -13,8 +13,7 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
-	private static final long serialVersionUID = -9207907579002520198L;
+public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	
 	private static final String SEPARADOR_SISTRA = "#";
 
@@ -27,7 +26,7 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 		INTERN,
 		SISTRA
 	}
-	
+
 	public ExpedientDto(IniciadorTipusDto iniciadorTipus, String iniciadorCodi, ExpedientTipusDto tipus, EntornDto entorn, String processInstanceId) {
 		this.iniciadorTipus = iniciadorTipus;
 		this.iniciadorCodi = iniciadorCodi;
@@ -420,5 +419,7 @@ public class ExpedientDto implements Serializable, GenericEntityDto<Long> {
 	public String getIdentificacioPerLogs() {
 		return null;
 	}
+
+	private static final long serialVersionUID = -9207907579002520198L;
 
 }

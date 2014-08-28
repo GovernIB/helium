@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -109,7 +109,7 @@ public class AclServiceDao {
 
 	@SuppressWarnings("rawtypes")
 	public boolean isGrantedAny(
-			GenericEntityDto object,
+			GenericEntity object,
 			Class clazz,
 			Permission[] permissions) {
 		return permisosHelper.isGrantedAny(

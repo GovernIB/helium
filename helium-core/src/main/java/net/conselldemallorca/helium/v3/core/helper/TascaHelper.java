@@ -13,26 +13,30 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto.TascaEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto.TascaPrioritatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter.DadesCacheTasca;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -47,8 +51,6 @@ public class TascaHelper {
 
 	@Resource
 	TascaRepository tascaRepository;
-	@Resource
-	ExpedientRepository expedientRepository;
 	@Resource(name="tascaServiceV3")
 	private TascaService tascaService;
 	@Resource
@@ -56,21 +58,11 @@ public class TascaHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private VariableHelper variableHelper;
-	@Resource
-	private PluginHelper pluginHelper;
-	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
-	@Resource
-	private DominiHelper dominiHelper;
-	@Resource
-	private EnumeracioValorsHelper enumeracioValorsHelper;
-	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource(name = "permisosHelperV3")
+	private PermisosHelper permisosHelper;
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
 	@Resource
@@ -113,9 +105,50 @@ public class TascaHelper {
 	public List<ExpedientTascaDto> findTasquesPerExpedient(
 			Expedient expedient) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
-		for (JbpmTask task: tasks)
-			resposta.add(toExpedientTascaCompleteDto(task, expedient));
+		/*List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(
+				expedient.getProcessInstanceId());*/
+		List<JbpmProcessInstance> pis = jbpmHelper.getProcessInstanceTree(
+				expedient.getProcessInstanceId());
+		List<Long> expedientIds = new ArrayList<Long>();
+		for (JbpmProcessInstance pi: pis) {
+			expedientIds.add(new Long(pi.getId()));
+		}
+		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+		paginacioParams.afegirOrdre(
+				"dataCreacio",
+				OrdreDireccioDto.DESCENDENT);
+		paginacioParams.setPaginaNum(0);
+		paginacioParams.setPaginaTamany(-1);
+		// Si l'usuari te permis de supervisio mostra totes les tasques de
+		// l'expedient de qualsevol usuari
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean isPermisSupervision = permisosHelper.isGrantedAny(
+				expedient.getTipus().getId(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		final LlistatIds ids = jbpmHelper.findListTasks(
+				(isPermisSupervision) ? null : auth.getName(), 
+				null,
+				expedientIds, 
+				null, 
+				null,
+				null, 
+				null, 
+				null, 
+				paginacioParams,
+				true,
+				true,
+				!isPermisSupervision);
+		List<JbpmTask> tasks = jbpmHelper.findTasks(ids.getIds());
+		for (JbpmTask task: tasks) {
+			resposta.add(
+					toExpedientTascaCompleteDto(
+							task,
+							expedient));
+		}
 		return resposta;
 	}
 

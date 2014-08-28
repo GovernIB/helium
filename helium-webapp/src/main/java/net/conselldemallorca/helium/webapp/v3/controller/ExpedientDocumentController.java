@@ -42,7 +42,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					"documents",
 					expedientService);
 		}
-		model.addAttribute("expedientId", expedientId);
+		model.addAttribute(
+				"expedient",
+				expedientService.findById(expedientId));
 		model.addAttribute(
 				"documents",
 				expedientService.findDocumentsPerInstanciaProces(

@@ -40,7 +40,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 					"dades",
 					expedientService);
 		}
-		model.addAttribute("expedientId", expedientId);
+		model.addAttribute(
+				"expedient",
+				expedientService.findById(expedientId));
 		model.addAttribute(
 				"dades",
 				expedientService.findDadesPerInstanciaProces(

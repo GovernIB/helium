@@ -193,15 +193,30 @@ $(document).ready(function() {
 				</th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
+				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="true" data-rdt-sortable="false">
+					Permisos
+					<script id="cellPermisosTemplate" type="text/x-jsrender">
+						{{if permisCreate}}C{{/if}}
+						{{if permisRead}}R{{/if}}
+						{{if permisWrite}}W{{/if}}
+						{{if permisDelete}}D{{/if}}
+						{{if permisSupervision}}S{{/if}}
+						{{if permisReassignment}}G{{/if}}
+					</script>
+				</th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code='comuns.obrir'/></a></li>
-								<li><a href="<c:url value="../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>
-								<li><a href="<c:url value="../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>
-								<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>
+								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
+								{{if permisWrite}}<li><a href="../v3/expedient/{{:id}}/suspend" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
+								{{if permisWrite}}<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
+								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>
@@ -219,5 +234,6 @@ $(document).ready(function() {
 			<a data-rdt-link-modal="true" id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 		</div>
 	</script>
+
 </body>
 </html>

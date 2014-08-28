@@ -5,8 +5,10 @@ package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,20 +21,16 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
-import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
-import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
+import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
@@ -40,7 +38,6 @@ import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
 import org.jbpm.jpdl.el.VariableResolver;
 import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
-import org.springframework.context.MessageSource;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,34 +55,12 @@ public class ExpedientHelper {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
-	@Resource
-	private DominiHelper dominiHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
-	@Resource
+	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private ConsultaHelper consultaHelper;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource
-	private MessageSource messageSource;
-	@Resource
-	private CampRepository campRepository;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private CampAgrupacioRepository campAgrupacioRepository;
-	@Resource
-	private ConsultaCampRepository consultaCampRepository;
-	@Resource(name="permissionServiceV3")
-	private PermissionService permissionService;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
 
 	/*public Expedient getExpedientComprovantPermisosAny(
 			Long expedientId,
@@ -131,7 +106,7 @@ public class ExpedientHelper {
 		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		if (comprovarPermisRead) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					new Permission[] {
@@ -145,9 +120,9 @@ public class ExpedientHelper {
 			}
 		}
 		if (comprovarPermisWrite) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
-					Expedient.class,
+					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION},
@@ -159,9 +134,9 @@ public class ExpedientHelper {
 			}
 		}
 		if (comprovarPermisDelete) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
-					Expedient.class,
+					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.DELETE,
 						ExtendedPermission.ADMINISTRATION},
@@ -292,6 +267,99 @@ public class ExpedientHelper {
 			return campExpedient;
 		}
 		return null;
+	}
+
+	public void omplirPermisosExpedients(List<ExpedientDto> expedients) {
+		Set<Long> expedientTipusIds = new HashSet<Long>();
+		for (ExpedientDto expedient: expedients) {
+			expedientTipusIds.add(expedient.getTipus().getId());
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		ObjectIdentifierExtractor<Long> oie = new ObjectIdentifierExtractor<Long>() {
+			public Long getObjectIdentifier(Long id) {
+				return id;
+			}
+		};
+		List<Long> idsAmbPermisCreate = new ArrayList<Long>();
+		idsAmbPermisCreate.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisCreate,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.CREATE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisRead = new ArrayList<Long>();
+		idsAmbPermisRead.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisRead,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisWrite = new ArrayList<Long>();
+		idsAmbPermisWrite.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisWrite,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisDelete = new ArrayList<Long>();
+		idsAmbPermisDelete.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisDelete,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.DELETE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisSupervision = new ArrayList<Long>();
+		idsAmbPermisSupervision.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisSupervision,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisReassignment = new ArrayList<Long>();
+		idsAmbPermisReassignment.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisReassignment,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.REASSIGNMENT,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		for (ExpedientDto expedient: expedients) {
+			Long tipusId = expedient.getTipus().getId();
+			expedient.setPermisCreate(
+					idsAmbPermisCreate.contains(tipusId));
+			expedient.setPermisRead(
+					idsAmbPermisRead.contains(tipusId));
+			expedient.setPermisWrite(
+					idsAmbPermisWrite.contains(tipusId));
+			expedient.setPermisDelete(
+					idsAmbPermisDelete.contains(tipusId));
+			expedient.setPermisSupervision(
+					idsAmbPermisSupervision.contains(tipusId));
+			expedient.setPermisReassignment(
+					idsAmbPermisReassignment.contains(tipusId));
+		}
+	}
+	public void omplirPermisosExpedient(ExpedientDto expedient) {
+		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
+		expedients.add(expedient);
+		omplirPermisosExpedients(expedients);
 	}
 
 	public String getNumeroExpedientActual(

@@ -382,7 +382,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (titol != null && titol.length() > 0)
 					expedient.setTitol(titol);
 				else
-					// TODO: multiidioma
 					expedient.setTitol("[Sense títol]");
 			}
 
@@ -704,6 +703,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		ExpedientDto expedientDto = conversioTipusHelper.convertir(
 				expedient,
 				ExpedientDto.class);
+		expedientHelper.omplirPermisosExpedient(expedientDto);
 		return expedientDto;
 	}
 
@@ -904,6 +904,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		PaginaDto<ExpedientDto> resposta = paginacioHelper.toPaginaDto(
 				paginaResultats,
 				ExpedientDto.class);
+		expedientHelper.omplirPermisosExpedients(resposta.getContingut());
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		return resposta;
@@ -1173,29 +1174,26 @@ public class ExpedientServiceImpl implements ExpedientService {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				expedient.getProcessInstanceId());
 		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
-		// TODO Comprovar rols de les accions
+		// Filtra les accions restringides per rol que
+		// no estan permeses per a l'usuari actual
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		for (GrantedAuthority ga: auth.getAuthorities()) {
-			System.out.println(">>> Authority: " + ga.getAuthority());
+		Iterator<Accio> it = accions.iterator();
+		while (it.hasNext()) {
+			Accio accio = it.next();
+			if (accio.getRols() != null) {
+				boolean permesa = false;
+				for (String rol: accio.getRols().split(",")) {
+					if (isUserInRole(auth, rol)) {
+						permesa = true;
+						break;
+					}
+				}
+				if (!permesa) it.remove();
+			}
 		}
-//		List<AccioDto> accionsDto = new ArrayList<AccioDto>();		
-//		for (Accio accio: accions) {
-//			String rols = accio.getRols();
-//			if (accio.isPublica()) {
-//				accionsDto.add(conversioTipusHelper.convertir(accio,AccioDto.class));
-//			} else if (rols != null && rols.length() > 0) {
-//				String[] llistaRols = rols.split(",");
-//				for (String rol: llistaRols) {
-//					if (true) {
-//						//if (request.isUserInRole(rol)) {
-//						// TODO Comprovar rols de les accions
-//						accionsDto.add(conversioTipusHelper.convertir(accio,AccioDto.class));
-//						break;
-//					}
-//				}
-//			}
-//		}
-		return conversioTipusHelper.convertirList(accions,AccioDto.class);
+		return conversioTipusHelper.convertirList(
+				accions,
+				AccioDto.class);
 	}
 
 	@Override
@@ -1613,6 +1611,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return dtos;
 	}
 
+	@Override
 	@Transactional
 	public void evaluateScript(
 			Long expedientId,
@@ -1640,26 +1639,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraCalcular("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 	}
 
-	private void verificarFinalitzacioExpedient(Expedient expedient, JbpmProcessInstance pi) {
-		if (pi.getEnd() != null) {
-			// Actualitzar data de fi de l'expedient
-			expedient.setDataFi(pi.getEnd());
-			// Finalitzar terminis actius
-			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
-				if (terminiIniciat.getDataInici() != null) {
-					terminiIniciat.setDataCancelacio(new Date());
-					long[] timerIds = terminiIniciat.getTimerIdsArray();
-					for (int i = 0; i < timerIds.length; i++)
-						jbpmHelper.suspendTimer(
-								timerIds[i],
-								new Date(Long.MAX_VALUE));
-				}
-			}
-		}
-	}
-
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornId, String text) {
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
 		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, text);
@@ -1714,8 +1695,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientDto.class);
 	}
 */
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(final Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
@@ -2218,21 +2199,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return sb.toString();
 	}
 */
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		return dtoConverter.toInstanciaProcesDto(processInstanceId);
 	}
 
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId) {
 		List<Registre> registre = registreRepository.findByExpedientId(expedientId);
 		return conversioTipusHelper.convertirList(registre, RegistreDto.class);
 	}
 
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
@@ -2248,8 +2229,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
@@ -2270,74 +2251,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		return resposta;
 	}
-	
-	private List<ExpedientLogDto> logsOrdenats(ExpedientLog log, String parentProcessInstanceId, Map<String, String> processos) {
-		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
-		// Obtenim el token de cada registre
-		JbpmToken token = null;
-		if (log.getJbpmLogId() != null) {
-			token = expedientLoggerHelper.getTokenByJbpmLogId(log.getJbpmLogId());
-		}
-		String tokenName = null;
-		String processInstanceId = null;
-		if (token != null && token.getToken() != null) {
-			tokenName = token.getToken().getFullName();
-			processInstanceId = token.getProcessInstanceId();
-			
-			// Entram per primera vegada
-			if (parentProcessInstanceId == null) {
-				parentProcessInstanceId = processInstanceId;
-				processos.put(processInstanceId, "");
-			} else {
-				// Canviam de procés
-				if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
-					// Entram en un nou subproces
-					if (!processos.containsKey(processInstanceId)) {
-						processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
-						
-						// Añadimos una nueva línea para indicar la llamada al subproceso
-						ExpedientLogDto dto = new ExpedientLogDto();
-						dto.setId(log.getId());
-						dto.setData(log.getData());
-						dto.setUsuari(log.getUsuari());
-						dto.setEstat(ExpedientLogEstat.IGNORAR.name());
-						dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
-						String titol = null;
-						if (token.getToken().getProcessInstance().getKey() == null)
-							titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
-						else 
-							titol = token.getToken().getProcessInstance().getKey();
-						dto.setAccioParams(titol);
-						dto.setTargetId(log.getTargetId());
-						dto.setTargetTasca(false);
-						dto.setTargetProces(false);
-						dto.setTargetExpedient(true);
-						resposta.add(dto);
-					}
-				}
-				tokenName = processos.get(processInstanceId) + tokenName;
-			}
-		}
-			
-		ExpedientLogDto dto = new ExpedientLogDto();
-		dto.setId(log.getId());
-		dto.setData(log.getData());
-		dto.setUsuari(log.getUsuari());
-		dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
-		dto.setAccioTipus(log.getAccioTipus().name());
-		dto.setAccioParams(log.getAccioParams());
-		dto.setTargetId(log.getTargetId());
-		dto.setTokenName(tokenName);
-		dto.setTargetTasca(log.isTargetTasca());
-		dto.setTargetProces(log.isTargetProces());
-		dto.setTargetExpedient(log.isTargetExpedient());
-		resposta.add(dto);
-		
-		return resposta;
-	}
-	
-	@Transactional(readOnly=true)
+
 	@Override
+	@Transactional(readOnly=true)
 	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId) {
 		logger.debug("Consultant tasques l'expedient (id=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -2357,36 +2273,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return tasquesPerLogs;
 	}
-	
-	private void afegirValorsPredefinits(
-			Consulta consulta,
-			Map<String, Object> valors,
-			List<Camp> campsFiltre) {
-		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
-			String[] parelles = consulta.getValorsPredefinits().split(",");
-			for (String parelle : parelles) {
-				String[] parella = (parelle.contains(":")) ? parelle.split(":") : parelle.split("=");
-				if (parella.length == 2) {
-					String campCodi = parella[0];
-					String valor = parella[1];
-					for (Camp camp: campsFiltre) {
-						if (camp.getCodi().equals(campCodi)) {
-							consulta.getExpedientTipus().getJbpmProcessDefinitionKey();
-							valors.put(
-									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
-									CampDto.getComObject(
-											conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class),
-											valor));
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	@Transactional(readOnly=true)
+
 	@Override
+	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
@@ -2395,8 +2284,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp.FILTRE);
 	}
 
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId) {
 		Consulta consulta = consultaHelper.findById(consultaId);
 		return serviceUtils.findCampsPerCampsConsulta(
@@ -2404,8 +2293,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				TipusConsultaCamp.INFORME);
 	}
 	
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
 			Long consultaId,
 			Map<String, Object> valors,
@@ -2492,8 +2381,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 							new Object[]{usuari}));
 	}
 */
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<Long> findIdsPerConsultaInformePaginat(
 			Long consultaId,
 			Map<String, Object> valors,
@@ -2518,8 +2407,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
-	@Transactional(readOnly=true)
 	@Override
+	@Transactional(readOnly=true)
 	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long logId) {
 		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
@@ -2541,8 +2430,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 //		return resposta;
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques) {
 		ExpedientLog log = expedientLogRepository.findById(expedientLogId);
 		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
@@ -2557,8 +2446,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId) {
 		List<ExpedientLog> logs = expedientLoggerHelper.findLogsRetrocedits(logId);
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
@@ -2606,15 +2495,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	
 */
-	@Transactional
 	@Override
+	@Transactional
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
 		return expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol) != null;
 	}
 	
 	
-	@Transactional
 	@Override
+	@Transactional
 	public void suspendreTasca(
 			Long expedientId,
 			Long taskId) {
@@ -2631,8 +2520,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 				Registre.Accio.ATURAR);
 	}
 
-	@Transactional
 	@Override
+	@Transactional
+	public String getNumeroExpedientActual(
+			Long entornId,
+			Long expedientTipusId,
+			Integer any) {
+		logger.debug("Consulta del número d'expedient pel tipus d'expedient(" +
+				"entornId" + entornId + ", " +
+				"expedientTipusId" + expedientTipusId + ", " +
+				"any=" + any + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				false,
+				false);
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return this.getNumeroExpedientActual(
+				entorn,
+				expedientTipus,
+				any);
+	}
+
+	@Override
+	@Transactional
 	public ExpedientTascaDto getStartTask(
 			Long entornId,
 			Long expedientTipusId,
@@ -2659,8 +2570,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return null;
 	}
 	
-	@Transactional
 	@Override
+	@Transactional
 	public void reprendreTasca(
 			Long expedientId,
 			Long taskId) {
@@ -2683,8 +2594,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				Registre.Accio.REPRENDRE);
 	}
 	
-	@Transactional
 	@Override
+	@Transactional
 	public void cancelarTasca(
 			Long expedientId,
 			Long taskId) {
@@ -2715,8 +2626,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return expedientDao.findAmbProcessInstanceId(pi.getId());
 	}
 */
-	@Transactional
 	@Override
+	@Transactional
 	public void reassignarTasca(String taskId, String expression) {
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
@@ -2740,6 +2651,128 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expression);
 	}
 
+	@Override
+	@Transactional(readOnly=true)
+	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques) {
+		List<String> tasquesIds = new ArrayList<String>();
+		for (ExpedientTascaDto tasca : tasques) {
+			tasquesIds.add(tasca.getId());
+		}
+		return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
+	}
+
+
+
+	private void verificarFinalitzacioExpedient(Expedient expedient, JbpmProcessInstance pi) {
+		if (pi.getEnd() != null) {
+			// Actualitzar data de fi de l'expedient
+			expedient.setDataFi(pi.getEnd());
+			// Finalitzar terminis actius
+			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
+				if (terminiIniciat.getDataInici() != null) {
+					terminiIniciat.setDataCancelacio(new Date());
+					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					for (int i = 0; i < timerIds.length; i++)
+						jbpmHelper.suspendTimer(
+								timerIds[i],
+								new Date(Long.MAX_VALUE));
+				}
+			}
+		}
+	}
+
+	private List<ExpedientLogDto> logsOrdenats(ExpedientLog log, String parentProcessInstanceId, Map<String, String> processos) {
+		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		// Obtenim el token de cada registre
+		JbpmToken token = null;
+		if (log.getJbpmLogId() != null) {
+			token = expedientLoggerHelper.getTokenByJbpmLogId(log.getJbpmLogId());
+		}
+		String tokenName = null;
+		String processInstanceId = null;
+		if (token != null && token.getToken() != null) {
+			tokenName = token.getToken().getFullName();
+			processInstanceId = token.getProcessInstanceId();
+			
+			// Entram per primera vegada
+			if (parentProcessInstanceId == null) {
+				parentProcessInstanceId = processInstanceId;
+				processos.put(processInstanceId, "");
+			} else {
+				// Canviam de procés
+				if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
+					// Entram en un nou subproces
+					if (!processos.containsKey(processInstanceId)) {
+						processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+						
+						// Añadimos una nueva línea para indicar la llamada al subproceso
+						ExpedientLogDto dto = new ExpedientLogDto();
+						dto.setId(log.getId());
+						dto.setData(log.getData());
+						dto.setUsuari(log.getUsuari());
+						dto.setEstat(ExpedientLogEstat.IGNORAR.name());
+						dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
+						String titol = null;
+						if (token.getToken().getProcessInstance().getKey() == null)
+							titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
+						else 
+							titol = token.getToken().getProcessInstance().getKey();
+						dto.setAccioParams(titol);
+						dto.setTargetId(log.getTargetId());
+						dto.setTargetTasca(false);
+						dto.setTargetProces(false);
+						dto.setTargetExpedient(true);
+						resposta.add(dto);
+					}
+				}
+				tokenName = processos.get(processInstanceId) + tokenName;
+			}
+		}
+			
+		ExpedientLogDto dto = new ExpedientLogDto();
+		dto.setId(log.getId());
+		dto.setData(log.getData());
+		dto.setUsuari(log.getUsuari());
+		dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
+		dto.setAccioTipus(log.getAccioTipus().name());
+		dto.setAccioParams(log.getAccioParams());
+		dto.setTargetId(log.getTargetId());
+		dto.setTokenName(tokenName);
+		dto.setTargetTasca(log.isTargetTasca());
+		dto.setTargetProces(log.isTargetProces());
+		dto.setTargetExpedient(log.isTargetExpedient());
+		resposta.add(dto);
+		
+		return resposta;
+	}
+
+	private void afegirValorsPredefinits(
+			Consulta consulta,
+			Map<String, Object> valors,
+			List<Camp> campsFiltre) {
+		if (consulta.getValorsPredefinits() != null && consulta.getValorsPredefinits().length() > 0) {
+			String[] parelles = consulta.getValorsPredefinits().split(",");
+			for (String parelle : parelles) {
+				String[] parella = (parelle.contains(":")) ? parelle.split(":") : parelle.split("=");
+				if (parella.length == 2) {
+					String campCodi = parella[0];
+					String valor = parella[1];
+					for (Camp camp: campsFiltre) {
+						if (camp.getCodi().equals(campCodi)) {
+							consulta.getExpedientTipus().getJbpmProcessDefinitionKey();
+							valors.put(
+									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
+									CampDto.getComObject(
+											conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class),
+											valor));
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	private Registre crearRegistreRedirigirTasca(
 			Long expedientId,
 			String tascaId,
@@ -2756,30 +2789,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return registreRepository.save(registre);
 	}
 	
-	@Transactional(readOnly=true)
-	@Override
-	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques) {
-		List<String> tasquesIds = new ArrayList<String>();
-		for (ExpedientTascaDto tasca : tasques) {
-			tasquesIds.add(tasca.getId());
+	private boolean isUserInRole(
+			Authentication auth,
+			String role) {
+		for (GrantedAuthority ga: auth.getAuthorities()) {
+			if (role.equals(ga.getAuthority()))
+				return true;
 		}
-		return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
+		return false;
 	}
 
-//	public DefinicioProces getDefinicioProcesPerProcessInstanceId(String processInstanceId) {
-//		JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
-//		return definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
-//	}
-
-	@Transactional
-	@Override
-	public String getNumeroExpedientActual(
-			Long entornId,
-			Long expedientTipusId,
+	private String getNumeroExpedientActual(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
 			Integer any) {
 		long increment = 0;
 		String numero = null;
-		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
 		ExpedientTipusDto expedientTipusDto = conversioTipusHelper.convertir(expedientTipus, ExpedientTipusDto.class);
 		Expedient expedient = null;
 		if (any == null) 
@@ -2789,9 +2814,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedientTipus,
 					any.intValue(),
 					increment);
-			expedient = expedientRepository.findByEntornIdAndTipusIdAndNumero(
-					entornId,
-					expedientTipusId,
+			expedient = expedientRepository.findByEntornAndTipusAndNumero(
+					entorn,
+					expedientTipus,
 					numero);
 			increment++;
 		} while (expedient != null);
@@ -2830,14 +2855,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 			PersonaDto persona = pluginHelper.findPersonaAmbCodi(usuari);
 			if (persona == null) {
 				throw new NotFoundException(
-						new Long(-1),
+						usuari,
 						PersonaDto.class);
 			}
 			return persona;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut comprovar l'usuari (codi=" + usuari + ")");
 			throw new NotFoundException(
-					new Long(-1),
+					usuari,
 					PersonaDto.class);
 		}
 	}

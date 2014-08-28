@@ -52,7 +52,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 					"tasques",
 					expedientService);
 		}
-		model.addAttribute("expedientId", expedientId);
+		model.addAttribute(
+				"expedient",
+				expedientService.findById(expedientId));
 		List<ExpedientTascaDto> tasques = expedientService.findTasques(
 				expedientId);
 		model.addAttribute("tasques", tasques);

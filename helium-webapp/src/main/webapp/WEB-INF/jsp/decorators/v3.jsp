@@ -27,9 +27,17 @@
 		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
 	<![endif]-->
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+<style>
+body {
+	background-image:url(<c:url value="/img/background-pattern.jpg"/>);
+	color:#666666;
+	padding-top: 120px;
+}
+</style>
 	<decorator:head />
 </head>
 <body>
+	<!-- default v3 -->
 	<div class="navbar navbar-default navbar-fixed-top navbar-app" role="navigation">
 		<div class="container">
 			<div class="navbar-header">

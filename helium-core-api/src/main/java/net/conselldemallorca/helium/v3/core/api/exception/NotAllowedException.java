@@ -14,12 +14,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 @SuppressWarnings("serial")
 public class NotAllowedException extends RuntimeException {
 
-	private Long objectId;
+	private Object objectId;
 	private Class<?> objectClass;
 	private PermisTipusEnumDto permisTipus;
-	
+
 	public NotAllowedException(
-			Long objectId,
+			Object objectId,
 			Class<?> objectClass,
 			PermisTipusEnumDto permisTipus) {
 		super();
@@ -28,7 +28,7 @@ public class NotAllowedException extends RuntimeException {
 		this.permisTipus = permisTipus;
 	}
 
-	public Long getObjectId() {
+	public Object getObjectId() {
 		return objectId;
 	}
 	public Class<?> getObjectClass() {
@@ -37,6 +37,20 @@ public class NotAllowedException extends RuntimeException {
 
 	public PermisTipusEnumDto getPermisTipus() {
 		return permisTipus;
+	}
+
+	public String getObjectInfo() {
+		StringBuilder sb = new StringBuilder();
+		if (objectClass != null)
+			sb.append(objectClass.getClass().getName());
+		else
+			sb.append("null");
+		sb.append("#");
+		if (objectId != null)
+			sb.append(objectId.toString());
+		else
+			sb.append("null");
+		return sb.toString();
 	}
 
 }

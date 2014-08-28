@@ -43,6 +43,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private int maxResults;
 	private String sort;
 	private boolean asc;
+	private boolean nomesActives = true;
 
 	public int getFirstRow() {
 		return firstRow;
@@ -58,7 +59,15 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 
 	public void setMaxResults(int maxResults) {
 		this.maxResults = maxResults;
-	}	
+	}
+
+	public boolean isNomesActives() {
+		return nomesActives;
+	}
+
+	public void setNomesActives(boolean nomesActives) {
+		this.nomesActives = nomesActives;
+	}
 
 	public GetRootProcessInstancesForActiveTasksCommand() {}
 	
@@ -106,7 +115,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitFi = dataLimitFi;
 		this.mostrarTasquesPersonals = mostrarTasquesPersonals;
 		this.pooled = mostrarTasquesGrup;
-		
 		for (OrdreDto or : ordres) {
 			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 			this.sort = or.getCamp();
@@ -128,9 +136,10 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
-		    "  ti.isSuspended = false " +
-		    (pooled != null && pooled == false ? "  and ti.actorId is not null " : "") + 
-		    "  and ti.isOpen = true";
+		    "  ti.isSuspended = false and ti.isOpen = true " +
+		    ((nomesActives) ? "ti.isSuspended = false and ti.isOpen = true" : "") +
+		    ((nomesActives && pooled != null && pooled == false) ? " and " : "") +
+		    ((pooled != null && pooled == false) ? "ti.actorId is not null " : "");
 		
 		String hqlPersonal =
 		    "select  " + 
@@ -141,9 +150,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
-		    "  ti.actorId = :actorId " + 
-		    "  and ti.isSuspended = false " +
-		    "  and ti.isOpen = true";
+		    "    ti.actorId = :actorId " + 
+		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true" : "");
 		  
 		String hqlPooled =  
 		    "select  " + 
@@ -156,9 +164,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "  join ti.pooledActors pooledActor " +
 		    "  where " +
 		    "  pooledActor.actorId = :actorId " +
-		    "  and ti.actorId is null " + 
-		    "  and ti.isSuspended = false " +
-		    "  and ti.isOpen = true";
+		    "and ti.actorId is null " + 
+		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true" : "");
 		  
 		String hql = "";
 		

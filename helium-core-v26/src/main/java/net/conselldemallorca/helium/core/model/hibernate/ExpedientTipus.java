@@ -28,8 +28,6 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
 
-import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
-
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.ForeignKey;
@@ -51,7 +49,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_expedient_tipus",
 		indexes = @Index(name = "hel_exptip_entorn_i", columnNames = {"entorn_id"}))
-public class ExpedientTipus implements Serializable, GenericEntityDto<Long> {
+public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 	private Long id;
 	@NotBlank

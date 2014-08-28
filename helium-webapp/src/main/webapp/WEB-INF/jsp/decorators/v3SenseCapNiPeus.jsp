@@ -26,6 +26,7 @@
 	<decorator:head />
 </head>
 <body>
+	<!-- Sense cap ni peus v3 -->
 	<div>
 		<div id="contingut-alertes"><hel:missatges/></div>
 		<decorator:body />

@@ -24,13 +24,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
-import net.conselldemallorca.helium.v3.core.api.dto.GenericEntityDto;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -298,13 +298,13 @@ public class ServiceUtils {
 		Iterator it = list.iterator();
 		while (it.hasNext()) {
 			Object entry = it.next();
-			if (!isGrantedAny((GenericEntityDto)entry, clazz, permissions))
+			if (!isGrantedAny((GenericEntity)entry, clazz, permissions))
 				it.remove();
 		}
 	}
 	@SuppressWarnings("rawtypes")
 	public Object filterAllowed(
-			GenericEntityDto object,
+			GenericEntity object,
 			Class clazz,
 			Permission[] permissions) {
 		if (isGrantedAny(object, clazz, permissions)) {
@@ -478,7 +478,7 @@ public class ServiceUtils {
 
 	@SuppressWarnings("rawtypes")
 	private boolean isGrantedAny(
-			GenericEntityDto object,
+			GenericEntity object,
 			Class clazz,
 			Permission[] permissions) {
 		return aclServiceDao.isGrantedAny(object, clazz, permissions);

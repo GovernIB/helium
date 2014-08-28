@@ -16,8 +16,7 @@ import java.util.TreeMap;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientTipusDto implements Serializable, GenericEntityDto<Long> {
-	private static final long serialVersionUID = 4990928454645567913L;
+public class ExpedientTipusDto implements Serializable {
 	
 	private Long id;
 	private String codi;
@@ -236,4 +235,7 @@ public class ExpedientTipusDto implements Serializable, GenericEntityDto<Long> {
 	public void setConConsultasActivasPorTipo(boolean conConsultasActivasPorTipo) {
 		this.conConsultasActivasPorTipo = conConsultasActivasPorTipo;
 	}
+
+	private static final long serialVersionUID = 4990928454645567913L;
+
 }
