@@ -191,7 +191,6 @@ public abstract class BaseTest {
 		baseUrl = properties.getProperty("test.base.url.disseny");
 		assertNotNull("Url base no configurada al fitxer de properties", baseUrl);
 		driver.get(baseUrl);
-		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos de disseny a Helium");
 	}
 	protected void carregarUrlFeina() {
 		baseUrl = properties.getProperty("test.base.url.feina");
@@ -320,7 +319,7 @@ public abstract class BaseTest {
 			fail("Error acceptant alert.");
 		}
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-	} 
+	}
 	
 	protected void acceptarConfirm(String msg) {
 		try {
@@ -340,6 +339,17 @@ public abstract class BaseTest {
 			fail("Error rebutjant alert.");
 		}
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+	}
+	
+	protected String getTexteAlerta() {
+		String out = "";
+		try {
+			out = driver.switchTo().alert().getText();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Error agafant el texte de alert.");
+		}
+		return out;
 	}
 
 	// ............................................................................................................
@@ -463,10 +473,10 @@ public abstract class BaseTest {
 			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut eliminar l'entorn de proves");
 		}
 	}
-	
+
 	// DEFINICIÓ DE PROCÉS
 	// ............................................................................................................	
-	protected enum TipusDesplegament {
+	public enum TipusDesplegament {
 		JBPM,
 		EXPORTDEFPRC,
 		EXPORTTIPEXP
@@ -560,12 +570,12 @@ public abstract class BaseTest {
 		actions.click();
 		actions.build().perform();
 		if (tipExp) {
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][text() = '" + nomTipusExp + "']]", "defproces/importPar/tipusExp/3_definicionsExistents.png", "No s'ha pogut importar la definició de procés a nivell de tipus d'expedient");
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][text() = '" + nomTipusExp + "']]", "defproces/importPar/tipusExp/3_definicionsExistents.png", "No s'ha pogut importar la definició de procés ("+nomDefProc+") a nivell de tipus d'expedient");
 		} else {
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés a nivell global");
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[3][not(text())]]", "No s'ha pogut importar la definició de procés ("+nomDefProc+") a nivell global");
 		}
 		if (versio != null) {
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[2][text() = '" + (versio + 1) + "']]", "No s'ha actualitzat la versió de la definició de procés");
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "') and td[2][text() = '" + (versio + 1) + "']]", "No s'ha actualitzat la versió de la definició de procés ("+nomDefProc+")");
 		}
 	}
 	
@@ -773,6 +783,20 @@ public abstract class BaseTest {
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]", "No s'han pogut eliminar el domini");
 	}
 	
+	protected void eliminarConsultaTipus(String codiConsulta) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/consulta/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]/td[8]/a")).click();
+			acceptarAlerta();
+		}
+		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]", "No s'han pogut eliminar la consulta");
+	}
+	
 	// TIPUS D'EXPEDIENT
 	// ............................................................................................................	
 	protected void crearTipusExpedient(String nom, String codi) {
@@ -795,6 +819,64 @@ public abstract class BaseTest {
 		}
 	}
 	
+	protected void modificarTipusExpedientComplet(String codi, String nom, String expressio, String anySeq0, String seqSeq0, String anySeq1, String seqSeq1, String responsable) {
+		
+		driver.findElement(By.xpath("//*[@id='content']/div/form[contains(@action, '/expedientTipus/form.html')]/button")).click();
+		
+		//driver.findElement(By.id("codi0")).sendKeys(codi);
+		//driver.findElement(By.id("nom0")).sendKeys(nom);
+		driver.findElement(By.id("teTitol0")).click();
+		driver.findElement(By.id("demanaTitol0")).click();
+		driver.findElement(By.id("teNumero0")).click();
+		driver.findElement(By.id("demanaNumero0")).click();
+		
+		driver.findElement(By.id("expressioNumero0")).sendKeys(expressio);
+		
+		driver.findElement(By.id("reiniciarCadaAny0")).click();
+		
+		driver.findElement(By.xpath("//*[@id='seqMultiple']/div/button[text() = 'Afegir']")).click();
+		
+		driver.findElement(By.id("seqany_0")).sendKeys(anySeq0);
+		driver.findElement(By.id("seqseq_0")).sendKeys(seqSeq0);
+		
+		driver.findElement(By.xpath("//*[@id='seqMultiple']/div/button[text() = 'Afegir']")).click();
+		
+		driver.findElement(By.id("seqany_1")).sendKeys(anySeq1);
+		driver.findElement(By.id("seqseq_1")).sendKeys(seqSeq1);
+		
+		driver.findElement(By.id("suggest_responsableDefecteCodi0")).sendKeys(responsable);
+		
+		driver.findElement(By.id("restringirPerGrup0")).click();
+		driver.findElement(By.id("seleccionarAny0")).click();
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']")).click();
+	}
+
+	protected void comprobarTipusExpedientComplet(String codi, String nom, String expressio, String anySeq0, String seqSeq0, String anySeq1, String seqSeq1, String responsable) {
+		
+		driver.findElement(By.xpath("//*[@id='content']/div/form[contains(@action, '/expedientTipus/form.html')]/button")).click();
+			
+		if (!nom.equals(driver.findElement(By.id("nom0")).getAttribute("value"))) { fail("El nom del tipus d´expedient no coincideix amb l´esperat ("+nom+")"); }
+		if (!checkboxSelected("//*[@id='teTitol0']", true)) {fail("El check 'Amb títol' del tipus d´expedient hauria de estar seleccionat"); }
+		if (!checkboxSelected("//*[@id='demanaTitol0']", true)) {fail("El check 'Demana títol' del tipus d´expedient hauria de estar seleccionat"); }
+		if (!checkboxSelected("//*[@id='teNumero0']", true)) {fail("El check 'Amb numero' del tipus d´expedient hauria de estar seleccionat"); }
+		if (!checkboxSelected("//*[@id='demanaNumero0']", true)) {fail("El check 'Demana numero' del tipus d´expedient hauria de estar seleccionat"); }
+		if (!expressio.equals(driver.findElement(By.id("expressioNumero0")).getAttribute("value"))) { fail("La expressió calculada del tipus d´expedient no coincideix amb l´esperada ("+expressio+")"); }
+		
+		//TODO: Responsable es un suggest, investigar com es damunt el valor suggerit, perque amb el sendKeys no es guarda.
+		//if (!responsable.equals(driver.findElement(By.id("suggest_responsableDefecteCodi0")).getAttribute("value"))) { fail("El responsable del tipus d´expedient no coincideix amb l´esperat ("+responsable+")"); }
+		
+		if (!checkboxSelected("//*[@id='reiniciarCadaAny0']", true)) {fail("El check 'Reiniciar Sequencia anualmetn' del tipus d´expedient hauria de estar seleccionat"); }
+		
+		if (!anySeq0.equals(driver.findElement(By.id("seqany_1")).getAttribute("value"))) { fail("L'any de la sequencia 0 del tipus d´expedient no coincideix amb l´esperada ("+anySeq0+")"); }
+		if (!seqSeq0.equals(driver.findElement(By.id("seqseq_1")).getAttribute("value"))) { fail("La seq de la sequencia 0 del tipus d´expedient no coincideix amb l´esperada ("+seqSeq0+")"); }
+		if (!anySeq1.equals(driver.findElement(By.id("seqany_0")).getAttribute("value"))) { fail("L'any de la sequencia 1 del tipus d´expedient no coincideix amb l´esperada ("+anySeq1+")"); }
+		if (!seqSeq1.equals(driver.findElement(By.id("seqseq_0")).getAttribute("value"))) { fail("La seq de la sequencia 1 del tipus d´expedient no coincideix amb l´esperada ("+seqSeq1+")"); }
+		
+		if (!checkboxSelected("//*[@id='restringirPerGrup0']", true)) {fail("El check 'Restringir accés segons el grups de l'usuari' del tipus d´expedient hauria de estar seleccionat"); }
+		if (!checkboxSelected("//*[@id='seleccionarAny0']", true)) {fail("El check 'Permetre seleccionar any d'inici d'expedient' del tipus d´expedient hauria de estar seleccionat"); }
+	}
+	
 	protected void seleccionarTipExp(String codTipExp) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -802,7 +884,7 @@ public abstract class BaseTest {
 		actions.click();
 		actions.build().perform();
 
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipExp + "')]", "No s'ha trobat el tips d'expedient");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipExp + "')]", "No s'ha trobat el tipus d'expedient");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipExp + "')]/td[1]/a")).click();
 	}
 	
@@ -818,21 +900,22 @@ public abstract class BaseTest {
 		}
 	}
 
-	protected void importarDadesTipExp(String codiTipusExp, String path) {		
+	protected void importarDadesTipExp(String codiTipusExp, String path) {
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+codiTipusExp+"')]")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a, '"+codiTipusExp+"')]/a")).click();
 
 		// Deploy
-		driver.findElement(By.xpath("//*[@id='content']/div[2]/h3/img")).click();
+		driver.findElement(By.xpath("//*[@id='content']/div/h3/img[contains(@src,'magnifier_zoom_in.png')]")).click();
 		driver.findElement(By.id("arxiu0")).sendKeys(path);
-		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		driver.findElement(By.xpath("//*[@id='command']//div[@class='buttonHolder']/button[text() = 'Importar']")).click();
 		
-		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definició de procés de test");
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar el tipus d´expedient de test");
 	}
 	
 	
@@ -854,6 +937,52 @@ public abstract class BaseTest {
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar los datos de la definició de procés de '"+defProc+"' de la ruta '"+path+"'");
 	}
+	
+	protected void desplegarTipExp(TipusDesplegament tipDesp, String nomTipusExp, String path, String etiqueta) {
+		// Comprovam si existeix. En cas de que existeixi, comprovam si està a tipus d'expedient, i el número de versió
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		noExisteixElementAssert("//*[@id='registre']//tr[contains(td[2],'" + nomTipusExp + "')]", "El tipus d'expedient ja està desplegat");
+		
+		// Anem a fer el deploy
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/deploy.html')]")));
+		actions.click();
+		actions.build().perform();
+
+		// Deploy
+		driver.findElement(By.xpath("//option[@value='" + tipDesp.name() + "']")).click();
+
+		// Path
+		driver.findElement(By.id("arxiu0")).sendKeys(path);
+		
+		// Etiqueta
+		if (etiqueta != null) {
+			driver.findElement(By.id("etiqueta0")).clear();
+			driver.findElement(By.id("etiqueta0")).sendKeys(etiqueta);
+		}
+
+		driver.findElement(By.xpath("//button[@value='submit']")).click();
+		
+		if (etiqueta != null) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomTipusExp + "')]")).click();
+			existeixElementAssert("//*[@id='content']/dl/dd[5][text() = '" + etiqueta + "']", "No s'ha desat la etiqueta del tipus d´expedient.");
+		}
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+
+		existeixElementAssert("//*[@id='registre']//tr[contains(td[2],'" + nomTipusExp + "')]", "No s'ha pogut importar el tipus d'expedient");
+	}
+	
 	protected void eliminarExpedient(String numExpediente, String tituloExpediente) {
 		eliminarExpedient(numExpediente, tituloExpediente, null);
 	}
@@ -918,6 +1047,11 @@ public abstract class BaseTest {
 	}
 	
 	protected void assignarPermisosTipusExpedient(String tipusExp, String usuari, String... permisos) {
+		assignarPermisosTipusExpedient(tipusExp, usuari, false, permisos);
+	}
+	
+	protected void assignarPermisosTipusExpedient(String tipusExp, String usuari, boolean esRol, String... permisos) {
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
@@ -953,13 +1087,45 @@ public abstract class BaseTest {
 				driver.findElement(By.xpath("//input[@value='READ']")).click();
 			} else if ("ADMINISTRATION".equals(permis)) {
 				driver.findElement(By.xpath("//input[@value='ADMINISTRATION']")).click();
+			} else if ("REASSIGNMENT".equals(permis)) {
+				driver.findElement(By.xpath("//input[@value='REASSIGNMENT']")).click();
 			}
 		}
+		
+		if (esRol) {
+			if (driver.findElement(By.id("usuari0")).isSelected()) {
+				driver.findElement(By.id("usuari0")).click();
+			}
+		}else{
+			if (!driver.findElement(By.id("usuari0")).isSelected()) {
+				driver.findElement(By.id("usuari0")).click();
+			}
+		}
+		
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
 	}
+
+	protected void desasignarPermisosTipusExpedient(String tipusExp, String usuari) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]", "No s'ha trobat el tipus d´expedient");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]/td[3]/form/button")).click();
+		
+		//driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td, '"+usuari+"')]/td/a[contains(@href, '/permisos/expedientTipusEsborrar.html')]")).click();
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[td//text()[contains(., '"+usuari+"')]]/td/a[contains(@href, '/permisos/expedientTipusEsborrar.html')]")).click();
+
+		if (isAlertPresent()) {acceptarAlerta();}
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar els permisos");
+	}
 	
 	protected byte[] downloadFile(String xpath, String fitxer) {
+		
 		FileDownloader downloader = new FileDownloader(driver);
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
@@ -970,6 +1136,26 @@ public abstract class BaseTest {
 		try {
 			downloadedFile = downloader.downloadFile(driver.findElement(By.xpath(xpath)));
 		} catch (Exception e) {
+			e.printStackTrace();
+			fail("No s'ha pogut descarregar el fitxer " + fitxer);
+		}
+		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
+		return downloadedFile;
+	}
+	
+	protected byte[] downloadFileFromForm(String xpath, String fitxer) {
+		
+		FileDownloader downloader = new FileDownloader(driver);
+		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		assertTrue("Enllaç al fitxer " + fitxer + " no existeix" , isPresent);
+		
+		byte[] downloadedFile = null;
+		try {
+			downloadedFile = downloader.downloadFileFromForm(driver.findElement(By.xpath(xpath)));
+		} catch (Exception e) {
+			e.printStackTrace();
 			fail("No s'ha pogut descarregar el fitxer " + fitxer);
 		}
 		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
@@ -990,15 +1176,34 @@ public abstract class BaseTest {
 	}
 	
 	protected byte[] postDownloadFile(String formXpath) {
+		return postDownloadFile(formXpath, null, null, null, null);
+	}
+	
+	protected byte[] postDownloadFile(String formXpath, String[] parametres, String[] valors) {
+		return postDownloadFile(formXpath, parametres, valors, null, null);
+	}
+	
+	protected byte[] postDownloadFile(String formXpath, String replaceURL, String toThisURL) {
+		return postDownloadFile(formXpath, null, null, replaceURL, toThisURL);
+	}
+	
+	/**
+	 * Funció ampliada de postDownloadFile(String formXpath) que permet asignarli parametres extra al formulari.
+	 * També permet assignarli la direcció final de la petició per si la de per defecte produeix una redireccio 302 (que no funcionara)
+	 */
+	protected byte[] postDownloadFile(String formXpath, String[] parametres, String[] valors, String replaceURL, String toThisURL) {
+		
 		FileDownloader downloader = new FileDownloader(driver);
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath(formXpath)).size() > 0;
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		assertTrue("El formulari indicat no existeix" , isPresent);
+		
 		WebElement form = driver.findElement(By.xpath(formXpath));
 		String formAction = form.getAttribute("action");
+		
 		if (formAction == null || "".equals(formAction))
-			fail("El formulari té una acció definida");
+			fail("El formulari no té una acció definida");
 	
 		List<WebElement> inputs = form.findElements(By.tagName("input"));
 		List<NameValuePair> params = new ArrayList<NameValuePair>(inputs.size());
@@ -1006,12 +1211,23 @@ public abstract class BaseTest {
 			params.add(new BasicNameValuePair(input.getAttribute("name"), input.getAttribute("value")));
 		}
 		
+		if (parametres!=null && valors!=null && valors.length==parametres.length) {
+			for (int p=0; p<parametres.length; p++) {
+				params.add(new BasicNameValuePair(parametres[p], valors[p]));
+			}
+		}
+		
+		if (replaceURL!=null && !"".equals(replaceURL) && toThisURL!=null && !"".equals(toThisURL)) {
+			formAction = formAction.replace(replaceURL, toThisURL);
+		}
+		
 		byte[] downloadedFile = null;
 		try {
-			downloadedFile = downloader.postDownloadFile(formAction, params);
+			downloadedFile = downloader.postDownloaderWithRedirects(formAction, params);
 		} catch (Exception e) {
 			fail("No s'ha pogut descarregar el formulari");
 		}
+	
 		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
 		return downloadedFile;
 	}
@@ -1132,11 +1348,12 @@ public abstract class BaseTest {
 			return false;  
 		}  
 		return true;
-	}	
+	}
 
 	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp) {
 		consultarExpedientes(numExpediente, tituloExpediente, tipusExp, false);
 	}
+	
 	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp, boolean mostrarAnulats) {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
@@ -1212,6 +1429,10 @@ public abstract class BaseTest {
 	}
 	
 	public void desplegarDP(String nomDefProc, String pathDefProc, String tipusExp){
+		desplegarDP(nomDefProc, pathDefProc, tipusExp, TipusDesplegament.JBPM);
+	}
+	
+	public void desplegarDP(String nomDefProc, String pathDefProc, String tipusExp, TipusDesplegament td) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/deploy.html')]")));
@@ -1222,7 +1443,7 @@ public abstract class BaseTest {
 			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipus0']"));
 			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
 			for (WebElement option : options) {
-				if (option.getText().equals(TipusDesplegament.JBPM)) {
+				if (option.getText().equals(td)) {
 					option.click();
 					break;
 				}
@@ -1240,7 +1461,23 @@ public abstract class BaseTest {
 		}
 		driver.findElement(By.xpath("//*[@id='arxiu0']")).sendKeys(pathDefProc);
 		driver.findElement(By.xpath("//*[@id='command']/div/div[7]/button[1]")).click();
+	}
+	
+	//Marca una defició de proces com a procés inicial del tipus d´expedient
+	public void marcarDefinicioProcesInicial(String codiTipusExp, String nomDefProc) {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
 		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+codiTipusExp+"')]")).click();
+		
+		driver.findElement(By.xpath("//a[contains(@href, 'expedientTipus/definicioProcesLlistat.html')]")).click();
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'"+nomDefProc+"')]//button[@type='submit']")).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut marcar el procés com a inicial");
 	}
 	
 	public void crearConsultaInforme(String codi,String titol, String tipusExp,String jrxml) {
@@ -1252,6 +1489,71 @@ public abstract class BaseTest {
 		
 	}
 
+	public void crearEstatTipusExpedient(String codTipusExp, String codiEstat, String nomEstat) {
+		
+		String botoCrearEstat	= "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Afegir']";
+		
+		accedirEstatsExpedient(codTipusExp);
+			
+		driver.findElement(By.id("codi0")).sendKeys(codiEstat);
+		driver.findElement(By.id("nom0")).sendKeys(nomEstat);
+		
+		driver.findElement(By.xpath(botoCrearEstat)).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut creat l'estat per el tipus d´expedient.");
+	}
+	
+	public void accedirEstatsExpedient(String codTipusExp) {
+
+		String xPathLinkTipExp = "//*[@id='registre']/tbody/tr/td[contains(a, '"+codTipusExp+"')]/a";
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+
+		actions.build().perform();
+
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+
+		actions.click();
+
+		actions.build().perform();
+
+		existeixElementAssert(xPathLinkTipExp, "El tipus de expedient no existeix.");
+
+		driver.findElement(By.xpath(xPathLinkTipExp)).click();
+
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/estats.html')]")).click();
+	}
+	
+	public void eliminarEstatTipusExpedient(String codTipusExp, String codiEstat) {
+		
+		accedirEstatsExpedient(codTipusExp);
+		
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "L´estat no existeix per al tipus de expedient.");
+		
+		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado.");
+		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut esborrar l'estat per el tipus d´expedient.");
+	}
+	
+	public void eliminarTotsEstatsTipusExpedient(String codTipusExp) {
+		
+		accedirEstatsExpedient(codTipusExp);
+		
+		while(existeixElement("//*[@id='registre']/tbody/tr")) {
+			
+			existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado.");
+			
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();
+			
+			if (isAlertPresent()) { acceptarAlerta(); }
+			
+			existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut esborrar l'estat per el tipus d´expedient.");
+		}
+	}
 	
 	protected void comprobarVariable(VariableExpedient variable, boolean esModal) {
 		comprobarVariable(variable, esModal, true);
@@ -1551,4 +1853,188 @@ public abstract class BaseTest {
 		return estado;
 	}
 
+	// ---------------------------------------------
+	// Tipus d´expedient >> Dominis
+	// ---------------------------------------------
+	
+	protected void emplenaDadesDominiSQL(String codi, String nom, String segonsCache, String desc, String jndi, String sql) {
+		
+		driver.findElement(By.id("codi0")).clear();
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		
+		driver.findElement(By.id("nom0")).clear();
+		driver.findElement(By.id("nom0")).sendKeys(nom);
+		
+		for (WebElement option : driver.findElement(By.id("tipus0")).findElements(By.tagName("option"))) {
+			if ("CONSULTA_SQL".equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.id("cacheSegons0")).clear();
+		driver.findElement(By.id("cacheSegons0")).sendKeys(segonsCache);
+		
+		driver.findElement(By.id("descripcio0")).clear();
+		driver.findElement(By.id("descripcio0")).sendKeys(desc);
+		
+		driver.findElement(By.id("jndiDatasource0")).clear();
+		driver.findElement(By.id("jndiDatasource0")).sendKeys(jndi);
+		
+		driver.findElement(By.id("sql0")).clear();
+		driver.findElement(By.id("sql0")).sendKeys(sql);
+	}
+	
+	protected void emplenaDadesDominiWS(String codi, String nom, String segonsCache, String desc, String url, String tipusAuth, String origenCred, String usu, String pass) {
+		
+		driver.findElement(By.id("codi0")).clear();
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		
+		driver.findElement(By.id("nom0")).clear();
+		driver.findElement(By.id("nom0")).sendKeys(nom);
+		
+		for (WebElement option : driver.findElement(By.id("tipus0")).findElements(By.tagName("option"))) {
+			if ("CONSULTA_WS".equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.id("cacheSegons0")).clear();
+		driver.findElement(By.id("cacheSegons0")).sendKeys(segonsCache);
+		
+		driver.findElement(By.id("descripcio0")).clear();
+		driver.findElement(By.id("descripcio0")).sendKeys(desc);
+		
+		driver.findElement(By.id("url0")).clear();
+		driver.findElement(By.id("url0")).sendKeys(url);
+		
+		for (WebElement option : driver.findElement(By.id("tipusAuth0")).findElements(By.tagName("option"))) {
+			if (tipusAuth.equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		for (WebElement option : driver.findElement(By.id("origenCredencials0")).findElements(By.tagName("option"))) {
+			if (origenCred.equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.id("usuari0")).clear();
+		driver.findElement(By.id("usuari0")).sendKeys(usu);
+		
+		driver.findElement(By.id("contrasenya0")).clear();
+		driver.findElement(By.id("contrasenya0")).sendKeys(pass);
+	}
+	
+	// ---------------------------------------------
+	// Tipus d´expedient >> Consultes
+	// ---------------------------------------------
+	
+	protected void emplenaDadesConsulta(String codi, String titol, String descripcio, String path, String formatExp, String valorPred, boolean isExpActiu, boolean isDesactivar) {
+		
+		driver.findElement(By.id("codi0")).clear();
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		
+		driver.findElement(By.id("nom0")).clear();
+		driver.findElement(By.id("nom0")).sendKeys(titol);
+		
+		driver.findElement(By.id("descripcio0")).clear();
+		driver.findElement(By.id("descripcio0")).sendKeys(descripcio);
+		
+		driver.findElement(By.id("informeContingut0")).sendKeys(path);
+		
+		for (WebElement option : driver.findElement(By.id("formatExport0")).findElements(By.tagName("option"))) {
+			if (formatExp.equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.id("valorsPredefinits0")).clear();
+		driver.findElement(By.id("valorsPredefinits0")).sendKeys(valorPred);
+		
+		if (isExpActiu && !driver.findElement(By.id("exportarActiu0")).isSelected()) {
+			driver.findElement(By.id("exportarActiu0")).click();
+		}
+		
+		if (isDesactivar && !driver.findElement(By.id("ocultarActiu0")).isSelected()) {
+			driver.findElement(By.id("ocultarActiu0")).click();
+		}
+	}
+	
+	protected void comprovaDadesConsulta(String codi, String titol, String descripcio, String path, String formatExp, String valorPred, boolean isExpActiu, boolean isDesactivar) {
+		
+		if (!codi.equals(driver.findElement(By.id("codi0")).getAttribute("value"))) { fail("El codi de la consulta ("+codi+") del tipus d´expedient no s´ha modificat!"); }
+		if (!titol.equals(driver.findElement(By.id("nom0")).getAttribute("value"))) { fail("El titol de la consulta ("+titol+") del tipus d´expedient no s´ha modificat!"); }
+		if (!descripcio.equals(driver.findElement(By.id("descripcio0")).getAttribute("value"))) { fail("La descripcio0 de la consulta ("+descripcio+") del tipus d´expedient no s´ha modificat!"); }
+		if (!path.equals(driver.findElement(By.id("informeContingut0")).getAttribute("value"))) { fail("El path de la consulta ("+path+") del tipus d´expedient no s´ha modificat!"); }
+		if (!formatExp.equals(driver.findElement(By.id("formatExport0")).getAttribute("value"))) { fail("El format de exportacio de la consulta ("+formatExp+") del tipus d´expedient no s´ha modificat!"); }
+		if (!valorPred.equals(driver.findElement(By.id("valorsPredefinits0")).getAttribute("value"))) { fail("El valors predet. de la consulta ("+valorPred+") del tipus d´expedient no s´ha modificat!"); }
+
+		if (isExpActiu ^ driver.findElement(By.id("exportarActiu0")).isSelected()) {
+			fail("El check de Exportar Actiu de la cosulta amb codi " + codi + " hauria de tenir marcada la opció: "+ isExpActiu);
+		}
+		
+		if (isDesactivar ^ driver.findElement(By.id("ocultarActiu0")).isSelected()) {
+			fail("El check de Exportar Actiu de la cosulta amb codi " + codi + " hauria de tenir marcada la opció: "+ isExpActiu);
+		}
+	}
+	
+	protected void afegirParametreAconsulta (String codTipusExp, String codiCons, String codiParam, String descParam, String tipusParam) {
+		
+		seleccionarTipExp(codTipusExp);
+		
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/consultaLlistat.html')]")).click();
+		
+		String botonParametres  = "//*[@id='registre']/tbody/tr[contains(td/a, '"+codiCons+"')]/td/form/button[contains(text(), 'arams')]";
+		driver.findElement(By.xpath(botonParametres)).click();
+		
+		driver.findElement(By.id("codi0")).sendKeys(codiParam);
+		
+		driver.findElement(By.id("descripcio0")).sendKeys(descParam);
+		
+		for (WebElement option : driver.findElement(By.id("tipus0")).findElements(By.tagName("option"))) {
+			if (tipusParam.equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[2]/button[1]")).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "Error al insertar el parametre de una consulta per el tipus d´expedient "+codTipusExp+".");
+	}
+	
+	protected void crearRol(String codiRol, String descRol) {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/rol/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]")) {
+			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
+			driver.findElement(By.id("codi0")).clear();
+			driver.findElement(By.id("codi0")).sendKeys(codiRol);
+			driver.findElement(By.id("descripcio0")).clear();
+			driver.findElement(By.id("descripcio0")).sendKeys(descRol);
+			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]", "No s'ha pogut crear l'entorn");
+		}
+	}
+	
+	protected void eliminarRol(String codiRol) {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/rol/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]")) {
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]/td/a[contains(@href, '/rol/delete.html')]")).click();
+			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]", "No s'ha pogut crear l'entorn");
+		}
+	}
 }

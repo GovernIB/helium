@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.test.util;
 
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -75,6 +77,10 @@ public class FileDownloader {
      */
     public byte[] downloadFile(WebElement element) throws Exception {
         return downloader(element, "href");
+    }
+    
+    public byte[] downloadFileFromForm(WebElement element) throws Exception {
+        return downloader(element, "action");
     }
     
     /**
@@ -220,5 +226,48 @@ public class FileDownloader {
         byte[] file = IOUtils.toByteArray(response.getEntity().getContent());
         response.getEntity().getContent().close();
         return file;
+    }
+    
+    @SuppressWarnings({ "resource" })
+	public byte[] postDownloaderWithRedirects(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException {
+    	
+        HttpClient client = new DefaultHttpClient();
+        BasicHttpContext localContext = new BasicHttpContext();
+ 
+        LOG.info("Mimic WebDriver cookie state: " + this.mimicWebDriverCookieState);
+        if (this.mimicWebDriverCookieState) {
+            localContext.setAttribute(ClientContext.COOKIE_STORE, mimicCookieState(this.driver.manage().getCookies()));
+        }
+ 
+        HttpResponse response = realizaPeticion(null, client, localContext, formToDownloadLocation, params, null);
+        
+        while (response.getStatusLine().getStatusCode()==302) {
+        	String URLaux   = formToDownloadLocation.substring(0, formToDownloadLocation.lastIndexOf("/")+1);
+        	String nuevaURL = URLaux + response.getHeaders("RedirectTo")[0].getValue();
+        	response = realizaPeticion(response, client, localContext, nuevaURL, params, response.getParams());
+        }
+        
+        this.httpStatusOfLastDownloadAttempt = response.getStatusLine().getStatusCode();
+        LOG.info("HTTP GET request status: " + this.httpStatusOfLastDownloadAttempt);
+ 
+        byte[] file = IOUtils.toByteArray(response.getEntity().getContent());
+        response.getEntity().getContent().close();
+        return file;
+    }
+    
+    private HttpResponse realizaPeticion (HttpResponse prevResponse , HttpClient client, BasicHttpContext localContext, String URL, List<NameValuePair> params, HttpParams httpParams) 
+      throws IOException, NullPointerException, URISyntaxException {
+    	//Terminamos la petición anterior en caso de que exista
+    	if (prevResponse!=null)
+    		prevResponse.getEntity().getContent().close();
+    	
+        HttpPost httppost = new HttpPost(URL);
+        
+        if (httpParams!=null)
+        	httppost.setParams(httpParams);
+        
+        httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+        LOG.info("Sending POST request for: " + httppost.getURI());
+        return client.execute(httppost, localContext);
     }
 }
