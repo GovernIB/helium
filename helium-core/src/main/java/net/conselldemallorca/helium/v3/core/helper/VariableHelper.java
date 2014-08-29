@@ -242,12 +242,12 @@ public class VariableHelper {
 				task.getName(),
 				definicioProces);
 		List<CampTasca> campsTasca = tasca.getCamps();
-		Map<String, CampTasca> campsIndexatsPerCodi = new HashMap<String, CampTasca>();
-		for (CampTasca campTasca: campsTasca) {
-			campsIndexatsPerCodi.put(
-					campTasca.getCamp().getCodi(),
-					campTasca);
-		}
+//		Map<String, CampTasca> campsIndexatsPerCodi = new HashMap<String, CampTasca>();
+//		for (CampTasca campTasca: campsTasca) {
+//			campsIndexatsPerCodi.put(
+//					campTasca.getCamp().getCodi(),
+//					campTasca);
+//		}
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName(), "0");
 		mesuresTemporalsHelper.mesuraIniciar("Tasca DADES v3", "tasques", tipusExp, task.getName(), "1");
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();

@@ -24,7 +24,18 @@ public class TerminiDto {
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
 	private boolean alertaCompletat;
-
+	
+	public TerminiDto() {
+		super();
+	}
+	public TerminiDto(String valor) {
+		super();
+		String[] dades = ((String)valor).split("/");
+		this.anys = Integer.parseInt(dades[0]);
+		this.mesos = Integer.parseInt(dades[1]);
+		this.dies = Integer.parseInt(dades[2]);
+	}
+	
 	public Long getId() {
 		return id;
 	}

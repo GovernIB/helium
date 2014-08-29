@@ -7,6 +7,7 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="numColumnes" value="${3}"/>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
 	<title>${tasca.titol}</title>
@@ -18,20 +19,79 @@
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
-	<script type="text/javascript">
-		// <![CDATA[		
-			function confirmar(form) {
-				$("table").each(function(){
-					if ($(this).hasClass("hide")) {
-						$(this).remove();
-					}
-				});
-				return true;
-			}
-		// ]]>
-	</script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+	<style>
+		input, select, textarea {
+			width: 100%;
+		}
+		.form-group {
+			padding-right: 	15px;
+			margin-left: 	10px !important;
+			margin-bottom:	15px;
+		}
+		.form-group input, .form-group textarea {
+			width: 100%;
+		}
+		
+		.form-group li > .select2-container {
+			width: 100%;
+			padding-right: 20px;
+		}
+		
+		.form-group .select2-container {
+			width: calc(100% + 14px);
+		}
+		.form-group.condensed {
+			margin-bottom: 0px;
+		}
+		.form-group.registre {
+			padding-right: 1px;
+		}
+		.registre table .colEliminarFila {
+			width: 1px;
+		}
+		.registre table .opciones {
+			text-align: center;
+			padding: 4px;
+		}
+		p.help-block {
+			padding-top: 0;	
+			margin-top: 4px !important;
+		}
+		.clear {
+			clear: both;
+		}
+		.clearForm {
+			clear: both;
+			margin-bottom: 10px;
+			border-bottom: solid 1px #EAEAEA;
+		}
+		.input-append {
+			width: calc(100% - 27px);
+		}
+		.eliminarFila {
+			padding: 4px 6px;
+		}
+		.tercpre {
+			padding-left: 0px !important;
+			padding-right: 8px !important;
+		}
+		.tercmig {
+			padding-left: 4px !important;
+			padding-right: 4px !important;
+		}
+		.tercpost {
+			padding-left: 8px !important;
+			padding-right: 0px !important;
+		}
+	</style>
 </head>
 <body>
+	<jsp:include page="import/helforms.jsp" />
 	<c:if test="${not empty dadesNomesLectura}">
 		<c:import url="import/expedientDadesTaula.jsp">
 			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
@@ -55,7 +115,7 @@
 	<c:set var="pipellaIndex" value="${1}"/>
 	<ul id="tabnav" class="nav nav-tabs">
 		<c:if test="${not empty dades}">
-			<li class="active <c:if test="${not tasca.validada}"> warn</c:if>"><a href="#dades" data-toggle="tab">${pipellaIndex}. Dades</a></li>
+			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="glyphicon glyphicon-warning-sign"> </span></c:if>${pipellaIndex}. Dades</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		</c:if>
 		<c:if test="${not empty documents}">
@@ -71,7 +131,8 @@
 		<c:if test="${not empty dades}">
 			<div class="tab-pane active" id="dades">
 				<c:if test="${not tasca.validada}">
-					<div class="missatge missatgesWarn">
+					<div class="alert alert-block">
+						<button class="close" data-dismiss="alert">×</button>
 						<c:choose>
 							<c:when test="${empty tasca.formExtern}">
 								<p><spring:message code='tasca.form.no_validades' /></p>
@@ -82,77 +143,27 @@
 						</c:choose>
 					</div>
 				</c:if>
-				<c:set var="hiHaCampsReadOnly" value="${false}"/>
-				<c:forEach var="camp" items="${dades}">
-					<c:if test="${camp.readOnly}">
-						<c:set var="hiHaCampsReadOnly" value="${true}"/>
-					</c:if>
-				</c:forEach>
-				<c:set var="hiHaDocumentsReadOnly" value="${false}"/>
-				<c:forEach var="document" items="${documents}">
-					<c:if test="${document.readOnly}">
-						<c:set var="hiHaDocumentsReadOnly" value="${true}"/>
-					</c:if>
-				</c:forEach>
-				<c:if test="${hiHaCampsReadOnly or hiHaDocumentsReadOnly}">
-					<div class="missatge missatgesBlau">
-						<c:if test="${hiHaDocumentsReadOnly}">
-							<c:forEach var="documenTasca" items="${documents}">
-								<c:if test="${documenTasca.readOnly}">
-									<h4 class="titol-missatge">
-										${documenTasca.documentNom}&nbsp;&nbsp;
-										<c:set var="tascaActual" value="${tasca}" scope="request"/>
-										<c:set var="documentActual" value="${documenTasca.documentCodi}" scope="request"/>
-										<c:set var="codiDocumentActual" value="${documenTasca.documentCodi}" scope="request"/>
-										<c:import url="../common/iconesConsultaDocument.jsp"/>
-									</h4><br/>
-								</c:if>
-							</c:forEach>
-						</c:if>
-						<c:if test="${hiHaCampsReadOnly}">
-							<div class="form-horizontal form-tasca">
-								<span class="titol-missatge"><fmt:message key='common.tascaro.dadesref' /></span>
-								<form  id="commandReadOnly" name="commandReadOnly" action="form" method="post">
-									<input type="hidden" id="id" name="id" value="${tasca.id}"/>
-									<div class="inlineLabels">
-										<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-											<c:if test="${dada.readOnly}">
-												<div class="control-group">
-													<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
-													
-													<c:set var="dada" value="${dada}"/>
-													<c:set var="dada_multiple" value=""/>
-													<%@ include file="campsTasca.jsp" %>
-													<%@ include file="campsTascaRegistre.jsp" %>
-												</div>
-											</c:if>
-										</c:forEach>
-									</div>
-								</form>
-							</div>
-						</c:if>
-					</div>
-				</c:if>
+<%-- 				<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command"> --%>
 				<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command">
-					<input type="hidden" id="id" name="id" value="${tasca.id}"/>
+					<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}"/>
 					<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
 					<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-						<c:if test="${not dada.readOnly}">
-							<div class="control-group fila_reducida">
-								<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label>
-								
-								<c:set var="dada" value="${dada}"/>
-								<%@ include file="campsTasca.jsp" %>
-								<%@ include file="campsTascaRegistre.jsp" %>
-							</div>
-						</c:if>
+<!-- 						<div class="control-group fila_reducida"> -->
+<%-- 							<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label> --%>
+<%-- 							<c:set var="dada" value="${dada}"/> --%>
+							<c:set var="addFormGroup" value="${true}"/>
+							<%@ include file="campsTasca.jsp" %>
+							<%@ include file="campsTascaRegistre.jsp" %>
+<!-- 						</div> -->
 					</c:forEach>
+					<div class="clear"></div>
 					<div id="guardarValidarTarea">
 						<c:if test="${empty dades}">
 							<%@ include file="campsTascaInfo.jsp" %>		
 						</c:if>
 						<c:if test="${not empty dades}">
 							<div style="clear: both"></div>
+							<c:set var="urlAction" value="guardar"/>
 							<%@ include file="campsTascaGuardarTasca.jsp" %>
 						</c:if>
 					</div>

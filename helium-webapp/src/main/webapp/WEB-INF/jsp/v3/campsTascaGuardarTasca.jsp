@@ -14,7 +14,7 @@
 			</button>
 		</c:when>
 		<c:otherwise>
-			<button type="submit" class="btn btn-primary" name="submit" value="submit" onclick="saveAction(this, 'submit');">
+			<button type="submit" class="btn btn-primary" name="submit" value="submit" onclick="saveAction(this, 'submit', <c:if test="${not empty urlAction}">'${urlAction}'</c:if>);">
 				<fmt:message key='tasca.form.guardar' />
 			</button>				
 			<button type="submit" class="btn btn-primary" name="submit" value="validate" onclick="saveAction(this, 'validate');">

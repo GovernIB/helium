@@ -66,7 +66,11 @@ function canviTermini(input) {
 	var anys = document.getElementById(campId + "_anys").value;
 	var mesos = document.getElementById(campId + "_mesos").value;
 	var dies = document.getElementById(campId + "_dies").value;
-	if (!anys.empty() && !mesos.empty() && !dies.empty()) {
+	if (anys != "0" && mesos != "0" && dies != "") {
+		if (dies == "") {
+			dies = "0";
+			$("#" + campId + "_dies").val(dies);
+		}
 		$(campId).val(anys + "/" + mesos + "/" + dies);
 	} else {
 		$(campId).val("");
@@ -74,15 +78,17 @@ function canviTermini(input) {
 }
 
 $(document).ready(function() {
-	$("i.agrupacio-desplegador").click(function() {
-		var taula = $(this).parent().parent().parent().parent().parent();
-		$('tbody', taula).toggleClass('hide');
-		$(this).removeClass('icon-chevron-up');
-		$(this).removeClass('icon-chevron-down');
-		if ($('tbody', taula).hasClass('hide'))
-			$(this).addClass('icon-chevron-down');
+	$("i.agrupacio-desplegador").parent().parent().click(function() {
+		var taula = $(this).parent().parent().parent();
+		var tbody = $('tbody', taula).first();
+		var i = $(this).find("i").first();
+		tbody.toggleClass('hide');
+		i.removeClass('icon-chevron-up');
+		i.removeClass('icon-chevron-down');
+		if (tbody.hasClass('hide'))
+			i.addClass('icon-chevron-down');
 		else
-			$(this).addClass('icon-chevron-up');
+			i.addClass('icon-chevron-up');
 	});
 
 	$(".eliminarFila").click(function() {
@@ -133,23 +139,38 @@ function addField(idTable) {
 					}
 				});
 		newTr.appendTo(tabla);
+		newTr.find('button.eliminarFila').click(function() {
+			if (newTr.index() < 2) {
+				limpiarFila(newTr);
+				tabla.addClass("hide");
+				if (tabla.hasClass("togle")) {
+					$('#button_add_' + tabla.attr('id')).show();
+				}
+			} else {
+				newTr.remove();
+			}
+		});
 	}
 }
 
 function limpiarFila(tr) {
 	tr.find(':input').each(function() {
 		switch (this.type) {
-		case 'password':
-		case 'text':
-		case 'textarea':
-		case 'file':
-		case 'select-one':
-		case 'select-multiple':
-			$(this).val('');
-			break;
+//		case 'password':
+//		case 'text':
+//		case 'textarea':
+//		case 'file':
+//		case 'select-one':
+//		case 'select-multiple':
+//			$(this).val('');
+//			break;
 		case 'checkbox':
 		case 'radio':
 			this.checked = false;
+			break;
+		default:
+			$(this).val('');
+			break;
 		}
 	});
 }
@@ -164,5 +185,21 @@ function saveAction(element, action) {
 				$submits[i].name = $submits[i].name + i;
 			}
 		}
+	}
+}
+function saveAction(element, action, url) {
+	submitAction = action;
+	if ($.browser.msie && $.browser.version.substr(0, 1) <= 7) {
+		element.innerHTML = action;
+		var $submits = document.getElementsByName("submit");
+		for (var i = 0; i < $submits.length; i++) {
+			if ($submits[i] != element) {
+				$submits[i].name = $submits[i].name + i;
+			}
+		}
+	}
+	if (url != null) {
+		$(element).get(0).closest("form").attr('action', url);
+		alert($(element).get(0).closest("form").attr('action'));
 	}
 }

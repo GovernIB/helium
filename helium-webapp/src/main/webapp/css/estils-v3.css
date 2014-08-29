@@ -1,4 +1,18 @@
+/* CAPÇALERA */
+/*********************************************/
+#govern-logo {
+	border-right: 1px solid #FFFFFF;
+	display: block;
+	margin-top: 11px;
+	padding: 5px 24px 12px 0;
+}
+#app-logo {
+	display: block;
+	padding: 0 0 0 12px;
+}
 
+/* NAVEGACIÓ */
+/*********************************************/
 .navbar-app {
 	background-color: #ff9523;
 	height: 100px;
@@ -23,17 +37,8 @@
 	padding-top: 16px;
 }
 
-#govern-logo {
-	border-right: 1px solid #FFFFFF;
-	display: block;
-	margin-top: 11px;
-	padding: 5px 24px 12px 0;
-}
-#app-logo {
-	display: block;
-	padding: 0 0 0 12px;
-}
-
+/* CONTINGUT */
+/*********************************************/
 .container-main, .container-foot {
 	padding-right: 0;
 	padding-left: 0;
@@ -67,7 +72,21 @@
     opacity: 0.2;
     text-shadow: 0 1px 0 #FFFFFF;
 }
+.clicable  {
+	cursor: pointer;
+}
+address {
+	margin-bottom: 0px;
+}
+p.help-block {
+	font-size: 12px;
+	font-weight: normal;
+	padding-top: 0;	
+	margin-top: 4px !important;
+}
 
+/* MODALS */
+/*********************************************/
 .modal-dialog.modal-maximize {
 	width: 98%;
 	top: 1%;

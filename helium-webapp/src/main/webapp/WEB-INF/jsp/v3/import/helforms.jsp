@@ -3,17 +3,17 @@
 
 <script type="text/javascript">
 
-function findValue(li, input) {
+function findValue3(li, input) {
 	var codi = input.id.substring(input.id.indexOf("_") + 1);
 	if (!!li.extra ) var sValue = li.extra[0];
 	else var sValue = li.selectValue;
 	$("#suggest_" + codi).prop('disabled', true);
-	$("#suggest_" + codi + "_info").css("display", "none");
-	$("#suggest_" + codi + "_delete").css("display", "");
+	$("#suggest_" + codi + "_icon").removeClass("glyphicon-search");
+	$("#suggest_" + codi + "_icon").addClass("glyphicon-remove");
 	$("#" + codi).val(li.extra[0]);
 }
 
-function initSuggest(codi, url, callback, extraParams) {
+function initSuggest3(codi, url, callback, extraParams) {
 	$("#suggest_" + codi).autocomplete(
 			url, {
 				delay:10,
@@ -24,20 +24,22 @@ function initSuggest(codi, url, callback, extraParams) {
 				extraParams: extraParams,
 				onFindValue: callback});
 	if ($("#" + codi).val() == null || $("#" + codi).val() == '') {
-		$("#suggest_" + codi + "_info").css("display", "");
-		$("#suggest_" + codi + "_delete").css("display", "none");
+		$("#suggest_" + codi + "_icon").removeClass("glyphicon-remove");
+		$("#suggest_" + codi + "_icon").addClass("glyphicon-search");
 		$("#suggest_" + codi).prop('disabled', false);
 	} else {
-		$("#suggest_" + codi + "_info").css("display", "none");
-		$("#suggest_" + codi + "_delete").css("display", "");
+		$("#suggest_" + codi + "_icon").removeClass("glyphicon-search");
+		$("#suggest_" + codi + "_icon").addClass("glyphicon-remove");
 		$("#suggest_" + codi).prop('disabled', true);
 	}
-	$("#suggest_" + codi + "_delete").click(function(){
-		$("#" + codi).val(null);
-		$("#suggest_" + codi).val("");
-		$("#suggest_" + codi + "_info").css("display", "");
-		$("#suggest_" + codi + "_delete").css("display", "none");
-		$("#suggest_" + codi).prop('disabled', false);
+	$("#suggest_" + codi + "_addon").click(function(){
+		if ($("#" + codi).val() != null && $("#" + codi).val() != '') {
+			$("#" + codi).val(null);
+			$("#suggest_" + codi).val("");
+			$("#suggest_" + codi + "_icon").removeClass("glyphicon-remove");
+			$("#suggest_" + codi + "_icon").addClass("glyphicon-search");
+			$("#suggest_" + codi).prop('disabled', false);
+		}
 	});
 }
 

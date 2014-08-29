@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -82,6 +83,71 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 				resposta.put(parts[0], parts[1]);
 		}
 		return resposta;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/consulta/inicial/{taskId}/{campId}/{codi}", method = RequestMethod.GET)
+	@ResponseBody
+	public ParellaCodiValorDto consultaCampInicial(
+			HttpServletRequest request,
+			@PathVariable(value = "taskId") String taskId,
+			@PathVariable(value = "campId") Long campId,
+			@PathVariable(value = "codi") String codi,
+			ModelMap model) {
+		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
+		CampDto camp = tascaService.findCampTasca(campId);
+		try {
+			resultat  = (List<ParellaCodiValorDto>) dissenyService.getResultatConsultaCamp(
+					taskId,
+					null,
+					camp,
+					codi,
+					null);
+			for (ParellaCodiValorDto codiValor: resultat) {
+				if (codiValor.getValor() instanceof String) {
+					String valor = (String)codiValor.getValor();
+					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
+					codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Error en la consulta de domini pel camp " + campId, ex);
+		}
+		if (resultat.isEmpty())
+			return new ParellaCodiValorDto();
+		return resultat.get(0);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/consulta/{taskId}/{campId}/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> consultaCampValor(
+			HttpServletRequest request,
+			@RequestParam(value = "taskId", required = false) String taskId,
+			@RequestParam(value = "campId", required = true) Long campId,
+			@RequestParam(value = "valor", required = false) String textInicial,
+			ModelMap model) {
+		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
+		CampDto camp = tascaService.findCampTasca(campId);
+		try {
+			// TODO
+			resultat  = (List<ParellaCodiValorDto>) dissenyService.getResultatConsultaCamp(
+					taskId,
+					null,
+					camp,
+					textInicial,
+					null);
+			for (ParellaCodiValorDto codiValor: resultat) {
+				if (codiValor.getValor() instanceof String) {
+					String valor = (String)codiValor.getValor();
+					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
+					codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Error en la consulta de domini pel camp " + campId, ex);
+		}
+		return resultat;
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaDominioController.class);

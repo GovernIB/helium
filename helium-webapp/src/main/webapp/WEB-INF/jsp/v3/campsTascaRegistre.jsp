@@ -6,117 +6,115 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <c:set var="dadaActual" value="${dada}"/>
+<c:set var="registre" value="${true}"/>
 <c:if test="${dada.campTipus == 'REGISTRE'}">
-	<div class="controls registre">
-		<c:if test="${dada.campMultiple}">
-			<table id="table_mult_${varStatusMain.index}" class="<c:if test="${fn:length(dada.multipleDades) < 1}"> hide </c:if>span11 displaytag selectable table table-bordered">
-				<c:forEach var="multiplemembre" items="${dada.multipleDades}" varStatus="varStatus">
-					<tr class="fila_${varStatus.index}">
-						<c:if test="${varStatus.first}">
-							<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDadesCab">
-								<th <c:if test="${membre.required}"> data-required="true"</c:if>>
-									${membre.campEtiqueta}
-								</th>
-							</c:forEach>
-								<c:if test="${!dada.readOnly && !tasca.validada}">
-									<th></th>
-								</c:if>
-							</tr>
-							<tr>
-						</c:if>
-						<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDades">
-							<td>												
-								<c:set var="dada" value="${membre}"/>
-								<c:set var="dada_multiple" value="${dadaActual.varCodi}[${varStatus.index+1}]"/>
-								<%@ include file="campsTasca.jsp" %>
-							</td>
-						</c:forEach>
-						<c:if test="${!dada.readOnly && !tasca.validada}">
-							<td class="opciones">
-								<button 
-									class="btn icon-remove eliminarFila" 
-									type="button" 
-									value="<spring:message code='comuns.esborrar' />" 
-									title="<spring:message code='comuns.esborrar' />">
-								</button>
-							</td>
-						</c:if>
-					</tr>
-				</c:forEach>
-			</table>
-		</c:if>
-		<c:if test="${not empty registreFiles}">
-			<div style="overflow:auto">
-				<c:if test="${!dada.campMultiple}">
-					<c:set var="ocultarTabla" value="${false}"/>
-					<c:if test="${dada.readOnly || tasca.validada}">
-						<c:set var="ocultarTabla" value="${true}"/>
-						<c:forEach 
-								var="membre" 
-								items="${dada.registreDades}" 
-								varStatus="varStatus"
-							>
-							<c:if test="${not empty membre.text || not empty membre.varValor}">
-								<c:set var="ocultarTabla" value="${false}"/>
+	<div class="form-group registre<c:if test="${not empty campErrors}"> has-error</c:if>">
+		<label for="${dada.varCodi}" class="control-label">
+			${dada.campEtiqueta} - ${dada.campTipus}
+		</label>
+		<div class="controls registre">
+		
+			<c:set var="nomReg" value="command.${dadaActual.varCodi}" />
+			
+			<%-- Primer registre, que utilitzam per a definir la capçalera de la taula --%>
+			<c:choose>
+				<c:when test="${dada.campMultiple}">
+					<c:set var="registreCap" value="${dada.multipleDades[0].registreDades}"/>
+				</c:when>
+				<c:otherwise>
+					<c:set var="registreCap" value="${dada.registreDades}"/>
+				</c:otherwise>
+			</c:choose>
+	
+			<%-- CAPÇALERA TAULA ------------------------------------------------------------------------------------------%>
+<%-- Simple: 		<table id="table_mult_${varStatusMain.index}" class="hide togle table table-bordered table-condensed"> --%>
+			<table id="table_mult_${varStatusMain.index}" class="table table-bordered table-condensed">
+				<tr>
+					<c:forEach var="membre" items="${registreCap}" varStatus="varStatusCab">
+						<th <c:if test="${membre.required}"> data-required="true"</c:if>>
+							${membre.campEtiqueta}<c:if test='${membre.required}'><i class='icon-asterisk'></i></c:if>
+							<c:if test="${not empty membre.observacions}">
+								<p class="help-block"><span class="label label-info">Nota</span> ${membre.observacions}</p>
 							</c:if>
-						</c:forEach>
+						</th>
+					</c:forEach>
+					<c:if test="${!dada.readOnly && !tasca.validada}">
+						<th class="colEliminarFila"></th>
 					</c:if>
-					<c:if test="${!ocultarTabla}">
-						<display:table id="table_mult_${varStatusMain.index}" class="span11 displaytag selectable table table-bordered" name="table_mult_${varStatusMain.index}" requestURI="">
-							<c:forEach 
-								var="membre" 
-								items="${dada.registreDades}" 
-								varStatus="varStatus"
-							>							
-								<display:column title="<c:if test='${membre.required}'><i class='icon-asterisk' style='color: red'></i> </c:if>${membre.campEtiqueta}">
+				</tr>
+				
+						
+			<%-- TAULA MÚLTIPLE -------------------------------------------------------------------------------------------%>
+				
+				<c:if test="${dada.campMultiple}">
+				
+					<%-- Comprovam si la taula és buida --> Només té una fila amb tots els camps buids --%>
+					<c:set var="buida" value="${true}"/>
+					<c:if test="${fn:length(command[dadaActual.varCodi]) > 1}"><c:set var="buida" value="${false}"/></c:if>
+					<c:if test="${fn:length(dada.multipleDades) == 1}">
+						<c:forEach var="membre" items="${registreCap}">
+								<c:if test="${not empty command[dadaActual.varCodi][0][membre.varCodi]}"><c:set var="buida" value="${false}"/></c:if>
+						</c:forEach>
+<%--			
+						<c:forEach var="multiplemembre" items="${dada.multipleDades}" varStatus="varStatus">
+							<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDadesCab">
+								<c:if test="${not empty membre.text}"><c:set var="buida" value="${false}"/></c:if>
+							</c:forEach>
+						</c:forEach>
+--%>
+					</c:if>
+							
+<%--
+								<td>												
 									<c:set var="dada" value="${membre}"/>
-									<c:set var="dada_multiple" value="${dada.varCodi}[${varStatus.index+1}]"/>
+									<c:set var="dada_multiple" value="${dadaActual.varCodi}[${varStatus.index+1}]"/>
 									<%@ include file="campsTasca.jsp" %>
-								</display:column>
+									<c:set var="dada_multiple" value=""/>
+								</td>
+--%>
+				
+					<c:set var="mida" value="${fn:length(command[dadaActual.varCodi])}"/>
+					<c:forEach var="i" begin="1" end="${mida}">
+						<tr>
+							<c:forEach var="membre" items="${registreCap}">
+							<td>${command[dadaActual.varCodi][i-1][membre.varCodi]}</td>
 							</c:forEach>
 							<c:if test="${!dada.readOnly && !tasca.validada}">
-								<display:column class="opciones" >
+								<td class="opciones">
 									<button 
 										class="btn icon-remove eliminarFila" 
 										type="button" 
 										value="<spring:message code='comuns.esborrar' />" 
 										title="<spring:message code='comuns.esborrar' />">
 									</button>
-								</display:column>
+								</td>
 							</c:if>
-						</display:table>
-					</c:if>
-					<c:if test="${!dada.readOnly && !tasca.validada}">
-						<div id="button_add_table_mult_${varStatusMain.index}" class="hide">
-							<div style="clear: both"></div>
-							<button							
-								type="button" 
-								class="btn pull-left btn_afegir"
-								onclick="return addField('table_mult_${varStatusMain.index}')">
-									<spring:message code='comuns.afegir' />
-							</button>
-						</div>
-					</c:if>
+						</tr>
+					</c:forEach>
 				</c:if>
-			</div>
-		</c:if>
-		<c:set var="ocultar_button_mult" value="${false}"/>
-		<c:if test="${dada.campMultiple || fn:length(dada.multipleDades) < 1}">			
-			<c:if test="${not empty dada.registreDades}">
-				<table id="table_mult_${varStatusMain.index}" class="hide togle span11 displaytag selectable table table-bordered">
+			
+			<%-- TAULA SIMPLE -------------------------------------------------------------------------------------------%>
+			
+				<c:if test="${!dada.campMultiple && not empty dada.registreDades}">
+			
+					<c:set var="ocultar_button_mult" value="${false}"/>
+			
+					<%-- Comprovam si el registre és buid --%>
+					<c:set var="buida" value="${true}"/>
+					<c:forEach var="membre" items="${registreCap}">
+							<c:if test="${not empty command[dadaActual.varCodi][membre.varCodi]}"><c:set var="buida" value="${false}"/></c:if>
+					</c:forEach>
+				
 					<tr>
-						<c:forEach var="membre" items="${dada.registreDades}" varStatus="varStatus">
-							<th <c:if test="${membre.required}"> data-required="true"</c:if>>
-								${membre.campEtiqueta}
-							</th>
-						</c:forEach>
-						<th></th>
-					</tr>
-					<tr>
-						<c:forEach var="membre" items="${dada.registreDades}" varStatus="varStatus">
+						<c:forEach var="membre" items="${registreCap}">
 							<td>
-								<c:set var="dada" value="${membre}"/>
-								<%@ include file="campsTasca.jsp" %>
+								${command[dadaActual.varCodi][membre.varCodi]}
+<%--					
+							<c:set var="dada" value="${membre}"/>
+							<c:set var="dada_multiple" value="${dadaActual.varCodi}"/>
+							<%@ include file="campsTasca.jsp" %>
+							<c:set var="dada_multiple" value=""/>
+--%>
 							</td>
 						</c:forEach>
 						<c:if test="${!dada.readOnly && !tasca.validada}">
@@ -130,22 +128,30 @@
 							</td>
 						</c:if>
 					</tr>
-				</table>
-				<c:if test="${!dada.readOnly && !tasca.validada}">
-<!-- 					<div style="clear: both"></div> -->
-					<c:set var="ocultar_button_mult" value="${true}"/>
-					<button id="button_add_table_mult_${varStatusMain.index}"
-						type="button" 
-						class="btn pull-left btn_afegir"
-						onclick="return addField('table_mult_${varStatusMain.index}')">
-							<spring:message code='comuns.afegir' />
-					</button>
+	<%-- 			<c:forEach var="membre" items="${registreCap}"> --%>
+	<%-- 			<td>${command[dadaActual.varCodi][i-1][membre.varCodi]}</td> --%>
+	<%-- 			</c:forEach> --%>
+	<%-- 			<c:if test="${!dada.readOnly && !tasca.validada}"> --%>
+	<!-- 				<td class="opciones"> -->
+	<!-- 					<button  -->
+	<!-- 						class="btn icon-remove eliminarFila"  -->
+	<!-- 						type="button"  -->
+	<%-- 						value="<spring:message code='comuns.esborrar' />"  --%>
+	<%-- 						title="<spring:message code='comuns.esborrar' />"> --%>
+	<!-- 					</button> -->
+	<!-- 				</td> -->
+	<%-- 			</c:if> --%>
 				</c:if>
+					
+			<%-- PEU DE TAULA ------------------------------------------------------------------------------------%>
+			</table>	
+						
+			<c:if test="${not empty dadaActual.observacions}">
+				<p class="help-block"><span class="label label-info">Nota</span> ${dadaActual.observacions}</p>
 			</c:if>
-			
-			<c:if test="${!dada.readOnly && !tasca.validada}">
-				<div <c:if test="${not empty dada.registreDades || ocultar_button_mult}"> class="hide"</c:if>>
-<!-- 					<div style="clear: both"></div> -->
+			<c:if test="${!dadaActual.readOnly && !tasca.validada}">
+<%-- 			<c:set var="ocultar_button_mult" value="${true}"/> --%>
+				<div <c:if test="${not empty dadaActual.registreDades || ocultar_button_mult}"> class="hide"</c:if>>
 					<button id="button_add_table_mult_${varStatusMain.index}"
 						type="button" 
 						class="btn pull-left btn_afegir"
@@ -153,9 +159,10 @@
 							<spring:message code='comuns.afegir' />
 					</button>
 				</div>
+				<div class="clear"></div>
 			</c:if>
-		</c:if>
-		<br/>
-		<div class="formHint">${dada.observacions}</div>
+		</div>
 	</div>
+	<div class="clearForm"></div>
 </c:if>
+<c:set var="registre" value="${false}"/>

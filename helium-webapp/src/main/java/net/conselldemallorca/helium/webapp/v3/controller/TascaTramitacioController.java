@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -84,28 +87,28 @@ public class TascaTramitacioController extends BaseController {
 
 	protected Validator validatorGuardar;
 	protected Validator validatorValidar;
-
-	/*@ModelAttribute("command")
+	
+	@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 
-			String id,
-			ModelMap model) {
+			String tascaId,
+			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null && id != null) {			
+		if (entorn != null && tascaId != null) {
 			Object command = null;
 			Object commandSessio = TascaFormHelper.recuperarCommandTemporal(request, true);
 
-			List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(id);
+			List<TascaDadaDto> tascaDadas = tascaService.findDadesPerTasca(tascaId);
 			
 			ExpedientTascaDto tasca;
 			if (commandSessio != null) {
-				tasca = tascaService.getById(entorn.getId(), id, null, TascaFormHelper.getValorsFromCommand(tascaDadas, commandSessio, false), true, true);
+				tasca = tascaService.getById(entorn.getId(), tascaId, null, TascaFormHelper.getValorsFromCommand(tascaDadas, commandSessio, false), true, true);
 				command = commandSessio;
 			} else {
-				tasca = tascaService.getById(entorn.getId(), id, null, null, true, true);
+				tasca = tascaService.getById(entorn.getId(), tascaId, null, null, true, true);
 				try {
 					Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-					campsAddicionals.put("id", id);
+					campsAddicionals.put("id", tascaId);
 					campsAddicionals.put("entornId", entorn.getId());
 					campsAddicionals.put("expedientTipusId", expedientService.findById(tasca.getExpedientId()).getId());
 					campsAddicionals.put("definicioProcesId", tasca.getDefinicioProces().getId());
@@ -137,7 +140,7 @@ public class TascaTramitacioController extends BaseController {
 			return command;
 		}
 		return null;
-	}*/
+	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}", method = RequestMethod.GET)
 	public String tramitar(
@@ -158,13 +161,14 @@ public class TascaTramitacioController extends BaseController {
 			@PathVariable String tascaId,
 			Model model) {
 		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		// TODO
-		/*model.addAttribute(
-				"tasca",
-				expedientService.getTascaPerExpedient(expedientId, tascaId));*/
+
+		// TODO: treure el expedientService.getTascaPerExpedient
+		ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedientId, tascaId);
+		model.addAttribute("tasca", tasca);
 		// Omple les dades del formulari i les de només lectura
 		List<TascaDadaDto> dades = tascaService.findDadesPerTasca(tascaId);
 		model.addAttribute("dades", dades);
+		model.addAttribute("command", getCommand(request, tasca, dades));
 		List<TascaDadaDto> dadesNomesLectura = new ArrayList<TascaDadaDto>();
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
@@ -192,6 +196,47 @@ public class TascaTramitacioController extends BaseController {
 		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
 		return "v3/expedientTascaTramitacio";
 	}
+	
+	@SuppressWarnings("rawtypes")
+	private Object getCommand(
+			HttpServletRequest request, 
+			ExpedientTascaDto tasca,
+			List<TascaDadaDto> tascaDades) {
+		Object command = null;
+		
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entorn != null && tasca != null) {
+			try {
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				campsAddicionals.put("id", tasca.getId());
+				campsAddicionals.put("entornId", entorn.getId());
+				campsAddicionals.put("expedientTipusId", expedientService.findById(tasca.getExpedientId()).getId());
+				campsAddicionals.put("definicioProcesId", tasca.getDefinicioProces().getId());
+				campsAddicionals.put("procesScope", null);
+				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				campsAddicionalsClasses.put("id", String.class);
+				campsAddicionalsClasses.put("entornId", Long.class);
+				campsAddicionalsClasses.put("expedientTipusId", Long.class);
+				campsAddicionalsClasses.put("definicioProcesId", Long.class);
+				campsAddicionalsClasses.put("procesScope", Map.class);
+					
+				Map<String, Object> valors = null;
+				if (tascaDades != null) {
+					valors = new HashMap<String, Object>();
+					for (TascaDadaDto dada: tascaDades) {
+						valors.put(dada.getVarCodi(), dada.getVarValor());
+					}
+				}
+				command = TascaFormHelper.getCommandForCamps(tascaDades, valors, request, campsAddicionals, campsAddicionalsClasses, false);
+			} catch (TascaNotFoundException ex) {
+				MissatgesHelper.error(request, ex.getMessage());
+				logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
+			} catch (Exception ignored) {
+			} 
+		}
+		return command;
+	}
+	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
@@ -430,7 +475,7 @@ public class TascaTramitacioController extends BaseController {
 
 
 
-	/*private Map<String, String> getFormRecursParams(String text) {
+	private Map<String, String> getFormRecursParams(String text) {
 		Map<String, String> params = new HashMap<String, String>();
 		Pattern pattern = Pattern.compile(TAG_PARAM_REGEXP);
 		Matcher matcher = pattern.matcher(text);
@@ -441,7 +486,7 @@ public class TascaTramitacioController extends BaseController {
 			}
 		}
 		return params;
-	}*/
+	}
 
 	private void guardarVariablesReg(HttpServletRequest request, TascaDadaDto camp, String id) {	
 		int i = 1;
@@ -451,15 +496,32 @@ public class TascaTramitacioController extends BaseController {
 		while (i < request.getParameterMap().size()) {
 			Map<String, Object> variablesMultReg = new HashMap<String, Object>();
 			int salir = 0;
-			for (TascaDadaDto registreMembre : camp.getRegistreDades()) {
+			// --Membres del registre:--
+			// Si es tracta d'un registre múltiple, llavors les dades múltiples contenen el registre,
+			// amb la informació dels seus membres
+			List<TascaDadaDto> registresMembre = camp.getRegistreDades();
+			if (camp.isCampMultiple() && registresMembre == null)
+				registresMembre = ((List<TascaDadaDto>)camp.getMultipleDades()).get(0).getRegistreDades();
+			// ------------------------
+			
+			for (TascaDadaDto registreMembre : registresMembre) {
 				boolean sinValor = false;
 				if (registreMembre.getCampTipus().equals(CampTipusDto.BOOLEAN)) {
 					variablesMultReg.put(registreMembre.getVarCodi(), false);
 				} else {
 					variablesMultReg.put(registreMembre.getVarCodi(), "");
 				}
-				if (request.getParameterMap().containsKey(camp.getVarCodi()+"["+i+"]["+registreMembre.getVarCodi()+"]")) {
-					Object valor = request.getParameterMap().get(camp.getVarCodi()+"["+i+"]["+registreMembre.getVarCodi()+"]");
+				// -- Ruta de les dades: --
+				// Si es tracta d'un camp múltiple s'ha d'afegir un índex per a la fila
+				String campruta = "";
+				if (camp.isCampMultiple())
+					campruta = camp.getVarCodi()+"["+i+"]["+registreMembre.getVarCodi()+"]";
+				else 
+					campruta = camp.getVarCodi()+"["+registreMembre.getVarCodi()+"]";
+				// ------------------------
+				
+				if (request.getParameterMap().containsKey(campruta)) {
+					Object valor = request.getParameterMap().get(campruta);
 					valor = String.valueOf(((String[])valor)[0]);
 					if (registreMembre.getCampTipus().equals(CampTipusDto.BOOLEAN)) {						
 						valor = "on".equals(valor);
@@ -473,7 +535,7 @@ public class TascaTramitacioController extends BaseController {
 				
 				if (sinValor) {
 					salir++;
-					if (camp.getRegistreDades().size() == salir) {
+					if (registresMembre.size() == salir) {
 						variablesMultReg.clear();
 						break;
 					}			
@@ -482,7 +544,7 @@ public class TascaTramitacioController extends BaseController {
 			
 			if (!variablesMultReg.isEmpty()) {
 				List<Object> variablesRegTmp = new ArrayList<Object>();
-				for (TascaDadaDto registreMembre : camp.getRegistreDades()) {
+				for (TascaDadaDto registreMembre : registresMembre) {
 					String campMembre = registreMembre.getVarCodi();
 					variablesRegTmp.add(variablesMultReg.get(campMembre));
 				}

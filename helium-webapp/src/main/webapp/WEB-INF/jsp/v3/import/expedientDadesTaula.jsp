@@ -5,6 +5,19 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
+<style>
+div.grup:hover {
+	background-color: #e5e5e5 !important;
+	border-color: #ccc !important;
+}
+div.grup .panel-body-grup {
+	padding-bottom: 0px !important;
+}
+.panel-body-grup {
+	margin: -1px;
+}
+</style>
+
 <c:set var="grupId" value="grup-default"/>
 <c:if test="${not empty param.id}"><c:set var="grupId" value="grup-${param.id}"/></c:if>
 <c:set var="paramDades" value="${requestScope[param.dadesAttribute]}"/>
@@ -23,159 +36,121 @@
 
 <div class="panel panel-default">
 	<c:if test="${paramMostrarCapsalera}">
-		<div id="${grupId}-titol" class="panel-heading">
-			<a data-toggle="collapse" href="#${grupId}-dades">
+		<div id="${grupId}-titol" class="panel-heading clicable grup" data-toggle="collapse" data-target="#${grupId}-dades">
 			${paramTitol}
 			<c:if test="${not empty paramCount}"><span class="badge">${paramCount}</span></c:if>
 			<div class="pull-right"><span class="icona-collapse fa fa-chevron-<c:if test="${paramDesplegat}">up</c:if><c:if test="${not paramDesplegat}">down</c:if>"></span></div>
-			</a>
 		</div>
 	</c:if>
-	<table id="${grupId}-dades" class="table table-bordered collapse <c:if test="${paramDesplegat}"> in</c:if>">
-		<colgroup>
-			<c:forEach begin="0" end="${paramNumColumnes - 1}">
-				<col width="${100 / paramNumColumnes}%"/>
-			</c:forEach>
-		</colgroup>
-		<%--c:if test="${paramMostrarCapsalera}">
-			<thead>
-				<tr>
-					<th colspan="${paramNumColumnes}">
-						${paramTitol} <c:if test="${not empty paramCount}"><span class="badge">${paramCount}</span></c:if>
-						<div class="pull-right accordion-toggle">
+	<div id="${grupId}-dades" class="clear collapse panel-body-grup<c:if test="${paramDesplegat}"> in</c:if>">
+		<table class="table table-bordered">
+			<colgroup>
+				<c:forEach begin="0" end="${paramNumColumnes - 1}">
+					<col width="${100 / paramNumColumnes}%"/>
+				</c:forEach>
+			</colgroup>
+			<tbody>
+				<c:set var="index" value="${0}"/>
+				<c:set var="posicioOffset" value="${0}"/>
+				<c:forEach var="dada" items="${paramDades}">
+					<c:set var="posicioActual" value="${(index + posicioOffset) % paramNumColumnes}"/>
+					<c:set var="condicioValor" value="${true}"/>
+					<c:choose>
+						<c:when test="${not empty paramCondicioCamp and not empty paramCondicioEmpty}">
+							<c:set var="condicioValor" value="${empty dada[paramCondicioCamp]}"/>
+						</c:when>
+						<c:when test="${not empty paramCondicioCamp and empty paramCondicioValor}">
+							<c:set var="condicioValor" value="${dada[paramCondicioCamp]}"/>
+						</c:when>
+						<c:when test="${not empty paramCondicioCamp and not empty paramCondicioValor}">
+							<c:set var="condicioValor" value="${dada[paramCondicioCamp] == paramCondicioValor}"/>
+						</c:when>
+					</c:choose>
+					<c:if test="${condicioValor}">
+						<c:if test="${posicioActual == 0}"><tr></c:if>
+						<c:set var="dadaTipusRegistre" value="${false}"/>
+						<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
+							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
+						</c:if>
+						<c:if test="${dadaTipusRegistre}">
+							<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
+							<c:set var="posicioActual" value="${0}"/>
+						</c:if>
+						<td<c:if test="${dadaTipusRegistre}"> colspan="${paramNumColumnes}"</c:if><c:if test="${not empty dada.error}"> style="background-color:#f2dede"</c:if>>
 							<c:choose>
-								<c:when test="${paramDesplegat}"><span class="<c:if test="${not empty paramDesplegadorClass}">${paramDesplegadorClass} </c:if>fa fa-chevron-up"></span></c:when>
-								<c:otherwise><span class="<c:if test="${not empty paramDesplegadorClass}">${paramDesplegadorClass} </c:if>fa fa-chevron-down"></span></c:otherwise>
-							</c:choose>
-						</div>
-					</th>
-				</tr>
-			</thead>
-		</c:if--%>
-		<tbody>
-			<c:set var="index" value="${0}"/>
-			<c:set var="posicioOffset" value="${0}"/>
-			<c:forEach var="dada" items="${paramDades}">
-				<c:set var="posicioActual" value="${(index + posicioOffset) % paramNumColumnes}"/>
-				<c:set var="condicioValor" value="${true}"/>
-				<c:choose>
-					<c:when test="${not empty paramCondicioCamp and not empty paramCondicioEmpty}">
-						<c:set var="condicioValor" value="${empty dada[paramCondicioCamp]}"/>
-					</c:when>
-					<c:when test="${not empty paramCondicioCamp and empty paramCondicioValor}">
-						<c:set var="condicioValor" value="${dada[paramCondicioCamp]}"/>
-					</c:when>
-					<c:when test="${not empty paramCondicioCamp and not empty paramCondicioValor}">
-						<c:set var="condicioValor" value="${dada[paramCondicioCamp] == paramCondicioValor}"/>
-					</c:when>
-				</c:choose>
-				<c:if test="${condicioValor}">
-					<c:if test="${posicioActual == 0}"><tr></c:if>
-					<c:set var="dadaTipusRegistre" value="${false}"/>
-					<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
-						<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
-					</c:if>
-					<c:if test="${dadaTipusRegistre}">
-						<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
-						<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
-						<c:set var="posicioActual" value="${0}"/>
-					</c:if>
-					<td<c:if test="${dadaTipusRegistre}"> colspan="${paramNumColumnes}"</c:if><c:if test="${not empty dada.error}"> style="background-color:#f2dede"</c:if>>
-						<c:choose>
-							<c:when test="${fn:endsWith(dada.class.name, 'DadaDto')}">
-								<address>
-									${dada.campEtiqueta}<br/>
-									<c:if test="${not empty dada.varValor}">
-										<c:choose>
-											<c:when test="${dadaTipusRegistre}">
-												<c:set var="registreFilesTaula" value="${dada.dadesRegistrePerTaula}"/>
-												<table class="table table-bordered table-condensed marTop6">
-													<thead>
-														<tr>
-															<c:forEach var="dadaFila0" items="${registreFilesTaula[0].registreDades}">
-																<th>${dadaFila0.campEtiqueta}</th>
-															</c:forEach>
-														</tr>
-													</thead>
-													<tbody>
-														<c:forEach var="registreFila" items="${registreFilesTaula}">
+								<c:when test="${fn:endsWith(dada.class.name, 'DadaDto')}">
+									<address>
+										${dada.campEtiqueta}<br/>
+										<c:if test="${not empty dada.varValor}">
+											<c:choose>
+												<c:when test="${dadaTipusRegistre}">
+													<c:set var="registreFilesTaula" value="${dada.dadesRegistrePerTaula}"/>
+													<table class="table table-bordered table-condensed marTop6">
+														<thead>
 															<tr>
-																<c:forEach var="registreDada" items="${registreFila.registreDades}">
-																	<td>${registreDada.text}</td>
+																<c:forEach var="dadaFila0" items="${registreFilesTaula[0].registreDades}">
+																	<th>${dadaFila0.campEtiqueta}</th>
 																</c:forEach>
 															</tr>
-														</c:forEach>
-													</tbody>
-												</table>
-											</c:when>
-											<c:otherwise>
-												<c:choose>
-													<c:when test="${not empty dada.error}"><strong><i class="icon-warning-sign" title="${dada.error}"></i></strong></c:when>
-													<c:otherwise><strong>${dada.text}</strong></c:otherwise>
-												</c:choose>
-											</c:otherwise>
-										</c:choose>
-									</c:if>
-								</address>
-							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'DocumentDto')}">
-								<c:set var="document" value="${dada}"/>
-								<c:choose>
-									<c:when test="${not empty document.error}">
-										<span class="fa fa-warning fa-2x" title="${document.error}"></span>
-									</c:when>
-									<c:otherwise>
-										<div class="media">
-											<a class="pull-left" href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
-												<span class="fa fa-file-o fa-4x"></span>
-												<div style="position:relative;left:0.6em;top:-1.8em;font-size:10px;font-weight:bold;">${fn:toUpperCase(document.arxiuExtensio)}</div>
-												<%--span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span--%>
-											</a>
-											<div class="media-body">
-												<p class="media-heading">${document.documentNom}</p>
-												<c:if test="${not empty document.id}">
-													<p>
-														<strong><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></strong>
+														</thead>
+														<tbody>
+															<c:forEach var="registreFila" items="${registreFilesTaula}">
+																<tr>
+																	<c:forEach var="registreDada" items="${registreFila.registreDades}">
+																		<td>${registreDada.text}</td>
+																	</c:forEach>
+																</tr>
+															</c:forEach>
+														</tbody>
+													</table>
+												</c:when>
+												<c:otherwise>
+													<c:choose>
+														<c:when test="${not empty dada.error}"><strong><i class="icon-warning-sign" title="${dada.error}"></i></strong></c:when>
+														<c:otherwise><strong>${dada.text}</strong></c:otherwise>
+													</c:choose>
+												</c:otherwise>
+											</c:choose>
+										</c:if>
+									</address>
+								</c:when>
+								<c:when test="${fn:endsWith(dada.class.name, 'DocumentDto')}">
+									<c:set var="document" value="${dada}"/>
+									<c:choose>
+										<c:when test="${not empty document.error}">
+											<span class="fa fa-warning fa-2x" title="${document.error}"></span>
+										</c:when>
+										<c:otherwise>
+											<dl class="dl-horizontal">
+												<dt><a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document"><span class="fa fa-file fa-4x"></span><span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span></a></dt>
+												<dd>
+													<strong>${document.documentNom}</strong><br/>
+													<c:if test="${not empty document.id}">
+														<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
 														<c:if test="${document.signat or document.registrat}">
-															<br/>
-															<c:if test="${document.signat}"><a href="#"><span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span></a></c:if>
-															<c:if test="${document.registrat}"><a href="#"><span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span></a></c:if>
+														<br/>
+														<c:if test="${document.signat}"><a href="#"><span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span></a></c:if>
+														<c:if test="${document.registrat}"><a href="#"><span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span></a></c:if>
 														</c:if>
-													</p>
-												</c:if>
-											</div>
-										</div>
-										<%--dl class="dl-horizontal">
-											<dt>
-												<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
-													<span class="fa fa-file fa-4x"></span>
-												</a>
-											</dt>
-											<dd>
-												<strong>${document.documentNom}</strong><br/>
-												<c:if test="${not empty document.id}">
-													<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
-													<c:if test="${document.signat or document.registrat}">
-													<br/>
-													<c:if test="${document.signat}"><a href="#"><span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span></a></c:if>
-													<c:if test="${document.registrat}"><a href="#"><span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span></a></c:if>
 													</c:if>
-												</c:if>
-											</dd>
-										</dl--%>
-									</c:otherwise>
-								</c:choose>
-							</c:when>
-							<c:otherwise>[Tipus desconegut]</c:otherwise>
-						</c:choose>
-					</td>
-					<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
-					<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1))}"></tr></c:if>
-					<c:set var="index" value="${index + 1}"/>
-				</c:if>
-			</c:forEach>
-		</tbody>
-	</table>
+												</dd>
+											</dl>
+										</c:otherwise>
+									</c:choose>
+								</c:when>
+								<c:otherwise>[Tipus desconegut]</c:otherwise>
+							</c:choose>
+						</td>
+						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
+						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1))}"></tr></c:if>
+						<c:set var="index" value="${index + 1}"/>
+					</c:if>
+				</c:forEach>
+			</tbody>
+		</table>
+	</div>
+	<div class="clear"></div>
 </div>
 <script>
 $(document).ready(function() {
