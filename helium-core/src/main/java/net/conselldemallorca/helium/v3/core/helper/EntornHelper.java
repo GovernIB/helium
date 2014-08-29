@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.v3.core.helper;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
@@ -28,7 +27,7 @@ public class EntornHelper {
 
 	@Resource
 	private EntornRepository entornRepository;
-	@Resource
+	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 
 
@@ -47,7 +46,7 @@ public class EntornHelper {
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (comprovarPermisRead) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					id,
 					Entorn.class,
 					new Permission[] {
@@ -61,7 +60,7 @@ public class EntornHelper {
 			}
 		}
 		if (comprovarPermisWrite) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					id,
 					Entorn.class,
 					new Permission[] {
@@ -75,7 +74,7 @@ public class EntornHelper {
 			}
 		}
 		if (comprovarPermisDelete) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					id,
 					Entorn.class,
 					new Permission[] {
