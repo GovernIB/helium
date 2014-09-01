@@ -17,7 +17,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,31 +53,36 @@ public class ExpedientDadaController extends BaseExpedientController {
 					"dades",
 					expedientService);
 		}
-		
-		ExpedientDto expedient = expedientService.findById(expedientId);
-		if (potConsultarExpedient(expedient)) {
-			// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
-			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-			Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
-			
-			// Per a cada instància de procés ordenem les dades per agrupació  
-			// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
-			for(InstanciaProcesDto instanciaProces: arbreProcessos) {
-				Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesInstancia = null;
-				if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-					dadesInstancia = getDadesInstanciaProces(expedientId, instanciaProces.getId());
-				}
-				dades.put(instanciaProces, dadesInstancia);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		model.addAttribute(
+				"expedient",
+				expedient);
+		/*model.addAttribute(
+				"dades",
+				expedientService.findDadesPerInstanciaProces(
+						expedientId,
+						null));
+		model.addAttribute(
+				"agrupacions",
+				expedientService.findAgrupacionsDadesPerInstanciaProces(
+						expedientId,
+						null));*/
+		// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
+		// Per a cada instància de procés ordenem les dades per agrupació  
+		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
+		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesInstancia = null;
+			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+				dadesInstancia = getDadesInstanciaProces(expedientId, instanciaProces.getId());
 			}
-			
-			model.addAttribute("expedientId", expedientId);
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-			model.addAttribute("arbreProcessos", arbreProcessos);
-			model.addAttribute("dades", dades);
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.permisos.consultar.expedient"));
-			return "redirect:/expedient/consulta.html";
+			dades.put(instanciaProces, dadesInstancia);
 		}
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("arbreProcessos", arbreProcessos);
+		model.addAttribute("dades", dades);
 		return "v3/expedientDades";
 	}
 	
@@ -88,7 +92,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findById(expedientId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (potConsultarExpedient(expedient)) {
 			model.addAttribute("dades", getDadesInstanciaProces(expedientId, procesId));
 		}

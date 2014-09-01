@@ -16,8 +16,6 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -25,14 +23,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
@@ -105,13 +102,13 @@ public class DtoConverter {
 					Set<Camp> campsDefinicioProces = tasca.getDefinicioProces().getCamps();
 					for (Camp camp: campsDefinicioProces) {
 						if (camp.getCodi().equals(campCodi)) {
-							ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaTasca(
-									task.getId(),
+							TascaDadaDto tascaDada = variableHelper.findDadaPerInstanciaTasca(
+									task,
 									campCodi);
-							if (expedientDada != null && expedientDada.getText() != null) {
+							if (tascaDada != null && tascaDada.getText() != null) {
 								textPerCamps.put(
 										campCodi,
-										expedientDada.getText());
+										tascaDada.getText());
 							}
 							break;
 						}
@@ -368,7 +365,7 @@ public class DtoConverter {
 		return dto;
 	}
 
-	public void filtrarVariablesTasca(Map<String, Object> variables) {
+	/*public void filtrarVariablesTasca(Map<String, Object> variables) {
 		if (variables != null) {
 			variables.remove(TascaService.VAR_TASCA_VALIDADA);
 			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
@@ -383,7 +380,7 @@ public class DtoConverter {
 			for (String codi: codisEsborrar)
 				variables.remove(codi);
 		}
-	}
+	}*/
 	
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
 }

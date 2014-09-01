@@ -57,7 +57,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			ModelMap model)  {
-		ExpedientDto expedient = expedientService.findById(expedientId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute(
 				"estats",
@@ -178,7 +178,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 
 		public void validate(Object target, Errors errors) {
 			ExpedientEditarCommand command = (ExpedientEditarCommand) target;
-			ExpedientDto expedient = expedientService.findById(command.getExpedientId());
+			ExpedientDto expedient = expedientService.findAmbId(command.getExpedientId());
 			if (expedient.getTipus().isTeTitol())
 				ValidationUtils.rejectIfEmpty(errors, "titol", "not.blank");
 			if (expedient.getTipus().isTeNumero())

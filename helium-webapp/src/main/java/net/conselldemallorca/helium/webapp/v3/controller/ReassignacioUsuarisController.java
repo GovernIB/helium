@@ -77,7 +77,11 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 		List<ReassignacioDto> reassignacions = reassignacioUsuarisService.llistaReassignacions();
 		model.addAttribute("llistat", reassignacions);
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute("tasca", tascaService.getTascaPerExpedientId(expedientId, tascaId));
+		model.addAttribute(
+				"tasca",
+				tascaService.findAmbIdPerExpedient(
+						tascaId,
+						expedientId));
 		
 		return "v3/expedient/tasca/reassignarUsuaris";
 	}

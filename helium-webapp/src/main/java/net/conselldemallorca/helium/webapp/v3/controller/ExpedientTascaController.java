@@ -7,13 +7,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +52,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		}
 		model.addAttribute(
 				"expedient",
-				expedientService.findById(expedientId));
+				expedientService.findAmbId(expedientId));
 		List<ExpedientTascaDto> tasques = expedientService.findTasques(
 				expedientId);
 		model.addAttribute("tasques", tasques);
@@ -135,19 +133,18 @@ public class ExpedientTascaController extends BaseExpedientController {
 	public String cancelar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long tascaId,
+			@PathVariable String tascaId,
 			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();	
-		try{
-			tascaService.delegacioCancelar(entorn.getId(), String.valueOf(tascaId));
-				MissatgesHelper.info(request, getMessage(request, "info.delegacio.cancelat") );
-			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
-	        	logger.error("No s'ha pogut cancel·lar la delegació de la tasca " + tascaId, ex);
-			}
-		
-		return "redirect:/v3/expedient/"+expedientId;
+		tascaService.delegacioCancelar(
+				tascaId);
+		MissatgesHelper.info(
+				request,
+				getMessage(
+						request,
+						"info.delegacio.cancelat"));
+		return "redirect:/v3/expedient/" + expedientId;
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);
+
 }

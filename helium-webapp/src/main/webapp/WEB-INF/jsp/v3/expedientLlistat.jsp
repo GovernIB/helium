@@ -214,8 +214,8 @@ $(document).ready(function() {
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-								{{if permisWrite}}<li><a href="../v3/expedient/{{:id}}/suspend" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
-								{{if permisWrite}}<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
+								{{if permisWrite}}<li><a href="../v3/expedient/{{:id}}/suspend" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/>...</a></li>{{/if}}
+								{{if permisWrite}}<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/>...</a></li>{{/if}}
 								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
 							</ul>
 						</div>

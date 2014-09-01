@@ -693,7 +693,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public ExpedientDto findById(Long id) throws ExpedientNotFoundException {
+	public ExpedientDto findAmbId(Long id) throws ExpedientNotFoundException {
 		logger.debug("Consultant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
@@ -1505,7 +1505,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		List<ExpedientDto> list = new ArrayList<ExpedientDto>();
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {			
-			list.add(findById(relacionat.getId()));
+			list.add(findAmbId(relacionat.getId()));
 		}
 		return list;
 	}

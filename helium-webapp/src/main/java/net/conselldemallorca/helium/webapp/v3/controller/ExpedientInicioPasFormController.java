@@ -74,7 +74,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potIniciarExpedientTipus(expedientTipus) && entorn != null) {
 				ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-				List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+				List<TascaDadaDto> dades = tascaService.findDades(tasca.getId());
 							
 				Map<String, Object> valors = new HashMap<String, Object>();
 				Map<String, String> errors = new HashMap<String, String>();			

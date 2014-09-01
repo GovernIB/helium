@@ -8,7 +8,7 @@
 
 <html>
 <head>
-	<title><spring:message code='expedient.info.informacio' /></title>
+	<title><spring:message code="expedient.accio.modificar.titol"/></title>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
@@ -25,7 +25,6 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<hel:modalHead/>
 	<style>
-		body {background-image: none; padding-top: 0px;}
 		.form-group {width: 100%;}
 		.fila_reducida {width: 100%;}		
 		.col-xs-4 {width: 20%;}		
@@ -89,11 +88,11 @@
 			<hel:inputText name="grupCodi" textKey="expedient.editar.grup_codi" placeholderKey="expedient.editar.grup_codi"/>
 		</div>
 		<div id="modal-botons">
-			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
-				<spring:message code='comuns.cancelar' />
+			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel">
+				<spring:message code="comu.boto.cancelar"/>
 			</button>
 			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">
-				<spring:message code="comuns.modificar"/>
+				<span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.accio.modificar.boto.modificar"/>
 			</button>
 		</div>
 	</form:form>

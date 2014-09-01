@@ -186,7 +186,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientDto findById(Long id);
+	public ExpedientDto findAmbId(Long id);
 
 	/**
 	 * Consulta d'expedients per entorn paginada.

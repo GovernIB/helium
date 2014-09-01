@@ -114,7 +114,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 		model.addAttribute("definicioProces", definicioProces);
 		if (definicioProces.isHasStartTask()) {
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProces.getId(), new HashMap<String, Object>(), request);
-			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+			List<TascaDadaDto> dades = tascaService.findDades(tasca.getId());
 			model.addAttribute("tasca", tasca);
 			model.addAttribute("dades", dades);
 			model.addAttribute("entornId", entorn.getId());

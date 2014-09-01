@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -78,7 +77,10 @@ public class TascaFormValidatorHelper implements Validator {
 					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 						if (tascaService != null) {
 							String tascaId = (String) PropertyUtils.getSimpleProperty(command, "id");
-							Object[] valor = (Object[]) tascaService.getVariable(EntornActual.getEntornId(), tascaId, camp.getVarCodi());
+							TascaDadaDto tascaDada = tascaService.findDada(
+									tascaId,
+									camp.getVarCodi());
+							Object[] valor = (Object[])tascaDada.getVarValor();
 							if (valor == null || valor.length == 0)
 								ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
 						} else if (valorsRegistre != null) {
@@ -168,7 +170,7 @@ public class TascaFormValidatorHelper implements Validator {
 			return tascas;
 		} else {
 			String id = (String) PropertyUtils.getSimpleProperty(command, "id");
-			return tascaService.findDadesPerTasca(id);
+			return tascaService.findDades(id);
 		}
 	}
 

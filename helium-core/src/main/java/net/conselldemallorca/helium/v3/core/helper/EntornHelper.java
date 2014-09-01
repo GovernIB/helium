@@ -32,7 +32,6 @@ public class EntornHelper {
 
 
 
-
 	public Entorn getEntornComprovantPermisos(
 			Long id,
 			boolean comprovarPermisRead,

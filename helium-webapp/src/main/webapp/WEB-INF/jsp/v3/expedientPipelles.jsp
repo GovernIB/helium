@@ -301,7 +301,7 @@
 					<ul class="list-unstyled">
 						<c:forEach var="expedientRelacionat" items="${relacionats}">
 							<li>
-								<span class="fa fa-file-text-o"></span>&nbsp;
+								<span class="fa fa-folder"></span>&nbsp;
 								<a href="${expedientRelacionat.id}">${expedientRelacionat.identificador}</a>
 <%-- 								<security:accesscontrollist domainObject="${expedientRelacionat.tipus}" hasPermission="16,8"> --%>
 									<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
@@ -327,9 +327,9 @@
 					<ul class="dropdown-menu">
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 						<c:if test="${not empty accions}">
 							<c:set var="tePermisAccions" value="${false}"/>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">

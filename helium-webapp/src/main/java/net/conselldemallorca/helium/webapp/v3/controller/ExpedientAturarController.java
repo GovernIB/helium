@@ -56,7 +56,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 			ExpedientEinesAturarCommand aturarExpedient, 
 			BindingResult result, 
 			SessionStatus status) {
-			ExpedientDto expedient = expedientService.findById(expedientId);
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		if (!expedient.isAturat()) {
 			new ExpedientAturarValidator().validate(aturarExpedient, result);
 			if (result.hasErrors()) {

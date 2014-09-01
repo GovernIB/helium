@@ -50,7 +50,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			Model model) {
 		model.addAttribute("id", expedientId);
 		model.addAttribute("tipus_retroces", tipus_retroces);		
-		ExpedientDto expedient = expedientService.findById(expedientId);			
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);			
 		model.addAttribute(
 				"expedient",
 				expedient);

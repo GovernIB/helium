@@ -43,7 +43,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -276,17 +275,20 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName());
 		return resposta;
 	}
-	public ExpedientDadaDto getDadaPerInstanciaTasca(
-			String taskInstanceId,
+	public TascaDadaDto findDadaPerInstanciaTasca(
+			JbpmTask task,
 			String variableCodi) {
-		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
-				definicioProces,
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+				task.getName(),
+				definicioProces);
+		CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
+				tasca.getId(),
 				variableCodi);
+		Camp camp = campTasca.getCamp();
 		Object valor = jbpmHelper.getTaskInstanceVariable(
-				taskInstanceId,
+				task.getId(),
 				variableCodi);
 		if (valor == null) {
 			valor = jbpmHelper.getProcessInstanceVariable(
@@ -303,10 +305,12 @@ public class VariableHelper {
 					camp,
 					variableCodi,
 					valor,
-					taskInstanceId,
+					task.getId(),
 					task.getProcessInstanceId(),
 					false);
-			return dto;
+			return getTascaDadaDtoFromExpedientDadaDto(
+							dto,
+							campTasca);
 		} else {
 			return null;
 		}
@@ -478,7 +482,7 @@ public class VariableHelper {
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
-			String processInstanceId) throws Exception {
+			String processInstanceId) {
 
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
@@ -490,40 +494,35 @@ public class VariableHelper {
 				} else {
 					domini = camp.getDomini();
 				}
-				try {
-					List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
-							domini,
-							camp.getDominiId(),
-							getParamsConsulta(
-									taskInstanceId,
-									processInstanceId,
-									camp,
-									valorsAddicionals));
-					String columnaCodi = camp.getDominiCampValor();
-					String columnaValor = camp.getDominiCampText();
-					Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
-					while (it.hasNext()) {
-						FilaResultat fr = it.next();
-						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-							if (parellaCodi.getCodi().equals(columnaCodi) && (valor == null || parellaCodi.getValor().toString().equals(valor))) {
-								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
-									if (parellaValor.getCodi().equals(columnaValor)) {
-										ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
-												parellaCodi.getValor().toString(),
-												parellaValor.getValor());
-										resposta.add(codiValor);
-										if (valor != null) {
-											break;
-										}
+				List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
+						domini,
+						camp.getDominiId(),
+						getParamsConsulta(
+								taskInstanceId,
+								processInstanceId,
+								camp,
+								valorsAddicionals));
+				String columnaCodi = camp.getDominiCampValor();
+				String columnaValor = camp.getDominiCampText();
+				Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
+				while (it.hasNext()) {
+					FilaResultat fr = it.next();
+					for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
+						if (parellaCodi.getCodi().equals(columnaCodi) && (valor == null || parellaCodi.getValor().toString().equals(valor))) {
+							for (ParellaCodiValor parellaValor: fr.getColumnes()) {
+								if (parellaValor.getCodi().equals(columnaValor)) {
+									ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
+											parellaCodi.getValor().toString(),
+											parellaValor.getValor());
+									resposta.add(codiValor);
+									if (valor != null) {
+										break;
 									}
 								}
-								break;
 							}
+							break;
 						}
 					}
-				} catch (Exception ex) {
-					logger.error("Error en la consulta del domini (processInstanceId=" + processInstanceId + ", dominiCodi=" + domini.getCodi() + ", variable=" + camp.getCodi() + "): " + ex.getMessage(), ex);
-					throw new Exception("Error en la consulta del domini (processInstanceId=" + processInstanceId + ", dominiCodi=" + domini.getCodi() + ", variable=" + camp.getCodi() + "): " + ex.getMessage(), ex);
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
@@ -637,8 +636,8 @@ public class VariableHelper {
 
 	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(TascaService.VAR_TASCA_VALIDADA);
-			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
+			variables.remove(TascaHelper.VAR_TASCA_VALIDADA);
+			variables.remove(TascaHelper.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
 				if (	codi.startsWith(PREFIX_VAR_DOCUMENT) ||

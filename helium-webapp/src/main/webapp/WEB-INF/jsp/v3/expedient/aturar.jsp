@@ -4,33 +4,25 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <html>
-	<head>
-		<title><spring:message code='expedient.eines.aturar_tramitacio' /></title>
-		<hel:modalHead/>
-		<style>
-			body {background-image: none; padding-top: 0px;}
-			.col-xs-4 {width: auto;}
-			.col-xs-8 {width: 90%;}
-		</style>
-	</head>
-	<body>		
-		<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmar(event)">
-			<hel:inputTextarea required="true" name="motiu" textKey="expedient.eines.motiu" placeholderKey="expedient.eines.motiu"/>
-		
-			<div id="modal-botons" class="well">
-				<button type="button" class="modal-tancar btn" name="submit" value="cancel">
-					<spring:message code='comuns.cancelar' />
-				</button>
-				<button type="submit" class="btn btn-primary"><spring:message code="comuns.guardar"/></button>
-			</div>
-		</form:form>
-		<script>
-			function confirmar(e) {
-				var e = e || window.event;
-				e.cancelBubble = true;
-				if (e.stopPropagation) e.stopPropagation();
-				return confirm('<spring:message code="expedient.eines.confirm_aturar"/>');
-			}
-		</script>
-	</body>
+<head>
+	<title><spring:message code="expedient.accio.aturar.titol"/></title>
+	<hel:modalHead/>
+<script>
+	function confirmar(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm('<spring:message code="expedient.accio.script.confirmacio"/>');
+	}
+</script>
+</head>
+<body>		
+	<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmar(event)">
+		<hel:inputTextarea required="true" name="motiu" textKey="expedient.accio.aturar.camp.motiu" placeholderKey="expedient.accio.aturar.camp.motiu"/>
+		<div id="modal-botons" class="well">
+			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+			<button type="submit" class="btn btn-primary"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.accio.aturar.boto.aturar"/></button>
+		</div>
+	</form:form>
+</body>
 </html>

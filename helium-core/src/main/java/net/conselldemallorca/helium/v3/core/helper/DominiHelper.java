@@ -18,15 +18,16 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
+import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.v3.core.api.exception.DominiConsultaException;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -57,7 +58,7 @@ public class DominiHelper {
 	public List<FilaResultat> consultar(
 			Domini domini,
 			String id,
-			Map<String, Object> parametres) throws Exception {
+			Map<String, Object> parametres) {
 		List<FilaResultat> resultat = null;
 		String cacheKey = getCacheKey(domini.getId(), parametres);
 		Element element = null;
@@ -93,7 +94,7 @@ public class DominiHelper {
 	private List<FilaResultat> consultaWs(
 			Domini domini,
 			String id,
-			Map<String, Object> parametres) throws Exception {
+			Map<String, Object> parametres) {
 		DominiHelium client = getClientWsFromDomini(domini);
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
 		if ("intern".equalsIgnoreCase(domini.getCodi())) {
@@ -109,13 +110,22 @@ public class DominiHelper {
 						parametres.get(codi)));
 			}
 		}
-		List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
-		return resposta;
+		try {
+			List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
+			return resposta;
+		} catch (DominiHeliumException ex) {
+			throw new DominiConsultaException(
+					"No s'ha pogut consultar el domini (" +
+							"id=" + domini.getId() + ", " +
+							"codi=" + domini.getCodi() + ", " +
+							"tipus=" + domini.getTipus() + ")",
+					ex);
+		}
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<FilaResultat> consultaSql(
 			Domini domini,
-			Map<String, Object> parametres) throws DominiException {
+			Map<String, Object> parametres) {
 		try {
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
@@ -140,7 +150,12 @@ public class DominiHelper {
 					});
 			return resultat;
 		} catch (Exception ex) {
-			throw new DominiException("No s'ha pogut consultar el domini", ex);
+			throw new DominiConsultaException(
+					"No s'ha pogut consultar el domini (" +
+							"id=" + domini.getId() + ", " +
+							"codi=" + domini.getCodi() + ", " +
+							"tipus=" + domini.getTipus() + ")",
+					ex);
 		}
 	}
 

@@ -56,7 +56,7 @@ public class ExpedientCancelController extends BaseExpedientController {
 			ExpedientEinesCancelCommand cancelExpedient, 
 			BindingResult result, 
 			SessionStatus status) {
-		ExpedientDto expedient = expedientService.findById(expedientId);			
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);			
 		if (!expedient.isAnulat()) {
 			new ExpedientCancelValidator().validate(cancelExpedient, result);
 			if (result.hasErrors()) {

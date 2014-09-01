@@ -112,7 +112,9 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			Long expedientId,
 			String tascaId,
 			ModelMap model) {
-		ExpedientTascaDto tasca = tascaService.getTascaPerExpedientId(expedientId, tascaId);
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerExpedient(
+				tascaId,
+				expedientId);
 		
 		ExpedientTascaReassignarCommand expedientTascaReassignarCommand = new ExpedientTascaReassignarCommand();
 		expedientTascaReassignarCommand.setTaskId(tascaId);

@@ -17,10 +17,11 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.Execuci
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
@@ -47,8 +48,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
-	@Resource(name="tascaServiceV3")
-	private TascaService tascaService;
+	@Resource
+	private ExpedientHelper expedientHelper;
+	@Resource
+	private TascaHelper tascaHelper;
 	
 	@Transactional
 	@Override
@@ -96,8 +99,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
-					ExpedientTascaDto tasca = tascaService.getByIdSenseComprovacio(tascaId);
-					Expedient expedient = expedientRepository.findOne(tasca.getExpedientId());
+					JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+							tascaId,
+							false,
+							false);
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
+							task.getProcessInstanceId());
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
 							execucioMassiva,
 							expedient,

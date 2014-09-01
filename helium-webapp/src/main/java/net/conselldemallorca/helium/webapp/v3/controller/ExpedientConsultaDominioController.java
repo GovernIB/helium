@@ -11,12 +11,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -39,7 +37,6 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 	@Autowired
 	private DissenyService dissenyService;
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/consulta", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> consultaCamp(
@@ -51,23 +48,16 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
 		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
-		CampDto camp = tascaService.findCampTasca(campId);
-		try {
-			resultat  = (List<ParellaCodiValorDto>) dissenyService.getResultatConsultaCamp(
-					taskId,
-					processInstanceId,
-					camp,
-					textInicial,
-					getMapDelsValors(valors));
-			for (ParellaCodiValorDto codiValor: resultat) {
-				if (codiValor.getValor() instanceof String) {
-					String valor = (String)codiValor.getValor();
-					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
-					codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Error en la consulta de domini pel camp " + campId, ex);
+		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+				taskId,
+				campId,
+				textInicial,
+				getMapDelsValors(valors));
+		for (SeleccioOpcioDto opcio: opcions) {
+			resultat.add(
+					new ParellaCodiValorDto(
+							opcio.getCodi(),
+							opcio.getText().replaceAll("\\p{Cntrl}", "").trim()));
 		}
 		return resultat;
 	}
@@ -85,7 +75,6 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 		return resposta;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/consulta/inicial/{taskId}/{campId}/{codi}", method = RequestMethod.GET)
 	@ResponseBody
 	public ParellaCodiValorDto consultaCampInicial(
@@ -95,30 +84,22 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@PathVariable(value = "codi") String codi,
 			ModelMap model) {
 		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
-		CampDto camp = tascaService.findCampTasca(campId);
-		try {
-			resultat  = (List<ParellaCodiValorDto>) dissenyService.getResultatConsultaCamp(
-					taskId,
-					null,
-					camp,
-					codi,
-					null);
-			for (ParellaCodiValorDto codiValor: resultat) {
-				if (codiValor.getValor() instanceof String) {
-					String valor = (String)codiValor.getValor();
-					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
-					codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Error en la consulta de domini pel camp " + campId, ex);
+		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+				taskId,
+				campId,
+				null,
+				null);
+		for (SeleccioOpcioDto opcio: opcions) {
+			resultat.add(
+					new ParellaCodiValorDto(
+							opcio.getCodi(),
+							opcio.getText().replaceAll("\\p{Cntrl}", "").trim()));
 		}
 		if (resultat.isEmpty())
 			return new ParellaCodiValorDto();
 		return resultat.get(0);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/consulta/{taskId}/{campId}/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ParellaCodiValorDto> consultaCampValor(
@@ -128,28 +109,18 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@RequestParam(value = "valor", required = false) String textInicial,
 			ModelMap model) {
 		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
-		CampDto camp = tascaService.findCampTasca(campId);
-		try {
-			// TODO
-			resultat  = (List<ParellaCodiValorDto>) dissenyService.getResultatConsultaCamp(
-					taskId,
-					null,
-					camp,
-					textInicial,
-					null);
-			for (ParellaCodiValorDto codiValor: resultat) {
-				if (codiValor.getValor() instanceof String) {
-					String valor = (String)codiValor.getValor();
-					// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
-					codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Error en la consulta de domini pel camp " + campId, ex);
+		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+				taskId,
+				campId,
+				textInicial,
+				null);
+		for (SeleccioOpcioDto opcio: opcions) {
+			resultat.add(
+					new ParellaCodiValorDto(
+							opcio.getCodi(),
+							opcio.getText().replaceAll("\\p{Cntrl}", "").trim()));
 		}
 		return resultat;
 	}
-
-	private static final Log logger = LogFactory.getLog(ExpedientConsultaDominioController.class);
 
 }

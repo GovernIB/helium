@@ -8,46 +8,37 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
-import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
-import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -57,11 +48,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
@@ -160,8 +149,35 @@ public class TascaServiceImpl implements TascaService {
 
 
 
-	@Transactional(readOnly = true)
 	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTascaDto findAmbIdPerExpedient(
+			String id,
+			Long expedientId) {
+		logger.debug("Consultant tasca per expedient donat el seu id (" +
+				"id=" + id + ")");
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		JbpmTask task = tascaHelper.getTascaComprovacionsExpedient(
+				id,
+				expedient);
+		return tascaHelper.getExpedientTascaDto(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTascaDto findAmbIdPerTramitacio(
+			String id) {
+		logger.debug("Consultant tasca per tramitar donat el seu id (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return tascaHelper.getExpedientTascaDto(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
 			Long expedientTipusId,
@@ -317,7 +333,7 @@ public class TascaServiceImpl implements TascaService {
 			public List<ExpedientTascaDto> getContent() {
 				List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
 				for (JbpmTask tasca : tasques) {
-					expedientTasques.add(tascaHelper.getExpedientTascaLlistatDto(tasca));
+					expedientTasques.add(tascaHelper.getExpedientTascaDto(tasca));
 				}
 				Collections.sort(expedientTasques, comparador);
 				return expedientTasques;
@@ -371,217 +387,104 @@ public class TascaServiceImpl implements TascaService {
 		PaginaDto<ExpedientTascaDto> resposta = paginacioHelper.toPaginaDto(
 				paginaResultats,
 				ExpedientTascaDto.class);
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES LLISTAT", "consulta");
 		return resposta;
 	}
 
-	@Transactional(readOnly = true)
 	@Override
-	public List<TascaDadaDto> findDadesPerTasca(
-			String tascaId) {
-		JbpmTask task = tascaHelper.getTascaComprovantAcces(tascaId);
+	@Transactional(readOnly = true)
+	public List<TascaDadaDto> findDades(
+			String id) {
+		logger.debug("Consultant dades de la tasca (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
 		return variableHelper.findDadesPerInstanciaTasca(task);
 	}
 
-	@Transactional(readOnly = true)
 	@Override
-	public List<TascaDocumentDto> findDocumentsPerTasca(
-			String tascaId) {
-		JbpmTask task = tascaHelper.getTascaComprovantAcces(tascaId);
+	@Transactional(readOnly = true)
+	public TascaDadaDto findDada(
+			String id,
+			String variableCodi) {
+		logger.debug("Consultant dada de la tasca (" +
+				"id=" + id + ", " +
+				"variableCodi=" + variableCodi + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return variableHelper.findDadaPerInstanciaTasca(
+				task,
+				variableCodi);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<TascaDocumentDto> findDocuments(
+			String id) {
+		logger.debug("Consultant documents de la tasca (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
 		return documentHelper.findDocumentsPerInstanciaTasca(task);
 	}
 
-	@Transactional(readOnly = true)
 	@Override
-	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
-		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
-	}
-	
-	@Transactional
-	@Override
-	public void createDadesTasca(Long taskId) {
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		if (task == null)
-			throw new NotFoundException(
-					serviceUtils.getMessage("error.tascaService.noTrobada"));
-		createDadesTasca(task);
-	}
-	
-	private void createDadesTasca(JbpmTask task) {
-		String rootProcessInstanceId = jbpmHelper.getRootProcessInstance(task.getProcessInstanceId()).getId();
-		Expedient expedientPerTasca = expedientDao.findAmbProcessInstanceId(rootProcessInstanceId);
-		Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
-				task.getProcessDefinitionId());
-		String titol = tasca.getNom();
-		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-			titol = dtoConverter.getTitolPerTasca(task, tasca);
-		task.setFieldFromDescription(
-				"entornId",
-				expedientPerTasca.getEntorn().getId().toString());
-		task.setFieldFromDescription(
-				"titol",
-				titol);
-		task.setFieldFromDescription(
-				"identificador",
-				expedientPerTasca.getIdentificador());
-		task.setFieldFromDescription(
-				"identificadorOrdenacio",
-				expedientPerTasca.getIdentificadorOrdenacio());
-		task.setFieldFromDescription(
-				"numeroIdentificador",
-				expedientPerTasca.getNumeroIdentificador());
-		task.setFieldFromDescription(
-				"expedientTipusId",
-				expedientPerTasca.getTipus().getId().toString());
-		task.setFieldFromDescription(
-				"expedientTipusNom",
-				expedientPerTasca.getTipus().getNom());
-		task.setFieldFromDescription(
-				"processInstanceId",
-				expedientPerTasca.getProcessInstanceId());
-		task.setFieldFromDescription(
-				"tramitacioMassiva",
-				new Boolean(tasca.isTramitacioMassiva()).toString());
-		task.setFieldFromDescription(
-				"definicioProcesJbpmKey",
-				tasca.getDefinicioProces().getJbpmKey());
-		task.setCacheActiu();
-		jbpmHelper.describeTaskInstance(
-				task.getId(),
-				titol,
-				task.getDescriptionWithFields());
-	}
-
 	@Transactional(readOnly = true)
-	@Override
-	public Object getVariable(
-			Long entornId,
-			String taskId,
-			String codiVariable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		return serviceUtils.getVariableJbpmTascaValor(task.getId(), codiVariable);
-	}
-
-	private JbpmTask comprovarSeguretatTasca(Long entornId, String taskId, String usuari, boolean comprovarAssignacio) {
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		if (task == null) {
-			throw new NotFoundException(
-					serviceUtils.getMessage("error.tascaService.noTrobada"));
-		}
-		
-		Long tascaEntornId = null;
-		if (!task.isCacheActiu()) {
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-			tascaEntornId = expedient.getEntorn().getId();			
-		} else {
-			tascaEntornId = new Long(task.getFieldFromDescription("entornId"));
-		}
-		
-		if (!tascaEntornId.equals(entornId)) {
-			throw new TascaNotFoundException(
-					serviceUtils.getMessage("error.tascaService.noTrobada"));
-		}
-		if (comprovarAssignacio) {
-			if (usuari == null) {
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				if (!auth.getName().equals(task.getAssignee()))
-					throw new TascaNotFoundException(
-							serviceUtils.getMessage("error.tascaService.noAssignada"));
-			} else {
-				if (!usuari.equals(task.getAssignee()))
-					throw new TascaNotFoundException(
-							serviceUtils.getMessage("error.tascaService.noAssignada"));
-			}
-		}
-		if (task.isSuspended()) {
-			throw new TascaNotFoundException(
-					serviceUtils.getMessage("error.tascaService.noDisponible"));
-		}
-		return task;
-	}
-
-	public boolean isDocumentsComplet(Object task) {
-		boolean ok = true;
-		Tasca tasca = tascaHelper.findTascaByJbpmTask((JbpmTask)task);
-		for (DocumentTasca docTasca: tasca.getDocuments()) {
-			if (docTasca.isRequired()) {
-				String codiJbpm = DocumentHelper.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
-				Object valor = jbpmHelper.getTaskInstanceVariable(
-						((JbpmTask)task).getId(),
-						codiJbpm);
-				if (valor == null) {
-					ok = false;
-					break;
-				}
-			}
-		}
-		return ok;
-	}
-	public boolean isSignaturesComplet(Object task) {
-		boolean ok = true;
-		Tasca tasca = tascaHelper.findTascaByJbpmTask((JbpmTask)task);
-		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
-			if (firmaTasca.isRequired()) {
-				String codiJbpm = DocumentHelper.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
-				Object valor = jbpmHelper.getTaskInstanceVariable(((JbpmTask)task).getId(), codiJbpm);
-				if (valor == null)
-					ok = false;
-			}
-		}
-		return ok;
-	}
-	
-	@Transactional(readOnly = true)
-	public boolean isTascaValidada(Object task) {
-		Tasca tasca = tascaHelper.findTascaByJbpmTask((JbpmTask)task);
-		boolean hiHaCampsModificables = false;
-		for (CampTasca camp: tasca.getCamps()) {
-			if (!camp.isReadOnly()) {
-				hiHaCampsModificables = true;
+	public List<SeleccioOpcioDto> findllistaValorsPerCampDesplegable(
+			String id,
+			Long campId,
+			String textFiltre,
+			Map<String, Object> valorsFormulari) {
+		logger.debug("Consultant llista de valors per camp selecció (" +
+				"id=" + id + ", " +
+				"campId=" + campId + ", " +
+				"textFiltre=" + textFiltre + ", " +
+				"valorsFormulari=...)");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		// Comprova si el camp pertany a la tasca
+		Camp camp = campRepository.findOne(campId);
+		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		boolean trobat = false;
+		for (CampTasca campTasca: tasca.getCamps()) {
+			if (campTasca.getCamp().equals(camp)) {
+				trobat = true;
 				break;
 			}
 		}
-		if (!hiHaCampsModificables)
-			return true;
-		Object valor = jbpmHelper.getTaskInstanceVariable(((JbpmTask)task).getId(), VAR_TASCA_VALIDADA);
-		if (valor == null || !(valor instanceof Date))
-			return false;
-		return true;
-	}
-
-	@Transactional(readOnly = true)
-	@Override
-	public CampDto findCampTasca(Long campId) {
-		return new ConversioTipusHelper().convertir(campRepository.findOne(campId), CampDto.class);
-	}
-	
-	@Transactional(readOnly = true)
-	@Override
-	public List<SeleccioOpcioDto> findOpcionsSeleccioPerCampTasca(
-			String tascaId,
-			Long campId) throws TaskInstanceNotFoundException, CampNotFoundException {
-		Camp camp = campRepository.findOne(campId);
+		if (!trobat) {
+			throw new NotFoundException(
+					camp.getId(),
+					Camp.class);
+		}
+		// Consulta els valors possibles
 		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
-		JbpmTask tasca = tascaHelper.getTascaComprovantAcces(tascaId);
 		if (camp.getDominiId() != null) {
-			try {
-				List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getTextVariablesSimpleFontExterna(
-							camp,
-							null,
-							null,
-							tascaId,
-							tasca.getProcessInstanceId());
-				for (ParellaCodiValorDto parella: parellaCodiValorDto) {
-					resposta.add(new SeleccioOpcioDto(parella.getCodi(), (String) parella.getValor()));
-				}
-			} catch (Exception ex) {
-				throw new DominiException("No s'ha pogut consultar el domini: " + camp.getDomini().getCodi(), ex);
+			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getTextVariablesSimpleFontExterna(
+						camp,
+						null,
+						valorsFormulari,
+						id,
+						task.getProcessInstanceId());
+			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
+				// TODO filtrar valors segons textFiltre
+				resposta.add(
+						new SeleccioOpcioDto(
+								parella.getCodi(),
+								(String) parella.getValor()));
 			}
 		} else if (camp.getEnumeracio() != null) {
 			List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(
 					camp.getEnumeracio().getId());
 			for (EnumeracioValors valor: valors) {
+				// TODO filtrar valors segons textFiltre
 				resposta.add(
 						new SeleccioOpcioDto(
 								valor.getCodi(),
@@ -591,285 +494,421 @@ public class TascaServiceImpl implements TascaService {
 		return resposta;
 	}
 
-	@Transactional(readOnly = true)
 	@Override
-	public ExpedientTascaDto getById(
-			Long entornId,
-			String taskId,
-			String usuari,
-			Map<String, Object> valorsCommand,
-			boolean ambVariables,
-			boolean ambTexts) throws TascaNotFoundException{
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);		
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		return tascaHelper.getTascaPerExpedient(expedient, taskId, true, true);
-	}	
-
-	@Transactional(readOnly = true)
-	@Override
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId) {
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		return tascaHelper.getTascaPerExpedient(expedient, taskId, false, false);
-	}
-
 	@Transactional
-	@Override
-	public ExpedientTascaDto guardarVariables(
-			Long entornId,
-			String taskId,
-			Map<String, Object> variables,
-			String usuari) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
-				null,
-				usuari);
-		boolean iniciada = task.getStartTime() == null;
-		optimitzarConsultesDomini(task, variables);
-		jbpmHelper.startTaskInstance(taskId);
-		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);
-		
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		ExpedientTascaDto tasca = tascaHelper.getTascaPerExpedient(expedient, taskId, false, false);
-		if (iniciada) {
-			if (usuari == null) {
-				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-			}
-			
-			Registre registre = new Registre(
-					new Date(),
-					tasca.getExpedientId(),
-					usuari,
-					Registre.Accio.MODIFICAR,
-					Registre.Entitat.TASCA,
-					taskId);
-			registre.setMissatge("Iniciar tasca \"" + tasca.getTitol() + "\"");
-			
-			registreRepository.save(registre);
+	public ExpedientTascaDto agafar(
+			String id) {
+		logger.debug("Agafant tasca (id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				false,
+				true);
+		// TODO contemplar el cas que no faci falta que l'usuari
+		// estigui als pooleActors
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Set<String> pooledActors = task.getPooledActors();
+		if (!pooledActors.contains(auth.getName())) {
+			logger.debug("L'usuari no s'ha trobat com a pooledActor de la tasca (" +
+					"id=" + id + ", " +
+					"personaCodi=" + auth.getName() + ")");
+			throw new NotFoundException(
+					id,
+					JbpmTask.class);
 		}
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
+				id);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+				id,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				previousActors);
+		jbpmHelper.takeTaskInstance(id, auth.getName());
+		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
+				id);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		registreDao.crearRegistreIniciarTasca(
+				tasca.getExpedientId(),
+				id,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				"Agafar tasca \"" + tasca.getTitol() + "\"");
 		return tasca;
 	}
 
+	@Override
 	@Transactional
-	private void optimitzarConsultesDomini(
-			JbpmTask task,
+	public ExpedientTascaDto alliberar(
+			String id) {
+		logger.debug("Alliberant tasca (id=" + id + ")");
+		// TODO contemplar el cas que no faci falta que l'usuari
+		// de la tasca sigui l'usuari actual
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
+				id);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+				id,
+				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+				previousActors);
+		jbpmHelper.releaseTaskInstance(id);
+		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
+				id);
+		expedientLog.setAccioParams(previousActors + "::" + currentActors);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		registreDao.crearRegistreIniciarTasca(
+				tasca.getExpedientId(),
+				id,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				"Amollar tasca \"" + tasca.getTitol() + "\"");
+		return tasca;
+	}
+
+	@Override
+	@Transactional
+	public ExpedientTascaDto guardar(
+			String id,
 			Map<String, Object> variables) {
-		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
-		for (CampTasca campTasca: campsTasca) {
-			if (campTasca.getCamp().isDominiCacheText()) {
-				Object campValor = variables.get(campTasca.getCamp().getCodi());
-				if (campValor != null) {
-					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
-							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						String text = variableHelper.getTextVariableSimple(
-								campTasca.getCamp(), 
-								campValor, null, 
-								task.getId(), 
-								task.getProcessInstanceId());
-						variables.put(
-								campTasca.getCamp().getCodi(),
-								new DominiCodiDescripcio(
-										(String)campValor,
-										text));
-					}
-				}
-			}
-		}
+		logger.debug("Guardant les dades del formulari de la tasca (" +
+				"id=" + id + ", " +
+				"variables=...)");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		ExpedientTascaDto tasca = tascaHelper.guardarVariables(
+				task,
+				variables);
+		return tasca;
 	}
-	
-	@Transactional
+
 	@Override
-	public ExpedientTascaDto validar(
-			Long entornId,
-			String taskId,
-			Map<String, Object> variables,
-			boolean comprovarAssignacio) {
-		return validar(entornId, taskId, variables, comprovarAssignacio, null);
-	}
-	
 	@Transactional
-	@Override
 	public ExpedientTascaDto validar(
-			Long entornId,
-			String taskId,
-			Map<String, Object> variables,
-			boolean comprovarAssignacio,
-			String usuari) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
+			String id,
+			Map<String, Object> variables) {
+		logger.debug("Validant el formulari de la tasca (" +
+				"id=" + id + ", " +
+				"variables=...)");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuari = auth.getName();
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
+				id,
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
 				usuari);
-		optimitzarConsultesDomini(task, variables);
-		jbpmHelper.startTaskInstance(taskId);
-		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);
-		validarTasca(taskId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		ExpedientTascaDto tasca = tascaHelper.getTascaPerExpedient(expedient, taskId, false, false);
-		if (usuari == null)
-			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		
+		tascaHelper.processarCampsAmbDominiCacheActivat(task, variables);
+		jbpmHelper.startTaskInstance(id);
+		jbpmHelper.setTaskInstanceVariables(id, variables, false);
+		tascaHelper.validarTasca(id);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
 		Registre registre = new Registre(
 				new Date(),
 				tasca.getExpedientId(),
 				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
-				taskId);
+				id);
 		registre.setMissatge("Validar \"" + tasca.getTitol() + "\"");
-		
 		registreRepository.save(registre);
 		return tasca;
 	}
 
-	@Transactional
-	private void validarTasca(String taskId) {
-		jbpmHelper.setTaskInstanceVariable(
-				taskId,
-				VAR_TASCA_VALIDADA,
-				new Date());
-	}
-
-	@Transactional
 	@Override
-	public ExpedientTascaDto restaurar(
-			Long entornId,
-			String taskId) {
-		return restaurar(entornId, taskId, null);
-	}
-	
 	@Transactional
-	@Override
 	public ExpedientTascaDto restaurar(
-			Long entornId,
-			String taskId,
-			String user) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
+			String id) {
+		logger.debug("Restaurant el formulari de la tasca (" +
+				"id=" + id + ", " +
+				"variables=...)");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuari = auth.getName();
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
+				id,
 				ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR,
 				null,
-				user);
-		if (!isTascaValidada(task))
+				usuari);
+		if (!tascaHelper.isTascaValidada(task)) {
 			throw new IllegalStateException(
-					serviceUtils.getMessage("error.tascaService.noValidada"));
-		restaurarTasca(taskId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		ExpedientTascaDto tasca = tascaHelper.getTascaPerExpedient(expedient, taskId, false, false);
-		if (user == null) 
-			user = SecurityContextHolder.getContext().getAuthentication().getName();
-		
+					id,
+					JbpmTask.class,
+					"validada");
+		}
+		tascaHelper.restaurarTasca(id);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
 		Registre registre = new Registre(
 				new Date(),
 				tasca.getExpedientId(),
-				user,
+				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
-				taskId);
+				id);
 		registre.setMissatge("Restaurar \"" + tasca.getTitol() + "\"");
-		
 		registreRepository.save(registre);
-		
 		return tasca;
 	}	
-	
-	private void restaurarTasca(String taskId) {
-		jbpmHelper.deleteTaskInstanceVariable(taskId, VAR_TASCA_VALIDADA);
+
+	@Override
+	@Transactional
+	public void completar(
+			String id,
+			String outcome) {
+		logger.debug("Completant la tasca (" +
+				"id=" + id + ", " +
+				"variables=...)");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuari = auth.getName();
+		if (!tascaHelper.isTascaValidada(task)) {
+			throw new IllegalStateException(
+					id,
+					JbpmTask.class,
+					"validada");
+		}
+		if (!tascaHelper.isDocumentsComplet(task)) {
+			throw new IllegalStateException(
+					id,
+					JbpmTask.class,
+					"documents_ok");
+		}
+		if (!tascaHelper.isSignaturesComplet(task)) {
+			throw new IllegalStateException(
+					id,
+					JbpmTask.class,
+					"firmes_ok");
+		}
+		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(task.getProcessInstanceId());
+		expedientLoggerHelper.afegirLogExpedientPerTasca(
+				id,
+				ExpedientLogAccioTipus.TASCA_COMPLETAR,
+				outcome,
+				usuari);
+		jbpmHelper.startTaskInstance(id);
+		jbpmHelper.endTaskInstance(id, outcome);
+		// Accions per a una tasca delegada
+		DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
+		if (delegationInfo != null) {
+			if (!id.equals(delegationInfo.getSourceTaskId())) {
+				// Copia les variables de la tasca delegada a la original
+				jbpmHelper.setTaskInstanceVariables(
+						delegationInfo.getSourceTaskId(),
+						jbpmHelper.getTaskInstanceVariables(task.getId()),
+						false);
+				JbpmTask taskOriginal = jbpmHelper.getTaskById(
+						delegationInfo.getSourceTaskId());
+				if (!delegationInfo.isSupervised()) {
+					// Si no es supervisada també finalitza la tasca original
+					completar(taskOriginal.getId(), outcome);
+				}
+				tascaHelper.deleteDelegationInfo(taskOriginal);
+			}
+		}
+		List<Expedient> expedients = expedientRepository.findByProcessInstanceId(
+				pi.getId());
+		for (Expedient expedient : expedients) {
+			actualitzarTerminisIAlertes(id, expedient);
+			verificarFinalitzacioExpedient(expedient, pi);
+		}
+		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		Registre registre = new Registre(
+				new Date(),
+				tasca.getExpedientId(),
+				usuari,
+				Registre.Accio.FINALITZAR,
+				Registre.Entitat.TASCA,
+				id);
+		registre.setMissatge("Finalitzar \"" + tasca.getTitol() + "\"");
+		registreRepository.save(registre);
 	}
 
-	@Transactional
 	@Override
-	public void completar(
-			Long entornId,
-			String taskId,
-			boolean comprovarAssignacio,
-			String usuari) {
-		completar(entornId, taskId, comprovarAssignacio, usuari, null);
-	}
-	
 	@Transactional
-	private Map<String, Object> getVariablesDelegacio(JbpmTask task) {
-		return jbpmHelper.getTaskInstanceVariables(task.getId());
+	public void delegacioCrear(
+			String id,
+			String usuariDesti,
+			String comentari,
+			boolean supervisada) {
+		logger.debug("Creant nova delegació de la tasca (" +
+				"id=" + id + ", " +
+				"usuariDesti=" + usuariDesti + ", " +
+				"comentari=" + comentari + ", " +
+				"supervisada=" + supervisada + ")");
+		JbpmTask taskOriginal = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		JbpmTask taskDelegada = jbpmHelper.cloneTaskInstance(
+				id,
+				usuariDesti,
+				jbpmHelper.getTaskInstanceVariables(
+						taskOriginal.getId()));
+		tascaHelper.createDelegationInfo(
+				taskOriginal,
+				taskOriginal,
+				taskDelegada,
+				comentari,
+				supervisada);
+		tascaHelper.createDelegationInfo(
+				taskDelegada,
+				taskOriginal,
+				taskDelegada,
+				comentari,
+				supervisada);
 	}
-	
-	@Transactional
+
 	@Override
-	public void completar(
-			Long entornId,
-			String taskId,
-			boolean comprovarAssignacio,
-			String usuari,
-			String outcome) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, comprovarAssignacio);
-		if (!isTascaValidada(task))
+	@Transactional
+	public void delegacioCancelar(
+			String id) {
+		logger.debug("Creant nova delegació de la tasca (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
+		if (delegationInfo == null || !id.equals(delegationInfo.getSourceTaskId())) {
 			throw new IllegalStateException(
-					serviceUtils.getMessage("error.tascaService.formNoValidat"));
-		if (!isDocumentsComplet(task))
-			throw new IllegalStateException(
-					serviceUtils.getMessage("error.tascaService.faltenAdjuntar"));
-		if (!isSignaturesComplet(task))
-			throw new IllegalStateException(
-					serviceUtils.getMessage("error.tascaService.faltenSignar"));
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(task.getProcessInstanceId());
-		
-		try {
-			if (usuari == null)
-				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-			
-			expedientLoggerHelper.afegirLogExpedientPerTasca(
-					taskId,
-					ExpedientLogAccioTipus.TASCA_COMPLETAR,
-					outcome,
-					usuari);
-			jbpmHelper.startTaskInstance(taskId);
-			jbpmHelper.endTaskInstance(task.getId(), outcome);
-			// Accions per a una tasca delegada
-			DelegationInfo delegationInfo = getDelegationInfo(task);
-			if (delegationInfo != null) {
-				if (!taskId.equals(delegationInfo.getSourceTaskId())) {
-					// Copia les variables de la tasca delegada a la original
-					jbpmHelper.setTaskInstanceVariables(
-							delegationInfo.getSourceTaskId(),
-							getVariablesDelegacio(task),
-							false);
-					JbpmTask taskOriginal = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
-					if (!delegationInfo.isSupervised()) {
-						// Si no es supervisada també finalitza la tasca original
-						completar(entornId, taskOriginal.getId(), false, null, outcome);
-					}
-					deleteDelegationInfo(taskOriginal);
+					id,
+					JbpmTask.class,
+					"delegada");
+		}
+		jbpmHelper.cancelTaskInstance(delegationInfo.getTargetTaskId());
+		tascaHelper.deleteDelegationInfo(task);
+	}
+
+	@Override
+	@Transactional
+	public void executarAccio(
+			String id,
+			String accio) {
+		logger.debug("Executant acció de la tasca (" +
+				"id=" + id + ", " +
+				"accio=" + accio + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuari = auth.getName();
+		expedientLoggerHelper.afegirLogExpedientPerTasca(
+				id,
+				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
+				accio,
+				usuari);
+		jbpmHelper.executeActionInstanciaTasca(id, accio);
+		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+	}
+
+	@Override
+	@Transactional
+	public void guardarFilaRegistre(
+			String id,
+			String campCodi,
+			int index,
+			Object[] valors) {
+		logger.debug("Afegint una fila d'un camp de tipus registre de la tasca (" +
+				"id=" + id + ", " +
+				"campCodi=" + campCodi + ", " +
+				"index=" + index + ", " +
+				"valors=...)");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+				task.getProcessDefinitionId());
+		Camp camp = campRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				campCodi);
+		if (camp.isMultiple()) {
+			Object valor = jbpmHelper.getTaskInstanceVariable(id, campCodi);
+			if (valor == null) {
+				tascaHelper.guardarVariable(
+						task,
+						campCodi,
+						new Object[]{valors});
+			} else {
+				Object[] valorMultiple = (Object[])valor;
+				if (index != -1) {
+					valorMultiple[index] = valors;
+					tascaHelper.guardarVariable(
+							task,
+							campCodi,
+							valor);
+				} else {
+					Object[] valorNou = new Object[valorMultiple.length + 1];
+					for (int i = 0; i < valorMultiple.length; i++)
+						valorNou[i] = valorMultiple[i];
+					valorNou[valorMultiple.length] = valors;
+					tascaHelper.guardarVariable(
+							task,
+							campCodi,
+							valorNou);
 				}
 			}
-			List<Expedient> expedients = expedientRepository.findByProcessInstanceId(pi.getId());
-			
-			for (Expedient expedient : expedients) {
-				actualitzarTerminisIAlertes(taskId, expedient);
-				verificarFinalitzacioExpedient(expedient, pi);
-			}
-			serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-			ExpedientTascaDto tasca = tascaHelper.getTascaPerExpedient(expedient, taskId, false, false);
-
-			Registre registre = new Registre(
-					new Date(),
-					expedient.getId(),
-					usuari,
-					Registre.Accio.FINALITZAR,
-					Registre.Entitat.TASCA,
-					taskId);
-			registre.setMissatge("Finalitzar \"" + tasca.getTitol() + "\"");
-			
-			registreRepository.save(registre);
-		} catch (Exception e) {
-			throw new IllegalStateException(serviceUtils.getMessage("error.tascaService.noDisponible"));
+		} else {
+			tascaHelper.guardarVariable(
+					task,
+					campCodi,
+					valors);
 		}
 	}
 
+	@Override
 	@Transactional
+	public void esborrarFilaRegistre(
+			String id,
+			String campCodi,
+			int index) {
+		logger.debug("Esborrant una fila d'un camp de tipus registre de la tasca (" +
+				"id=" + id + ", " +
+				"campCodi=" + campCodi + ", " +
+				"index=" + index + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
+		Camp camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi);
+		if (camp.isMultiple()) {
+			Object valor = jbpmHelper.getTaskInstanceVariable(id, campCodi);
+			if (valor != null) {
+				Object[] valorMultiple = (Object[])valor;
+				if (valorMultiple.length > 0) {
+					Object[] valorNou = new Object[valorMultiple.length - 1];
+					for (int i = 0; i < valorNou.length; i++)
+						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+					tascaHelper.guardarVariable(
+							task,
+							campCodi,
+							valorNou);
+				}
+			}
+		} else {
+			tascaHelper.guardarVariable(
+					task,
+					campCodi,
+					null);
+		}
+	}
+
+
+
 	private void verificarFinalitzacioExpedient(
 			Expedient expedient,
 			JbpmProcessInstance pi) {
@@ -888,23 +927,6 @@ public class TascaServiceImpl implements TascaService {
 				}
 			}
 		}
-	}
-	
-	@Transactional
-	@Override
-	public void delegacioCancelar(
-			Long entornId,
-			String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, true);
-		DelegationInfo delegationInfo = getDelegationInfo(task);
-		if (delegationInfo == null || !taskId.equals(delegationInfo.getSourceTaskId())) {
-			throw new IllegalStateException(
-					serviceUtils.getMessage("error.tascaService.cancelarDelegacio"));
-		}
-		// Cancelar la tasca delegada
-		jbpmHelper.cancelTaskInstance(delegationInfo.getTargetTaskId());
-		// Esborram la delegació
-		deleteDelegationInfo(task);
 	}
 
 	@Transactional
@@ -949,314 +971,6 @@ public class TascaServiceImpl implements TascaService {
 		for (Alerta antiga: antigues)
 			antiga.setDataEliminacio(new Date());
 	}
-	
-	@Transactional
-	@Override
-	public void esborrarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			int index) {
-		esborrarRegistre(entornId, taskId, campCodi, index, null);
-	}
-	
-	@Transactional
-	private DelegationInfo getDelegationInfo(JbpmTask task) {
-		return (DelegationInfo)jbpmHelper.getTaskInstanceVariable(
-				task.getId(),
-				VAR_TASCA_DELEGACIO);
-	}
-	
-	@Transactional
-	private void deleteDelegationInfo(JbpmTask task) {
-		jbpmHelper.deleteTaskInstanceVariable(
-				task.getId(),
-				VAR_TASCA_DELEGACIO);
-	}
-	
-	@Transactional
-	@Override
-	public void esborrarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			int index,
-			String usuari) {
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi);
-		if (camp.isMultiple()) {
-			Object valor = jbpmHelper.getTaskInstanceVariable(taskId, campCodi);
-			if (valor != null) {
-				Object[] valorMultiple = (Object[])valor;
-				if (valorMultiple.length > 0) {
-					Object[] valorNou = new Object[valorMultiple.length - 1];
-					for (int i = 0; i < valorNou.length; i++)
-						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-					guardarVariable(
-							entornId,
-							taskId,
-							campCodi,
-							valorNou,
-							usuari);
-				}
-			}
-		} else {
-			guardarVariable(
-					entornId,
-					taskId,
-					campCodi,
-					null,
-					usuari);
-		}
-	}
-
-	@Transactional
-	@Override
-	public ExpedientTascaDto guardarVariable(
-			Long entornId,
-			String taskId,
-			String variable,
-			Object valor) {
-		return guardarVariable(entornId, taskId, variable, valor, null);
-	}
-	
-	@Transactional
-	@Override
-	public ExpedientTascaDto guardarVariable(
-			Long entornId,
-			String taskId,
-			String variable,
-			Object valor,
-			String usuari) {
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(variable, valor);
-		return guardarVariables(entornId, taskId, variables, usuari);
-	}
-	
-	@Transactional
-	@Override
-	public void borrarVariables(
-			Long entornId,
-			String taskId,
-			String varName,
-			String usuari) {
-		comprovarSeguretatTasca(entornId, taskId, usuari, true);
-		jbpmHelper.startTaskInstance(taskId);
-		jbpmHelper.deleteTaskInstanceVariable(taskId, varName);
-	}
-
-	@Transactional
-	@Override
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors) {
-		guardarRegistre(
-				entornId,
-				taskId,
-				campCodi,
-				valors,
-				-1,
-				null);
-	}
-	
-	@Transactional
-	@Override
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors,
-			int index) {
-		guardarRegistre(
-				entornId,
-				taskId,
-				campCodi,
-				valors,
-				index,
-				null);
-	}
-	
-	@Transactional
-	@Override
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors,
-			String usuari) {
-		guardarRegistre(
-				entornId,
-				taskId,
-				campCodi,
-				valors,
-				-1,
-				usuari);
-	}
-	
-	@Transactional
-	@Override
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors,
-			int index,
-			String usuari) {
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi);
-		if (camp.isMultiple()) {
-			Object valor = jbpmHelper.getTaskInstanceVariable(taskId, campCodi);
-			if (valor == null) {
-				guardarVariable(
-						entornId,
-						taskId,
-						campCodi,
-						new Object[]{valors},
-						usuari);
-			} else {
-				Object[] valorMultiple = (Object[])valor;
-				if (index != -1) {
-					valorMultiple[index] = valors;
-					guardarVariable(
-							entornId,
-							taskId,
-							campCodi,
-							valor,
-							usuari);
-				} else {
-					Object[] valorNou = new Object[valorMultiple.length + 1];
-					for (int i = 0; i < valorMultiple.length; i++)
-						valorNou[i] = valorMultiple[i];
-					valorNou[valorMultiple.length] = valors;
-					guardarVariable(
-							entornId,
-							taskId,
-							campCodi,
-							valorNou,
-							usuari);
-				}
-			}
-		} else {
-			guardarVariable(
-					entornId,
-					taskId,
-					campCodi,
-					valors,
-					usuari);
-		}
-	}
-
-	@Transactional
-	@Override
-	public void executarAccio(
-			Long entornId,
-			String taskId,
-			String accio) throws DominiException {
-		executarAccio(entornId, taskId, accio, null);
-	}
-	
-	@Transactional
-	@Override
-	public void executarAccio(
-			Long entornId,
-			String taskId,
-			String accio,
-			String user) throws DominiException {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
-		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
-				accio,
-				user);
-		jbpmHelper.executeActionInstanciaTasca(taskId, accio);
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-	}
-
-	@Transactional
-	@Override
-	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		JbpmTask task = jbpmHelper.getTaskById(tascaId);
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		if (task != null) {
-			return tascaHelper.getTascaPerExpedient(expedient, task.getId(), false, false);
-		} else {
-			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
-			return null;
-		}
-	}
-
-	@Transactional
-	@Override
-	public ExpedientTascaDto agafar(Long entornId, String taskId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		return agafar(entornId, auth.getName(), taskId);
-	}
-
-	@Transactional
-	private ExpedientTascaDto agafar(Long entornId, String usuari, String taskId) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
-		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
-				previousActors);
-		jbpmHelper.takeTaskInstance(taskId, usuari);
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		ExpedientTascaDto tasca = getByIdSenseComprovacio(taskId);
-		registreDao.crearRegistreIniciarTasca(
-				tasca.getExpedientId(),
-				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				"Agafar tasca \"" + tasca.getTitol() + "\"");
-		return tasca;
-	}
-
-	@Transactional
-	@Override
-	public ExpedientTascaDto alliberar(Long entornId, String tascaId, boolean comprovarResponsable) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		return alliberar(entornId, auth.getName(), tascaId, comprovarResponsable);
-	}
-	
-	@Transactional
-	private ExpedientTascaDto alliberar(
-			Long entornId,
-			String usuari,
-			String taskId,
-			boolean comprovarResponsable) {
-		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, null, false);
-		if (comprovarResponsable) {
-			if (!task.getAssignee().equals(usuari)) {
-				throw new NotFoundException(
-						serviceUtils.getMessage("error.tascaService.noAssignada"));
-			}
-		}
-		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
-				previousActors);
-		jbpmHelper.releaseTaskInstance(taskId);
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		ExpedientTascaDto tasca = getByIdSenseComprovacio(taskId);
-		registreDao.crearRegistreIniciarTasca(
-				tasca.getExpedientId(),
-				taskId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				"Amollar tasca \"" + tasca.getTitol() + "\"");
-		return tasca;
-	}
-
-	
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);	
 }

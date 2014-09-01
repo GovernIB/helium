@@ -7,18 +7,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.CampNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -28,14 +25,38 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
  */
 public interface TascaService {
 
-	public static final String VAR_PREFIX = "H3l1um#";
+	/**
+	 * Consulta d'informació d'una tasca comprovant que pertany
+	 * a l'expedient especificat.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca que es vol consultar.
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol comprovar.
+	 * @return La informació de la tasca.@throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTascaDto findAmbIdPerExpedient(
+			String id,
+			Long expedientId);
 
-	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
-	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
-
-	public static final String DEFAULT_SECRET_KEY = "H3l1umKy";
-	public static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
-	public static final String DEFAULT_KEY_ALGORITHM = "DES";
+	/**
+	 * Consulta d'informació d'una tasca per a tramitar-la.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca que es vol consultar.
+	 * @return La informació de la tasca.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTascaDto findAmbIdPerTramitacio(
+			String id);
 
 	/**
 	 *  Consulta de tasques per entorn paginada.
@@ -88,173 +109,265 @@ public interface TascaService {
 			PaginacioParamsDto paginacioParams);
 
 	/**
-	 * Retorna les dades d'una instància de tasca.
+	 * Retorna els camps i les dades de la tasca per a la construcció
+	 * del formulari.
 	 * 
-	 * @param tascaId
-	 * @return
-	 * @throws TaskInstanceNotFoundException
+	 * @param id
+	 *            Atribut id de la tasca que es vol consultar.
+	 * @return Les dades de la tasca.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<TascaDadaDto> findDadesPerTasca(
-			String tascaId) throws TascaNotFoundException;
+	public List<TascaDadaDto> findDades(
+			String id);
 
 	/**
-	 * Retorna els documents d'una instància de tasca.
+	 * Retorna un camp del formulari de la tasca.
 	 * 
-	 * @param tascaId
-	 * @return
-	 * @throws TaskInstanceNotFoundException
+	 * @param id
+	 *            Atribut id de la tasca que es vol consultar.
+	 * @param variableCodi
+	 *            Codi de la variable que es vol consultar.
+	 * @return La dada de la tasca.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<TascaDocumentDto> findDocumentsPerTasca(
-			String tascaId) throws TascaNotFoundException;
+	public TascaDadaDto findDada(
+			String id,
+			String variableCodi);
 
 	/**
-	 * Consulta els possibles valors per a un camp de tipus selecció
-	 * del formulari de la tasca.
+	 * Retorna els documents de la tasca.
 	 * 
-	 * @param tascaId
+	 * @param id
+	 *            Atribut id de la tasca que es vol consultar.
+	 * @return Els documents de la tasca.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public List<TascaDocumentDto> findDocuments(
+			String id);
+
+	/**
+	 * Retorna la llista de possibles valors per a un camp de tipus
+	 * selecció d'una tasca.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
 	 * @param campId
-	 * @return
-	 * @throws TaskInstanceNotFoundException
-	 * @throws CampNotFoundException
+	 *            Atribut id del camp.
+	 * @param valorsFormulari
+	 *            Els valors dels camps del formulari.
+	 * @return la llista de valors
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<SeleccioOpcioDto> findOpcionsSeleccioPerCampTasca(
-			String tascaId,
-			Long campId) throws TaskInstanceNotFoundException, CampNotFoundException;
+	public List<SeleccioOpcioDto> findllistaValorsPerCampDesplegable(
+			String id,
+			Long campId,
+			String textFiltre,
+			Map<String, Object> valorsFormulari);
 
-	public boolean isTascaValidada(Object task);
-	
-	public boolean isDocumentsComplet(Object task);
-	
-	public boolean isSignaturesComplet(Object task);
-	
-	public Object getVariable(
-			Long entornId,
-			String taskId,
-			String codiVariable);
+	/**
+	 * Agafa una tasca assignada a aquest usuari com a tasca de grup.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @return la tasca agafada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat a dins
+	 *             les tasques de grup de l'usuari.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTascaDto agafar(
+			String id);
 
-	public ExpedientTascaDto getById(
-			Long entornId,
-			String taskId,
-			String usuari,
-			Map<String, Object> valorsCommand,
-			boolean ambVariables,
-			boolean ambTexts) throws TascaNotFoundException;
-	
-	public ExpedientTascaDto guardarVariables(
-			Long entornId,
-			String taskId,
-			Map<String, Object> variables,
-			String usuari);
+	/**
+	 * Allibera una tasca assignada a aquest usuari.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @return la tasca agafada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTascaDto alliberar(
+			String id);
 
+	/**
+	 * Guarda les variables del formulari de la tasca.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param variables
+	 *            Valors del formulari de la tasca.
+	 * @return la tasca guardada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTascaDto guardar(
+			String id,
+			Map<String, Object> variables);
+
+	/**
+	 * Valida el formulari de la tasca.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param variables
+	 *            Valors del formulari de la tasca.
+	 * @return la tasca validada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
 	public ExpedientTascaDto validar(
-			Long entornId,
-			String taskId,
-			Map<String, Object> variables,
-			boolean comprovarAssignacio);
-	
-	public ExpedientTascaDto validar(
-			Long entornId,
-			String taskId,
-			Map<String, Object> variables,
-			boolean comprovarAssignacio,
-			String usuari);
-	
-	public ExpedientTascaDto restaurar(
-			Long entornId,
-			String taskId);
-	
-	public ExpedientTascaDto restaurar(
-			Long entornId,
-			String taskId,
-			String user);
-	
+			String id,
+			Map<String, Object> variables);
+
+	/**
+	 * Restaura (tornar enrere validació) el formulari de la tasca.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @return la tasca restaurada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 * @throws IllegalStateException
+	 *             Si la tasca no es troba en estat validada.
+	 */
+	public ExpedientTascaDto restaurar(String id);
+
+	/**
+	 * Completa la tasca.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param outcome
+	 *            Transició de sortida de la tasca.
+	 * @return la tasca completada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 * @throws IllegalStateException
+	 *             Si la tasca no es troba en disposició de ser completada.
+	 */
 	public void completar(
-			Long entornId,
-			String taskId,
-			boolean comprovarAssignacio,
-			String usuari);
-	
-	public void completar(
-			Long entornId,
-			String taskId,
-			boolean comprovarAssignacio,
-			String usuari,
+			String id,
 			String outcome);
-	
-	public void esborrarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			int index);
-	
-	public void esborrarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			int index,
-			String usuari);
 
+	/**
+	 * Delega la tramitació d'una tasca a un altre usuari.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param usuariDesti
+	 *            L'usuari destinatari de la delegació.
+	 * @param comentari
+	 *            El comentari de la delegació.
+	 * @param supervisada
+	 *            Indica si la delegació ha de ser supervisada o no.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void delegacioCrear(
+			String id,
+			String usuariDesti,
+			String comentari,
+			boolean supervisada);
+
+	/**
+	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
+	 * l'usuari que ha creat la delegació.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 * @throws IllegalStateException
+	 *             Si la tasca no ha estat delegada.
+	 */
+	public void delegacioCancelar(
+			String id);
+
+	/**
+	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
+	 * l'usuari que ha creat la delegació.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param accio
+	 *            Nom de l'acció a executar.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
 	public void executarAccio(
-			Long entornId,
-			String taskId,
+			String id,
 			String accio);
 
-	public void executarAccio(
-			Long entornId,
-			String taskId,
-			String accio,
-			String user);
-	
-
-
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
+	/**
+	 * Guarda una fila d'una variable de tipus registre
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param campCodi
+	 *            Codi de la variable de tipus registre.
+	 * @param index
+	 *            Posició a on insertar la fila del registre. Si s'especifica
+	 *            en valor -1 s'inserta al final.
+	 * @param valors
+	 *            Valors de la fila del registre.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void guardarFilaRegistre(
+			String id,
 			String campCodi,
-			Object[] valors);
-	
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors,
-			int index);
-	
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors,
-			String usuari);
-	
-	public void guardarRegistre(
-			Long entornId,
-			String taskId,
-			String campCodi,
-			Object[] valors,
 			int index,
-			String usuari);
-	
-	public void borrarVariables(Long entornId, String taskId, String variable, String usuari);
+			Object[] valors);
 
-	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
-
-	public ExpedientTascaDto guardarVariable(Long entornId, String taskId, String variable, Object valor);
-
-	public ExpedientTascaDto guardarVariable(Long entornId, String taskId, String variable, Object valor, String usuari);
-
-	public void delegacioCancelar(Long entornId, String taskId);
-
-	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId);
-
-	public ExpedientTascaDto agafar(Long entornId, String taskId);
-
-	public ExpedientTascaDto alliberar(Long id, String id2, boolean comprovarResponsable);
-
-	public CampDto findCampTasca(Long campId);
-
-	public ExpedientTascaDto getByIdSenseComprovacio(String taskId);
-
-	public void createDadesTasca(Long taskId);
+	/**
+	 * Esborra una fila d'una variable de tipus registre
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @param campCodi
+	 *            Codi de la variable de tipus registre.
+	 * @param index
+	 *            Posició a on esborrar la fila del registre.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void esborrarFilaRegistre(
+			String id,
+			String campCodi,
+			int index);
 
 }

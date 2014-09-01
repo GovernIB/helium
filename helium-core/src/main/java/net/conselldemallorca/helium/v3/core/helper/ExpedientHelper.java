@@ -176,8 +176,10 @@ public class ExpedientHelper {
 	}
 	
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		return findAmbProcessInstanceId(rootProcessInstance.getId());
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(
+				processInstanceId);
+		return findAmbProcessInstanceId(
+				rootProcessInstance.getId());
 	}
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(String processInstanceId) {
 		String processDefinitionId = jbpmHelper.getProcessInstance(processInstanceId).getProcessDefinitionId();
