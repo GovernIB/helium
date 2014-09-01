@@ -111,5 +111,9 @@ public class PublicarExpedientRequest {
 	public void setEvents(List<Event> events) {
 		this.events = events;
 	}
-
+	
+	@Override
+	public String toString() {
+		return "PublicarExpedientRequest [expedientIdentificador=" + expedientIdentificador + ", expedientClau=" + expedientClau + ", unitatAdministrativa=" + unitatAdministrativa + ", idioma=" + idioma + ", descripcio=" + descripcio + ", autenticat=" + autenticat + ", representantNif=" + representantNif + ", representatNif=" + representatNif + ", representatNom=" + representatNom + ", tramitNumero=" + tramitNumero + ", avisosHabilitat=" + avisosHabilitat + ", avisosSMS=" + avisosSMS + ", avisosEmail=" + avisosEmail + ", events=" + events + "]";
+	}
 }

@@ -115,20 +115,21 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								EventosExpediente.class,
 								eventosExpediente));
 			}
-			if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentantNif())) {
+			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
+			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
 				if (getZonaperClient().altaZonaPersonalUsuario(
-						request.getRepresentantNif(), 
+						nifZonaPersonal, 
 						request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-						null, 
-						null) == null) {
-					logger.error("Error al crear la zona personal: " + request.getRepresentantNif());
+						"", 
+						"") == null) {
+					logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
 					throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
 				}
 			}
 			getZonaperClient().altaExpediente(expediente);
 			logger.info("Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 		} catch (Exception ex) {
-			logger.error("Error al crear expedient a la zona personal", ex);
+			logger.error("Error al crear expedient a la zona personal: " + request, ex);
 			throw new TramitacioPluginException("Error al crear expedient a la zona personal", ex);
 		}
 	}
