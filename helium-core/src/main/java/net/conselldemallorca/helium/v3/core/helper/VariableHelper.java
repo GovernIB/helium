@@ -494,6 +494,7 @@ public class VariableHelper {
 				} else {
 					domini = camp.getDomini();
 				}
+				
 				List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
 						domini,
 						camp.getDominiId(),
@@ -508,7 +509,13 @@ public class VariableHelper {
 				while (it.hasNext()) {
 					FilaResultat fr = it.next();
 					for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-						if (parellaCodi.getCodi().equals(columnaCodi) && (valor == null || parellaCodi.getValor().toString().equals(valor))) {
+						if (parellaCodi.getCodi().equals(columnaCodi) &&
+								(
+									valor == null || 
+									parellaCodi.getValor().toString().equals(valor) ||
+									(tipus.equals(TipusCamp.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
+								)
+							) {
 							for (ParellaCodiValor parellaValor: fr.getColumnes()) {
 								if (parellaValor.getCodi().equals(columnaValor)) {
 									ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
@@ -695,7 +702,7 @@ public class VariableHelper {
 	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp, TipusConsultaCamp tipus) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		String varCodi;
-		if (TipusConsultaCamp.INFORME.equals(tipus)) {
+		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null) {
 			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi().toLowerCase();
 		} else {
 			varCodi = camp.getCodi().toLowerCase();
@@ -708,6 +715,14 @@ public class VariableHelper {
 		tascaDto.setObservacions(camp.getObservacions());
 		tascaDto.setJbpmAction(camp.getJbpmAction());
 		tascaDto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
+		
+		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
+			try {
+				tascaDto.setVarValor(getTextVariablesSimpleFontExterna(camp, null, null, null, null));
+			} catch (Exception e) {
+				tascaDto.setVarValor(null);
+			}
+		}
 		if (camp.isMultiple()) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
 			/*for (CampRegistre dto: camp.getRegistreMembres()) {

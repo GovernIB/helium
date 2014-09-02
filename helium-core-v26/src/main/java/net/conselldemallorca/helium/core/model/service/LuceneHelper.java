@@ -532,12 +532,14 @@ public class LuceneHelper extends LuceneIndexSupport {
 					List<DadaIndexadaDto> dadesFila = new ArrayList<DadaIndexadaDto>();
 					for (String codi : fila.keySet()) {
 						for (Camp camp : campsInforme) {
-							boolean coincideix;
+							boolean coincideix = false;
 							String[] partsCodi = codi.split("\\.");
-							if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-								coincideix = codi.equals(camp.getCodi());
-							} else {
-								coincideix = camp.getDefinicioProces() != null && partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) && partsCodi[1].equals(camp.getCodi());
+							if (camp != null) {
+								if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+									coincideix = codi.equals(camp.getCodi());
+								} else {
+									coincideix = camp.getDefinicioProces() != null && partsCodi[0].equals(camp.getDefinicioProces().getJbpmKey()) && partsCodi[1].equals(camp.getCodi());
+								}
 							}
 							if (coincideix) {
 								for (String valorIndex : fila.get(codi)) {

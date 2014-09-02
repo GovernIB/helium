@@ -13,10 +13,13 @@ import java.util.Map;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ExpedientConsultaDissenyDto {
-
+ 
 	private ExpedientDto expedient;
 	private Map<String, DadaIndexadaDto> dadesExpedient;
 
+	public Long getId() {
+		return expedient.getId();
+	}
 	public ExpedientDto getExpedient() {
 		return expedient;
 	}
@@ -29,5 +32,4 @@ public class ExpedientConsultaDissenyDto {
 	public void setDadesExpedient(Map<String, DadaIndexadaDto> dadesExpedient) {
 		this.dadesExpedient = dadesExpedient;
 	}
-
 }

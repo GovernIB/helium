@@ -14,13 +14,13 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 public class SeleccioOpcioDto {
 
 	private String codi;
-	private String text;
+	private String nom;
 
 	public SeleccioOpcioDto() {
 	}
-	public SeleccioOpcioDto(String codi, String text) {
+	public SeleccioOpcioDto(String codi, String nom) {
 		this.codi = codi;
-		this.text = text;
+		this.nom = nom;
 	}
 
 	public String getCodi() {
@@ -29,11 +29,11 @@ public class SeleccioOpcioDto {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public String getText() {
-		return text;
+	public String getNom() {
+		return nom;
 	}
-	public void setText(String text) {
-		this.text = text;
+	public void setNom(String nom) {
+		this.nom = nom.replaceAll("\\p{Cntrl}", "").trim();
 	}
 
 }

@@ -82,10 +82,8 @@ public class DadaIndexadaDto {
 	public void setValorIndex(String valorIndex) {
 		this.valorIndex = valorIndex;
 	}
-	public String getValorMostrar() {
-		if (isMultiple())
-			return getValorMostrarMultipleComText();
-		return valorMostrar;
+	public String getValorMostrar() {		
+		return toString();
 	}
 	public void setValorMostrar(String valorMostrar) {
 		this.valorMostrar = valorMostrar;
@@ -145,7 +143,7 @@ public class DadaIndexadaDto {
 
 	public String getValorMostrarMultipleComText() {
 		if (getValorMostrarMultiple() == null && getValorMultiple() == null)
-			return null;
+			return "";
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		if (getValorMostrarMultiple() != null) {
@@ -174,7 +172,7 @@ public class DadaIndexadaDto {
 			else if (valor != null)
 				return valor.toString();
 			else
-				return null;
+				return "";
 		}
 	}
 

@@ -725,10 +725,10 @@ public interface ExpedientService {
 
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId);
 	
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams);
+			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
 	/*
 	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
 
@@ -778,9 +778,9 @@ public interface ExpedientService {
 		}
 	}
 
-	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 
-	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);	
+	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
 }

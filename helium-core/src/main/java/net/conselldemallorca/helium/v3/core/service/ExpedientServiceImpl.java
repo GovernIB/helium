@@ -1697,20 +1697,25 @@ public class ExpedientServiceImpl implements ExpedientService {
 */
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(final Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(final Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
 		
-		final List<ExpedientConsultaDissenyDto> expedientsConsultaDisseny = findAmbEntornConsultaDisseny(
+		final List<ExpedientConsultaDissenyDto> expedientsConsultaDisseny = findConsultaDissenyPaginat(
 			consultaId,
 			valorsPerService,
-			paginacioParams
+			paginacioParams,
+			nomesPendents, nomesAlertes, mostrarAnulats
 		);
 		
-		final int numExpedients = expedientsConsultaDisseny.size();
+		final int numExpedients= findIdsPerConsultaInformePaginat(
+				consultaId,
+				valorsPerService, 
+				nomesPendents, nomesAlertes, mostrarAnulats
+			).size();
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "2");
@@ -2295,10 +2300,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	
 	@Override
 	@Transactional(readOnly=true)
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(
+	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams) {
+			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		

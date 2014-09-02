@@ -247,6 +247,11 @@ public class SessionHelper {
 					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId,
 					filtreInforme);
 		}
+		public void removeFiltreInforme(Long expedientTipusId, Long consultaId) {
+			removeAttribute(
+					request,
+					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId);
+		}
 		public void setSeleccioConsultaGeneral(Set<Long> seleccioConsultaGeneral) {
 			setAttribute(
 					request,

@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
 	<title><spring:message code='perfil.info.meu_perfil' /></title>
@@ -17,12 +19,12 @@
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 <script>
 	$(document).ready(function() {
-		$("#filtroExpedientesActivosCheck").click(function() {
-			$("input[name=filtroExpedientesActivos]").val($("#filtroExpedientesActivosCheck").attr("checked") == "checked");
-		});
-
 		$('select[name=entornCodi]').on('change', function () {
 			$("select[name=expedientTipusId] option").each(function (index, option) {
 	    		if (index > 0 && $("select[name=expedientTipusId] option").size() > 0)
@@ -174,12 +176,7 @@
 				<div class="control-group">
 					<label for="tz" class="control-label">Listado inicial</label>
 					<div class="controls">
-						<c:set var="campPath" value="listado"/>
-						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-						<form:select path="${campPath}" cssClass="span11">
-							<form:options items="${pantallas}" itemLabel="valor" itemValue="codi"/>
-						</form:select>
-						${campErrors}
+						<hel:inputSelect name="listado" placeholder="Listado inicial" optionItems="${pantallas}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Veure la pantalla d'expedients o de tasques per defecte.
 						</p>
@@ -188,12 +185,7 @@
 				<div class="control-group">
 					<label class="control-label" for="lc_time">Capcalera</label>
 					<div class="controls">
-						<c:set var="campPath" value="cabeceraReducida"/>
-						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-						<form:select path="${campPath}" cssClass="span11">
-							<form:options items="${cabeceras}" itemLabel="valor" itemValue="codi"/>
-						</form:select>
-						${campErrors}
+						<hel:inputSelect name="cabeceraReducida" placeholder="Capcalera" optionItems="${cabeceras}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Mida i format de capcalera.
 						</p>
@@ -202,12 +194,7 @@
 				<div class="control-group">
 					<label class="control-label" for="lc_time">Entorno</label>
 					<div class="controls">
-						<c:set var="campPath" value="entornCodi"/>
-						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-						<form:select path="${campPath}" cssClass="span11">
-							<form:options items="${entorns}" itemLabel="nom" itemValue="codi"/>
-						</form:select>
-						${campErrors}
+						<hel:inputSelect name="entornCodi" placeholder="Entorno" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" inline="true"/>
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Entorn per defecte que s'ha d'obrir.
 						</p>
@@ -217,21 +204,9 @@
 					<label class="control-label" for="lc_time">Consulta por tipo</label>
 					<div class="controls">
 						<label class="control-label" for="lc_time" style="text-align: left">Tipo de expediente</label>
-						<c:set var="campPath" value="expedientTipusId"/>
-						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-						<form:select path="${campPath}" cssClass="span11">
-							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
-							<form:options items="${expedientTipus}" itemLabel="nom" itemValue="id"/>
-						</form:select>
-						${campErrors}
+						<hel:inputSelect name="expedientTipusId" placeholder="Tipo de expediente" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
 						<label class="control-label" for="lc_time" style="text-align: left">Consulta por tipo</label>
-						<c:set var="campPath" value="consultaId"/>
-						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-						<form:select path="${campPath}" cssClass="span11">
-							<option value="">&lt;&lt; <spring:message code="js.helforms.selec_valor" /> &gt;&gt;</option>
-							<form:options items="${consultes}" itemLabel="nom" itemValue="id"/>
-						</form:select>
-						${campErrors}
+						<hel:inputSelect name="consultaId" placeholder="Consulta por tipo" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Consulta per tipus per defecte que s'ha d'obrir.
 						</p>
@@ -240,12 +215,7 @@
 				<div class="control-group">
 					<label class="control-label" for="lc_time">Elementos por página</label>
 					<div class="controls">
-						<c:set var="campPath" value="numElementosPagina"/>
-						<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-						<form:select path="${campPath}" cssClass="span11">
-							<form:options items="${numElementsPagina}" itemLabel="valor" itemValue="codi"/>
-						</form:select>
-						${campErrors}
+						<hel:inputSelect name="numElementosPagina" placeholder="Elementos por página" optionItems="${numElementsPagina}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 						<p class="help-block">
 							<span class="label label-info">Nota</span> Numero d'elements que s'han de mostrar per defecte en les taules paginades.
 						</p>
@@ -254,11 +224,7 @@
 				<div class="control-group">
 					<label class="control-label">Filtros por defecto</label>
 					<div class="controls">
-						<form:hidden path="filtroExpedientesActivos"/>
-						<label class="checkbox inline">
-							<input type="checkbox" id="filtroExpedientesActivosCheck" <c:if test="${personaUsuariCommand.filtroExpedientesActivos}">checked="checked"</c:if>> <label>Llistat d'expedients filtra per defecte o no expedients amb tasques actives per part de l'usuari.</label>
-						</label>
-						${campErrors}
+						<hel:inputCheckbox name="filtroExpedientesActivos" text="Llistat d'expedients filtra per defecte o no expedients amb tasques actives per part de l'usuari." inline="true"/>
 					</div>
 				</div>
 				<br />

@@ -6,17 +6,16 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
-<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
-<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-<script src="<c:url value="/js/select2.min.js"/>"></script>
-<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+
 <html>
 <head>
 	<title><fmt:message key="index.inici" /></title>
-	<meta name="capsaleraTipus" content="llistat"/>
+	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
@@ -24,6 +23,82 @@
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+	<style>
+		#taulaDades_wrapper {overflow-x: auto;padding-top: 7px;}
+		#filtresCollapsable {padding-top: 20px;}
+		input, select, textarea {width: 100%;}
+		form .fila_reducida {padding-top: 20px;;margin-bottom: 5px;}
+		.form-group {
+			padding-right: 	15px;
+			margin-left: 	10px !important;
+			margin-bottom:	15px;
+		}
+		.form-group input, .form-group textarea {
+			width: 100%;
+		}
+		
+		.form-group li > .select2-container {
+			width: 100%;
+			padding-right: 20px;
+		}
+		
+		.form-group .select2-container {
+			width: calc(100% + 14px);
+		}
+		.condensed {
+			margin-bottom: 0px;
+		}
+		.form-group.registre {
+			padding-right: 1px;
+		}
+		.registre table .colEliminarFila {
+			width: 1px;
+		}
+		.registre table .opciones {
+			text-align: center;
+			padding: 4px;
+		}
+		p.help-block {
+			padding-top: 0;	
+			margin-top: 4px !important;
+		}
+		.clear {
+			clear: both;
+		}
+		.clearForm {
+			clear: both;
+			margin-bottom: 10px;
+			border-bottom: solid 1px #EAEAEA;
+		}
+		.input-append {
+			width: calc(100% - 27px);
+		}
+		.eliminarFila {
+			padding: 4px 6px;
+		}
+		.tercpre {
+			padding-left: 0px !important;
+			padding-right: 8px !important;
+		}
+		.tercmig {
+			padding-left: 4px !important;
+			padding-right: 4px !important;
+		}
+		.tercpost {
+			padding-left: 8px !important;
+			padding-right: 0px !important;
+		}
+		.col-xs-3 {width: 17.5%;}
+		.control-label.col-xs-4 {width: auto !important;}
+		.col-xs-5 {padding-left: 0px !important;margin-right: -55px;}
+		.controls.form-group.col-xs-9 {margin-bottom: 0px !important;padding-bottom: 0px !important;}
+		.col-xs-9 .form-group {margin-bottom: 0px !important;padding-bottom: 0px !important;}
+	</style>
 <script>
 $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
@@ -61,56 +136,64 @@ $(document).ready(function() {
 		}
 	});
 	$("#expedientInformeCommand button[value='netejar']").click(function() {
-		$('#expedientInformeCommand')[0].reset();
+		$('#expedientInforme')[0].reset();
 	});
 	$("#nomesPendentsCheck").click(function() {
 		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
-		$('#expedientInformeCommand').submit();
+		$('#expedientInforme').submit();
 	});
 	$("#nomesAlertesCheck").click(function() {
 		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
-		$('#expedientInformeCommand').submit();
+		$('#expedientInforme').submit();
 	});
 	$("#mostrarAnulatsCheck").click(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
-		$('#expedientInformeCommand').submit();
+		$('#expedientInforme').submit();
 	});
 });
 </script>
 </head>
-<body>	
+<body>
 	<input type="hidden" id="netejar" value="false"/>
-	<form:form id="expedientInformeCommand" name="expedientInformeCommand" action="" method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeCommand">
-		<input type="hidden" id="expedientTipusId" name="expedientTipusId" value="${expedientTipusId}"/>
-		<div class="page-header">
-			Informes de <c:forEach var="expedientTipus" items="${expedientTipusAccessibles}"><c:if test="${expedientTipus.id == expedientTipusId}">${expedientTipus.nom}</c:if></c:forEach>
-		</div>
+	<form:form method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeCommand">
+		<form:hidden path="expedientTipusId"/>
+		<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
+			<c:if test="${expedientTipus.id == expedientInformeCommand.expedientTipusId}">
+				<c:set var="titleHeader" value="${expedientTipus.nom}"/>
+			</c:if>
+		</c:forEach>
 		<c:choose>
 			<c:when test="${empty consulta}">
+				<h2>							
+					<span class="fa fa-folder-open"></span>
+					${titleHeader}
+				</h2>
 				<div id="filtresCollapsable">
 					<hel:inputSelect name="consultaId" textKey="expedient.consulta.select.consula" placeholderKey="expedient.consulta.select.consula" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom"/>
-					<div class="row">
-						<div class="pull-right">
+					<div class="form-group pull-right">
+						<div class="controls col-xs-8">
 							<button type="submit" name="accio" value="consultar" class="btn btn-primary">Consultar</button>
 						</div>
 					</div>
 				</div>
 			</c:when>
 			<c:otherwise>
-				<input type="hidden" id="consultaId" name="consultaId" value="${consultaId}"/>
+				<form:hidden path="consultaId"/>
+				<c:set var="titleHeader" value="${titleHeader} - ${consulta.nom}"/>
+				<h2>							
+					<span class="fa fa-folder-open"></span>
+					${titleHeader}
+				</h2>
 			</c:otherwise>
 		</c:choose>
-		<c:forEach var="camp" items="${campsFiltre}">			
-			<div class="control-group fila_reducida">
-				<label class="control-label" for="${camp.varCodi}">${camp.campEtiqueta}</label>
-				<div class="controls">
-					<c:set var="campActual" value="${camp}" scope="request"/>
-					<c:set var="readonly" value="${false}" scope="request"/>
-					<c:set var="required" value="${false}" scope="request"/>
-					<c:import url="campsFiltre.jsp"/>
-				</div>
-			</div>
-		</c:forEach>
+		<div class="control-group fila_reducida">
+			<c:forEach var="camp" items="${campsFiltre}">
+				<c:set var="campActual" value="${camp}" scope="request"/>
+				<c:set var="readonly" value="${false}" scope="request"/>
+				<c:set var="required" value="${false}" scope="request"/>
+				<c:import url="campsFiltre.jsp"/>
+			</c:forEach>
+		</div>
 		<c:if test='${not empty consulta}'>
 			<hr/>
 			<div class="row">
@@ -119,7 +202,7 @@ $(document).ready(function() {
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="mostrarAnulats"/>
 				<form:hidden path="tramitacioMassivaActivada"/>
-				<div class="btn-group">
+				<div class="btn-group hide">
 					<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></a>
 					<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></a>
 					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anul·lats" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
@@ -129,7 +212,7 @@ $(document).ready(function() {
 				<div class="pull-right">
 					<input type="hidden" name="consultaRealitzada" value="true"/>
 					<button type="submit" name="accio" value="netejar" class="btn btn-default">Netejar</button>
-					<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;Filtrar</button>
+					<button type="submit" name="accio" value="filtrar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;Filtrar</button>
 				</div>
 			</div>
 		</div>
@@ -145,15 +228,15 @@ $(document).ready(function() {
 					<c:forEach var="camp" items="${campsInforme}">
 						<th data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >${camp.campEtiqueta}</th>
 					</c:forEach>
-					<th data-rdt-property="expedient.id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
+					<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 						<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
-							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;Accions&nbsp;<span class="caret"></span></button>
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="expedient/{{:id}}" class="obrir-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code='comuns.obrir'/></a></li>
-								<li><a href="<c:url value="../v3/expedient/{{:id}}/stop"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>
-								<li><a href="<c:url value="../v3/expedient/{{:id}}/anular"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>
-								<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>
+								<li><a href="<c:url value="../../v3/expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code='comuns.obrir'/></a></li>
+								<li><a href="<c:url value="../../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>
+								<li><a href="<c:url value="../../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>
+								<li><a href="<c:url value="../../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -164,8 +247,8 @@ $(document).ready(function() {
 		<script id="tableButtonsTemplate" type="text/x-jsrender">
 			<div style="text-align:right">
 				<div class="btn-group">
-					<a class="btn btn-default" href="../v3/expedient/seleccioTots" data-rdt-link-ajax="true" title="Seleccionar tots"><span class="fa fa-check-square-o"></span></a>
-					<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="Netejar selecció"><span class="fa fa-square-o"></span></a>
+					<a class="btn btn-default" href="../../v3/informe/${consulta.expedientTipus.id}/${consulta.id}/seleccioTots" data-rdt-link-ajax="true" title="Seleccionar tots"><span class="fa fa-check-square-o"></span></a>
+					<a class="btn btn-default" href="<c:url value="../../v3/informe/seleccioNetejar"/>" data-rdt-link-ajax="true" title="Netejar selecció"><span class="fa fa-square-o"></span></a>
 					<a class="btn btn-default" href="#">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 				</div>
 			</div>
@@ -181,6 +264,5 @@ $(document).ready(function() {
 			</c:if>
 		</div>
 	</c:if>
-
 </body>
 </html>

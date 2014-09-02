@@ -319,8 +319,10 @@ public class TascaFormHelper {
 							Object array = Array.newInstance(
 									camp.getJavaClass(),
 									(perFiltre) ? 2 : 1);
-							((Object[])array)[0] = camp.getJavaClass().newInstance();
-							if (perFiltre) ((Object[])array)[1] = camp.getJavaClass().newInstance();
+							if (!perFiltre) 
+								((Object[])array)[0] = camp.getJavaClass().newInstance();
+//							if (perFiltre) 
+//								((Object[])array)[1] = camp.getJavaClass().newInstance();
 							
 							PropertyUtils.setSimpleProperty(
 									command,

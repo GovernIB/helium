@@ -293,20 +293,22 @@ public class DtoConverter {
 			List<Camp> campsInforme, 
 			String processInstanceId) {
 		for (Camp camp: campsInforme) {
+			if (camp != null) {
 			String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi().toLowerCase();
-			if (!dadesExpedient.containsKey(dadaIndexadaClau)) {
-				dadesExpedient.put(dadaIndexadaClau, new DadaIndexadaDto(camp.getCodi().toLowerCase(), camp.getEtiqueta()));
+				if (!dadesExpedient.containsKey(dadaIndexadaClau)) {
+					dadesExpedient.put(dadaIndexadaClau, new DadaIndexadaDto(camp.getCodi().toLowerCase(), camp.getEtiqueta()));
+				}
+				DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
+				if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
+					String text = variableHelper.getTextVariableSimple(
+						camp,
+						dadaIndexada.getValorIndex(),
+						null,
+						null,
+						processInstanceId);
+					dadaIndexada.setValorMostrar(text);
+				} 
 			}
-			DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
-			if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
-				String text = variableHelper.getTextVariableSimple(
-					camp,
-					dadaIndexada.getValorIndex(),
-					null,
-					null,
-					processInstanceId);
-				dadaIndexada.setValorMostrar(text);
-			} 
 		}
 	}
 	

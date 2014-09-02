@@ -445,24 +445,27 @@ public class TascaServiceImpl implements TascaService {
 				"campId=" + campId + ", " +
 				"textFiltre=" + textFiltre + ", " +
 				"valorsFormulari=...)");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		// Comprova si el camp pertany a la tasca
 		Camp camp = campRepository.findOne(campId);
-		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-		boolean trobat = false;
-		for (CampTasca campTasca: tasca.getCamps()) {
-			if (campTasca.getCamp().equals(camp)) {
-				trobat = true;
-				break;
+		JbpmTask task = null;
+		if (id != null) {
+			task = tascaHelper.getTascaComprovacionsTramitacio(
+					id,
+					true,
+					true);
+			// Comprova si el camp pertany a la tasca
+			Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+			boolean trobat = false;
+			for (CampTasca campTasca: tasca.getCamps()) {
+				if (campTasca.getCamp().equals(camp)) {
+					trobat = true;
+					break;
+				}
 			}
-		}
-		if (!trobat) {
-			throw new NotFoundException(
-					camp.getId(),
-					Camp.class);
+			if (!trobat) {
+				throw new NotFoundException(
+						camp.getId(),
+						Camp.class);
+			}
 		}
 		// Consulta els valors possibles
 		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
@@ -472,7 +475,7 @@ public class TascaServiceImpl implements TascaService {
 						null,
 						valorsFormulari,
 						id,
-						task.getProcessInstanceId());
+						task==null ? null : task.getProcessInstanceId());
 			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
 				// TODO filtrar valors segons textFiltre
 				resposta.add(

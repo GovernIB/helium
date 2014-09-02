@@ -3,14 +3,12 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -39,7 +37,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 
 	@RequestMapping(value = "/consulta", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> consultaCamp(
+	public List<SeleccioOpcioDto> consultaCamp(
 			HttpServletRequest request,
 			@RequestParam(value = "taskId", required = false) String taskId,
 			@RequestParam(value = "processInstanceId", required = false) String processInstanceId,
@@ -47,19 +45,11 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@RequestParam(value = "q", required = false) String textInicial,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
-		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
-		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findllistaValorsPerCampDesplegable(
 				taskId,
 				campId,
 				textInicial,
 				getMapDelsValors(valors));
-		for (SeleccioOpcioDto opcio: opcions) {
-			resultat.add(
-					new ParellaCodiValorDto(
-							opcio.getCodi(),
-							opcio.getText().replaceAll("\\p{Cntrl}", "").trim()));
-		}
-		return resultat;
 	}
 
 	private Map<String, Object> getMapDelsValors(String valors) {
@@ -77,50 +67,61 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 	
 	@RequestMapping(value = "/consulta/inicial/{taskId}/{campId}/{codi}", method = RequestMethod.GET)
 	@ResponseBody
-	public ParellaCodiValorDto consultaCampInicial(
-			HttpServletRequest request,
+	public SeleccioOpcioDto consultaCampInicial(
 			@PathVariable(value = "taskId") String taskId,
 			@PathVariable(value = "campId") Long campId,
 			@PathVariable(value = "codi") String codi,
 			ModelMap model) {
-		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
 		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
 				taskId,
 				campId,
-				null,
+				codi,
 				null);
-		for (SeleccioOpcioDto opcio: opcions) {
-			resultat.add(
-					new ParellaCodiValorDto(
-							opcio.getCodi(),
-							opcio.getText().replaceAll("\\p{Cntrl}", "").trim()));
-		}
-		if (resultat.isEmpty())
-			return new ParellaCodiValorDto();
-		return resultat.get(0);
+		if (opcions.isEmpty())
+			return new SeleccioOpcioDto();
+		return opcions.get(0);
 	}
 	
 	@RequestMapping(value = "/consulta/{taskId}/{campId}/{valor}", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> consultaCampValor(
-			HttpServletRequest request,
-			@RequestParam(value = "taskId", required = false) String taskId,
-			@RequestParam(value = "campId", required = true) Long campId,
-			@RequestParam(value = "valor", required = false) String textInicial,
+	public List<SeleccioOpcioDto> consultaCampValor(
+			@PathVariable (value = "taskId") String taskId,
+			@PathVariable (value = "campId") Long campId,
+			@PathVariable (value = "valor") String textInicial,
 			ModelMap model) {
-		List<ParellaCodiValorDto> resultat = new ArrayList<ParellaCodiValorDto>();
-		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findllistaValorsPerCampDesplegable(
 				taskId,
 				campId,
 				textInicial,
 				null);
-		for (SeleccioOpcioDto opcio: opcions) {
-			resultat.add(
-					new ParellaCodiValorDto(
-							opcio.getCodi(),
-							opcio.getText().replaceAll("\\p{Cntrl}", "").trim()));
-		}
-		return resultat;
 	}
-
+	
+	@RequestMapping(value = "/consulta/inicial/{campId}/{codi}", method = RequestMethod.GET)
+	@ResponseBody
+	public SeleccioOpcioDto consultaCampInicial(
+			@PathVariable (value = "campId") Long campId,
+			@PathVariable (value = "codi") String codi,
+			ModelMap model) {
+		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+				null,
+				campId,
+				codi,
+				null);
+		if (opcions.isEmpty())
+			return new SeleccioOpcioDto();
+		return opcions.get(0);
+	}
+	
+	@RequestMapping(value = "/consulta/{campId}/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> consultaCampValor(
+			@PathVariable (value = "campId") Long campId,
+			@PathVariable (value = "valor") String textInicial,
+			ModelMap model) {
+		return tascaService.findllistaValorsPerCampDesplegable(
+				null,
+				campId,
+				textInicial,
+				null);
+	}
 }

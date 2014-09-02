@@ -114,17 +114,17 @@ public class PerfilesController extends BaseController {
 	@ModelAttribute("cabeceras")
 	public List<ParellaCodiValorDto> cabeceras(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("0", "Completa"));
-		resposta.add(new ParellaCodiValorDto("1", "Reducida"));
+		resposta.add(new ParellaCodiValorDto("0", getMessage(request, "perfil.usuari.completa")));
+		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "perfil.usuari.reducida")));
 		return resposta;
 	}
 
 	@ModelAttribute("pantallas")
 	public List<ParellaCodiValorDto> paginas(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("0", "Expedients"));
-		resposta.add(new ParellaCodiValorDto("1", "Tasques"));
-		resposta.add(new ParellaCodiValorDto("2", "Informes"));
+		resposta.add(new ParellaCodiValorDto("0", getMessage(request, "perfil.usuari.expedients")));
+		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "perfil.usuari.tasques")));
+		resposta.add(new ParellaCodiValorDto("2", getMessage(request, "perfil.usuari.informes")));
 		return resposta;
 	}
 
@@ -157,14 +157,16 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
 		if (preferencies.getConsultaId() != null) {
 			ConsultaDto consulta = dissenyService.findConsulteById(preferencies.getConsultaId());
-			filtreCommand.setConsultaId(preferencies.getConsultaId());		
-			filtreCommand.setExpedientTipusId(consulta.getExpedientTipus().getId());
+			if (consulta != null) {
+				filtreCommand.setConsultaId(preferencies.getConsultaId());		
+				filtreCommand.setExpedientTipusId(consulta.getExpedientTipus().getId());
+			}
 			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),filtreCommand.getExpedientTipusId()));
 		} else {
 			model.addAttribute("consultes", new ArrayList<ConsultaDto>());
 		}
 		
-		List<ExpedientTipusDto> expedientTipusConConsultas = dissenyService.findExpedientTipusAmbPermisDissenyUsuariActual(entornUsuari.getId());
+		List<ExpedientTipusDto> expedientTipusConConsultas = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
 		Iterator<ExpedientTipusDto> it = expedientTipusConConsultas.iterator();
 		while (it.hasNext()) {
 			ExpedientTipusDto expTip = it.next();
@@ -194,52 +196,47 @@ public class PerfilesController extends BaseController {
 			@Valid @ModelAttribute PersonaUsuariCommand personaUsuariCommand,
 			BindingResult result,
 			Model model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-	        try {
-        		if ("Guardar".equals(accio)) {
-		        	UsuariPreferenciesDto preferencies = new UsuariPreferenciesDto();
-		        	preferencies.setCodi(request.getUserPrincipal().getName());
-		        	preferencies.setCabeceraReducida(personaUsuariCommand.isCabeceraReducida());
-		        	preferencies.setConsultaId(personaUsuariCommand.getConsultaId());
-		        	preferencies.setDefaultEntornCodi(personaUsuariCommand.getEntornCodi());
-		        	preferencies.setFiltroTareasActivas(personaUsuariCommand.isFiltroExpedientesActivos());
-		        	preferencies.setListado(personaUsuariCommand.getListado());
-		        	preferencies.setNumElementosPagina(personaUsuariCommand.getNumElementosPagina());
-		        	adminService.updatePerfil(preferencies);
-		        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);		        	
-	        	} else if ("Modificar".equals(accio) && !result.hasErrors()) {
-	        		PersonaDto persona = new PersonaDto();
-	        		persona.setCodi(request.getUserPrincipal().getName());
-	        		persona.setDni(personaUsuariCommand.getDni());
-	        		persona.setEmail(personaUsuariCommand.getEmail());
-	        		persona.setLlinatge1(personaUsuariCommand.getLlinatge1());
-	        		persona.setLlinatge2(personaUsuariCommand.getLlinatge2());
-	        		persona.setNom(personaUsuariCommand.getNom());
-	        		persona.setSexe(personaUsuariCommand.isHombre() ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
-	        		adminService.updatePersona(persona);
-	        	} else {
-	                MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
-	                
-	                PersonaUsuariCommand pars = getFiltreCommand(request, model);
-	                personaUsuariCommand.setCabeceraReducida(pars.isCabeceraReducida());
-	                personaUsuariCommand.setConsultaId(pars.getConsultaId());
-	                personaUsuariCommand.setEntornCodi(pars.getEntornCodi());
-	                personaUsuariCommand.setExpedientTipusId(pars.getExpedientTipusId());
-	                personaUsuariCommand.setFiltroExpedientesActivos(pars.isFiltroExpedientesActivos());
-	                personaUsuariCommand.setListado(pars.getListado());
-	                personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
-	                	                
-	        		return "v3/persona/perfil";
-	        	}	        	
-	        	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
-	        } catch (Exception ex) {
-	        	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
-	        	logger.error("No s'ha pogut guardar el perfil", ex);
-	        }
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));
-		}
+        try {
+    		if ("Guardar".equals(accio)) {
+	        	UsuariPreferenciesDto preferencies = new UsuariPreferenciesDto();
+	        	preferencies.setCodi(request.getUserPrincipal().getName());
+	        	preferencies.setCabeceraReducida(personaUsuariCommand.isCabeceraReducida());
+	        	preferencies.setConsultaId(personaUsuariCommand.getConsultaId());
+	        	preferencies.setDefaultEntornCodi(personaUsuariCommand.getEntornCodi());
+	        	preferencies.setFiltroTareasActivas(personaUsuariCommand.isFiltroExpedientesActivos());
+	        	preferencies.setListado(personaUsuariCommand.getListado());
+	        	preferencies.setNumElementosPagina(personaUsuariCommand.getNumElementosPagina());
+	        	adminService.updatePerfil(preferencies);
+	        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);		        	
+        	} else if ("Modificar".equals(accio) && !result.hasErrors()) {
+        		PersonaDto persona = new PersonaDto();
+        		persona.setCodi(request.getUserPrincipal().getName());
+        		persona.setDni(personaUsuariCommand.getDni());
+        		persona.setEmail(personaUsuariCommand.getEmail());
+        		persona.setLlinatge1(personaUsuariCommand.getLlinatge1());
+        		persona.setLlinatge2(personaUsuariCommand.getLlinatge2());
+        		persona.setNom(personaUsuariCommand.getNom());
+        		persona.setSexe(personaUsuariCommand.isHombre() ? Sexe.SEXE_HOME : Sexe.SEXE_DONA);
+        		adminService.updatePersona(persona);
+        	} else {
+                MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
+                
+                PersonaUsuariCommand pars = getFiltreCommand(request, model);
+                personaUsuariCommand.setCabeceraReducida(pars.isCabeceraReducida());
+                personaUsuariCommand.setConsultaId(pars.getConsultaId());
+                personaUsuariCommand.setEntornCodi(pars.getEntornCodi());
+                personaUsuariCommand.setExpedientTipusId(pars.getExpedientTipusId());
+                personaUsuariCommand.setFiltroExpedientesActivos(pars.isFiltroExpedientesActivos());
+                personaUsuariCommand.setListado(pars.getListado());
+                personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
+                	                
+        		return "v3/persona/perfil";
+        	}	        	
+        	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
+        } catch (Exception ex) {
+        	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
+        	logger.error("No s'ha pogut guardar el perfil", ex);
+        }
 		return get(request, model);
 	}
 

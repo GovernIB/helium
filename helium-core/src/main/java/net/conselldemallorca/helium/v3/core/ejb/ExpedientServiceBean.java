@@ -482,8 +482,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientConsultaDissenyDto> findAmbEntornConsultaDisseny(Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams) {
-		return delegate.findAmbEntornConsultaDisseny(consultaId, valors, paginacioParams);
+	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+		return delegate.findConsultaDissenyPaginat(consultaId, valors, paginacioParams, nomesPendents, nomesAlertes, mostrarAnulats);
 	}
 
 	@Override
@@ -494,8 +494,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientConsultaDissenyDto> findPerConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
-		return delegate.findPerConsultaInformePaginat(consultaId, valorsPerService, nomesPendents, nomesAlertes, mostrarAnulats, paginacioParams);
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesPendents, nomesAlertes, mostrarAnulats, paginacioParams);
 	}
 
 	@Override
