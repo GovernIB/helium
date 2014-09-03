@@ -1314,11 +1314,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void zonaperExpedientCrear(
+			ExpedientDto expedient,
 			String processInstanceId,
 			ZonaperExpedientDto dadesExpedient) throws PluginException {
 		imprimirFuncio("zonaperExpedientCrear");
 		try {
-			pluginHelper.zonaperExpedientCrear(dadesExpedient);
+			pluginHelper.zonaperExpedientCrear(expedient, dadesExpedient);
 		} catch (Exception e) {
 			throw new PluginException(e);
 		}

@@ -7,38 +7,38 @@
 
 <div class="form-tasca">
 	<div class="control-group fila_reducida">
-		<label class="control-label"><fmt:message key='comuns.titol' /></label>
-		<div class="controls">
+		<label class="control-label col-xs-3"><fmt:message key='comuns.titol' /></label>
+		<div class="controls col-xs-9">
 			<label class="control-label-value">${tasca.titol}</label>
 		</div>
 	</div>
 	
 	<c:if test="${empty seleccioMassiva}">
 		<div class="control-group fila_reducida">	
-			<label class="control-label"><fmt:message key='tasca.info.expedient' /></label>
-			<div class="controls">
+			<label class="control-label col-xs-3"><fmt:message key='tasca.info.expedient' /></label>
+			<div class="controls col-xs-9">
 				<label class="control-label-value">${tasca.expedientIdentificador}</label>
 			</div>
 		</div>
 	</c:if>
 		
 	<div class="control-group fila_reducida">	
-		<label class="control-label"><fmt:message key='comuns.tipus_exp' /></label>
-		<div class="controls">
+		<label class="control-label col-xs-3"><fmt:message key='comuns.tipus_exp' /></label>
+		<div class="controls col-xs-9">
 			<label class="control-label-value">${tasca.expedientTipusNom}</label>
 		</div>
 	</div>
 	
 	<div class="control-group fila_reducida">	
-		<label class="control-label"><fmt:message key='tasca.info.data_creacio' /></label>
-		<div class="controls">
+		<label class="control-label col-xs-3"><fmt:message key='tasca.info.data_creacio' /></label>
+		<div class="controls col-xs-9">
 			<label class="control-label-value"><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></label>
 		</div>
 	</div>
 	
 	<div class="control-group fila_reducida">	
-		<label class="control-label"><fmt:message key='tasca.info.prioritat' /></label>
-		<div class="controls">
+		<label class="control-label col-xs-3"><fmt:message key='tasca.info.prioritat' /></label>
+		<div class="controls col-xs-9">
 			<label class="control-label-value">
 				<c:choose>
 					<c:when test="${tasca.prioritatOrdinal == 0}"><fmt:message key='tasca.info.m_alta' /></c:when>
@@ -53,22 +53,21 @@
 	</div>
 	<div class="control-group fila_reducida">	
 		<c:if test="${not empty tasca.dueDate}">
-			<label class="control-label"><fmt:message key='tasca.info.data_limit' /></label>
-			<div class="controls">
+			<label class="control-label col-xs-3"><fmt:message key='tasca.info.data_limit' /></label>
+			<div class="controls col-xs-9">
 				<label class="control-label-value"><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy HH:mm"/></label>
 			</div>
 		</c:if>
 	</div>
 </div>
 	<br style="clear: both"/><br/>
-
 	<c:if test="${not tasca.delegada}">
 		<c:if test="${tasca.delegable}">
 			<div class="missatgesGris">
 				<h3 class="titol-tab titol-delegacio"><fmt:message key='tasca.info.del_tasca' /> <img src="<c:url value="/img/magnifier_zoom_in.png"/>" alt="<fmt:message key='tasca.info.mos_ocul' />" title="<fmt:message key='tasca.info.mos_ocul' />" border="0" onclick="mostrarOcultar(this,'form-delegacio')"/></h3>
 				<div id="form-delegacio" style="display:none">
-<%-- 					<form:form action="delegacioCrear.html" cssClass="uniForm" onsubmit="return confirmarDelegar(event)"> --%>
-<!-- 						<div class="inlineLabels"> -->
+					<form:form action="delegacioCrear.html" cssClass="uniForm" onsubmit="return confirmarDelegar(event)">
+						<div class="inlineLabels">
 <%-- 							<form:hidden path="taskId"/> --%>
 							
 <%-- 							<c:import url="../common/formElement.jsp"> --%>
@@ -100,7 +99,7 @@
 <%-- 								<c:param name="titles"><fmt:message key='tasca.info.delegar' /></c:param> --%>
 <%-- 							</c:import> --%>
 <!-- 						</div> -->
-<%-- 					</form:form> --%>
+					</form:form>
 				</div>
 			</div>
 		</c:if>

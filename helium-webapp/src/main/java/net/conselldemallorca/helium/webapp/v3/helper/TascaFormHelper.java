@@ -286,10 +286,10 @@ public class TascaFormHelper {
 						} else {
 							valor = (String) request.getParameter(camp.getVarCodi());
 						}
-						camp.setText(request.getParameter(camp.getVarCodi()));
 					} else if (valors != null && valors.get(camp.getVarCodi()) != null) {
 						valor = valors.get(camp.getVarCodi());
-						camp.setText(valor.toString());
+					} else {
+						valor = camp.getVarValor();
 					}
 					boolean ambArray;
 					if (!perFiltre) {
@@ -321,8 +321,6 @@ public class TascaFormHelper {
 									(perFiltre) ? 2 : 1);
 							if (!perFiltre) 
 								((Object[])array)[0] = camp.getJavaClass().newInstance();
-//							if (perFiltre) 
-//								((Object[])array)[1] = camp.getJavaClass().newInstance();
 							
 							PropertyUtils.setSimpleProperty(
 									command,
@@ -357,10 +355,10 @@ public class TascaFormHelper {
 						valor = request.getParameter(camp.getVarCodi());
 						valueFromRequest = true;
 					// 2. En cas contrari llegirrem els valors passats per paràmetre (valors)
+					} else if (valors != null && valors.get(camp.getVarCodi()) != null) {
+						valor = valors.get(camp.getVarCodi());
 					} else {
-						if (valors != null && valors.get(camp.getVarCodi()) != null) {
-							valor = valors.get(camp.getVarCodi());
-						}
+						valor = camp.getVarValor();
 					}
 					// 3. Si el valor obtingut és null, llavors crearem un objecte Registre o Registre[1] amb els atributs buits, depenent de si és múltiple
 					if (valor == null) {

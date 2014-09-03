@@ -144,7 +144,29 @@ public class ExpedientTascaController extends BaseExpedientController {
 						"info.delegacio.cancelat"));
 		return "redirect:/v3/expedient/" + expedientId;
 	}
+	
+	@RequestMapping(value = "/{expedientId}/{tascaId}/tascaAgafar", method = RequestMethod.GET)
+	public String agafar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+		ModelMap model) {		
+			tascaService.agafar(tascaId);
+			MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));
+			
+		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
+	}
+
+	@RequestMapping(value = "/{expedientId}/{tascaId}/tascaAlliberar", method = RequestMethod.GET)
+	public String alliberar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			ModelMap model) {
+		tascaService.alliberar(tascaId);
+		MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
+		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);
-
 }

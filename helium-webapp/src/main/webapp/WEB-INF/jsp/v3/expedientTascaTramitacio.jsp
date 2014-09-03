@@ -25,6 +25,7 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<style>
+		.alert {margin-top: 20px;}
 		input, select, textarea {
 			width: 100%;
 		}
@@ -48,15 +49,14 @@
 		.form-group.condensed {
 			margin-bottom: 0px;
 		}
-		.form-group.registre {
-			padding-right: 1px;
+		.form-group.registre .btn_afegir{
+ 			margin-top: 10px; 
 		}
 		.registre table .colEliminarFila {
 			width: 1px;
 		}
 		.registre table .opciones {
 			text-align: center;
-			padding: 4px;
 		}
 		p.help-block {
 			padding-top: 0;	
@@ -88,10 +88,11 @@
 			padding-left: 8px !important;
 			padding-right: 0px !important;
 		}
+		.table {margin-bottom: 0px;}
+		#tabnav .glyphicon {padding-right: 10px;}
 	</style>
 </head>
 <body>
-	<jsp:include page="import/helforms.jsp" />
 	<c:if test="${not empty dadesNomesLectura}">
 		<c:import url="import/expedientDadesTaula.jsp">
 			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
@@ -114,6 +115,8 @@
 	</c:if>
 	<c:set var="pipellaIndex" value="${1}"/>
 	<ul id="tabnav" class="nav nav-tabs">
+		<li class=""><a href="#tasca" data-toggle="tab">${pipellaIndex}. Tasca</a></li>
+		<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		<c:if test="${not empty dades}">
 			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="glyphicon glyphicon-warning-sign"> </span></c:if>${pipellaIndex}. Dades</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
@@ -128,10 +131,13 @@
 		</c:if>
 	</ul>
 	<div class="tab-content">
+		<div class="tab-pane" id="tasca">
+			<%@ include file="campsTascaInfo.jsp" %>
+		</div>
 		<c:if test="${not empty dades}">
 			<div class="tab-pane active" id="dades">
 				<c:if test="${not tasca.validada}">
-					<div class="alert alert-block">
+					<div class="alert alert-danger">
 						<button class="close" data-dismiss="alert">×</button>
 						<c:choose>
 							<c:when test="${empty tasca.formExtern}">
@@ -143,29 +149,14 @@
 						</c:choose>
 					</div>
 				</c:if>
-<%-- 				<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command"> --%>
-				<form:form onsubmit="return confirmar(this)" id="command" name="command" action="form" cssClass="form-horizontal form-tasca" method="post" commandName="command">
-					<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}"/>
-					<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
+				<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 					<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-<!-- 						<div class="control-group fila_reducida"> -->
-<%-- 							<label class="control-label" for="${dada.varCodi}">${dada.campEtiqueta} - ${dada.campTipus}</label> --%>
-<%-- 							<c:set var="dada" value="${dada}"/> --%>
-							<c:set var="addFormGroup" value="${true}"/>
-							<%@ include file="campsTasca.jsp" %>
-							<%@ include file="campsTascaRegistre.jsp" %>
-<!-- 						</div> -->
+						<c:set var="inline" value="${false}"/>
+						<%@ include file="campsTasca.jsp" %>
+						<%@ include file="campsTascaRegistre.jsp" %>
 					</c:forEach>
-					<div class="clear"></div>
 					<div id="guardarValidarTarea">
-						<c:if test="${empty dades}">
-							<%@ include file="campsTascaInfo.jsp" %>		
-						</c:if>
-						<c:if test="${not empty dades}">
-							<div style="clear: both"></div>
-							<c:set var="urlAction" value="guardar"/>
-							<%@ include file="campsTascaGuardarTasca.jsp" %>
-						</c:if>
+						<%@ include file="campsTascaGuardarTasca.jsp" %>
 					</div>
 				</form:form>
 				<div class="hide" id="finalizarTarea">
@@ -176,9 +167,9 @@
 		<c:if test="${not empty documents}">
 			<div class="tab-pane" id="documents">
 				<c:forEach var="document" items="${documents}">
-				<div class="well well-small">
-					<h4>${document.documentNom}</h4>
-				</div>
+					<div class="well well-small">
+						<h4>${document.documentNom}</h4>
+					</div>
 				</c:forEach>
 			</div>
 		</c:if>
@@ -189,11 +180,4 @@
 		</c:if>
 	</div>
 </body>
-
-<%!
-private String toJavascript(String str) {
-	if (str == null)
-		return null;
-	return str.replace("'", "\\'");
-}
-%>
+</html>

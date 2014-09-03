@@ -363,11 +363,8 @@ public class TascaHelper {
 		dto.setSignaturesComplet(isSignaturesComplet(task));
 		
 		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
-
-		Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(task.getId());
 		
-		DelegationInfo delegationInfo = (DelegationInfo)valors.get(
-				VAR_TASCA_DELEGACIO);
+		DelegationInfo delegationInfo = getDelegationInfo(task);
 		
 		if (delegationInfo != null) {
 			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
@@ -386,6 +383,28 @@ public class TascaHelper {
 			dto.setDelegacioPersona(conversioTipusHelper.convertir(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
 		}
 				
+		return dto;
+	}
+
+	public ExpedientTascaDto getExpedientTascaCompleteDto(JbpmTask task) {
+		ExpedientTascaDto dto = getExpedientTascaDto(task, null);
+		DelegationInfo delegationInfo = getDelegationInfo(task);
+		if (delegationInfo != null) {
+			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
+			dto.setDelegada(true);
+			dto.setDelegacioOriginal(original);
+			dto.setDelegacioData(delegationInfo.getStart());
+			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+			dto.setDelegacioComentari(delegationInfo.getComment());
+			JbpmTask tascaDelegacio = null;
+			if (original) {
+				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getTargetTaskId());
+			} else {
+				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
+			}			
+			
+			dto.setDelegacioPersona(conversioTipusHelper.convertir(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
+		}
 		return dto;
 	}
 
@@ -458,7 +477,7 @@ public class TascaHelper {
 		dto.setExpedientIdentificador(expedient.getIdentificador());
 		dto.setExpedientTipusNom(expedient.getTipus().getNom());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada(task.isAgafada());
+		dto.setAgafada(task.isAgafada());		
 		return dto;
 	}
 

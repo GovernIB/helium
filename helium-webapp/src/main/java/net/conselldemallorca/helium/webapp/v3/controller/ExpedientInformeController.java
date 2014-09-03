@@ -128,6 +128,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Long consultaId) {
 		Object filtreCommand = SessionHelper.getSessionManager(request).getFiltreInforme(expedientTipusId, consultaId);
 		if (filtreCommand != null) {
+			// TODO Aún no poner
 //			return filtreCommand;
 		}
 		List<TascaDadaDto> campsFiltre = new ArrayList<TascaDadaDto>();
@@ -697,7 +698,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return resposta;
 	}
 
-	@ModelAttribute("list12")
+	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (int i=0; i <= 12 ; i++)		

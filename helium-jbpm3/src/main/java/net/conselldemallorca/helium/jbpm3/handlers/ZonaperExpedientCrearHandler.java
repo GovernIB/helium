@@ -49,6 +49,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 		ExpedientDto expedient = getExpedientActual(executionContext);
 		if (!isComprovarExistencia() || expedient.getTramitExpedientIdentificador() == null) {
 			Jbpm3HeliumBridge.getInstanceService().zonaperExpedientCrear(
+					expedient,
 					getProcessInstanceId(executionContext),
 					construirExpedient(
 							executionContext,

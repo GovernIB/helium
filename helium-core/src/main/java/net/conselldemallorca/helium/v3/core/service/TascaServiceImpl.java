@@ -35,6 +35,7 @@ import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -44,10 +45,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -58,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
@@ -146,6 +151,8 @@ public class TascaServiceImpl implements TascaService {
 	private AlertaRepository alertaRepository;
 	@Resource
 	private RegistreDao registreDao;
+	@Resource
+	private PluginHelper pluginHelper;
 
 
 
@@ -173,7 +180,7 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				true,
 				true);
-		return tascaHelper.getExpedientTascaDto(task);
+		return tascaHelper.getExpedientTascaCompleteDto(task);
 	}
 
 	@Override

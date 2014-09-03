@@ -120,8 +120,8 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 				if (getZonaperClient().altaZonaPersonalUsuario(
 						nifZonaPersonal, 
 						request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-						"", 
-						"") == null) {
+						request.getRepresentatApe1(), 
+						request.getRepresentatApe2()) == null) {
 					logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
 					throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
 				}

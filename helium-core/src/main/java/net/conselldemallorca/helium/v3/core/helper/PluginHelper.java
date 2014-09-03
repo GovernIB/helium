@@ -45,7 +45,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventR
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -117,10 +117,17 @@ public class PluginHelper {
 	}
 
 	public void zonaperExpedientCrear(
+			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) throws Exception {
 		PublicarExpedientRequest request = conversioTipusHelper.convertir(
 				dadesExpedient,
 				PublicarExpedientRequest.class);
+		
+		if (request.getRepresentatNif() == null || request.getRepresentatNif().isEmpty())
+			request.setRepresentatNif(expedient.getInteressatNif());
+		if (request.getRepresentatNom() == null || request.getRepresentatNom().isEmpty()) {
+			request.setRepresentatNom(expedient.getInteressatNom());
+		}
 		getTramitacioPlugin().publicarExpedient(request);
 	}
 	public void zonaperEventCrear(
@@ -140,11 +147,11 @@ public class PluginHelper {
 						dadesEvent,
 						Event.class));
 		
-		PersonaDto per = Jbpm3HeliumBridge.getInstanceService().getPersonaAmbCodi(expedient.getIniciadorCodi());
-		request.setRepresentantNif(per.getDni());
-		request.setRepresentatNom(per.getNom());
-		request.setRepresentatApe1(per.getLlinatge1());
-		request.setRepresentatApe2(per.getLlinatge2());
+		if (expedient.getRepresentantNif() == null || expedient.getRepresentantNif().isEmpty())
+			request.setRepresentantNif(expedient.getInteressatNif());
+		if (expedient.getRepresentantNom() == null || expedient.getRepresentantNom().isEmpty()) {
+			request.setRepresentatNom(expedient.getInteressatNom());
+		}
 		
 		getTramitacioPlugin().publicarEvent(request);
 	}

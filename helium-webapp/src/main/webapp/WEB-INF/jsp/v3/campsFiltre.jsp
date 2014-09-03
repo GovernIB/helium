@@ -102,13 +102,13 @@
 					<div class="col-xs-4 tercpre">
 						<label class="control-label col-xs-4" for="${campPath}_anys"><spring:message code="common.camptasca.anys"/></label>
 						<div class="col-xs-8">
-							<form:select  itemLabel="valor" itemValue="codi" items="${list12}" path="${campPath}.anys" id="${campPath}_anys" cssClass="termini" />
+							<form:select  itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campPath}.anys" id="${campPath}_anys" cssClass="termini" />
 						</div>
 					</div>
 					<div class="col-xs-4 tercmig">
 	 					<label class="control-label col-xs-4" for="${campPath}_mesos"><spring:message code="common.camptasca.mesos"/></label>
 	 					<div class="col-xs-8">
-	 						<form:select  itemLabel="valor" itemValue="codi" items="${list12}" path="${campPath}.mesos" id="${campPath}_mesos" cssClass="termini" />
+	 						<form:select  itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campPath}.mesos" id="${campPath}_mesos" cssClass="termini" />
 	 					</div>
 	 				</div>
 	 				<div class="col-xs-4 tercpost">
