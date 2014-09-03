@@ -115,7 +115,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								EventosExpediente.class,
 								eventosExpediente));
 			}
-			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
+			String nifZonaPersonal = (request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif()).toUpperCase();
 			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
 				if (getZonaperClient().altaZonaPersonalUsuario(
 						nifZonaPersonal, 
@@ -139,9 +139,9 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		try {
 			Event event = request.getEvent();
 			if (event != null) {
-				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentantNif())) {
+				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentantNif().toUpperCase())) {
 					if (getZonaperClient().altaZonaPersonalUsuario(
-							request.getRepresentantNif(), 
+							request.getRepresentantNif().toUpperCase(), 
 							request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
 							request.getRepresentatApe1(), 
 							request.getRepresentatApe2()) == null) {
