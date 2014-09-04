@@ -10,6 +10,13 @@ import net.conselldemallorca.helium.test.util.BaseTest;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedientEstats extends BaseTest {
 
+							//TEX.4 - Estats
+								//TEX.4.1 - Crear estat
+								//TEX.4.2 - Modificar estat
+								//TEX.4.3 - Ordenar estats
+								//TEX.4.4 - Eliminar estats
+								//TEX.4.5 - Importar estats (Funcionalitat coberta a la prova de Desplegar Exportació de TipusExpedient.java)
+	
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	
@@ -48,11 +55,11 @@ public class TipusExpedientEstats extends BaseTest {
 	public void b1_crearEstat() {
 		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
-		crearEstatTipusExpedient(codTipusExp, codiEstatTipExp, nomEstatTipExp);
+		crearEstatTipusExpedient(codTipusExp, codiEstatTipExp, nomEstatTipExp, "tipusExpedient/estats/b1_crear");
 	}
 	
 	@Test
-	public void b1_modificarEstat() {
+	public void c1_modificarEstat() {
 		
 		carregarUrlDisseny();
 		
@@ -64,32 +71,50 @@ public class TipusExpedientEstats extends BaseTest {
 		
 		driver.findElement(By.xpath(enllaçModifEstat)).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/estats/c1_1_modificar_dades_anteriors.png");
+		
 		driver.findElement(By.id("codi0")).sendKeys("_mod");
 		driver.findElement(By.id("nom0")).sendKeys("_mod");
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/estats/c1_2_modificar_dades_cambiades.png");
+		
 		driver.findElement(By.xpath(botoModifEstat)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/estats/c1_3_modificar_resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "Error al modificar l'estat per el tipus d´expedient.");
 	}
 	
 	@Test
-	public void c1_ordenarEstats() {
+	public void d1_ordenarEstats() {
+		
 		carregarUrlDisseny();
+		
 		seleccionarEntorn(titolEntorn);
+		
 		//Cream un segon estat per poder comprobar la ordenació
+			
 		crearEstatTipusExpedient(codTipusExp, codiEstatTipExp_2, nomEstatTipExp_2);
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/estats/d1_1_ordenar_estats_cream_segon_estat.png");
+		
 		sortTable("registre", 1, 2);
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/estats/d1_2_ordenar_estats_canvi_1.png");
+		
 		sortTable("registre", 1, 2);
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/estats/d1_3_ordenar_estats_canvi_2.png");
 	}
 	
 	@Test
-	public void d1_eliminarEstat() {
+	public void e1_eliminarEstat() {
 		carregarUrlConfiguracio();
-		eliminarTotsEstatsTipusExpedient(codTipusExp);
+		eliminarTotsEstatsTipusExpedient(codTipusExp, "tipusExpedient/estats/e1_eliminar");
 	}
 	
 	@Test
-	public void e1_importarEstat() {
+	public void f1_importarEstat() {
 		//Funcionalitat coberta a la prova de Desplegar Exportació de TipusExpedient.java
 	}
 	

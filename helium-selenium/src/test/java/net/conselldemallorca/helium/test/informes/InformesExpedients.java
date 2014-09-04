@@ -20,10 +20,25 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class InformesExpedients extends BaseTest {
 
+										//INF.1 - Informes - Seleccio de consulta
+										//INF.2 - Informes - Comprovar que les vars. del filtre son les definides a la consulta
+										//INF.3 - Informes - Provar filtres.
+										//INF.4 - Informes - Netejar filtre
+										//INF.5 - Informes - Comprovar que les vars. de l´informe son les definides a la consulta
+										//INF.6 - Informes - Resultats per pagina
+										//INF.7 - Informes - Descarregar excel
+										//INF.8 - Informes - Informe Jasper reports (comprovacio manual)
+										//INF.9 - Informes - Desplegar tasques expedient
+										//INF.10 - Informes - Accés tramitacio de tasca
+										//INF.11 - Informes - Obrir expedient: accés a la informacio de l´expedient
+										//INF.12 - Informes - Aturar expedient
+										//INF.13 - Informes - Anular expedient
+										//INF.14 - Informes - Esborrar expedient
+
 	String entorn 	    = carregarPropietat("informe.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn  = carregarPropietat("informe.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin  = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String usuari 	    = carregarPropietat("test.base.usuari.feina", "Usuari feina de l'entorn de proves no configurat al fitxer de properties");
+	String usuari 	    = carregarPropietat("test.base.usuari.disseny", "Usuari feina de l'entorn de proves no configurat al fitxer de properties");
 
 	String nomDefProc   = carregarPropietat("informe.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc  = carregarPropietatPath("informe.deploy.definicio.proces.path", "Path de la definició de procés de proves no configurat al fitxer de properties");
@@ -42,9 +57,14 @@ public class InformesExpedients extends BaseTest {
 	String codiTipusExp 	= carregarPropietat("informe.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de l'informe");
 	String pathExportTipExp = carregarPropietatPath("informe.deploy.tipus.expedient.path", "Path de l'entorn de proves no configurat al fitxer de properties");
 	
+	String anyActual = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+	
+	// X - P A T H S	
 	String xPathBotoConsultarExpedients = "//*[@id='commandFiltre']//button[contains(@onclick,'submit')]";
 	
-	//@Test
+	
+	
+	@Test
 	public void a_inicialitzacio() {
 		
 		carregarUrlConfiguracio();
@@ -60,37 +80,39 @@ public class InformesExpedients extends BaseTest {
 		importarDadesTipExp(codiTipusExp, pathExportTipExp);
 		
 		assignarPermisosTipusExpedient(codTipusExp1, usuariAdmin, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
-		assignarPermisosTipusExpedient(codTipusExp1, usuari, "CREATE","WRITE","DELETE","READ");
+		assignarPermisosTipusExpedient(codTipusExp1, usuari,      "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 
-	//@Test
+	@Test
 	public void b_inicialitzacio() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		
 		seleccionarEntorn(titolEntorn);
 		
 		//Iniciam expedient i emplenam les dades de les tasques
-		for (int i = 3; i <= 24; i++) {
+		for (int i = 1; i <= 24; i++) {
 			iniciarExpediente(codTipusExp1, null, null);
 			tramitarTasca(i);
 		}
 	}
 	
-	//@Test
+	@Test
 	public void c_seleccio_consulta() throws InterruptedException, ParseException {
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		accedirPantallaConsultesDiseny();
 	}
 	
-	//@Test
+	@Test
 	public void d_comprovar_variables_filtre() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 
 		accedirPantallaConsultesDiseny();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/d1_1_comprovar_variables_filtre.png");
 		
 		existeixElementAssert("//*[@id='Cons1_var_boolean0']",	"El campo var_boolean no existe en el filtro de la consulta ");
 		
@@ -115,10 +137,10 @@ public class InformesExpedients extends BaseTest {
 		existeixElementAssert("//*[@id='Cons1_v10']",			"El campo v1 no existe en el filtro de la consulta");
 	}
 	
-	//@Test
+	@Test
 	public void e_filtrar() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 
 		accedirPantallaConsultesDiseny();
@@ -126,7 +148,7 @@ public class InformesExpedients extends BaseTest {
 		//********************************
 		//Filtre amb variables sense valor
 		//********************************
-			filtraIcomprovaResultats("24");
+			filtraIcomprovaResultats("24", "expedients/informes/e1_1_");
 			
 		//********************************
 		//Filtre amb cada un dels tipus de variable
@@ -135,61 +157,61 @@ public class InformesExpedients extends BaseTest {
 			//Amb boolean n´hi ha d´haver 12 de cada tipus
 			List<WebElement> optionsBoolean = driver.findElement(By.id("Cons1_var_boolean0")).findElements(By.tagName("option"));
 			optionsBoolean.get(optionsBoolean.size()-1).click();
-			filtraIcomprovaResultats("12");
+			filtraIcomprovaResultats("12", "expedients/informes/e1_2_");
 
 			//Amb dates de l´1 al 10 d´agost, n´hi hauría d´haver 10. (cada cop netejam primer el filtre anterior)
 			optionsBoolean = driver.findElement(By.id("Cons1_var_boolean0")).findElements(By.tagName("option"));
 			optionsBoolean.get(0).click();
 			driver.findElement(By.id("Cons1_var_date0")).sendKeys("08/01/14");
 			driver.findElement(By.id("Cons1_var_date1")).sendKeys("08/10/14");
-			filtraIcomprovaResultats("10");
+			filtraIcomprovaResultats("10", "expedients/informes/e1_3_");
 			
 			//Els floats van de 2.0 a 48.0. De 2.0 a 10.0 hi hauria de haver 5 resultats
 			driver.findElement(By.id("Cons1_var_date0")).clear();
 			driver.findElement(By.id("Cons1_var_date1")).clear();
 			driver.findElement(By.id("Cons1_var_float0")).sendKeys("2.0");
 			driver.findElement(By.id("Cons1_var_float1")).sendKeys("10.0");
-			filtraIcomprovaResultats("5");
+			filtraIcomprovaResultats("5", "expedients/informes/e1_4_");
 			
 			//Els Integers van de 3 a 36. Filtrant de 10 a 20, hi hauria d´haver 3 resultats
 			driver.findElement(By.id("Cons1_var_float0")).clear();
 			driver.findElement(By.id("Cons1_var_float1")).clear();
 			driver.findElement(By.id("Cons1_var_int0")).sendKeys("10");
 			driver.findElement(By.id("Cons1_var_int1")).sendKeys("20");
-			filtraIcomprovaResultats("3");
+			filtraIcomprovaResultats("3", "expedients/informes/e1_5_");
 			
 			//Els Prices van de 5,00 a 120,00. Filtrant de 100,00 a 120,00, hi hauria d´haver 5 resultats.
 			driver.findElement(By.id("Cons1_var_int0")).clear();
 			driver.findElement(By.id("Cons1_var_int1")).clear();
 			driver.findElement(By.id("Cons1_var_price0")).sendKeys("100,00");
 			driver.findElement(By.id("Cons1_var_price1")).sendKeys("120,00");
-			filtraIcomprovaResultats("5");
+			filtraIcomprovaResultats("5", "expedients/informes/e1_6_");
 			
 			//La variable de selecció, esta amb la opció 1 per els 20 primers expedients. Option 2 per els 4 darrers
 			driver.findElement(By.id("Cons1_var_price0")).clear();
 			driver.findElement(By.id("Cons1_var_price1")).clear();
 			List<WebElement> optionsSeleccio = driver.findElement(By.id("Cons1_var_seleccio0")).findElements(By.tagName("option"));
 			optionsSeleccio.get(1).click();
-			filtraIcomprovaResultats("20");
+			filtraIcomprovaResultats("20", "expedients/informes/e1_7_");
 			
 			//Respecte la variable textarea,s´ha posat un texte fixe "Textarea Observacion Expedient Tasca " mes un numero secuencial
 			//si posam un 1 al final de l'string, trobara el num 1, mes tots els del 10 al 19 (11 resultats)
 			optionsSeleccio = driver.findElement(By.id("Cons1_var_seleccio0")).findElements(By.tagName("option"));
 			optionsSeleccio.get(0).click();
 			driver.findElement(By.id("Cons1_var_textarea0")).sendKeys("Textarea Observacion Expedient Tasca 1");
-			filtraIcomprovaResultats("11");
+			filtraIcomprovaResultats("11", "expedients/informes/e1_8_");
 			
 			//Variable títol, idem que textarea. Texte fixe: "Titol expedient - String - " mes un numero secuencial
 			//si posam un 2 al final de l'string, trobara el num 2, mes tots els del 20 al 24 (6 resultats)
 			driver.findElement(By.id("Cons1_var_textarea0")).clear();
 			driver.findElement(By.id("Cons1_vtitol0")).sendKeys("Titol String 2");
-			filtraIcomprovaResultats("6");
+			filtraIcomprovaResultats("6", "expedients/informes/e1_9_");
 			
 			//Variable 1, idem que les dues anteriors. Texte fixe: "Variable 1 - String - " mes un numero secuencial
 			//En aquest cas si posam un 24 al final de l'string, trobara nomes el num 24 (1 resultat)
 			driver.findElement(By.id("Cons1_vtitol0")).clear();
 			driver.findElement(By.id("Cons1_v10")).sendKeys("Variable String 24");
-			filtraIcomprovaResultats("1");
+			filtraIcomprovaResultats("1", "expedients/informes/e1_10_");
 			
 		//********************************
 		//Filtre amb condicions mesclades
@@ -203,7 +225,7 @@ public class InformesExpedients extends BaseTest {
 			//A més filtram per dates, ara haurien de ser nomes (5)
 			driver.findElement(By.id("Cons1_var_date0")).sendKeys("08/01/14");
 			driver.findElement(By.id("Cons1_var_date1")).sendKeys("08/10/14");
-			filtraIcomprovaResultats("5");
+			filtraIcomprovaResultats("5", "expedients/informes/e1_11_");
 
 			//Segona prova amb filtres amb condicions mesclades: fecha, textarea i titol
 				optionsBoolean = driver.findElement(By.id("Cons1_var_boolean0")).findElements(By.tagName("option"));
@@ -220,16 +242,18 @@ public class InformesExpedients extends BaseTest {
 			//Aquest filtre no varia el resultat (segueixen quedan 5, del 20 al 24)
 			optionsSeleccio = driver.findElement(By.id("Cons1_var_seleccio0")).findElements(By.tagName("option"));
 			optionsSeleccio.get(2).click();
-			filtraIcomprovaResultats("4");
+			filtraIcomprovaResultats("4", "expedients/informes/e1_12_");
 	}
 		
-	//@Test
+	@Test
 	public void f_netejar_filtre() throws InterruptedException, ParseException {	
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 		accedirPantallaConsultesDiseny();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/f1_1_netejar_filtre-estat_inicial.png");
 		
 		// Rellenamos los datos
 		Calendar calendar = Calendar.getInstance();
@@ -249,12 +273,16 @@ public class InformesExpedients extends BaseTest {
 			options.get(options.size()-1).click();
 		}
 		
+		screenshotHelper.saveScreenshot("expedients/informes/f1_2_netejar_filtre-dades_emplenades.png");
+		
 		//driver.findElement(By.xpath("//*[@id='command']//button[@value='submit']")).click();
 		
 		// Limpiamos los datos
 		driver.findElement(By.xpath("//*[@id='commandFiltre']//button[@value='netejar']")).click();
 		
 		Thread.sleep(3000);
+		
+		screenshotHelper.saveScreenshot("expedients/informes/f1_3_netejar_filtre-camps_netejats.png");
 		
 		// Comprobamos que están vacíos
 		for (WebElement input : driver.findElements(By.xpath("//*[@id='commandFiltre']//input"))) {
@@ -276,13 +304,13 @@ public class InformesExpedients extends BaseTest {
 		//driver.findElement(By.xpath("//*[@id='commandFiltre']//button[@value='submit']")).click();
 	}
 	
-	//@Test
+	@Test
 	public void g_comprovar_variables_informe() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		accedirPantallaConsultesDiseny();
-		filtraIcomprovaResultats("24");
+		filtraIcomprovaResultats("24", "expedients/informes/g1_1_comprovar_columnes_informe");
 
 		//Ara que hem realitzat una cerca, comprovam que apareixen totes les columnes que hem indicat a la configuració de l´informe
 		existeixElementAssert("//*[@id='registre']/thead/tr//*[contains(@href, 'Cons1.var_boolean')]",	"La columna Variable Boolean no existe en los resultados de la consulta");
@@ -296,10 +324,10 @@ public class InformesExpedients extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/thead/tr//*[contains(@href, 'Cons1.v1')]",			"La columna Variable 1 no existe en los resultados de la consulta");
 	}
 		
-	//@Test
+	@Test
 	public void h_resultats_per_pagina() throws InterruptedException, ParseException {
 
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 
 		accedirPantallaConsultesDiseny();
@@ -314,6 +342,8 @@ public class InformesExpedients extends BaseTest {
 		} else {
 			numExpedientes = numExpedientes.substring("S'han trobat ".length(), numExpedientes.indexOf(" expedients,"));
 		}
+		
+		screenshotHelper.saveScreenshot("expedients/informes/h1_0_resultats_per_pagina-estat_inicial.png");
 
 		// Seleccionamos página por página
 		int i = 0;
@@ -323,6 +353,8 @@ public class InformesExpedients extends BaseTest {
 
 			driver.findElement(By.xpath("//*[@id='objectsPerPage']")).findElements(By.tagName("option")).get(i).click();
 
+			screenshotHelper.saveScreenshot("expedients/informes/h1_"+(i+1)+"_resultats_per_pagina.png");
+			
 			driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 
 			int numElementsPage = Integer.valueOf(driver.findElement(By.xpath("//*[@id='objectsPerPage']")).findElements(By.tagName("option")).get(i).getAttribute("value"));
@@ -338,22 +370,24 @@ public class InformesExpedients extends BaseTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void i_descarregar() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		accedirPantallaConsultesDiseny();
 		
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
 		downloadFile("//*[@id='content']/div[2]/a", "informe_Consulta Selenium.xls");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/i1_1_descarregar_llistat_excel.png");
 	}
 	
-	//@Test
+	@Test
 	public void j_mostrar_informe()  throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		
 		seleccionarEntorn(titolEntorn);
 		
@@ -364,6 +398,8 @@ public class InformesExpedients extends BaseTest {
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
 		Thread.sleep(2000);
+		
+		screenshotHelper.saveScreenshot("expedients/informes/j1_1_mostrar_informe-estat_inicial.png");
 		
 		existeixElementAssert("//*[@id='commandFiltre']//button[contains(@onclick,'informe')]", "No se encuentra el botón de informe.");
 		
@@ -372,6 +408,8 @@ public class InformesExpedients extends BaseTest {
 		existeixElementAssert("//*[@id='ParamConsulta00']", "No se encuentra el parametro del informe en la ventana modal.");
 		
 		driver.findElement(By.id("ParamConsulta00")).sendKeys("Param Informe Consulta");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/j1_2_mostrar_informe-emplenar_parametre.png");
 		
 		driver.findElement(By.xpath("/html/body/div[contains(@class, 'ui-dialog')]/div[contains(@class, 'ui-dialog-button')]/button[text()='Generar']")).click();
 		
@@ -382,16 +420,20 @@ public class InformesExpedients extends BaseTest {
 		//String[] paramNames = {"submit"};
 		//String[] paramValues = {"informe"};
 		//postDownloadFile("//*[@id='paramsCommand']", paramNames, paramValues, "expedient/consultaDissenyInformeParams.html", "expedient/consultaDissenyInforme.html");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/j1_3_mostrar_informe-descarrega_informe.png");
 	}
 	
-	//@Test
+	@Test
 	public void k_desplegar_tasques_expedient() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 		accedirPantallaConsultesDiseny();		
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/k1_1_desplegar_tasques-estat_inicial.png");
 		
 //		// Asignamos permisos
 //		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
@@ -402,28 +444,34 @@ public class InformesExpedients extends BaseTest {
 		String nomExpediente = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]/a")).getText();
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]/a")).click();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/k1_2_desplegar_tasques-pantalla_desti.png");
 		
 		assertTrue("No se llegó a la pantalla de tasques pendents", "Tasques pendents".equals(driver.findElement(By.xpath("//*[@id='page-title']/h2/span")).getText()));
 		assertTrue("No se realizó la búsqueda con el nombre del expediente correcto", nomExpediente.equals(driver.findElement(By.xpath("//*[@id='expedient0']")).getAttribute("value")));
 	}
 	
-	//@Test
+	@Test
 	public void l_acces_a_tramitacio_de_tasca() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 //		// Asignamos permisos
 //		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		
-		accedirPantallaConsultesDiseny();		
+		accedirPantallaConsultesDiseny();
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[2]/a", "No se tenía ningún expediente");
 		
+		screenshotHelper.saveScreenshot("expedients/informes/l1_1_tramitacio_tasca-estat_inicial.png");
+		
 		// Vamos a la tarea a tramitar del expediente
 		String nomExpediente = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]/a")).getText();
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[2]/a")).click();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/l1_2_tramitacio_tasca-fitxa_expedient.png");
 		
 		assertTrue("No se llegó a la pantalla de tasques pendents", "Tasques pendents".equals(driver.findElement(By.xpath("//*[@id='page-title']/h2/span")).getText()));
 		assertTrue("No se realizó la búsqueda con el nombre del expediente correcto", nomExpediente.equals(driver.findElement(By.xpath("//*[@id='expedient0']")).getAttribute("value")));
@@ -432,18 +480,23 @@ public class InformesExpedients extends BaseTest {
 			String nomTasca = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).getText();
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).click();
 			
+			screenshotHelper.saveScreenshot("expedients/informes/l1_3_tramitacio_tasca-pantalla_tasca.png");
+			
 			assertTrue("No se llegó a la pantalla de tramitación de la tarea", nomTasca.equals(driver.findElement(By.xpath("//*[@id='page-title']/h2/span")).getText()));
 		}
 	}
 
-	//@Test
+	@Test
 	public void m_obrir_expedient() throws InterruptedException, ParseException {
 	
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 		accedirPantallaConsultesDiseny();
+		
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/l2_1_obrir_expedient-estat_inicial.png");
 		
 		// Asignamos permisos
 //		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
@@ -453,9 +506,11 @@ public class InformesExpedients extends BaseTest {
 		// Abrimos el expediente
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/a/img[@src = '/helium/img/information.png']")).click();
 		existeixElementAssert("//*[@id='tabnav']/li/a[contains(text(), 'Expedient')]", "No exitía la pestaña de expediente");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/l2_2_obrir_expedient-accedit_per_boto_info.png");
 	}
 
-	//@Test
+	@Test
 	public void n1_aturar_expedient() throws InterruptedException, ParseException {
 		
 		carregarUrlConfiguracio();
@@ -465,10 +520,10 @@ public class InformesExpedients extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp1, usuari, "READ");
 	}
 	
-	//@Test
+	@Test
 	public void n2_aturar_expedient() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 		// Comprobamos permisos de borrado
@@ -483,7 +538,7 @@ public class InformesExpedients extends BaseTest {
 		noExisteixElementAssert("//*[@id='tabnav']/li/a[contains(text(), 'Eines')]", "Tenía permisos de eines");
 	}
 	
-	//@Test
+	@Test
 	public void n3_aturar_expedient() throws InterruptedException, ParseException {
 		
 		carregarUrlConfiguracio();
@@ -497,22 +552,14 @@ public class InformesExpedients extends BaseTest {
 	@Test
 	public void n4_aturar_expedient() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 
 		accedirPantallaConsultesDiseny();
-		
-		//Esperam a que la pantalla s´hagui carregat
-		//TODO: Cercar la manera de esperar fins que les dades d´haguin carregat.
-		/*try {
-			while (driver.findElement(By.id("Cons1_var_seleccio0")).findElements(By.tagName("option")).size()==1) {
-				System.out.println("Carregant...");
-			}
-		}catch (Exception ex) {
-			
-		}*/
 
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/n_1_aturar_expedient-estat_inicial.png");
 
 		// Abrimos el expediente
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/a/img[@src = '/helium/img/information.png']")).click();
@@ -520,6 +567,8 @@ public class InformesExpedients extends BaseTest {
 		existeixElementAssert("//*[@id='tabnav']/li/a[contains(text(), 'Eines')]", "No tenía permisos de herramientas");
 
 		noExisteixElementAssert("//*[@id='content']/div[@class='missatgesAturat']", "El expediente ya estaba parado");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/n_2_aturar_expedient-info_expedient.png");
 		
 		// Paramos el expediente
 		driver.findElement(By.xpath("//*[@id='tabnav']/li/a[contains(text(), 'Eines')]")).click();
@@ -530,12 +579,14 @@ public class InformesExpedients extends BaseTest {
 		
 		existeixElementAssert("//*[@id='infos']/p", "No para el expediente correctamente");
 		existeixElementAssert("//*[@id='content']/div[@class='missatgesAturat']", "No existía el mensaje de parar expediente");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/n_3_aturar_expedient-expedient_aturat.png");
 	}
 	
-	//@Test
+	@Test
 	public void o_anular_expedient() throws InterruptedException, ParseException {
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 //		// Comprobamos permisos de borrado
@@ -549,14 +600,18 @@ public class InformesExpedients extends BaseTest {
 		accedirPantallaConsultesDiseny();
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
+		screenshotHelper.saveScreenshot("expedients/informes/o_1_anular_expedient-estat_inicial.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[2]/td[contains(a/img/@src,'/helium/img/delete.png')]/a/img", "No tenía permisos de anulado");
 		
 		// Anulamos el primer expediente
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[2]/td[13]/a")).click();
 		acceptarConfirm("El motivo");
+		
+		screenshotHelper.saveScreenshot("expedients/informes/o_2_anular_expedient-confirm_acceptat.png");
 	}
 	
-	//@Test
+	@Test
 	public void p1_borrar_expedient() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);		
@@ -564,17 +619,17 @@ public class InformesExpedients extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","READ");
 	}
 	
-	//@Test
+	@Test
 	public void p2_borrar_expedient() throws InterruptedException, ParseException {	
 		//Comprobamos que no hay permisos de borrado
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);		
 		accedirPantallaConsultesDiseny();
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();		
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "Tenía permisos de borrado");
 	}		
 	
-	//@Test
+	@Test
 	public void p3_borrar_expedient() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);		
@@ -582,22 +637,26 @@ public class InformesExpedients extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-	//@Test
+	@Test
 	public void p4_borrar_expedient() throws InterruptedException, ParseException {	
 		
-		carregarUrlFeina();
+		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
 		accedirPantallaConsultesDiseny();
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
+		screenshotHelper.saveScreenshot("expedients/informes/p_1_borrar_expedient-estat_inicial.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado");
 		
 		// Borramos el primer expediente de la lista
 		borrarPrimerExpediente();
+		
+		screenshotHelper.saveScreenshot("expedients/informes/p_2_borrar_expedient-primer_expedient_borrat.png");
 	}
 	
-	//@Test
+	@Test
 	public void z0_limpiar() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
@@ -608,7 +667,7 @@ public class InformesExpedients extends BaseTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void z1_limpiar() {
 		
 		carregarUrlConfiguracio();
@@ -634,14 +693,20 @@ public class InformesExpedients extends BaseTest {
 	 */
 	private void tramitarTasca(int i) {
 		
+		//String sequenciaExp = "CON1-"+i+"/"+anyActual;
+		
 		actions.moveToElement(driver.findElement(By.id("menuTasques")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/tasca/personaLlistat.html')]")));
 		actions.click();
 		actions.build().perform();
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]")).click();
+		//driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td/a[contains(text(), '"+sequenciaExp+"')]")).click();
+		//driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td/a, '"+sequenciaExp+"')]/td/a[contains(@href, '/tasca/info.html')]")).click();
+		////*[@id='registre']/tbody/tr[contains(td/a, 'CON1-1/2014')]/td/a[contains(@href, '/tasca/info.html')]
 		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).click();
+			
 		driver.findElement(By.id("v10")).clear();
 		driver.findElement(By.id("v10")).sendKeys("Variable 1 - String - " + i);
 		
@@ -675,9 +740,11 @@ public class InformesExpedients extends BaseTest {
 		}else{
 			options.get(2).click();
 		}
-						
+		
+		screenshotHelper.saveScreenshot("expedients/informes/b1_"+i+"_crear_nova_tasca.png");
+		
 		driver.findElement(By.xpath("//*/button[contains(text(),'Finalitzar')]")).click();
-		acceptarAlerta();
+		if (isAlertPresent()) {acceptarAlerta();}
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 	}
 	
@@ -741,7 +808,7 @@ public class InformesExpedients extends BaseTest {
 		assertTrue("No se ha direccionado a la pantalla de consulta adecuada ", nomConsulta.equals(formfiltre.getText()));
 	}
 	
-	private void filtraIcomprovaResultats(String numResTeorics) throws InterruptedException {
+	private void filtraIcomprovaResultats(String numResTeorics, String prefixeScreenShot) throws InterruptedException {
 		
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
@@ -756,6 +823,8 @@ public class InformesExpedients extends BaseTest {
 		if ("1".equals(numResTeorics)) {
 			numResTeorics = "un";
 		}
+		
+		screenshotHelper.saveScreenshot(prefixeScreenShot+"_resultats_filtre-Teorics_"+numResTeorics+".png");
 		
 		//System.out.println("texteResultats="+texteResultats+", compleix teorics: "+(texteResultats.indexOf(numResTeorics)!=-1));
 		

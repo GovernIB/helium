@@ -16,6 +16,12 @@ import net.conselldemallorca.helium.test.util.BaseTest;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedient extends BaseTest {
 
+										//TEX.1 - Crear
+											//TEX.1.1 - Desplegar exportació i comprovar dades desplegades
+											//TEX.1.2 - Nou tipus de expedient basic (codi i titol)
+											//TEX.1.3 - Definir reinici de sequencia anual
+											//TEX.1.4 - Definir sequencia anual i provar la seva sintaxi
+	
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	
@@ -56,7 +62,7 @@ public class TipusExpedient extends BaseTest {
 	public void b1_crear_basic() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
-		crearTipusExpedient(nomTipusExp, codTipusExp);
+		crearTipusExpedient(nomTipusExp, codTipusExp, "tipusExpedient/crear/b1_");
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
 		eliminarTipusExpedient(codTipusExp);
 	}
@@ -87,7 +93,7 @@ public class TipusExpedient extends BaseTest {
 	public void e1_desplegar_exportacio() {
 		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
-		importarDadesTipExp(codTipusExp, pathExport);
+		importarDadesTipExp(codTipusExp, pathExport, "tipusExpedient/crear/e1");
 	}
 	
 	@Test
@@ -102,13 +108,17 @@ public class TipusExpedient extends BaseTest {
 		actions.click();
 		actions.build().perform();
 
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_1_comprovar_importacio-inici.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'Expedient Importat')]", "No es troba el tipus d´expedient Importat");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'Expedient Importat')]")).click();
 		
 		//Pestanya de dades generals (Informació)
 		driver.findElement(By.xpath("//*[@id='content']/div[3]/form[1]/button")).click();
-			
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_2_comprovar_importacio-dades_generals.png");
+		
 		if (!"Expedient Desplegat".equals(driver.findElement(By.id("nom0")).getAttribute("value"))) { fail("El nom del tipus d´expedient no coincideix amb l´esperat (Expedient Desplegat)"); }
 		if (!checkboxSelected("//*[@id='teTitol0']", true)) {fail("El check 'Amb títol' del tipus d´expedient hauria de estar seleccionat"); }
 		if (!checkboxSelected("//*[@id='demanaTitol0']", true)) {fail("El check 'Demana títol' del tipus d´expedient hauria de estar seleccionat"); }
@@ -116,10 +126,6 @@ public class TipusExpedient extends BaseTest {
 		if (!checkboxSelected("//*[@id='demanaNumero0']", true)) {fail("El check 'Demana numero' del tipus d´expedient hauria de estar seleccionat"); }
 		if (!"EXP_CALC_NUM".equals(driver.findElement(By.id("expressioNumero0")).getAttribute("value"))) { fail("La expressió calculada del tipus d´expedient no coincideix amb l´esperada (EXP_CALC_NUM)"); }
 		if (!"1".equals(driver.findElement(By.id("sequencia0")).getAttribute("value"))) { fail("La sequencia actual del tipus d´expedient no coincideix amb l´esperada (1)"); }
-		
-		//if (!checkboxSelected("//*[@id='reiniciarCadaAny0']", true)) {fail("El check 'Reiniciar Sequencia anualemtn' del tipus d´expedient hauria de estar seleccionat"); }
-		//if (!"2014".equals(driver.findElement(By.id("seqany_0")).getAttribute("value"))) { fail("L' any de la sequencia actual del tipus d´expedient no coincideix amb l´esperada (2014)"); }
-		//if (!"10".equals(driver.findElement(By.id("seqseq_0")).getAttribute("value"))) { fail("El contador de la sequencia del tipus d´expedient no coincideix amb l´esperada (10)"); }
 		
 		if (!checkboxSelected("//*[@id='restringirPerGrup0']", true)) {fail("El check 'Restringir accés segons el grups de l'usuari' del tipus d´expedient hauria de estar seleccionat"); }
 		if (!checkboxSelected("//*[@id='seleccionarAny0']", true)) {fail("El check 'Permetre seleccionar any d'inici d'expedient' del tipus d´expedient hauria de estar seleccionat"); }
@@ -132,12 +138,16 @@ public class TipusExpedient extends BaseTest {
 
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/estats.html')]")).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_3_comprovar_importacio-estats.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td/a[contains(@href, '/helium/expedientTipus/estatsForm.html')]", "L´estat de l´expedient amb codi (estat1) no es troba");
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'ESTAT IMPORTAT')]", "L´estat de l´expedient amb nom (ESTAT IMPORTAT) no es troba");
 		
 		//Pestanya Definició procés
-		
+
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/definicioProcesLlistat.html')]")).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_4_comprovar_importacio-def_proc.png");
 		
 		existeixElementAssert("//a[contains(@href, '/helium/definicioProces/info.html')]", "La definició de proces amb codi (Cons1) no es troba");
 		//existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'1')]", "La definició de proces amb versio (1) no es troba");
@@ -147,13 +157,20 @@ public class TipusExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/sistra.html')]")).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_5_comprovar_importacio-tramits.png");
+		
 		if (!checkboxSelected("//*[@id='actiu0']", true)) {fail("El check 'Activar' de la integració amb tramits del tipus d´expedient hauria de estar seleccionat"); }
 		if (!"TramitImportacio".equals(driver.findElement(By.id("codiTramit0")).getAttribute("value"))) { fail("L Identificador del tràmit del tipus d´expedient no coincideix amb l´esperada (TramitImportacio)"); }
+		
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_5_1_comprovar_importacio-tramit_inside.png");
 		
 			//Passam a comprovar les variables definides per la integració
 			driver.findElement(By.xpath("//*[@id='variables']/div/button")).click();
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'var_float')]", "La variable de integració amb tramits del tipus d´expedient amb codi (var_float) no es troba");
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'CodSistraVarFloat')]", "La variable de integració amb tramits del tipus d´expedient amb nom (CodSistraVarFloat) no es troba");
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_5_1_comprovar_importacio-tramit_inside_variables.png");
+			
 			//Tornam arrere a la pantalla general de la integració amb tramits
 			driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/sistra.html')]")).click();
 			
@@ -161,6 +178,9 @@ public class TipusExpedient extends BaseTest {
 			driver.findElement(By.xpath("//*[@id='documents']/div/button")).click();
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'CodDocDefPro')]", "El codi helium del mapeig de documents de integració amb tramits del tipus d´expedient amb codi (SitraCodiAdjunt) no es troba");
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'Cod Doc Sistra')]", "El codi sistra del mapeig de documents de integració amb tramits del tipus d´expedient amb codi (SitraCodiAdjunt) no es troba");
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_5_2_comprovar_importacio-tramit_inside_mapeig.png");
+			
 			//Tornam arrere a la pantalla general de la integració amb tramits
 			driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/sistra.html')]")).click();
 			
@@ -168,9 +188,13 @@ public class TipusExpedient extends BaseTest {
 			driver.findElement(By.xpath("//*[@id='adjunts.html']/div/button")).click();
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'SitraCodiAdjunt')]", "El document adjunt de integració amb tramits del tipus d´expedient amb codi (SitraCodiAdjunt) no es troba");
 			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_5_3_comprovar_importacio-tramit_inside_adjunts.png");
+			
 		//Pestanya integració amb forms
 			
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/formext.html')]")).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_6_comprovar_importacio-forms.png");
 		
 		if (!checkboxSelected("//*[@id='actiu0']", true)) {fail("El check 'Activar' de la integració amb forms del tipus d´expedient hauria de estar seleccionat"); }
 		if (!"http://forms.extern.prova".equals(driver.findElement(By.id("url0")).getAttribute("value"))) { fail("La URL de la integració amb forms del tipus d´expedient no coincideix amb l´esperada (http://forms.extern.prova)"); }
@@ -180,10 +204,14 @@ public class TipusExpedient extends BaseTest {
 		//Pestanya de Enumeracions
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/enumeracioLlistat.html')]")).click();
 
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_7_comprovar_importacio-enum.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumeracio')]", "L'enumeracio amb codi (enumeracio) del tipus d´expedient no es troba.");
 
 			//Revisam els valors de l´enumerat
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[3]/form/button")).click();
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_7_1_comprovar_importacio-enum_valors.png");
 
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'vEnum1')]", "El valor de l´enumeracio amb codi (vEnum1) del tipus d´expedient no es troba.");
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'1111')]", "El valor de l´enumeracio amb nom (1111) del tipus d´expedient no es troba.");
@@ -196,6 +224,8 @@ public class TipusExpedient extends BaseTest {
 		//Pestanya de documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/documentLlistat.html')]")).click();
 
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_8_comprovar_importacio-documents.png");
+		
 		//Canviam el valor de l´any y tornarem a comprovar el valor del numero (sequencia)
 		WebElement selectDefinicionsProces = driver.findElement(By.name("definicioProcesId"));
 		List<WebElement> options = selectDefinicionsProces.findElements(By.tagName("option"));
@@ -214,9 +244,13 @@ public class TipusExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/dominiLlistat.html')]")).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_9_comprovar_importacio-dominis.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'CodDomini')]", "El domini amb codi (CodDomini) del tipus d´expedient no es troba.");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'CodDomini')]//a")).click();
+		
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_9_1_comprovar_importacio-domini_dades.png");
 		
 			//Passam a les dades del domini
 			if (!"CodDomini".equals(driver.findElement(By.id("codi0")).getAttribute("value"))) { fail("El codi del domini del tipus d´expedient no coincideix amb l´esperat (CodDomini)"); }
@@ -231,11 +265,15 @@ public class TipusExpedient extends BaseTest {
 		
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/consultaLlistat.html')]")).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_10_comprovar_importacio-consultes.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'codCons')]", "El codi de la consulta del tipus d´expedient (codCons) no es troba.");
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'TitolConsulta')]", "El titol de la consulta del tipus d´expedient (TitolConsulta) no es troba.");
 		
 			//Passam a revisar les Var.s filtre
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[4]/form/button")).click();
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_10_1_comprovar_importacio-consultes_vFiltre.png");
 			
 			existeixElementAssert("//*[@id='consultaCamp']/tbody/tr[contains(td[1],'var_boolean/Variable Boolean')]", "El valor de la variable de la consulta del tipus d´expedient (var_boolean/Variable Boolean) no es troba.");
 			existeixElementAssert("//*[@id='consultaCamp']/tbody/tr[contains(td[2],'BOOLEAN')]", "El valor del tipus de la consulta del tipus d´expedient (BOOLEAN) no es troba.");
@@ -245,6 +283,8 @@ public class TipusExpedient extends BaseTest {
 			//Passam a revisar les vars informe
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[5]/form/button")).click();
 			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_10_2_comprovar_importacio-consultes_vInforme.png");
+			
 			existeixElementAssert("//*[@id='consultaCamp']/tbody/tr[contains(td[1],'var_textarea/Variable Textarea')]", "El valor de la variable d'informe del tipus d´expedient (var_textarea/Variable Textarea) no es troba.");
 			existeixElementAssert("//*[@id='consultaCamp']/tbody/tr[contains(td[2],'TEXTAREA')]", "El valor del tipus d'informe del tipus d´expedient (TEXTAREA) no es troba.");
 
@@ -252,6 +292,8 @@ public class TipusExpedient extends BaseTest {
 		
 			//Passam a revisar els parametres ()
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[6]/form/button")).click();
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_10_3_comprovar_importacio-consultes_params.png");
 			
 			existeixElementAssert("//*[@id='consultaParam']/tbody/tr[contains(td[1],'CodParam')]", "El codi del parametre de la consulta del tipus d´expedient (CodParam) no es troba.");
 			existeixElementAssert("//*[@id='consultaParam']/tbody/tr[contains(td[2],'DescParam')]", "La descripció del parametre de la consulta del tipus d´expedient (DescParam) no es troba.");
@@ -288,6 +330,7 @@ public class TipusExpedient extends BaseTest {
 		actions.build().perform();
 		
 		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]")) {
+			
 			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 			driver.findElement(By.id("codi0")).sendKeys(codTipusExp);
 			driver.findElement(By.id("nom0")).sendKeys(nomTipusExp);
@@ -309,6 +352,8 @@ public class TipusExpedient extends BaseTest {
 			
 			driver.findElement(By.id("seleccionarAny0")).click();
 			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c1_1_crear_tipexp_reinici_seq_anual.png");
+			
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
 			
 			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -317,6 +362,8 @@ public class TipusExpedient extends BaseTest {
 			actions.click();
 			actions.build().perform();
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha pogut crear el tipus d'expedient de test");
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c1_2_crear_tipexp_comprova_existeix.png");
 		}
 	}
 	
@@ -325,7 +372,9 @@ public class TipusExpedient extends BaseTest {
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
 		
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
-				
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/c2_1_comprova_seq_anual-expedient_existeix.png");
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha trobat el tipus d'expedient");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
@@ -338,14 +387,20 @@ public class TipusExpedient extends BaseTest {
 		String valorEsperat = "CZ "+ seqTipExp +"/" + anyActual;
 		
 		if (!valorEsperat.equals(valorNumero)) {
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c2_2_comprova_seq_anual-valor_ko.png");
 			fail("El numero de l´expedient ("+valorNumero+") no era el que s´esperava ("+valorEsperat+").");
+		}else{
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c2_2_comprova_seq_anual-valor_ok.png");
 		}
 		
 		String valorAny = driver.findElement(By.id("any0")).getAttribute("value");
 		valorEsperat = Integer.toString(anyActual);
 		
 		if (!valorEsperat.equals(valorAny)) {
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c2_3_comprova_seq_anual-valor_ko.png");
 			fail("L´any per a generar el num expedient ("+valorAny+") no era el que s´esperava ("+valorEsperat+").");
+		}else{
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c2_3_comprova_seq_anual-valor_ok.png");
 		}
 		
 		//Canviam el valor de l´any y tornarem a comprovar el valor del numero (sequencia)
@@ -358,11 +413,16 @@ public class TipusExpedient extends BaseTest {
 			}
 		}
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/crear/c3_comprova_seq_anual-canviam_any.png");
+		
 		valorNumero = driver.findElement(By.id("numero0")).getAttribute("value");
 		valorEsperat = "CZ "+ seqTipExp_2 +"/" + anyActual_2;
 		
 		if (!valorEsperat.equals(valorNumero)) {
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c4_comprova_seq_anual-canvi_any_ko.png");
 			fail("El numero de l´expedient ("+valorNumero+") no era el que s´esperava ("+valorEsperat+").");
+		}else{
+			screenshotHelper.saveScreenshot("tipusExpedient/crear/c4_comprova_seq_anual-canvi_any_ok.png");
 		}
 	}
 }

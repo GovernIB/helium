@@ -9,6 +9,13 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedientPermisos extends BaseTest {
 
+								//TEX.2 - Permisos
+									//TEX.2.1 - Asignar permisos a un usuari
+									//TEX.2.2 - Asignar permisos a un rol
+									//TEX.2.3 - Desassignar permisos a un usuari
+									//TEX.2.4 - Desasignar permisos a un rol	
+									//TEX.2.5 - Provar permisos ** Es farà una classe a parte de proves de permisos **	
+	
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	
@@ -42,35 +49,35 @@ public class TipusExpedientPermisos extends BaseTest {
 	public void b1_crear_basic() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
-		crearTipusExpedient(nomTipusExp, codTipusExp);
+		crearTipusExpedient(nomTipusExp, codTipusExp, "tipusExpedient/permisos/b1_");
 	}
 	
 	@Test
 	public void c1_assignar_permisos_usuari() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
-		assignarPermisosTipusExpedient(codTipusExp, usuari, false, "DESIGN", "MANAGE", "CREATE", "DELETE", "SUPERVISION", "READ", "WRITE", "REASSIGNMENT", "ADMINISTRATION");
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "tipusExpedient/permisos/c1_asginar_usuari", false, "DESIGN", "MANAGE", "CREATE", "DELETE", "SUPERVISION", "READ", "WRITE", "REASSIGNMENT", "ADMINISTRATION");
 	}
 
 	@Test
 	public void d1_assignar_permisos_rol() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
-		assignarPermisosTipusExpedient(codTipusExp, rol, true, "DESIGN", "MANAGE", "CREATE", "DELETE", "SUPERVISION", "READ", "WRITE", "REASSIGNMENT", "ADMINISTRATION");
+		assignarPermisosTipusExpedient(codTipusExp, rol, "tipusExpedient/permisos/d1_asginar_rol", true, "DESIGN", "MANAGE", "CREATE", "DELETE", "SUPERVISION", "READ", "WRITE", "REASSIGNMENT", "ADMINISTRATION");
 	}	
 	
 	@Test
 	public void e1_desassignar_permisos_usuari() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
-		desasignarPermisosTipusExpedient(codTipusExp, usuari);
+		desasignarPermisosTipusExpedient(codTipusExp, usuari, "tipusExpedient/permisos/e1_desasignar_usuari");
 	}
 
 	@Test
 	public void f1_desassignar_permisos_rol() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
-		desasignarPermisosTipusExpedient(codTipusExp, rol);
+		desasignarPermisosTipusExpedient(codTipusExp, rol, "tipusExpedient/permisos/e2_desasignar_rol");
 	}
 	
 	@Test

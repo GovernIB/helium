@@ -241,10 +241,15 @@ public class FileDownloader {
  
         HttpResponse response = realizaPeticion(null, client, localContext, formToDownloadLocation, params, null);
         
-        while (response.getStatusLine().getStatusCode()==302) {
-        	String URLaux   = formToDownloadLocation.substring(0, formToDownloadLocation.lastIndexOf("/")+1);
-        	String nuevaURL = URLaux + response.getHeaders("RedirectTo")[0].getValue();
-        	response = realizaPeticion(response, client, localContext, nuevaURL, params, response.getParams());
+        boolean segueixRedirs = true;
+        while (response.getStatusLine().getStatusCode()==302 && segueixRedirs) {
+        	try {
+        		String URLaux   = formToDownloadLocation.substring(0, formToDownloadLocation.lastIndexOf("/")+1);
+        		String nuevaURL = URLaux + response.getHeaders("RedirectTo")[0].getValue();
+        		response = realizaPeticion(response, client, localContext, nuevaURL, params, response.getParams());
+        	}catch (Exception ex) {
+        		segueixRedirs = false;
+        	}
         }
         
         this.httpStatusOfLastDownloadAttempt = response.getStatusLine().getStatusCode();

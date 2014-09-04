@@ -11,6 +11,14 @@ import org.openqa.selenium.By;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedientDominis extends BaseTest {
 	
+							//TEX.7 - Dominis
+								//TEX.7.1 - Crear dominis
+									//TEX.7.1.1 - Crear domini SQL
+									//TEX.7.1.2 - Crear domini WS
+								//TEX.7.2 - Modificar dominis
+								//TEX.7.3 - Provar dominis (TRASPASSAT A ENT.9)
+								//TEX.7.4 - Eliminar dominis
+	
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	
@@ -34,7 +42,7 @@ public class TipusExpedientDominis extends BaseTest {
 	//Enllaç per eliminar el primer domini de la llista
 	String enllaçElimDomini = "//*[@id='registre']/tbody/tr/td/a[contains(@href, '/expedientTipus/dominiEsborrar.html')]";
 	
-	@Test
+	//@Test
 	public void a1_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -46,7 +54,7 @@ public class TipusExpedientDominis extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "WRITE", "READ", "DELETE");
 	}
 	
-	@Test
+	//@Test
 	public void b1_crear_domini_SQL() {
 		
 		carregarUrlDisseny();
@@ -57,16 +65,24 @@ public class TipusExpedientDominis extends BaseTest {
 		
 		driver.findElement(By.xpath(pestanyaDominis)).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/b1_1_crear_SQL_-pipella_dominis.png");
+		
 		driver.findElement(By.xpath(botoNouDomini)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/b1_2_crear_SQL_-estat_inicial.png");
 		
 		emplenaDadesDominiSQL(codiDominiSQL, "Nom consulta SQL", "30", "Descripció consulta SQL", "jndi://datasource/", "Select * from clients;");
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/b1_3_crear_SQL_-dades_emplenades.png");
+		
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/b1_4_crear_SQL_-resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear el domini SQL "+codiDominiSQL+" per el tipus d´expedient "+codTipusExp+".");
 	}
 	
-	@Test
+	//@Test
 	public void c1_crear_domini_WS() {
 		
 		carregarUrlDisseny();
@@ -77,16 +93,24 @@ public class TipusExpedientDominis extends BaseTest {
 		
 		driver.findElement(By.xpath(pestanyaDominis)).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/c1_1_crear_WS_-pipella_dominis.png");
+		
 		driver.findElement(By.xpath(botoNouDomini)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/c1_2_crear_WS_-estat_inicial.png");
 		
 		emplenaDadesDominiWS(codiDominiWS, "Nom consulta WS", "35", "Descripció consulta WS", "http://webService/service/", "HTTP_BASIC", "PROPERTIES", "usuariWS", "passWS");
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/c1_3_crear_WS_-dades_emplenades.png");
+		
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/c1_4_crear_WS_-resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear el domini WS "+codiDominiWS+" per el tipus d´expedient "+codTipusExp+".");
 	}
 	
-	@Test
+	//@Test
 	public void d1_comprobar_creacio_dominis() {
 		
 		carregarUrlDisseny();
@@ -125,7 +149,7 @@ public class TipusExpedientDominis extends BaseTest {
 		if (!"passWS".equals(driver.findElement(By.id("contrasenya0")).getAttribute("value")))  { fail("El valor de password del domini WS per el tipus d´expedient "+codTipusExp+" no es l'esperat!"); }
 	}
 	
-	@Test
+	//@Test
 	public void e1_modificar_dominis() {
 		
 		carregarUrlDisseny();
@@ -136,24 +160,38 @@ public class TipusExpedientDominis extends BaseTest {
 		
 		driver.findElement(By.xpath(pestanyaDominis)).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_1_modificar_SQL_-pipella_dominis.png");
+		
 		driver.findElement(By.xpath(linkDominiSQL)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_2_modificar_SQL_-estat_inicial.png");
 		
 		emplenaDadesDominiSQL(codiDominiSQL + "_mod", "Nom consulta SQL_mod", "35", "Descripció consulta SQL_mod", "jndi://datasource/_mod", "Select * from clients;_mod");
 				
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_3_modificar_SQL_-dades_emplenades.png");
+		
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_4_modificar_SQL_-resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "Error al modificar el domini SQL "+codiDominiSQL+" per el tipus d´expedient "+codTipusExp+".");
 		
 		driver.findElement(By.xpath(linkDominiWS)).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_5_modificar_WS_-estat_inicial.png");
+		
 		emplenaDadesDominiWS(codiDominiWS+"_mod", "Nom consulta WS_mod", "45", "Descripció consulta WS_mod", "http://webService/service/_mod", "USERNAMETOKEN", "ATRIBUTS", "usuariWS_mod", "passWS_mod");
 				
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_6_modificar_WS_-dades_emplenades.png");
+		
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/e1_7_modificar_WS_-resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "Error al modificar el domini WS "+codiDominiWS+" per el tipus d´expedient "+codTipusExp+".");
 	}
 	
-	@Test
+	//@Test
 	public void f1_comprobar_modificacio_dominis() {
 		
 		carregarUrlDisseny();
@@ -194,7 +232,7 @@ public class TipusExpedientDominis extends BaseTest {
 	
 	//public void g1_provar_dominis() { //TRASPASSAT A ENT 9 }
 	
-	//@Test
+	@Test
 	public void h1_eliminar_dominis() {
 		
 		carregarUrlDisseny();
@@ -205,14 +243,26 @@ public class TipusExpedientDominis extends BaseTest {
 		
 		driver.findElement(By.xpath(pestanyaDominis)).click();
 		
+		screenshotHelper.saveScreenshot("tipusExpedient/dominis/h1_1_eliminar_-pipella_dominis.png");
+		
+		int contadorScreeshots = 1;
 		while (existeixElement(enllaçElimDomini)) {
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/dominis/h1_2_"+contadorScreeshots+"_eliminar-abans.png");
+			
 			driver.findElement(By.xpath(enllaçElimDomini)).click();
+			
 			if (isAlertPresent()) {acceptarAlerta();}
+			
+			screenshotHelper.saveScreenshot("tipusExpedient/dominis/h1_3_"+contadorScreeshots+"_eliminar-despres.png");
+			
 			existeixElementAssert("//*[@class='missatgesOk']", "Error al esborrar un domini per el tipus d´expedient "+codTipusExp+".");
+			
+			contadorScreeshots++;
 		}
 	}
 	
-	//@Test
+	@Test
 	public void z0_finalitzacio() {
 		carregarUrlConfiguracio();
 		eliminarTipusExpedient(codTipusExp);

@@ -11,6 +11,11 @@ import net.conselldemallorca.helium.test.util.BaseTest;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedientInformacio extends BaseTest {
 
+									//TEX.3 - Informació tipus d´expedient
+										//TEX.3.1 - Modificar informació del tipus d´expedient
+										//TEX.3.2 - Importar dades de tipus d´expedient
+										//TEX.3.3 - Exportar versió
+	
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	
@@ -47,9 +52,12 @@ public class TipusExpedientInformacio extends BaseTest {
 		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		seleccionarTipExp(codTipusExp);
+		screenshotHelper.saveScreenshot("tipusExpedient/informacio/b1_1_expedient_abans_modificacio.png");
 		modificarTipusExpedientComplet(codTipusExp, nomTipusExp, expressioSeq, Integer.toString(anyActual), Integer.toString(seqTipExp), Integer.toString(anyActual_2), Integer.toString(seqTipExp_2), responsableTipusExp);
+		screenshotHelper.saveScreenshot("tipusExpedient/informacio/b1_2_expedient_despres_modificat.png");
 		seleccionarTipExp(codTipusExp);
 		comprobarTipusExpedientComplet(codTipusExp, nomTipusExp, expressioSeq, Integer.toString(anyActual), Integer.toString(seqTipExp), Integer.toString(anyActual_2), Integer.toString(seqTipExp_2), responsableTipusExp);
+		screenshotHelper.saveScreenshot("tipusExpedient/informacio/b1_3_expedient_comproba_modificacions.png");
 	}
 	
 	@Test
@@ -64,7 +72,7 @@ public class TipusExpedientInformacio extends BaseTest {
 	public void d1_importar_dades_versio() {
 		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
-		importarDadesTipExp(codTipusExp, pathExport);
+		importarDadesTipExp(codTipusExp, pathExport, "tipusExpedient/informacio/d1");
 	}
 	
 	@Test

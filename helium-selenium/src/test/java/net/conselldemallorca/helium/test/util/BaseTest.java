@@ -797,18 +797,31 @@ public abstract class BaseTest {
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]", "No s'han pogut eliminar la consulta");
 	}
 	
+	// ............................................................................................................
 	// TIPUS D'EXPEDIENT
-	// ............................................................................................................	
+	// ............................................................................................................
+	
 	protected void crearTipusExpedient(String nom, String codi) {
+		crearTipusExpedient(nom, codi, null);
+	}
+	
+	protected void crearTipusExpedient(String nom, String codi, String prefixeScreenShot) {
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_llistat_inicial.png"); }
+		
 		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]")) {
 			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 			driver.findElement(By.id("codi0")).sendKeys(codi);
 			driver.findElement(By.id("nom0")).sendKeys(nom);
+			
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_dades_tipexp_basic.png"); }
+			
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
 			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 			actions.build().perform();
@@ -816,12 +829,22 @@ public abstract class BaseTest {
 			actions.click();
 			actions.build().perform();
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "No s'ha pogut crear el tipus d'expedient de test");
+			
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_comprovacio_apareix_llistat.png"); }
+		}else{
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_4_expedient_ja_existent.png"); }
 		}
 	}
 	
 	protected void modificarTipusExpedientComplet(String codi, String nom, String expressio, String anySeq0, String seqSeq0, String anySeq1, String seqSeq1, String responsable) {
+		modificarTipusExpedientComplet(codi, nom, expressio, anySeq0, seqSeq0, anySeq1, seqSeq1, responsable, null);
+	}
+	
+	protected void modificarTipusExpedientComplet(String codi, String nom, String expressio, String anySeq0, String seqSeq0, String anySeq1, String seqSeq1, String responsable, String prefixeScreenShot) {
 		
 		driver.findElement(By.xpath("//*[@id='content']/div/form[contains(@action, '/expedientTipus/form.html')]/button")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_dades_inicials.png"); }
 		
 		//driver.findElement(By.id("codi0")).sendKeys(codi);
 		//driver.findElement(By.id("nom0")).sendKeys(nom);
@@ -844,12 +867,21 @@ public abstract class BaseTest {
 		driver.findElement(By.id("seqany_1")).sendKeys(anySeq1);
 		driver.findElement(By.id("seqseq_1")).sendKeys(seqSeq1);
 		
-		driver.findElement(By.id("suggest_responsableDefecteCodi0")).sendKeys(responsable);
+		String suggestUsuDes = responsable;
+		if (responsable.length()>3) { suggestUsuDes = responsable.substring(0, 3); }
+		
+		driver.findElement(By.id("suggest_responsableDefecteCodi0")).sendKeys(suggestUsuDes);
+		try { Thread.sleep(2000); }catch (Exception ex) {}
+		driver.findElement(By.xpath("//html/body/div[@class='ac_results']/ul/li[contains(text(), '"+responsable+"')]")).click();
 		
 		driver.findElement(By.id("restringirPerGrup0")).click();
 		driver.findElement(By.id("seleccionarAny0")).click();
 		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_dades_modificades.png"); }
+		
 		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_resultat_modificacio.png"); }
 	}
 
 	protected void comprobarTipusExpedientComplet(String codi, String nom, String expressio, String anySeq0, String seqSeq0, String anySeq1, String seqSeq1, String responsable) {
@@ -863,8 +895,7 @@ public abstract class BaseTest {
 		if (!checkboxSelected("//*[@id='demanaNumero0']", true)) {fail("El check 'Demana numero' del tipus d´expedient hauria de estar seleccionat"); }
 		if (!expressio.equals(driver.findElement(By.id("expressioNumero0")).getAttribute("value"))) { fail("La expressió calculada del tipus d´expedient no coincideix amb l´esperada ("+expressio+")"); }
 		
-		//TODO: Responsable es un suggest, investigar com es damunt el valor suggerit, perque amb el sendKeys no es guarda.
-		//if (!responsable.equals(driver.findElement(By.id("suggest_responsableDefecteCodi0")).getAttribute("value"))) { fail("El responsable del tipus d´expedient no coincideix amb l´esperat ("+responsable+")"); }
+		if (!responsable.equals(driver.findElement(By.id("suggest_responsableDefecteCodi0")).getAttribute("value"))) { fail("El responsable del tipus d´expedient no coincideix amb l´esperat ("+responsable+")"); }
 		
 		if (!checkboxSelected("//*[@id='reiniciarCadaAny0']", true)) {fail("El check 'Reiniciar Sequencia anualmetn' del tipus d´expedient hauria de estar seleccionat"); }
 		
@@ -901,6 +932,10 @@ public abstract class BaseTest {
 	}
 
 	protected void importarDadesTipExp(String codiTipusExp, String path) {
+		importarDadesTipExp(codiTipusExp, path, null);
+	}
+	
+	protected void importarDadesTipExp(String codiTipusExp, String path, String prefixeScreenShot) {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -910,10 +945,17 @@ public abstract class BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[contains(a, '"+codiTipusExp+"')]/a")).click();
 
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_importar_tipexp-inici.png"); }
+		
 		// Deploy
 		driver.findElement(By.xpath("//*[@id='content']/div/h3/img[contains(@src,'magnifier_zoom_in.png')]")).click();
 		driver.findElement(By.id("arxiu0")).sendKeys(path);
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_importar_tipexp-arxiu_seleccionat.png"); }
+		
 		driver.findElement(By.xpath("//*[@id='command']//div[@class='buttonHolder']/button[text() = 'Importar']")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_importar_tipexp-resultat.png"); }
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar el tipus d´expedient de test");
 	}
@@ -988,6 +1030,7 @@ public abstract class BaseTest {
 	}
 	
 	protected void eliminarExpedient(String numExpediente, String tituloExpediente, String tipusExp) {
+		
 		consultarExpedientes(numExpediente, tituloExpediente, tipusExp);
 		
 		while (existeixElement("//*[@id='registre']/tbody/tr[1]")) {
@@ -996,23 +1039,28 @@ public abstract class BaseTest {
 	}
 
 	protected void borrarPrimerExpediente() {
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado");
 		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();		
-		acceptarAlerta();		
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img")).click();
+		
+		acceptarAlerta();
+		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar el expediente");
 	}
 
 	protected String[] iniciarExpediente(String codTipusExp, String numero, String titulo) {
+		
 		String[] res = new String[2];
 		
 		existeixElementAssert("//li[@id='menuIniciar']", "No tiene permisos para iniciar un expediente");
+		
 		driver.findElement(By.xpath("//*[@id='menuIniciar']/a")).click();
-				
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]", "No s'ha trobat el tipus d'expedient");
-		
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codTipusExp + "')]/td[3]/form/button")).click();
-		
+
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td,'" + codTipusExp + "')]", "No s'ha trobat la fila corresponent al tipus d'expedient");
+
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td,'" + codTipusExp + "')]/td/form/button[contains(text(), 'Iniciar')]")).click();
+
 		if (!isAlertPresent()) {			
 			if (existeixElement("//*[@id='numero0']")) {
 				driver.findElement(By.xpath("//*[@id='numero0']")).clear();
@@ -1047,10 +1095,14 @@ public abstract class BaseTest {
 	}
 	
 	protected void assignarPermisosTipusExpedient(String tipusExp, String usuari, String... permisos) {
-		assignarPermisosTipusExpedient(tipusExp, usuari, false, permisos);
+		assignarPermisosTipusExpedient(tipusExp, usuari, null, false, permisos);
 	}
 	
 	protected void assignarPermisosTipusExpedient(String tipusExp, String usuari, boolean esRol, String... permisos) {
+		assignarPermisosTipusExpedient(tipusExp, usuari, null, esRol, permisos);
+	}
+	
+	protected void assignarPermisosTipusExpedient(String tipusExp, String usuari, String prefixeScreenShot, boolean esRol, String... permisos) {
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -1102,19 +1154,31 @@ public abstract class BaseTest {
 			}
 		}
 		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_asigna_permisos.png"); }
+		
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usuari + "')]", "No s'han pogut assignar permisos");
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_asigna_permisos_resultat.png"); }
 	}
 
 	protected void desasignarPermisosTipusExpedient(String tipusExp, String usuari) {
+		desasignarPermisosTipusExpedient(tipusExp, usuari, null);
+	}
+	
+	protected void desasignarPermisosTipusExpedient(String tipusExp, String usuari, String prefixeScreenShot) {
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
+		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]", "No s'ha trobat el tipus d´expedient");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]/td[3]/form/button")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_borra_permisos_inici.png"); }
 		
 		//driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td, '"+usuari+"')]/td/a[contains(@href, '/permisos/expedientTipusEsborrar.html')]")).click();
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[td//text()[contains(., '"+usuari+"')]]/td/a[contains(@href, '/permisos/expedientTipusEsborrar.html')]")).click();
@@ -1122,6 +1186,8 @@ public abstract class BaseTest {
 		if (isAlertPresent()) {acceptarAlerta();}
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut borrar els permisos");
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_borra_permisos_resultat.png"); }
 	}
 	
 	protected byte[] downloadFile(String xpath, String fitxer) {
@@ -1490,15 +1556,25 @@ public abstract class BaseTest {
 	}
 
 	public void crearEstatTipusExpedient(String codTipusExp, String codiEstat, String nomEstat) {
+		crearEstatTipusExpedient(codTipusExp, codiEstat, nomEstat, null);
+	}
+	
+	public void crearEstatTipusExpedient(String codTipusExp, String codiEstat, String nomEstat, String prefixeScreenShot) {
 		
 		String botoCrearEstat	= "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Afegir']";
 		
 		accedirEstatsExpedient(codTipusExp);
-			
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_estats_inicials.png"); }
+		
 		driver.findElement(By.id("codi0")).sendKeys(codiEstat);
 		driver.findElement(By.id("nom0")).sendKeys(nomEstat);
 		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_dades_omplertes.png"); }
+		
 		driver.findElement(By.xpath(botoCrearEstat)).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_resultat_insercio.png"); }
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut creat l'estat per el tipus d´expedient.");
 	}
@@ -1540,10 +1616,17 @@ public abstract class BaseTest {
 	}
 	
 	public void eliminarTotsEstatsTipusExpedient(String codTipusExp) {
+		eliminarTotsEstatsTipusExpedient(codTipusExp, null);
+	}
+	
+	public void eliminarTotsEstatsTipusExpedient(String codTipusExp, String prefixeScreenShot) {
 		
 		accedirEstatsExpedient(codTipusExp);
 		
+		int contadorScreenShots = 1;
 		while(existeixElement("//*[@id='registre']/tbody/tr")) {
+			
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_"+contadorScreenShots+"_1_abans.png"); }
 			
 			existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado.");
 			
@@ -1551,7 +1634,11 @@ public abstract class BaseTest {
 			
 			if (isAlertPresent()) { acceptarAlerta(); }
 			
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_"+contadorScreenShots+"_2_despres.png"); }
+			
 			existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut esborrar l'estat per el tipus d´expedient.");
+			
+			contadorScreenShots++;
 		}
 	}
 	
@@ -1985,13 +2072,21 @@ public abstract class BaseTest {
 	}
 	
 	protected void afegirParametreAconsulta (String codTipusExp, String codiCons, String codiParam, String descParam, String tipusParam) {
+		afegirParametreAconsulta (codTipusExp, codiCons, codiParam, descParam, tipusParam, null);
+	}
+	
+	protected void afegirParametreAconsulta (String codTipusExp, String codiCons, String codiParam, String descParam, String tipusParam, String prefixeScreenShot) {
 		
 		seleccionarTipExp(codTipusExp);
 		
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/consultaLlistat.html')]")).click();
 		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_pipella_consultes.png"); }
+		
 		String botonParametres  = "//*[@id='registre']/tbody/tr[contains(td/a, '"+codiCons+"')]/td/form/button[contains(text(), 'arams')]";
 		driver.findElement(By.xpath(botonParametres)).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_form_param_consulta.png"); }
 		
 		driver.findElement(By.id("codi0")).sendKeys(codiParam);
 		
@@ -2004,37 +2099,174 @@ public abstract class BaseTest {
 			}
 		}
 		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_dades_emplenades.png"); }
+		
 		driver.findElement(By.xpath("//*[@id='command']/div[2]/button[1]")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_4_resultat_asignacio_param_consulta.png"); }
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "Error al insertar el parametre de una consulta per el tipus d´expedient "+codTipusExp+".");
 	}
 	
 	protected void crearRol(String codiRol, String descRol) {
+		crearRol(codiRol, descRol, null);
+	}
+	
+	protected void crearRol(String codiRol, String descRol, String prefixeScreenShot) {
+		
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/rol/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
+		
 		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]")) {
 			driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
 			driver.findElement(By.id("codi0")).clear();
 			driver.findElement(By.id("codi0")).sendKeys(codiRol);
 			driver.findElement(By.id("descripcio0")).clear();
 			driver.findElement(By.id("descripcio0")).sendKeys(descRol);
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_emplenant_rol.png"); }
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
-			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]", "No s'ha pogut crear l'entorn");
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]", "No s'ha pogut crear el rol");
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_rol_guardat.png"); }
+		}else{
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_rol_ja_existent.png"); }
 		}
 	}
 	
 	protected void eliminarRol(String codiRol) {
+		eliminarRol(codiRol, null);
+	}
+	
+	protected void eliminarRol(String codiRol, String prefixeScreenshot) {
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/rol/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
-		if (noExisteixElement("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]")) {
+		if (prefixeScreenshot!=null && !"".equals(prefixeScreenshot)) { screenshotHelper.saveScreenshot(prefixeScreenshot+"_llista_de_rols.png"); }		
+		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]/td/a[contains(@href, '/rol/delete.html')]")).click();
-			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]", "No s'ha pogut crear l'entorn");
+			if (isAlertPresent()) {acceptarAlerta();}
+			if (prefixeScreenshot!=null && !"".equals(prefixeScreenshot)) { screenshotHelper.saveScreenshot(prefixeScreenshot+"_rol_eliminat_ok.png"); }
+			existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut eliminar el rol ("+codiRol+").");
+		}else{
+			if (prefixeScreenshot!=null && !"".equals(prefixeScreenshot)) { screenshotHelper.saveScreenshot(prefixeScreenshot+"_rol_no_existeix.png"); }
 		}
+	}
+	
+	protected void desplegarArxiuHeliumTipusExpedient (String codTipusExp, String x_pestanyaDefProc, String x_botoDesplegarArxiu, String defProcHELIUMPath, String etiquetaDoc, String x_botoDesplegarArxiu2) {
+		desplegarArxiuHeliumTipusExpedient (codTipusExp, x_pestanyaDefProc, x_botoDesplegarArxiu, defProcHELIUMPath, etiquetaDoc, x_botoDesplegarArxiu2, null);
+	}
+	
+	protected void desplegarArxiuHeliumTipusExpedient (String codTipusExp, String x_pestanyaDefProc, String x_botoDesplegarArxiu, String defProcHELIUMPath, String etiquetaDoc, String x_botoDesplegarArxiu2, String prefixeScreenShot) {
+		
+		seleccionarTipExp(codTipusExp);
+		
+		driver.findElement(By.xpath(x_pestanyaDefProc)).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_pipella_defproces.png"); }
+		
+		driver.findElement(By.xpath(x_botoDesplegarArxiu)).click();
+		
+		//Seleccionar Tipus d´arxiu
+		for (WebElement option : driver.findElement(By.id("tipus0")).findElements(By.tagName("option"))) {
+			if ("EXPORT".equals(option.getAttribute("value"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.id("arxiu0")).sendKeys(defProcHELIUMPath);
+		
+		driver.findElement(By.id("etiqueta0")).sendKeys(etiquetaDoc);
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_dades_arxiu.png"); }
+		
+		driver.findElement(By.xpath(x_botoDesplegarArxiu2)).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_resultat_importacio.png"); }
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar la definicio de proces (helium) dins el tipus d'expedient.");
+	}
+	
+	/**
+	 *   F U N C I O N S   D E   C O N F I G U R A C I O   D E   L A   A P L I C A C I O
+	 */
+	
+	protected void accedirConfiguracioPersones() {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/persona/consulta.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void accedirConfiguracioRols() {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/rol/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void accedirConfiguracioFestius() {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/festiu/calendari.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void accedirConfiguracioReassignacions() {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/reassignar/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void crearNovaPersona(String codi, String nom, String llinatge, String llinatge_dos, String dni, String mail, String sexe, boolean accesApp) {
+		
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		driver.findElement(By.id("nom0")).sendKeys(nom);
+		driver.findElement(By.id("llinatge10")).sendKeys(llinatge);
+		if (llinatge_dos!=null) { driver.findElement(By.id("llinatge20")).sendKeys(llinatge_dos); }
+		if (dni!=null) { driver.findElement(By.id("dni0")).sendKeys(dni); }
+		driver.findElement(By.id("email0")).sendKeys(mail);
+		
+		for (WebElement option : driver.findElement(By.id("sexe0")).findElements(By.tagName("option"))) {
+			if (sexe.equals(option.getAttribute("value"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		if (accesApp && !driver.findElement(By.id("login0")).isSelected()) {
+			driver.findElement(By.id("login0")).click();
+		}
+		
+		if (!accesApp && driver.findElement(By.id("login0")).isSelected()) {
+			driver.findElement(By.id("login0")).click();
+		}
+		
+		String pathBotoNovaPersona = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Crear']";
+		driver.findElement(By.xpath(pathBotoNovaPersona)).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear la persona ("+nom +" "+llinatge+") a la configuració de Helium.");
+	}
+	
+	protected void filtraPersones(String codi, String nom, String email) {
+		
+		driver.findElement(By.id("codi0")).clear();
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		driver.findElement(By.id("nom0")).clear();
+		driver.findElement(By.id("nom0")).sendKeys(nom);
+		driver.findElement(By.id("email0")).clear();
+		driver.findElement(By.id("email0")).sendKeys(email);
+		
+		String pathBotoNovaPersona = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Consultar']";
+		driver.findElement(By.xpath(pathBotoNovaPersona)).click();
 	}
 }
