@@ -6,7 +6,10 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
 
@@ -14,18 +17,26 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Entorn extends BaseTest {
 
 	String entorn			= "EntProvesEnt"; //carregarPropietat("entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn		= "Entorn Proves Selenium - Entorn"; //carregarPropietat("entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn		= "Entorn Proves Selenium - ENT - Entorn"; //carregarPropietat("entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String entorn_aux 		= "EntProvesAux";
-	String titolEntorn_aux	= "Entorn Proves Selenium - Auxixiar Entorn";
+	String titolEntorn_aux	= "Entorn Proves Selenium - ENT - Auxixiar Entorn";
 	String usuari	 = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String usuariDis = carregarPropietat("test.base.usuari.disseny", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String rol		 = carregarPropietat("test.base.rol.configuracio", "Rol configuració de l'entorn de proves no configurat al fitxer de properties");
+	
+	String nomTipusExp	= carregarPropietat("entorn.reindexacio.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
+	String codTipusExp	= carregarPropietat("entorn.reindexacio.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+	String tipusExpPath	= carregarPropietatPath("entorn.reindexacio.tipexp.deploy.path", "Path del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	//XPATHS
 	String botoNouDomini		= "//*[@id='content']/form/button";
@@ -34,6 +45,10 @@ public class Entorn extends BaseTest {
 	String botoProvarDominiWS	= "//*[@id='registre']/tbody/tr[contains(td[1],'wsDomId')]/td[4]/img";
 	String enllaçElimDomini		= "//*[@id='registre']/tbody/tr[1]/td[5]/a";
 
+	String formReidexarEntorn = "//*[@id='registre']/tbody/tr[contains(td,'"+entorn+"')]/td/form[contains(@action, 'reindexar.html')]";
+	
+	String linkBorrarExpedient = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/expedient/delete.html')]";
+	
 	@Test
 	public void b_createEntorns() {
 		
@@ -58,7 +73,7 @@ public class Entorn extends BaseTest {
 		driver.findElement(By.id("codi0")).clear();
 		driver.findElement(By.id("codi0")).sendKeys(entorn);
 		driver.findElement(By.id("nom0")).clear();
-		driver.findElement(By.id("nom0")).sendKeys(entorn);
+		driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
 		
 		screenshotHelper.saveScreenshot("entorns/crear/1_entornCrearActiu_01.png");
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
@@ -136,6 +151,7 @@ public class Entorn extends BaseTest {
 	
 	@Test
 	public void d_canviTitolEntorn() {
+		
 		carregarUrlConfiguracio();
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		// Anem a la pantalla de configuració d'entorns
@@ -154,7 +170,7 @@ public class Entorn extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[1]/a")).click();
 		screenshotHelper.saveScreenshot("entorns/titol/2_canviTitol.png");
 		driver.findElement(By.id("nom0")).clear();
-		driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
+		driver.findElement(By.id("nom0")).sendKeys(titolEntorn+"Mod");
 
 		screenshotHelper.saveScreenshot("entorns/titol/3_canviTitol.png");
 		driver.findElement(By.xpath("//button[@value='submit']")).click();
@@ -162,6 +178,22 @@ public class Entorn extends BaseTest {
 		screenshotHelper.saveScreenshot("entorns/titol/4_entornsExistents_02.png");
 		String nouTitol = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[2]")).getText().trim();
 		assertNotEquals("No s'ha pogut canviar el titol de l'entorn de test", titol, nouTitol);
+		
+		//Tornam a canviar el titol com estaba abans per les futures proves
+		
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "L\'entorn de proves no existeix.");
+
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[1]/a")).click();
+		driver.findElement(By.id("nom0")).clear();
+		driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
+		
+		driver.findElement(By.xpath("//button[@value='submit']")).click();		
 	}
 	
 	@Test
@@ -278,6 +310,133 @@ public class Entorn extends BaseTest {
 		}
 	}
 	
+	// ---------------------------------------------------
+	// R E I N D E X A C I O
+	// ---------------------------------------------------
+
+	@Test
+    public void h_reindexar_expedients() throws InterruptedException {
+		
+        carregarUrlConfiguracio();
+        
+        seleccionarEntorn(titolEntorn);
+        
+        crearTipusExpedient(nomTipusExp, codTipusExp);
+        assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "MANAGE", "WRITE", "DELETE", "ADMINISTRATION", "DESIGN", "SUPERVISION", "READ");
+        importarDadesTipExp(codTipusExp, tipusExpPath);
+        
+        screenshotHelper.saveScreenshot("entorns/reindexar/1_tipusExpedientImportat.png");
+        
+        // Iniciamos n expedientes con la última versión
+        List<String[]> expedientes = new ArrayList<String[]>();
+        for (int i = 0; i < 5; i++) {
+            String[] expediente = iniciarExpediente(codTipusExp,"SE-"+i+"/2014", "Expedient de prova Selenium " + (new Date()).getTime() );
+            screenshotHelper.saveScreenshot("entorns/reindexar/2_"+(i+1)+"_expedientcreat.png");
+            expedientes.add(expediente);
+        }
+        
+        int contadorExpedientsScript = 1;
+        // Eliminamos los expedientes en Lucene
+        for (String[] expediente : expedientes) {
+            
+        	String script = ""
+                    + "String processInstanceId = net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), \""+codTipusExp+"\", \""+expediente[0]+"\").getProcessInstanceId();"
+                    + "net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().luceneDeleteExpedient(processInstanceId);";       	
+        	
+            actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+            actions.build().perform();
+            actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consultaDisseny.html')]")));
+            actions.click();
+            actions.build().perform();
+
+            try {
+            	//A vegades passa directament a la pantalla de consulta disseny sense pasar per la seleccio de tipus Expedient / Consulta
+            	driver.findElement(By.xpath("//*[@id='expedientTipusId0']")).findElements(By.tagName("option")).get(1).click();
+            	driver.findElement(By.xpath("//*[@id='consultaId0']")).findElements(By.tagName("option")).get(1).click();
+            }catch (Exception ex) {}
+            
+            driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
+            
+            screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_1_llistaExpedients.png");
+            
+            //Executam l´script per aquest expedient
+            driver.findElement(By.xpath("//*[@id='registre']//a[contains(@href,'/expedient/info.html')][1]")).click();
+            driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/eines.html')]")).click();
+            
+            screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_2_dinsExpedientEines.png");
+            
+            driver.findElement(By.xpath("//*[@id='content']/div/h3[contains(a/text(), \"Execució d'scripts\")]/a")).click();
+            
+            screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_3_execucioScriptsExpedient.png");
+            
+            driver.findElement(By.xpath("//*[@id='script0']")).sendKeys(script);
+            
+            screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_4_acceptarScript.png");
+            
+            driver.findElement(By.xpath("//button[contains(text(), 'Executar')]")).click();
+            if (isAlertPresent()) { acceptarAlerta(); }
+            existeixElementAssert("//*[@id='infos']/p", "No se ejecutó el script correctamente del expediente: " + expediente);
+            
+            screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_5_resultatScript.png");
+            
+            contadorExpedientsScript++;
+        }
+        
+        //Reindexam desde l´entorn
+			actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+			actions.build().perform();
+			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/entorn/llistat.html')]")));
+			actions.click();
+			actions.build().perform();
+
+			screenshotHelper.saveScreenshot("entorns/reindexar/4_entorns.png");
+			
+			driver.findElement(By.xpath(formReidexarEntorn)).submit();
+
+			if (isAlertPresent()) { acceptarAlerta(); }
+
+			Wait<WebDriver> wait = new WebDriverWait(driver, 10);
+	        WebElement element = wait.until(visibilityOfElementLocated(By.id("infos")));
+			
+	        screenshotHelper.saveScreenshot("entorns/reindexar/5_resultatIndexacioEntorn.png");
+	        
+	        if (element==null) { fail("La reindexació a nivell d' entorn no s´ha executat correctament."); }
+	        
+        // Comprobamos que aparezcan
+        actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+        actions.build().perform();
+        actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consultaDisseny.html')]")));
+        actions.click();
+        actions.build().perform();
+        
+        try {
+        	//A vegades passa directament a la pantalla de consulta disseny sense pasar per la seleccio de tipus Expedient / Consulta
+        	driver.findElement(By.xpath("//*[@id='expedientTipusId0']")).findElements(By.tagName("option")).get(1).click();
+        	driver.findElement(By.xpath("//*[@id='consultaId0']")).findElements(By.tagName("option")).get(1).click();
+        }catch (Exception ex) {}
+        
+        driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
+
+        screenshotHelper.saveScreenshot("entorns/reindexar/6_llistaExpedientsDespresIndexar.png");
+        
+        //Comprovam que els expedients tornen a apareixer
+        for (String[] expediente : expedientes) {
+            existeixElementAssert("//td[contains(a/text(),'"+expediente[0]+"')]", "No se encontró el expediente: " + expediente[0]);            
+        }
+        
+        //Els eliminam
+        while (existeixElement(linkBorrarExpedient)) {
+        	driver.findElement(By.xpath(linkBorrarExpedient)).click();
+        	if (isAlertPresent()) { acceptarAlerta(); }
+        }
+        
+        eliminarTipusExpedient(codTipusExp);
+    }
+	
+	// ---------------------------------------------------
+	// E N U M E R A C I O N S
+	// ---------------------------------------------------
+	
 	@Test
 	public void i1_creaEnumeracio() {
 		
@@ -316,6 +475,8 @@ public class Entorn extends BaseTest {
 		driver.findElement(By.xpath("//button[@value='cancel']")).click();
 	}
 	
+	//@Test
+	
 	@Test
 	public void i2_eliminaEnumeracio() {
 		
@@ -336,9 +497,10 @@ public class Entorn extends BaseTest {
 		acceptarAlerta();
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
 	}
-	
+
+
 	// ---------------------------------------------------
-	// DOMINIS
+	// D O M I N I S
 	// ---------------------------------------------------
 
 	@Test
@@ -354,15 +516,17 @@ public class Entorn extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("entorns/domini/1_creacioDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j1_1_creacioDominis.png");
 		
 		driver.findElement(By.xpath(botoNouDomini)).click();
 		
 		emplenaDadesDominiSQL("sqlDomId", "Nom consulta SQL", "0", "Descripció consulta SQL", "java:/comp/env/jdbc/HeliumDS", "select distinct enum.codi CODI, enum.nom DESCRIPCIO from hel_enumeracio enum");
 		
+		screenshotHelper.saveScreenshot("entorns/domini/j1_2_creacioDominis_dades.png");
+		
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
 		
-		screenshotHelper.saveScreenshot("entorns/domini/2_creacioDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j1_3_creacioDominis_resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear el domini SQL sqlDomId a l'entorn "+titolEntorn+".");
 		
@@ -370,9 +534,11 @@ public class Entorn extends BaseTest {
 		
 		emplenaDadesDominiWS("wsDomId", "Nom consulta WS", "0", "Descripció consulta WS", "http://localhost:8080/helium/ws/DominiIntern", "NONE", "ATRIBUTS", "", "");
 		
+		screenshotHelper.saveScreenshot("entorns/domini/j1_4_creacioDominis_dades.png");
+		
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
 		
-		screenshotHelper.saveScreenshot("entorns/domini/3_creacioDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j1_5_creacioDominis_resultat.png");
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear el domini WS wsDomId per l'entorn "+titolEntorn+".");
 	}
@@ -390,7 +556,7 @@ public class Entorn extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("entorns/domini/1_provantDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j2_1_provantDominis.png");
 		
 		// -- Prova Domini WS -- //
 		
@@ -405,9 +571,12 @@ public class Entorn extends BaseTest {
 				break;
 			}
 		}
+		
+		screenshotHelper.saveScreenshot("entorns/domini/j2_3_provantDominis.png");
+		
 		driver.findElement(By.id("par_0")).sendKeys(usuari);	
 		
-		screenshotHelper.saveScreenshot("entorns/domini/2_provantDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j2_4_provantDominis.png");
 		
 		driver.findElement(By.xpath("/html/body/div[9]/div[11]/button[1]")).click();
 		
@@ -424,14 +593,13 @@ public class Entorn extends BaseTest {
 		
 		// -- Prova Domini SQL -- //
 		
-		screenshotHelper.saveScreenshot("entorns/domini/4_provantDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j2_3_provantDominis.png");
 		
 		driver.findElement(By.xpath(botoProvarDominiSQL)).click();
 
 		//screenshotHelper.saveScreenshot("entorns/domini/5_provantDominis.png");
 		
-		if (isAlertPresent()) {
-			
+		if (isAlertPresent()) {			
 			boolean condicioProvaSQLok = getTexteAlerta().startsWith("[") && getTexteAlerta().endsWith("],"); 
 			assertTrue("El missatge retornat per el boto de prova no es l´esperat", condicioProvaSQLok);
 			acceptarAlerta();
@@ -453,7 +621,7 @@ public class Entorn extends BaseTest {
 		actions.click();
 		actions.build().perform();
 		
-		screenshotHelper.saveScreenshot("entorns/domini/1_eliminarDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j3_1_eliminarDominis.png");
 		
 		while (existeixElement(enllaçElimDomini)) {
 			driver.findElement(By.xpath(enllaçElimDomini)).click();
@@ -461,7 +629,7 @@ public class Entorn extends BaseTest {
 			existeixElementAssert("//*[@class='missatgesOk']", "Error al esborrar un domini a l'entorn "+titolEntorn+".");
 		}
 		
-		screenshotHelper.saveScreenshot("entorns/domini/2_eliminarDominis.png");
+		screenshotHelper.saveScreenshot("entorns/domini/j3_2_eliminarDominis_resultat.png");
 	}
 	
 	// -------------- Fi dominis Entorn --------------------
@@ -490,6 +658,8 @@ public class Entorn extends BaseTest {
 		carregarUrlConfiguracio();
 		
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
+		
+		assignarPermisosEntorn(entorn, usuari, "READ", "DESIGN", "ORGANIZATION", "ADMINISTRATION");
 		
 		// Anem a la pantalla de configuració d'entorns
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
@@ -543,11 +713,11 @@ public class Entorn extends BaseTest {
 	
 	private void updatePermisos(
 			boolean isUser, 
-			String userol, 
-			boolean organization, 
-			boolean administration, 
-			boolean design, 
-			boolean read, 
+			String userol,
+			boolean organization,
+			boolean administration,
+			boolean design,
+			boolean read,
 			String tipus,
 			int pos,
 			String[] permisosEsperats,
@@ -607,4 +777,27 @@ public class Entorn extends BaseTest {
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + usurol + "')]", "No s'han pogut eliminar els permisos");
 	}
 
+    private ExpectedCondition<WebElement> visibilityOfElementLocated(final By by) {
+    	
+        return new ExpectedCondition<WebElement>() {
+        	
+          public WebElement apply(WebDriver driver) {
+        	  
+        	  try {
+        		  
+		    	WebElement element = driver.findElement(by);
+		    	
+		        if (element!=null && element.isDisplayed()) {
+		        	return element;
+		        }else{
+		        	return null;
+		        }
+        	  }catch (Exception ex) {
+        		  return null;        		  
+        	  }
+          }
+          
+        };
+
+      }
 }

@@ -797,6 +797,33 @@ public abstract class BaseTest {
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]", "No s'han pogut eliminar la consulta");
 	}
 	
+	protected void crearDocumentDefProc(String nomDefProc) {
+		crearDocumentDefProc(nomDefProc, null);
+	}
+	
+	protected void crearDocumentDefProc(String nomDefProc, String prefixeScreenShot) {
+		
+		seleccionarDefinicioProces(nomDefProc);
+		
+		driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/documentLlistat.html')]")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_pipella_documents.png"); }
+		
+		driver.findElement(By.xpath("//*[@id='content']/form/button[text() = 'Nou document']")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_formulari_doc.png"); }
+		
+		driver.findElement(By.id("codi0")).sendKeys("DC1");
+		
+		driver.findElement(By.id("nom0")).sendKeys("Document tramit");
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_dades_emplenades.png"); }
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Crear']")).click();
+		
+		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_4_resultat_insercio.png"); }
+	}
+	
 	// ............................................................................................................
 	// TIPUS D'EXPEDIENT
 	// ............................................................................................................

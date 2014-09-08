@@ -138,7 +138,7 @@ public class ExpedientTipusSistraAdjuntsController extends BaseController {
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
 				dissenyService.deleteMapeigSistra(id);
 				missatgeInfo(request, getMessage("info.mapeigSistra.esborrat") );
-				return "redirect:/expedientTipus/adjunts.html?expedientTipusId=" + expedientTipusId;
+				return "redirect:/expedientTipus/sistraAdjunts.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
 				return "redirect:/index.html";
