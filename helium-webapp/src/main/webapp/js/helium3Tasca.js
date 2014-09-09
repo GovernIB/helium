@@ -30,11 +30,7 @@ $(function(){
 					"id" : name_pre + "[" + index + "]" + name_post, 
 					"name" : name_pre + "[" + index + "]" + name_post});
 			}
-			$('label', newInput).text('');
-			if ($('label', newInput).hasClass('sr-only')) {
-				$('label', newInput).closest('.input-group-multiple').addClass('pad-left-col-xs-3');
-			}
-			
+			$('label', newInput).text('');			
 		});
 		previousInput.after(newInput);
 		

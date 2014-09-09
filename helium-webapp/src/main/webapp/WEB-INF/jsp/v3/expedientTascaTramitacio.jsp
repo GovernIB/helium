@@ -157,8 +157,7 @@
 										<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab">
 											<c:set var="inline" value="${true}"/>
 											<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
-											<c:if test="${varStatusCab.index != 0}"><div class="col-xs-3"></div></c:if>
-											<div class="col-xs-9 input-group-multiple">
+											<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
 												<c:set var="isMultiple" value="${true}"/>
 												<%@ include file="campsTasca.jsp" %>
 												<c:set var="isMultiple" value="${false}"/>
