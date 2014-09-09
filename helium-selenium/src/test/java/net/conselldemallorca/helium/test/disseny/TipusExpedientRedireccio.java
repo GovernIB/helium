@@ -2,9 +2,8 @@ package net.conselldemallorca.helium.test.disseny;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
+import static org.junit.Assert.fail;
 import net.conselldemallorca.helium.test.util.BaseTest;
-
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -22,17 +21,26 @@ public class TipusExpedientRedireccio extends BaseTest {
 	String titolEntorn	= carregarPropietat("tipexp.redireccio.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	
 	String usuariDisse  = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
+	String usuariDisseNom  = carregarPropietat("test.base.usuari.disseny.nom", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
 	String usuariFeina 	= carregarPropietat("test.base.usuari.feina", "Usuari feina de l'entorn de proves no configurat al fitxer de properties");
+	String usuariFeinaNom 	= carregarPropietat("test.base.usuari.feina.nom", "Usuari feina de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin  = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String usuariAdminNom  = carregarPropietat("test.base.usuari.configuracio.nom", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
 	String nomTipusExp	= carregarPropietat("tipexp.redireccio.tipus.expedient.titol", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp	= carregarPropietat("tipexp.redireccio.tipus.expedient.nom", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String pathTipExp	= carregarPropietatPath("tipexp.redireccio.tipus.expedient.path", "Ruta de l´arxiu del tipus d´expedient exportat no configurat al fitxer de properties");
 	
 	// XPATHS
-	String pestanyaRedir  = "//*[@id='tabnav']/li/a[contains(@href, '/expedientTipus/redireccioLlistat.html')]";
-	String botoCrearRedir = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Crear']";
-	String enllaçBorrarRedir = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/expedientTipus/cancelar.html')]";
+	String pestanyaRedir  	  = "//*[@id='tabnav']/li/a[contains(@href, '/expedientTipus/redireccioLlistat.html')]";
+	String botoCrearRedir 	  = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Crear']";
+	String enllaçBorrarRedir  = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/expedientTipus/cancelar.html')]";
+	String botoConsultarExps  = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Consultar']";
+	String botoInformacioExp  = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/expedient/info.html')]";
+	String pestanyaTasques    = "//*[@id='tabnav']/li/a[contains(@href, '/expedient/tasques.html')]";
+	String columnaResponsable = "//*[@id='registre']/tbody/tr/td[8]";
+	String botoEliminarExp    = "//*[@id='registre']/tbody/tr/td/a[contains(@href, '/expedient/delete.html')]";
+	String botoElimReassign	  = "//*[@id='registre']/tbody/tr/td/a[contains(@href, '/reassignar/cancelar.html')]";
 	
 	
 	
@@ -60,6 +68,47 @@ public class TipusExpedientRedireccio extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuariDisse, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
 		assignarPermisosTipusExpedient(codTipusExp, usuariFeina, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
 		assignarPermisosTipusExpedient(codTipusExp, usuariAdmin, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
+		
+		//Quant tenim tot desplegat, comprovam que no hi ha cap reassignació activa. Ni a nivell de Tip Exp ni a d´Entorn
+		
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/reassignar/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+		
+		while(existeixElement(botoElimReassign)) {
+			driver.findElement(By.xpath(botoElimReassign)).click();
+			if (isAlertPresent()) { acceptarAlerta(); }
+		}
+		
+		seleccionarTipExp(codTipusExp);
+		
+		driver.findElement(By.xpath(pestanyaRedir)).click();
+		
+		while (existeixElement(enllaçBorrarRedir)) {			
+			driver.findElement(By.xpath(enllaçBorrarRedir)).click();			
+			if (isAlertPresent()) {acceptarAlerta();}
+		}		
+	}
+	
+	@Test
+	public void b0_comprova_usuari_inicial() {
+		
+		//Comprovam que l´usuari inicial de la tasca es el 173 (Usuari Dissenyador)
+		//Així es com està definit al process-definition
+		
+		carregarUrlDisseny();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		iniciarExpediente(codTipusExp, "ExpIni1", "Expedient Redirec Usu Admin");
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/b0_1_comprobacio_inicial-nou_expedient.png");
+		
+		comprova_responsable_tasca(usuariDisseNom);
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/b0_2_comprobacio_inicial-usuari_defecte.png");
 	}
 	
 	@Test
@@ -77,7 +126,7 @@ public class TipusExpedientRedireccio extends BaseTest {
 		
 		//Seleccionar usuari origen
 		for (WebElement option : driver.findElement(By.id("usuariOrigen0")).findElements(By.tagName("option"))) {
-			if (usuariFeina.equals(option.getAttribute("value"))) {
+			if (usuariDisse.equals(option.getAttribute("value"))) {
 				option.click();
 				break;
 			}
@@ -85,7 +134,7 @@ public class TipusExpedientRedireccio extends BaseTest {
 		
 		//Seleccionar usuari desti
 		for (WebElement option : driver.findElement(By.id("usuariDesti0")).findElements(By.tagName("option"))) {
-			if (usuariAdmin.equals(option.getAttribute("value"))) {
+			if (usuariFeina.equals(option.getAttribute("value"))) {
 				option.click();
 				break;
 			}
@@ -110,8 +159,28 @@ public class TipusExpedientRedireccio extends BaseTest {
 	@Test
 	public void c1_comprovar_redireccio() {
 		
-		//Iniciam una tasca amb l´usuari feina y comprovam que el responsable s´ha redireccionat cap a l´usuari admin
-		//que és tal i com s´ha configurat la redirecció a la passa anterior
+		//Iniciam una tasca amb l´usuari disseny y comprovam que el responsable s´ha redireccionat cap a l´usuari feina
+		//que és tal i com s´ha configurat la redirecció a la passa anterior.
+		
+		carregarUrlDisseny();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		iniciarExpediente(codTipusExp, "ExpIni1", "Expedient Redirec Usu Admin");
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/c1_1_provar_redireccio-expedient_iniciat.png");
+		
+		comprova_responsable_tasca(usuariFeinaNom);
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/c1_2_provar_redireccio-comprovacio_responsable.png");
+		
+		//Borram l´expedient
+		accedirPantallaConsultes();
+		
+		while (existeixElement(botoEliminarExp)) {
+			driver.findElement(By.xpath(botoEliminarExp)).click();
+			if (isAlertPresent()) {acceptarAlerta();}
+		}
 	}
 	
 	@Test
@@ -150,4 +219,30 @@ public class TipusExpedientRedireccio extends BaseTest {
 		eliminarEntorn(entorn);
 	}
 	
+	// ******************************************************
+	// F U N C I O N S   P R I V A D E S
+	// ******************************************************
+	
+	private void comprova_responsable_tasca(String responsableTeoric) {
+		
+		accedirPantallaConsultes();
+		
+		driver.findElement(By.xpath(botoConsultarExps)).click();
+		
+		driver.findElement(By.xpath(botoInformacioExp)).click();
+		
+		driver.findElement(By.xpath(pestanyaTasques)).click();
+		
+		if (!responsableTeoric.equals(driver.findElement(By.xpath(columnaResponsable)).getText())) {
+			fail("El responsable de la tasca no ha estat l´esperat ("+responsableTeoric+")");
+		}	
+	}
+	
+	private void accedirPantallaConsultes() {
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedient/consulta.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
 }

@@ -2,8 +2,11 @@ package net.conselldemallorca.helium.test.tramitacio;
 
 import static org.junit.Assert.assertTrue;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
+import static org.junit.Assert.fail;
 import net.conselldemallorca.helium.test.util.BaseTest;
 
 import org.junit.FixMethodOrder;
@@ -15,8 +18,8 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RegistreExpedient extends BaseTest {
 
-	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("exptramit.registre.expedient.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("exptramit.registre.expedient.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -25,6 +28,18 @@ public class RegistreExpedient extends BaseTest {
 	String pathDefProcTermini = carregarPropietatPath("defproc.termini.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	
+	// XPATHS
+	String linkTasca 	= "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/tasca/info.html')]";
+	String guardaTasca	= "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Guardar']";
+	String botoConsultarExps  = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Consultar']";
+	String botoInformacioExp  = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/expedient/info.html')]";
+	String pestanyaRegistre   = "//*[@id='tabnav']/li/a[contains(@href, '/expedient/registre.html')]";
+	String botoRetrocedir	  = "//*[@id='registre']/tbody/tr[2]/td/a[contains(@href, '/expedient/retrocedir.html')]";
+	String texteAccioRetroces = "//*[@id='registre']/tbody/tr[2]/td[contains(text(), 'Retrocedir')]";
+	String botoEliminarExp    = "//*[@id='registre']/tbody/tr/td/a[contains(@href, '/expedient/delete.html')]";
+	
+	String botoRegDetallat	  = "//*[@id='content']/form/div[@class='buttonHolder']/button";
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -38,12 +53,9 @@ public class RegistreExpedient extends BaseTest {
 	
 	@Test
 	public void a_crear_dades() throws InterruptedException {
-		carregarUrlConfiguracio();
-		
-		seleccionarEntorn(titolEntorn);
-		
-		importarDadesTipExp(codTipusExp, exportTipExpProc);
-		
+		carregarUrlConfiguracio();		
+		seleccionarEntorn(titolEntorn);		
+		importarDadesTipExp(codTipusExp, exportTipExpProc);		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 	
@@ -228,18 +240,118 @@ public class RegistreExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("RegistreExpedient/visualizar_accions_tasca/4.png");
 	}
 		
-	// @Test
+	@Test
 	public void f_retrocedir_tasca() throws InterruptedException {
-
+		
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		accedirTasquesPersonals();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTasca/1_Llistat_tasques.png");
+		
+		driver.findElement(By.xpath(linkTasca)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTasca/2_Tasca_1.png");
+		
+		Calendar avull = Calendar.getInstance();
+		driver.findElement(By.id("var_dat010")).sendKeys(new SimpleDateFormat("dd/MM/yyyy").format(avull.getTime()));
+		
+		driver.findElement(By.xpath(guardaTasca)).click();
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'han pogut guardar els canvis de la tasca del tipus d´expedient "+codTipusExp+".");
+				
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTasca/3_Tasca_Guardada.png");
+		
+		accedirPantallaConsultes();
+		
+		driver.findElement(By.xpath(botoConsultarExps)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTasca/4_Llista_expedients.png");
+		
+		driver.findElement(By.xpath(botoInformacioExp)).click();
+		
+		driver.findElement(By.xpath(pestanyaRegistre)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTasca/5_tasques_expedient.png");
+		
+		driver.findElement(By.xpath(botoRetrocedir)).click();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTasca/6_tasca_retrocedida.png");
+		
+		if (existeixElement(botoRetrocedir)) {
+			fail("RegistreExpedient/retrocedirTasca/7_error-tasca_NO_retrocedida.png");
+		}
+		
+		//Eliminam l´expedient per fer la seguent prova
+		accedirPantallaConsultes();		
+		driver.findElement(By.xpath(botoConsultarExps)).click();
+		
+		while (existeixElement(botoEliminarExp)) {
+			driver.findElement(By.xpath(botoEliminarExp)).click();
+			if (isAlertPresent()) {acceptarAlerta();}
+		}
 	}
 
-	// @Test
+	@Test
 	public void g_retrocedir_tasca_detallat() throws InterruptedException {
-
+		
+		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		iniciarExpediente(codTipusExp, "2222", "Titul exp. Retrocedir per detall.");
+		
+		accedirTasquesPersonals();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/1_Llistat_tasques.png");
+		
+		driver.findElement(By.xpath(linkTasca)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/2_Tasca_1.png");
+		
+		Calendar avull = Calendar.getInstance();
+		driver.findElement(By.id("var_dat010")).sendKeys(new SimpleDateFormat("dd/MM/yyyy").format(avull.getTime()));
+		
+		driver.findElement(By.xpath(guardaTasca)).click();
+				
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'han pogut guardar els canvis de la tasca del tipus d´expedient "+codTipusExp+".");
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/3_Tasca_Guardada.png");
+		
+		accedirPantallaConsultes();
+		
+		driver.findElement(By.xpath(botoConsultarExps)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/4_Llista_expedients.png");
+		
+		driver.findElement(By.xpath(botoInformacioExp)).click();
+		
+		driver.findElement(By.xpath(pestanyaRegistre)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/5_tasques_expedient.png");
+		
+		driver.findElement(By.xpath(botoRegDetallat)).click();
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/6_tasca_detall.png");
+		
+		driver.findElement(By.xpath(botoRetrocedir)).click();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/7_tasca_retrocedida.png");
+		
+		if (existeixElement(botoRetrocedir)) {
+			fail("RegistreExpedient/retrocedirTasca/7_error-tasca_NO_retrocedida.png");
+		}
 	}
 
 	@Test
 	public void z_limpiar() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -258,6 +370,26 @@ public class RegistreExpedient extends BaseTest {
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
 	}
 
+	// ********************************************
+	// F U N C I O N S   P R I V A D E S
+	// ********************************************
+	
+	private void accedirTasquesPersonals() {
+		actions.moveToElement(driver.findElement(By.id("menuTasques")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/tasca/personaLlistat.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	private void accedirPantallaConsultes() {
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedient/consulta.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
 	private String comprobarDatosRegistro(int i, boolean modal) {
 		String data = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[" + i + "]/td[1]")).getText();
 		assertTrue("La fecha de la fila " + i + " no seguía el formato correcto", isDate(data, "dd/MM/yyyy HH:mm:ss"));

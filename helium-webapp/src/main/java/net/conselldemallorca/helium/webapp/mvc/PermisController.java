@@ -110,18 +110,25 @@ public class PermisController extends BaseController {
 			BindingResult result,
 			SessionStatus status) {
 		if ("submit".equals(submit) || (submit.length() == 0)) {
+			
 			codi = id;
+			
+			boolean insertamRol = false;
+			if (id==null || "".equals(id)) { insertamRol = true; }
+			
 			annotationValidator.validate(command, result);
 			additionalValidator.validate(command, result);
-			if (result.hasErrors()) {
-	        	return "rol/form";
-	        }
+			
+			if (result.hasErrors()) { return "rol/form"; }
+			
 	        try {
-	        	if ((command.getCodi() == null) || (command.getCodi().equals(""))) {
+	        	//if ((command.getCodi() == null) || (command.getCodi().equals(""))) {	        	
+	        	if (insertamRol) {
 	        		permisService.createPermis(
 	        				command.getCodi(),
 	        				command.getDescripcio());
 	        	} else {
+	        		command.setCodi(id);
 	        		permisService.updatePermis(
 	        				command.getCodi(),
 	        				command.getDescripcio());
