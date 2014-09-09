@@ -30,7 +30,10 @@ $(function(){
 					"id" : name_pre + "[" + index + "]" + name_post, 
 					"name" : name_pre + "[" + index + "]" + name_post});
 			}
-			$('label', newInput).text('');			
+			$('label', newInput).text('');
+			if ($('label', newInput).hasClass('sr-only') && !$('label', newInput).closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
+				$('label', newInput).closest('.input-group-multiple').addClass('pad-left-col-xs-3');
+			}
 		});
 		previousInput.after(newInput);
 		
@@ -48,8 +51,7 @@ $(function(){
 		// Camp de tipus enter
 		newInput.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
 		// Camp de tipus float
-		newInput.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
-		
+		newInput.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
 	});
 	
 	// Eliminar múltiple
@@ -75,26 +77,34 @@ $(function(){
 			});
 		} else {
 			formgroup.find("input").each(function(){
-				$(this).val('');
+				switch (this.type) {
+				case 'checkbox':
+				case 'radio':
+					this.checked = false;
+					break;
+				default:
+					$(this).val('');
+					break;
+				}
 			});
 		}
 	});
 
 	// Eliminar fila
-//	$(".eliminarFila").click(function() {
-//		if ($(this).closest('table').find('tr').index() < 2) {
-//			var newTr = $(this).closest('tr');
-//			limpiarFila(newTr);
-//
-//			$(this).closest('table').addClass("hide");
-//
-//			if ($(this).closest('table').hasClass("togle")) {
-//				$('#button_add_' + $(this).closest('table').attr('id')).show();
-//			}
-//		} else {
-//			$(this).closest('tr').remove();
-//		}
-//	});
+	$(".eliminarFila").click(function() {
+		if ($(this).closest('table').find('tr').index() < 2) {
+			var newTr = $(this).closest('tr');
+			limpiarFila(newTr);
+
+			$(this).closest('table').addClass("hide");
+
+			if ($(this).closest('table').hasClass("togle")) {
+				$('#button_add_' + $(this).closest('table').attr('id')).show();
+			}
+		} else {
+			$(this).closest('tr').remove();
+		}
+	});
 	
 	// Executar accions
 	$("#command").on("click", ".btn_accio", function(){
@@ -115,6 +125,7 @@ $(function(){
 });
 
 function addField(idTable) {
+	// TODO No se tiene en cuenta si una variable múltiple está dentro de una de registro
 	tabla = $('#' + idTable);
 	if (tabla.hasClass("hide")) {
 		tabla.removeClass("hide");
@@ -131,7 +142,7 @@ function addField(idTable) {
 				if (this.getAttribute("id") != null) {
 					var id = this.getAttribute("id");
 					var id_lim = id.substr(0, id.indexOf("["));
-					var id_fin = id.substr(id.lastIndexOf("["), id.lastIndexOf("]"));
+					var id_fin = id.substr(id.lastIndexOf("]")+1);
 					var i = 1;
 					while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
 						i = i + 1;

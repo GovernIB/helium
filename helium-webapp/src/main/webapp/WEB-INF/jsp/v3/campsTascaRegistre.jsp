@@ -76,7 +76,7 @@
 						<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 							<td class="opciones">
 								<button 
-									class="btn fa fa-times btn_eliminar" 
+									class="btn fa fa-times eliminarFila" 
 									type="button" 
 									value="<spring:message code='comuns.esborrar' />" 
 									title="<spring:message code='comuns.esborrar' />">
@@ -111,7 +111,7 @@
 					<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 						<td class="opciones">
 							<button 
-								class="btn fa fa-times btn_eliminar" 
+								class="btn fa fa-times eliminarFila" 
 								type="button" 
 								value="<spring:message code='comuns.esborrar' />" 
 								title="<spring:message code='comuns.esborrar' />">

@@ -1315,11 +1315,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void zonaperExpedientCrear(
 			ExpedientDto expedient,
-			String processInstanceId,
 			ZonaperExpedientDto dadesExpedient) throws PluginException {
 		imprimirFuncio("zonaperExpedientCrear");
 		try {
+			String identificador = expedient.getNumeroIdentificador();
+			String clau = new Long(System.currentTimeMillis()).toString();
+			dadesExpedient.setExpedientIdentificador(identificador);
+			dadesExpedient.setExpedientClau(clau);
 			pluginHelper.zonaperExpedientCrear(expedient, dadesExpedient);
+			Expedient ex = expedientDao.getById(expedient.getId(), false);
+			ex.setTramitExpedientIdentificador(identificador);
+			ex.setTramitExpedientClau(clau);
 		} catch (Exception e) {
 			throw new PluginException(e);
 		}

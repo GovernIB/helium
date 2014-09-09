@@ -47,10 +47,10 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		ExpedientDto expedient = getExpedientActual(executionContext);
+		System.out.println("XX ExpedientDto : " + expedient);
 		if (!isComprovarExistencia() || expedient.getTramitExpedientIdentificador() == null) {
 			Jbpm3HeliumBridge.getInstanceService().zonaperExpedientCrear(
 					expedient,
-					getProcessInstanceId(executionContext),
 					construirExpedient(
 							executionContext,
 							expedient));
@@ -186,6 +186,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 			zonaperExpedient.setAvisosEmail(expedient.getAvisosEmail());
 			zonaperExpedient.setAvisosSMS(expedient.getAvisosMobil());
 		}
+		System.out.println("XX zonaperExpedient : " + zonaperExpedient);
 		return zonaperExpedient;
 	}
 

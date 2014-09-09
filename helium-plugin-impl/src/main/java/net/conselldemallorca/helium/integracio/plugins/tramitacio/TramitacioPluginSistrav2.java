@@ -115,16 +115,20 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								EventosExpediente.class,
 								eventosExpediente));
 			}
-			String nifZonaPersonal = (request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif()).toUpperCase();
-			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
-				if (getZonaperClient().altaZonaPersonalUsuario(
-						nifZonaPersonal, 
-						request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-						request.getRepresentatApe1(), 
-						request.getRepresentatApe2()) == null) {
-					logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
-					throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
+			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
+			try {
+				if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal.toUpperCase()) && !getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
+					if (getZonaperClient().altaZonaPersonalUsuario(
+							nifZonaPersonal.toUpperCase(), 
+							request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
+							request.getRepresentatApe1(), 
+							request.getRepresentatApe2()) == null) {
+						logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
+						throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
+					}
 				}
+			} catch (Exception ex) {
+				logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif(), ex);
 			}
 			getZonaperClient().altaExpediente(expediente);
 			logger.info("Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");

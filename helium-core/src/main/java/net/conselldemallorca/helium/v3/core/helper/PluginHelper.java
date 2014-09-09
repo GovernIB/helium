@@ -122,12 +122,13 @@ public class PluginHelper {
 		PublicarExpedientRequest request = conversioTipusHelper.convertir(
 				dadesExpedient,
 				PublicarExpedientRequest.class);
-		
+		System.out.println("XX PublicarExpedientRequest 1 : " + request);
 		if (request.getRepresentatNif() == null || request.getRepresentatNif().isEmpty())
 			request.setRepresentatNif(expedient.getInteressatNif());
 		if (request.getRepresentatNom() == null || request.getRepresentatNom().isEmpty()) {
 			request.setRepresentatNom(expedient.getInteressatNom());
 		}
+		System.out.println("XX PublicarExpedientRequest 2 : " + request);
 		getTramitacioPlugin().publicarExpedient(request);
 	}
 	public void zonaperEventCrear(

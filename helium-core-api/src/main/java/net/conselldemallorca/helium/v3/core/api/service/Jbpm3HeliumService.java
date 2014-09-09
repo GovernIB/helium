@@ -787,7 +787,7 @@ public interface Jbpm3HeliumService {
 	 * @throws PluginException
 	 */
 	public void zonaperExpedientCrear(
-			ExpedientDto expedient, String processInstanceId,
+			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) throws PluginException;
 
 	/**

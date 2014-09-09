@@ -163,6 +163,15 @@
 												<c:set var="isMultiple" value="${false}"/>
 											</div>
 										</c:forEach>
+										<c:if test="${empty dada.multipleDades}">
+											<c:set var="inline" value="${true}"/>
+											<c:set var="campCodi" value="${dada.varCodi}[0]"/>
+											<div class="col-xs-9 input-group-multiple">
+												<c:set var="isMultiple" value="${true}"/>
+												<%@ include file="campsTasca.jsp" %>
+												<c:set var="isMultiple" value="${false}"/>
+											</div>
+										</c:if>
 										<c:if test="${!dada.readOnly && !tasca.validada}">
 											<div class="form-group">
 												<div class="col-xs-9 pad-left-col-xs-3">
