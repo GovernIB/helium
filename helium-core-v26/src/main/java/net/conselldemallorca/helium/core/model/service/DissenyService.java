@@ -1578,6 +1578,7 @@ public class DissenyService {
 						novaEnumValors = new EnumeracioValors();
 						novaEnumValors.setCodi(enumValor.getCodi());
 						novaEnumValors.setEnumeracio(nova);
+						novaEnumValors.setOrdre(enumValor.getOrdre());
 					}
 					novaEnumValors.setNom(enumValor.getNom());
 					nova.addEnumeracioValors(novaEnumValors);
