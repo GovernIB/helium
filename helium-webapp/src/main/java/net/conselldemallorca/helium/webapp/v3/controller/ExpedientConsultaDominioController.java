@@ -75,11 +75,14 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
 				taskId,
 				campId,
-				codi,
+				null,
 				null);
-		if (opcions.isEmpty())
-			return new SeleccioOpcioDto();
-		return opcions.get(0);
+		for (SeleccioOpcioDto sel : opcions) {
+			if (sel.getCodi().equals(codi)) {
+				return sel;
+			}
+		}
+		return new SeleccioOpcioDto();
 	}
 	
 	@RequestMapping(value = "/consulta/{taskId}/{campId}/{valor}", method = RequestMethod.GET)
@@ -105,11 +108,14 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
 				null,
 				campId,
-				codi,
+				null,
 				null);
-		if (opcions.isEmpty())
-			return new SeleccioOpcioDto();
-		return opcions.get(0);
+		for (SeleccioOpcioDto sel : opcions) {
+			if (sel.getCodi().equals(codi)) {
+				return sel;
+			}
+		}
+		return new SeleccioOpcioDto();
 	}
 	
 	@RequestMapping(value = "/consulta/{campId}/{valor}", method = RequestMethod.GET)

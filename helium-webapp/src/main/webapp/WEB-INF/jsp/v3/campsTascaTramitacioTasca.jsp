@@ -6,14 +6,30 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 
-<%-- <c:choose> --%>
-<%-- 	<c:when test="${not empty documents and tasca.documentsNotReadOnly and not tasca.documentsComplet}"> --%>
-<%-- 		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_adj"/></c:set> --%>
-<%-- 	</c:when> --%>
-<%-- 	<c:when test="${not empty tasca.signatures and not tasca.signaturesComplet}"> --%>
-<%-- 		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_sign"/></c:set> --%>
-<%-- 	</c:when> --%>
-<%-- </c:choose> --%>
+<c:choose>
+	<c:when test="${not empty documents and not tasca.documentsComplet}">
+		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_adj"/></c:set>
+	</c:when>
+	<c:otherwise>
+		<div id="modal-botons" class="well">
+			<button type="submit" class="btn btn-primary" name="submit" value="finalitzar">
+				<spring:message code='common.tram.outcome.finalitzar' />
+			</button>
+		</div>
+	</c:otherwise>
+</c:choose>
+
+<c:if test="${false}">
+<!-- 
+<c:choose>
+	<c:when test="${not empty documents and tasca.documentsNotReadOnly and not tasca.documentsComplet}">
+		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_adj"/></c:set>
+	</c:when>
+	<c:when test="${not empty tasca.signatures and not tasca.signaturesComplet}">
+		<c:set var="missatgeAlertaFinalitzar"><spring:message code="common.tram.docs_sense_sign"/></c:set>
+	</c:when>
+</c:choose>
+
 <c:choose>
 	<c:when test="${not tasca.validada}">
 		<script type="text/javascript">
@@ -68,6 +84,7 @@ function confirmarFinalitzar(e) {
 </script>
 	</c:otherwise>
 </c:choose>
+
 <c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
 	<c:set var="outcomes">
 		<c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status">
@@ -99,3 +116,5 @@ function confirmarFinalitzar(e) {
 		</div>
 	</form>
 </c:if>
+ -->
+ </c:if>

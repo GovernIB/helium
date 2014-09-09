@@ -37,7 +37,7 @@
 		.form-group input, .form-group textarea {
 			width: 100%;
 		}
-		
+		.input-group-multiple {padding-left: 15px;padding-right: 15px;}
 		.form-group li > .select2-container {
 			width: 100%;
 			padding-right: 20px;
@@ -46,6 +46,7 @@
 		.form-group .select2-container {
 			width: calc(100% + 14px);
 		}
+		.pad-left-col-xs-3 {left: 25%;}
 		.form-group.condensed {
 			margin-bottom: 0px;
 		}
@@ -74,7 +75,10 @@
 			width: calc(100% - 27px);
 		}
 		.eliminarFila {
-			padding: 4px 6px;
+			padding: 0px;	
+		}
+		.btn_eliminar {
+			padding: 0px;	
 		}
 		.tercpre {
 			padding-left: 0px !important;
@@ -89,33 +93,14 @@
 			padding-right: 0px !important;
 		}
 		.table {margin-bottom: 0px;}
+		.col-xs-9 .checkbox {width: auto;}
 		#tabnav .glyphicon {padding-right: 10px;}
 	</style>
 </head>
 <body>
-	<c:if test="${not empty dadesNomesLectura}">
-		<c:import url="import/expedientDadesTaula.jsp">
-			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
-			<c:param name="titol" value="Dades de referència"/>
-			<c:param name="numColumnes" value="${numColumnes}"/>
-			<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
-			<c:param name="desplegat" value="${false}"/>
-			<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
-		</c:import>
-	</c:if>
-	<c:if test="${not empty documentsNomesLectura}">
-		<c:import url="import/expedientDadesTaula.jsp">
-			<c:param name="dadesAttribute" value="documentsNomesLectura"/>
-			<c:param name="titol" value="Documents de referència"/>
-			<c:param name="numColumnes" value="${numColumnes}"/>
-			<c:param name="count" value="${fn:length(documentsNomesLectura)}"/>
-			<c:param name="desplegat" value="${false}"/>
-			<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
-		</c:import>
-	</c:if>
 	<c:set var="pipellaIndex" value="${1}"/>
 	<ul id="tabnav" class="nav nav-tabs">
-		<li class=""><a href="#tasca" data-toggle="tab">${pipellaIndex}. Tasca</a></li>
+		<li class="<c:if test="${empty dades}">active</c:if>"><a href="#tasca" data-toggle="tab">${pipellaIndex}. Tasca</a></li>
 		<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		<c:if test="${not empty dades}">
 			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="glyphicon glyphicon-warning-sign"> </span></c:if>${pipellaIndex}. Dades</a></li>
@@ -131,7 +116,7 @@
 		</c:if>
 	</ul>
 	<div class="tab-content">
-		<div class="tab-pane" id="tasca">
+		<div class="tab-pane <c:if test="${empty dades}">active</c:if>" id="tasca">
 			<%@ include file="campsTascaInfo.jsp" %>
 		</div>
 		<c:if test="${not empty dades}">
@@ -149,23 +134,75 @@
 						</c:choose>
 					</div>
 				</c:if>
+				<c:if test="${not empty dadesNomesLectura}">
+					<c:import url="import/expedientDadesTaula.jsp">
+						<c:param name="dadesAttribute" value="dadesNomesLectura"/>
+						<c:param name="titol" value="Dades de referència"/>
+						<c:param name="numColumnes" value="${numColumnes}"/>
+						<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
+						<c:param name="desplegat" value="${false}"/>
+						<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
+					</c:import>
+				</c:if>
 				<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 					<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 						<c:set var="inline" value="${false}"/>
-						<%@ include file="campsTasca.jsp" %>
-						<%@ include file="campsTascaRegistre.jsp" %>
+						<c:set var="isRegistre" value="${false}"/>
+						<c:set var="isMultiple" value="${false}"/>
+						<c:choose>
+							<c:when test="${dada.campTipus != 'REGISTRE'}">
+								<c:choose>
+									<c:when test="${dada.campMultiple}">
+										<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta} - ${dada.campTipus}</label>
+										<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab">
+											<c:set var="inline" value="${true}"/>
+											<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
+											<c:if test="${varStatusCab.index != 0}"><div class="col-xs-3"></div></c:if>
+											<div class="col-xs-9 input-group-multiple">
+												<c:set var="isMultiple" value="${true}"/>
+												<%@ include file="campsTasca.jsp" %>
+												<c:set var="isMultiple" value="${false}"/>
+											</div>
+										</c:forEach>
+										<c:if test="${!dada.readOnly && !tasca.validada}">
+											<div class="form-group">
+												<div class="col-xs-9 pad-left-col-xs-3">
+													<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
+													<button id="button_add_var_mult_${campCodi}" type="button" class="btn pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+												</div>
+											</div>
+										</c:if>
+										<div class="clearForm"></div>
+									</c:when>
+									<c:otherwise>
+										<c:set var="campCodi" value="${dada.varCodi}"/>
+										<%@ include file="campsTasca.jsp" %>
+									</c:otherwise>
+								</c:choose>
+							</c:when>
+							<c:otherwise>
+								<%@ include file="campsTascaRegistre.jsp" %>
+							</c:otherwise>
+						</c:choose>
 					</c:forEach>
 					<div id="guardarValidarTarea">
 						<%@ include file="campsTascaGuardarTasca.jsp" %>
 					</div>
 				</form:form>
-				<div class="hide" id="finalizarTarea">
-					<%@ include file="campsTascaTramitacioTasca.jsp" %>
-				</div>
 			</div>
 		</c:if>
 		<c:if test="${not empty documents}">
 			<div class="tab-pane" id="documents">
+				<c:if test="${not empty documentsNomesLectura}">
+					<c:import url="import/expedientDadesTaula.jsp">
+						<c:param name="dadesAttribute" value="documentsNomesLectura"/>
+						<c:param name="titol" value="Documents de referència"/>
+						<c:param name="numColumnes" value="${numColumnes}"/>
+						<c:param name="count" value="${fn:length(documentsNomesLectura)}"/>
+						<c:param name="desplegat" value="${false}"/>
+						<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
+					</c:import>
+				</c:if>
 				<c:forEach var="document" items="${documents}">
 					<div class="well well-small">
 						<h4>${document.documentNom}</h4>
@@ -178,6 +215,9 @@
 				signatures
 			</div>
 		</c:if>
+		<div id="finalizarTarea">
+			<%@ include file="campsTascaTramitacioTasca.jsp" %>
+		</div>
 	</div>
 </body>
 </html>

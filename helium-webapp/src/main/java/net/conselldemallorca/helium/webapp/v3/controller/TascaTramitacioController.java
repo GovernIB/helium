@@ -175,36 +175,50 @@ public class TascaTramitacioController extends BaseController {
 		return "redirect:/v3/expedient/"+expedientId+"/tasca/"+tascaId+"/form";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valors}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable Long campId,
-			@PathVariable String valors,
 			Model model) {
 		return tascaService.findllistaValorsPerCampDesplegable(
 				tascaId,
 				campId,
 				null,
-				getMapDelsValors(valors));
+				new HashMap<String, Object>());
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio/inicial/{valors}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> valorsSeleccio(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long campId,
+			@PathVariable String valor,
+			Model model) {
+		return tascaService.findllistaValorsPerCampDesplegable(
+				tascaId,
+				campId,
+				valor,
+				new HashMap<String, Object>());
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto valorsSeleccioInicial(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable Long campId,
-			@PathVariable String valors,
+			@PathVariable String valor,
 			Model model) {
-		for (SeleccioOpcioDto sel : valorsSeleccio(
-				request,
+		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findllistaValorsPerCampDesplegable(
 				tascaId,
 				campId,
-				valors,
-				model)) {
-			if (sel.getCodi().equals(valors)) {
+				null,
+				getMapDelsValors(valor));
+		for (SeleccioOpcioDto sel : valorsSeleccio) {
+			if (sel.getCodi().equals(valor)) {
 				return sel;
 			}
 		}

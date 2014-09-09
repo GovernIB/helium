@@ -35,7 +35,6 @@ import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -45,13 +44,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -484,21 +480,23 @@ public class TascaServiceImpl implements TascaService {
 						id,
 						task==null ? null : task.getProcessInstanceId());
 			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
-				// TODO filtrar valors segons textFiltre
-				resposta.add(
-						new SeleccioOpcioDto(
-								parella.getCodi(),
-								(String) parella.getValor()));
+				if (textFiltre == null || parella.getValor().toString().toUpperCase().contains(textFiltre.toUpperCase())) {
+					resposta.add(
+							new SeleccioOpcioDto(
+									parella.getCodi(),
+									(String) parella.getValor()));
+				}
 			}
 		} else if (camp.getEnumeracio() != null) {
 			List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(
 					camp.getEnumeracio().getId());
 			for (EnumeracioValors valor: valors) {
-				// TODO filtrar valors segons textFiltre
-				resposta.add(
-						new SeleccioOpcioDto(
-								valor.getCodi(),
-								valor.getNom()));
+				if (textFiltre == null || valor.getNom().toUpperCase().contains(textFiltre.toUpperCase())) {
+					resposta.add(
+							new SeleccioOpcioDto(
+									valor.getCodi(),
+									valor.getNom()));
+				}
 			}
 		} 
 		return resposta;

@@ -31,6 +31,9 @@ $(function(){
 					"name" : name_pre + "[" + index + "]" + name_post});
 			}
 			$('label', newInput).text('');
+			if ($('label', newInput).hasClass('sr-only')) {
+				$('label', newInput).closest('.input-group-multiple').addClass('pad-left-col-xs-3');
+			}
 			
 		});
 		previousInput.after(newInput);
@@ -57,10 +60,10 @@ $(function(){
 	$("#command").on("click", ".btn_eliminar", function(){
 		var multiple = $(this).closest('.multiple');
 		var formgroup = $(this).closest('.form-group');
-		if (multiple.find(".form-group").size() > 1) {
+		if (multiple.find(".form-group").size() > 2) {
 			var label = multiple.find(".formgroup:first").find(".control-label").val();
 			formgroup.remove();
-			multiple.find(".formgroup:first").find(".control-label").val(label);
+			multiple.find(".form-group:first").find(".control-label").val(label);
 			multiple.find(".form-group").each(function(index){
 				$('input', this).each(function(){
 					var input = $(this);
@@ -80,6 +83,22 @@ $(function(){
 			});
 		}
 	});
+
+	// Eliminar fila
+//	$(".eliminarFila").click(function() {
+//		if ($(this).closest('table').find('tr').index() < 2) {
+//			var newTr = $(this).closest('tr');
+//			limpiarFila(newTr);
+//
+//			$(this).closest('table').addClass("hide");
+//
+//			if ($(this).closest('table').hasClass("togle")) {
+//				$('#button_add_' + $(this).closest('table').attr('id')).show();
+//			}
+//		} else {
+//			$(this).closest('tr').remove();
+//		}
+//	});
 	
 	// Executar accions
 	$("#command").on("click", ".btn_accio", function(){
@@ -98,6 +117,61 @@ $(function(){
 //		canviTermini(this);
 //	});
 });
+
+function addField(idTable) {
+	tabla = $('#' + idTable);
+	if (tabla.hasClass("hide")) {
+		tabla.removeClass("hide");
+
+		if (tabla.hasClass("togle")) {
+			$('#button_add_' + idTable).hide();
+		}
+	} else {
+		tr = $('tr:last', tabla);
+		var newTr = tr.clone();
+		limpiarFila(newTr);
+		newTr.find(':input').each(
+			function(indice, valor) {
+				if (this.getAttribute("id") != null) {
+					var id = this.getAttribute("id");
+					var id_lim = id.substr(0, id.indexOf("["));
+					var id_fin = id.substr(id.lastIndexOf("["), id.lastIndexOf("]"));
+					var i = 1;
+					while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
+						i = i + 1;
+					}
+					this.setAttribute("id", id_lim + "[" + i + "]" + id_fin);
+					this.setAttribute("name", id_lim + "[" + i + "]" + id_fin);
+				}
+			});
+		newTr.appendTo(tabla);
+		newTr.find('button.btn_eliminar').click(function() {
+			if (newTr.index() < 2) {
+				limpiarFila(newTr);
+				tabla.addClass("hide");
+				if (tabla.hasClass("togle")) {
+					$('#button_add_' + tabla.attr('id')).show();
+				}
+			} else {
+				newTr.remove();
+			}
+		});
+	}
+}
+
+function limpiarFila(tr) {
+	tr.find(':input').each(function() {
+		switch (this.type) {
+		case 'checkbox':
+		case 'radio':
+			this.checked = false;
+			break;
+		default:
+			$(this).val('');
+			break;
+		}
+	});
+}
 	
 function confirmar(form) {
 	$("table").each(function(){
@@ -107,9 +181,10 @@ function confirmar(form) {
 	});
 	return true;
 }
-function reorder(multiple) {
-	multiple.find
-}
+//function reorder(multiple) {
+//	multiple.find
+//}
+
 //function canviTermini(input) {
 //	var campId = input.id.substring(0, input.id.lastIndexOf("_"));
 //	var anys = document.getElementById(campId + "_anys").value;
