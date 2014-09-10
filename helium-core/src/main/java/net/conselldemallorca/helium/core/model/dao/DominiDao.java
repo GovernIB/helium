@@ -121,9 +121,9 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 				domini = getById(dominiId, false);
 			}
 		}
-		String cacheKey = getCacheKey(domini.getId(), parametres);
+		String cacheKey = getCacheKey(domini.getId(), id, parametres);
 		Element element = null;
-		if (dominiCache != null)
+		if (domini.getCacheSegons() > 0 && dominiCache != null)
 			element = dominiCache.get(cacheKey);
 		if (element == null) {
 			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
@@ -135,12 +135,12 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 				element.setTimeToLive(domini.getCacheSegons());
 				if (dominiCache != null) {
 					dominiCache.put(element);
-					//logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
+//					logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
 				}
 			}
 		} else {
 			resultat = (List<FilaResultat>)element.getValue();
-			//logger.info("Resultat en cache");
+//			logger.info("Resultat en cache '" + cacheKey + "'");
 		}
 		if (resultat == null)
 			resultat = new ArrayList<FilaResultat>();
@@ -250,9 +250,12 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 	private String getCacheKey(
 			Long dominiId,
+			String dominiWsId,
 			Map<String, Object> parametres) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(dominiId.toString());
+		sb.append(CACHE_KEY_SEPARATOR);
+		sb.append(dominiWsId);
 		sb.append(CACHE_KEY_SEPARATOR);
 		if (parametres != null) {
 			for (String clau: parametres.keySet()) {
