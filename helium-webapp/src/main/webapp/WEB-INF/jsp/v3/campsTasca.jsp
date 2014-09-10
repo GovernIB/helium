@@ -176,7 +176,7 @@
 			<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>				
 		</div>	<%-- Fi div controls--%>
 	</div>	<%-- Fi div form-group--%>
-		
+
 	<c:if test="${dada.campMultiple and isRegistre}">
 		<div class="form-group condensed">
 			<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
@@ -185,7 +185,6 @@
 	</c:if>
 <%-- Fi VARIABLES MULTIPLES -------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
-	<c:if test="${not inline}"><div class="clearForm"></div></c:if>	
 </c:if>
 
 <c:if test="${dada.readOnly || tasca.validada}">

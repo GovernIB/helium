@@ -13,19 +13,19 @@
 			}, options);
 			var ajaxErrorFunction = function (jqXHR, exception) {
 				if (jqXHR.status === 0) {
-	                alert('Not connected.\n Verify Network.');
+	                alert('Not connected.\n Verify network.');
 	            } else if (jqXHR.status == 404) {
-	                alert('Requested page not found. [404]');
+	                alert('Requested page not found [404].');
 	            } else if (jqXHR.status == 500) {
-	                alert('Internal Server Error [500].');
+	                alert('Internal server error [500].');
 	            } else if (exception === 'parsererror') {
 	                alert('Requested JSON parse failed.');
 	            } else if (exception === 'timeout') {
-	                alert('Time out error.');
+	                alert('Timeout error.');
 	            } else if (exception === 'abort') {
 	                alert('Ajax request aborted.');
 	            } else {
-	                alert('Uncaught Error.\n' + jqXHR.responseText);
+	                alert('Unknown error:\n' + jqXHR.responseText);
 	            }
 			};
 			$(this).html(
@@ -84,26 +84,28 @@
 					$('#' + settings.buttonContainerId, $(this).contents()).hide();
 					// Ajustar tamany
 					if (settings.adjustHeight) {
-						var contentHeight = $(this).contents().find("html").height();
+						var contentHeight = $(this).contents().find("html").outerHeight();
 						$(this).height(contentHeight + 'px');
 					}
 					if (settings.adjustWidth) {
-						var contentWidth = $(this).contents().find("html").width();
+						var contentWidth = $(this).contents().find("html").outerWidth();
 						var modalobj = $(this).parent().parent().parent();
 						modalobj.css('width', contentWidth + 'px');
 					}
 					if (settings.maximize) {
-						var contentHeight = $(this).contents().find("html").height();
-						//var contentHeight = this.contentWindow.document.body.offsetHeight;
+						var contentHeight = $(this).contents().find("html").outerHeight();
 						var modalobj = $(this).parent().parent().parent();
-						var taraModal = $('.modal-header', modalobj).height() + $('.modal-footer', modalobj).height();
-						var maxBodyHeight = $(document).height() - taraModal - 100;
+						var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
+						var maxBodyHeight = $(window).height() - taraModal - 30;
 						if (contentHeight > maxBodyHeight) {
-							$(this).height((contentHeight - 14) + 'px');
-							$('.modal-body', modalobj).css('max-height', maxBodyHeight + 20 + 'px');
+							// Si el contingut és més alt que la finestra
+							$(this).height(maxBodyHeight + 'px');
+							//$(this).height((contentHeight - 14) + 'px');
+							$('.modal-body', modalobj).css('height', (maxBodyHeight + 15) + 'px');
 						} else {
+							// Si el contingut cap a dins la finestra
 							$(this).height(contentHeight + 'px');
-							$('.modal-body', modalobj).css('max-height', contentHeight + 30 + 'px');
+							$('.modal-body', modalobj).css('height', (contentHeight + 15) + 'px');
 						}
 					}
 				});
@@ -162,19 +164,19 @@
 			$(this).on('click', function() {
 				var ajaxErrorFunction = function (jqXHR, exception) {
 					if (jqXHR.status === 0) {
-		                alert('Not connected.\n Verify Network.');
+		                alert('Not connected.\n Verify network.');
 		            } else if (jqXHR.status == 404) {
-		                alert('Requested page not found. [404]');
+		                alert('Requested page not found [404].');
 		            } else if (jqXHR.status == 500) {
-		                alert('Internal Server Error [500].');
+		                alert('Internal server error [500].');
 		            } else if (exception === 'parsererror') {
 		                alert('Requested JSON parse failed.');
 		            } else if (exception === 'timeout') {
-		                alert('Time out error.');
+		                alert('Timeout error.');
 		            } else if (exception === 'abort') {
 		                alert('Ajax request aborted.');
 		            } else {
-		                alert('Uncaught Error.\n' + jqXHR.responseText);
+		                alert('Unknown error:\n' + jqXHR.responseText);
 		            }
 				};
 				var confirmat = true;

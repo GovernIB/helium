@@ -2659,11 +2659,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques) {
-		List<String> tasquesIds = new ArrayList<String>();
-		for (ExpedientTascaDto tasca : tasques) {
-			tasquesIds.add(tasca.getId());
+		if (!tasques.isEmpty()) {
+			List<String> tasquesIds = new ArrayList<String>();
+			for (ExpedientTascaDto tasca : tasques) {
+				tasquesIds.add(tasca.getId());
+			}
+			return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
+		} else {
+			return new ArrayList<Object>();
 		}
-		return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
 	}
 
 

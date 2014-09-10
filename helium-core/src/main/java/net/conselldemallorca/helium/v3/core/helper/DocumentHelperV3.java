@@ -306,20 +306,22 @@ public class DocumentHelperV3 {
 		if (documentStoreId != null) {
 			dto.setDocumentPendent(false);
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
-			dto.setId(documentStore.getId());
-			dto.setDataCreacio(documentStore.getDataCreacio());
-			dto.setDataModificacio(documentStore.getDataModificacio());
-			dto.setDataDocument(documentStore.getDataDocument());
-			dto.setSignat(documentStore.isSignat());
-			if (documentStore.isRegistrat()) {
-				dto.setRegistrat(true);
-				dto.setRegistreData(documentStore.getRegistreData());
-				dto.setRegistreNumero(documentStore.getRegistreNumero());
-				dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-				dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-				dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+			if (documentStore != null) {
+				dto.setId(documentStore.getId());
+				dto.setDataCreacio(documentStore.getDataCreacio());
+				dto.setDataModificacio(documentStore.getDataModificacio());
+				dto.setDataDocument(documentStore.getDataDocument());
+				dto.setSignat(documentStore.isSignat());
+				if (documentStore.isRegistrat()) {
+					dto.setRegistrat(true);
+					dto.setRegistreData(documentStore.getRegistreData());
+					dto.setRegistreNumero(documentStore.getRegistreNumero());
+					dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+					dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+				}
+				dto.setArxiuNom(documentStore.getArxiuNom());
 			}
-			dto.setArxiuNom(documentStore.getArxiuNom());
 		}
 		return dto;
 	}
