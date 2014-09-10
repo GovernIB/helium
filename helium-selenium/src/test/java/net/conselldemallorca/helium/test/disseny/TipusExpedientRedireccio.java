@@ -166,7 +166,7 @@ public class TipusExpedientRedireccio extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		iniciarExpediente(codTipusExp, "ExpIni1", "Expedient Redirec Usu Admin");
+		iniciarExpediente(codTipusExp, "ExpIni1", "Expedient Redirec Usu Feina");
 		
 		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/c1_1_provar_redireccio-expedient_iniciat.png");
 		
@@ -184,7 +184,89 @@ public class TipusExpedientRedireccio extends BaseTest {
 	}
 	
 	@Test
-	public void d1_eliminar_redireccio() {
+	public void d1_modificar_redireccio() {
+		
+		carregarUrlDisseny();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		seleccionarTipExp(codTipusExp);
+		
+		driver.findElement(By.xpath(pestanyaRedir)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/d1_1_modificar_redireccio-pipella_redireccions.png");
+
+		//Borram la redireccio creada anteriorment que segueix activa
+		while (existeixElement(enllaçBorrarRedir)) {
+			driver.findElement(By.xpath(enllaçBorrarRedir)).click();
+			if (isAlertPresent()) {acceptarAlerta();}
+			existeixElementAssert("//*[@class='missatgesOk']", "Error al borrar la redireccio per el tipus d´expedient "+codTipusExp+".");
+		}
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/d1_2_modificar_redireccio-redireccions_netejades.png");
+		
+		//Seleccionar usuari origen
+		for (WebElement option : driver.findElement(By.id("usuariOrigen0")).findElements(By.tagName("option"))) {
+			if (usuariDisse.equals(option.getAttribute("value"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		//Canviam usuari desti per Usuari Administrador
+		for (WebElement option : driver.findElement(By.id("usuariDesti0")).findElements(By.tagName("option"))) {
+			if (usuariAdmin.equals(option.getAttribute("value"))) {
+				option.click();
+				break;
+			}
+		}
+		
+		//Canviam la data inici de la redireccio perque no començi fins d´aqui a 10 dies
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DATE, 10);
+		driver.findElement(By.id("dataInici0")).sendKeys(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()));
+		
+		calendar.add(Calendar.DATE, 5);
+		driver.findElement(By.id("dataFi0")).sendKeys(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()));
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/d1_3_modificar_redireccio-dades_emplenades.png");
+		
+		driver.findElement(By.xpath(botoCrearRedir)).click();
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/d1_4_modificar_redireccio-resultat_modificacio.png");
+		
+		existeixElementAssert("//*[@class='missatgesOk']", "Error al modificar la redireccio per el tipus d´expedient "+codTipusExp+".");	
+	}
+	
+	@Test
+	public void e1_comprovar_redireccio_fora_de_rang() {
+		
+		//Iniciam una tasca amb l´usuari disseny y comprovam que el responsable NO s´ha redireccionat cap a l´usuari admin
+		//que és tal i com s´ha modificat la redirecció a la passa anterior.
+		
+		carregarUrlDisseny();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		iniciarExpediente(codTipusExp, "ExpIni2", "Expedient Redirec Usu Admin");
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/e1_1_provar_no_redireccio-expedient_iniciat.png");
+		
+		comprova_responsable_tasca(usuariDisseNom);
+		
+		screenshotHelper.saveScreenshot("tipusExpedient/redireccions/e1_2_provar_no_redireccio-comprovacio_responsable.png");
+		
+		//Borram l´expedient
+		accedirPantallaConsultes();
+		
+		while (existeixElement(botoEliminarExp)) {
+			driver.findElement(By.xpath(botoEliminarExp)).click();
+			if (isAlertPresent()) {acceptarAlerta();}
+		}
+	}
+	
+	@Test
+	public void f1_eliminar_redireccio() {
 		
 		carregarUrlDisseny();
 		

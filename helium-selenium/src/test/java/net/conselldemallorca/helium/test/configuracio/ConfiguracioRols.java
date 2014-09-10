@@ -40,8 +40,7 @@ public class ConfiguracioRols extends BaseTest {
 		crearRol(codiRol, titolRol, "configuracio/rols/b1_1_crear");
 	}
 	
-	//@Test
-	//TODO: Es produeix un error quant intentes modificar el rol. Reportat per mail 02/09/2014 17:04
+	@Test
 	public void c1_modificar_rol() {
 		
 		carregarUrlConfiguracio();
@@ -73,7 +72,7 @@ public class ConfiguracioRols extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td/a, '"+codiRol+"')]/td/a")).click();
 		
 		String titolModificat = titolRol+"mod";
-		if (!titolModificat.equals(driver.findElement(By.id("nom0")).getAttribute("value"))) {
+		if (!titolModificat.equals(driver.findElement(By.id("descripcio0")).getAttribute("value"))) {
 			screenshotHelper.saveScreenshot("configuracio/rols/c1_3_modificar_rol_ko.png");
 			fail("El titol del rol ("+titolModificat+") no s´ha modificat!");
 		}else{
@@ -93,4 +92,5 @@ public class ConfiguracioRols extends BaseTest {
 		carregarUrlConfiguracio();
 		eliminarEntorn(entorn);
 	}
+
 }

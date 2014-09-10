@@ -42,7 +42,7 @@ public class TipusExpedientDominis extends BaseTest {
 	//Enllaç per eliminar el primer domini de la llista
 	String enllaçElimDomini = "//*[@id='registre']/tbody/tr/td/a[contains(@href, '/expedientTipus/dominiEsborrar.html')]";
 	
-	//@Test
+	@Test
 	public void a1_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -54,7 +54,7 @@ public class TipusExpedientDominis extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "WRITE", "READ", "DELETE");
 	}
 	
-	//@Test
+	@Test
 	public void b1_crear_domini_SQL() {
 		
 		carregarUrlDisseny();
@@ -82,7 +82,7 @@ public class TipusExpedientDominis extends BaseTest {
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear el domini SQL "+codiDominiSQL+" per el tipus d´expedient "+codTipusExp+".");
 	}
 	
-	//@Test
+	@Test
 	public void c1_crear_domini_WS() {
 		
 		carregarUrlDisseny();
@@ -110,7 +110,7 @@ public class TipusExpedientDominis extends BaseTest {
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear el domini WS "+codiDominiWS+" per el tipus d´expedient "+codTipusExp+".");
 	}
 	
-	//@Test
+	@Test
 	public void d1_comprobar_creacio_dominis() {
 		
 		carregarUrlDisseny();
@@ -149,7 +149,7 @@ public class TipusExpedientDominis extends BaseTest {
 		if (!"passWS".equals(driver.findElement(By.id("contrasenya0")).getAttribute("value")))  { fail("El valor de password del domini WS per el tipus d´expedient "+codTipusExp+" no es l'esperat!"); }
 	}
 	
-	//@Test
+	@Test
 	public void e1_modificar_dominis() {
 		
 		carregarUrlDisseny();
@@ -191,7 +191,7 @@ public class TipusExpedientDominis extends BaseTest {
 		existeixElementAssert("//*[@class='missatgesOk']", "Error al modificar el domini WS "+codiDominiWS+" per el tipus d´expedient "+codTipusExp+".");
 	}
 	
-	//@Test
+	@Test
 	public void f1_comprobar_modificacio_dominis() {
 		
 		carregarUrlDisseny();

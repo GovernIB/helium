@@ -475,9 +475,7 @@ public class Entorn extends BaseTest {
 		driver.findElement(By.xpath("//button[@value='cancel']")).click();
 	}
 	
-	//@Test
-	
-	@Test
+	@Test	
 	public void i2_eliminaEnumeracio() {
 		
 		carregarUrlDisseny();
