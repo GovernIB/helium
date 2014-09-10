@@ -30,9 +30,12 @@
 			width: 100%;
 		}
 		.form-group {
-			padding-right: 	15px;
+			margin-right: 0 !important;
 			margin-left: 	10px !important;
 			margin-bottom:	15px;
+		}
+		.controls {
+			padding-right: 0 !important;
 		}
 		.form-group input, .form-group textarea {
 			width: 100%;
@@ -42,7 +45,6 @@
 			width: 100%;
 			padding-right: 20px;
 		}
-		
 		.form-group .select2-container {
 			width: calc(100% + 14px);
 		}
@@ -180,7 +182,6 @@
 												</div>
 											</div>
 										</c:if>
-										<div class="clearForm"></div>
 									</c:when>
 									<c:otherwise>
 										<c:set var="campCodi" value="${dada.varCodi}"/>
@@ -192,9 +193,10 @@
 								<%@ include file="campsTascaRegistre.jsp" %>
 							</c:otherwise>
 						</c:choose>
+						<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 					</c:forEach>
 					<div id="guardarValidarTarea">
-						<%@ include file="campsTascaGuardarTasca.jsp" %>
+						<%@ include file="campsTascaBotons.jsp" %>
 					</div>
 				</form:form>
 			</div>
