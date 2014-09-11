@@ -96,7 +96,7 @@
 			
 <%-- ACCIO --------------------------------------------------------------------------------------%>					
 			<c:if test="${dada.campTipus == 'ACCIO'}">
-				<button class="btn pull-lef btn_accio" name="submit" type="submit" value="submit" data-action="${dada.jbpmAction}" 
+				<button class="btn btn-default pull-lef btn_accio" name="submit" type="submit" value="submit" data-action="${dada.jbpmAction}" 
 					onclick="saveAction(this, 'submit');
 						return accioCampExecutar(this, '${dada.jbpmAction}')
 				">

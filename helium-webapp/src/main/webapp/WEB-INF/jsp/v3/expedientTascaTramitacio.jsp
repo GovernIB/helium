@@ -30,8 +30,8 @@
 			width: 100%;
 		}
 		.form-group {
-			margin-right: 0 !important;
-			margin-left: 	10px !important;
+			padding-right: 	15px;
+			margin-left: 	0px !important;
 			margin-bottom:	15px;
 		}
 		.controls {
@@ -102,8 +102,6 @@
 <body>
 	<c:set var="pipellaIndex" value="${1}"/>
 	<ul id="tabnav" class="nav nav-tabs">
-		<li class="<c:if test="${empty dades}">active</c:if>"><a href="#tasca" data-toggle="tab">${pipellaIndex}. Tasca</a></li>
-		<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		<c:if test="${not empty dades}">
 			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="glyphicon glyphicon-warning-sign"> </span></c:if>${pipellaIndex}. Dades</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
@@ -118,9 +116,6 @@
 		</c:if>
 	</ul>
 	<div class="tab-content">
-		<div class="tab-pane <c:if test="${empty dades}">active</c:if>" id="tasca">
-			<%@ include file="campsTascaInfo.jsp" %>
-		</div>
 		<c:if test="${not empty dades}">
 			<div class="tab-pane active" id="dades">
 				<c:if test="${not tasca.validada}">
@@ -155,33 +150,35 @@
 							<c:when test="${dada.campTipus != 'REGISTRE'}">
 								<c:choose>
 									<c:when test="${dada.campMultiple}">
-										<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta} - ${dada.campTipus}</label>
-										<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab">
-											<c:set var="inline" value="${true}"/>
-											<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
-											<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
-												<c:set var="isMultiple" value="${true}"/>
-												<%@ include file="campsTasca.jsp" %>
-												<c:set var="isMultiple" value="${false}"/>
-											</div>
-										</c:forEach>
-										<c:if test="${empty dada.multipleDades}">
-											<c:set var="inline" value="${true}"/>
-											<c:set var="campCodi" value="${dada.varCodi}[0]"/>
-											<div class="col-xs-9 input-group-multiple">
-												<c:set var="isMultiple" value="${true}"/>
-												<%@ include file="campsTasca.jsp" %>
-												<c:set var="isMultiple" value="${false}"/>
-											</div>
-										</c:if>
-										<c:if test="${!dada.readOnly && !tasca.validada}">
-											<div class="form-group">
-												<div class="col-xs-9 pad-left-col-xs-3">
-													<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
-													<button id="button_add_var_mult_${campCodi}" type="button" class="btn pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+										<div class="multiple">
+											<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta} - ${dada.campTipus}</label>
+											<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab">
+												<c:set var="inline" value="${true}"/>
+												<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
+												<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
+													<c:set var="isMultiple" value="${true}"/>
+													<%@ include file="campsTasca.jsp" %>
+													<c:set var="isMultiple" value="${false}"/>
 												</div>
-											</div>
-										</c:if>
+											</c:forEach>
+											<c:if test="${empty dada.multipleDades}">
+												<c:set var="inline" value="${true}"/>
+												<c:set var="campCodi" value="${dada.varCodi}[0]"/>
+												<div class="col-xs-9 input-group-multiple">
+													<c:set var="isMultiple" value="${true}"/>
+													<%@ include file="campsTasca.jsp" %>
+													<c:set var="isMultiple" value="${false}"/>
+												</div>
+											</c:if>
+											<c:if test="${!dada.readOnly && !tasca.validada}">
+												<div class="form-group">
+													<div class="col-xs-9 pad-left-col-xs-3">
+														<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
+														<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+													</div>
+												</div>
+											</c:if>
+										</div>
 									</c:when>
 									<c:otherwise>
 										<c:set var="campCodi" value="${dada.varCodi}"/>

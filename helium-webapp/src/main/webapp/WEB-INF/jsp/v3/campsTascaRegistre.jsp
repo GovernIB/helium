@@ -38,13 +38,10 @@
 				<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 					<th class="colEliminarFila"></th>
 				</c:if>
-			</tr>
-				
+			</tr>				
 						
 			<%-- TAULA MÚLTIPLE -------------------------------------------------------------------------------------------%>
-				
 			<c:if test="${dadaActual.campMultiple}">
-				Multiple
 				<%-- Comprovam si la taula és buida --> Només té una fila amb tots els camps buids --%>
 				<c:set var="buida" value="${true}"/>
 				<c:if test="${fn:length(command[dadaActual.varCodi]) > 1}"><c:set var="buida" value="${false}"/></c:if>
@@ -52,13 +49,6 @@
 					<c:forEach var="membre" items="${registreCap}">
 						<c:if test="${not empty command[dadaActual.varCodi][0][membre.varCodi]}"><c:set var="buida" value="${false}"/></c:if>
 					</c:forEach>
-					<%--			
-					<c:forEach var="multiplemembre" items="${dadaActual.multipleDades}" varStatus="varStatus">
-						<c:forEach var="membre" items="${multiplemembre.registreDades}" varStatus="varStatusDadesCab">
-							<c:if test="${not empty membre.text}"><c:set var="buida" value="${false}"/></c:if>
-						</c:forEach>
-					</c:forEach>
-					--%>
 				</c:if>
 				
 				<c:set var="mida" value="${fn:length(command[dadaActual.varCodi])}"/>
@@ -88,10 +78,7 @@
 			</c:if>
 			
 			<%-- TAULA SIMPLE -------------------------------------------------------------------------------------------%>
-			
 			<c:if test="${!dadaActual.campMultiple && not empty dadaActual.registreDades}">
-				Simple
-		
 				<%-- Comprovam si el registre és buid --%>
 				<c:set var="buida" value="${true}"/>
 				<c:forEach var="membre" items="${registreCap}">
@@ -119,21 +106,6 @@
 						</td>
 					</c:if>
 				</tr>
-				<%-- 		
-				<c:forEach var="membre" items="${registreCap}">
-					<td>${command[dadaActual.varCodi][i-1][membre.varCodi]}</td>
-				</c:forEach>
-				<c:if test="${!dadaActual.readOnly && !tasca.validada}">
-					<td class="opciones">
-						<button 
-							class="btn fa fa-times eliminarFila" 
-							type="button" 
-							value="<spring:message code='comuns.esborrar' />" 
-							title="<spring:message code='comuns.esborrar' />">
-						</button>
-					</td>
-	 			</c:if> 
-	 			--%>
 			</c:if>				
 		<%-- PEU DE TAULA ------------------------------------------------------------------------------------%>
 		</table>	
@@ -145,7 +117,7 @@
 			<div <c:if test="${not empty dadaActual.registreDades}"> class="hide"</c:if>>
 				<button id="button_add_table_mult_${varStatusMain.index}"
 					type="button" 
-					class="btn pull-left btn_afegir"
+					class="btn btn-default pull-left btn_afegir"
 					onclick="return addField('table_mult_${varStatusMain.index}')">
 						<spring:message code='comuns.afegir' />
 				</button>

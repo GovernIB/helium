@@ -17,7 +17,7 @@ $(function(){
 	// Afegir múltiple
 	$("#command").on("click", ".btn_multiple", function(){
 		var previousInput = $(this).closest('.form-group').prev();
-		var newInput = previousInput.clone();
+		var newInput = previousInput.clone(true);
 		$('input', newInput).each(function(){
 			var input = $(this);
 			input.val('');
@@ -57,26 +57,28 @@ $(function(){
 	// Eliminar múltiple
 	$("#command").on("click", ".btn_eliminar", function(){
 		var multiple = $(this).closest('.multiple');
-		var formgroup = $(this).closest('.form-group');
-		if (multiple.find(".form-group").size() > 2) {
-			var label = multiple.find(".formgroup:first").find(".control-label").val();
-			formgroup.remove();
-			multiple.find(".form-group:first").find(".control-label").val(label);
-			multiple.find(".form-group").each(function(index){
+		var inputgroupmultiple = $(this).closest('.input-group-multiple');
+		if (multiple.find(".input-group-multiple").size() > 1) {
+			var label = multiple.find(".input-group-multiple:first").find(".control-label").val();
+			inputgroupmultiple.remove();
+			multiple.find(".input-group-multiple:first").find(".control-label").val(label);
+			multiple.find(".input-group-multiple").each(function(index){
 				$('input', this).each(function(){
 					var input = $(this);
 					if (input.attr("name") != null) {
 						var name = input.attr("name");
 						var name_pre = name.substr(0, name.lastIndexOf("["));
-						var name_post = name.substr(name.lastIndexOf("]") + 2);
 						input.attr({ 
-							"id" : name_pre + "[" + index + "]" + name_post, 
-							"name" : name_pre + "[" + index + "]" + name_post});
+							"id" : name_pre + "[" + index + "]", 
+							"name" : name_pre + "[" + index + "]"});
+					}
+					if (index == 0 && input.closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
+						input.closest('.input-group-multiple').removeClass('pad-left-col-xs-3');
 					}
 				});
 			});
 		} else {
-			formgroup.find("input").each(function(){
+			inputgroupmultiple.find("input").each(function(){
 				switch (this.type) {
 				case 'checkbox':
 				case 'radio':
@@ -92,18 +94,28 @@ $(function(){
 
 	// Eliminar fila
 	$(".eliminarFila").click(function() {
-		if ($(this).closest('table').find('tr').index() < 2) {
-			var newTr = $(this).closest('tr');
-			limpiarFila(newTr);
-
-			$(this).closest('table').addClass("hide");
-
-			if ($(this).closest('table').hasClass("togle")) {
-				$('#button_add_' + $(this).closest('table').attr('id')).show();
-			}
+		var table = $(this).closest('table');
+		var tr = $(this).closest('tr');
+		if (table.find('tr').index() < 2) {
+			limpiarFila(tr);
 		} else {
-			$(this).closest('tr').remove();
+			tr.remove();
 		}
+		
+		// Renumerar filas
+		table.find(".multiple").find('tr').each(function(index){
+			$('input', this).each(function(){
+				var input = $(this);
+				if (input.attr("name") != null) {
+					var name = input.attr("name");
+					var name_pre = name.substr(0, name.lastIndexOf("["));
+					var name_post = name.substr(name.lastIndexOf("]") + 1);
+					input.attr({ 
+						"id" : name_pre + "[" + index + "]" + name_post, 
+						"name" : name_pre + "[" + index + "]" + name_post});
+				}
+			});
+		});
 	});
 	
 	// Executar accions
@@ -127,43 +139,51 @@ $(function(){
 function addField(idTable) {
 	// TODO No se tiene en cuenta si una variable múltiple está dentro de una de registro
 	tabla = $('#' + idTable);
-	if (tabla.hasClass("hide")) {
-		tabla.removeClass("hide");
-
-		if (tabla.hasClass("togle")) {
-			$('#button_add_' + idTable).hide();
-		}
-	} else {
-		tr = $('tr:last', tabla);
-		var newTr = tr.clone();
-		limpiarFila(newTr);
-		newTr.find(':input').each(
-			function(indice, valor) {
-				if (this.getAttribute("id") != null) {
-					var id = this.getAttribute("id");
-					var id_lim = id.substr(0, id.indexOf("["));
-					var id_fin = id.substr(id.lastIndexOf("]")+1);
-					var i = 1;
-					while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
-						i = i + 1;
-					}
-					this.setAttribute("id", id_lim + "[" + i + "]" + id_fin);
-					this.setAttribute("name", id_lim + "[" + i + "]" + id_fin);
+	tr = $('tr:last', tabla);
+	var newTr = tr.clone(true);
+	limpiarFila(newTr);
+	newTr.find(':input').each(
+		function(indice, valor) {
+			if (this.getAttribute("id") != null) {
+				var id = this.getAttribute("id");
+				var id_lim = id.substr(0, id.indexOf("["));
+				var id_fin = id.substr(id.lastIndexOf("]")+1);
+				var i = 1;
+				while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
+					i = i + 1;
 				}
-			});
-		newTr.appendTo(tabla);
-		newTr.find('button.btn_eliminar').click(function() {
-			if (newTr.index() < 2) {
-				limpiarFila(newTr);
-				tabla.addClass("hide");
-				if (tabla.hasClass("togle")) {
-					$('#button_add_' + tabla.attr('id')).show();
-				}
-			} else {
-				newTr.remove();
+				this.setAttribute("id", id_lim + "[" + i + "]" + id_fin);
+				this.setAttribute("name", id_lim + "[" + i + "]" + id_fin);
+				
+				// Camp de tipus price
+				$(this).find(".price").priceFormat({
+						prefix: '',
+						centsSeparator: ',',
+					    thousandsSeparator: '.',
+					    allowNegative: false
+					});
+				// Camp de tipus date
+				$(this).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true});
+				// Camp de tipus termini
+				$(this).find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
+				// Camp de tipus enter
+				$(this).find(".enter").keyfilter(/^[-+]?[0-9]*$/);
+				// Camp de tipus float
+				$(this).find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
 			}
 		});
-	}
+	newTr.appendTo(tabla);
+	newTr.find('button.btn_eliminar').click(function() {
+		if (newTr.index() < 2) {
+			limpiarFila(newTr);
+			tabla.addClass("hide");
+			if (tabla.hasClass("togle")) {
+				$('#button_add_' + tabla.attr('id')).show();
+			}
+		} else {
+			newTr.remove();
+		}
+	});
 }
 
 function limpiarFila(tr) {
