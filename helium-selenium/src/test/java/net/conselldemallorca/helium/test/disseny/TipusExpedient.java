@@ -21,10 +21,10 @@ public class TipusExpedient extends BaseTest {
 											//TEX.1.2 - Nou tipus de expedient basic (codi i titol)
 											//TEX.1.3 - Definir reinici de sequencia anual
 											//TEX.1.4 - Definir sequencia anual i provar la seva sintaxi
-	
+
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	
+
 	String usuari 		= carregarPropietat("test.base.usuari.disseny", "Usuari feina de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin  = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 
@@ -219,7 +219,7 @@ public class TipusExpedient extends BaseTest {
 
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'vEnum2')]", "El valor de l´enumeracio amb codi (vEnum2) del tipus d´expedient no es troba.");
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'2222')]", "El valor de l´enumeracio amb nom (2222) del tipus d´expedient no es troba.");
-			//existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[3],'1')]", "El valor de l´enumeracio amb ordre (1) del tipus d´expedient no es troba.");
+			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[3],'1')]", "El valor de l´enumeracio amb ordre (1) del tipus d´expedient no es troba.");
 
 		//Pestanya de documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/documentLlistat.html')]")).click();
@@ -317,9 +317,9 @@ public class TipusExpedient extends BaseTest {
 		eliminarEntorn(entorn);
 	}
 	
-	/**
-	 * Funcions privades
-	 */
+	// ***********************************************
+	// F U N C I O N S   P R I V A D E S
+	// ***********************************************
 	
 	private void creaTipusExpedientAmbSequenciaAnual() {
 		
