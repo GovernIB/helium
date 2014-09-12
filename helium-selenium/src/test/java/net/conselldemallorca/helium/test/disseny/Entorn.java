@@ -508,11 +508,7 @@ public class Entorn extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/domini/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
+		accedirPantallaDissenyDominis();
 		
 		screenshotHelper.saveScreenshot("entorns/domini/j1_1_creacioDominis.png");
 		
@@ -548,11 +544,7 @@ public class Entorn extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/domini/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
+		accedirPantallaDissenyDominis();
 		
 		screenshotHelper.saveScreenshot("entorns/domini/j2_1_provantDominis.png");
 		
@@ -577,10 +569,7 @@ public class Entorn extends BaseTest {
 		screenshotHelper.saveScreenshot("entorns/domini/j2_4_provantDominis.png");
 		
 		driver.findElement(By.xpath("/html/body/div[9]/div[11]/button[1]")).click();
-		
-		//Si intentes capturar pantalla amb un alert obert peta ¿?¿??
-		//screenshotHelper.saveScreenshot("entorns/domini/3_provantDominis.png");
-		
+
 		if (isAlertPresent()) {			
 			boolean condicioProvaSQLok = getTexteAlerta().startsWith("[") && getTexteAlerta().endsWith("],"); 
 			assertTrue("El missatge retornat per el boto de prova no es l´esperat", condicioProvaSQLok);
@@ -613,11 +602,7 @@ public class Entorn extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/domini/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
+		accedirPantallaDissenyDominis();
 		
 		screenshotHelper.saveScreenshot("entorns/domini/j3_1_eliminarDominis.png");
 		
@@ -666,7 +651,7 @@ public class Entorn extends BaseTest {
 		actions.click();
 		actions.build().perform();
 				
-		screenshotHelper.saveScreenshot("entorns/borrar/1_entornsExistents.png");		
+		screenshotHelper.saveScreenshot("entorns/borrar/1_entornsExistents.png");
 
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "L'entorn de proves no existeix.");		
 

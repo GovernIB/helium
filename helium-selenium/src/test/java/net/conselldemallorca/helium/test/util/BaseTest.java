@@ -783,6 +783,17 @@ public abstract class BaseTest {
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]", "No s'han pogut eliminar el domini");
 	}
 	
+	protected void eliminarTotsElsDominis() {
+		
+		accedirPantallaDissenyDominis();
+		
+		String imatgeEliminarDomini = "//*[@id='registre']/tbody/tr[1]/td/a[contains(@href, '/domini/delete.html')]";
+		while (existeixElement(imatgeEliminarDomini)) {
+			driver.findElement(By.xpath(imatgeEliminarDomini)).click();
+			acceptarAlerta();
+		}
+	}
+	
 	protected void eliminarConsultaTipus(String codiConsulta) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -1088,7 +1099,7 @@ public abstract class BaseTest {
 
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td,'" + codTipusExp + "')]/td/form/button[contains(text(), 'Iniciar')]")).click();
 
-		if (!isAlertPresent()) {			
+		if (!isAlertPresent()) {
 			if (existeixElement("//*[@id='numero0']")) {
 				driver.findElement(By.xpath("//*[@id='numero0']")).clear();
 				driver.findElement(By.xpath("//*[@id='numero0']")).sendKeys(numero);
@@ -1448,11 +1459,8 @@ public abstract class BaseTest {
 	}
 	
 	protected void consultarExpedientes(String numExpediente, String tituloExpediente, String tipusExp, boolean mostrarAnulats) {
-		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consulta.html')]")));
-		actions.click();
-		actions.build().perform();
+		
+		accedirConsultaLlistatExpedients();
 		
 		driver.findElement(By.xpath("//*[@id='titol0']")).clear();
 		if (tituloExpediente != null)
@@ -2295,5 +2303,29 @@ public abstract class BaseTest {
 		
 		String pathBotoNovaPersona = "//*[@id='command']/div/div[@class='buttonHolder']/button[text() = 'Consultar']";
 		driver.findElement(By.xpath(pathBotoNovaPersona)).click();
+	}
+	
+	protected void accedirPantallaDissenyDefProc () {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void accedirPantallaDissenyDominis() {
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/domini/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void accedirConsultaLlistatExpedients() {
+		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consulta.html')]")));
+		actions.click();
+		actions.build().perform();
 	}
 }

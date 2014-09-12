@@ -76,8 +76,16 @@
 				<configuration>
 					<includes>
 						<!-- Suites de proves a executar -->
-						<include>**/ConfiguracioEntornSuite.java</include>
+						<include>**/ConfiguracioAplicacioSuite.java</include>
 						<include>**/ConfiguracioDefinicioProcesSuite.java</include>
+						<include>**/ConfiguracioEntornSuite.java</include>
+						<include>**/ConsultaExpedientSuite.java</include>
+						<include>**/ExecucioMassivaSuite.java</include>
+						<include>**/InformesSuite.java</include>
+						<include>**/IntegracioSuite.java</include>
+						<include>**/TestSuite.java</include>
+						<include>**/TipusExpedientSuite.java</include>
+						<include>**/TramitacioSuite.java</include>
 					</includes>
 					<skipTests>${skipTests}</skipTests>
 				</configuration>
