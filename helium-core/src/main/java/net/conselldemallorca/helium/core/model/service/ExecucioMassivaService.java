@@ -544,7 +544,8 @@ public class ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Restaurar", "massiva_tasca", expedient, tasca);
-				Long entornId = (Long)deserialize(dto.getParam2());
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];				
 				try {
 					tascaService.restaurar(entornId, tascaId, dto.getUsuari());
 				} catch (Exception e) {
