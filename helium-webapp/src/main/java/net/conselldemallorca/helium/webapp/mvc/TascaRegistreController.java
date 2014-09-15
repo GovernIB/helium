@@ -24,6 +24,9 @@ import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -148,6 +151,7 @@ public class TascaRegistreController extends CommonRegistreController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -155,10 +159,16 @@ public class TascaRegistreController extends CommonRegistreController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("RegEsborrar");
-					Object[] params = new Object[3];
+					Object[] params = new Object[5];
 					params[0] = entorn.getId();
 					params[1] = campCodi;
 					params[2] = Integer.valueOf(index);
+					params[3] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[4] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -216,6 +226,7 @@ public class TascaRegistreController extends CommonRegistreController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -223,11 +234,17 @@ public class TascaRegistreController extends CommonRegistreController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("RegGuardar");
-					Object[] params = new Object[4];
+					Object[] params = new Object[6];
 					params[0] = entorn.getId();
 					params[1] = campCodi;
 					params[2] = valors;
 					params[3] = Integer.valueOf(index);
+					params[4] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[5] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					

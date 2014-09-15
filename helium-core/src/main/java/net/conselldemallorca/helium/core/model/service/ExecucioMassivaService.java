@@ -392,6 +392,58 @@ public class ExecucioMassivaService {
 			}
 	        
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
+				// Authentication
+				String param = dto.getParam1();
+				Object param2 = deserialize(dto.getParam2());
+
+				if (param2 instanceof Object[]) {
+					Object credentials = null;
+					List<String> rols = null;
+
+					if (param.equals("Guardar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("Validar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("Completar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("Restaurar")) {
+						credentials = ((Object[]) param2)[1];
+						rols = (List<String>) ((Object[]) param2)[2];
+					} else if (param.equals("Accio")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("DocGuardar")) {
+						credentials = ((Object[]) param2)[5];
+						rols = (List<String>) ((Object[]) param2)[6];
+					} else if (param.equals("DocEsborrar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("DocGenerar")) {
+						credentials = ((Object[]) param2)[3];
+						rols = (List<String>) ((Object[]) param2)[4];
+					} else if (param.equals("RegEsborrar")) {
+						credentials = ((Object[]) param2)[3];
+						rols = (List<String>) ((Object[]) param2)[4];
+					} else if (param.equals("RegGuardar")) {
+						credentials = ((Object[]) param2)[4];
+						rols = (List<String>) ((Object[]) param2)[5];
+					}
+
+					GrantedAuthority[] authorities = null;
+					if (!rols.isEmpty()) {
+						authorities = new GrantedAuthority[rols.size()];
+						int i = 0;
+						for (String rol : rols) {
+							authorities[i++] = new GrantedAuthorityImpl(rol);
+						}
+					}
+					authentication = new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+				}
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+
 				gestioTasca(dto);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient);

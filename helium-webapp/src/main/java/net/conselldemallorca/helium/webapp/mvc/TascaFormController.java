@@ -45,6 +45,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -534,6 +537,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -541,9 +545,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Guardar");
-					Object[] params = new Object[2];
+					Object[] params = new Object[4];
 					params[0] = entornId;
 					params[1] = variables;
+					params[2] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -625,6 +635,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -632,9 +643,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Validar");
-					Object[] params = new Object[2];
+					Object[] params = new Object[4];
 					params[0] = entornId;
 					params[1] = variables;
+					params[2] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -714,6 +731,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -721,7 +739,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Restaurar");
-					Long params = entornId;
+					Object[] params = new Object[3];
+					params[0] = entornId;
+					params[1] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[2] = rols;
+					dto.setParam2(execucioMassivaService.serialize(params));
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -794,6 +820,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -801,9 +828,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Accio");
-					Object[] params = new Object[2];
+					Object[] params = new Object[4];
 					params[0] = entornId;
 					params[1] = accio;
+					params[2] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -884,6 +917,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -891,10 +925,16 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("RegEsborrar");
-					Object[] params = new Object[3];
+					Object[] params = new Object[5];
 					params[0] = entornId;
 					params[1] = camp.getCodi();
 					params[2] = registreEsborrarIndex;
+					params[3] = auth.getCredentials();
+					List<String> rols = new ArrayList<String>();
+					for (GrantedAuthority gauth : auth.getAuthorities()) {
+						rols.add(gauth.getAuthority());
+					}
+					params[4] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
