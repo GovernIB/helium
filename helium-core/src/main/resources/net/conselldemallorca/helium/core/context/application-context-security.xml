@@ -30,6 +30,7 @@
 		<!-- Selenium-integraciones.begin -->
 		<intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/IniciFormulari" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<!-- Selenium-integraciones.end -->
 		<intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/rol/test.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />

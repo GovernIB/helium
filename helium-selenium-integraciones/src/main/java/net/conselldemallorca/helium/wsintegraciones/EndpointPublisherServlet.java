@@ -60,6 +60,15 @@ public class EndpointPublisherServlet extends HttpServlet {
 					auth != null ? auth : "",
 					"true".equalsIgnoreCase(ts) ? true : false,
 					"true".equalsIgnoreCase(log) ? true : false);
+			
+			WsServerUtils.publish(
+					"/IniciFormulari",
+					context.getBean("formsService"),
+					user != null ? user : "",
+					pass != null ? pass : "",
+					auth != null ? auth : "",
+					"true".equalsIgnoreCase(ts) ? true : false,
+					"true".equalsIgnoreCase(log) ? true : false);
 		}
     }
 }

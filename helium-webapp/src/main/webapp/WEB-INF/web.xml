@@ -165,6 +165,7 @@
 			<!-- Selenium-integraciones.begin -->
 			<url-pattern>/ws/CustodiaDocumentos</url-pattern>
 			<url-pattern>/ws/portafirmas</url-pattern>
+			<url-pattern>/ws/IniciFormulari</url-pattern>
 			<!-- Selenium-integraciones.end -->
 			<url-pattern>/services/*</url-pattern>
 			<url-pattern>/signatura/aFirma/*</url-pattern>

@@ -38,6 +38,13 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-ws</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>		
+		<dependency>
 			<groupId>axis</groupId>
 			<artifactId>axis</artifactId>
 			<version>1.4</version>

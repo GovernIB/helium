@@ -24,6 +24,7 @@
 		<sec:intercept-url pattern="/ws/TramitacioService" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<!-- Selenium-integraciones.begin -->
 		<sec:intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<sec:intercept-url pattern="/ws/IniciFormulari" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<!-- Selenium-integraciones.end -->
 		<sec:intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />

@@ -377,6 +377,8 @@ public abstract class BaseTest {
 			driver.findElement(By.id("nom0")).clear();
 			driver.findElement(By.id("nom0")).sendKeys(titolEntorn);
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			//TODO: Atencion, si hay mas de 20 entornos y el recien creado no aparece en la primera pagina, dará una advertencia de que el 
+			//entorno no se ha creado cuando sí que lo ha hecho
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut crear l'entorn");
 		}
 	}
@@ -1492,6 +1494,7 @@ public abstract class BaseTest {
 	}
 	
 	protected void consultarTareas(String tasca, String expediente, String tipusExp, boolean grupo) throws InterruptedException {
+		
 		actions.moveToElement(driver.findElement(By.id("menuTasques")));
 		actions.build().perform();
 		if (grupo)
@@ -1544,7 +1547,7 @@ public abstract class BaseTest {
 			WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='tipus0']"));
 			List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
 			for (WebElement option : options) {
-				if (option.getText().equals(td)) {
+				if (option.getAttribute("value").equals(td.name())) {
 					option.click();
 					break;
 				}

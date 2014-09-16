@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.test.suites;
 
 import net.conselldemallorca.helium.test.integracio.Custodia;
+import net.conselldemallorca.helium.test.integracio.FormularisExterns;
 import net.conselldemallorca.helium.test.integracio.Portasignatures;
 import net.conselldemallorca.helium.test.integracio.Registre;
 import net.conselldemallorca.helium.test.integracio.Signature;
@@ -15,6 +16,7 @@ import org.junit.runners.Suite;
 	Portasignatures.class,
 	Registre.class,
 	Signature.class,
-	Tramitacion.class
+	Tramitacion.class,
+	FormularisExterns.class
 })
 public class IntegracioSuite {}
