@@ -54,15 +54,17 @@ public class FormularisExterns extends BaseTest {
 	String botoMarcaProcesInicial = "//*[@id='registre']/tbody/tr/td/form[contains(@action, '/expedientTipus/definicioProcesInicial.html')]/button[contains(text(), 'inicial')]";
 
 	String iframeFormExt = "//*[@id='formExtern']";
-	String urlFormExt = "http://localhost:8080/helium/enumeracio/form.html";
+	String urlFormExt = "http://localhost:8080/helium/ws/IniciFormulari";
 	String idFormExt = "command";
 	String botoGuardarDadesIntegracio = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Guardar']";
 	
 	String aspaTancarDialogForm = "/html/body/div[@class='ui-dialog']/div[@class='ui-dialog-titlebar']/a";
 
+	String variableResultatRetornFormulari = "//*[@id='command']/div/div/label[text() = 'Variable Boolean']";
 	
 	
-	//@Test
+	
+	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -76,7 +78,7 @@ public class FormularisExterns extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuariDis, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-	//@Test
+	@Test
 	public void b1_preparar_tasca_defproc() {
 		
 		carregarUrlDisseny();
@@ -93,6 +95,7 @@ public class FormularisExterns extends BaseTest {
 		
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/formext.html')]")).click();
 		
+		driver.findElement(By.id("url0")).clear();
 		driver.findElement(By.id("url0")).sendKeys(urlFormExt);
 		driver.findElement(By.id("usuari0")).clear();
 		driver.findElement(By.id("contrasenya0")).clear();
@@ -157,14 +160,22 @@ public class FormularisExterns extends BaseTest {
 		
 		existeixElementAssert(iframeFormExt, "No s´ha obert l'iframe amb el formulari extern.");
 
+		String URL_actual = driver.getCurrentUrl();
+		String idTasca = URL_actual.substring(URL_actual.indexOf("id=")+3, URL_actual.length());		
+		
 		//Abans de tancar el formulari, guardam les dades com ho faria el WS de la aplicacio externa
-		guardarFormulariExtern("00000");
+		guardarFormulariExtern(idTasca);
 
 		//Tancam el formulari
 		driver.findElement(By.xpath(aspaTancarDialogForm)).click();
+		
+		//Comprovam que han aparegut les variables de la resposta a la cridada a guardarFormulariExtern()
+		existeixElementAssert(iframeFormExt, "No s´ha trobat la variable de retorn del formulari extern.");
+		
+		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_5_provar_formulari_extern-resultat_retorn_ws.png");
 	}
 	
-	//@Test
+	@Test
 	public void z_limpiar() throws InterruptedException {
 		
 		carregarUrlConfiguracio();
@@ -203,15 +214,14 @@ public class FormularisExterns extends BaseTest {
 	}
 	
 	private void guardarFormulariExtern (String codTasca) {
-		
-		String SERVICE_URL = "http://localhost:8080/helium/ws/FormulariExtern";
-		
-		List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
-		
-		valors.add(new ParellaCodiValor("import", new BigDecimal("100")));
-
-		GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.core.util.ws.WsClientUtils.getWsClientProxy(GuardarFormulari.class, SERVICE_URL, null,	null, "NONE", false, true, true);
-		
-		gf.guardar(codTasca, valors);
+		try {
+			String SERVICE_URL = "http://localhost:8080/helium/ws/FormulariExtern";
+			List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
+			valors.add(new ParellaCodiValor("import", new BigDecimal("100")));
+			GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.core.util.ws.WsClientUtils.getWsClientProxy(GuardarFormulari.class, SERVICE_URL, null,	null, "NONE", false, true, true);
+			gf.guardar(codTasca, valors);
+		}catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 }

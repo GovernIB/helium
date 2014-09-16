@@ -84,9 +84,13 @@ public class WsClientUtils {
 	}
 	
 	private static boolean isWsClientChunked() {
-		String chunked = GlobalProperties.getInstance().getProperty("app.ws.client.chunked");
-		if (chunked == null)
-			chunked = "false";
-		return "true".equalsIgnoreCase(chunked);
+		try {
+			String chunked = GlobalProperties.getInstance().getProperty("app.ws.client.chunked");
+			if (chunked == null)
+				chunked = "false";
+			return "true".equalsIgnoreCase(chunked);
+		}catch (Exception ex) {
+			return false;
+		}
 	}
 }

@@ -1,19 +1,22 @@
 package net.conselldemallorca.helium.wsintegraciones.formulari;
 
 import java.util.List;
+
 import javax.jws.WebService;
+
+import net.conselldemallorca.helium.core.extern.formulari.ParellaCodiValor;
+import net.conselldemallorca.helium.core.extern.formulari.RespostaIniciFormulari;
 
 @WebService(
         serviceName = "FormsService",
         portName = "IniciFormulari",
-        targetNamespace = "https://proves.caib.es/signatura/services/IniciFormulari",
-        endpointInterface = "net.conselldemallorca.helium.wsintegraciones.formulari.IniciFormulari")
+        targetNamespace = "http://forms.integracio.helium.conselldemallorca.net/",
+        endpointInterface = "net.conselldemallorca.helium.core.extern.formulari.IniciFormulari")
 
-public class IniciFormulariImpl implements IniciFormulari {
+public class IniciFormulariImpl implements net.conselldemallorca.helium.core.extern.formulari.IniciFormulari {
 
-	public RespostaIniciFormulari iniciFormulari(
-			String codi,
-			String taskId,
+	@Override
+	public RespostaIniciFormulari iniciFormulari(String codi, String taskId,
 			List<ParellaCodiValor> valors) {
 		System.out.println(">>> Rebut taskId: " + taskId);
 		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
