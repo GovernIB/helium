@@ -1322,6 +1322,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String clau = new Long(System.currentTimeMillis()).toString();
 			dadesExpedient.setExpedientIdentificador(identificador);
 			dadesExpedient.setExpedientClau(clau);
+			System.out.println("ZPers: zonaperExpedientCrear expedient : " + expedient);
+			System.out.println("ZPers: zonaperExpedientCrear dadesExpedient : " + dadesExpedient);
 			pluginHelper.zonaperExpedientCrear(expedient, dadesExpedient);
 			Expedient ex = expedientDao.getById(expedient.getId(), false);
 			ex.setTramitExpedientIdentificador(identificador);

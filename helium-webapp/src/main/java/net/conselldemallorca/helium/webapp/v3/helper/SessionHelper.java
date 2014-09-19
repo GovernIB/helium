@@ -236,22 +236,6 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_CONSULTA_GENERAL);
 		}
-		public Object getFiltreInforme(Long expedientTipusId, Long consultaId) {
-			return (Object)getAttribute(
-					request,
-					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId);
-		}
-		public void setFiltreInforme(Object filtreInforme, Long expedientTipusId, Long consultaId) {
-			setAttribute(
-					request,
-					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId,
-					filtreInforme);
-		}
-		public void removeFiltreInforme(Long expedientTipusId, Long consultaId) {
-			removeAttribute(
-					request,
-					VARIABLE_FILTRE_INFORME + expedientTipusId + "-" + consultaId);
-		}
 		public void setSeleccioConsultaGeneral(Set<Long> seleccioConsultaGeneral) {
 			setAttribute(
 					request,

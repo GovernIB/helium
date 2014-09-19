@@ -119,9 +119,11 @@ public class PluginHelper {
 	public void zonaperExpedientCrear(
 			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) throws Exception {
+		System.out.println("ZPers: dadesExpedient : " + dadesExpedient);
 		PublicarExpedientRequest request = conversioTipusHelper.convertir(
 				dadesExpedient,
 				PublicarExpedientRequest.class);
+		System.out.println("ZPers: request : " + request);
 		getTramitacioPlugin().publicarExpedient(request);
 	}
 	public void zonaperEventCrear(

@@ -115,6 +115,11 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								EventosExpediente.class,
 								eventosExpediente));
 			}
+
+			System.out.println("ZPers: TramitacioPluginSistrav2 expedient nom : " + expediente.getNombreRepresentado());
+			System.out.println("ZPers: TramitacioPluginSistrav2 expedient nif : " + expediente.getNifRepresentado());
+
+			System.out.println("ZPers: TramitacioPluginSistrav2 request : " + request);
 			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
 			
 			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal.toUpperCase()) && !getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
