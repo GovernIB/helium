@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
@@ -152,22 +153,90 @@ public class ServiceUtils {
 						resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus));
 					}
 				} else {
-					resposta.add(
-							new TascaDadaDto(
-									camp.getCampCodi(),
-									CampTipusDto.STRING,
-									camp.getCampCodi()));
+					if (TipusConsultaCamp.PARAM.equals(tipus)) {
+						if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.INTEGER,
+											camp.getCampCodi()));
+						} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.FLOAT,
+											camp.getCampCodi()));
+						} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.DATE,
+											camp.getCampCodi()));
+						}else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.BOOLEAN,
+											camp.getCampCodi()));
+						} else {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.STRING,
+											camp.getCampCodi()));
+						}
+					} else {
+						resposta.add(
+								new TascaDadaDto(
+										camp.getCampCodi(),
+										CampTipusDto.STRING,
+										camp.getCampCodi()));
+					}
 				}
 			} else {
 				Camp campExpedient = getCampExpedient(camp.getCampCodi());
 				if (campExpedient != null) {
 					resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campExpedient,tipus));
 				} else {
-					resposta.add(
-							new TascaDadaDto(
-									camp.getCampCodi(),
-									CampTipusDto.STRING,
-									camp.getCampCodi()));
+					if (TipusConsultaCamp.PARAM.equals(tipus)) {
+						if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.INTEGER,
+											camp.getCampCodi()));
+						} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.FLOAT,
+											camp.getCampCodi()));
+						} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.DATE,
+											camp.getCampCodi()));
+						}else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.BOOLEAN,
+											camp.getCampCodi()));
+						} else {
+							resposta.add(
+									new TascaDadaDto(
+											camp.getCampCodi(),
+											CampTipusDto.STRING,
+											camp.getCampCodi()));
+						}
+					} else {
+						resposta.add(
+								new TascaDadaDto(
+										camp.getCampCodi(),
+										CampTipusDto.STRING,
+										camp.getCampCodi()));
+					}
 				}
 			}
 		}

@@ -1,15 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
-<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
 <head>
-	<title><fmt:message key="index.inici" /></title>
+	<title><spring:message code="consulta.form.informe" /></title>
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
@@ -29,6 +27,7 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<style>
+		#filtresCollapsable .controls{ width: 100% !important;}
 		#taulaDades_wrapper {overflow-x: auto;padding-top: 7px;}
 		#filtresCollapsable {padding-top: 20px;}
 		input, select, textarea {width: 100%;}
@@ -93,6 +92,8 @@
 			padding-left: 8px !important;
 			padding-right: 0px !important;
 		}
+		.pagination {margin : 0px !important;}
+		#btn_exportar {margin-top : 10px;}
 		.col-xs-3 {width: 17.5%;}
 		.control-label.col-xs-4 {width: auto !important;}
 		.col-xs-5 {padding-left: 0px !important;margin-right: -55px;}
@@ -101,8 +102,19 @@
 	</style>
 <script>
 $(document).ready(function() {
+	<c:if test="${not empty campsInformeParams}">
+		$("#mostrar_informe").on(
+			"click",
+			function() {
+				$("#mostrar_informe").attr('data-rdt-link-modal','true');
+				$("#mostrar_informe").attr('href','${consulta.expedientTipus.id}/${consulta.id}/mostrar_informe_params');
+				return false;
+			}
+		);
+	</c:if>
+	
 	$("#taulaDades").heliumDataTable({
-		ajaxSourceUrl: "<c:url value="/v3/informe/${expedientInformeCommand.expedientTipusId}/${expedientInformeCommand.consultaId}/datatable"/>",
+		ajaxSourceUrl: "<c:url value="/v3/informe/${expedientTipusId}/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		rowClickCallback: function(row) {
@@ -136,19 +148,20 @@ $(document).ready(function() {
 		}
 	});
 	$("#expedientInformeCommand button[value='netejar']").click(function() {
-		$('#expedientInforme')[0].reset();
+		$('#expedientInformeCommand')[0].reset();
+		$('#expedientInformeCommand').submit();
 	});
 	$("#nomesPendentsCheck").click(function() {
 		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
-		$('#expedientInforme').submit();
+		$('#expedientInformeCommand').submit();
 	});
 	$("#nomesAlertesCheck").click(function() {
 		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
-		$('#expedientInforme').submit();
+		$('#expedientInformeCommand').submit();
 	});
 	$("#mostrarAnulatsCheck").click(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
-		$('#expedientInforme').submit();
+		$('#expedientInformeCommand').submit();
 	});
 });
 </script>
@@ -156,9 +169,9 @@ $(document).ready(function() {
 <body>
 	<input type="hidden" id="netejar" value="false"/>
 	<form:form method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeCommand">
-		<form:hidden path="expedientTipusId"/>
+		<input type="hidden" id="expedientTipusId" name="expedientTipusId" value="${expedientTipusId}"/>
 		<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
-			<c:if test="${expedientTipus.id == expedientInformeCommand.expedientTipusId}">
+			<c:if test="${expedientTipus.id == expedientTipusId}">
 				<c:set var="titleHeader" value="${expedientTipus.nom}"/>
 			</c:if>
 		</c:forEach>
@@ -178,11 +191,14 @@ $(document).ready(function() {
 				</div>
 			</c:when>
 			<c:otherwise>
-				<form:hidden path="consultaId"/>
+				<input type="hidden" id="consultaId" name="consultaId" value="${consulta.id}"/>
 				<c:set var="titleHeader" value="${titleHeader} - ${consulta.nom}"/>
 				<h2>							
 					<span class="fa fa-folder-open"></span>
 					${titleHeader}
+					<a id="canviar_consulta" href="${consulta.expedientTipus.id}/${consulta.id}/canviar_consulta" class="btn pull-right btn-default">
+						<spring:message code="expedient.informe.canviar"/>
+					</a>
 				</h2>
 			</c:otherwise>
 		</c:choose>
@@ -254,15 +270,22 @@ $(document).ready(function() {
 			</div>
 		</script>
 		<div id="btn_exportar" class="btn-toolbar pull-left btn_under_taulaDades">
-			<a href="${consulta.expedientTipus.id}/${consulta.id}/exportar_excel" class="btn btn-default">
+			<a id="exportar_excel" href="${consulta.expedientTipus.id}/${consulta.id}/exportar_excel" class="btn btn-default">
 				<span class="icon-download-alt"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 			</a>
 			<c:if test="${not empty consulta.informeNom}">
-				<a href="${consulta.expedientTipus.id}/${consulta.id}/mostrar_informe" class="btn btn-default">
+				<a id="mostrar_informe" href="${consulta.expedientTipus.id}/${consulta.id}/mostrar_informe" class="btn btn-default">
 					<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
 		</div>
 	</c:if>
+	
+	<script type="text/javascript">
+		$("#btn_exportar a").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: false
+		});
+	</script>
 </body>
 </html>

@@ -515,4 +515,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
 		return delegate.existsExpedientAmbEntornTipusITitol(entornId, expedientTipusId, titol);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
+		return findConsultaInformeParams(consultaId);
+	}
 }

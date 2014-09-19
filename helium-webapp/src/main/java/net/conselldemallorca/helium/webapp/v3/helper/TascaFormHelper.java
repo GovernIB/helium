@@ -1,13 +1,10 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +45,6 @@ public class TascaFormHelper {
 		return getCommandForCamps(
 				campsFiltre,
 				valors,
-				null,
 				campsAddicionals,
 				campsAddicionalsClasses,
 				true);
@@ -62,7 +58,6 @@ public class TascaFormHelper {
 		return getCommandForCamps(
 				camp.getRegistreDades(),
 				valors,
-				null,
 				campsAddicionals,
 				campsAddicionalsClasses,
 				false);
@@ -185,148 +180,68 @@ public class TascaFormHelper {
 	public static Object getCommandForCamps(
 			List<TascaDadaDto> tascaDadas,
 			HttpServletRequest request) {
-		return getCommandForCamps(tascaDadas, null, request, null, null, false);
+		return getCommandForCamps(tascaDadas, null, null, null, false);
 	}
 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object getCommandForCamps(
 			List<TascaDadaDto> tascaDadas,
 			Map<String, Object> valors,
-			HttpServletRequest request,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class> campsAddicionalsClasses,
 			boolean perFiltre) {
-		// Empram cglib per generar el command de manera dinàmica
-		BeanGenerator bg = new BeanGenerator();
-		if (campsAddicionalsClasses != null) {
-			for (String codi: campsAddicionalsClasses.keySet()) {
-				bg.addProperty(codi, campsAddicionalsClasses.get(codi));
-			}
-		}
 		Map<String, Object> registres = new HashMap<String, Object>();
-		for (TascaDadaDto camp: tascaDadas) {
-			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-				if (camp.getCampTipus() != null)  {
-					if (!perFiltre) {
-						if (camp.isCampMultiple())
-							bg.addProperty(
-									camp.getVarCodi(),
-									Array.newInstance(camp.getJavaClass(), 1).getClass());
-						else 
-							bg.addProperty(
-									camp.getVarCodi(),
-									camp.getJavaClass());
-					} else {
-						boolean ambArray = 	camp.getCampTipus().equals(CampTipusDto.DATE) ||
-									camp.getCampTipus().equals(CampTipusDto.INTEGER) ||
-									camp.getCampTipus().equals(CampTipusDto.FLOAT) ||
-									camp.getCampTipus().equals(CampTipusDto.PRICE);
-						if (ambArray)
-							bg.addProperty(
-									camp.getVarCodi(),
-									Array.newInstance(camp.getJavaClass(), 2).getClass());
-						else
-							bg.addProperty(
-									camp.getVarCodi(),
-									camp.getJavaClass());
-					}
-				} else {
-					bg.addProperty(
-							camp.getVarCodi(),
-							Object.class);
-				}
-			} else if (!perFiltre) {
-				// En cas de registres cream un objecte amb els membres del registre com a atributs (l'anomenarem Registre)
-				Object registre = getCommandForCamps(
-						camp.isCampMultiple() ? camp.getMultipleDades().get(0).getRegistreDades() : camp.getRegistreDades(),
-						null,
-						request,
-						null,
-						null,
-						false);
-				if (camp.isCampMultiple()) {
-					// En cas de ser un registre múltiple el que cream és un array de Registre
-					bg.addProperty(camp.getVarCodi(), Array.newInstance(registre.getClass(), 1).getClass());
-				} else {
-					bg.addProperty(camp.getVarCodi(), registre.getClass());
-				}
-				registres.put(camp.getVarCodi(), registre);
-			}
-		}
-		
-		Object command = bg.create();
+		// Empram cglib per generar el command de manera dinàmica
+		Object command = getCommandModelForCamps(tascaDadas, campsAddicionalsClasses, registres, perFiltre);
 		
 		// Inicialitza els camps del command amb els valors de la tasca
 		for (TascaDadaDto camp: tascaDadas) {
 			String tipusCommand = null;
-			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-				try {
-					Class propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
-					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
-					
-					Object valor = null;
-					if (request != null && request.getParameter(camp.getVarCodi()) != null && request.getParameter(camp.getVarCodi()).length()>0){
-						if (CampTipusDto.STRING.equals(camp.getCampTipus())) {
-							valor = (String) request.getParameter(camp.getVarCodi());
-						} else if (CampTipusDto.INTEGER.equals(camp.getCampTipus())) {
-							valor = Long.valueOf(request.getParameter(camp.getVarCodi()));
-						} else if (CampTipusDto.FLOAT.equals(camp.getCampTipus())) {
-							valor = Double.valueOf(request.getParameter(camp.getVarCodi()));
-						} else if (CampTipusDto.BOOLEAN.equals(camp.getCampTipus())) {
-							valor = Boolean.valueOf(request.getParameter(camp.getVarCodi()));
-						} else if (CampTipusDto.TEXTAREA.equals(camp.getCampTipus())) {
-							valor = (String) request.getParameter(camp.getVarCodi());
-						} else if (CampTipusDto.DATE.equals(camp.getCampTipus())) {
-							SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-							valor = sdf.parse(request.getParameter(camp.getVarCodi()));
-						} else if (CampTipusDto.PRICE.equals(camp.getCampTipus())) {
-							valor = BigDecimal.valueOf(Long.parseLong(request.getParameter(camp.getVarCodi())));
-						} else if (CampTipusDto.TERMINI.equals(camp.getCampTipus())) {
-							valor = (String) request.getParameter(camp.getVarCodi());
-						} else {
-							valor = (String) request.getParameter(camp.getVarCodi());
-						}
-					} else if (valors != null && valors.get(camp.getVarCodi()) != null) {
-						valor = valors.get(camp.getVarCodi());
-					} else {
-						valor = camp.getVarValor();
-					}
-					boolean ambArray;
-					if (!perFiltre) {
-						ambArray = camp.isCampMultiple();
-					} else {
-						ambArray = 	camp.getCampTipus().equals(CampTipusDto.DATE) ||
-									camp.getCampTipus().equals(CampTipusDto.INTEGER) ||
-									camp.getCampTipus().equals(CampTipusDto.FLOAT) ||
-									camp.getCampTipus().equals(CampTipusDto.PRICE);
-					}
-					if (ambArray) {
+			try {
+				Class propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
+				tipusCommand = (propertyType != null) ? propertyType.getName() : null;
+				
+				// Obtenim el valor del camp
+				Object valor = null;
+				if (valors != null && valors.get(camp.getVarCodi()) != null) {
+					valor = valors.get(camp.getVarCodi());
+				} else {
+					valor = camp.getVarValor();
+				}
+				
+				if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+					// Camps múltiples
+					if (isCampArray(camp, perFiltre)) {
+						List valorMultiple = null;
 						if (valor != null) {
 							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
-								int mida = ((Object[])valor).length;
-								TerminiDto[] terminis = new TerminiDto[mida];
-								int i = 0;
-								for (String term: (String[])valor) {
-									terminis[i++] = new TerminiDto(term);
+								int mida = 1;
+								if (valor instanceof Object[]) {
+									mida = ((Object[])valor).length;
+									TerminiDto[] terminis = new TerminiDto[mida];
+									int i = 0;
+									for (String term: (String[])valor) {
+										terminis[i++] = new TerminiDto(term);
+									}
+									valor = terminis;
+								} else {
+									valor = new TerminiDto((String)valor);
 								}
-								valor = terminis;
 							}
+							valorMultiple = new LinkedList(Arrays.asList(valor));
 							PropertyUtils.setSimpleProperty(
 									command,
 									camp.getVarCodi(),
-									valor);							
+									valorMultiple);			
 						} else {
-							Object array = Array.newInstance(
-									camp.getJavaClass(),
-									(perFiltre) ? 2 : 1);
-							if (!perFiltre) 
-								((Object[])array)[0] = camp.getJavaClass().newInstance();
-							
+							valorMultiple = new LinkedList();
+							valorMultiple.add(camp.getJavaClass().newInstance());
 							PropertyUtils.setSimpleProperty(
 									command,
 									camp.getVarCodi(),
-									array);
+									valorMultiple);
 						}
+					// Camps senzills
 					} else {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							if (valor != null) {
@@ -334,6 +249,113 @@ public class TascaFormHelper {
 							} else {
 								valor = new TerminiDto();
 							}
+						}
+						PropertyUtils.setSimpleProperty(
+								command,
+								camp.getVarCodi(),
+								valor);
+					}
+				// REGISTRES:
+				} else if (!perFiltre) {
+					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
+					Object registre = registres.get(camp.getVarCodi());
+					Object valorRegistre = null;
+					// 3. Si el valor obtingut és null, llavors crearem un objecte Registre o Registre[1] amb els atributs buits, depenent de si és múltiple
+					if (valor == null) {
+						if (camp.isCampMultiple()) {
+//							valorRegistre = new LinkedList(Arrays.asList(registre));
+							valorRegistre = Array.newInstance(registre.getClass(), 1);
+							((Object[])valorRegistre)[0] = registre;
+						} else {
+							valorRegistre = registre;
+						}
+					// 4. En cas contrari assignarem els valor obtinguts a l'objecte Registre
+					} else {
+						if (camp.isCampMultiple()) {
+							int mida = ((Object[])valor).length;
+							Object[] linies = (Object[])Array.newInstance(registre.getClass(), mida);
+							
+							for (int l = 0; l < mida; l++){
+								linies[l] = registre.getClass().newInstance();
+							}
+							int i = 0;
+							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
+								Method metodeSet = registre.getClass().getMethod(
+										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
+										((Object[])((Object[])valor)[0])[i].getClass());
+								int l = 0;
+								for (Object linia: linies){
+									metodeSet.invoke(linia, ((Object[])((Object[])valor)[l++])[i]);
+								}
+								i++;
+							}
+							valorRegistre = new LinkedList(Arrays.asList(linies));
+						} else {
+							valorRegistre = registre;
+							int i = 0;
+							for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
+								Method metodeSet = valorRegistre.getClass().getMethod(
+										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
+										((Object[])valor)[i].getClass());
+								metodeSet.invoke(valorRegistre, ((Object[])valor)[i++]);
+							}
+						}
+					}
+					// 5. Assignam el valor calculat a la propietat que representa el registre
+//					PropertyUtils.setNestedProperty(
+					PropertyUtils.setSimpleProperty(
+							command, 
+							camp.getVarCodi(),
+							valorRegistre);
+				}
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut afegir el camp '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
+			}
+		}
+		
+		if (campsAddicionals != null) {
+			for (String codi: campsAddicionals.keySet()) {
+				try {
+					PropertyUtils.setSimpleProperty(
+							command,
+							codi,
+							campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null);
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut afegir el camp addicional '" + codi + "'", ex);
+				}
+			}
+		}
+		
+		return command;
+	}
+	
+	public static Object getCommandBuitForCamps(
+			List<TascaDadaDto> tascaDadas,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class> campsAddicionalsClasses,
+			boolean perFiltre) {
+		Map<String, Object> registres = new HashMap<String, Object>();
+		// Empram cglib per generar el command de manera dinàmica
+		Object command = getCommandModelForCamps(tascaDadas, campsAddicionalsClasses, registres, perFiltre);
+		
+		// Inicialitza els camps del command amb valors buits
+		for (TascaDadaDto camp: tascaDadas) {
+			String tipusCommand = null;
+			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+				try {
+					Class propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
+					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
+					
+					if (isCampArray(camp, perFiltre)) {
+						PropertyUtils.setSimpleProperty(
+								command,
+								camp.getVarCodi(),
+								Array.newInstance(camp.getJavaClass(), (perFiltre ? 2 : 1)));
+						
+					} else {
+						Object valor = null;
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
+							valor = new TerminiDto();
 						}
 						PropertyUtils.setSimpleProperty(
 								command,
@@ -348,66 +370,13 @@ public class TascaFormHelper {
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
 					Object registre = registres.get(camp.getVarCodi());
 					Object valorRegistre = null;
-					Object valor = null;
-					boolean valueFromRequest = false;
-					// 1. Primer intentarem obtenir el valor del request
-					if (request != null && request.getParameter(camp.getVarCodi()) != null && request.getParameter(camp.getVarCodi()).length()>0){
-						valor = request.getParameter(camp.getVarCodi());
-						valueFromRequest = true;
-					// 2. En cas contrari llegirrem els valors passats per paràmetre (valors)
-					} else if (valors != null && valors.get(camp.getVarCodi()) != null) {
-						valor = valors.get(camp.getVarCodi());
+					if (camp.isCampMultiple()) {
+//						valorRegistre = new LinkedList(Arrays.asList(registre));
+						valorRegistre = Array.newInstance(registre.getClass(), 1);
+						((Object[])valorRegistre)[0] = registre;
 					} else {
-						valor = camp.getVarValor();
+						valorRegistre = registre;
 					}
-					// 3. Si el valor obtingut és null, llavors crearem un objecte Registre o Registre[1] amb els atributs buits, depenent de si és múltiple
-					if (valor == null) {
-						if (camp.isCampMultiple()) {
-							valorRegistre = Array.newInstance(registre.getClass(), 1);
-							((Object[])valorRegistre)[0] = registre;
-						} else {
-							valorRegistre = registre;
-						}
-					// 4. En cas contrari assignarem els valor obtinguts a l'objecte Registre
-					} else {
-						// Si prové del request, directament l'objecte
-						if (valueFromRequest) {
-							valorRegistre = valor;
-						// Si prové del paràmetre d'entrada, convertirem un Object[] a Registre, o Object[][] a Registre[] depenent de si és múltiple
-						} else {
-							if (camp.isCampMultiple()) {
-								int mida = ((Object[])valor).length;
-								Object[] linies = (Object[])Array.newInstance(registre.getClass(), mida);
-								
-								for (int l = 0; l < mida; l++){
-									linies[l] = registre.getClass().newInstance();
-								}
-								int i = 0;
-								for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
-									Method metodeSet = registre.getClass().getMethod(
-											"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
-											((Object[])((Object[])valor)[0])[i].getClass());
-									int l = 0;
-									for (Object linia: linies){
-										metodeSet.invoke(linia, ((Object[])((Object[])valor)[l++])[i]);
-									}
-									i++;
-								}
-								valorRegistre = linies;
-							} else {
-								valorRegistre = registre;
-								int i = 0;
-								for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
-									Method metodeSet = valorRegistre.getClass().getMethod(
-											"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
-											((Object[])valor)[i].getClass());
-									metodeSet.invoke(valorRegistre, ((Object[])valor)[i++]);
-								}
-							}
-						}
-					}
-					// 5. Assignam el valor calculat a la propietat que representa el registre
-//					PropertyUtils.setNestedProperty(
 					PropertyUtils.setSimpleProperty(
 							command, 
 							camp.getVarCodi(),
@@ -432,6 +401,71 @@ public class TascaFormHelper {
 		}
 		
 		return command;
+	}
+	
+	private static boolean isCampArray (TascaDadaDto camp, boolean perFiltre) {
+		boolean ambArray = false;
+		if (!perFiltre) {
+			ambArray = camp.isCampMultiple();
+		} else {
+			ambArray = 	camp.getCampTipus().equals(CampTipusDto.DATE) ||
+						camp.getCampTipus().equals(CampTipusDto.INTEGER) ||
+						camp.getCampTipus().equals(CampTipusDto.FLOAT) ||
+						camp.getCampTipus().equals(CampTipusDto.PRICE);
+		}
+		return ambArray;
+	}
+	@SuppressWarnings("rawtypes")
+	public static Object getCommandModelForCamps(
+			List<TascaDadaDto> tascaDadas,
+			Map<String, Class> campsAddicionalsClasses,
+			Map<String, Object> registres,
+			boolean perFiltre) {
+		// Empram cglib per generar el command de manera dinàmica
+		BeanGenerator bg = new BeanGenerator();
+		if (campsAddicionalsClasses != null) {
+			for (String codi: campsAddicionalsClasses.keySet()) {
+				bg.addProperty(codi, campsAddicionalsClasses.get(codi));
+			}
+		}
+		if (registres == null) registres = new HashMap<String, Object>();
+		for (TascaDadaDto camp: tascaDadas) {
+			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+				if (camp.getCampTipus() != null)  {
+					if (isCampArray(camp, perFiltre)) {
+						bg.addProperty(
+								camp.getVarCodi(),
+								Array.newInstance(camp.getJavaClass(), (perFiltre ? 2 : 1)).getClass());
+					} else { 
+						bg.addProperty(
+								camp.getVarCodi(),
+								camp.getJavaClass());
+					}
+				} else {
+					bg.addProperty(
+							camp.getVarCodi(),
+							Object.class);
+				}
+			} else if (!perFiltre) {
+				// En cas de registres cream un objecte amb els membres del registre com a atributs (l'anomenarem Registre)
+				Object registre = getCommandModelForCamps(
+						camp.isCampMultiple() ? camp.getMultipleDades().get(0).getRegistreDades() : camp.getRegistreDades(),
+						null,
+						registres,
+						false);
+				if (camp.isCampMultiple()) {
+					// En cas de ser un registre múltiple el que cream és un array de Registre
+					bg.addProperty(
+							camp.getVarCodi(), 
+							Array.newInstance(camp.getJavaClass(), (perFiltre ? 2 : 1)).getClass());
+				} else {
+					bg.addProperty(camp.getVarCodi(), registre.getClass());
+				}
+				registres.put(camp.getVarCodi(), registre);
+			}
+		}
+		
+		return bg.create();
 	}
 
 	private static Object cloneMultipleArray(

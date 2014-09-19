@@ -116,20 +116,18 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								eventosExpediente));
 			}
 			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
-			try {
-				if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal.toUpperCase()) && !getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
-					if (getZonaperClient().altaZonaPersonalUsuario(
-							nifZonaPersonal.toUpperCase(), 
-							request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-							request.getRepresentatApe1(), 
-							request.getRepresentatApe2()) == null) {
-						logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
-						throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
-					}
+			
+			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal.toUpperCase()) && !getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
+				if (getZonaperClient().altaZonaPersonalUsuario(
+						nifZonaPersonal.toUpperCase(), 
+						request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
+						request.getRepresentatApe1(), 
+						request.getRepresentatApe2()) == null) {
+					logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
+					throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
 				}
-			} catch (Exception ex) {
-				logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif(), ex);
 			}
+			
 			getZonaperClient().altaExpediente(expediente);
 			logger.info("Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 		} catch (Exception ex) {
@@ -143,14 +141,14 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		try {
 			Event event = request.getEvent();
 			if (event != null) {
-				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentantNif().toUpperCase())) {
+				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif().toUpperCase())) {
 					if (getZonaperClient().altaZonaPersonalUsuario(
-							request.getRepresentantNif().toUpperCase(), 
+							request.getRepresentatNif().toUpperCase(), 
 							request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
 							request.getRepresentatApe1(), 
 							request.getRepresentatApe2()) == null) {
-						logger.error("Error al crear la zona personal: " + request.getRepresentantNif());
-						throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
+						logger.error("Error al crear la zona personal: " + request.getRepresentatNif());
+						throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentatNif());
 					}
 				}
 				getZonaperClient().altaEventoExpediente(

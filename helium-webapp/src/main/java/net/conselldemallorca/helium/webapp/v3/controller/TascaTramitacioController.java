@@ -89,7 +89,7 @@ public class TascaTramitacioController extends BaseController {
 			return commandSessio;
 		} else {
 			try {
-				return TascaFormHelper.getCommandForCamps(tascaService.findDades(tascaId), null, request, new HashMap<String, Object>(), new HashMap<String, Class>(), false);
+				return TascaFormHelper.getCommandForCamps(tascaService.findDades(tascaId), null, new HashMap<String, Object>(), new HashMap<String, Class>(), false);
 			} catch (TascaNotFoundException ex) {
 				MissatgesHelper.error(request, ex.getMessage());
 				logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);

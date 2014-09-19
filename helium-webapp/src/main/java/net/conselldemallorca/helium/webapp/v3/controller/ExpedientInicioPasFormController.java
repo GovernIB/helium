@@ -162,7 +162,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		        campsAddicionals.put("listaDadas", lista);
-				Object cmd = TascaFormHelper.getCommandForCamps(lista, null, request, campsAddicionals, campsAddicionalsClasses, false);
+				Object cmd = TascaFormHelper.getCommandForCamps(lista, null, campsAddicionals, campsAddicionalsClasses, false);
 				BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
 				Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(lista);
 		        validatorTasca.validate(cmd, res);
@@ -179,7 +179,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		campsAddicionals.put("listaDadas", dades);
 		Validator validatorDades = TascaFormHelper.getBeanValidatorForCommand(dades);
-		Object cmd = TascaFormHelper.getCommandForCamps(dades, null, request, campsAddicionals, campsAddicionalsClasses, false);
+		Object cmd = TascaFormHelper.getCommandForCamps(dades, null, campsAddicionals, campsAddicionalsClasses, false);
 		BindingResult res = new BeanPropertyBindingResult(cmd, "cmd");
         validatorTasca.validate(cmd, res);
 		validatorDades.validate(cmd, res);

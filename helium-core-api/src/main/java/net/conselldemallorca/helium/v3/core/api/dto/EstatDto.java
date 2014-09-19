@@ -18,6 +18,16 @@ public class EstatDto implements Serializable {
 	private Long id;
 	private String codi;
 	private String nom;
+	
+	public EstatDto(Long id, String codi, String nom) {
+		super();
+		this.id = id;
+		this.codi = codi;
+		this.nom = nom;
+	}
+
+	public EstatDto() {
+	}
 
 	public Long getId() {
 		return id;

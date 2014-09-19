@@ -346,6 +346,7 @@ public class ExecucioMassivaService {
 		return resposta;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
 		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
 		try {
@@ -367,7 +368,6 @@ public class ExecucioMassivaService {
 				Object param2 = deserialize(dto.getParam2());
 				if (param2 instanceof Object[]) {
 					Object credentials = ((Object[])param2)[1];
-					@SuppressWarnings("unchecked")
 					List<String> rols = (List<String>)((Object[])param2)[2];
 					List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
 					if (!rols.isEmpty()) {
@@ -390,6 +390,58 @@ public class ExecucioMassivaService {
 			}
 	        
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
+				// Authentication
+				String param = dto.getParam1();
+				Object param2 = deserialize(dto.getParam2());
+
+				if (param2 instanceof Object[]) {
+					Object credentials = null;					
+					List<String> rols = null;
+					if (param.equals("Guardar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("Validar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("Completar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("Restaurar")) {
+						credentials = ((Object[]) param2)[1];
+						rols = (List<String>) ((Object[]) param2)[2];
+					} else if (param.equals("Accio")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("DocGuardar")) {
+						credentials = ((Object[]) param2)[5];
+						rols = (List<String>) ((Object[]) param2)[6];
+					} else if (param.equals("DocEsborrar")) {
+						credentials = ((Object[]) param2)[2];
+						rols = (List<String>) ((Object[]) param2)[3];
+					} else if (param.equals("DocGenerar")) {
+						credentials = ((Object[]) param2)[3];
+						rols = (List<String>) ((Object[]) param2)[4];
+					} else if (param.equals("RegEsborrar")) {
+						credentials = ((Object[]) param2)[3];
+						rols = (List<String>) ((Object[]) param2)[4];
+					} else if (param.equals("RegGuardar")) {
+						credentials = ((Object[]) param2)[4];
+						rols = (List<String>) ((Object[]) param2)[5];
+					}
+
+					List<GrantedAuthority> authorities = null;
+					if (!rols.isEmpty()) {						
+						authorities = new ArrayList<GrantedAuthority>();
+						if (!rols.isEmpty()) {
+							for (String rol: rols) {
+								authorities.add(new SimpleGrantedAuthority(rol));
+							}
+						}
+					}
+					authentication =  new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+				}
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+
 				gestioTasca(dto);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient);
@@ -490,7 +542,8 @@ public class ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Restaurar", "massiva_tasca", expedient, tasca);
-				Long entornId = (Long)deserialize(dto.getParam2());
+				Object[] param2 = (Object[])deserialize(dto.getParam2());
+				Long entornId = (Long)param2[0];
 				try {
 					tascaService.restaurar(entornId, tascaId, dto.getUsuari());
 				} catch (Exception e) {

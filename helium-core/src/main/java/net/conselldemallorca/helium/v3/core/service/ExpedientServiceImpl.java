@@ -2297,6 +2297,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consulta,
 				TipusConsultaCamp.INFORME);
 	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
+		Consulta consulta = consultaHelper.findById(consultaId);
+		return serviceUtils.findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.PARAM);
+	}
 	
 	@Override
 	@Transactional(readOnly=true)

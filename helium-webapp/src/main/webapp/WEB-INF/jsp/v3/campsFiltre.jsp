@@ -89,8 +89,17 @@
 			</c:when>
 			<c:when test="${campActual.campTipus == 'SELECCIO'}">
 				<c:choose>
-					<c:when test="${codiActual == 'expedient$estat'}">
-						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholderKey="expedient.consulta.select.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="nom"/>
+					<c:when test="${campPath == 'expedient$estat'}">
+						<div class="selEstat">
+							<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholder="${campActual.campEtiqueta}" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="nom"/>
+							<script>
+								$(".selEstat select").select2({
+								    width: 'resolve',
+								    placeholder: "${campActual.campEtiqueta}",
+								    allowClear: true
+								});
+							</script>
+						</div>
 					</c:when>
 					<c:otherwise>
 						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholder="${campActual.campEtiqueta}" optionItems="${campActual.varValor}" optionValueAttribute="codi" optionTextAttribute="valor"/>

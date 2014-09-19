@@ -60,9 +60,9 @@ public class DominiHelper {
 			String id,
 			Map<String, Object> parametres) {
 		List<FilaResultat> resultat = null;
-		String cacheKey = getCacheKey(domini.getId(), parametres);
+		String cacheKey = getCacheKey(domini.getId(), id, parametres);
 		Element element = null;
-		if (dominiCache != null)
+		if (domini.getCacheSegons() > 0 && dominiCache != null)
 			element = dominiCache.get(cacheKey);
 		if (element == null) {
 			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
@@ -207,10 +207,13 @@ public class DominiHelper {
 	}
 
 	private String getCacheKey(
-			Long dominiId,
+			Long dominiId,			
+			String dominiWsId, 
 			Map<String, Object> parametres) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(dominiId.toString());
+		sb.append(CACHE_KEY_SEPARATOR);
+		sb.append(dominiWsId);
 		sb.append(CACHE_KEY_SEPARATOR);
 		if (parametres != null) {
 			for (String clau: parametres.keySet()) {

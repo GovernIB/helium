@@ -783,4 +783,6 @@ public interface ExpedientService {
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 
 	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
+
+	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId);
 }

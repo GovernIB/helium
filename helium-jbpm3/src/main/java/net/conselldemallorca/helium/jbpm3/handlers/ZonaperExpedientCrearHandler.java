@@ -47,7 +47,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		System.out.println("XX ExpedientDto : " + expedient);
+		
 		if (!isComprovarExistencia() || expedient.getTramitExpedientIdentificador() == null) {
 			Jbpm3HeliumBridge.getInstanceService().zonaperExpedientCrear(
 					expedient,
@@ -127,8 +127,26 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 			zonaperExpedient.setTramitNumero(expedient.getNumeroEntradaSistra());
 			zonaperExpedient.setAutenticat(expedient.isAutenticat());
 			zonaperExpedient.setRepresentantNif(expedient.getRepresentantNif());
-			zonaperExpedient.setRepresentatNif(expedient.getInteressatNif());
-			zonaperExpedient.setRepresentatNom(expedient.getInteressatNom());
+			
+			if (expedient.getInteressatNif() == null || expedient.getInteressatNif().isEmpty()) {
+				zonaperExpedient.setRepresentatNif(
+						(String)getValorOVariable(
+								executionContext,
+								representatNif,
+								varRepresentatNif));
+			} else {
+				zonaperExpedient.setRepresentatNif(expedient.getInteressatNif());
+			}
+			
+			if (expedient.getInteressatNom() == null || expedient.getInteressatNom().isEmpty()) {
+				zonaperExpedient.setRepresentatNom(
+						(String)getValorOVariable(
+								executionContext,
+								representatNom,
+								varRepresentatNom));
+			} else {
+				zonaperExpedient.setRepresentatNom(expedient.getInteressatNom());
+			}
 		} else {
 			zonaperExpedient.setIdioma(
 					(String)getValorOVariable(
@@ -186,7 +204,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 			zonaperExpedient.setAvisosEmail(expedient.getAvisosEmail());
 			zonaperExpedient.setAvisosSMS(expedient.getAvisosMobil());
 		}
-		System.out.println("XX zonaperExpedient : " + zonaperExpedient);
+		
 		return zonaperExpedient;
 	}
 

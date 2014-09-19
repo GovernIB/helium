@@ -122,13 +122,6 @@ public class PluginHelper {
 		PublicarExpedientRequest request = conversioTipusHelper.convertir(
 				dadesExpedient,
 				PublicarExpedientRequest.class);
-		System.out.println("XX PublicarExpedientRequest 1 : " + request);
-		if (request.getRepresentatNif() == null || request.getRepresentatNif().isEmpty())
-			request.setRepresentatNif(expedient.getInteressatNif());
-		if (request.getRepresentatNom() == null || request.getRepresentatNom().isEmpty()) {
-			request.setRepresentatNom(expedient.getInteressatNom());
-		}
-		System.out.println("XX PublicarExpedientRequest 2 : " + request);
 		getTramitacioPlugin().publicarExpedient(request);
 	}
 	public void zonaperEventCrear(
@@ -137,23 +130,16 @@ public class PluginHelper {
 		if (expedient.getTramitExpedientIdentificador() == null || expedient.getTramitExpedientClau() == null)
 			throw new Exception("Abans s'ha de crear un expedient per a poder publicar un event");
 		PublicarEventRequest request = new PublicarEventRequest();
-		request.setExpedientIdentificador(
-				expedient.getTramitExpedientIdentificador());
-		request.setExpedientClau(
-				expedient.getTramitExpedientClau());
-		request.setUnitatAdministrativa(
-				expedient.getUnitatAdministrativa());
+		request.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		request.setExpedientClau(expedient.getTramitExpedientClau());
+		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		request.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		request.setRepresentatNif(expedient.getInteressatNif());
+		request.setRepresentatNom(expedient.getInteressatNom());	
 		request.setEvent(
 				conversioTipusHelper.convertir(
 						dadesEvent,
-						Event.class));
-		
-		if (expedient.getRepresentantNif() == null || expedient.getRepresentantNif().isEmpty())
-			request.setRepresentantNif(expedient.getInteressatNif());
-		if (expedient.getRepresentantNom() == null || expedient.getRepresentantNom().isEmpty()) {
-			request.setRepresentatNom(expedient.getInteressatNom());
-		}
-		
+						Event.class));		
 		getTramitacioPlugin().publicarEvent(request);
 	}
 	public TramitDto obtenirDadesTramit(

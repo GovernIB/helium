@@ -119,7 +119,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 				domini = getById(dominiId, false);
 			}
 		}
-		String cacheKey = getCacheKey(domini.getId(), parametres);
+		String cacheKey = getCacheKey(domini.getId(), id, parametres);
 		resultat = getResultatFromCache(
 				domini,
 				id,
@@ -262,9 +262,12 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 	private String getCacheKey(
 			Long dominiId,
+			String dominiWsId, 
 			Map<String, Object> parametres) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(dominiId.toString());
+		sb.append(CACHE_KEY_SEPARATOR);
+		sb.append(dominiWsId);
 		sb.append(CACHE_KEY_SEPARATOR);
 		if (parametres != null) {
 			for (String clau: parametres.keySet()) {
