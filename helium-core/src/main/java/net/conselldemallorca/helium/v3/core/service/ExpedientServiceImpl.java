@@ -322,7 +322,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 							entorn,
 							expedientTipus,
 							any));
-			//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
+//			MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "2");
 			if (expedientTipus.getTeNumero()) {
 				if (numero != null && numero.length() > 0 && expedientTipus.getDemanaNumero()) {
 					expedient.setNumero(numero);

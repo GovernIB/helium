@@ -58,7 +58,9 @@ function confirmarCancelar(e) {
 					<c:forEach var="registre" items="${terminis}">
 						<c:set var="iniciat" value=""/>
 						<c:forEach var="ini" items="${iniciats}">
-							<c:if test="${registre.id == ini.termini.id and empty ini.dataCancelacio}"><c:set var="iniciat" value="${ini}"/></c:if>
+							<c:if test="${registre.id == ini.termini.id and empty ini.dataCancelacio}">
+								<c:set var="iniciat" value="${ini}"/>
+							</c:if>
 						</c:forEach>
 						<tr>
 							<td>${registre.nom}</td>
@@ -110,12 +112,12 @@ function confirmarCancelar(e) {
 												<img src="<c:url value="/img/control_play.png"/>" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
 											</c:when>
 											<c:otherwise>
-												<a href="<c:url value="/v3/expedient/${expedientId}/${iniciat.id}/terminiContinuar"/>" onclick="return confirmarContinuar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/></a>
+												<a href="<c:url value="${expedientId}/${iniciat.id}/terminiContinuar"/>" onclick="return confirmarContinuar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/></a>
 											</c:otherwise>
 										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<a href="<c:url value="/v3/expedient/${expedientId}/${expedient.processInstanceId}/${registre.id}/terminiIniciar"/>" onclick="return confirmarIniciar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/></a>
+										<a href="<c:url value="${expedientId}/${expedient.processInstanceId}/${registre.id}/terminiIniciar"/>" onclick="return confirmarIniciar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/></a>
 									</c:otherwise>
 								</c:choose>
 								
@@ -124,7 +126,7 @@ function confirmarCancelar(e) {
 										<img src="<c:url value="/img/control_pause.png"/>" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
 									</c:when>
 									<c:otherwise>
-										<a href="<c:url value="/v3/expedient/${expedientId}/${iniciat.id}/terminiPausar"/>" onclick="return confirmarAturar(event)"><img src="<c:url value="/img/control_pause_blue.png"/>" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/></a>
+										<a href="<c:url value="${expedientId}/${iniciat.id}/terminiPausar"/>" onclick="return confirmarAturar(event)"><img src="<c:url value="/img/control_pause_blue.png"/>" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/></a>
 									</c:otherwise>
 								</c:choose>
 								
@@ -133,12 +135,12 @@ function confirmarCancelar(e) {
 										<img src="<c:url value="/img/control_stop.png"/>" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
 									</c:when>
 									<c:otherwise>
-										<a href="<c:url value="/v3/expedient/${expedientId}/${iniciat.id}/terminiCancelar"/>" onclick="return confirmarCancelar(event)"><img src="<c:url value="/img/control_stop_blue.png"/>" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/></a>
+										<a href="<c:url value="${expedientId}/${iniciat.id}/terminiCancelar"/>" onclick="return confirmarCancelar(event)"><img src="<c:url value="/img/control_stop_blue.png"/>" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/></a>
 									</c:otherwise>
 								</c:choose>
 								
 								<c:if test="${not empty iniciat}">
-<%-- 									<a class="a-modal-termini" href="<c:url value="/v3/expedient/${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="icon-edit" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a> --%>
+									<a class="a-modal-termini" href="<c:url value="${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
 								</c:if>
 							</td>
 						</tr>

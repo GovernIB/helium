@@ -408,6 +408,12 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
+		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public TascaDadaDto findDada(
 			String id,
 			String variableCodi) {

@@ -5,6 +5,7 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
 <head>
@@ -15,6 +16,10 @@
 		</style>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[
 var comprovacio = new Array();<c:forEach var="et" items="${expedientTipus}">
@@ -48,8 +53,14 @@ function confirmar(e, form) {
 			</form>
 		</display:column>
 	</display:table>
+	<script>
+		$("select").select2({
+		    width: 'calc(100% - 71px)',
+		    allowClear: true
+		});
+	</script>
 	<div id="modal-botons" class="well">
-		<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+		<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 			<spring:message code='comuns.cancelar' />
 		</button>
 	</div>

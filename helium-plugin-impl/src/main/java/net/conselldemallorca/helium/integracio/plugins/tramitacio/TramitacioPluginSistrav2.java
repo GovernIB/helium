@@ -342,6 +342,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			}
 			tramit.setDocuments(documents);
 		}
+		System.out.println("XX 2 : " + tramit);
 		return tramit;
 	}
 	

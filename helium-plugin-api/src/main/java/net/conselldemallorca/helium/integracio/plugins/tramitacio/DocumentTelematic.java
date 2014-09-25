@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -73,5 +74,8 @@ public class DocumentTelematic {
 	public void setEstructurat(Boolean estructurat) {
 		this.estructurat = estructurat;
 	}
-
+	@Override
+	public String toString() {
+		return "DocumentTelematic [arxiuNom=" + arxiuNom + ", arxiuExtensio=" + arxiuExtensio + ", arxiuContingut=" + Arrays.toString(arxiuContingut) + ", referenciaGestorDocumental=" + referenciaGestorDocumental + ", signatures=" + signatures + ", referenciaCodi=" + referenciaCodi + ", referenciaClau=" + referenciaClau + ", estructurat=" + estructurat + "]";
+	}
 }

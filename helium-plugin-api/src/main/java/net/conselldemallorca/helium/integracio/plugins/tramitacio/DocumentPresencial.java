@@ -39,5 +39,8 @@ public class DocumentPresencial {
 	public void setSignatura(String signatura) {
 		this.signatura = signatura;
 	}
-
+	@Override
+	public String toString() {
+		return "DocumentPresencial [tipus=" + tipus + ", documentCompulsar=" + documentCompulsar + ", fotocopia=" + fotocopia + ", signatura=" + signatura + "]";
+	}
 }

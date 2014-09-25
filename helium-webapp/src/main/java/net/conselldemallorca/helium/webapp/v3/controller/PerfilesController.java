@@ -142,16 +142,15 @@ public class PerfilesController extends BaseController {
 		
 		EntornDto entornUsuari = null;
 		List<EntornDto> entorns = adminService.findEntornAmbPermisReadUsuariActual();
-		if (preferencies.getDefaultEntornCodi() == null) {
-			entornUsuari = SessionHelper.getSessionManager(request).getEntornActual();
-		} else {
-			for (EntornDto entorn: entorns) {
-				if (entorn.getCodi().equals(preferencies.getDefaultEntornCodi())) {
-					entornUsuari = entorn;
-					break;
-				}
+		
+		for (EntornDto entorn: entorns) {
+			if (entorn.getCodi().equals(preferencies.getDefaultEntornCodi())) {
+				entornUsuari = entorn;
+				break;
 			}
 		}
+		if (entornUsuari == null)
+			entornUsuari = SessionHelper.getSessionManager(request).getEntornActual();
 		
 		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());

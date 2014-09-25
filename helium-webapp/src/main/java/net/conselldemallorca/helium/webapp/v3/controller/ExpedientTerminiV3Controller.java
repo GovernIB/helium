@@ -48,12 +48,8 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		model.addAttribute(
-				"terminis",
-				dissenyService.findTerminisAmbExpedientId(expedientId));
-		model.addAttribute(
-				"iniciats",
-				dissenyService.findIniciatsAmbExpedientId(expedientId));
+		model.addAttribute("terminis", dissenyService.findTerminisAmbExpedientId(expedientId));
+		model.addAttribute("iniciats", dissenyService.findIniciatsAmbExpedientId(expedientId));
 			
 		return "v3/expedient/terminis";
 	}
@@ -155,7 +151,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		return "v3/expedient/terminiModificar";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.POST)
+	@RequestMapping(value = "/modal/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.POST)
 	public String terminiModificar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,

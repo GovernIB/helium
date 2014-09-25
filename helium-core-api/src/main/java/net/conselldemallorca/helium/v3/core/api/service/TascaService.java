@@ -370,4 +370,5 @@ public interface TascaService {
 			String campCodi,
 			int index);
 
+	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 }

@@ -61,6 +61,7 @@ public abstract class BaseBackoffice {
 						expedientTipus.getEntorn().getId(),
 						expedientTipus.getId());*/
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
+			logger.info("XX 3 : " + expedientTipus.getCodi() + ": " + tramit);
 			ExpedientDto expedientNou = expedientService.iniciar(
 					expedientTipus.getEntorn().getId(),
 					null,

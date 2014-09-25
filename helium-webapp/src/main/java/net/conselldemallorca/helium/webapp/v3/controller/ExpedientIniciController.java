@@ -24,12 +24,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,7 +51,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientIniciController extends BaseExpedientController {
-
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
@@ -58,15 +59,42 @@ public class ExpedientIniciController extends BaseExpedientController {
 	public static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
 	public static final String CLAU_SESSIO_PREFIX_REGISTRE = "ExpedientIniciarController_reg_";
+	public static final String VARIABLE_COMMAND_INICI_EXPEDIENT = "iniciexp_command";
 
 	@Autowired
 	private ExpedientService expedientService;
 
 	@Autowired
 	private TascaService tascaService;
-
-	@Autowired
-	private PluginService pluginService;
+	
+	@ModelAttribute("command")
+	protected Object populateCommand(
+			HttpServletRequest request, 
+			Long expedientTipusId,
+			Long definicioProcesId,
+			Model model) {
+		try {
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			@SuppressWarnings("rawtypes")
+			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
+			campsAddicionals.put("id", tasca.getId());
+			campsAddicionals.put("entornId", entorn.getId());
+			campsAddicionals.put("expedientTipusId", expedientTipusId);
+			campsAddicionals.put("definicioProcesId", definicioProcesId);
+			campsAddicionalsClasses.put("id", String.class);
+			campsAddicionalsClasses.put("entornId", Long.class);
+			campsAddicionalsClasses.put("expedientTipusId", Long.class);
+			campsAddicionalsClasses.put("definicioProcesId", Long.class);
+			
+			return TascaFormHelper.getCommandForCamps(tascaService.findDadesPerTascaDto(tasca), null, campsAddicionals, campsAddicionalsClasses, false);
+		} catch (TascaNotFoundException ex) {
+			MissatgesHelper.error(request, ex.getMessage());
+			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
+		} catch (Exception ignored) {} 
+		return null;
+	}
 
 	@RequestMapping(value = "/iniciar", method = RequestMethod.GET)
 	public String iniciarGet(HttpServletRequest request, Model model) {
@@ -94,11 +122,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 	}
 
 	@RequestMapping(value = "/iniciar", method = RequestMethod.POST)
-	public String iniciarPost(
-			HttpServletRequest request, 
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, 
-			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId, 
-			Model model) {
+	public String iniciarPost(HttpServletRequest request, @RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, @RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId, Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		netejarSessio(request);
@@ -114,7 +138,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 		model.addAttribute("definicioProces", definicioProces);
 		if (definicioProces.isHasStartTask()) {
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProces.getId(), new HashMap<String, Object>(), request);
-			List<TascaDadaDto> dades = tascaService.findDades(tasca.getId());
+			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
 			model.addAttribute("tasca", tasca);
 			model.addAttribute("dades", dades);
 			model.addAttribute("entornId", entorn.getId());
@@ -129,12 +153,11 @@ public class ExpedientIniciController extends BaseExpedientController {
 			command.setExpedientTipusId(expedientTipusId);
 			command.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, command.getAny()));
 			command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
+			command.setExpedientTipusId(expedientTipus.getId());
+			model.addAttribute("anysSeleccionables", getAnysSeleccionables());
 			command.setEntornId(entorn.getId());
 			model.addAttribute(command);
-			model.addAttribute("entornId", entorn.getId());
-			model.addAttribute("anysSeleccionables", getAnysSeleccionables());
 			model.addAttribute("expedientTipus", expedientTipus);
-			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
 			return "v3/expedient/iniciarPasTitol";
 		} else {
 			// Si no requereix cap pas addicional inicia l'expedient directament
@@ -148,18 +171,6 @@ public class ExpedientIniciController extends BaseExpedientController {
 			}
 		}
 		return iniciarGet(request, model);
-	}
-
-	public List<ParellaCodiValorDto> getAnysSeleccionables() {
-		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
-		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
-		for (int i = 0; i < 10; i++) {
-			ParellaCodiValorDto par = new ParellaCodiValorDto();
-			par.setCodi(String.valueOf(anyActual - i));
-			par.setValor(anyActual - i);
-			anys.add(par);
-		}
-		return anys;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -178,11 +189,20 @@ public class ExpedientIniciController extends BaseExpedientController {
 		request.getSession().removeAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 	}
 
+	public List<ParellaCodiValorDto> getAnysSeleccionables() {
+		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
+		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
+		for (int i = 0; i < 5; i++) {
+			anys.add(new ParellaCodiValorDto(String.valueOf(anyActual - i), anyActual - i));
+		}
+		return anys;
+	}
+
 	private synchronized ExpedientDto iniciarExpedient(Long entornId, Long expedientTipusId, Long definicioProcesId) {
 		return expedientService.create(entornId, null, expedientTipusId, definicioProcesId, null, null, null, null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, null, null, IniciadorTipusDto.INTERN, null, null, null, null);
 	}
 
-	private ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
+	protected ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
 		ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, valors);
 		tasca.setId((String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID));
 		Object validat = request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALIDAT);

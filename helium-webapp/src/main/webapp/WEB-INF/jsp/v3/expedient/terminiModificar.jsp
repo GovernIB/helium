@@ -1,16 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
 <head>
 	<title><spring:message code='expedient.termini.modificar' />: ${termini.nom}</title>
-	<meta name="titolcmp" content="<spring:message code='comuns.consultes' />" />
-	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
-	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
-	<c:import url="../common/formIncludes.jsp"/>
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
+	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
+	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
+	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<hel:modalHead/>
 	<script type="text/javascript">
 	// <![CDATA[
 		function mostrar(objid) {
@@ -39,6 +52,16 @@
 		window.onload = onLoad;
 	// ]]>
 	</script>
+	<style>
+		.form-group {width: 100%;}
+		.fila_reducida {width: 100%;}		
+		.col-xs-4 {width: 20%;}		
+		.col-xs-8 {width: 77%;}
+		.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
+		.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
+		.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
+		#s2id_estatId {width: 100% !important;}
+	</style>
 </head>
 <body>
 	<form:form action="terminiModificar" cssClass="uniForm" commandName="expedientTerminiModificarCommand">
@@ -115,9 +138,12 @@
 				</c:import>
 			</div>
 		</div>
-		<div id="formButtons" class="pull-right">
-			<button type="submit" class="btn btn-primary" name="submit" value="<spring:message code='comuns.modificar' />">
-				<spring:message code='comuns.modificar' />
+		<div id="modal-botons">
+			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel">
+				<spring:message code="comu.boto.cancelar"/>
+			</button>
+			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">
+				<span class="fa fa-pencil"></span>&nbsp;<spring:message code="comuns.modificar"/>
 			</button>
 		</div>
 	</form:form>

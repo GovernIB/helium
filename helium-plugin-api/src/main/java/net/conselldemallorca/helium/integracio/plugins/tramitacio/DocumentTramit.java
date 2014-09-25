@@ -48,5 +48,8 @@ public class DocumentTramit {
 	public void setDocumentPresencial(DocumentPresencial documentPresencial) {
 		this.documentPresencial = documentPresencial;
 	}
-
+	@Override
+	public String toString() {
+		return "DocumentTramit [nom=" + nom + ", identificador=" + identificador + ", instanciaNumero=" + instanciaNumero + ", documentTelematic=" + documentTelematic + ", documentPresencial=" + documentPresencial + "]";
+	}
 }

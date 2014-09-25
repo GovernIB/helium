@@ -43,15 +43,16 @@ public class IndexV3Controller {
 	@RequestMapping(value = "/v3/index", method = RequestMethod.GET)
 	public String index(HttpServletRequest request) {
 		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
-		if (preferencies.getListado() == 2 && preferencies.getConsultaId() != null) {
-			// Informes
-			return "redirect:/v3/informe/consulta/"+preferencies.getConsultaId();
-		} else if (preferencies.getListado() == 1) {
-			// Tareas
-			return "redirect:/v3/tasca";
-		} else {
-			// Expedientes
-			return "redirect:/v3/expedient";
+		if (preferencies != null) {
+			if (preferencies.getListado() == 2 && preferencies.getConsultaId() != null) {
+				// Informes
+				return "redirect:/v3/informe/consulta/"+preferencies.getConsultaId();
+			} else if (preferencies.getListado() == 1) {
+				// Tareas
+				return "redirect:/v3/tasca";
+			} 
 		}
+		// Expedientes
+		return "redirect:/v3/expedient";
 	}
 }

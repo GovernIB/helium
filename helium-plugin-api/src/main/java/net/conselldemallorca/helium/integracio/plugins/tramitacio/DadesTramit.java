@@ -191,4 +191,9 @@ public class DadesTramit {
 		this.documents = documents;
 	}
 
+	@Override
+	public String toString() {
+		return "DadesTramit [numero=" + numero + ", clauAcces=" + clauAcces + ", identificador=" + identificador + ", unitatAdministrativa=" + unitatAdministrativa + ", versio=" + versio + ", data=" + data + ", idioma=" + idioma + ", registreNumero=" + registreNumero + ", registreData=" + registreData + ", preregistreTipusConfirmacio=" + preregistreTipusConfirmacio + ", preregistreNumero=" + preregistreNumero + ", preregistreData=" + preregistreData + ", autenticacioTipus=" + autenticacioTipus + ", tramitadorNif=" + tramitadorNif + ", tramitadorNom=" + tramitadorNom + ", interessatNif=" + interessatNif + ", interessatNom=" + interessatNom + ", representantNif=" + representantNif + ", representantNom=" + representantNom + ", signat=" + signat + ", avisosHabilitats=" + avisosHabilitats
+				+ ", avisosSms=" + avisosSms + ", avisosEmail=" + avisosEmail + ", notificacioTelematicaHabilitada=" + notificacioTelematicaHabilitada + ", documents=" + documents + "]";
+	}
 }

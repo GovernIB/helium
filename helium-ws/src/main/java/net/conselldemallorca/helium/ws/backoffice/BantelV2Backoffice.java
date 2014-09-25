@@ -43,7 +43,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 			boolean error = false;
 			try {
 				DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
-				logger.info("Petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador());
+				logger.info("Petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador() + " --> " + dadesTramit);
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
 			} catch (Exception ex) {

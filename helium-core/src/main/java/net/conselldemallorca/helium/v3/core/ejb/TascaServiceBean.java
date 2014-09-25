@@ -224,4 +224,9 @@ public class TascaServiceBean implements TascaService {
 				index);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
+		return delegate.findDadesPerTascaDto(tasca);
+	}
 }

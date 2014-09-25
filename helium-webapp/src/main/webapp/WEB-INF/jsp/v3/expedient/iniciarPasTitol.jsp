@@ -5,6 +5,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
 	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${expedientTipus.nom}</title>
@@ -12,6 +13,11 @@
 	<hel:modalHead/>
 	<style>
 		body {background-image: none; padding-top: 0px;}
+		.form-horizontal .form-group {margin-right: 0px;margin-left: 0px;;padding-left: 0px;}
+		.col-xs-8,.col-xs-4 {width: 100%;margin-left: 0px;padding-left: 0px;padding-right: 0px;}
+		.form-horizontal .control-label {text-align: left;}
+		.fila_reducida {margin-left: 0px;margin-right: 0px;padding-left: 0px;padding-right: 0px;}
+		#s2id_any {width: 100% !important;}
 	</style>
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -20,6 +26,12 @@
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium3Tasca.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script type="text/javascript">
 		// <![CDATA[
 		function confirmar(e) {
@@ -33,7 +45,7 @@
 			$('select[name=any]').on('change', function () {
 				if ($(this).val()) {
 					$.ajax({
-					    url:'canviAny/' + $(this).val() + '/${entornId}/${expedientTipus.id}',
+					    url:'canviAny/' + $(this).val() + '/${command.entornId}/${expedientTipus.id}',
 					    type:'GET',
 					    dataType: 'json',
 					    success: function(json) {
@@ -48,51 +60,27 @@
 </head>
 <body>
 	<form:form method="post" action="form" id="command" name="command" cssClass="form-horizontal form-tasca" commandName="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
-		<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
-		<input type="hidden" name="entornId" value="${entornId}"/>
-		<input type="hidden" name="responsableCodi" value="${responsableCodi}"/>
+		<form:hidden path="responsableCodi"/>
+		<form:hidden path="entornId"/>
+		<form:hidden path="expedientTipusId"/>
 		<input type="hidden" name="definicioProcesId" value="${definicioProces.id}"/>
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
-			<div class="control-group fila_reducida">				
-				<c:set var="campPath" value="numero"/>
-				<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-				<label data-required="true" class="control-label" data-required="true" for="${campPath}"><spring:message code='expedient.consulta.numero' /></label>
-				<div class="controls<c:if test="${not empty campErrors}"> error</c:if>">
-					<spring:bind path="${campPath}">
-						<input type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.numero' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="form-control span11">
-					</spring:bind>
-					${campErrors}
-				</div>
+			<div class="controls fila_reducida">
+				<hel:inputText required="true" text="" name="numero" textKey="expedient.consulta.numero" placeholderKey="expedient.consulta.numero" inline="false"/>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.teTitol and expedientTipus.demanaTitol}">
 			<div class="control-group fila_reducida">			
-				<c:set var="campPath" value="titol"/>
-				<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-				<label data-required="true" class="control-label" data-required="true" for="${campPath}"><spring:message code='expedient.consulta.titol' /></label>
-				<div class="controls<c:if test="${not empty campErrors}"> error</c:if>">
-					<spring:bind path="${campPath}">
-						<textarea type="text" id="${campPath}" name="${campPath}" placeholder="<spring:message code='expedient.consulta.titol' />"<c:if test="${not empty status.value}"> value="${status.value}"</c:if> class="form-control span11"></textarea>
-					</spring:bind>
-					${campErrors}
-				</div>
+				<hel:inputTextarea required="true" name="titol" textKey="expedient.consulta.titol" placeholderKey="expedient.consulta.titol"/>
 			</div>
 		</c:if>
 		<c:if test="${expedientTipus.seleccionarAny}">
-			<div class="control-group fila_reducida">
-				<c:set var="campPath" value="any"/>
-				<label class="control-label" for="${campPath}"><spring:message code='expedient.iniciar.canvi_any' /></label>
-				<div class="controls">
-					<c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-					<form:select id="any" name="any" path="${campPath}" cssClass="form-control span11">
-						<form:options items="${anysSeleccionables}" itemLabel="valor" itemValue="codi"/>
-					</form:select>
-					${campErrors}
-				</div>
+			<div class="control-group fila_reducida select2-container-fix">
+				<hel:inputSelect required="true" name="any" textKey="expedient.iniciar.canvi_any"  optionItems="${anysSeleccionables}" optionValueAttribute="valor" optionTextAttribute="codi" inline="false"/>
 			</div>
 		</c:if>
 		<div id="modal-botons">
-			<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
 			</button>			
 			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar">
@@ -100,6 +88,5 @@
 			</button>
 		</div>
 	</form:form>
-	<p class="aclaracio"><spring:message code='comuns.camps_marcats' /> <i class="fa fa-asterisk"></i> <spring:message code='comuns.son_oblig' /></p>
 </body>
 </html>

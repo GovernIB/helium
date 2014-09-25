@@ -63,6 +63,8 @@ public class TokenRedirectCommand extends AbstractGetObjectBaseCommand {
 			for (TaskInstance ti: token.getProcessInstance().getTaskMgmtInstance().getTaskInstances()) {
 				if (ti.getToken().equals(token)) {
 					if (ti.getEnd() == null) {
+						if (ti.isOpen() && ti.isSuspended())
+							ti.resume();
 						ti.setSignalling(false);
 						ti.cancel();
 					}
