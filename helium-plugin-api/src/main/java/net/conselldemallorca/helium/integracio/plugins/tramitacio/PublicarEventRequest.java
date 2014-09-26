@@ -12,7 +12,7 @@ public class PublicarEventRequest {
 
 	protected String expedientIdentificador;
 	protected String expedientClau;
-	protected String representantNif;
+	protected String representatNif;
 	protected String representatNom;
 	protected String representatApe1;
 	protected String representatApe2;
@@ -43,11 +43,11 @@ public class PublicarEventRequest {
 	public void setEvent(Event event) {
 		this.event = event;
 	}
-	public String getRepresentantNif() {
-		return representantNif;
+	public String getRepresentatNif() {
+		return representatNif;
 	}
-	public void setRepresentantNif(String representantNif) {
-		this.representantNif = representantNif;
+	public void setRepresentatNif(String representatNif) {
+		this.representatNif = representatNif;
 	}
 	public String getRepresentatNom() {
 		return representatNom;

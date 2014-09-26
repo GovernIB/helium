@@ -136,8 +136,26 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 			request.setTramitNumero(expedient.getNumeroEntradaSistra());
 			request.setAutenticat(expedient.isAutenticat());
 			request.setRepresentantNif(expedient.getRepresentantNif());
-			request.setRepresentatNif(expedient.getInteressatNif());
-			request.setRepresentatNom(expedient.getInteressatNom());
+			
+			if (expedient.getInteressatNif() == null || expedient.getInteressatNif().length() == 0) {
+				request.setRepresentatNif(
+						(String)getValorOVariable(
+								executionContext,
+								representatNif,
+								varRepresentatNif));
+			} else {
+				request.setRepresentatNif(expedient.getInteressatNif());
+			}
+			
+			if (expedient.getInteressatNom() == null || expedient.getInteressatNom().length() == 0) {
+				request.setRepresentatNom(
+						(String)getValorOVariable(
+								executionContext,
+								representatNom,
+								varRepresentatNom));
+			} else {
+				request.setRepresentatNom(expedient.getInteressatNom());
+			}
 		} else {
 			request.setIdioma(
 					(String)getValorOVariable(
