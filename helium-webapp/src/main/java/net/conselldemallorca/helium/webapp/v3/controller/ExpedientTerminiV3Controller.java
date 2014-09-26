@@ -3,11 +3,14 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
@@ -130,7 +133,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.GET)
+	@RequestMapping(value = "/modal/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.GET)
 	public String terminiModificar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -139,16 +142,31 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		TerminiIniciatDto terminiIniciat = dissenyService.findIniciatAmbId(terminiId);
 		ExpedientTerminiModificarCommand expedientTerminiModificarCommand = new ExpedientTerminiModificarCommand();
 		expedientTerminiModificarCommand.setTerminiId(terminiId);
+		expedientTerminiModificarCommand.setNom(terminiIniciat.getTermini().getNom());
 		expedientTerminiModificarCommand.setAnys(terminiIniciat.getAnys());
 		expedientTerminiModificarCommand.setMesos(terminiIniciat.getMesos());
 		expedientTerminiModificarCommand.setDies(terminiIniciat.getDies());
 		expedientTerminiModificarCommand.setDataInici(terminiIniciat.getDataInici());
 		expedientTerminiModificarCommand.setDataFi(terminiIniciat.getDataFi());
-		model.addAttribute("termini", terminiIniciat.getTermini());
-		model.addAttribute("command", expedientTerminiModificarCommand);
-		model.addAttribute("tipus", TerminiModificacioTipus.values());
 		model.addAttribute(expedientTerminiModificarCommand);
+		model.addAttribute("listTerminis", valors12());
+		model.addAttribute("listTipus", getTipus(request));
 		return "v3/expedient/terminiModificar";
+	}
+	
+	public List<ParellaCodiValorDto> getTipus(HttpServletRequest request) {
+		List<ParellaCodiValorDto> tipus = new ArrayList<ParellaCodiValorDto>();
+		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.durada"),TerminiModificacioTipus.DURADA));
+		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_fi"),TerminiModificacioTipus.DATA_FI));
+		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_ini"),TerminiModificacioTipus.DATA_INICI));
+		return tipus;
+	}
+
+	private List<ParellaCodiValorDto> valors12() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (int i=0; i <= 12 ; i++)		
+			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+		return resposta;
 	}
 	
 	@RequestMapping(value = "/modal/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.POST)
@@ -161,25 +179,24 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			SessionStatus status,
 			Model model) {
 		try {
-			TerminiIniciatDto terminiIniciat = dissenyService.findIniciatAmbId(terminiId);
 			Date inicio = null;
-			boolean esDataFi = TerminiModificacioTipus.DATA_FI.equals(expedientTerminiModificarCommand.getTipus());
-			terminiService.cancelar(terminiId, new Date());
-			if (TerminiModificacioTipus.DURADA.equals(expedientTerminiModificarCommand.getTipus())) {
+			if (TerminiModificacioTipus.DURADA.name().equals(expedientTerminiModificarCommand.getTipus())) {
+				TerminiIniciatDto terminiIniciat = dissenyService.findIniciatAmbId(terminiId);
 				inicio = terminiIniciat.getDataInici();
-			} else if (TerminiModificacioTipus.DATA_INICI.equals(expedientTerminiModificarCommand.getTipus())) {
+			} else if (TerminiModificacioTipus.DATA_INICI.name().equals(expedientTerminiModificarCommand.getTipus())) {
 				inicio = expedientTerminiModificarCommand.getDataInici();
 			} else {
 				inicio = expedientTerminiModificarCommand.getDataFi();
 			}
+			terminiService.cancelar(terminiId, new Date());
 			terminiService.iniciar(
-					terminiIniciat.getTermini().getId(),
+					terminiId,
 					expedientId,
 					inicio,
 					expedientTerminiModificarCommand.getAnys(),
 					expedientTerminiModificarCommand.getMesos(),
 					expedientTerminiModificarCommand.getDies(),
-					esDataFi);
+					TerminiModificacioTipus.DATA_FI.name().equals(expedientTerminiModificarCommand.getTipus()));
 			MissatgesHelper.info(request, getMessage(request, "info.termini.modificat"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.modificar.termini"));
@@ -189,5 +206,4 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 	}	
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTerminiV3Controller.class);
-
 }

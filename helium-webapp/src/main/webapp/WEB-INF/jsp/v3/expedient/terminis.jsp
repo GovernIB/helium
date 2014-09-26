@@ -10,6 +10,13 @@
 	<meta name="titolcmp" content="<spring:message code='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<style type="text/css">
+		.options {text-align: center;}
+		.options i, .options a {
+			padding-right: 2px;
+			padding-left: 2px;
+		}
+	</style>
 <script type="text/javascript">
 // <![CDATA[
 function confirmarIniciar(e) {
@@ -104,43 +111,43 @@ function confirmarCancelar(e) {
 									</c:otherwise>
 								</c:choose>
 							</td>
-							<td>
+							<td class="options">
 								<c:choose>
 									<c:when test="${not registre.manual or not empty iniciat}">
 										<c:choose>
 											<c:when test="${not registre.manual or empty iniciat.dataAturada}">
-												<img src="<c:url value="/img/control_play.png"/>" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
+												<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
 											</c:when>
 											<c:otherwise>
-												<a href="<c:url value="${expedientId}/${iniciat.id}/terminiContinuar"/>" onclick="return confirmarContinuar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/></a>
+												<a href="<c:url value="${expedientId}/${iniciat.id}/terminiContinuar"/>" onclick="return confirmarContinuar(event)"><i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/></a>
 											</c:otherwise>
 										</c:choose>
 									</c:when>
 									<c:otherwise>
-										<a href="<c:url value="${expedientId}/${expedient.processInstanceId}/${registre.id}/terminiIniciar"/>" onclick="return confirmarIniciar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/></a>
+										<a href="<c:url value="${expedientId}/${expedient.processInstanceId}/${registre.id}/terminiIniciar"/>" onclick="return confirmarIniciar(event)"><i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/></a>
 									</c:otherwise>
 								</c:choose>
 								
 								<c:choose>
 									<c:when test="${not registre.manual or empty iniciat or not empty iniciat.dataAturada}">
-										<img src="<c:url value="/img/control_pause.png"/>" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
+										<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
 									</c:when>
 									<c:otherwise>
-										<a href="<c:url value="${expedientId}/${iniciat.id}/terminiPausar"/>" onclick="return confirmarAturar(event)"><img src="<c:url value="/img/control_pause_blue.png"/>" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/></a>
+										<a href="<c:url value="${expedientId}/${iniciat.id}/terminiPausar"/>" onclick="return confirmarAturar(event)"><i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/></a>
 									</c:otherwise>
 								</c:choose>
 								
 								<c:choose>
 									<c:when test="${empty iniciat}">
-										<img src="<c:url value="/img/control_stop.png"/>" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
+										<i class="fa fa-stop" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
 									</c:when>
 									<c:otherwise>
-										<a href="<c:url value="${expedientId}/${iniciat.id}/terminiCancelar"/>" onclick="return confirmarCancelar(event)"><img src="<c:url value="/img/control_stop_blue.png"/>" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/></a>
+										<a href="<c:url value="${expedientId}/${iniciat.id}/terminiCancelar"/>" onclick="return confirmarCancelar(event)"><i class="fa fa-stop" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/></a>
 									</c:otherwise>
 								</c:choose>
 								
 								<c:if test="${not empty iniciat}">
-									<a class="a-modal-termini" href="<c:url value="${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
+									<a class="modal_termini" data-rdt-link-modal="true" href="<c:url value="${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
 								</c:if>
 							</td>
 						</tr>
@@ -152,24 +159,12 @@ function confirmarCancelar(e) {
 			<div class="well well-small">No hi ha terminis per a mostrar</div>
 		</c:otherwise>
 	</c:choose>
-
-	<div id="expedient-termini-modal"></div>
 	
 	<script type="text/javascript">
 	// <![CDATA[
-		$('.a-modal-termini').click(function() {
-			$('#expedient-termini-modal').heliumModal({
-				modalUrl: $(this).attr('href'),
-				refrescarTaula: true,
-				refrescarAlertes: true,
-				refrescarPagina: false,
-				adjustWidth: false,
-				adjustHeight: true,
-				maximize: true,
-				valignTop: true,
-				buttonContainerId: 'formButtons'
-			});
-			return false;
+		$(".modal_termini").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: false
 		});
 	//]]>
 	</script>

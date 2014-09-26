@@ -8,7 +8,7 @@
 
 <html>
 <head>
-	<title><spring:message code='expedient.termini.modificar' />: ${termini.nom}</title>
+	<title><spring:message code='expedient.termini.modificar' />: ${expedientTerminiModificarCommand.nom}</title>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
@@ -24,118 +24,90 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<hel:modalHead/>
+	<meta name="decorator" content="senseCapNiPeus"/>
 	<script type="text/javascript">
 	// <![CDATA[
-		function mostrar(objid) {
-			var obj = document.getElementById(objid);
-			obj.style.display = "block";
-		}
-		function ocultar(objid) {
-			var obj = document.getElementById(objid);
-			obj.style.display = "none";
-		}
-		function canviTipus(select) {
-			ocultar("terminiDurada");
-			ocultar("terminiDataInici");
-			ocultar("terminiDataFi");
-			if ("DURADA" == select.value) {
-				mostrar("terminiDurada");
-			} else if ("DATA_INICI" == select.value) {
-				mostrar("terminiDataInici");
-			} else if ("DATA_FI" == select.value) {
-				mostrar("terminiDataFi");
-			}
-		}
-		function onLoad() {
-			canviTipus(document.getElementById("tipus0"));
-		}
-		window.onload = onLoad;
+		$(document).ready(function() {
+			$('#tipus').on('change', function() {
+				$("#terminiDurada").hide();
+				$("#terminiDataInici").hide();
+				$("#terminiDataFi").hide();
+				if ("DURADA" == this.value) {
+					$("#terminiDurada").show();
+				} else if ("DATA_INICI" == this.value) {
+					$("#terminiDataInici").show();
+				} else if ("DATA_FI" == this.value) {
+					$("#terminiDataFi").show();
+				}
+			});
+			$('#tipus').trigger('change');
+		});
 	// ]]>
 	</script>
 	<style>
-		.form-group {width: 100%;}
-		.fila_reducida {width: 100%;}		
-		.col-xs-4 {width: 20%;}		
-		.col-xs-8 {width: 77%;}
-		.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
-		.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
-		.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
-		#s2id_estatId {width: 100% !important;}
+		
+		.terminiDurada {padding-left: 0px;padding-right: 0px;}
+		.bigdrop.select2-container .select2-results {max-height: 50px;}
+		.bigdrop .select2-results {max-height: 50px;}
+		.bigdrop .select2-choices {min-height: 50px; max-height: 50px; overflow-y: auto;}
 	</style>
 </head>
 <body>
-	<form:form action="terminiModificar" cssClass="uniForm" commandName="expedientTerminiModificarCommand">
+	<form:form action="terminiModificar" commandName="expedientTerminiModificarCommand">
 		<div class="inlineLabels">
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="tipus"/>
-				<c:param name="required" value="true"/>
-				<c:param name="type" value="select"/>
-				<c:param name="items" value="tipus"/>
-				<c:param name="label"><spring:message code="expedient.termini.modificar.tipus"/></c:param>
-				<c:param name="onchange" value="canviTipus(this)"/>
-			</c:import>
-			<div id="terminiDurada" style="display:none">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property">anys</c:param>
-					<c:param name="required" value="true"/>
-					<c:param name="type" value="custom"/>
-					<c:param name="label"><spring:message code="expedient.termini.durada"/></c:param>
-					<c:param name="content">
-						<ul class="alternate alt_termini">
-							<spring:bind path="anys">
-								<li>
-									<label for="anys" class="blockLabel">
-										<span><spring:message code="common.camptasca.anys"/></span>
-										<select id="anys" name="anys">
-											<c:forEach var="index" begin="0" end="12">
-												<option value="${index}"<c:if test="${status.value==index}"> selected="selected"</c:if>>${index}</option>
-											</c:forEach>
-										</select>
-									</label>
-								</li>
-							</spring:bind>
-							<spring:bind path="mesos">
-								<li>
-									<label for="${codiActual}_mesos" class="blockLabel">
-										<span><spring:message code="common.camptasca.mesos"/></span>
-										<select id="mesos" name="mesos">
-											<c:forEach var="index" begin="0" end="12">
-												<option value="${index}"<c:if test="${status.value==index}"> selected="selected"</c:if>>${index}</option>
-											</c:forEach>
-										</select>
-									</label>
-								</li>
-							</spring:bind>
-							<spring:bind path="dies">
-								<li>
-									<label for="dies" class="blockLabel">
-										<span><spring:message code="common.camptasca.dies"/></span>
-										<input id="dies" name="dies" value="${status.value}" class="textInput" onchange="canviTermini(this)"/>
-									</label>
-								</li>
-							</spring:bind>
-						</ul>
-					</c:param>
-					<c:param name="comment">${campActual.observacions}</c:param>
-					<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
-					<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
-				</c:import>
+			<div id="tipus_termini">
+				<label><spring:message code="expedient.termini.modificar.tipus"/></label>
+				<form:select multiple="false" itemLabel="codi" itemValue="valor" items="${listTipus}" path="tipus" id="tipus" />
 			</div>
-			<div id="terminiDataInici" style="display:none">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dataInici"/>
-					<c:param name="required" value="true"/>
-					<c:param name="type" value="date"/>
-					<c:param name="label"><spring:message code="expedient.termini.data.inici"/></c:param>
-				</c:import>
+			<div id="terminiDurada">
+				<label><spring:message code="expedient.termini.durada"/></label>
+				<div class="form-group">
+					<div class="col-xs-4 tercpre">
+						<label class="control-label col-xs-4" for="anys"><spring:message code="common.camptasca.anys"/></label>
+						<div class="col-xs-8">
+							<form:select itemLabel="valor" itemValue="codi" items="${listTerminis}" path="anys" id="anys" />
+						</div>
+					</div>
+					<div class="col-xs-4 tercmig">
+	 					<label class="control-label col-xs-4" for="mesos"><spring:message code="common.camptasca.mesos"/></label>
+	 					<div class="col-xs-8">
+	 						<form:select itemLabel="valor" itemValue="codi" items="${listTerminis}" path="mesos" id="mesos" />
+	 					</div>
+	 				</div>
+	 				<div class="col-xs-4 tercpost">
+	 					<label class="control-label col-xs-4" for="dies"><spring:message code="common.camptasca.dies"/></label>
+	 					<div class="col-xs-8">
+	 						<hel:inputText inline="true" name="dies" textKey="common.camptasca.dies" placeholderKey="common.camptasca.dies"/>
+	 					</div>
+	 				</div>
+	 			</div>
+ 				<script>
+					$(document).ready(function() {
+						$("#tipus").select2({
+						    width: '100%',
+						    minimumResultsForSearch: -1,
+						    allowClear: true
+						});
+						$("#anys").select2({
+						    width: '100%',
+						    allowClear: true,
+						    minimumResultsForSearch: -1,
+						    dropdownCssClass: "bigdrop"
+						});
+						$("#mesos").select2({
+							width: '100%',
+						    minimumResultsForSearch: -1,
+						    allowClear: true,
+						    dropdownCssClass: "bigdrop"
+						});
+					});
+				</script>
 			</div>
-			<div id="terminiDataFi" style="display:none">
-				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="dataFi"/>
-					<c:param name="required" value="true"/>
-					<c:param name="type" value="date"/>
-					<c:param name="label"><spring:message code="expedient.termini.data.fi"/></c:param>
-				</c:import>
+			<div id="terminiDataInici">
+				<hel:inputDate required="true" name="dataInici" textKey="expedient.termini.data.inici" placeholderKey="expedient.termini.data.inici" placeholder="dd/MM/yyyy"/>
+			</div>
+			<div id="terminiDataFi">
+				<hel:inputDate required="true" name="dataFi" textKey="expedient.termini.data.fi" placeholderKey="expedient.termini.data.fi" placeholder="dd/MM/yyyy"/>
 			</div>
 		</div>
 		<div id="modal-botons">

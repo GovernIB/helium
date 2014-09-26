@@ -19,24 +19,19 @@ public class ExpedientTerminiModificarCommand {
 	}
 
 	private Long terminiId;
-	private TerminiModificacioTipus tipus;
+	private String tipus;
 	private Date dataInici;
 	private int anys;
 	private int mesos;
 	private int dies;
 	private Date dataFi;
+	private String nom;
 
 	public Long getTerminiId() {
 		return terminiId;
 	}
 	public void setTerminiId(Long terminiId) {
 		this.terminiId = terminiId;
-	}
-	public TerminiModificacioTipus getTipus() {
-		return tipus;
-	}
-	public void setTipus(TerminiModificacioTipus tipus) {
-		this.tipus = tipus;
 	}
 	public Date getDataInici() {
 		return dataInici;
@@ -67,5 +62,17 @@ public class ExpedientTerminiModificarCommand {
 	}
 	public void setDataFi(Date dataFi) {
 		this.dataFi = dataFi;
+	}
+	public String getTipus() {
+		return tipus;
+	}
+	public void setTipus(String tipus) {
+		this.tipus = tipus;
+	}
+	public String getNom() {
+		return nom;
+	}
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 }

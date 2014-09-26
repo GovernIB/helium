@@ -243,8 +243,12 @@ public abstract class BaseBackoffice {
 				}
 			}
 			try {
-				if (docHelium != null)
-					resposta.put(mapeig.getCodiHelium(), documentSistra(tramit, mapeig.getCodiSistra(), docHelium));
+				if (docHelium != null) {
+					DadesDocumentDto document = documentSistra(tramit, mapeig.getCodiSistra(), docHelium);
+					if (document != null) {
+						resposta.put(mapeig.getCodiHelium(), document);
+					}
+				}
 			} catch (Exception ex) {
 				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
@@ -350,7 +354,7 @@ public abstract class BaseBackoffice {
 			Document varHelium) throws Exception {
 		DadesDocumentDto resposta = null;
 		for (DocumentTramit document: tramit.getDocuments()) {
-			if (varSistra.equalsIgnoreCase(document.getIdentificador())) {
+			if (varSistra.equalsIgnoreCase(document.getIdentificador()) && document.getDocumentTelematic() != null) {
 				resposta = new DadesDocumentDto();
 				resposta.setIdDocument(varHelium.getId());
 				resposta.setCodi(varHelium.getCodi());
@@ -378,7 +382,7 @@ public abstract class BaseBackoffice {
 			String varSistra) throws Exception {
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 		for (DocumentTramit document: tramit.getDocuments()) {
-			if (document.getIdentificador().equalsIgnoreCase(varSistra)) {
+			if (document.getIdentificador().equalsIgnoreCase(varSistra) && document.getDocumentTelematic() != null) {
 				DadesDocumentDto docResposta = new DadesDocumentDto();
 				docResposta.setTitol(document.getNom());
 				docResposta.setData(tramit.getData());
