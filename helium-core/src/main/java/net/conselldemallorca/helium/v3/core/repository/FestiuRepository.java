@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.Date;
+
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +17,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface FestiuRepository extends JpaRepository<Festiu, Long> {
-
+	Festiu findByData(Date data);
 }

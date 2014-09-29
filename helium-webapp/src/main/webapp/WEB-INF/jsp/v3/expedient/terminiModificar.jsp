@@ -45,11 +45,12 @@
 	// ]]>
 	</script>
 	<style>
-		
+		#expedientTerminiModificarCommand {height: 150px;}
 		.terminiDurada {padding-left: 0px;padding-right: 0px;}
-		.bigdrop.select2-container .select2-results {max-height: 50px;}
-		.bigdrop .select2-results {max-height: 50px;}
-		.bigdrop .select2-choices {min-height: 50px; max-height: 50px; overflow-y: auto;}
+		.bigdrop.select2-container .select2-results {max-height: 65px;}
+		.bigdrop .select2-results {max-height: 65px;}
+		.bigdrop .select2-choices {min-height: 65px; max-height: 65px; overflow-y: auto;}
+		#tipus_termini {padding-bottom: 17px;}
 	</style>
 </head>
 <body>
@@ -104,10 +105,12 @@
 				</script>
 			</div>
 			<div id="terminiDataInici">
-				<hel:inputDate required="true" name="dataInici" textKey="expedient.termini.data.inici" placeholderKey="expedient.termini.data.inici" placeholder="dd/MM/yyyy"/>
+				<label><spring:message code="expedient.termini.data.inici"/></label>
+				<hel:inputDate inline="true" required="true" name="dataInici" textKey="expedient.termini.data.inici" placeholderKey="expedient.termini.data.inici" placeholder="dd/MM/yyyy"/>
 			</div>
 			<div id="terminiDataFi">
-				<hel:inputDate required="true" name="dataFi" textKey="expedient.termini.data.fi" placeholderKey="expedient.termini.data.fi" placeholder="dd/MM/yyyy"/>
+				<label><spring:message code="expedient.termini.data.fi"/></label>
+				<hel:inputDate inline="true" required="true" name="dataFi" textKey="expedient.termini.data.fi" placeholderKey="expedient.termini.data.fi" placeholder="dd/MM/yyyy"/>
 			</div>
 		</div>
 		<div id="modal-botons">

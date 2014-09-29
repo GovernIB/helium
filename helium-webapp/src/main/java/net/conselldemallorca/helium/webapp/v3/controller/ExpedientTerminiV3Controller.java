@@ -188,8 +188,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			} else {
 				inicio = expedientTerminiModificarCommand.getDataFi();
 			}
-			terminiService.cancelar(terminiId, new Date());
-			terminiService.iniciar(
+			terminiService.modificar(
 					terminiId,
 					expedientId,
 					inicio,

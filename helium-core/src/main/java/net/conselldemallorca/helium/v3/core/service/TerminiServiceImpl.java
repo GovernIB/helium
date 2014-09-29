@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.FestiuDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -27,9 +26,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -54,13 +53,11 @@ public class TerminiServiceImpl implements TerminiService {
 	@Resource
 	private TerminiRepository terminiRepository;	
 	@Resource
-	private TerminiIniciatRepository terminiIniciatRepository;	
+	private FestiuRepository festiuRepository;	
 	@Resource
-	private FestiuDao festiuDao;
+	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private RegistreRepository registreRepository;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;	
 	@Resource
 	private ExpedientRepository expedientRepository;	
 	@Resource
@@ -69,7 +66,7 @@ public class TerminiServiceImpl implements TerminiService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	
+
 	private MessageSource messageSource;
 
 	@Transactional
@@ -81,7 +78,7 @@ public class TerminiServiceImpl implements TerminiService {
 			boolean esDataFi) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		Termini termini = terminiRepository.findOne(terminiId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(termini, expedient.getProcessInstanceId());
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
 		if (terminiIniciat == null) {
 			return iniciar(
 					terminiId,
@@ -131,11 +128,12 @@ public class TerminiServiceImpl implements TerminiService {
 			int anys,
 			int mesos,
 			int dies,
-			boolean esDataFi) {		
+			boolean esDataFi) {	
 		Termini termini = terminiRepository.findOne(terminiId);
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(
-				termini,
-				expedient.getProcessInstanceId());
+		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
+		if (termini == null) {
+			termini = terminiIniciat.getTermini();
+		}
 		if (terminiIniciat == null) {
 			if (esDataFi) {
 				Date dataInici = getDataIniciTermini(
@@ -199,7 +197,6 @@ public class TerminiServiceImpl implements TerminiService {
 		crearRegistreTermini(
 					getExpedientForProcessInstanceId(expedient.getProcessInstanceId()).getId(),
 					expedient.getProcessInstanceId(),
-					terminiId,
 					Registre.Accio.INICIAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		
@@ -209,7 +206,7 @@ public class TerminiServiceImpl implements TerminiService {
 		
 	@Transactional
 	@Override
-	public void pausar(Long terminiIniciatId, Date data) {
+	public void pausar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
 			throw new IllegalStateException( getMessage("error.terminiService.noIniciat") );
@@ -221,7 +218,6 @@ public class TerminiServiceImpl implements TerminiService {
 			crearRegistreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId(),
 					Registre.Accio.ATURAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
@@ -229,7 +225,7 @@ public class TerminiServiceImpl implements TerminiService {
 		
 	@Transactional
 	@Override
-	public void continuar(Long terminiIniciatId, Date data) {
+	public void continuar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataAturada() == null)
 			throw new IllegalStateException( getMessage("error.terminiService.noPausat") );
@@ -243,7 +239,6 @@ public class TerminiServiceImpl implements TerminiService {
 			crearRegistreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId(),
 					Registre.Accio.REPRENDRE,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
@@ -251,7 +246,7 @@ public class TerminiServiceImpl implements TerminiService {
 		
 	@Transactional
 	@Override
-	public void cancelar(Long terminiIniciatId, Date data) {
+	public void cancelar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
 			throw new IllegalStateException( getMessage("error.terminiService.noIniciat") );
@@ -263,7 +258,6 @@ public class TerminiServiceImpl implements TerminiService {
 			crearRegistreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId(),
 					Registre.Accio.CANCELAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
@@ -345,8 +339,7 @@ public class TerminiServiceImpl implements TerminiService {
 	
 	@Transactional
 	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
-		
+	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {		
 		List<TerminiIniciat> terminisObj = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
 		List<TerminiIniciatDto> terminiDto = new ArrayList<TerminiIniciatDto>();
 		for(TerminiIniciat terminiObj : terminisObj) {
@@ -394,7 +387,7 @@ public class TerminiServiceImpl implements TerminiService {
 	@Transactional
 	@Override
 	public FestiuDto getFestiuById(Long id) {		
-		Festiu festiu = festiuDao.getById(id, false);
+		Festiu festiu = festiuRepository.findOne(id);
 		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
 		return festiuDto;
 	}
@@ -402,49 +395,42 @@ public class TerminiServiceImpl implements TerminiService {
 	@Transactional
 	@Override
 	public FestiuDto createFestiu(FestiuDto entityDto) {
-		festiuDao.modificacioFestius();
-		
 		Festiu entity = new Festiu();
 		entity.setId(entityDto.getId());
 		entity.setData(entityDto.getData());
 		
-		Festiu festiu = festiuDao.saveOrUpdate(entity);	
-		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
-		return festiuDto;
+		Festiu festiu = festiuRepository.save(entity);
+		return conversioTipusHelper.convertir(festiu, FestiuDto.class);
 	}
 	
 	@Transactional
 	@Override
 	public FestiuDto updateFestiu(FestiuDto entityDto) {
-		festiuDao.modificacioFestius();
-		
 		Festiu entity = new Festiu();
 		entity.setId(entityDto.getId());
 		entity.setData(entityDto.getData());
-		Festiu festiu = festiuDao.merge(entity);
-		
-		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
-		return festiuDto;
+		Festiu festiu = festiuRepository.save(entity);
+
+		return conversioTipusHelper.convertir(festiu, FestiuDto.class);
 	}
 	
 	@Transactional
 	@Override
-	public void deleteFestiu(Long id) {
-		festiuDao.modificacioFestius();
-		FestiuDto vell = getFestiuById(id);
-		
-		if (vell != null) {
-			festiuDao.delete(id);
+	public void deleteFestiu(Long id) {		
+		if (getFestiuById(id) != null) {
+			festiuRepository.delete(id);
 		}
 	}
 	
 	@Transactional
 	@Override
-	public List<FestiuDto> findFestiuAmbAny(int any) {		
-		List<Festiu> festiusObj = festiuDao.findAmbAny(any);
+	public List<FestiuDto> findFestiuAmbAny(int any) {
 		List<FestiuDto> terminisDto = new ArrayList<FestiuDto>();
-		for(Festiu festiuObj : festiusObj) {
-			terminisDto.add(conversioTipusHelper.convertir(festiuObj, FestiuDto.class));
+		Calendar cal = Calendar.getInstance();
+		for (Festiu festiu: festiuRepository.findAll()) {
+			cal.setTime(festiu.getData());
+			if (cal.get(Calendar.YEAR) == any)
+				terminisDto.add(conversioTipusHelper.convertir(festiu, FestiuDto.class));
 		}
 		return terminisDto;
 	}
@@ -452,9 +438,8 @@ public class TerminiServiceImpl implements TerminiService {
 	@Transactional
 	@Override
 	public FestiuDto findFestiuAmbData(Date data) {
-		Festiu festiu = festiuDao.findAmbData(data);	
-		FestiuDto festiuDto = conversioTipusHelper.convertir(festiu, FestiuDto.class);
-		return festiuDto;
+		Festiu festiu = festiuRepository.findByData(data);	
+		return conversioTipusHelper.convertir(festiu, FestiuDto.class);
 	}
 
 	@Transactional
@@ -542,24 +527,35 @@ public class TerminiServiceImpl implements TerminiService {
 							terminiIniciat.getDies(),
 							terminiIniciat.getTermini().isLaborable()));
 				String processInstanceId = terminiIniciat.getProcessInstanceId();
-				Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-				if (expedientId != null) {
+				if (getExpedientForProcessInstanceId(processInstanceId).getId() != null) {
 					crearRegistreTermini(
 							getExpedientForProcessInstanceId(processInstanceId).getId(),
 							processInstanceId,
-							terminiIniciat.getTermini().getId(),
 							Registre.Accio.ATURAR,
 							SecurityContextHolder.getContext().getAuthentication().getName());
 					
 					crearRegistreTermini(
 							getExpedientForProcessInstanceId(processInstanceId).getId(),
 							processInstanceId,
-							terminiIniciat.getTermini().getId(),
 							Registre.Accio.INICIAR,
 							SecurityContextHolder.getContext().getAuthentication().getName());
 				}
 			}
 		}
+	}
+
+	@Transactional
+	@Override
+	public void modificar(Long terminiId, Long expedientId, Date inicio, int anys, int mesos, int dies, boolean equals) {
+		cancelar(terminiId, new Date());
+		iniciar(
+				terminiId,
+				expedientId,
+				inicio,
+				anys,
+				mesos,
+				dies,
+				equals);		
 	}
 	
 	@Autowired
@@ -574,7 +570,7 @@ public class TerminiServiceImpl implements TerminiService {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-		List<Festiu> festius = festiuDao.findAll();
+		List<Festiu> festius = festiuRepository.findAll();
 		int diesLabs = 0;
 		while (diesLabs < nd) {
 			if (!esFestiu(cal, festius))
@@ -621,18 +617,13 @@ public class TerminiServiceImpl implements TerminiService {
 	}
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {
-		long[] timerIds = terminiIniciat.getTimerIdsArray();
-		for (int i = 0; i < timerIds.length; i++)
-			jbpmHelper.suspendTimer(
-					timerIds[i],
-					new Date(Long.MAX_VALUE));
+		for (long timerId : terminiIniciat.getTimerIdsArray())
+			jbpmHelper.suspendTimer(timerId, new Date(Long.MAX_VALUE));
+
 	}
 	private void resumeTimers(TerminiIniciat terminiIniciat) {
-		long[] timerIds = terminiIniciat.getTimerIdsArray();
-		for (int i = 0; i < timerIds.length; i++)
-			jbpmHelper.resumeTimer(
-					timerIds[i],
-					terminiIniciat.getDataFi());
+		for (long timerId : terminiIniciat.getTimerIdsArray())
+			jbpmHelper.resumeTimer(timerId, terminiIniciat.getDataFi());
 	}
 
 	private Expedient getExpedientPerTask(JbpmTask task) {
@@ -671,7 +662,6 @@ public class TerminiServiceImpl implements TerminiService {
 	private Registre crearRegistreTermini(
 			Long expedientId,
 			String processInstanceId,
-			Long terminiId,
 			Registre.Accio accio,
 			String responsableCodi) {
 		Registre registre = new Registre(
@@ -708,5 +698,4 @@ public class TerminiServiceImpl implements TerminiService {
 	}
 
 	private static final Log logger = LogFactory.getLog(TerminiService.class);
-
 }

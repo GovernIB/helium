@@ -135,4 +135,9 @@ public class TerminiServiceBean implements TerminiService {
 		return delegate.iniciar(terminiId, expedientId, data, anys, mesos, dies, esDataFi);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void modificar(Long terminiId, Long expedientId, Date inicio, int anys, int mesos, int dies, boolean equals) {
+		delegate.modificar(terminiId, expedientId, inicio, anys, mesos, dies, equals);
+	}
 }
