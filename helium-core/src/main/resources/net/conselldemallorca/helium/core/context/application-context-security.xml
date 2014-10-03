@@ -24,6 +24,7 @@
 		<intercept-url pattern="/ws/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/NotificacioEntradaV1" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/NotificacioEntradaV2" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/NotificacioEntradaV3" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/DominiIntern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/FormulariExtern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/TramitacioService" access="IS_AUTHENTICATED_ANONYMOUSLY" />

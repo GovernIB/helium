@@ -69,6 +69,14 @@ public class EndpointPublisherServlet extends HttpServlet {
 					auth != null ? auth : "",
 					"true".equalsIgnoreCase(ts) ? true : false,
 					"true".equalsIgnoreCase(log) ? true : false);
+			WsServerUtils.publish(
+					"/NotificacioEntradaV3",
+					context.getBean("bantelV3Backoffice"),
+					user != null ? user : "",
+					pass != null ? pass : "",
+					auth != null ? auth : "",
+					"true".equalsIgnoreCase(ts) ? true : false,
+					"true".equalsIgnoreCase(log) ? true : false);			
 		}
     }
 }

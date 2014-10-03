@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:es:caib:zonaper:ws:v2:model:DocumentoExpediente" targetNamespace="urn:es:caib:zonaper:ws:v2:model:DocumentoExpediente" version="1.0">
+	<xs:complexType name="DocumentoExpediente">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="titulo" nillable="true" type="xs:string"/>
+			<xs:element minOccurs="0" name="nombre" nillable="true" type="xs:string"/>			
+			<xs:element minOccurs="0" name="contenidoFichero" nillable="true" type="xs:base64Binary"/>
+			<xs:element minOccurs="0" name="modeloRDS" nillable="true" type="xs:string"/>
+			<xs:element minOccurs="0" name="versionRDS" nillable="true" type="xs:int"/>
+			<xs:element minOccurs="0" name="codigoRDS" nillable="true" type="xs:long"/>
+			<xs:element minOccurs="0" name="claveRDS" nillable="true" type="xs:string"/>
+			<xs:element minOccurs="0" name="estructurado" nillable="true" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DocumentosExpediente">
+		<xs:sequence>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="documento" type="tns:DocumentoExpediente"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

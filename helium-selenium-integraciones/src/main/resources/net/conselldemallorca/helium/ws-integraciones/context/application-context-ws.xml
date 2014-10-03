@@ -11,5 +11,6 @@
 	<bean id="cwsService" class="net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.CWSImpl"/>
 	<bean id="custodiaService" class="net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.CustodiaDocumentosImpl"/>
 	<bean id="formsService" class="net.conselldemallorca.helium.wsintegraciones.formulari.IniciFormulariImpl"/>
-	
+	<bean id="bantelV3Backoffice" class="net.conselldemallorca.helium.wsintegraciones.backoffice.BantelV2Backoffice"/>
+
 </beans>

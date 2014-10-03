@@ -57,6 +57,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
+			<artifactId>sistra-wsdl</artifactId>
+			<version>1.1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/sistra-wsdl-1.1.0.jar</systemPath>
+	  	</dependency>		
 	</dependencies>	
 	
 	<build>

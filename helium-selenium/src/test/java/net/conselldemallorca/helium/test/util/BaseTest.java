@@ -960,11 +960,18 @@ public abstract class BaseTest {
 	}
 	
 	protected void eliminarTipusExpedient(String codiTipusExp) {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		
+		try {
+			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		}catch (Exception ex) {
+			actions.moveToElement(driver.findElement(By.id("menuDissenyTipus")));
+		}
+		
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
+		
 		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]/td[4]/a")).click();
 			acceptarAlerta();
@@ -1591,6 +1598,48 @@ public abstract class BaseTest {
 		actions.click();
 		actions.build().perform();
 		
+	}
+	
+	public void accedirPipellaSistraExpedient(String codTipusExp) {
+
+		String xPathLinkTipExp = "//*[@id='registre']/tbody/tr/td[contains(a, '"+codTipusExp+"')]/a";
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+
+		actions.build().perform();
+
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+
+		actions.click();
+
+		actions.build().perform();
+
+		existeixElementAssert(xPathLinkTipExp, "El tipus de expedient no existeix.");
+
+		driver.findElement(By.xpath(xPathLinkTipExp)).click();
+
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/sistra.html')]")).click();
+	}
+	
+	public void accedirPipellaDefProcExpedient(String codTipusExp) {
+
+		String xPathLinkTipExp = "//*[@id='registre']/tbody/tr/td[contains(a, '"+codTipusExp+"')]/a";
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+
+		actions.build().perform();
+
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+
+		actions.click();
+
+		actions.build().perform();
+
+		existeixElementAssert(xPathLinkTipExp, "El tipus de expedient no existeix.");
+
+		driver.findElement(By.xpath(xPathLinkTipExp)).click();
+
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/definicioProcesLlistat.html')]")).click();
 	}
 
 	public void crearEstatTipusExpedient(String codTipusExp, String codiEstat, String nomEstat) {
@@ -2328,6 +2377,14 @@ public abstract class BaseTest {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consulta.html')]")));
+		actions.click();
+		actions.build().perform();
+	}
+	
+	protected void accedirConsultaLlistatPersonal() {
+		actions.moveToElement(driver.findElement(By.id("menuTasques")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']//a[contains(@href, '/tasca/personaLlistat.html')]")));
 		actions.click();
 		actions.build().perform();
 	}
