@@ -112,6 +112,8 @@ public class ExpedientLoggerHelper {
 	
 	public JbpmToken getTokenByJbpmLogId(Long jbpmLogId){
 		ProcessLog pl = jbpmHelper.getProcessLogById(jbpmLogId);
+		if (pl == null)
+			return null;
 		return new JbpmToken(pl.getToken());
 	}
 

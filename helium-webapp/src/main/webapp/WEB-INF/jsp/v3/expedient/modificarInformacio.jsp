@@ -51,7 +51,7 @@
 			<hel:inputDate name="dataInici" textKey="expedient.consulta.datainici" placeholderKey="expedient.consulta.datainici" placeholder="dd/MM/yyyy HH:mm"/>
 		</div>
 		<div class="control-group fila_reducida">
-			<hel:inputSuggest name="responsableCodi" urlConsultaInicial="persona/suggest" urlConsultaLlistat="persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+			<hel:inputSuggest name="responsableCodi" urlConsultaInicial="persona/suggestInici" urlConsultaLlistat="persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 		</div>
 		<div class="control-group fila_reducida">
 			<hel:inputTextarea name="comentari" textKey="expedient.editar.comentari" placeholderKey="expedient.editar.comentari"/>

@@ -286,10 +286,14 @@ public class VariableHelper {
 		CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 				tasca.getId(),
 				variableCodi);
-		Camp camp = campTasca.getCamp();
-		Object valor = jbpmHelper.getTaskInstanceVariable(
-				task.getId(),
-				variableCodi);
+		Object valor = null;
+		Camp camp = null;
+		if (campTasca != null) {
+			camp = campTasca.getCamp();
+			valor = jbpmHelper.getTaskInstanceVariable(
+					task.getId(),
+					variableCodi);
+		}
 		if (valor == null) {
 			valor = jbpmHelper.getProcessInstanceVariable(
 					task.getProcessInstanceId(),
@@ -668,10 +672,12 @@ public class VariableHelper {
 		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
 		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
 		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
-		tascaDto.setReadOnly(campTasca.isReadOnly());
-		tascaDto.setReadFrom(campTasca.isReadFrom());
-		tascaDto.setWriteTo(campTasca.isWriteTo());
-		tascaDto.setRequired(campTasca.isRequired());
+		if (campTasca != null) {
+			tascaDto.setReadOnly(campTasca.isReadOnly());
+			tascaDto.setReadFrom(campTasca.isReadFrom());
+			tascaDto.setWriteTo(campTasca.isWriteTo());
+			tascaDto.setRequired(campTasca.isRequired());
+		}
 		tascaDto.setText(expedientDadaDto.getText());
 		tascaDto.setError(expedientDadaDto.getError());
 		tascaDto.setObservacions(expedientDadaDto.getObservacions());
@@ -703,7 +709,7 @@ public class VariableHelper {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		String varCodi;
 		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null) {
-			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi().toLowerCase();
+			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi();
 		} else {
 			varCodi = camp.getCodi().toLowerCase();
 		}

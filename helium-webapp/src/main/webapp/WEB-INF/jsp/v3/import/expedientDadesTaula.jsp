@@ -162,5 +162,6 @@ $(document).ready(function() {
 		$('#${grupId}-titol .icona-collapse').toggleClass('fa-chevron-down');
 		$('#${grupId}-titol .icona-collapse').toggleClass('fa-chevron-up');
 	});
+	$('a').attr('target', 'BLANK');
 });
 </script>

@@ -55,20 +55,22 @@ public class PluginPersonaHelper {
 	@Transactional
 	public List<PersonaDto> findLikeNomSencerPlugin(String text) {
 		try {
+			List<PersonaDto> resposta = new ArrayList<PersonaDto>();
 			if (getPersonesPlugin() == null || isSyncActiu()) {
 				List<Persona> persones = personaRepository.findLikeNomSencer(text);
-				List<PersonaDto> resposta = new ArrayList<PersonaDto>();
-				for (Persona persona: persones) {
-					resposta.add(toPersonaPlugin(persona));
+				if (persones != null) {
+					for (Persona persona: persones) {
+						resposta.add(toPersonaPlugin(persona));
+					}
 				}
-				return resposta;
 			} else {
 				List<DadesPersona> persones = personesPlugin.findLikeNomSencer(text);
-				List<PersonaDto> resposta = new ArrayList<PersonaDto>();
-				for (DadesPersona persona: persones)
-					resposta.add(toPersonaPlugin(persona));
-				return resposta;
+				if (persones != null) {
+					for (DadesPersona persona: persones)
+						resposta.add(toPersonaPlugin(persona));
+				}
 			}
+			return resposta;
 		} catch (PersonesPluginException ex) {
 			logger.error("Error al cercar les persones amb el nom sencer", ex);
 			throw new PluginException("Error al cercar les persones amb el nom sencer", ex);

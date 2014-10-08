@@ -311,10 +311,13 @@ public class TascaHelper {
 	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			// Sólo las pendientes
 			if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
-				resposta.add(toExpedientTascaCompleteDto(task, expedient));
+				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
+				if (auth.getName().equals(tasca.getResponsableCodi()))
+					resposta.add(tasca);
 			}
 		}
 		return resposta;

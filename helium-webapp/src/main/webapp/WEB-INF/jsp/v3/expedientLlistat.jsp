@@ -30,30 +30,29 @@ $(document).ready(function() {
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		rowClickCallback: function(row) {
-			$('a.consultar-expedient', $(row))[0].click();
-			/*var url = $('ul a:first', $(row)).attr("href");
-			var idExpedient = url.substr("expedient/".length, url.length);
-			if ($("tr.info-" + idExpedient, $(row).parent()).length) {
-				return;
-			}
-			var numCols = $(row).children('td').length;
-			$(".tr-pendents").each(function( index ) {
-				$(this).fadeOut();
-				$(this).remove();
-			});
-			$(row).after("<tr id='contingut-carregant' class='tr-pendents hide'>"+
-					"<td colspan='" + (numCols - 1)+ "'>"+
-						"<div><p style='margin-top: 2em; text-align: center'><i class='icon-spinner icon-2x icon-spin'></i></p></div>"+
-					"</td></tr>");
+// 			$('a.consultar-expedient', $(row))[0].click();
 			$.ajax({
-				"url": "/helium/nodeco/v3/expedient/" + idExpedient + "/tasquesPendents",
-				"success": function (data) {								
-					$(row).after("<tr class='tr-pendents info-" + idExpedient + "'>"+
-							"<td colspan='" + (numCols - 1)+ "'>" + data + "</td>").fadeIn();
+				"url": "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
+				"beforeSend": function( xhr ) {	
+					$('.fa-chevron-up').addClass('fa-chevron-down').removeClass('fa-chevron-up');
+					$(row).find('.icona-collapse').removeClass('fa-chevron-down').addClass('fa-circle-o-notch fa-spin');
+					$(".table-pendents").find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(400, function(){
+					  	$(this).parent().parent().remove();
+					});
+				},
+				"success": function (data) {
+					$(row).find('.icona-collapse').removeClass('fa-circle-o-notch fa-spin').addClass('fa-chevron-up');
+					$(row).after(data);
+					$(".table-pendents").find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(400, function(){
+						  var $set = $(this);
+						  $set.replaceWith($set.contents());
+					});
 				},
 			  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
+					$('.fa-chevron-up').removeClass('fa-chevron-down fa-circle-o-notch fa-spin fa-chevron-up');
+					$(".table-pendents").remove();
 				}
-			});*/
+			});
 		},
 		seleccioCallback: function(seleccio) {
 			$('#tramitacioMassivaCount').html(seleccio.length);
@@ -181,6 +180,13 @@ $(document).ready(function() {
 		<thead>
 			<tr>
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
+				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
+					<script id="cellPendentsTemplate" type="text/x-jsrender">
+						<div class="pull-left">
+							<span class="icona-collapse fa fa-chevron-down"></i>						
+						</div>
+					</script>
+				</th>
 				<th data-rdt-property="identificador" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
 				<th data-rdt-property="tipus.nom" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/></th>
 				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.iniciat"/></th>
@@ -229,7 +235,7 @@ $(document).ready(function() {
 			<div class="btn-group">
 				<a class="btn btn-default" href="../v3/expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-				<a class="btn btn-default" href="#"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+				<a class="btn btn-default" href="../v3/expedient/massiva"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
 			<a data-rdt-link-modal="true" id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 		</div>

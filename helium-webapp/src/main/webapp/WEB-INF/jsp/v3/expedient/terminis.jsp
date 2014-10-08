@@ -11,10 +11,10 @@
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<style type="text/css">
-		.options {text-align: center;}
+		.options {min-width: 110px;}
 		.options i, .options a {
 			padding-right: 2px;
-			padding-left: 2px;
+			padding-left: 2px;			
 		}
 	</style>
 <script type="text/javascript">

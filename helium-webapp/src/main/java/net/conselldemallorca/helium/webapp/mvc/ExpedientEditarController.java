@@ -74,7 +74,9 @@ public class ExpedientEditarController extends BaseController {
 	public List<Estat> populateEntorn(
 			@RequestParam(value = "id", required = true) String id) {
 		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-		return dissenyService.findEstatAmbExpedientTipus(expedient.getTipus().getId());
+		List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(expedient.getTipus().getId());
+//		estats.add(new Estat(expedient.getTipus(), "-1", getMessage("expedient.consulta.finalitzat")));
+		return estats;
 	}
 
 	@RequestMapping(value = "/expedient/editar", method = RequestMethod.GET)

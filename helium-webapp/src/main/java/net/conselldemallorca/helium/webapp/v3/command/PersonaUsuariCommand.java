@@ -18,6 +18,7 @@ public class PersonaUsuariCommand {
 	private Long consultaId;
 	private Long numElementosPagina;
 	private boolean filtroExpedientesActivos;
+	private boolean usuarioModificable;
 
 	@NotEmpty(message="Per favor, especifiqui algun valor")
 	private String nom;
@@ -112,5 +113,11 @@ public class PersonaUsuariCommand {
 	}
 	public void setHombre(boolean hombre) {
 		this.hombre = hombre;
+	}
+	public boolean isUsuarioModificable() {
+		return usuarioModificable;
+	}
+	public void setUsuarioModificable(boolean usuarioModificable) {
+		this.usuarioModificable = usuarioModificable;
 	}
 }

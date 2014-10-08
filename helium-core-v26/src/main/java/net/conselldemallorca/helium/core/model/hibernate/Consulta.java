@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Basic;
@@ -21,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
@@ -62,6 +65,7 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	private boolean ocultarActiu;
 	private boolean generica;
 	private int ordre;
+	private Map<String, String> mapValorsPredefinits = new HashMap<String, String>();
 
 	@NotNull
 	private Entorn entorn;
@@ -118,6 +122,21 @@ public class Consulta implements Serializable, GenericEntity<Long> {
 	public String getValorsPredefinits() {
 		return valorsPredefinits;
 	}
+
+	@Transient
+	public Map<String, String> getMapValorsPredefinits() {
+		if (mapValorsPredefinits.isEmpty() && valorsPredefinits != null) {
+			String[] parelles = valorsPredefinits.split(",");
+			for (int i = 0; i < parelles.length; i++) {
+				String[] parella = (parelles[i].contains(":")) ? parelles[i].split(":") : parelles[i].split("=");
+				if (parella.length == 2) {
+					mapValorsPredefinits.put(parella[0], parella[1]);
+				}
+			}
+		}
+		return mapValorsPredefinits;
+	}
+	
 	public void setValorsPredefinits(String valorsPredefinits) {
 		this.valorsPredefinits = valorsPredefinits;
 	}

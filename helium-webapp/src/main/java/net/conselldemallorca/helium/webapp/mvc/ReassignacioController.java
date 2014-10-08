@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -141,7 +142,14 @@ public class ReassignacioController extends BaseController {
 			return clazz.isAssignableFrom(ReassignacioCommand.class);
 		}
 		public void validate(Object target, Errors errors) {
-			Date avui = new Date();
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			Date avui = cal.getTime();
+			
 			ReassignacioCommand command = (ReassignacioCommand)target;
 			ValidationUtils.rejectIfEmpty(errors, "usuariOrigen", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "usuariDesti", "not.blank");

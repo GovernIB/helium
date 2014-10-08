@@ -10,6 +10,20 @@
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
+	<script type="text/javascript">
+		// <![CDATA[
+		function confirmarFinalitzar(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			if ($("#estatId").val() == -1) {
+				return confirm("<fmt:message key='expedient.editar.confirmacio.finalitzar' />");
+			} else {
+				return true;
+			}
+		}
+		// ]]>
+	</script>
 </head>
 <body>
 
@@ -18,7 +32,7 @@
 	</c:import>
 	<h3 class="titol-tab titol-dades-tasca"><fmt:message key='expedient.editar.informacio' /></h3>
 
-	<form:form action="editar.html" cssClass="uniForm">
+	<form:form action="editar.html" cssClass="uniForm" onsubmit="return confirmarFinalitzar(event)">
 		<div class="inlineLabels">
 			<input type="hidden" name="id" value="${param.id}"/>
 			<form:hidden path="expedientId"/>

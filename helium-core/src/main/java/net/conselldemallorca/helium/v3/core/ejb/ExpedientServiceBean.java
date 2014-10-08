@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.ejb;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -520,5 +521,11 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
 		return findConsultaInformeParams(consultaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
+		return findAmbIds(ids);
 	}
 }

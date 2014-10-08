@@ -93,11 +93,12 @@ public class ExpedientHelper {
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Entorn entorn = expedient.getEntorn();
-		if (!permisosHelper.isGrantedAll(
+		if (!permisosHelper.isGrantedAny(
 				entorn.getId(),
 				Entorn.class,
 				new Permission[] {
-					ExtendedPermission.READ},
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
 				auth)) {
 			throw new NotAllowedException(
 					id,

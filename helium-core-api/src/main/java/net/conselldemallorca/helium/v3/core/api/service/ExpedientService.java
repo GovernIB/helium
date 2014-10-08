@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -187,6 +188,19 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientDto findAmbId(Long id);
+
+	/**
+	 * Retorna varios expedients donat el seu id.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @return L'expedient.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public List<ExpedientDto> findAmbIds(Set<Long> ids);
 
 	/**
 	 * Consulta d'expedients per entorn paginada.

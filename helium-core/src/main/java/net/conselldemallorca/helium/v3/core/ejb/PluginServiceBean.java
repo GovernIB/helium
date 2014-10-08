@@ -29,4 +29,10 @@ public class PluginServiceBean implements PluginService {
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
 		return delegate.findPersonaLikeNomSencer(text);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isPersonesPluginJdbc() {
+		return delegate.isPersonesPluginJdbc();
+	}
 }

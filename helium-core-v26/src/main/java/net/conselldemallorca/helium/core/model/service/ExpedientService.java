@@ -21,6 +21,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
+import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
 import net.conselldemallorca.helium.core.model.dao.AreaMembreDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -119,7 +120,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
- * Servei per a gestionar els expedients
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -155,6 +155,7 @@ public class ExpedientService {
 	private AclServiceDao aclServiceDao;
 	private DtoConverter dtoConverter;
 	private MessageSource messageSource;
+	private AlertaDao alertaDao;
 
 	private DocumentHelper documentHelper;
 	private ExpedientLogHelper expedientLogHelper;
@@ -587,7 +588,14 @@ public class ExpedientService {
 		}
 		// Estat
 		if (estatId != null) {
-			if (expedient.getEstat() == null) {
+			if (estatId == -1) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + "---");
+				
+				// Finalizamos el expediente
+				finalitzar(expedient, getUsuariPerRegistre());
+			} else if (expedient.getEstat() == null) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
@@ -1721,6 +1729,45 @@ public class ExpedientService {
 				SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
+	private void finalitzar(
+			Expedient expedient,
+			String usuari) {
+		logger.debug("Finalitzant l'expedient (" +
+				"id=" + expedient.getId());		
+		mesuresTemporalsHelper.mesuraIniciar("Finalitzar", "expedient", expedient.getTipus().getNom());
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_FINALIZTAR,
+				null);
+		
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
+		for (JbpmProcessInstance pi : jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId())) {
+			for (org.jbpm.taskmgmt.exe.TaskInstance ti : pi.getProcessInstance().getTaskMgmtInstance().getTaskInstances()) {
+				if (ti.isOpen()) {
+					ti.suspend();
+				}
+				// Finalitzar terminis actius i alertes
+				for (TerminiIniciat terminiIniciat : terminiIniciatDao.findAmbProcessInstanceId(pi.getId())) {
+					if (terminiIniciat.getDataInici() != null) {
+						terminiIniciat.setDataCancelacio(new Date());
+						for (long timerId : terminiIniciat.getTimerIdsArray())
+							jbpmHelper.suspendTimer(timerId, new Date(Long.MAX_VALUE));
+					}
+					for (Alerta antiga : alertaDao.findActivesAmbTerminiIniciatId(terminiIniciat.getId()))
+						antiga.setDataEliminacio(new Date());
+				}
+			}
+			pi.getProcessInstance().end();
+		}
+		
+		registreDao.crearRegistreFinalitzarExpedient(
+				expedient.getId(),
+				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName());
+		
+		mesuresTemporalsHelper.mesuraCalcular("Finalitzar", "expedient", expedient.getTipus().getNom());
+	}
+
 	public List<FilaResultat> getResultatConsultaDomini(
 			String processInstanceId,
 			String campCodi,
@@ -2371,6 +2418,11 @@ public class ExpedientService {
 	@Autowired
 	public void setAccioDao(AccioDao accioDao) {
 		this.accioDao = accioDao;
+	}
+	@Autowired
+	public void setAlertaDao(
+			AlertaDao alertaDao) {
+		this.alertaDao = alertaDao;
 	}
 	@Autowired
 	public void setTerminiIniciatDao(TerminiIniciatDao terminiIniciatDao) {

@@ -209,4 +209,19 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("entornId") Long entornId,
 			@Param("text") String text);
 
+	@Query("select e from Expedient e where " +
+			"        e.id in (:ids1) " +
+			"        or e.id in (:ids2) " +
+			"        or e.id in (:ids3) " +
+			"        or e.id in (:ids4) " +
+			"        or e.id in (:ids5) ")
+	List<Expedient> findAmbIds(
+			@Param("ids1") Collection<Long> ids1,
+			@Param("ids2") Collection<Long> ids2,
+			@Param("ids3") Collection<Long> ids3,
+			@Param("ids4") Collection<Long> ids4,
+			@Param("ids5") Collection<Long> ids5);
+			
+			
+
 }

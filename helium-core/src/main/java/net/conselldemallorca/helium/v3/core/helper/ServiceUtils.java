@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,14 +29,12 @@ import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 
 /**
@@ -59,16 +56,10 @@ public class ServiceUtils {
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource
 	private LuceneHelper luceneHelper;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
 	@Resource
 	private JbpmHelper jbpmHelper;
-	@Resource(name="permissionServiceV3")
-	private PermissionService permissionService;
 	@Resource
 	private MessageSource messageSource;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
 	
 	/**
 	 * Mètodes per a la reindexació d'expedients
@@ -136,112 +127,54 @@ public class ServiceUtils {
 	public List<TascaDadaDto> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
 		List<ConsultaCamp> camps = null;
+		
 		if (tipus != null)
 			camps = consultaCampRepository.findCampsConsulta(consulta.getId(), tipus);
 		else
 			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
 		for (ConsultaCamp camp: camps) {
-			if (!camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+			Camp campRes = null;
+			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
+				campRes = getCampExpedient(camp.getCampCodi());
+			} else {
 				DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 						camp.getDefprocJbpmKey(),
 						camp.getDefprocVersio());
 				if (definicioProces != null) {
-					Camp campRes = campRepository.findByDefinicioProcesAndCodi(
+					campRes = campRepository.findByDefinicioProcesAndCodi(
 							definicioProces,
 							camp.getCampCodi());
-					if (campRes != null) {
-						resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus));
-					}
-				} else {
-					if (TipusConsultaCamp.PARAM.equals(tipus)) {
-						if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.INTEGER,
-											camp.getCampCodi()));
-						} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.FLOAT,
-											camp.getCampCodi()));
-						} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.DATE,
-											camp.getCampCodi()));
-						}else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.BOOLEAN,
-											camp.getCampCodi()));
-						} else {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.STRING,
-											camp.getCampCodi()));
-						}
-					} else {
-						resposta.add(
-								new TascaDadaDto(
-										camp.getCampCodi(),
-										CampTipusDto.STRING,
-										camp.getCampCodi()));
-					}
 				}
+			}
+			if (campRes != null) {
+				resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus));
 			} else {
-				Camp campExpedient = getCampExpedient(camp.getCampCodi());
-				if (campExpedient != null) {
-					resposta.add(variableHelper.getTascaDadaDtoParaConsultaDisseny(campExpedient,tipus));
-				} else {
-					if (TipusConsultaCamp.PARAM.equals(tipus)) {
-						if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.INTEGER,
-											camp.getCampCodi()));
-						} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.FLOAT,
-											camp.getCampCodi()));
-						} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.DATE,
-											camp.getCampCodi()));
-						}else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.BOOLEAN,
-											camp.getCampCodi()));
-						} else {
-							resposta.add(
-									new TascaDadaDto(
-											camp.getCampCodi(),
-											CampTipusDto.STRING,
-											camp.getCampCodi()));
-						}
-					} else {
-						resposta.add(
-								new TascaDadaDto(
-										camp.getCampCodi(),
-										CampTipusDto.STRING,
-										camp.getCampCodi()));
-					}
-				}
+				resposta.add(getTascaDadaPerCampsConsulta(camp));
 			}
 		}
 		return resposta;
 	}
+	
+	private TascaDadaDto getTascaDadaPerCampsConsulta(ConsultaCamp camp) {
+		TascaDadaDto tascaDadaDto = null;
+		if (TipusConsultaCamp.PARAM.equals(camp.getTipus())) {
+			if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.INTEGER, camp.getCampCodi()));
+			} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.FLOAT, camp.getCampCodi()));
+			} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.DATE, camp.getCampCodi()));
+			} else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.BOOLEAN, camp.getCampCodi()));
+			} else {
+				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, camp.getCampCodi()));
+			}
+		} else {
+			tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, camp.getCampCodi()));
+		}
+		return tascaDadaDto;
+	}
+	
 	public List<Camp> findAllCampsExpedientConsulta() {
 		List<Camp> resposta = new ArrayList<Camp>();
 		resposta.add(
@@ -339,64 +272,6 @@ public class ServiceUtils {
 	public String getMessage(String key) {
 		return getMessage(key, null);
 	}
-
-	/*
-	 * Comprovació de permisos
-	 */
-	@SuppressWarnings("rawtypes")
-	public void filterAllowed(
-			List list,
-			Class clazz,
-			Permission[] permissions) {
-		Iterator it = list.iterator();
-		while (it.hasNext()) {
-			Object entry = it.next();
-			if (!isGrantedAny((Long)entry, clazz, permissions))
-				it.remove();
-		}
-	}
-	@SuppressWarnings("rawtypes")
-	public Object filterAllowed(
-			Long object,
-			Class clazz,
-			Permission[] permissions) {
-		if (isGrantedAny(object, clazz, permissions)) {
-			return object;
-		} else {
-			return null;
-		}
-	}
-
-	/*
-	 * Obtenció de valors i descripcions de variables emmagatzemades
-	 * a dins els processos jBPM
-	 */
-	public Object getVariableJbpmTascaValor(
-			String taskId,
-			String varCodi) {
-		Object valor = jbpmHelper.getTaskInstanceVariable(taskId, varCodi);
-		return valorVariableJbpmRevisat(valor);
-	}
-	public Map<String, Object> getVariablesJbpmTascaValor(
-			String taskId) {
-		Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(taskId);
-		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
-		for (String varCodi: valors.keySet()) {
-			Object valor = valors.get(varCodi);
-			valorsRevisats.put(varCodi, valorVariableJbpmRevisat(valor));
-		}
-		return valorsRevisats;
-	}
-	public Object getVariableJbpmProcesValor(
-			String processInstanceId,
-			String varCodi) {
-		Object valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, varCodi);
-		if (valor instanceof DominiCodiDescripcio) {
-			return ((DominiCodiDescripcio)valor).getCodi();
-		} else {
-			return valor;
-		}
-	}
 	public Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
 		Map<String, Object> valors = jbpmHelper.getProcessInstanceVariables(processInstanceId);
@@ -408,14 +283,6 @@ public class ServiceUtils {
 			}
 		}
 		return valorsRevisats;
-	}
-	public void revisarVariablesJbpm(Map<String, Object> variables) {
-		if (variables != null) {
-			for (String varCodi: variables.keySet()) {
-				Object valor = variables.get(varCodi);
-				variables.put(varCodi, valorVariableJbpmRevisat(valor));
-			}
-		}
 	}
 
 	/*
@@ -529,14 +396,6 @@ public class ServiceUtils {
 				}
 			}
 		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	private boolean isGrantedAny(
-			Long object,
-			Class clazz,
-			Permission[] permissions) {
-		return permissionService.isGrantedAny(object , clazz, permissions);
 	}
 
 	private Object valorVariableJbpmRevisat(Object valor) {

@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -497,7 +496,18 @@ public class ExpedientInformeController extends BaseExpedientController {
 	private Map<String, Object> getValorsPerService(List<TascaDadaDto> camps, Map<String, Object> valors) {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();
 		for (TascaDadaDto camp : camps) {
-			valorsPerService.put(camp.getVarCodi(), valors.get(camp.getVarCodi()));
+			String clau = camp.getVarCodi();
+//			if (camp.getDefinicioProces() != null) {
+//				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
+//				String clauPerService = definicioProcesKey + clau.substring(definicioProcesKey.length()).replaceFirst("_", ".");
+//				valorsPerService.put(
+//						clauPerService,
+//						valors.get(clau));
+//			} else {
+				valorsPerService.put(
+						clau,
+						valors.get(clau));
+//			}
 		}
 		return valorsPerService;
 	}

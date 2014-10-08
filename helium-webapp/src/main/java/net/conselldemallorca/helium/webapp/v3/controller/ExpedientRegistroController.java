@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 
@@ -38,9 +37,6 @@ public class ExpedientRegistroController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-
-	@Autowired
-	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/registre", method = RequestMethod.GET)
 	public String registre(

@@ -67,14 +67,6 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientPerPipella(
-					request,
-					expedientId,
-					model,
-					"tasques",
-					expedientService);
-		}
 		model.addAttribute(
 				"tasques",
 				expedientService.findTasquesPendents(

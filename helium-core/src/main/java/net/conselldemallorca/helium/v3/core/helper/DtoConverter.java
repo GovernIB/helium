@@ -292,9 +292,10 @@ public class DtoConverter {
 			Map<String, DadaIndexadaDto> dadesExpedient,
 			List<Camp> campsInforme, 
 			String processInstanceId) {
+		String dadaIndexadaClau = null;
 		for (Camp camp: campsInforme) {
-			if (camp != null) {
-			String dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi().toLowerCase();
+			if (camp != null && camp.getDefinicioProces() != null) {
+				dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
 				if (!dadesExpedient.containsKey(dadaIndexadaClau)) {
 					dadesExpedient.put(dadaIndexadaClau, new DadaIndexadaDto(camp.getCodi().toLowerCase(), camp.getEtiqueta()));
 				}
