@@ -10,18 +10,19 @@
 <html>
 <head>
 	<title><spring:message code="expedient.massiva.titol"/></title>
-
-	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
-	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+	
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	
+	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
+	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
-	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	
 	<script type="text/javascript">
@@ -90,17 +91,12 @@
 				});
 				$("input[type='hidden'][name='inici']").each(function(){ $(this).val($("input[name=inici]").val()); });
             });
-			$('#grup-default-dades').on('shown.bs.collapse', function() {
-				$('#grup-default-titol .icona-collapse').toggleClass('fa-chevron-down');
-				$('#grup-default-titol .icona-collapse').toggleClass('fa-chevron-up');
-			});			
-			$('#grup-default-dades').on('hidden.bs.collapse', function() {
-				$('#grup-default-titol .icona-collapse').toggleClass('fa-chevron-down');
-				$('#grup-default-titol .icona-collapse').toggleClass('fa-chevron-up');
-			});
-			$("input[name=inici]").change(function(){
-				
-			});
+        	$("#grup-default-titol").click(function(event) {
+       			$("#grup-default-dades").slideToggle("slow", function() {
+       				$('#grup-default-titol .icona-collapse').toggleClass('fa-chevron-down');
+    				$('#grup-default-titol .icona-collapse').toggleClass('fa-chevron-up');
+       			});
+       		});
 			$("input[name=correu]").change(function(){
 				var correu = $(this).is(":checked") ? true : false;
 				$("form").each(function(){
@@ -152,40 +148,38 @@
 </head>
 <body>
 	<div class="missatgesBlau">		
-		<div class="panel-group" id="accordion">
+		<div class="panel-group">
 			<div class="panel panel-default">
-				<a data-toggle="collapse" data-parent="#accordion" href="#grup-default-dades">					
-				    <div id="grup-default-titol"" class="panel-heading clicable grup" >
-				    	<spring:message code="expedient.massiva.info"/>
-						<div class="pull-right">
-							<span class="icona-collapse fa fa-chevron-down"></span>
-						</div>
-						<span class="badge">${fn:length(expedients)}</span>
-				    </div>
-			    </a>
+			    <div id="grup-default-titol" data-toggle="collapse" class="panel-heading clicable grup" >
+			    	<spring:message code="expedient.massiva.info"/>
+					<div class="pull-right">
+						<span class="icona-collapse fa fa-chevron-down"></span>
+					</div>
+					<span class="badge">${fn:length(expedients)}</span>
+			    </div>
 			    <div id="grup-default-dades" class="panel-collapse collapse">
-			      <div class="panel-body">
-			       <table class="table table-bordered" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0">
-				   		<thead>
-							<tr>
-								<th><spring:message code="expedient.llistat.columna.expedient"/></th>
-								<th><spring:message code="expedient.llistat.columna.tipus"/></th>
-								<th><spring:message code="expedient.llistat.columna.iniciat"/></th>
-								<th><spring:message code="expedient.llistat.columna.estat"/></th>
-							</tr>
-						</thead>
-				        <c:forEach var="expedient" items="${expedients}">
-							<tbody>
+					<div class="panel-body">
+						<table class="table table-bordered" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0">
+							<thead>
 								<tr>
-									<td>${expedient.identificadorLimitat}</td>
-									<td>${expedient.tipus.nom}</td>
-									<td><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></td>
-									<td>${expedient.estat.nom}</td>
+									<th><spring:message code="expedient.llistat.columna.expedient"/></th>
+									<th><spring:message code="expedient.llistat.columna.tipus"/></th>
+									<th><spring:message code="expedient.llistat.columna.iniciat"/></th>
+									<th><spring:message code="expedient.llistat.columna.estat"/></th>
 								</tr>
-							</tbody>
-						 </c:forEach>				       		
-					</table>
-			      </div>
+							</thead>
+							<c:forEach var="expedient" items="${expedients}">
+								<tbody>
+									<tr>
+										<td>${expedient.identificadorLimitat}</td>
+										<td>${expedient.tipus.nom}</td>
+										<td><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></td>
+										<td>${expedient.estat.nom}</td>
+									</tr>
+								</tbody>
+							</c:forEach>				       		
+						</table>
+					</div>
 			    </div>
 			</div>
 		</div>
@@ -216,7 +210,7 @@
 		
 		<div class="control-group left">
 			<div class="label-titol">
-				<label class="control-label"><spring:message code='expedient.eines.script' /></label>
+				<label class="control-label"><spring:message code='expedient.massiva.aturar' /></label>
 				<div class="form-group">
 					<form:form cssClass="form-horizontal form-tasca" id="aturarMas" name="aturarMas" action="" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmarAturar(event)">
 						<hel:inputTextarea inline="true" name="motiu" textKey="expedient.eines.motiu" placeholderKey="expedient.eines.motiu"/>
@@ -230,7 +224,7 @@
 
 		<div class="control-group right">
 			<div class="label-titol">
-				<label class="control-label"><spring:message code='expedient.eines.script' /></label>
+				<label class="control-label"><spring:message code='expedient.massiva.executarScriptMas' /></label>
 				<div class="form-group">
 					<form:form cssClass="form-horizontal form-tasca" id="scriptMas" name="scriptMas" action="" method="post" commandName="expedientEinesScriptCommand" onsubmit="return confirmarScript(event)">
 						<hel:inputTextarea inline="true" name="script" textKey="comuns.executar" placeholderKey="comuns.executar"/>
@@ -251,6 +245,36 @@
 							<spring:message code='comuns.reindexar' />
 						</button>
 					</form:form>
+				</div>
+			</div>
+		</div>
+
+		<div class="control-group right">
+			<div class="label-titol">
+				<label class="control-label"><spring:message code='expedient.massiva.actualitzar' /></label>
+				<div class="form-group">
+					<form:form cssClass="form-horizontal form-tasca" id="massivaCanviVersio" name="massivaCanviVersio" action="" method="post" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
+						<div class="ctrlHolder">
+							<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
+						</div>
+						<label class="control-label">${definicioProces.jbpmKey}</label>
+						<hel:inputSelect inline="true" name="definicioProcesId" textKey="expedient.massiva.proces.principal" placeholderKey="expedient.massiva.proces.principal" optionItems="${definicionsProces}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
+						
+						<c:if test="${not empty subDefinicioProces}">
+							<div class="ctrlHolder">
+								<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.subprocessos"/>:</h4>
+							</div>
+							<c:forEach var="subProces" items="${subDefinicioProces}">
+								<c:set var="subDefinicionsProces" value="${subProces.jbpmIdsAmbDescripcio}" scope="request"/>
+								<label class="control-label">${subProces.jbpmKey}</label>
+								<hel:inputSelect inline="true" name="subprocesId" textKey="expedient.massiva.subprocessos" placeholderKey="expedient.massiva.subprocessos" optionItems="${subDefinicionsProces}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
+							</c:forEach>
+						</c:if>
+					
+						<button class="btn btn-primary right" type="submit" name="accio" value="canviar_versio">
+							<spring:message code='comuns.canviar_versio' />
+						</button>
+					</form:form>	
 				</div>
 			</div>
 		</div>

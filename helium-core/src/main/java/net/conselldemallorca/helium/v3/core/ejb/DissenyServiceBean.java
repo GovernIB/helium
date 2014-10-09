@@ -190,4 +190,16 @@ public class DissenyServiceBean implements DissenyService {
 	public DefinicioProcesDto getByInstanciaProcesById(String processInstanceId) {
 		return delegate.getByInstanciaProcesById(processInstanceId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmId) {
+		return delegate.getSubprocessosByProces(jbpmId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
+		return delegate.findDefinicioProcesAmbJbpmId(jbpmId);
+	}
 }

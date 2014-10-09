@@ -11,8 +11,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -76,10 +78,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
 			return "redirect:/v3";
 		} else {
-			model.addAttribute("expedients", expedientService.findAmbIds(ids));
+			List<ExpedientDto> expedients = expedientService.findAmbIds(ids);
+			
+			model.addAttribute("expedients", expedients);
 			model.addAttribute("inici", null);
 			model.addAttribute("correu", false);
-			model.addAttribute(new ExpedientEinesScriptCommand());
 			model.addAttribute(new ExpedientEinesScriptCommand());
 			model.addAttribute(new ExecucioAccioCommand());
 			model.addAttribute(new CanviVersioProcesCommand());
@@ -88,127 +91,107 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new DocumentExpedientCommand());
 			model.addAttribute(new ExpedientEinesReassignarCommand());
 			
+			model.addAttribute("accions",expedientService.findAccionsVisibles(expedients.get(0).getId()));
+			
+			DefinicioProcesDto definicioProces = dissenyService.getByInstanciaProcesById(expedients.get(0).getProcessInstanceId());
+			List<DefinicioProcesDto> supProcessos = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
+			model.addAttribute("definicioProces",definicioProces);
+			model.addAttribute("subDefinicioProces", supProcessos);
+			
 			return "v3/massivaInfo";
 		}
 	}
-	
+
 	@RequestMapping(method = RequestMethod.POST)
-	public String postExpedient(
+	public String massivaPost(
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute Object command, 
 			@RequestParam(value = "accio", required = true) String accio,
-			@ModelAttribute ExpedientEinesScriptCommand expedientEinesScriptCommand, 
-			@ModelAttribute ExecucioAccioCommand execucioAccioCommand, 
-			@ModelAttribute CanviVersioProcesCommand canviVersioProcesCommand, 
-			@ModelAttribute ExpedientEinesAturarCommand expedientEinesAturarCommand, 
-			@ModelAttribute ModificarVariablesCommand modificarVariablesCommand, 
-			@ModelAttribute DocumentExpedientCommand documentExpedientCommand, 
-			@ModelAttribute ExpedientEinesReassignarCommand expedientEinesReassignarCommand, 
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
+		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
-		
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
 			return "redirect:/v3";
 		}
-		
-		List<Long> listIds = new ArrayList<Long>(ids);
+
 		Date dInici = new Date();
 		if (inici != null) {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			try {
 				dInici = sdf.parse(inici);
 			} catch (ParseException e) {}
-		}		
-		
-		if ("executar".equals(accio)) {			
-			executar (request, dInici, correu, listIds, expedientEinesScriptCommand, result);
-		} else if ("reindexar".equals(accio)) {
-			reindexar (request, dInici, correu, listIds);
-		}else if ("aturar".equals(accio)) {
-			aturar (request, dInici, correu, listIds, expedientEinesAturarCommand, result);
 		}
-		System.out.println("accio: " + accio);		
 
 		model.addAttribute("expedients", expedientService.findAmbIds(ids));
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
-		model.addAttribute(expedientEinesScriptCommand);
-		model.addAttribute(execucioAccioCommand);
-		model.addAttribute(canviVersioProcesCommand);
-		model.addAttribute(expedientEinesAturarCommand);
-		model.addAttribute(modificarVariablesCommand);
-		model.addAttribute(documentExpedientCommand);
-		model.addAttribute(expedientEinesReassignarCommand);
+		model.addAttribute(new ExpedientEinesScriptCommand());
+		model.addAttribute(new ExecucioAccioCommand());
+		model.addAttribute(new CanviVersioProcesCommand());
+		model.addAttribute(new ExpedientEinesAturarCommand());
+		model.addAttribute(new ModificarVariablesCommand());
+		model.addAttribute(new DocumentExpedientCommand());
+		model.addAttribute(new ExpedientEinesReassignarCommand());
 		
-		return "v3/massivaInfo";
-	}
-
-	private void executar (HttpServletRequest request, Date dInici, boolean bCorreu, List<Long> listIds, ExpedientEinesScriptCommand expedientEinesScriptCommand, BindingResult result) {
-		new ExpedientScriptValidator().validate(expedientEinesScriptCommand, result);
-		if (result.hasErrors()) {
-			MissatgesHelper.error(request, getMessage(request, "error.executar.script"));
-		} else {
-			try {
-				ExecucioMassivaDto dto = new ExecucioMassivaDto();
-				dto.setDataInici(dInici);
-				dto.setEnviarCorreu(bCorreu);
-				dto.setExpedientIds(listIds);
-				dto.setExpedientTipusId(listIds.get(0));
-				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_SCRIPT);
-				dto.setParam2(execucioMassivaService.serialize(expedientEinesScriptCommand.getScript()));
+		List<Long> listIds = new ArrayList<Long>(ids);
+		
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setDataInici(dInici);
+		dto.setEnviarCorreu(correu);
+		dto.setExpedientIds(listIds);
+		dto.setExpedientTipusId(listIds.get(0));
+		
+		try {					
+			if ("reindexar".equals(accio)) {
+				dto.setTipus(ExecucioMassivaTipusDto.REINDEXAR);
 				execucioMassivaService.crearExecucioMassiva(dto);
-						
-				MissatgesHelper.info(request, getMessage(request, "info.script.massiu.executat", new Object[] {listIds.size()}));
-			} catch (Exception e) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
-				logger.error("Error al programar les accions massives", e);
+				MissatgesHelper.info(request, getMessage(request, "info.reindexar.massiu.executat", new Object[] {listIds.size()}));
+			} else if ("executar".equals(accio)) {
+				new ExpedientScriptValidator().validate(command, result);
+				if (result.hasErrors()) {
+					MissatgesHelper.error(request, getMessage(request, "error.executar.script"));
+				} else {
+					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_SCRIPT);
+					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesScriptCommand) command).getScript()));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					MissatgesHelper.info(request, getMessage(request, "info.script.massiu.executat", new Object[] {listIds.size()}));
+					model.addAttribute("expedientEinesScriptCommand", command);
+				}
+			} else if ("aturar".equals(accio)) {
+				new ExpedientAturarValidator().validate(command, result);
+				if (result.hasErrors()) {
+					MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
+				} else {
+					dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
+					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesAturarCommand) command).getMotiu()));
+					execucioMassivaService.crearExecucioMassiva(dto);		
+					MissatgesHelper.info(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
+					model.addAttribute("expedientEinesAturarCommand", command);
+				}
+			} else if ("canviar_versio".equals(accio)) {
+//				new ExpedientAturarValidator().validate(command, result);
+//				if (result.hasErrors()) {
+//					MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
+//				} else {
+//					dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
+//					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesAturarCommand) command).getMotiu()));
+//					execucioMassivaService.crearExecucioMassiva(dto);		
+//					MissatgesHelper.info(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
+//					model.addAttribute("expedientEinesAturarCommand", command);
+//				}
 			}
-		}
-	}
-
-	private void reindexar (HttpServletRequest request, Date dInici, boolean bCorreu, List<Long> listIds) {
-		try {
-			ExecucioMassivaDto dto = new ExecucioMassivaDto();
-			dto.setDataInici(dInici);
-			dto.setEnviarCorreu(bCorreu);
-			dto.setExpedientIds(listIds);
-			dto.setExpedientTipusId(listIds.get(0));
-			dto.setTipus(ExecucioMassivaTipusDto.REINDEXAR);
-			execucioMassivaService.crearExecucioMassiva(dto);
-					
-			MissatgesHelper.info(request, getMessage(request, "info.reindexar.massiu.executat", new Object[] {listIds.size()}));
 		} catch (Exception e) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 			logger.error("Error al programar les accions massives", e);
 		}
-	}
-
-	private void aturar (HttpServletRequest request, Date dInici, boolean bCorreu, List<Long> listIds, ExpedientEinesAturarCommand expedientEinesAturarCommand, BindingResult result) {
-		new ExpedientAturarValidator().validate(expedientEinesAturarCommand, result);
-		if (result.hasErrors()) {
-			MissatgesHelper.error(request, getMessage(request, "error.executar.script"));
-		} else {
-			try {
-				ExecucioMassivaDto dto = new ExecucioMassivaDto();
-				dto.setDataInici(dInici);
-				dto.setEnviarCorreu(bCorreu);
-				dto.setExpedientIds(listIds);
-				dto.setExpedientTipusId(listIds.get(0));
-				dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
-				dto.setParam2(execucioMassivaService.serialize(expedientEinesAturarCommand.getMotiu()));
-				execucioMassivaService.crearExecucioMassiva(dto);
-				
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
-			} catch (Exception e) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
-				logger.error("Error al programar les accions massives", e);
-			}
-		}
+		
+		return "v3/massivaInfo";
 	}
 	
 	private class ExpedientScriptValidator implements Validator {

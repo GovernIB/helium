@@ -61,7 +61,6 @@ public abstract class BaseBackoffice {
 						expedientTipus.getEntorn().getId(),
 						expedientTipus.getId());*/
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-			logger.info("XX 3 : " + expedientTipus.getCodi() + ": " + tramit);
 			ExpedientDto expedientNou = expedientService.iniciar(
 					expedientTipus.getEntorn().getId(),
 					null,
@@ -154,6 +153,8 @@ public abstract class BaseBackoffice {
 		}
 		return resposta;*/
 		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
+		logger.info("1.1 XX: " + mapeigsSistra.size());
+		logger.info("1.2 XX: " + mapeigsSistra);
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
@@ -162,24 +163,28 @@ public abstract class BaseBackoffice {
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
 		
 		for (MapeigSistra mapeig : mapeigsSistra){
+			logger.info("2.1 XX: CodiHelium: " + mapeig.getCodiHelium() + " CodiSistra: " + mapeig.getCodiSistra());
 			trobat = true;
 			Camp campHelium = null;
 			for (CampTasca campTasca: campsTasca) {
 				if (campTasca.getCamp().getCodi().equalsIgnoreCase(mapeig.getCodiHelium())) {
+					logger.info("2.2 XX: Encontrado campTasca: " + campTasca.getCamp().getCodi());
 					campHelium = campTasca.getCamp();
 					break;
 				}
 			}
 			try {
 				if (campHelium != null) {
+					Object valorHelium = valorVariableHelium(
+							valorVariableSistra(
+									tramit,
+									mapeig.getCodiHelium(),
+									mapeig.getCodiSistra()),
+							campHelium);
+					logger.info("2.3 XX: Guardant dada pel nou expedient: " + mapeig.getCodiHelium() + ", " + valorHelium);
 					resposta.put(
 							mapeig.getCodiHelium(),
-							valorVariableHelium(
-									valorVariableSistra(
-											tramit,
-											mapeig.getCodiHelium(),
-											mapeig.getCodiSistra()),
-									campHelium));
+							valorHelium);
 				}
 			} catch (Exception ex) {
 				logger.error("Error llegint dades del document de SISTRA", ex);

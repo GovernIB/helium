@@ -109,8 +109,6 @@ public interface DissenyService {
 
 	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi);
 
-	/*public List<AccioDto> findAccionsVisiblesAmbDefinicioProces(Long definicioProcesId);*/
-
 	public AccioDto findAccioAmbId(Long idAccio);
 
 	public void executarAccio(AccioDto accio, ExpedientDto expedient);
@@ -124,4 +122,8 @@ public interface DissenyService {
 	public TerminiIniciatDto findIniciatAmbId(Long id);
 
 	public DefinicioProcesDto getByInstanciaProcesById(String processInstanceId);
+
+	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmId);
+
+	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId);
 }
