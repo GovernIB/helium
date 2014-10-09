@@ -588,23 +588,25 @@ public class ExpedientService {
 		}
 		// Estat
 		if (estatId != null) {
-			if (estatId == -1) {
-				expedientLogHelper.afegirProcessLogInfoExpedient(
-						expedient.getProcessInstanceId(), 
-						LogInfo.ESTAT + "#@#" + "---");
-				
-				// Finalizamos el expediente
-				finalitzar(expedient, getUsuariPerRegistre());
-			} else if (expedient.getEstat() == null) {
+			if (expedient.getEstat() == null) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				expedient.setEstat(estatDao.getById(estatId, false));
 			} else if (expedient.getEstat().getId() != estatId){
-				expedientLogHelper.afegirProcessLogInfoExpedient(
-						expedient.getProcessInstanceId(), 
-						LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
-				expedient.setEstat(estatDao.getById(estatId, false));
+//				if (estatId == -1) {
+//					expedientLogHelper.afegirProcessLogInfoExpedient(
+//							expedient.getProcessInstanceId(), 
+//							LogInfo.ESTAT + "#@#" + "---");
+//					
+//					// Finalizamos el expediente
+//					finalitzar(expedient, getUsuariPerRegistre());
+//				} else {
+					expedientLogHelper.afegirProcessLogInfoExpedient(
+							expedient.getProcessInstanceId(), 
+							LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
+					expedient.setEstat(estatDao.getById(estatId, false));
+//				}
 			}
 		} else if (expedient.getEstat() != null) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(

@@ -286,14 +286,13 @@ public class VariableHelper {
 		CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 				tasca.getId(),
 				variableCodi);
-		Object valor = null;
 		Camp camp = null;
 		if (campTasca != null) {
 			camp = campTasca.getCamp();
-			valor = jbpmHelper.getTaskInstanceVariable(
-					task.getId(),
-					variableCodi);
 		}
+		Object valor = jbpmHelper.getTaskInstanceVariable(
+				task.getId(),
+				variableCodi);
 		if (valor == null) {
 			valor = jbpmHelper.getProcessInstanceVariable(
 					task.getProcessInstanceId(),
@@ -319,8 +318,6 @@ public class VariableHelper {
 			return null;
 		}
 	}
-
-
 
 	private ExpedientDadaDto getDadaPerVariableJbpm(
 			Camp camp,

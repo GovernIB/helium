@@ -75,6 +75,7 @@ public class ExpedientEditarController extends BaseController {
 			@RequestParam(value = "id", required = true) String id) {
 		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 		List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(expedient.getTipus().getId());
+//		estats.add(new Estat(expedient.getTipus(), "0", getMessage("expedient.consulta.iniciat")));
 //		estats.add(new Estat(expedient.getTipus(), "-1", getMessage("expedient.consulta.finalitzat")));
 		return estats;
 	}

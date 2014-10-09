@@ -137,9 +137,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "  where " +
 		    "  ti.isSuspended = false and ti.isOpen = true " +
-		    ((nomesActives) ? "ti.isSuspended = false and ti.isOpen = true" : "") +
-		    ((nomesActives && pooled != null && pooled == false) ? " and " : "") +
-		    ((pooled != null && pooled == false) ? "ti.actorId is not null " : "");
+		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true " : " ") +
+		    ((pooled != null && pooled == false) ? "and ti.actorId is not null " : " ");
 		
 		String hqlPersonal =
 		    "select  " + 
