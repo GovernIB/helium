@@ -588,25 +588,34 @@ public class ExpedientService {
 		}
 		// Estat
 		if (estatId != null) {
-			if (expedient.getEstat() == null) {
+			if (estatId.equals(-1L) && expedient.getEstat() == null && expedient.getDataFi() != null) {
+				// Ya estaba en estado finalizat
+			} else if (estatId.equals(0L) && expedient.getEstat() == null) {
+				// Ya estaba en estado iniciat
+			} else if (estatId.equals(0L)) {
+				// Iniciamos el expediente
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + "---");
+				expedient.setEstat(null);
+			} else if (estatId.equals(-1L)) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + "---");
+				
+				// Finalizamos el expediente
+				finalitzar(expedient, getUsuariPerRegistre());
+				expedient.setEstat(null);
+			} else if (expedient.getEstat() == null) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				expedient.setEstat(estatDao.getById(estatId, false));
-			} else if (expedient.getEstat().getId() != estatId){
-//				if (estatId == -1) {
-//					expedientLogHelper.afegirProcessLogInfoExpedient(
-//							expedient.getProcessInstanceId(), 
-//							LogInfo.ESTAT + "#@#" + "---");
-//					
-//					// Finalizamos el expediente
-//					finalitzar(expedient, getUsuariPerRegistre());
-//				} else {
-					expedientLogHelper.afegirProcessLogInfoExpedient(
-							expedient.getProcessInstanceId(), 
-							LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
-					expedient.setEstat(estatDao.getById(estatId, false));
-//				}
+			} else if (!estatId.equals(expedient.getEstat().getId())) {
+				expedientLogHelper.afegirProcessLogInfoExpedient(
+						expedient.getProcessInstanceId(), 
+						LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
+				expedient.setEstat(estatDao.getById(estatId, false));
 			}
 		} else if (expedient.getEstat() != null) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(

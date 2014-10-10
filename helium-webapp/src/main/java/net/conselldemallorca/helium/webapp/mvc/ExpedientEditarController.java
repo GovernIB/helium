@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-
-
 /**
  * Controlador per a editar la informació d'un expedient
  * 
@@ -55,8 +54,6 @@ public class ExpedientEditarController extends BaseController {
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 	private PluginService pluginService;
-
-
 
 	@Autowired
 	public ExpedientEditarController(
@@ -75,8 +72,7 @@ public class ExpedientEditarController extends BaseController {
 			@RequestParam(value = "id", required = true) String id) {
 		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
 		List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(expedient.getTipus().getId());
-//		estats.add(new Estat(expedient.getTipus(), "0", getMessage("expedient.consulta.iniciat")));
-//		estats.add(new Estat(expedient.getTipus(), "-1", getMessage("expedient.consulta.finalitzat")));
+		estats.addAll(getEstatIniciatFinalizat(expedient.getTipus()));
 		return estats;
 	}
 
@@ -190,8 +186,6 @@ public class ExpedientEditarController extends BaseController {
 		}
 	}
 
-
-
 	private ExpedientEditarCommand initCommand(ExpedientDto expedient) {
 		ExpedientEditarCommand command = new ExpedientEditarCommand();
 		command.setExpedientId(expedient.getId());
@@ -201,8 +195,16 @@ public class ExpedientEditarController extends BaseController {
 		command.setDataInici(expedient.getDataInici());
 		command.setIniciadorCodi(expedient.getIniciadorCodi());
 		command.setResponsableCodi(expedient.getResponsableCodi());
+		
 		if (expedient.getEstat() != null)
 			command.setEstatId(expedient.getEstat().getId());
+		else {
+			if (expedient.getDataFi() != null)
+				command.setEstatId(-1L);
+			else
+				command.setEstatId(0L);
+		}
+		
 		command.setGeoPosX(expedient.getGeoPosX());
 		command.setGeoPosY(expedient.getGeoPosY());
 		command.setGeoReferencia(expedient.getGeoReferencia());
@@ -217,6 +219,17 @@ public class ExpedientEditarController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
+	}
+	
+	private List<Estat> getEstatIniciatFinalizat(ExpedientTipus expedientTipus) {
+		List<Estat> estats = new ArrayList<Estat>();
+		Estat eIniciat = new Estat(expedientTipus, "0", getMessage("expedient.consulta.iniciat"));
+		eIniciat.setId(0L);
+		Estat eFinalitzat = new Estat(expedientTipus, "-1", getMessage("expedient.consulta.finalitzat"));
+		eFinalitzat.setId(-1L);
+		estats.add(eIniciat);
+		estats.add(eFinalitzat);
+		return estats;
 	}
 
 	private void dadesPaginaEditar(

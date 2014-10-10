@@ -75,7 +75,6 @@
 				<c:param name="items" value="estats"/>
 				<c:param name="itemLabel" value="nom"/>
 				<c:param name="itemValue" value="id"/>
-				<c:param name="itemBuit">&lt;&lt; <fmt:message key='expedient.consulta.select.estat' /> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='expedient.editar.estat' /></c:param>
 			</c:import>
 			<c:if test="${globalProperties['app.georef.actiu']}">
