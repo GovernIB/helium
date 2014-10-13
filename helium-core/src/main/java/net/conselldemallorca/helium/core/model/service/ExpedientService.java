@@ -198,17 +198,26 @@ public class ExpedientService {
 			Long expedientTipusId,
 			Long definicioProcesId,
 			Map<String, Object> valors) {
-		ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesDao.getById(definicioProcesId, false);
+			if (definicioProces == null) {
+				logger.error("No s'ha trobat la definició de procés (definicioProcesId=" + definicioProcesId + ")");
+				return null;
+			}
 		} else {
+			ExpedientTipus expedientTipus = expedientTipusDao.getById(expedientTipusId, false);
+			if (expedientTipus.getJbpmProcessDefinitionKey() == null) {
+				logger.error("El tipus d'expedient no te configurada la definició de procés inicial (entorn=" + entornId + ", expedientTipusId=" + expedientTipusId + ")");
+				return null;
+			}
 			definicioProces = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
 					entornId,
 					expedientTipus.getJbpmProcessDefinitionKey());
-		}
-		if (definicioProcesId == null && definicioProces == null) {
-			logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+			if (definicioProces == null) {
+				logger.error("No s'ha trobat la definició de procés (entorn=" + entornId + ", expedientTipusId=" + expedientTipusId + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+				return null;
+			}
 		}
 		String startTaskName = jbpmDao.getStartTaskName(definicioProces.getJbpmId());
 		if (startTaskName != null) {
