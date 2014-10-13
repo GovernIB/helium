@@ -289,6 +289,8 @@ public class VariableHelper {
 		Camp camp = null;
 		if (campTasca != null) {
 			camp = campTasca.getCamp();
+		} else {
+			return null;
 		}
 		Object valor = jbpmHelper.getTaskInstanceVariable(
 				task.getId(),

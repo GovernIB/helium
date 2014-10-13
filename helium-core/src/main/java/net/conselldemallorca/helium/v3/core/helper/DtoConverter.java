@@ -109,6 +109,10 @@ public class DtoConverter {
 								textPerCamps.put(
 										campCodi,
 										tascaDada.getText());
+							} else if (tascaDada == null) {
+								textPerCamps.put(
+										campCodi,
+										variableHelper.getDadaPerInstanciaProces(task.getProcessInstanceId(), campCodi).getText());
 							}
 							break;
 						}
