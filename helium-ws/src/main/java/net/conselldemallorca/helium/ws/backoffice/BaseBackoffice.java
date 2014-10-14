@@ -3,12 +3,20 @@
  */
 package net.conselldemallorca.helium.ws.backoffice;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
@@ -33,9 +41,10 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Mètodes base per a les diferents implementacions de backoffices
@@ -153,8 +162,6 @@ public abstract class BaseBackoffice {
 		}
 		return resposta;*/
 		List<MapeigSistra> mapeigsSistra = dissenyService.findMapeigSistraVariablesAmbExpedientTipus(expedientTipus.getId());
-		logger.info("1.1 XX: " + mapeigsSistra.size());
-		logger.info("1.2 XX: " + mapeigsSistra);
 		if (mapeigsSistra.size() == 0)
 			return null;
 		
@@ -163,12 +170,10 @@ public abstract class BaseBackoffice {
 		List<CampTasca> campsTasca = getCampsStartTask(expedientTipus);
 		
 		for (MapeigSistra mapeig : mapeigsSistra){
-			logger.info("2.1 XX: CodiHelium: " + mapeig.getCodiHelium() + " CodiSistra: " + mapeig.getCodiSistra());
 			trobat = true;
 			Camp campHelium = null;
 			for (CampTasca campTasca: campsTasca) {
 				if (campTasca.getCamp().getCodi().equalsIgnoreCase(mapeig.getCodiHelium())) {
-					logger.info("2.2 XX: Encontrado campTasca: " + campTasca.getCamp().getCodi());
 					campHelium = campTasca.getCamp();
 					break;
 				}
@@ -182,7 +187,6 @@ public abstract class BaseBackoffice {
 					Object valorHelium = valorVariableHelium(
 							valorSistra,
 							campHelium);
-					logger.info("2.3 XX: Guardant dada pel nou expedient: " + mapeig.getCodiHelium() + ", " + valorSistra + ", " + valorHelium);
 					resposta.put(
 							mapeig.getCodiHelium(),
 							valorHelium);
@@ -308,7 +312,6 @@ public abstract class BaseBackoffice {
 			return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Object valorVariableSistra(
 			DadesTramit tramit,
 			String varHelium,
@@ -320,28 +323,35 @@ public abstract class BaseBackoffice {
 		String campCodi = parts[3];
 		for (DocumentTramit doc: tramit.getDocuments()) {
 			if (documentCodi.equalsIgnoreCase(doc.getIdentificador()) && doc.getInstanciaNumero() == instancia) {
-				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
-				org.dom4j.Document document = DocumentHelper.parseText(content);
-				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
-				Element node = (Element)document.selectSingleNode(xpath);
-				if (node != null) {
-					if (node.attribute("indice")!= null) {
-						return node.attribute("indice").getValue();
-					} else if (node.isTextOnly()) {
-						return node.getText();
+				org.w3c.dom.Document document = xmlToDocument(new ByteArrayInputStream(doc.getDocumentTelematic().getArxiuContingut()));
+				
+				XPathFactory factory = XPathFactory.newInstance();
+				XPath xpath = factory.newXPath();
+				
+				Element node= (Element) xpath.evaluate(
+						"/FORMULARIO/" + finestraCodi + "/" + campCodi,
+						document, 
+						XPathConstants.NODE);
+				
+				if (node != null) {	 
+				    if (node.hasAttribute("indice")) {
+						return node.getAttribute("indice");
+					} else if (node.getChildNodes().getLength() == 1) {
+						return node.getTextContent();
 					} else {
 						List<String[]> valorsFiles = new ArrayList<String[]>();
-						List<Element> files = node.elements();
-						for (Element fila: files) {
-							if (fila.getName().startsWith("ID")) {
-								List<Element> columnes = fila.elements();
-								String[] valors = new String[columnes.size()];
-								for (int i = 0; i < columnes.size(); i++) {
-									Element columna = columnes.get(i);
-									if (columna.attribute("indice")!= null)
-										valors[i] = columna.attribute("indice").getValue();
+						NodeList nodes = node.getChildNodes();
+						for (int index = 0; index < nodes.getLength(); index++) {
+							Node fila = nodes.item(index);
+							if (fila.getNodeName().startsWith("ID")) {
+								NodeList columnes = fila.getChildNodes();
+								String[] valors = new String[columnes.getLength()];
+								for (int i = 0; i < columnes.getLength(); i++) {
+									Element columna = (Element) columnes.item(i);
+									if (columna.hasAttribute("indice"))
+										valors[i] = columna.getAttribute("indice");
 									else
-										valors[i] = columna.getText();
+										valors[i] = columna.getTextContent();
 								}
 								valorsFiles.add(valors);
 							}
@@ -354,6 +364,17 @@ public abstract class BaseBackoffice {
 		return null;
 	}
 
+	private org.w3c.dom.Document xmlToDocument(InputStream is) throws Exception {
+		DocumentBuilderFactory factory = DocumentBuilderFactory
+				.newInstance();
+		factory.setNamespaceAware(false);
+		DocumentBuilder builder = null;
+		builder = factory.newDocumentBuilder();
+		org.w3c.dom.Document doc = builder.parse(is);
+		is.close();
+		return doc;
+	}
+	
 	private DadesDocumentDto documentSistra(
 			DadesTramit tramit,
 			String varSistra,
