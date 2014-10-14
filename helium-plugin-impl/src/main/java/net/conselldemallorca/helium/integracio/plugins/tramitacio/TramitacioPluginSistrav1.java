@@ -208,18 +208,24 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 			if ("C".equalsIgnoreCase(entrada.getNivelAutenticacion()))
 				tramit.setAutenticacioTipus(AutenticacioTipus.CERTIFICAT);
 		}
-		if (entrada.getUsuarioNif() != null) {
+		if (entrada.getUsuarioNif() != null)
 			tramit.setTramitadorNif(entrada.getUsuarioNif().getValue());
-		}
-		if (entrada.getUsuarioNombre() != null) {
+		if (entrada.getUsuarioNombre() != null)
 			tramit.setTramitadorNom(entrada.getUsuarioNombre().getValue());
-		}
-		if (entrada.getRepresentadoNif() != null)
+		if (entrada.getRepresentadoNif() != null) {
 			tramit.setInteressatNif(entrada.getRepresentadoNif().getValue());
-		if (entrada.getRepresentadoNombre() != null)
+		} else {
+			tramit.setInteressatNif(entrada.getUsuarioNif().getValue());
+		}
+		if (entrada.getRepresentadoNombre() != null) {
 			tramit.setInteressatNom(entrada.getRepresentadoNombre().getValue());
-		tramit.setRepresentantNif(tramit.getTramitadorNif());
-		tramit.setRepresentantNom(tramit.getTramitadorNom());
+		} else {
+			tramit.setInteressatNom(entrada.getUsuarioNombre().getValue());
+		}
+		if (entrada.getUsuarioNif() != null)
+			tramit.setRepresentantNif(entrada.getUsuarioNif().getValue());
+		if (entrada.getUsuarioNombre() != null)
+			tramit.setRepresentantNom(entrada.getUsuarioNombre().getValue());
 		tramit.setSignat(entrada.isFirmadaDigitalmente());
 		if (entrada.getHabilitarAvisos() != null)
 			tramit.setAvisosHabilitats(

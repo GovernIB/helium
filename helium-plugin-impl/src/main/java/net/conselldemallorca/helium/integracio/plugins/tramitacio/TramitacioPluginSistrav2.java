@@ -259,26 +259,20 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			tramit.setTramitadorNif(entrada.getUsuarioNif().getValue());
 		if (entrada.getUsuarioNombre() != null)
 			tramit.setTramitadorNom(entrada.getUsuarioNombre().getValue());
-		if (entrada.getRepresentadoNif() != null)
+		if (entrada.getRepresentadoNif() != null) {
 			tramit.setInteressatNif(entrada.getRepresentadoNif().getValue());
-		if (entrada.getRepresentadoNombre() != null)
-			tramit.setInteressatNom(entrada.getRepresentadoNombre().getValue());
-		/* */
-		/*if (entrada.getDelegadoNif() != null && entrada.getDelegadoNif().getValue() != null) {
-			tramit.setRepresentantNif(entrada.getDelegadoNif().getValue());
-			if (entrada.getDelegadoNombre() != null)
-				tramit.setRepresentantNom(entrada.getDelegadoNombre().getValue());
 		} else {
-			if (entrada.getUsuarioNif() != null)
-				tramit.setRepresentantNif(entrada.getUsuarioNif().getValue());
-			if (entrada.getUsuarioNombre() != null)
-				tramit.setRepresentantNom(entrada.getUsuarioNombre().getValue());
-		}*/
+			tramit.setInteressatNif(entrada.getUsuarioNif().getValue());
+		}
+		if (entrada.getRepresentadoNombre() != null) {
+			tramit.setInteressatNom(entrada.getRepresentadoNombre().getValue());
+		} else {
+			tramit.setInteressatNom(entrada.getUsuarioNombre().getValue());
+		}
 		if (entrada.getUsuarioNif() != null)
 			tramit.setRepresentantNif(entrada.getUsuarioNif().getValue());
 		if (entrada.getUsuarioNombre() != null)
 			tramit.setRepresentantNom(entrada.getUsuarioNombre().getValue());
-		/* */
 		tramit.setSignat(entrada.isFirmadaDigitalmente());
 		if (entrada.getHabilitarAvisos() != null)
 			tramit.setAvisosHabilitats(
