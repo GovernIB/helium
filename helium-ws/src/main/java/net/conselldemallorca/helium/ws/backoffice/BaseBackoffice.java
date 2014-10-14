@@ -175,13 +175,14 @@ public abstract class BaseBackoffice {
 			}
 			try {
 				if (campHelium != null) {
+					Object valorSistra = valorVariableSistra(
+							tramit,
+							mapeig.getCodiHelium(),
+							mapeig.getCodiSistra());
 					Object valorHelium = valorVariableHelium(
-							valorVariableSistra(
-									tramit,
-									mapeig.getCodiHelium(),
-									mapeig.getCodiSistra()),
+							valorSistra,
 							campHelium);
-					logger.info("2.3 XX: Guardant dada pel nou expedient: " + mapeig.getCodiHelium() + ", " + valorHelium);
+					logger.info("2.3 XX: Guardant dada pel nou expedient: " + mapeig.getCodiHelium() + ", " + valorSistra + ", " + valorHelium);
 					resposta.put(
 							mapeig.getCodiHelium(),
 							valorHelium);
