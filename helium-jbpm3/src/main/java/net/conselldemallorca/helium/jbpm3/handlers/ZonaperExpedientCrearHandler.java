@@ -3,9 +3,9 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 
 import org.jbpm.JbpmException;
@@ -124,7 +124,7 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 		System.out.println("ZPers: NIF : " + getValorOVariable(executionContext,representatNif,varRepresentatNif));
 		System.out.println("ZPers: NOM : " + getValorOVariable(executionContext,representatNom,varRepresentatNom));
 		ZonaperExpedientDto zonaperExpedient = new ZonaperExpedientDto();
-		if (IniciadorTipus.SISTRA.equals(expedient.getIniciadorTipus())) {
+		if (IniciadorTipusDto.SISTRA.equals(expedient.getIniciadorTipus())) {
 			zonaperExpedient.setIdioma(expedient.getIdioma());
 			zonaperExpedient.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
 			zonaperExpedient.setTramitNumero(expedient.getNumeroEntradaSistra());
