@@ -115,20 +115,16 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 								EventosExpediente.class,
 								eventosExpediente));
 			}
-
-			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
-			
-			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal.toUpperCase()) && !getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {
+			if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif()) && !getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif().toUpperCase())) {
 				if (getZonaperClient().altaZonaPersonalUsuario(
-						nifZonaPersonal.toUpperCase(), 
+						request.getRepresentatNif().toUpperCase(), 
 						request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
-						request.getRepresentatApe1(), 
-						request.getRepresentatApe2()) == null) {
-					logger.error("Error al crear la zona personal: " + request + " - " + request.getRepresentantNif());
+						null, 
+						null) == null) {
+					logger.error("Error al crear la zona personal: " + request.getRepresentantNif());
 					throw new TramitacioPluginException("Error al crear la zona personal: " + request.getRepresentantNif());
 				}
 			}
-			
 			getZonaperClient().altaExpediente(expediente);
 			logger.info("Nou expedient creat a la zona personal del ciutadà " + request.getRepresentatNif() + ": [" + request.getExpedientIdentificador() + ", " + request.getExpedientClau() + "]");
 		} catch (Exception ex) {
@@ -142,7 +138,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		try {
 			Event event = request.getEvent();
 			if (event != null) {
-				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif().toUpperCase())) {
+				if (!getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif()) && !getZonaperClient().existeZonaPersonalUsuario(request.getRepresentatNif().toUpperCase())) {
 					if (getZonaperClient().altaZonaPersonalUsuario(
 							request.getRepresentatNif().toUpperCase(), 
 							request.getRepresentatNom() == null ? "" : request.getRepresentatNom(), 
