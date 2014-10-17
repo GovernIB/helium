@@ -2,9 +2,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
@@ -22,11 +21,16 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	
 	<script type="text/javascript">
 		// <![CDATA[
+		var docPlantilla = {
+			<c:forEach items="${documents}" var="document">'d_${document.id}' : ${document.plantilla},
+			</c:forEach>__none__ : false
+		}
 		function confirmarCanviVersio(e) {
 			var e = e || window.event;
 			e.cancelBubble = true;
@@ -75,7 +79,6 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_reassignar_expedients' />");
 		}
-
 		$(document).ready(function(){			
 			$('#inici_timer').datetimepicker({
 				language: '${idioma}',
@@ -107,6 +110,24 @@
 				});
 				$("input[type='hidden'][name='correu']").each(function(){ $(this).val(correu); });
 			});
+			$('#var').on('change', function() {
+				$("button[value='modificar_variable']").prop('disabled', $("#var").val() == "");
+			});
+			$('#docId').on('change', function() {
+				var doc = "__none__";
+				var docId = $("#docId").val();
+				if (docId != "") {
+					doc = "d_" + docId;
+				} 
+			 	$("button[value='document_esborrar']").prop('disabled', docId == "");
+			 	$("a[name='document_modificar']").prop('disabled', docId == "");
+			 	$("button[value='document_generar']").prop('disabled', !eval("docPlantilla." + doc));
+			});
+			$("button[value='document_esborrar']").prop('disabled', true);
+			$("button[value='document_generar']").prop('disabled', true);
+			$("a[name='document_modificar']").prop('disabled', true);
+			
+			$("button[value='modificar_variable']").prop('disabled', true);
 		});
 		// ]]>
 	</script>
@@ -140,10 +161,14 @@
 		textarea {width: calc(100% - 15px) !important;}
 		.control-group {width: 49%;}
 		.control-group.left {float: left; margin-right:1%;}
-		.control-group.left label {float: left;}
 		.control-group.right {float: right; margin-left:1%;}
 		.form-group {padding-bottom: 15px;}
 		.form-group .right {float: right;}
+		.help-block .control-group.left {float: left;}
+		input[type="checkbox"] {float: left;margin: 4px 10px 0 0;}
+		.label-titol .form-group, .col-sm-6 {margin-left: 0px}
+		.select2-container.form-control {width: calc(100% - 15px) !important;display: inline-block;}
+		#documentModificarMas button {margin-left: 4.45px; margin-right: 4.45px;}
 	</style>
 </head>
 <body>
@@ -212,7 +237,7 @@
 			<div class="label-titol">
 				<label class="control-label"><spring:message code='expedient.massiva.aturar' /></label>
 				<div class="form-group">
-					<form:form cssClass="form-horizontal form-tasca" id="aturarMas" name="aturarMas" action="" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmarAturar(event)">
+					<form:form cssClass="form-horizontal form-tasca" id="aturarMas" name="aturarMas" action="massiva/aturarMas" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmarAturar(event)">
 						<hel:inputTextarea inline="true" name="motiu" textKey="expedient.eines.motiu" placeholderKey="expedient.eines.motiu"/>
 						<button class="btn btn-primary right" type="submit" name="accio" value="aturar">
 							<spring:message code='comuns.aturar' />
@@ -226,7 +251,7 @@
 			<div class="label-titol">
 				<label class="control-label"><spring:message code='expedient.massiva.executarScriptMas' /></label>
 				<div class="form-group">
-					<form:form cssClass="form-horizontal form-tasca" id="scriptMas" name="scriptMas" action="" method="post" commandName="expedientEinesScriptCommand" onsubmit="return confirmarScript(event)">
+					<form:form cssClass="form-horizontal form-tasca" id="scriptMas" name="scriptMas" action="massiva/scriptMas" method="post" commandName="expedientEinesScriptCommand" onsubmit="return confirmarScript(event)">
 						<hel:inputTextarea inline="true" name="script" textKey="comuns.executar" placeholderKey="comuns.executar"/>
 						<button class="btn btn-primary right" type="submit" name="accio" value="executar">
 							<spring:message code='comuns.executar' />
@@ -235,39 +260,34 @@
 				</div>
 			</div>
 		</div>
-			
-		<div class="control-group left">
-			<div class="label-titol">
-				<label class="control-label"><spring:message code='expedient.eines.reindexar.expedients' /></label>
-				<div class="form-group">
-					<form:form cssClass="form-horizontal form-tasca" id="reindexarMas" name="reindexarMas" action="" method="post" onsubmit="return confirmarReindexar(event)">
-						<button class="btn btn-primary right" type="submit" name="accio" value="reindexar">
-							<spring:message code='comuns.reindexar' />
-						</button>
-					</form:form>
-				</div>
-			</div>
-		</div>
 
-		<div class="control-group right">
+		<div class="control-group left">
 			<div class="label-titol">
 				<label class="control-label"><spring:message code='expedient.massiva.actualitzar' /></label>
 				<div class="form-group">
-					<form:form cssClass="form-horizontal form-tasca" id="massivaCanviVersio" name="massivaCanviVersio" action="" method="post" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
+					<form:form cssClass="form-horizontal form-tasca" id="massivaCanviVersio" name="massivaCanviVersio" action="massiva/massivaCanviVersio" method="post" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
 						<div class="ctrlHolder">
 							<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
 						</div>
 						<label class="control-label">${definicioProces.jbpmKey}</label>
+						<c:set var="definicionsProces" value="${definicioProces.jbpmIdsAmbDescripcio}" scope="request"/>
 						<hel:inputSelect inline="true" name="definicioProcesId" textKey="expedient.massiva.proces.principal" placeholderKey="expedient.massiva.proces.principal" optionItems="${definicionsProces}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
 						
 						<c:if test="${not empty subDefinicioProces}">
 							<div class="ctrlHolder">
 								<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.subprocessos"/>:</h4>
 							</div>
-							<c:forEach var="subProces" items="${subDefinicioProces}">
-								<c:set var="subDefinicionsProces" value="${subProces.jbpmIdsAmbDescripcio}" scope="request"/>
+							<c:forEach var="subProces" items="${subDefinicioProces}" varStatus="status">
 								<label class="control-label">${subProces.jbpmKey}</label>
-								<hel:inputSelect inline="true" name="subprocesId" textKey="expedient.massiva.subprocessos" placeholderKey="expedient.massiva.subprocessos" optionItems="${subDefinicionsProces}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
+								<c:set var="subDefinicionsProces" value="${subProces.jbpmIdsAmbDescripcio}" scope="request"/>
+								<c:import url="../common/formElement.jsp">
+									<c:param name="property" value="subprocesId"/>
+									<c:param name="type" value="select"/>
+									<c:param name="items" value="subDefinicionsProces"/>
+									<c:param name="itemLabel" value="descripcio"/>
+									<c:param name="itemValue" value="jbpmId"/>
+									<c:param name="label">${subProces.jbpmKey}</c:param>
+								</c:import>
 							</c:forEach>
 						</c:if>
 					
@@ -278,6 +298,85 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="control-group right">
+			<div class="label-titol">
+				<label class="control-label"><spring:message code='expedient.massiva.accions' /></label>
+				<div class="form-group">
+					<c:if test="${not empty accions}">
+						<form:form cssClass="form-horizontal form-tasca" id="massivaExecutarAccio" name="massivaExecutarAccio" action="massiva/massivaExecutarAccio" method="post" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
+							<hel:inputSelect inline="true" name="accioId" textKey="expedient.massiva.exec_accio" placeholderKey="expedient.massiva.exec_accio" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="nom"/>
+							
+							<button class="btn btn-primary right" type="submit" name="accio" value="executar_accio">
+								<spring:message code='comuns.executar' />
+							</button>
+						</form:form>
+					</c:if>
+					<c:if test="${empty accions}">
+						<spring:message code="expedient.document.info.senseaccions"/>
+					</c:if>
+				</div>
+			</div>
+		</div>
+			
+		<div class="control-group right">
+			<div class="label-titol">
+				<label class="control-label"><spring:message code='expedient.eines.reindexar.expedients' /></label>
+				<div class="form-group">
+					<form:form cssClass="form-horizontal form-tasca" id="reindexarMas" name="reindexarMas" action="massiva/reindexarMas" method="post" onsubmit="return confirmarReindexar(event)">
+						<button class="btn btn-primary right" type="submit" name="accio" value="reindexar">
+							<spring:message code='comuns.reindexar' />
+						</button>
+					</form:form>
+				</div>
+			</div>
+		</div>
+
+		<div class="control-group left">
+			<div class="label-titol">
+				<label class="control-label"><spring:message code='expedient.massiva.modificar_variables' /></label>
+				<div class="form-group">
+					<form:form cssClass="form-horizontal form-tasca" id="modificarVariablesMasCommand" name="modificarVariablesMasCommand" action="massiva/modificarVariablesMasCommand" method="post" commandName="modificarVariablesCommand" onsubmit="return confirmarModificarVariables(event)">
+						<hel:inputSelect inline="true" name="var" textKey="expedient.eines.modificar_variables" placeholderKey="expedient.consulta.select.variable" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="codi"/>
+						<button class="btn btn-primary right" type="submit" name="accio" value="modificar_variable">
+							<spring:message code='comuns.modificar'/>
+						</button>
+					</form:form>
+				</div>
+			</div>
+		</div>
+
+		<div class="control-group right">
+			<div class="label-titol">
+				<label class="control-label"><spring:message code='expedient.massiva.documents' /></label>
+				<div class="form-group">
+					<c:if test="${not empty documents}">
+						<form:form cssClass="form-horizontal form-tasca" id="documentModificarMas" name="documentModificarMas" action="massiva/documentModificarMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
+							<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom"/>
+							
+							<a class="btn btn-primary right" name="document_modificar" href="../v3/expedient/${documentExpedientCommand.docId}/documentModificar" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
+							
+							<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">
+								<spring:message code='tasca.doc.generar' />
+							</button>
+							<button class="btn btn-primary right" type="submit" name="accio" value="document_esborrar">
+								<spring:message code='comuns.esborrar' />
+							</button>
+							<a class="btn btn-primary right" name="document_adjuntar_massiu" href="../v3/expedient/${documentExpedientCommand.docId}/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
+						</form:form>
+					</c:if>
+					<c:if test="${empty documents}">
+						<spring:message code="expedient.document.info.sensedocuments"/>
+					</c:if>	
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			$("#documentModificarMas a").heliumEvalLink({
+				refrescarAlertes: true,
+				refrescarPagina: false
+			});
+		</script>
 	</div>			
 </body>
 </html>

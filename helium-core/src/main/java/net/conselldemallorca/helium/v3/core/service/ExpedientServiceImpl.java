@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -26,6 +27,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -53,6 +55,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
@@ -105,6 +108,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
@@ -142,6 +146,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Resource
 	private EntornRepository entornRepository;
+	@Resource
+	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
@@ -1348,6 +1354,27 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<DocumentDto> findListDocumentsPerDefinicioProces(
+			Long definicioProcesId,
+			String processInstanceId,
+			String expedientTipusNom) {
+		List<Document> documents = documentRepository.findAmbDefinicioProces(definicioProcesId);
+		return conversioTipusHelper.convertirList(
+				documents,
+				DocumentDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentDto findDocumentsPerId(Long id) {
+		Document document = documentRepository.findOne(id);
+		return conversioTipusHelper.convertir(
+				document,
+				DocumentDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuPerDocument(
 			Long id,
 			Long documentStoreId) {
@@ -2249,6 +2276,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		return dtoConverter.toInstanciaProcesDto(processInstanceId);
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
+		return dtoConverter.toCampInstanciaProcesDto(processInstanceId);
 	}
 
 	@Override

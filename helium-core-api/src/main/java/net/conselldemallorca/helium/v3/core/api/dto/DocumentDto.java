@@ -18,6 +18,7 @@ public class DocumentDto implements Serializable {
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
+	private boolean plantilla;
 	
 	private boolean required;
 	private boolean readOnly;
@@ -327,6 +328,13 @@ public class DocumentDto implements Serializable {
 	}
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
+	}
+
+	public boolean isPlantilla() {
+		return plantilla;
+	}
+	public void setPlantilla(boolean plantilla) {
+		this.plantilla = plantilla;
 	}
 
 	private static final long serialVersionUID = 774909297938469787L;

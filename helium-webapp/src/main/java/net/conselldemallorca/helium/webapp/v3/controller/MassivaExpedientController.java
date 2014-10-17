@@ -5,16 +5,22 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -35,6 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,6 +53,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -93,27 +103,154 @@ public class MassivaExpedientController extends BaseExpedientController {
 			
 			model.addAttribute("accions",expedientService.findAccionsVisibles(expedients.get(0).getId()));
 			
+			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
 			DefinicioProcesDto definicioProces = dissenyService.getByInstanciaProcesById(expedients.get(0).getProcessInstanceId());
+			
+			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());			
+			model.addAttribute(canviVersioProcesCommand);
+			
 			List<DefinicioProcesDto> supProcessos = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
 			model.addAttribute("definicioProces",definicioProces);
 			model.addAttribute("subDefinicioProces", supProcessos);
+			
+			// Documents
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedients.get(0).getProcessInstanceId());
+			model.addAttribute("instanciaProces", instanciaProces);
+			
+			// Variables
+			List<CampDto> variables = new ArrayList<CampDto>();
+			if (instanciaProces != null) {
+				for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedients.get(0).getProcessInstanceId())){
+					if (!CampTipusDto.ACCIO.equals(camp.getTipus())) {
+						variables.add(camp);
+					}
+				}
+			}
+			Collections.sort(variables, new ComparadorCampCodi());
+			model.addAttribute("variables", variables);
+			
+			List<DocumentDto> documents = expedientService.findListDocumentsPerDefinicioProces(
+					definicioProces.getId(),
+					expedients.get(0).getProcessInstanceId(),
+					expedients.get(0).getTipus().getNom());
+			Collections.sort(documents, new ComparadorDocument());
+			model.addAttribute("documents", documents);
 			
 			return "v3/massivaInfo";
 		}
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	public String massivaPost(
+	public class ComparadorCampCodi implements Comparator<CampDto> {
+	    public int compare(CampDto c1, CampDto c2) {
+	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
+	    }
+	}
+	
+	public class ComparadorDocument implements Comparator<DocumentDto> {
+	    public int compare(DocumentDto d1, DocumentDto d2) {
+	        return d1.getDocumentNom().compareToIgnoreCase(d2.getDocumentNom());
+	    }
+	}
+
+	@RequestMapping(value="reindexarMas", method = RequestMethod.POST)
+	public String reindexarMasPost(
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute Object command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			Model model) {
+		return massivaPost(request, inici, correu, null, accio, null, null, model);
+	}
+
+	@RequestMapping(value="massivaExecutarAccio", method = RequestMethod.POST)
+	public String execucioAccioCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ExecucioAccioCommand command, 
 			@RequestParam(value = "accio", required = true) String accio,
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
-		
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+
+	@RequestMapping(value="aturarMas", method = RequestMethod.POST)
+	public String expedientEinesAturarCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ExpedientEinesAturarCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+
+	@RequestMapping(value="scriptMas", method = RequestMethod.POST)
+	public String expedientEinesScriptCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ExpedientEinesScriptCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+
+	@RequestMapping(value="massivaCanviVersio", method = RequestMethod.POST)
+	public String canviVersioProcesCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute CanviVersioProcesCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+
+	@RequestMapping(value="modificarVariablesMasCommand", method = RequestMethod.POST)
+	public String modificarVariablesCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ModificarVariablesCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+
+	@RequestMapping(value="documentModificarMas", method = RequestMethod.POST)
+	public String documentExpedientCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute DocumentExpedientCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+	
+	public String massivaPost(
+			HttpServletRequest request,
+			String inici,
+			boolean correu,
+			Object command, 
+			String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		getExpedient(request,model);
 		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
@@ -128,16 +265,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			} catch (ParseException e) {}
 		}
 
-		model.addAttribute("expedients", expedientService.findAmbIds(ids));
 		model.addAttribute("inici", inici);
 		model.addAttribute("correu", correu);
-		model.addAttribute(new ExpedientEinesScriptCommand());
-		model.addAttribute(new ExecucioAccioCommand());
-		model.addAttribute(new CanviVersioProcesCommand());
-		model.addAttribute(new ExpedientEinesAturarCommand());
-		model.addAttribute(new ModificarVariablesCommand());
-		model.addAttribute(new DocumentExpedientCommand());
-		model.addAttribute(new ExpedientEinesReassignarCommand());
 		
 		List<Long> listIds = new ArrayList<Long>(ids);
 		
@@ -174,24 +303,121 @@ public class MassivaExpedientController extends BaseExpedientController {
 					MissatgesHelper.info(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
 					model.addAttribute("expedientEinesAturarCommand", command);
 				}
+			} else if ("executar_accio".equals(accio)) {
+				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_ACCIO);
+				execucioMassivaService.crearExecucioMassiva(dto);
+					
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				Object[] params = new Object[3];
+				params[0] = ((ExecucioAccioCommand) command).getAccioId();
+				params[1] = auth.getCredentials();
+				List<String> rols = new ArrayList<String>();
+				for (GrantedAuthority gauth : auth.getAuthorities()) {
+					rols.add(gauth.getAuthority());
+				}
+				params[2] = rols;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);				
+				MissatgesHelper.info(request, getMessage(request, "info.accio.massiu.executat", new Object[] {listIds.size()}));
+				model.addAttribute("execucioAccioCommand", command);
 			} else if ("canviar_versio".equals(accio)) {
-//				new ExpedientAturarValidator().validate(command, result);
-//				if (result.hasErrors()) {
-//					MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
-//				} else {
-//					dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
-//					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesAturarCommand) command).getMotiu()));
-//					execucioMassivaService.crearExecucioMassiva(dto);		
-//					MissatgesHelper.info(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
-//					model.addAttribute("expedientEinesAturarCommand", command);
-//				}
+				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
+				Object[] params = new Object[3];
+				params[0] = ((CanviVersioProcesCommand) command).getDefinicioProcesId();
+				params[1] = ((CanviVersioProcesCommand) command).getSubprocesId();
+								
+				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+				DefinicioProcesDto definicioProces = dissenyService.getByInstanciaProcesById(expedient.getProcessInstanceId());
+				List<DefinicioProcesDto> supProcessos = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
+
+				String[] keys = new String[supProcessos.size()];
+				int i = 0;
+				for (DefinicioProcesDto subproces: supProcessos) {
+					keys[i++] = subproces.getJbpmKey();
+				}
+				params[2] = keys;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				
+				MissatgesHelper.info(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {listIds.size()}));
+				model.addAttribute("canviVersioProcesCommand", command);
+			} else if ("document_esborrar".equals(accio)) {
+				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
+				
+				Long docId = ((DocumentExpedientCommand) command).getDocId();
+				DocumentDto document = expedientService.findDocumentsPerId(docId);
+				dto.setParam1(document.getDocumentNom());
+				
+				Object[] params = new Object[4];
+				params[0] = docId;
+				params[1] = null;
+				params[2] = "delete";
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				
+				MissatgesHelper.info(request, getMessage(request, "info.document.massiu.esborrar", new Object[] {listIds.size()}));
+				model.addAttribute("documentExpedientCommand", command);
+			} else if ("document_generar".equals(accio)) {
+				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
+				Long docId = ((DocumentExpedientCommand) command).getDocId();
+				DocumentDto document = expedientService.findDocumentsPerId(docId);
+				dto.setParam1(document.getDocumentNom());
+				
+				Object[] params = new Object[4];
+				params[0] = docId;
+				params[1] = new Date();
+				params[2] = "generate";
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				
+				MissatgesHelper.info(request, getMessage(request, "info.document.massiu.generar", new Object[] {listIds.size()}));
+				model.addAttribute("documentExpedientCommand", command);
+			} 
+			
+			else if ("document_modificar".equals(accio)) {
+				Long docId = ((DocumentExpedientCommand) command).getDocId();
+				DocumentDto document = expedientService.findDocumentsPerId(docId);
+				model.addAttribute("document", document);
+				
+				return "expedient/documentFormMassiva";
+			} else if ("modificar_variable".equals(accio)) {
+//				ModificarVariablesCommand mvCommand = ((ModificarVariablesCommand)command);
+//				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+//				TascaDto tasca = createTascaAmbVar(request, entorn.getId(), mvCommand.getId(), mvCommand.getTaskId(), mvCommand.getVar());
+				model.addAttribute("modificarVariablesCommand", command);
+//				model.addAttribute("tasca", tasca);
+				model.addAttribute("expedient", expedientService.findAmbId(listIds.get(0)));
+//				model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+				return "/expedient/dadaFormMassiva";
 			}
 		} catch (Exception e) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 			logger.error("Error al programar les accions massives", e);
 		}
 		
-		return "v3/massivaInfo";
+		return "redirect:/v3/expedient/massiva";
+	}
+	
+	@RequestMapping(value = "/{docId}/documentAdjunt", method = RequestMethod.POST)
+	public String documentAdjuntPost(
+			HttpServletRequest request,
+			@PathVariable Long docId,
+			Model model) {
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setDocId(docId);
+		model.addAttribute("documentExpedientCommand", command);
+		return "v3/massivaInfoDocumentAdjunt";
+	}
+	
+	@RequestMapping(value = "/{docId}/documentAdjunt", method = RequestMethod.GET)
+	public String documentAdjuntGet(
+			HttpServletRequest request,
+			@PathVariable Long docId,
+			Model model) {
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setDocId(docId);
+		model.addAttribute("documentExpedientCommand", command);
+		return "v3/massivaInfoDocumentAdjunt";
 	}
 	
 	private class ExpedientScriptValidator implements Validator {

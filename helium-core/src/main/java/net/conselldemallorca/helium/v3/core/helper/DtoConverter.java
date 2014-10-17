@@ -19,10 +19,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -45,6 +47,8 @@ import org.springframework.stereotype.Service;
 @Service("dtoConverterV3")
 public class DtoConverter {
 
+	@Resource
+	private ExpedientHelper expedientHelper;
 	@Resource
 	private PersonaHelper personaHelper;	
 	@Resource
@@ -110,9 +114,8 @@ public class DtoConverter {
 										campCodi,
 										tascaDada.getText());
 							} else if (tascaDada == null) {
-								textPerCamps.put(
-										campCodi,
-										variableHelper.getDadaPerInstanciaProces(task.getProcessInstanceId(), campCodi).getText());
+								ExpedientDadaDto valor = variableHelper.getDadaPerInstanciaProces(task.getProcessInstanceId(), campCodi);
+								textPerCamps.put(campCodi,(valor == null) ? null : valor.getText());
 							}
 							break;
 						}
@@ -259,6 +262,13 @@ public class DtoConverter {
 		public String getDefinicioProcesJbpmKey() {
 			return definicioProcesJbpmKey;
 		}
+	}
+	
+	public List<CampDto> toCampInstanciaProcesDto(String processInstanceId) {
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
+		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
 	
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId) {

@@ -19,6 +19,7 @@ import ma.glasnost.orika.metadata.Type;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -28,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -48,6 +50,20 @@ public class ConversioTipusHelper {
 
 	public ConversioTipusHelper() {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
+		
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<Document, DocumentDto>() {
+					@Override
+					public DocumentDto convert(Document source, Type<? extends DocumentDto> destinationClass) {
+						DocumentDto target = new DocumentDto();
+						target.setId(source.getId());
+						target.setCodi(source.getCodi());
+						target.setArxiuNom(source.getArxiuNom());
+						target.setDocumentNom(source.getNom());
+						target.setPlantilla(source.isPlantilla());
+						return target;
+					}
+		});
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<Camp, CampDto>() {
 					@Override

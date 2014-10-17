@@ -175,17 +175,26 @@ public class DocumentHelperV3 {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
 		List<Document> documents = documentRepository.findByDefinicioProces(definicioProces);
+		List<ExpedientDocumentDto> resposta = convertDocumentDto(documents, processInstanceId, tipusExp);
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient",tipusExp);
+		return resposta;
+	}
+	
+	public List<ExpedientDocumentDto> convertDocumentDto(List<Document> documents, String processInstanceId, String tipusExp) {
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp);
+		
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "0");
 		Map<String, Document> documentsIndexatsPerCodi = new HashMap<String, Document>();
 		for (Document document: documents)
 			documentsIndexatsPerCodi.put(document.getCodi(), document);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
-		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "2");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "0");
+		
 		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(
 				processInstanceId);
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "2");
 		if (varsInstanciaProces != null) {
-			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "3");
+			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "1");
 			filtrarVariablesAmbDocuments(varsInstanciaProces);
 			for (String var: varsInstanciaProces.keySet()) {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
@@ -202,9 +211,10 @@ public class DocumentHelperV3 {
 					resposta.add(dto);
 				}
 			}
-			mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "3");
+			mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "1");
 		}
-		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient",tipusExp);
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient",tipusExp);
+		
 		return resposta;
 	}
 
