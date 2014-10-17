@@ -2286,6 +2286,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly=true)
+	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi) {
+		return dtoConverter.toCampInstanciaProcesDtoVarCodi(processInstanceId, varCodi);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId) {
 		List<Registre> registre = registreRepository.findByExpedientId(expedientId);
 		return conversioTipusHelper.convertirList(registre, RegistreDto.class);

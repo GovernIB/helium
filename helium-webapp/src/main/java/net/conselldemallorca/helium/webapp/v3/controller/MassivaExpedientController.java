@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -213,32 +214,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model);
 	}
-
-	@RequestMapping(value="modificarVariablesMasCommand", method = RequestMethod.POST)
-	public String modificarVariablesCommandPost(
-			HttpServletRequest request,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute ModificarVariablesCommand command, 
-			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model);
-	}
-
-	@RequestMapping(value="documentModificarMas", method = RequestMethod.POST)
-	public String documentExpedientCommandPost(
-			HttpServletRequest request,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
-			@ModelAttribute DocumentExpedientCommand command, 
-			@RequestParam(value = "accio", required = true) String accio,
-			BindingResult result, 
-			SessionStatus status, 
-			Model model) {		
-		return massivaPost(request, inici, correu, command, accio, result, status, model);
-	}
 	
 	public String massivaPost(
 			HttpServletRequest request,
@@ -398,15 +373,21 @@ public class MassivaExpedientController extends BaseExpedientController {
 		return "redirect:/v3/expedient/massiva";
 	}
 	
-	@RequestMapping(value = "/{docId}/documentAdjunt", method = RequestMethod.POST)
-	public String documentAdjuntPost(
+	@RequestMapping(value = "/{var}/modificarVariables", method = RequestMethod.GET)
+	public String modificarVariablesGet(
 			HttpServletRequest request,
-			@PathVariable Long docId,
+			@PathVariable String var,
 			Model model) {
-		DocumentExpedientCommand command = new DocumentExpedientCommand();
-		command.setDocId(docId);
-		model.addAttribute("documentExpedientCommand", command);
-		return "v3/massivaInfoDocumentAdjunt";
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();		
+		CampDto camp = expedientService.getCampsInstanciaProcesByIdAmdVarcodi(expedientService.findAmbIds(ids).get(0).getProcessInstanceId(), var);
+		
+		TascaDadaDto tascaDada = new TascaDadaDto();
+		tascaDada.setVarCodi(camp.getCodi());
+		ModificarVariablesCommand command = new ModificarVariablesCommand();
+		command.setVar(var);
+		model.addAttribute("modificarVariablesCommand", command);
+		return "v3/massivaInfoModificarVariables";
 	}
 	
 	@RequestMapping(value = "/{docId}/documentAdjunt", method = RequestMethod.GET)
@@ -418,6 +399,43 @@ public class MassivaExpedientController extends BaseExpedientController {
 		command.setDocId(docId);
 		model.addAttribute("documentExpedientCommand", command);
 		return "v3/massivaInfoDocumentAdjunt";
+	}
+	
+	@RequestMapping(value = "/{docId}/documentModificar", method = RequestMethod.GET)
+	public String documentModificarGet(
+			HttpServletRequest request,
+			@PathVariable Long docId,
+			Model model) {
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setDocId(docId);
+		model.addAttribute("documentExpedientCommand", command);
+		return "v3/massivaInfoDocumentModificar";
+	}
+
+	@RequestMapping(value="modificarVariablesMasCommand", method = RequestMethod.POST)
+	public String modificarVariablesCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ModificarVariablesCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
+	}
+
+	@RequestMapping(value="documentModificarMas", method = RequestMethod.POST)
+	public String documentExpedientCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute DocumentExpedientCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model);
 	}
 	
 	private class ExpedientScriptValidator implements Validator {

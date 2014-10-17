@@ -270,6 +270,19 @@ public class DtoConverter {
 		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
+
+	public CampDto toCampInstanciaProcesDtoVarCodi(String processInstanceId, String varCodi) {
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
+		
+		for (Camp camp : camps) {
+			if (camp.getCodi().equals(varCodi)) {
+				return conversioTipusHelper.convertir(camp, CampDto.class);
+			}
+		}
+		return null;
+	}
 	
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();

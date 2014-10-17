@@ -805,6 +805,8 @@ public interface ExpedientService {
 	public List<DocumentDto> findListDocumentsPerDefinicioProces(Long definicioProcesId, String processInstanceId, String expedientTipusNom);
 
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId);
+	
+	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi);
 
 	public DocumentDto findDocumentsPerId(Long id);
 }

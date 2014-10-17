@@ -548,4 +548,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public DocumentDto findDocumentsPerId(Long id) {
 		return findDocumentsPerId(id);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi) {
+		return getCampsInstanciaProcesByIdAmdVarcodi(processInstanceId, varCodi);
+	}
 }

@@ -110,8 +110,13 @@
 				});
 				$("input[type='hidden'][name='correu']").each(function(){ $(this).val(correu); });
 			});
-			$('#var').on('change', function() {
-				$("button[value='modificar_variable']").prop('disabled', $("#var").val() == "");
+			$('#var').on('change', function() {				
+				if ( $("#var").val() == "") {
+					$("a[name='modificar_variable']").addClass('disabled');
+				} else {
+					$("a[name='modificar_variable']").removeClass('disabled');
+					$("a[name='modificar_variable']").attr("href","massiva/"+$("#var").val()+"/modificarVariables")
+				}
 			});
 			$('#docId').on('change', function() {
 				var doc = "__none__";
@@ -119,15 +124,22 @@
 				if (docId != "") {
 					doc = "d_" + docId;
 				} 
-			 	$("button[value='document_esborrar']").prop('disabled', docId == "");
-			 	$("a[name='document_modificar']").prop('disabled', docId == "");
+			 	
+				if (docId == "") {
+			 		$("button[value='document_esborrar']").prop('disabled', true);
+			 		$("a[name='document_modificar']").addClass('disabled');
+			 	} else {
+			 		$("a[name='document_modificar']").removeClass('disabled');
+			 		$("a[name='document_modificar']").attr("href","massiva/"+docId+"/documentModificar");
+			 		$("button[value='document_esborrar']").prop('disabled', false);
+			 	}
+		 		$("a[name='document_adjuntar_massiu']").attr("href","massiva/"+docId+"/documentAdjunt");
 			 	$("button[value='document_generar']").prop('disabled', !eval("docPlantilla." + doc));
 			});
 			$("button[value='document_esborrar']").prop('disabled', true);
 			$("button[value='document_generar']").prop('disabled', true);
-			$("a[name='document_modificar']").prop('disabled', true);
-			
-			$("button[value='modificar_variable']").prop('disabled', true);
+			$("a[name='document_modificar']").addClass('disabled');			
+			$("a[name='modificar_variable']").addClass('disabled');
 		});
 		// ]]>
 	</script>
@@ -338,9 +350,7 @@
 				<div class="form-group">
 					<form:form cssClass="form-horizontal form-tasca" id="modificarVariablesMasCommand" name="modificarVariablesMasCommand" action="massiva/modificarVariablesMasCommand" method="post" commandName="modificarVariablesCommand" onsubmit="return confirmarModificarVariables(event)">
 						<hel:inputSelect inline="true" name="var" textKey="expedient.eines.modificar_variables" placeholderKey="expedient.consulta.select.variable" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="codi"/>
-						<button class="btn btn-primary right" type="submit" name="accio" value="modificar_variable">
-							<spring:message code='comuns.modificar'/>
-						</button>
+						<a class="btn btn-primary right" name="modificar_variable" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar'/></a>
 					</form:form>
 				</div>
 			</div>
@@ -354,7 +364,7 @@
 						<form:form cssClass="form-horizontal form-tasca" id="documentModificarMas" name="documentModificarMas" action="massiva/documentModificarMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
 							<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom"/>
 							
-							<a class="btn btn-primary right" name="document_modificar" href="../v3/expedient/${documentExpedientCommand.docId}/documentModificar" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
+							<a class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
 							
 							<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">
 								<spring:message code='tasca.doc.generar' />
@@ -362,7 +372,7 @@
 							<button class="btn btn-primary right" type="submit" name="accio" value="document_esborrar">
 								<spring:message code='comuns.esborrar' />
 							</button>
-							<a class="btn btn-primary right" name="document_adjuntar_massiu" href="../v3/expedient/${documentExpedientCommand.docId}/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
+							<a class="btn btn-primary right" name="document_adjuntar_massiu" href="#" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
 						</form:form>
 					</c:if>
 					<c:if test="${empty documents}">
@@ -372,10 +382,14 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			$("#documentModificarMas a").heliumEvalLink({
-				refrescarAlertes: true,
-				refrescarPagina: false
-			});
+		$("#documentModificarMas a").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: false
+		});
+		$("#modificarVariablesMasCommand a").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: false
+		});
 		</script>
 	</div>			
 </body>
