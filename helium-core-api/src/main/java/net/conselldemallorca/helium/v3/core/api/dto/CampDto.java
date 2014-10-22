@@ -105,7 +105,7 @@ public class CampDto implements Serializable {
 			if (tipus.equals(CampTipusDto.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
 			} else if (tipus.equals(CampTipusDto.FLOAT)) {
-				text = new DecimalFormat("#.#").format((Double)valor);
+				text = new DecimalFormat("#.##########").format((Double)valor);
 			} else if (tipus.equals(CampTipusDto.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
 			} else if (tipus.equals(CampTipusDto.DATE)) {

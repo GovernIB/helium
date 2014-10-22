@@ -97,7 +97,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		try {
 			byte[] xml = getClienteCustodia().eliminarDocumento(id);
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
-			if (resposta.isError())
+			if (resposta.isError() && !"DOCUMENTO_NO_ENCONTRADO".equals(resposta.getErrorCodi()))
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 		} catch (Exception ex) {
 			//logger.error("No s'han pogut esborrar les signatures: " + ex.getMessage());

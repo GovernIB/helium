@@ -428,7 +428,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			if (tipus.equals(TipusCamp.INTEGER)) {
 				text = new DecimalFormat("#").format((Long)valor);
 			} else if (tipus.equals(TipusCamp.FLOAT)) {
-				text = new DecimalFormat("#.#").format((Double)valor);
+				text = new DecimalFormat("#.##########").format((Double)valor);
 			} else if (tipus.equals(TipusCamp.PRICE)) {
 				text = new DecimalFormat("#,##0.00").format((BigDecimal)valor);
 			} else if (tipus.equals(TipusCamp.DATE)) {
