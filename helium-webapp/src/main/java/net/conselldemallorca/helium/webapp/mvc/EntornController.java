@@ -154,7 +154,13 @@ public class EntornController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
 			ModelMap model) {
-		entornService.delete(id);
+		try {
+			entornService.delete(id);
+		} catch (Exception ex) {
+			missatgeError(request, getMessage("error.proces.peticio"), ex.getMessage());
+        	logger.error("No s'ha pogut eliminar l'entorn", ex);
+        	return "redirect:/entorn/llistat.html";
+		}
 		missatgeInfo(request, getMessage("info.entorn.esborrat") );
 		return "redirect:/entorn/llistat.html";
 	}
