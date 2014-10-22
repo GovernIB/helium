@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.model.dao.EstatDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.MapeigSistraDao;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
+import net.conselldemallorca.helium.core.model.exception.NotRemovableException;
 import net.conselldemallorca.helium.core.model.exportacio.AreaExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.AreaTipusExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.CarrecExportacio;
@@ -86,11 +87,26 @@ public class EntornService {
 	}
 	@Secured({"ROLE_ADMIN"})
 	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
-	public void delete(Long id) {
-		Entorn vell = getById(id);
-		if (vell != null) {
-			entornDao.delete(id);
+	public void delete(Long entornId) {
+		Entorn entorn = getById(entornId);
+		if (entorn == null)
+			throw new NotFoundException( getMessage("error.entornService.entornNoTrobat", new Object[]{entornId}) );
+		String msg = "";
+		if (!entorn.getDefinicionsProces().isEmpty()) 
+			msg += getMessage("error.entornService.delete.defpro");
+		if (!entorn.getExpedientTipus().isEmpty()) 
+			msg += getMessage("error.entornService.delete.tipexp");
+		if (!entorn.getEnumeracions().isEmpty()) 
+			msg += getMessage("error.entornService.delete.enumeracions");
+		if (!entorn.getDominis().isEmpty()) 
+			msg += getMessage("error.entornService.delete.dominis");
+		if (!entorn.getConsultes().isEmpty()) 
+			msg += getMessage("error.entornService.delete.consultes");
+		if (!"".equals(msg)) {
+			msg = msg.substring(0, msg.length() - 2);
+			throw new NotRemovableException(getMessage("error.entornService.delete", new Object[]{msg}));
 		}
+		entornDao.delete(entornId);
 	}
 	@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
 	public List<Entorn> findAll() {
