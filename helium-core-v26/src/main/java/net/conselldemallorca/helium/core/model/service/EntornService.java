@@ -32,6 +32,8 @@ import net.conselldemallorca.helium.core.model.exportacio.MapeigSistraExportacio
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.AreaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Carrec;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -92,16 +94,40 @@ public class EntornService {
 		if (entorn == null)
 			throw new NotFoundException( getMessage("error.entornService.entornNoTrobat", new Object[]{entornId}) );
 		String msg = "";
-		if (!entorn.getDefinicionsProces().isEmpty()) 
-			msg += getMessage("error.entornService.delete.defpro");
-		if (!entorn.getExpedientTipus().isEmpty()) 
+		if (!entorn.getExpedientTipus().isEmpty())
 			msg += getMessage("error.entornService.delete.tipexp");
-		if (!entorn.getEnumeracions().isEmpty()) 
-			msg += getMessage("error.entornService.delete.enumeracions");
-		if (!entorn.getDominis().isEmpty()) 
-			msg += getMessage("error.entornService.delete.dominis");
-		if (!entorn.getConsultes().isEmpty()) 
-			msg += getMessage("error.entornService.delete.consultes");
+		if (!entorn.getDefinicionsProces().isEmpty()) {
+			for (DefinicioProces defpro: entorn.getDefinicionsProces()) {
+				if (defpro.getExpedientTipus() == null) {
+					msg += getMessage("error.entornService.delete.defpro");
+					break;
+				}
+			}
+		}
+		if (!entorn.getEnumeracions().isEmpty()) {
+			for (Enumeracio enumeracio: entorn.getEnumeracions()) {
+				if (enumeracio.getExpedientTipus() == null) {
+					msg += getMessage("error.entornService.delete.enumeracions");
+					break;
+				}
+			}
+		}
+		if (!entorn.getDominis().isEmpty()) {
+			for (Domini domini: entorn.getDominis()) {
+				if (domini.getExpedientTipus() == null) {
+					msg += getMessage("error.entornService.delete.dominis");
+					break;
+				}
+			}
+		}
+		if (!entorn.getConsultes().isEmpty()) {
+			for (Consulta consulta: entorn.getConsultes()) {
+				if (consulta.getExpedientTipus() == null) {
+					msg += getMessage("error.entornService.delete.consultes");
+					break;
+				}
+			}
+		}
 		if (!"".equals(msg)) {
 			msg = msg.substring(0, msg.length() - 2);
 			throw new NotRemovableException(getMessage("error.entornService.delete", new Object[]{msg}));
