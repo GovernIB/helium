@@ -1720,6 +1720,9 @@ public class DissenyService {
 	public void deleteDomini(Long id) {
 		Domini vell = getDominiById(id);
 		if (vell != null) {
+			if (vell.getExpedientTipus() != null) {
+				vell.getExpedientTipus().removeDomini(vell);
+			}
 			dominiDao.makeDirty(id);
 			dominiDao.delete(id);
 		}
