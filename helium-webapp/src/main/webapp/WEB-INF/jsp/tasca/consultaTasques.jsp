@@ -174,10 +174,24 @@ function selTots(){
 					</c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
-					<c:param name="property" value="mostrarTasquesGrup"/>
-					<c:param name="type" value="checkbox"/>
-					<c:param name="label"><fmt:message key='expedient.consulta.mostrar.tasques.grup' /></c:param>
+					<c:param name="value" value="MOSTRAR_TASQUES_TOTS"/>
+					<c:param name="property" value="mostrarTasques"/>
+					<c:param name="type" value="radio"/>
+					<c:param name="label"><fmt:message key='expedient.consulta.mostrar.tasques.tots' /></c:param>
 				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="value" value="MOSTRAR_TASQUES_NOMES_PERSONALS"/>
+					<c:param name="property" value="mostrarTasques"/>
+					<c:param name="type" value="radio"/>
+					<c:param name="label"><fmt:message key='expedient.consulta.mostrar.tasques.nomes.personals' /></c:param>
+				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="value" value="MOSTRAR_TASQUES_NOMES_GROUPS"/>
+					<c:param name="property" value="mostrarTasques"/>
+					<c:param name="type" value="radio"/>
+					<c:param name="label"><fmt:message key='expedient.consulta.mostrar.tasques.nomes.grup' /></c:param>
+				</c:import>
+				
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit,clean<c:if test="${not empty llistat}">,massiu</c:if></c:param>

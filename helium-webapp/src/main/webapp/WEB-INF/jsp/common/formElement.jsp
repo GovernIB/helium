@@ -97,6 +97,9 @@
 									<c:otherwise><input id="${inputId}" name="${inputName}"<c:if test="${status.value}">checked="checked"</c:if> type="checkbox" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/></c:otherwise>
 								</c:choose>
 							</c:when>
+							<c:when test="${param.type == 'radio'}">
+								<input value="${param.value}" id="${inputId}" name="${inputName}"<c:if test="${status.value == param.value}"> checked="checked"</c:if> type="radio" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>/>
+							</c:when>
 							<c:when test="${param.type == 'textarea'}">
 								<textarea id="${inputId}" name="${inputName}" onclick="${param.onclick}" onchange="${param.onchange}"<c:if test="${not empty param.disabled}"> disabled="disabled"</c:if>>${status.value}</textarea>
 							</c:when>

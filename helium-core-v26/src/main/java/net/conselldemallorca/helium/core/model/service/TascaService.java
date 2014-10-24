@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.MostrarTasquesDto;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
@@ -346,7 +347,7 @@ public class TascaService {
 			String titol,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
-			Boolean mostrarTasquesGrup,
+			MostrarTasquesDto mostrarTasques, 
 			int firstRow,
 			int maxResults,
 			String sort,
@@ -375,7 +376,7 @@ public class TascaService {
 				maxResults, 
 				sort, 
 				asc,
-				mostrarTasquesGrup);
+				mostrarTasques);
 
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(ids.getIds(), responsable);
 

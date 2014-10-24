@@ -29,6 +29,13 @@ $(document).ready(function() {
 		ajaxSourceUrl: "<c:url value="/v3/expedient/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+		drawCallback: function() {
+			var seleccionable = $('#expedientTipusId').val() != '';
+			$('#btnTramitacio').toggleClass("hide", !seleccionable);
+			var seleccioColumna = $("#taulaDades").data("rdt-seleccionable-columna");			
+			$("#taulaDades").find('tr').find("td:eq("+seleccioColumna+")").toggleClass("hide", !seleccionable);
+			$("th:eq(" + seleccioColumna + ")", $("#taulaDades")).toggleClass("hide", !seleccionable);
+		},
 		rowClickCallback: function(row) {
 // 			$('a.consultar-expedient', $(row))[0].click();
 			$.ajax({
@@ -89,7 +96,7 @@ $(document).ready(function() {
 		} else {
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
-		}
+		}		
 	});
 	$('#expedientTipusId').trigger('change');
 });
@@ -171,7 +178,7 @@ $(document).ready(function() {
 				<div class="pull-right">
 					<input type="hidden" name="consultaRealitzada" value="true"/>
 					<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-					<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 				</div>
 			</div>
 		</div>
@@ -194,7 +201,21 @@ $(document).ready(function() {
 				<th data-rdt-property="estat.nom" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
 					<spring:message code="expedient.llistat.columna.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
-					{{if dataFi}}<spring:message code="comu.estat.finalitzat"/>{{else estat_nom}}{{:estat_nom}}{{else}}<spring:message code="comu.estat.iniciat"/>{{/if}}
+					{{if dataFi}}
+						<spring:message code="comu.estat.finalitzat"/>
+					{{else estat_nom}}
+						{{:estat_nom}}
+					{{else}}
+						<spring:message code="comu.estat.iniciat"/>
+					{{/if}}
+
+					<div class="pull-right">
+						{{if aturat}}
+							<span class="label label-danger" title="<spring:message code="expedient.info.aturat"/>">AT</span>
+						{{else anulat}}
+							<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>">AN</span>
+						{{/if}}
+					</div>
 					</script>
 				</th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
@@ -203,7 +224,7 @@ $(document).ready(function() {
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
-				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="true" data-rdt-sortable="false">
+				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="false" data-rdt-sortable="false">
 					Permisos
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
 						{{if permisCreate}}C{{/if}}
@@ -232,7 +253,7 @@ $(document).ready(function() {
 	</table>
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div style="text-align:right">
-			<div class="btn-group">
+			<div id="btnTramitacio" class="btn-group">
 				<a class="btn btn-default" href="../v3/expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 				<a class="btn btn-default" href="../v3/expedient/massiva"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>

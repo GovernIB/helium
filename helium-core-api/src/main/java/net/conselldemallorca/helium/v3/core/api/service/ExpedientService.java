@@ -809,4 +809,8 @@ public interface ExpedientService {
 	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi);
 
 	public DocumentDto findDocumentsPerId(Long id);
+
+	public ArxiuDto arxiuDocumentPerMostrar(String token);
+
+	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient);
 }

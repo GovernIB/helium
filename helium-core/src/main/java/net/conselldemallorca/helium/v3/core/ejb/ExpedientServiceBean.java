@@ -522,36 +522,48 @@ public class ExpedientServiceBean implements ExpedientService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
-		return findConsultaInformeParams(consultaId);
+		return delegate.findConsultaInformeParams(consultaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
-		return findAmbIds(ids);
+		return delegate.findAmbIds(ids);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> findListDocumentsPerDefinicioProces(Long definicioProcesId, String processInstanceId, String expedientTipusNom) {
-		return findListDocumentsPerDefinicioProces(definicioProcesId, processInstanceId, expedientTipusNom);
+		return delegate.findListDocumentsPerDefinicioProces(definicioProcesId, processInstanceId, expedientTipusNom);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
-		return getCampsInstanciaProcesById(processInstanceId);
+		return delegate.getCampsInstanciaProcesById(processInstanceId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto findDocumentsPerId(Long id) {
-		return findDocumentsPerId(id);
+		return delegate.findDocumentsPerId(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi) {
-		return getCampsInstanciaProcesByIdAmdVarcodi(processInstanceId, varCodi);
+		return delegate.getCampsInstanciaProcesByIdAmdVarcodi(processInstanceId, varCodi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto arxiuDocumentPerMostrar(String token) {
+		return delegate.arxiuDocumentPerMostrar(token);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) {
+		return delegate.generarDocumentPlantilla(docId, expedient);
 	}
 }

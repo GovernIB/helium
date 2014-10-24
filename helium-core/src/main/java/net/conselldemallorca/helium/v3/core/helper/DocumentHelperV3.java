@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -600,6 +601,51 @@ public class DocumentHelperV3 {
 			}
 		}
 		return null;
+	}
+
+	public Long getDocumentStoreIdPerToken(String token) {
+		try {
+			String[] tokenDesxifrat = getDocumentTokenUtils().desxifrarTokenMultiple(token);
+			if (tokenDesxifrat.length == 1)
+				return Long.parseLong(tokenDesxifrat[0]);
+			else
+				return Long.parseLong(tokenDesxifrat[1]);
+		} catch (Exception ex) {
+			throw new IllegalArgumentsException("Format de token incorrecte", ex);
+		}
+	}
+	
+	public DocumentDto getDocumentVista(
+			Long documentStoreId,
+			boolean perSignar,
+			boolean ambSegellSignatura) {
+		if (documentStoreId != null) {
+			return toDocumentDto(
+					documentStoreId,
+					false,
+					false,
+					true,
+					perSignar,
+					ambSegellSignatura);
+		} else {
+			return null;
+		}
+	}
+	
+	public DocumentDto getDocumentOriginal(
+			Long documentStoreId,
+			boolean ambContingut) {
+		if (documentStoreId != null) {
+			return toDocumentDto(
+					documentStoreId,
+					ambContingut,
+					false,
+					false,
+					false,
+					false);
+		} else {
+			return null;
+		}
 	}
 
 	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {

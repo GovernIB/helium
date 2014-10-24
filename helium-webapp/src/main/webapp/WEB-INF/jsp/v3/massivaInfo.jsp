@@ -93,6 +93,8 @@
 						$(this).append('<input type="hidden" id="correu" name="correu">');
 				});
 				$("input[type='hidden'][name='inici']").each(function(){ $(this).val($("input[name=inici]").val()); });
+				$('#var').trigger('change');
+				$('#docId').trigger('change');
             });
         	$("#grup-default-titol").click(function(event) {
        			$("#grup-default-dades").slideToggle("slow", function() {
@@ -109,14 +111,12 @@
 						$(this).append('<input type="hidden" id="correu" name="correu">');
 				});
 				$("input[type='hidden'][name='correu']").each(function(){ $(this).val(correu); });
+				$('#var').trigger('change');
+				$('#docId').trigger('change');
 			});
-			$('#var').on('change', function() {				
-				if ( $("#var").val() == "") {
-					$("a[name='modificar_variable']").addClass('disabled');
-				} else {
-					$("a[name='modificar_variable']").removeClass('disabled');
-					$("a[name='modificar_variable']").attr("href","massiva/"+$("#var").val()+"/modificarVariables")
-				}
+			$('#var').on('change', function() {
+				$("a[name='modificar_variable']").toggleClass('disabled', $("#var").val() == "");
+				$("a[name='modificar_variable']").attr("href","../../v3/expedient/massiva/"+$("#var").val()+"/modificarVariables?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"))
 			});
 			$('#docId').on('change', function() {
 				var doc = "__none__";
@@ -130,10 +130,10 @@
 			 		$("a[name='document_modificar']").addClass('disabled');
 			 	} else {
 			 		$("a[name='document_modificar']").removeClass('disabled');
-			 		$("a[name='document_modificar']").attr("href","massiva/"+docId+"/documentModificar");
+			 		$("a[name='document_modificar']").attr("href","../../v3/expedient/massiva/"+docId+"/documentModificar?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 			 		$("button[value='document_esborrar']").prop('disabled', false);
 			 	}
-		 		$("a[name='document_adjuntar_massiu']").attr("href","massiva/"+docId+"/documentAdjunt");
+				$("a[name='document_adjuntar_massiu']").attr("href","../../v3/expedient/massiva/documentAdjunt?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 			 	$("button[value='document_generar']").prop('disabled', !eval("docPlantilla." + doc));
 			});
 			$("button[value='document_esborrar']").prop('disabled', true);
@@ -144,31 +144,14 @@
 		// ]]>
 	</script>
 	<style type="text/css">
-		div.grup:hover {
-			background-color: #e5e5e5 !important;
-			border-color: #ccc !important;
-		}
-		div.grup .panel-body-grup {
-			padding-bottom: 0px !important;
-		}
-		.panel-body-grup {
-			margin: -1px;
-		}
-		.panel-default a, .panel-default a:HOVER {
-			text-decoration: none;
-		}
+		div.grup:hover {background-color: #e5e5e5 !important;border-color: #ccc !important;}
+		div.grup .panel-body-grup {padding-bottom: 0px !important;}
+		.panel-body-grup {margin: -1px;}
+		.panel-default a, .panel-default a:HOVER {text-decoration: none;}
 		.table {margin-bottom: 5px;}
-		.form-horizontal .control-label.col-xs-4 {
-			width: 22.333%
-		}
-		
-		.label-titol .control-label {
-			padding-bottom: 20px;
-		}
-		
-		.label-titol {
-			background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;
-		}
+		.form-horizontal .control-label.col-xs-4 {width: 22.333%;}		
+		.label-titol .control-label {padding-bottom: 20px;}		
+		.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;}
 		.form-group { margin-left: 15px;}
 		textarea {width: calc(100% - 15px) !important;}
 		.control-group {width: 49%;}
@@ -349,7 +332,7 @@
 				<label class="control-label"><spring:message code='expedient.massiva.modificar_variables' /></label>
 				<div class="form-group">
 					<form:form cssClass="form-horizontal form-tasca" id="modificarVariablesMasCommand" name="modificarVariablesMasCommand" action="massiva/modificarVariablesMasCommand" method="post" commandName="modificarVariablesCommand" onsubmit="return confirmarModificarVariables(event)">
-						<hel:inputSelect inline="true" name="var" textKey="expedient.eines.modificar_variables" placeholderKey="expedient.consulta.select.variable" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="codi"/>
+						<hel:inputSelect inline="true" name="var" textKey="expedient.eines.modificar_variables" placeholderKey="expedient.consulta.select.variable" optionItems="${variables}" optionValueAttribute="id" optionTextAttribute="codi"/>
 						<a class="btn btn-primary right" name="modificar_variable" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar'/></a>
 					</form:form>
 				</div>
@@ -372,7 +355,7 @@
 							<button class="btn btn-primary right" type="submit" name="accio" value="document_esborrar">
 								<spring:message code='comuns.esborrar' />
 							</button>
-							<a class="btn btn-primary right" name="document_adjuntar_massiu" href="#" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
+							<a class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
 						</form:form>
 					</c:if>
 					<c:if test="${empty documents}">

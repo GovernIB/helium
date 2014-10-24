@@ -50,7 +50,7 @@ import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
@@ -91,11 +91,9 @@ public class PlantillaHelper {
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
-	private ExpedientRepository expedientRepository;
+	private EntornRepository entornRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
-	@Resource
-	private JbpmHelper jbpmHelper;
 	@Resource
 	private AreaRepository areaRepository;
 	@Resource
@@ -104,7 +102,6 @@ public class PlantillaHelper {
 	private CarrecRepository carrecRepository;
 	@Resource
 	private CarrecJbpmIdRepository carrecJbpmIdRepository;
-
 	@Resource
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	@Resource
@@ -121,7 +118,7 @@ public class PlantillaHelper {
 	private TascaHelper tascaHelper;
 
 	public ArxiuDto generarDocumentPlantilla(
-			Entorn entorn,
+			Long entornId,
 			Long documentId,
 			String taskInstanceId,
 			String processInstanceId,
@@ -158,7 +155,7 @@ public class PlantillaHelper {
 					dataDocument,
 					model);
 			afegirFuncionsAlModel(
-					entorn,
+					entornRepository.findOne(entornId),
 					taskInstanceId,
 					processInstanceId,
 					model);

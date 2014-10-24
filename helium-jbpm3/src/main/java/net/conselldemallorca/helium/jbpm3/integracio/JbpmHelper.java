@@ -108,7 +108,12 @@ public class JbpmHelper {
 
 	@Autowired
 	private AdminService adminService;
-
+	
+	public enum MostrarTasquesDto {
+		MOSTRAR_TASQUES_TOTS,
+		MOSTRAR_TASQUES_NOMES_GROUPS,
+		MOSTRAR_TASQUES_NOMES_PERSONALS
+	}
 
 	public JbpmProcessDefinition desplegar(
 			String nomArxiu,
@@ -1287,17 +1292,28 @@ public class JbpmHelper {
 			int maxResults, 
 			String sort, 
 			boolean asc,
-			boolean tasquesGrup) {
+			MostrarTasquesDto mostrarTasques) {
 		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");
-		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(usuariBo, null, tascaSel, idsExpedients, dataCreacioInici, dataCreacioFi, prioritat, dataLimitInici, dataLimitFi, sort, asc, (tasquesGrup ? null : false));
+		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
+				usuariBo, 
+				null, 
+				tascaSel, 
+				idsExpedients, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi, 
+				sort, 
+				asc, 
+				mostrarTasques);
 		command.setFirstRow(firstRow);
 		command.setMaxResults(maxResults);
 		command.setTitol(titol);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
 		adminService.mesuraCalcular("jBPM findListTasks", "jbpmDao");
 		return llistat;
-	}
-	
+	}	
 	
 	public LlistatIds findListPersonalTasks( // 2.6
 			String usuariBo, 

@@ -13,9 +13,11 @@ import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -51,6 +53,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						expedientId,
 						null));
 		return "v3/expedientDocument";
+	}
+
+	@RequestMapping(value = "/document/arxiuMostrar")
+	public String arxiuMostrar(
+		HttpServletRequest request,
+		@RequestParam(value = "token", required = true) String token,
+		ModelMap model) {
+		ArxiuDto arxiu = null;
+		if (token != null)
+			arxiu = expedientService.arxiuDocumentPerMostrar(token);
+		if (arxiu != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		}
+		return "arxiuView";
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentId}/descarregar", method = RequestMethod.GET)

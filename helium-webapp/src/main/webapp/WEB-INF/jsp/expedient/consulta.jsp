@@ -482,7 +482,7 @@ function selTots(){
 						<input type="checkbox" name="expedientId" value="${registre.id}"<c:if test="${expedientSeleccionat}"> checked="checked"</c:if> onclick="clicCheckMassiu(event)"/>
 					</display:column>
 				</c:if>
-				<display:column title="Expedient" sortProperty="identificador" url="/tasca/personaLlistat.html" paramId="exp" paramProperty="identificador" sortable="true" style="${filaStyle}">
+				<display:column title="Expedient" sortProperty="identificador" url="/tasca/personaLlistat.html" escapeXml="true" paramId="exp" paramProperty="identificador" sortable="true" style="${filaStyle}">
 					<c:if test="${registre.errorsIntegracions}"><img src="<c:url value="/img/exclamation.png"/>" alt="<fmt:message key="expedient.consulta.error.integracions"/>" title="<fmt:message key="expedient.consulta.error.integracions"/>" border="0"/></c:if>
 					${registre.identificador}
 				</display:column>

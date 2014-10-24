@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.MostrarTasquesDto;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 
@@ -70,7 +71,7 @@ public class TascaConsultaController extends BaseController {
 	private static final String SESSION_ATTRIBUTE_CURRENT_SORT_TASCA = "TascaConsultaController.current.sort";
 	private static final String SESSION_ATTRIBUTE_CURRENT_DIR_TASCA = "TascaConsultaController.current.dir";
 	public static final String SESSION_ATTRIBUTE_TCON_IDS_MASSIUS = "TascaConsultaIdsMassius";
-	
+		
 	private TascaService tascaService;
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
@@ -385,7 +386,7 @@ public class TascaConsultaController extends BaseController {
 				command.getTitol(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
-				command.getMostrarTasquesGrup(),
+				command.getMostrarTasques(),
 				firstRow,
 				maxResults,
 				sort,
@@ -476,9 +477,9 @@ public class TascaConsultaController extends BaseController {
 		private String responsable;
 		private Date dataCreacioInici;
 		private Date dataCreacioFi;
-		private Boolean mostrarTasquesGrup;
+		private MostrarTasquesDto mostrarTasques;
 		public TascaConsultaFiltreCommand() {
-			this.mostrarTasquesGrup = true;
+			this.setMostrarTasques(MostrarTasquesDto.MOSTRAR_TASQUES_TOTS);
 		}
 		public Long getTascaId() {
 			return tascaId;
@@ -516,11 +517,11 @@ public class TascaConsultaController extends BaseController {
 		public void setDataCreacioFi(Date dataCreacioFi) {
 			this.dataCreacioFi = dataCreacioFi;
 		}
-		public Boolean getMostrarTasquesGrup() {
-			return mostrarTasquesGrup;
+		public MostrarTasquesDto getMostrarTasques() {
+			return mostrarTasques;
 		}
-		public void setMostrarTasquesGrup(Boolean mostrarTasquesGrup) {
-			this.mostrarTasquesGrup = mostrarTasquesGrup;
+		public void setMostrarTasques(MostrarTasquesDto mostrarTasques) {
+			this.mostrarTasques = mostrarTasques;
 		}
 	}
 	

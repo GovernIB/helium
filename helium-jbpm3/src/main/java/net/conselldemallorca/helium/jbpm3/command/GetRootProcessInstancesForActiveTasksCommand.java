@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.MostrarTasquesDto;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
@@ -37,8 +38,10 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private Integer prioritat;
 	private Date dataLimitInici;
 	private Date dataLimitFi;
-	private boolean mostrarTasquesPersonals = true;
 	private Boolean pooled;
+	private boolean mostrarTasquesTots = false;
+	private Boolean mostrarTasquesNomesGroup = false;
+	private Boolean mostrarTasquesNomesPersonals = false;
 	private int firstRow;
 	private int maxResults;
 	private String sort;
@@ -82,10 +85,9 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
 		this.pooled = pooled;
-		this.mostrarTasquesPersonals = !(pooled != null ? pooled : false);
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, Boolean pooled) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc,Boolean pooled) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
@@ -97,7 +99,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
 		this.pooled = pooled;
-		this.mostrarTasquesPersonals = !(pooled != null ? pooled : false);
 		this.sort = sort;
 		this.asc = asc;
 	}
@@ -113,13 +114,30 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.prioritat = prioritat;
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
-		this.mostrarTasquesPersonals = mostrarTasquesPersonals;
 		this.pooled = mostrarTasquesGrup;
 		for (OrdreDto or : ordres) {
 			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 			this.sort = or.getCamp();
 			break;
 		}
+	}
+
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, MostrarTasquesDto mostrarTasques) {
+		super();
+		this.actorId = actorId;
+		this.idsPIExpedients = idsPIExpedients;
+		this.tasca = tasca; 
+		this.tascaSel = tascaSel; 
+		this.dataCreacioInici = dataCreacioInici; 
+		this.dataCreacioFi = dataCreacioFi;
+		this.prioritat = prioritat;
+		this.dataLimitInici = dataLimitInici;
+		this.dataLimitFi = dataLimitFi;
+		this.mostrarTasquesTots = mostrarTasques == MostrarTasquesDto.MOSTRAR_TASQUES_TOTS;
+		this.mostrarTasquesNomesGroup = mostrarTasques == MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_GROUPS;
+		this.mostrarTasquesNomesPersonals = mostrarTasques == MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_PERSONALS;
+		this.sort = sort;
+		this.asc = asc;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -139,6 +157,20 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "  ti.isSuspended = false and ti.isOpen = true " +
 		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true " : " ") +
 		    ((pooled != null && pooled == false) ? "and ti.actorId is not null " : " ");
+		
+		String hqlNoUserLlistatTasques =
+		    "select  " + 
+		    "    ti.processInstance.id, " +
+		    "    ti.processInstance.superProcessToken.id, " +
+		    "    ti.id," +
+		    " 	 ti.name" +
+		    "  from " +
+		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+		    "  where " +
+		    "  ti.isSuspended = false and ti.isOpen = true " +
+		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true " : " ") +
+			((mostrarTasquesNomesGroup) ? "and ti.actorId is null " : " ") +
+			((mostrarTasquesNomesPersonals) ? "and ti.actorId is not null " : " ");
 		
 		String hqlPersonal =
 		    "select  " + 
@@ -213,7 +245,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		List<Object[]> llistaActorId = new ArrayList<Object[]>();
 		
 		if (actorId == null || "".equals(actorId)) {
-			Query query = jbpmContext.getSession().createQuery(hqlNoUser + hql);
+			Query query = null;
+			if (mostrarTasquesTots || mostrarTasquesNomesGroup || mostrarTasquesNomesPersonals)
+				query = jbpmContext.getSession().createQuery(hqlNoUserLlistatTasques + hql);
+			else
+				query = jbpmContext.getSession().createQuery(hqlNoUser + hql);
 			
 			if (dataCreacioInici != null) 
 				query.setDate("dataCreacioInici", dataCreacioInici);
@@ -287,7 +323,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				queryPooled.setString("titol", titol.toUpperCase());
 			}
 			
-			if (mostrarTasquesPersonals) {
+			
+			if (!(pooled != null ? pooled : false)) {
 				llistaActorId.addAll(queryPersonal.list());
 			}
 			
@@ -378,9 +415,9 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	public void setTitol(String titol) {
 		this.titol = titol;
 	}
-
+	
 	public String getParametersToString() {
-		return "GetRootProcessInstancesForActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", tasca=" + tasca + ", dataCreacioInici=" + dataCreacioInici + ", dataCreacioFi=" + dataCreacioFi + ", prioritat=" + prioritat + ", dataLimitInici=" + dataLimitInici + ", dataLimitFi=" + dataLimitFi + ", pooled=" + pooled + ", firstRow=" + firstRow + ", maxResults=" + maxResults + ", sort=" + sort + ", asc=" + asc + "]";
+		return "GetRootProcessInstancesForActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", tasca=" + tasca + ", tascaSel=" + tascaSel + ", titol=" + titol + ", dataCreacioInici=" + dataCreacioInici + ", dataCreacioFi=" + dataCreacioFi + ", prioritat=" + prioritat + ", dataLimitInici=" + dataLimitInici + ", dataLimitFi=" + dataLimitFi + ", pooled=" + pooled + ", firstRow=" + firstRow + ", maxResults=" + maxResults + ", sort=" + sort + ", asc=" + asc + ", nomesActives=" + nomesActives + "]";
 	}
 
 	@Override

@@ -3,50 +3,89 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
 	<title><spring:message code="expedient.document.adjuntar"/></title>
 	<hel:modalHead/>
-	<c:import url="../common/formIncludes.jsp"/>
+	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 </script>
+<style type="text/css">
+	.btn-file {position: relative; overflow: hidden;}
+	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
+	.form-group {width: 100%;}
+	.fila_reducida {width: 100%;}		
+	.col-xs-4 {width: 20%;}		
+	.col-xs-8 {width: 77%;}
+	.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
+	.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
+	.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
+	#s2id_estatId {width: 100% !important;}
+	.arxiu {margin-left: 20%;}
+</style>
 </head>
 <body>		
-	<form:form action="documentModificarMas" cssClass="uniForm" enctype="multipart/form-data" method="post">
-		<hel:inputTextarea required="true" name="motiu" textKey="expedient.accio.aturar.camp.motiu" placeholderKey="expedient.accio.aturar.camp.motiu"/>
+	<form:form cssClass="form-horizontal form-tasca" action="documentModificarMas" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+		<div class="inlineLabels">
+			<input id="inici" name="inici" value="${inici}" type="hidden"/>
+			<input id="correu" name="correu" value="${correu}" type="hidden"/>
+			<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
+			<div class="form-group">
+				<div class="col-xs-8 arxiu">
+		            <div class="input-group">
+		                <span class="input-group-btn">
+		                    <span class="btn btn-primary btn-file">
+		                        <spring:message code='expedient.document.arxiu' />… <input type="file">
+		                    </span>
+		                </span>
+		               <form:input path="contingut" readonly="readonly" cssClass="form-control" />
+		            </div>
+				</div>
+			</div>
+        
+			<script type="text/javascript">
+				// <![CDATA[
+				$(document).on('change', '.btn-file :file', function() {
+					var input = $(this),
+					numFiles = input.get(0).files ? input.get(0).files.length : 1,
+					label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+					input.trigger('fileselect', [numFiles, label]);
+				});
+				
+				$(document).ready( function() {
+					$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+						var input = $(this).parents('.input-group').find(':text'),
+						log = numFiles > 1 ? numFiles + ' files selected' : label;
+						if( input.length ) {
+							input.val(log);
+						} else {
+							if( log )
+								alert(log);
+						}
+					});
+				}); 
+				// ]]>
+			</script>
+			
+			<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/yyyy"/>
+		</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
-			<button type="submit" class="btn btn-primary"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.accio.aturar.boto.aturar"/></button>
+			<button class="btn btn-primary right" type="submit" name="accio" value="document_adjuntar">
+				<spring:message code='comuns.adjuntar' />
+			</button>
 		</div>
-		<div class="inlineLabels">
-			<c:if test="${not empty param.id}">
-				<input type="hidden" id="id" name="id" value="param.id"/>
-			</c:if>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="nom"/>
-				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key='expedient.document.titol' /></c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="contingut"/>
-				<c:param name="type" value="file"/>
-				<c:param name="required" value="true"/>
-				<c:param name="fileUrl">${downloadUrl}</c:param>
-				<c:param name="fileExists" value="${not empty command.nom}"/>
-				<c:param name="label"><fmt:message key='expedient.document.arxiu' /></c:param>
-			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="data"/>
-				<c:param name="type" value="date"/>
-				<c:param name="required" value="true"/>
-				<c:param name="label"><fmt:message key='expedient.document.data' /></c:param>
-			</c:import>
-		</div>
-		<c:import url="../common/formElement.jsp">
-			<c:param name="type" value="buttons"/>
-			<c:param name="values">adjunt,cancel</c:param>
-			<c:param name="titles"><fmt:message key='comuns.adjuntar' />,<fmt:message key='comuns.cancelar' /></c:param>
-		</c:import>
 	</form:form>
 </body>
 </html>
