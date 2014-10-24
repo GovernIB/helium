@@ -422,7 +422,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void addDomini(Domini domini) {
 		getDominis().add(domini);
 	}
-	public void removeDomini(Enumeracio domini) {
+	public void removeDomini(Domini domini) {
 		getDominis().remove(domini);
 	}
 
