@@ -86,8 +86,7 @@ public class DefinicioProcesDocumentController extends BaseController {
 		
 		if (id != null) {
 			Document document = dissenyService.getDocumentById(id);
-			document.setDefinicioProces(defpro);
-			
+			document.setDefinicioProces(defpro);			
 			return document;
 		}
 		Document nou = new Document();
