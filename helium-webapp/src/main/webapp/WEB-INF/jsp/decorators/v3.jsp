@@ -27,13 +27,22 @@
 		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
 	<![endif]-->
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
-<style>
-body {
-	background-image:url(<c:url value="/img/background-pattern.jpg"/>);
-	color:#666666;
-	padding-top: 120px;
-}
-</style>
+	<style>
+		body {
+			background-image:url(<c:url value="/img/background-pattern.jpg"/>);
+			color:#666666;
+			padding-top: 120px;
+		}
+		.cabecera_reducida {height: 70px;}
+		.cabecera_reducida #govern-logo {margin-top: -5px;}
+		.cabecera_reducida #app-logo {margin-top: -5px;}
+		.cabecera_reducida #app-logo > img {width :80%;}
+		.cabecera_reducida .navbar-app .navbar-nav {padding-top: 4px;}
+		.cabecera_reducida .nav.navbar-nav.navbar-right {padding-top: 8px;}
+		.cabecera_reducida .navbar-btn {margin-top: -4px;}
+		.cabecera_reducida .navbar-btn .btn {padding: 3px 12px;}
+		.cabecera_reducida-main {margin-top: -30px;}
+	</style>
 	<decorator:head />
 </head>
 <body>
@@ -121,7 +130,7 @@ body {
 			</div>
 		</div>
 	</div>
-	<div class="container container-main">
+	<div class="container container-main <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida-main</c:if>">
 		<div class="panel panel-default">
 			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
 			<c:if test="${not empty decoratorMetaTitle}">

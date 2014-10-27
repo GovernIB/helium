@@ -32,6 +32,7 @@
 	.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
 	.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
 	#s2id_estatId {width: 100% !important;}
+	h4.titol-missatge i {padding-left: 5px;padding-right: 5px;}
 	.arxiu {margin-left: 20%;}
 </style>
 </head>

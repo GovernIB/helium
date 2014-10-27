@@ -363,6 +363,14 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 		this.responsablePersona = responsablePersona;
 	}
 
+	public String getEstatNom() {
+		if (getEstat() != null)
+			return estat.getNom();
+		else if (getDataFi() != null)
+			return "Finalizat";
+		return "Iniciat"; 
+	}
+
 	public String getNumeroIdentificador() {
 		if (tipus.isTeNumero())
 			return getNumero();

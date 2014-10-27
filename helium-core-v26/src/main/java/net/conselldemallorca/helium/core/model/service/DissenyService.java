@@ -456,7 +456,28 @@ public class DissenyService {
 	}
 
 	public Document getDocumentById(Long id) {
-		return documentDao.getById(id, false);
+		Document original = documentDao.getById(id, false);
+
+		Document document = new Document();
+		document.setId(original.getId());
+		document.setCodi(original.getCodi());
+		document.setNom(original.getNom());
+		document.setDescripcio(original.getDescripcio());
+		document.setArxiuContingut(original.getArxiuContingut());
+		document.setArxiuNom(original.getArxiuNom());
+		document.setPlantilla(original.isPlantilla());
+		document.setContentType(original.getContentType());
+		document.setCustodiaCodi(original.getCustodiaCodi());
+		document.setTipusDocPortasignatures(original.getTipusDocPortasignatures());
+		document.setConvertirExtensio(original.getConvertirExtensio());
+		document.setExtensionsPermeses(original.getExtensionsPermeses());
+		document.setAdjuntarAuto(original.isAdjuntarAuto());
+		document.setDefinicioProces(original.getDefinicioProces());
+		document.setCampData(original.getCampData());
+		document.setFirmes(original.getFirmes());
+		document.setTasques(original.getTasques());
+		
+		return document;
 	}
 
 	public Document getDocumentStoreById(Long id) {

@@ -85,7 +85,10 @@ public class DefinicioProcesDocumentController extends BaseController {
 			defpro = dissenyService.getById(definicioProces, false);
 		
 		if (id != null) {
-			return dissenyService.getDocumentById(id);
+			Document document = dissenyService.getDocumentById(id);
+			document.setDefinicioProces(defpro);
+			
+			return document;
 		}
 		Document nou = new Document();
 		nou.setAdjuntarAuto(true);

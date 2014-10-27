@@ -33,6 +33,7 @@
 	.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
 	#s2id_estatId {width: 100% !important;}
 	.arxiu {margin-left: 20%;}
+	h4.titol-missatge i {padding-left: 10px;}
 </style>
 </head>
 <body>		
@@ -48,15 +49,15 @@
 	 				<a href="<c:url value="../../../../v3/expedient/massiva/documentGenerarMas"><c:param name="docId" value="${documentExpedientCommand.docId}"/><c:param name="inici" value="${inici}"/><c:param name="correu" value="${correu}"/></c:url>">
 	 					<i class="fa fa-file-text-o"></i>
 	 				</a>
-	 				<c:if test="${downloadUrl != ''}">
-						<a id="downloadUrl" href="${downloadUrl}">
-							<i class="fa fa-download"></i>
-						</a>
-						<a id="removeUrl" href="#" onclick="return mostrarAmagarFile()">
-							<i class="fa fa-times"></i>
-						</a>
-					</c:if>
 	 			</c:if> 
+ 				<c:if test="${downloadUrl != ''}">
+					<a id="downloadUrl" href="${downloadUrl}">
+						<i class="fa fa-download"></i>
+					</a>
+					<a id="removeUrl" href="#" onclick="return mostrarAmagarFile()">
+						<i class="fa fa-times"></i>
+					</a>
+				</c:if>
 			</h4>
 			<div class="form-group">
 				<div class="col-xs-8 arxiu">					
