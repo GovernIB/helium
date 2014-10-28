@@ -10,7 +10,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	ExecucioMassiva.class,
-	ExecucioMassivaDocuments.class,
+	//ExecucioMassivaDocuments.class,
 	ExecucioMassivaVariables.class
 })
 public class ExecucioMassivaSuite {}

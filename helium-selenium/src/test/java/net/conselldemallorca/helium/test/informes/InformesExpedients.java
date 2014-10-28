@@ -22,7 +22,7 @@ public class InformesExpedients extends BaseTest {
 
 										//INF.1 - Informes - Seleccio de consulta
 										//INF.2 - Informes - Comprovar que les vars. del filtre son les definides a la consulta
-										//INF.3 - Informes - Provar filtres.
+										//INF.3 - Informes - Provar filtres
 										//INF.4 - Informes - Netejar filtre
 										//INF.5 - Informes - Comprovar que les vars. de l´informe son les definides a la consulta
 										//INF.6 - Informes - Resultats per pagina
@@ -70,6 +70,7 @@ public class InformesExpedients extends BaseTest {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
 		importarDadesEntorn(entorn, pathExportEntorn);
+		try {Thread.sleep(3000);}catch(Exception ex) {}
 		assignarPermisosEntorn(entorn, usuariAdmin, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		assignarPermisosEntorn(entorn, usuari,      "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		marcarEntornDefecte(titolEntorn);
@@ -355,8 +356,12 @@ public class InformesExpedients extends BaseTest {
 
 			screenshotHelper.saveScreenshot("expedients/informes/h1_"+(i+1)+"_resultats_per_pagina.png");
 			
+			Thread.sleep(3000);
+			
 			driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 
+			Thread.sleep(2000);
+			
 			int numElementsPage = Integer.valueOf(driver.findElement(By.xpath("//*[@id='objectsPerPage']")).findElements(By.tagName("option")).get(i).getAttribute("value"));
 
 			if (Integer.valueOf(numExpedientes) >= numElementsPage) {
@@ -405,21 +410,15 @@ public class InformesExpedients extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='commandFiltre']//button[contains(@onclick,'informe')]")).click();
 		
-		existeixElementAssert("//*[@id='ParamConsulta00']", "No se encuentra el parametro del informe en la ventana modal.");
+		existeixElementAssert("//*[@id='perdat10']", "No se encuentra el parametro del informe en la ventana modal.");
 		
-		driver.findElement(By.id("ParamConsulta00")).sendKeys("Param Informe Consulta");
+		driver.findElement(By.id("perdat10")).sendKeys("Param Informe Consulta");
 		
 		screenshotHelper.saveScreenshot("expedients/informes/j1_2_mostrar_informe-emplenar_parametre.png");
 		
-		driver.findElement(By.xpath("/html/body/div[contains(@class, 'ui-dialog')]/div[contains(@class, 'ui-dialog-button')]/button[text()='Generar']")).click();
+		//driver.findElement(By.xpath("/html/body/div[contains(@class, 'ui-dialog')]/div[contains(@class, 'ui-dialog-button')]/button[text()='Generar']")).click();
 		
-		//TODO: implementar un mètode de comprobació de descarrega d´arxius que soporti redireccions
-		
-		//postDownloadFile("//*[@id='paramsCommand']");
-		
-		//String[] paramNames = {"submit"};
-		//String[] paramValues = {"informe"};
-		//postDownloadFile("//*[@id='paramsCommand']", paramNames, paramValues, "expedient/consultaDissenyInformeParams.html", "expedient/consultaDissenyInforme.html");
+		postDownloadFile("//*[@id='paramsCommand']");
 		
 		screenshotHelper.saveScreenshot("expedients/informes/j1_3_mostrar_informe-descarrega_informe.png");
 	}
@@ -430,7 +429,7 @@ public class InformesExpedients extends BaseTest {
 		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
 		
-		accedirPantallaConsultesDiseny();		
+		accedirPantallaConsultesDiseny();
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
 		screenshotHelper.saveScreenshot("expedients/informes/k1_1_desplegar_tasques-estat_inicial.png");
@@ -559,6 +558,8 @@ public class InformesExpedients extends BaseTest {
 
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		
+		Thread.sleep(5000);
+		
 		screenshotHelper.saveScreenshot("expedients/informes/n_1_aturar_expedient-estat_inicial.png");
 
 		// Abrimos el expediente
@@ -615,6 +616,7 @@ public class InformesExpedients extends BaseTest {
 	public void p1_borrar_expedient() throws InterruptedException, ParseException {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);		
+		Thread.sleep(3000);
 		// Quitamos los permisos de borrado
 		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","READ");
 	}
@@ -675,11 +677,7 @@ public class InformesExpedients extends BaseTest {
 		eliminarConsultaTipus(nomConsulta);
 		eliminarDefinicioProces(nomDefProc);
 		eliminarEnumeracio("enumeracio");		
-		eliminarTipusExpedient(codTipusExp1);
-		
-		if (entornActual != null && !"".equals(entornActual))
-			marcarEntornDefecte(entornActual);
-		
+		eliminarTipusExpedient(codTipusExp1);		
 		eliminarEntorn(entorn);
 	}
 	
@@ -706,7 +704,9 @@ public class InformesExpedients extends BaseTest {
 		////*[@id='registre']/tbody/tr[contains(td/a, 'CON1-1/2014')]/td/a[contains(@href, '/tasca/info.html')]
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).click();
-			
+		
+		try { Thread.sleep(2000); }catch (Exception ex) {}
+		
 		driver.findElement(By.id("v10")).clear();
 		driver.findElement(By.id("v10")).sendKeys("Variable 1 - String - " + i);
 		
@@ -734,7 +734,10 @@ public class InformesExpedients extends BaseTest {
 		driver.findElement(By.id("var_textarea0")).sendKeys("Textarea Observacion Expedient Tasca "+i);
 		
 		WebElement select = driver.findElement(By.xpath("//*[@id='var_seleccio0']"));
-		List<WebElement> options = select.findElements(By.tagName("option"));
+		List<WebElement> options = select.findElements(By.tagName("option"));		
+		
+		try { Thread.sleep(3000); }catch(Exception ex){}
+		
 		if (i<21) {
 			options.get(1).click();
 		}else{
@@ -744,7 +747,11 @@ public class InformesExpedients extends BaseTest {
 		screenshotHelper.saveScreenshot("expedients/informes/b1_"+i+"_crear_nova_tasca.png");
 		
 		driver.findElement(By.xpath("//*/button[contains(text(),'Finalitzar')]")).click();
+		
 		if (isAlertPresent()) {acceptarAlerta();}
+		
+		try { Thread.sleep(5000); }catch(Exception ex){}
+		
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó correctamente");
 	}
 	
@@ -799,9 +806,9 @@ public class InformesExpedients extends BaseTest {
 		
 		assertTrue("accedirPantallaConsultesDiseny >> La consulta "+nomConsulta+" no está en la lista.", found);
 		
-		//TODO: Comprovar que ha desaparegut la cortinilla de Carregant Dades...
-		//Per aixo es pot mirar cuant el select Cons1_var_seleccio0 que es el que fa la cridada Jquery per carregar les dades,
-		//Té nomes un option, cuant en tengui mes d´un, la pagina ja està carregada.
+		//Damos tiempo para que desaparezca la cortinilla.
+		//Tarda mas o menos segun el numero de campos de filtro, sobre todo desplegables de enumerados
+		Thread.sleep(5000);
 		
 		//Comprobamos que estamos en la pantalla de filtro correcta
 		WebElement formfiltre = driver.findElement(By.xpath("//*[@id='content']/div/h4"));//"//h4[@class='titol-consulta']"));
@@ -809,6 +816,9 @@ public class InformesExpedients extends BaseTest {
 	}
 	
 	private void filtraIcomprovaResultats(String numResTeorics, String prefixeScreenShot) throws InterruptedException {
+		
+		//Esperam 5 segons a que es carregui la pagina i desaparegui la cortineta
+		Thread.sleep(5000);
 		
 		driver.findElement(By.xpath(xPathBotoConsultarExpedients)).click();
 		

@@ -18,11 +18,11 @@ public class DefinicioProcesTasques extends BaseTest {
 
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
+	String pathExportEntorn = carregarPropietatPath("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin = carregarPropietat("test.base.usuari.configuracio", "Usuari configuracio de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.export.arxiu.path", "Ruta de l'exportació de la definició de procés de proves no configurat al fitxer de properties"); 
+	String pathDefProc = carregarPropietatPath("defproc.export.arxiu.path", "Ruta de l'exportació de la definició de procés de proves no configurat al fitxer de properties"); 
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String tasca1 = carregarPropietat("defproc.tasca.tasca1", "Tasca de la definició de procés de prova no configurat al fitxer de properties");
 	String codiVarStr = carregarPropietat("defproc.variable.string.codi", "Codi de la variable de prova tipus string no configurat al fitxer de properties");
@@ -48,8 +48,8 @@ public class DefinicioProcesTasques extends BaseTest {
 	
 	@Test
 	public void a1_inicialitzacio() {
-		carregarUrlDisseny();
-		saveEntornActual();
+		carregarUrlConfiguracio();
+		//saveEntornActual();
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		desplegarDefPro(TipusDesplegament.EXPORTDEFPRC, nomDefProc, null, pathDefProc, null, false, false);
@@ -125,14 +125,7 @@ public class DefinicioProcesTasques extends BaseTest {
 	}
 	
 	@Test
-	public void i_desassignaDocTasca() {
-		carregarUrlDisseny();
-		seleccionarDefinicioProces(nomDefProc);
-		desassignarDoc(tasca1, codiDocNopla);
-	}
-	
-	@Test
-	public void j_assignarSigTasca() {
+	public void i_assignarSigTasca() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		assignarSig(tasca1, codiDocPla, nomDocPla, true);
@@ -140,14 +133,14 @@ public class DefinicioProcesTasques extends BaseTest {
 	}
 
 	@Test
-	public void k_modificarSigTasca() {
+	public void j_modificarSigTasca() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		modificarSig(tasca1, codiDocNopla, nomDocNopla, true);
 	}
 	
 	@Test
-	public void l_ordenaSigs() {
+	public void k_ordenaSigs() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/tascaLlistat.html')]")).click();	
@@ -157,10 +150,17 @@ public class DefinicioProcesTasques extends BaseTest {
 	}
 
 	@Test
-	public void m_desassignarSigTasca() {
+	public void l_desassignarSigTasca() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
 		desassignarSig(tasca1, codiDocNopla, nomDocNopla);
+	}
+	
+	@Test
+	public void m_desassignaDocTasca() {
+		carregarUrlDisseny();
+		seleccionarDefinicioProces(nomDefProc);
+		desassignarDoc(tasca1, codiDocNopla);
 	}
 	
 	@Test
@@ -170,8 +170,6 @@ public class DefinicioProcesTasques extends BaseTest {
 		eliminarEnumeracio("enumsel");
 		eliminarDomini("enumerat");
 		eliminarTipusExpedient(codTipusExp);
-		if (entornActual != null && !"".equals(entornActual)) 
-			marcarEntornDefecte(entornActual);
 	}
 	
 	@Test
@@ -381,8 +379,9 @@ public class DefinicioProcesTasques extends BaseTest {
 		}
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDoc + "/')]", "Variable no assignada");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDoc + "/')]/td[3]/a")).click();
-		acceptarAlerta();
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDoc + "/')]", "defproces/tasques/desassignar/doc/" + codiDoc + "/02_borra_doc.png", "Document no desassignada");
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		existeixElementAssert("//*[@id='infos']/p", "No s´ha desassignat el document de la tasca.");
 	}
 	
 	protected void assignarSig(String tasca, String codiDoc, String nomDoc, boolean isRq) {
@@ -475,8 +474,9 @@ public class DefinicioProcesTasques extends BaseTest {
 		}
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]", "Signatura no assignada");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]/td[4]/a")).click();
-		acceptarAlerta();
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDoc + "')]", "defproces/tasques/desassignar/sig/" + codiDoc + "/02_borra_sig.png", "Signatura no desassignada");
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		existeixElementAssert("//*[@id='infos']/p", "No s´ha desassignat la signatura de la tasca.");
 	}
 	
 }

@@ -45,7 +45,6 @@ public class TipusExpedientDocuments extends BaseTest {
 
 	String botoModificarArxiu = "//*[@id='command']/div/button[contains(text(), 'Modificar')]";
 	String enllaçDocumentAdjuntat = "//*[@id='iconsFileInput_arxiuContingut0']/a[contains(@href, '/expedientTipus/documentDownload.html')]";
-
 	
 	
 	@Test

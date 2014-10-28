@@ -58,12 +58,10 @@ public class FormularisExterns extends BaseTest {
 	String idFormExt = "command";
 	String botoGuardarDadesIntegracio = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Guardar']";
 	
-	String aspaTancarDialogForm = "/html/body/div[@class='ui-dialog']/div[@class='ui-dialog-titlebar']/a";
+	String aspaTancarDialogForm = "/html/body/div[8]/div[1]/a";//"/html/body/div[contains(@class, 'ui-dialog')]/div[@class='ui-dialog-titlebar']/a";	
 
 	String variableResultatRetornFormulari = "//*[@id='command']/div/div/label[text() = 'Variable Boolean']";
-	
-	
-	
+
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -73,9 +71,14 @@ public class FormularisExterns extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
 		importarDadesTipExp(codTipusExp, pathExport);
-		//Desmarcam de l´expedient alguns checks restrictius per poder-los consultar al llistat
 		assignarPermisosTipusExpedient(codTipusExp, usuari,    "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 		assignarPermisosTipusExpedient(codTipusExp, usuariDis, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
+		//Desmarcam de l´expedient alguns checks restrictius per poder-los consultar al llistat
+		accedirInformacioExpedient(codTipusExp);
+		if (driver.findElement(By.id("restringirPerGrup0")).isSelected()) {
+			driver.findElement(By.id("restringirPerGrup0")).click();
+		}
+		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']")).click();
 	}
 	
 	@Test
@@ -170,7 +173,7 @@ public class FormularisExterns extends BaseTest {
 		driver.findElement(By.xpath(aspaTancarDialogForm)).click();
 		
 		//Comprovam que han aparegut les variables de la resposta a la cridada a guardarFormulariExtern()
-		existeixElementAssert(iframeFormExt, "No s´ha trobat la variable de retorn del formulari extern.");
+		existeixElementAssert(variableResultatRetornFormulari, "No s´ha trobat la variable de retorn del formulari extern.");
 		
 		screenshotHelper.saveScreenshot("integracions/formsExterns/c1_5_provar_formulari_extern-resultat_retorn_ws.png");
 	}
@@ -183,6 +186,8 @@ public class FormularisExterns extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
+		
+		eliminarConsultaTipus("codCons");
 		
 		// Eliminar la def de proceso
 		eliminarDefinicioProces(nomDefProc);

@@ -15,17 +15,19 @@ public class DefinicioProces extends BaseTest {
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	String pathExportDefProc = carregarPropietat("defproc.deploy.export.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathExportDefProc = carregarPropietatPath("defproc.deploy.export.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	
 	@Test
 	public void a_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntornTest(entorn, titolEntorn, usuari);
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		crearTipusExpedient(nomTipusExp, codTipusExp);
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
@@ -115,7 +117,7 @@ public class DefinicioProces extends BaseTest {
 	@Test
 	public void i_importarDefProc() {
 		carregarUrlConfiguracio();
-		importarDadesDefPro(nomDefProc, carregarPropietat("defproc.import.dades.path", "El path a la exportació de dades de la definició de procés no configurat al fitxer de properties"));
+		importarDadesDefPro(nomDefProc, carregarPropietatPath("defproc.import.dades.path", "El path a la exportació de dades de la definició de procés no configurat al fitxer de properties"));
 		// Comprovar dades importades:
 		seleccionarDefinicioProces(nomDefProc);
 		// variables
@@ -160,7 +162,9 @@ public class DefinicioProces extends BaseTest {
 	@Test
 	public void z_finalitzacio() {
 		carregarUrlConfiguracio();
-		eliminarEntornTest(entorn, usuari, codTipusExp);
+		eliminarTipusExpedient(codTipusExp);
+		try { Thread.sleep(5000); }catch (Exception ex) {}
+		eliminarEntorn(entorn);
 	}
 	
 	// Funcions ajuda
@@ -177,6 +181,7 @@ public class DefinicioProces extends BaseTest {
 		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]", "defproces/importPar/tipusExp/3_definicionsExistents.png")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomDefProc + "')]/td[4]/a")).click();
 			acceptarAlerta();
+			try {Thread.sleep(3000);}catch(Exception ex){}
 			screenshotHelper.saveScreenshot("defproces/2_elimDefProc.png");
 		} else 	{
 			if (!continuar)
@@ -187,7 +192,6 @@ public class DefinicioProces extends BaseTest {
 	// Inicialitzacions
 	
 	protected void crearEntornTest(String entorn, String titolEntorn, String usuari) {
-		entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
 		// Crear entorn
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
@@ -237,11 +241,6 @@ public class DefinicioProces extends BaseTest {
 		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]/td[4]/a")).click();
 			acceptarAlerta();
-		}
-		//Entorn actual per defecte
-		driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
-		if (entornActual != null && !driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a")).click();
 		}
 		
 		// Eliminam l'entorn de test

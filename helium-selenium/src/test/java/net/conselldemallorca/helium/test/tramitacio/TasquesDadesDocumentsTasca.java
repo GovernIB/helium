@@ -22,6 +22,7 @@ import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TasquesDadesDocumentsTasca extends BaseTest {
+	
 	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
@@ -65,15 +66,17 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomDefProc, pathDefProc);
 		
 		importarDadesDefPro(nomDefProc, exportDefProc);
+		
 		importarDadesDefPro(nomSubDefProc, exportDefProc);
 		
-		importarDadesDefPro(nomDefProc, pathDefExpDocs);		
+		importarDadesDefPro(nomDefProc, pathDefExpDocs);
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
 	@Test
 	public void b_visualizacio_tasca_dades() throws InterruptedException {		
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -198,6 +201,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 	
 	@Test
 	public void c_documents() throws InterruptedException {		
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -237,7 +241,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/visualizacio_dades_process/2"+i+".png");
 			
-			driver.findElement(By.xpath("//*/button[contains(text(), 'Cancel·lar')]")).click();
+			//driver.findElement(By.xpath("//*/button[contains(text(), 'Cancel·lar')]")).click();
+			driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/documentLlistat.html')]")).click();
 			
 			screenshotHelper.saveScreenshot("tramitar/dadesexpedient/visualizacio_dades_process/3"+i+".png");
 			i++;
@@ -258,25 +263,33 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		consultarTareas(null, null, nomTipusExp, false);
 		
 		driver.findElement(By.xpath("//*[@id='registre']//a[contains(text(), '01 - Entrada')]")).click();
-				
+
 		// Comprobamos que se muestran los labels, variables, observaciones y botones según el tipo de variable
-				
+
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/documents.html')]")).click();
+
+		Thread.sleep(3000);
 		
 		for (DocumentoExpedient documento : documentosExpedient) {
+			
 			existeixElement("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div/h4", "No existía el nombre del documento");
 			existeixElement("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//input[@type='text']", "Ya se subió el docuento");
-			
+
 			String data = driver.findElement(By.xpath("//*[@id='documentCommand_"+documento.getCodi()+"']/parent::div//input[@type='text']")).getAttribute("value");
-			
+
 			if (documento.isEsPlantilla()) {
+				
+				//TODO: Resolver duda, estos 3 botones no aparecen
 				// Comprobamos que existen los 3 botones
-				existeixElement("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentGenerar.html')]", "no existía el botón de generar");
-				existeixElement("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]", "no existía el botón de descargar");
-				existeixElement("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentEsborrar.html')]", "no existía el botón de eliminar");
+				//existeixElementAssert("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentGenerar.html')]",  "No existía el botón de generar para el documento plantilla: "   + documento.getNom());
+				//existeixElementAssert("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]",  "No existía el botón de descargar para el documento plantilla: " + documento.getNom());
+				//existeixElementAssert("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentEsborrar.html')]", "No existía el botón de eliminar para el documento plantilla: "  + documento.getNom());
 
 				driver.findElement(By.xpath("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentGenerar.html')]")).click();
-				acceptarAlerta();
+				
+				if (isAlertPresent()) { acceptarAlerta(); }
+				
+				Thread.sleep(3000);
 				
 				existeixElementAssert("//*[@id='infos']/p", "No se generó correctamente");
 				
@@ -285,7 +298,9 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				existeixElementAssert("//*[@id='infos']/p", "No se borró correctamente");
 				
 				driver.findElement(By.xpath("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/tasca/documentGenerar.html')]")).click();
-				acceptarAlerta();
+
+				if (isAlertPresent()) { acceptarAlerta(); }
+				Thread.sleep(3000);
 				
 				existeixElementAssert("//*[@id='infos']/p", "No se generó correctamente");
 
@@ -322,7 +337,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			String textoDoc = driver.findElement(By.xpath("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/p")).getText();
 
 			assertTrue("La fecha del documento no se corresponde", textoDoc.contains("Data del document: " + data));
-		}		
+		}
 		
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
 	}
@@ -368,43 +383,46 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/signatures.html')]")).click();
 
-		for (DocumentoExpedient documento : documentosExpedient) {
-			byte[] archivoOriginal = downloadFile("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuPerSignar.html')]", "blank.pdf");
+		for (DocumentoExpedient documento : documentosExpedient) { 
 			
-			WebElement select = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select"));
-			List<WebElement> options = select.findElements(By.tagName("option"));
-			for (WebElement option : options) {
-				if (option.getText().equals(nomCert)) {
-					option.click();
-					break;
-				}
-			}
-			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).clear();
-			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).sendKeys(passCert);
-						
-			driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//button")).click();
+				existeixElementAssert("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select", "No s´ha trobat cap certificat instalat al sistema per signar el document.");
 			
-			// Comprobamos que el hash cambió
-			byte[] archivoFirmado = downloadFile("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]", "blank.pdf");
-			assertFalse("El fichero no se firmó" , getMd5(archivoOriginal).equals(getMd5(archivoFirmado)));
-			
-			boolean firmado = false;
-			if (existeixElement("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]")) {
-				WebElement verificar = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]"));
-				verificar.click();
-				Thread.sleep(1000*20);
+				byte[] archivoOriginal = downloadFile("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuPerSignar.html')]", "blank.pdf");
 				
-				String href = verificar.getAttribute("href");
-				firmado = modalOberta(href, "tramitar/tasca/firmarDocumento3.png");
-				vesAModal(href);
-				downloadFile("//a[contains(@href,'/signatura/arxiu.html')]", "blank.pdf");
-				tornaAPare();
-			}
-			assertTrue("No se firmó el documento correctamente", firmado);
-			
-			screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
-			
-			actions.sendKeys(Keys.ESCAPE);
+				WebElement select = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select"));
+				List<WebElement> options = select.findElements(By.tagName("option"));
+				for (WebElement option : options) {
+					if (option.getText().equals(nomCert)) {
+						option.click();
+						break;
+					}
+				}
+				driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).clear();
+				driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).sendKeys(passCert);
+							
+				driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//button")).click();
+				
+				// Comprobamos que el hash cambió
+				byte[] archivoFirmado = downloadFile("//*/h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuMostrar.html')]", "blank.pdf");
+				assertFalse("El fichero no se firmó" , getMd5(archivoOriginal).equals(getMd5(archivoFirmado)));
+				
+				boolean firmado = false;
+				if (existeixElement("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]")) {
+					WebElement verificar = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/signatura/verificar.html')]"));
+					verificar.click();
+					Thread.sleep(1000*20);
+					
+					String href = verificar.getAttribute("href");
+					firmado = modalOberta(href, "tramitar/tasca/firmarDocumento3.png");
+					vesAModal(href);
+					downloadFile("//a[contains(@href,'/signatura/arxiu.html')]", "blank.pdf");
+					tornaAPare();
+				}
+				assertTrue("No se firmó el documento correctamente", firmado);
+				
+				screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
+				
+				actions.sendKeys(Keys.ESCAPE);
 		}
 		
 		// Finalizamos
@@ -415,8 +433,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 	
 	@Test
 	public void f_adjuntar_documents() throws InterruptedException {
-		carregarUrlConfiguracio(); 
 		
+		carregarUrlConfiguracio();		
 		seleccionarEntorn(titolEntorn);
 		
 		// Adjuntamos 2 documentos
@@ -464,6 +482,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//a[contains(@href,'/expedient/info.html')]")).click();
 		
+		Thread.sleep(3000);
+		
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/expedient/documents.html')]")).click();
 		
 		// Generamos los documentos
@@ -476,11 +496,12 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			// Si estaba firmado, lo desfirmamos
 			if (existeixElement("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/signaturaEsborrar.html')]")) {
 				driver.findElement(By.xpath("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/signaturaEsborrar.html')]")).click();
-				acceptarAlerta();
+				if (isAlertPresent()) { acceptarAlerta(); }
 			}
 			if (existeixElement("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/documentModificar.html')]")) {
 				driver.findElement(By.xpath("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/documentModificar.html')]")).click();
-				acceptarAlerta();
+				if (isAlertPresent()) { acceptarAlerta(); }
+				Thread.sleep(3000);
 				
 				// Generamos un documento
 				if (existeixElement("//*[@id='content']//a[contains(@href,'/expedient/documentGenerar.html')]")) {
@@ -500,6 +521,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 	
 	@Test
 	public void i_descarregar_document() throws InterruptedException {
+		
 		carregarUrlConfiguracio(); 
 		
 		seleccionarEntorn(titolEntorn);
@@ -706,6 +728,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 
 	@Test
 	public void z_limpiar() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);

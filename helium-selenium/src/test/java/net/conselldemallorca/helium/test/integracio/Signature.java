@@ -20,8 +20,8 @@ import org.openqa.selenium.WebElement;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Signature extends BaseTest {
 
-	String entorn = carregarPropietat("tramsel.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
-	String titolEntorn = carregarPropietat("tramsel.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
+	String entorn = carregarPropietat("tramsel.entorn.nom.signatura", "Nom de l'entorn de proves no configurat al fitxer de properties");
+	String titolEntorn = carregarPropietat("tramsel.entorn.titol.signatura", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
@@ -34,6 +34,9 @@ public class Signature extends BaseTest {
 	
 	String nomCert = carregarPropietat("tramsel.firma_nom", "Hash documento PDF a adjuntar 2");
 	String passCert = carregarPropietat("tramsel.firma_pass", "Hash documento PDF a adjuntar 2");
+	
+	//XPATHS
+	String detectarPaginaJava = "/html/body/div/div/div/h1[contains(text(), 'Java')]";
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -112,8 +115,14 @@ public class Signature extends BaseTest {
 		// Signature
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/signatures.html')]")).click();
 
+		Thread.sleep(5000);
+		
+		noExisteixElementAssert(detectarPaginaJava, "En necessita actualitzar la versió de Java per executar el plugin de firma de documents.");
+		
 		for (DocumentoExpedient documento : documentosExpedient) {
 			byte[] archivoOriginal = downloadFile("//h4[contains(label/text(), '"+documento.getNom()+"')]/a[contains(@href,'/document/arxiuPerSignar.html')]", "blank.pdf");
+			
+			existeixElementAssert("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select", "No hi ha certificats instalats al sistema per signar el document.");
 			
 			WebElement select = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select"));
 			List<WebElement> options = select.findElements(By.tagName("option"));

@@ -18,6 +18,7 @@ import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExecucioMassivaVariables extends BaseTest {
+	
 	String entorn = carregarPropietat("tramas.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("tramas.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
@@ -26,6 +27,12 @@ public class ExecucioMassivaVariables extends BaseTest {
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	int numExpedientesTramMasiva = Integer.parseInt(carregarPropietat("tramas.num_expedientes_tram_masiva", "Número de espedientes para las pruebas de tramitación masiva al fitxer de properties"));
+	
+	//XPATHS
+	String botoExecMassiva = "//*[@id='page-entorn-menu']/div/a";
+	String selectVariables = "//*[@id='var0']";
+	String botoModifVarExecMass = "//*[@id='modificarVariablesMasCommand']/div/div[@class='buttonHolder']/button[text() = 'Modificar']";
+	String botoGuardarModifVarExecMass = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']";
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -40,18 +47,15 @@ public class ExecucioMassivaVariables extends BaseTest {
 	@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
-		
 		seleccionarEntorn(titolEntorn);
-		
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
-		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
 	@Test
 	public void b_visualitzacio_variables_i_modificar_variables() throws InterruptedException {
+
 		carregarUrlConfiguracio();
-		
 		seleccionarEntorn(titolEntorn);
 		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
@@ -131,7 +135,8 @@ public class ExecucioMassivaVariables extends BaseTest {
 		
 		// Vemos el resto de parámetros de la primera tarea
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/definicioProces/tascaLlistat.html')]")).click();
-		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td[3]/form/button")).click();
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[3]/form/button")).click();
 				
 		Iterator<VariableExpedient> it = listaVariables.iterator();
 		while(it.hasNext()) {
@@ -158,36 +163,41 @@ public class ExecucioMassivaVariables extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
 				
 		// Visualizamos que se muestren todas las variables
-		WebElement selectVar = driver.findElement(By.xpath("//*[@id='var0']"));
+		WebElement selectVar = driver.findElement(By.id("var0"));
 		List<WebElement> optionsVar = selectVar.findElements(By.tagName("option"));
 		optionsVar.remove(0);
-		for (VariableExpedient variable : listaVariables) {
+		for (VariableExpedient variable2 : listaVariables) {
 			boolean encontrado = false;
 			for (WebElement var : optionsVar) {
-				if (var.getAttribute("value").equals(variable.getCodi())) {
+				if (var.getAttribute("value").equals(variable2.getCodi())) {
 					encontrado = true;
 				}
 			}
-			assertTrue("La variable '"+variable.getEtiqueta()+"' no se encontró en la lista de variables del expediente", encontrado);
+			assertTrue("La variable '"+variable2.getEtiqueta()+"' no se encontró en la lista de variables del expediente", encontrado);
 		}
 		
 		// Modificamos cada variable
-		for (VariableExpedient variable : listaVariables) {
-			WebElement vars = driver.findElement(By.xpath("//*[@id='var0']"));
+		for (VariableExpedient variableMod : listaVariables) {
+			
+			WebElement vars = driver.findElement(By.id("var0"));
+			
 			for (WebElement var : vars.findElements(By.tagName("option"))) {
-				if (var.getAttribute("value").equals(variable.getCodi())) {
+				if (var.getAttribute("value").equals(variableMod.getCodi())) {
 					var.click();
 				}
 			}
 			
-			driver.findElement(By.xpath("//*[@id='modificarVariablesMasCommand']//button[contains(@onclick,'subvar')]")).click();
-			acceptarAlerta();
+			driver.findElement(By.xpath(botoModifVarExecMass)).click();
 			
-			comprobarVariable(variable, false, false);
+			if (isAlertPresent()) { acceptarAlerta(); }
 			
-			driver.findElement(By.xpath("//*[@id='command']//button[contains(@onclick,'submit')]")).click();
+			Thread.sleep(2000);
 			
-			esperaFinExecucioMassiva(expedientes);
+			comprobarVariable(variableMod, false, false);
+			
+			driver.findElement(By.xpath(botoGuardarModifVarExecMass)).click();
+			
+			esperaFinExecucioMassiva(expedientes, botoExecMassiva);
 			
 			// Buscamos la variable en cada uno de los expedientes
 			for (int k = 1; k <= numExpedientesTramMasiva; k++) {
@@ -201,17 +211,18 @@ public class ExecucioMassivaVariables extends BaseTest {
 					agrupacion.click();
 				}
 				
-				if (!variable.isOculta()) { 
-					existeixElementAssert("//td[contains(text(),'"+variable.getEtiqueta()+"')]","La variable '"+variable.getEtiqueta()+"' no existía");
+				if (!variableMod.isOculta()) { 
+					existeixElementAssert("//td[contains(text(),'"+variableMod.getEtiqueta()+"')]","La variable '"+variableMod.getEtiqueta()+"' no existía");
 					
 					// Comprobamos que el valor de cada variable coincida
-					String valor = driver.findElement(By.xpath("//tr[contains(td/text(),'"+variable.getEtiqueta()+"')]/td[2]")).getText().trim();
-					if (!variable.isMultiple() && variable.getRegistro().isEmpty())
-						assertTrue("El valor de la variable '"+variable.getEtiqueta()+"' no era el esperado: Esperaba '"+variable.getValor()+"' y encontró '"+valor+"'", variable.getValor().equals(valor));
+					String valor = driver.findElement(By.xpath("//tr[contains(td/text(),'"+variableMod.getEtiqueta()+"')]/td[2]")).getText().trim();
+					
+					if (!variableMod.isMultiple() && variableMod.getRegistro().isEmpty())
+						assertTrue("El valor de la variable '"+variableMod.getEtiqueta()+"' no era el esperado: Esperaba '"+variableMod.getValor()+"' y encontró '"+valor+"'", variableMod.getValor().equals(valor));
 					else
-						assertTrue("El valor de la variable '"+variable.getEtiqueta()+"' no era el esperado", !valor.isEmpty());
+						assertTrue("El valor de la variable '"+variableMod.getEtiqueta()+"' no era el esperado", !valor.isEmpty());
 				} else {
-					noExisteixElementAssert("//td[contains(text(),'"+variable.getEtiqueta()+"')]","La variable oculta '"+variable.getEtiqueta()+"' existía");
+					noExisteixElementAssert("//td[contains(text(),'"+variableMod.getEtiqueta()+"')]","La variable oculta '"+variableMod.getEtiqueta()+"' existía");
 				}
 			}
 			
@@ -229,6 +240,8 @@ public class ExecucioMassivaVariables extends BaseTest {
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
+		
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		
 		eliminarExpedient(null, null, nomTipusExp);
 		

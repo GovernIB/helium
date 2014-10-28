@@ -9,6 +9,9 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.xpath.operations.NotEquals;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -50,8 +55,6 @@ public abstract class BaseTest {
 	protected static boolean seycon;
 	protected static ScreenshotHelper screenshotHelper;
 	protected static Actions actions;
-
-	protected static String entornActual;
 	
 	protected static enum TipusVar {
 		STRING			("STRING"),
@@ -198,9 +201,12 @@ public abstract class BaseTest {
 		driver.get(baseUrl);
 	}
 
-	// Funciona d'ajuda
+	// Funcions d'ajuda
 	protected boolean existeixElementAssert(String xpath, String msgNotFound) {
 		return comprovaElement(xpath, null, 0L, msgNotFound, true, false);
+	}
+	protected boolean existeixElementAssert(String xpath, String msgNotFound, boolean continuar) {
+		return comprovaElement(xpath, null, 0L, msgNotFound, true, continuar);
 	}
 	protected boolean existeixElementAssert(String xpath, String screenShot, String msgNotFound) {
 		return comprovaElement(xpath, screenShot, 0L, msgNotFound, true, false);
@@ -324,7 +330,9 @@ public abstract class BaseTest {
 	protected void acceptarConfirm(String msg) {
 		try {
 			driver.switchTo().alert().accept();
+			Thread.sleep(1000);
 			driver.switchTo().alert().sendKeys(msg);
+			Thread.sleep(1000);
 			driver.switchTo().alert().accept();
 		} catch (Exception e) {
 			fail("Error acceptant alert.");
@@ -357,13 +365,8 @@ public abstract class BaseTest {
 	// ............................................................................................................	
 	
 	// ENTORN
-	// ............................................................................................................	
-	protected void saveEntornActual() {
-		entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
-	}
-	
+	// ............................................................................................................		
 	protected void crearEntorn(String entorn, String titolEntorn) {
-//		entornActual = driver.findElement(By.xpath("//div[@id='page-entorn-title']/h2/span")).getText().trim();
 		// Crear entorn
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
@@ -381,6 +384,7 @@ public abstract class BaseTest {
 			//entorno no se ha creado cuando sí que lo ha hecho
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut crear l'entorn");
 		}
+		//marcarEntornDefecte(titolEntorn);
 	}
 	
 	protected void assignarPermisosEntorn(String entorn, String usuari, String... permisos) {
@@ -429,7 +433,7 @@ public abstract class BaseTest {
 		driver.findElement(By.xpath("//h3[@class='titol-tab titol-delegacio']/img")).click();
 		driver.findElement(By.id("arxiu0")).sendKeys(pathExportEntorn);
 		driver.findElement(By.xpath("//*[@id='commandImportacio']//button")).click();
-		acceptarAlerta();
+		if (isAlertPresent()) {acceptarAlerta();}
 	}
 	
 	protected void seleccionarEntorn(String titolEntorn) {
@@ -448,25 +452,25 @@ public abstract class BaseTest {
 		}
 	}
 	
-	protected void eliminarEntorn(String entorn) {
-//		//Entorn actual per defecte
-//		if (entornActual != null) {
-//			driver.findElement(By.id("menuEntorn")).findElement(By.tagName("a")).click();
-//			if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]") &&
-//					!driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a/img")).getAttribute("src").endsWith("star.png")) {
-//				driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + entornActual + "')]/td[1]/a")).click();
-//			}
-//		}
-		
+	protected void eliminarEntorn(String entorn) {	
 		// Eliminam l'entorn de test
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/entorn/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
+		
 		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]")) {
+			
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[6]/a")).click();
-			acceptarAlerta();
+			
+			if (isAlertPresent()) {
+				acceptarAlerta();
+			}
+			
+			//A veces tras aceptar la alerta no encuentra el elem. de la siguiente instruccion poque la pagina se esta refrescando			
+			try {Thread.sleep(3000);}catch(Exception ex) {}
+			
 			actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 			actions.build().perform();
 			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/entorn/llistat.html')]")));
@@ -581,7 +585,37 @@ public abstract class BaseTest {
 		}
 	}
 	
+	protected void crearConsultaTipus(String codi, String nom, String nomTipExp) {
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/consulta/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+
+		driver.findElement(By.xpath("//*[@id='content']/form/button")).click();
+		
+		driver.findElement(By.id("codi0")).sendKeys(codi);
+		driver.findElement(By.id("nom0")).sendKeys(nom);
+		
+		//driver.findElement(By.xpath("//*[@id='expedientTipus0']/option[@value='" + nomTipExp + "']")).click();
+		
+		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='expedientTipus0']"));
+		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
+		for (WebElement option : options) {
+			if (option.getText().equals(nomTipExp)) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Crear']")).click();
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se creó la consulta por tipo '" + nom+"'");
+	}
+	
 	protected void seleccionarDefinicioProces(String nomDefProc) {
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
@@ -674,6 +708,7 @@ public abstract class BaseTest {
 			driver.findElement(By.id("dominiId0")).sendKeys("XXX");
 			driver.findElement(By.id("dominiParams0")).clear();
 			driver.findElement(By.id("dominiParams0")).sendKeys(vars[1]);
+			
 			driver.findElement(By.id("dominiCampValor0")).clear();
 			driver.findElement(By.id("dominiCampValor0")).sendKeys(vars[2]);
 			driver.findElement(By.id("dominiCampText0")).clear();
@@ -757,6 +792,18 @@ public abstract class BaseTest {
 		}
 	}
 	
+	protected void accedirConsultaTipus (boolean consultar) {
+        actions.moveToElement(driver.findElement(By.id("menuConsultes")));
+        actions.build().perform();
+        actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consultaDisseny.html')]")));
+        actions.click();
+        actions.build().perform();
+        
+        if (consultar) {
+        	driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
+        }
+	}
+	
 	protected void eliminarEnumeracio(String nomEnumeracio) {
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
@@ -767,8 +814,8 @@ public abstract class BaseTest {
 		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]/td[4]/a")).click();
 			acceptarAlerta();
+			existeixElementAssert("//*[@id='infos']/p", "No se borraron los permisos correctamente");
 		}
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + nomEnumeracio + "')]", "No s'han pogut eliminar l'enumeració");
 	}
 	
 	protected void eliminarDomini(String codiDomini) {
@@ -781,8 +828,8 @@ public abstract class BaseTest {
 		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]/td[5]/a")).click();
 			acceptarAlerta();
+			existeixElementAssert("//*[@id='infos']/p", "No se borró el dominio");
 		}
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiDomini + "')]", "No s'han pogut eliminar el domini");
 	}
 	
 	protected void eliminarTotsElsDominis() {
@@ -805,9 +852,12 @@ public abstract class BaseTest {
 		
 		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]/td[8]/a")).click();
-			acceptarAlerta();
+			if (isAlertPresent()) { acceptarAlerta(); }
 		}
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiConsulta + "')]", "No s'han pogut eliminar la consulta");
+		
+		try { Thread.sleep(3000); }catch(Exception ex) {}
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 	}
 	
 	protected void crearDocumentDefProc(String nomDefProc) {
@@ -863,6 +913,7 @@ public abstract class BaseTest {
 			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_dades_tipexp_basic.png"); }
 			
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
+			
 			actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 			actions.build().perform();
 			actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
@@ -974,7 +1025,9 @@ public abstract class BaseTest {
 		
 		if(existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]")) {
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiTipusExp + "')]/td[4]/a")).click();
-			acceptarAlerta();
+			if (isAlertPresent()){acceptarAlerta();}
+			try {Thread.sleep(3000);}catch(Exception ex){}
+			existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut eliminar el tipus d´expedient.");
 		}
 	}
 
@@ -1123,7 +1176,10 @@ public abstract class BaseTest {
 			}
 			driver.findElement(By.xpath("//button[@value='submit']")).click();
 		}
-		acceptarAlerta();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		//Esperaremos para evitar errores de: No se inició el expediente		
+		try { Thread.sleep(3000); } catch (Exception ex) {}
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		
@@ -1156,7 +1212,7 @@ public abstract class BaseTest {
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
 		actions.click();
 		actions.build().perform();
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]", "No s'ha trobat l'tipus");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]", "No s'ha trobat el tipus de expedient.");
 		
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + tipusExp + "')]/td[3]/form/button")).click();
 		
@@ -1246,6 +1302,7 @@ public abstract class BaseTest {
 		assertTrue("Enllaç al fitxer " + fitxer + " no existeix" , isPresent);
 		
 		byte[] downloadedFile = null;
+		
 		try {
 			downloadedFile = downloader.downloadFile(driver.findElement(By.xpath(xpath)));
 		} catch (Exception e) {
@@ -1276,12 +1333,17 @@ public abstract class BaseTest {
 	}
 	
 	protected void downloadFileHash(String xpath, String md5, String fitxer) {
+		
 		byte[] downloadedFile = downloadFile(xpath, fitxer);
 		
 		try {
+
+			System.out.println("** --> " + getMD5Checksum(downloadedFile));
+			
 			CheckFileHash fileToCheck = new CheckFileHash();
 			fileToCheck.fileToCheck(downloadedFile);
 			fileToCheck.hashDetails(md5, HashType.MD5);
+
 			assertThat("El fitxer " + fitxer + " descarregat no té el hash esperat", fileToCheck.hasAValidHash(), is(equalTo(true)));
 		} catch (Exception e) {
 			fail("No s'ha pogut comprovar el fitxer " + fitxer + " descarregat");
@@ -1341,7 +1403,8 @@ public abstract class BaseTest {
 			fail("No s'ha pogut descarregar el formulari");
 		}
 	
-		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
+		assertFalse( (downloader.getHTTPStatusOfLastDownloadAttempt()==404 ||  downloader.getHTTPStatusOfLastDownloadAttempt()==500) );
+		
 		return downloadedFile;
 	}
 	
@@ -1358,13 +1421,44 @@ public abstract class BaseTest {
 		}
 	}
 	
+	public static byte[] createChecksum(String filename) throws Exception {
+     
+		InputStream fis =  new FileInputStream(filename);
+	     byte[] buffer = new byte[1024];
+	     MessageDigest complete = MessageDigest.getInstance("MD5");
+	     int numRead;
+	     
+	     do {
+	    	 numRead = fis.read(buffer);
+	    	 if (numRead > 0) {
+	    		 complete.update(buffer, 0, numRead);
+	    	 }
+	     } while (numRead != -1);
+	     
+	     fis.close();
+	     return complete.digest();
+   }
+
+   public static String getMD5Checksum(String filename) throws Exception {
+     return getMD5Checksum(createChecksum(filename));
+   }
+   
+   public static String getMD5Checksum(byte[] fileBytes) throws Exception {
+		 String result = "";
+		 for (int i=0; i < fileBytes.length; i++) {
+		   result +=
+		      Integer.toString( ( fileBytes[i] & 0xff ) + 0x100, 16).substring( 1 );
+		  }
+		 return result;
+	}
+	
 	protected String getMd5(byte[] hash) {
 		// converting byte array to Hexadecimal String
 		StringBuilder sb = new StringBuilder(2 * hash.length);
 		for (byte b : hash) {
 			sb.append(String.format("%02x", b & 0xff));
 		}
-
+		
 		return sb.toString();
 	}
 	
@@ -1388,6 +1482,8 @@ public abstract class BaseTest {
 		driver.findElement(By.id("contingut0")).sendKeys(pathDocumento);
 		
 		driver.findElement(By.xpath("//*[@id='command']/div[3]/button[1]")).click();
+		
+		try {Thread.sleep(3000);}catch(Exception ex){}
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se adjuntó el documento");
 	}
@@ -1490,10 +1586,11 @@ public abstract class BaseTest {
 			}
 		}
 		
+		try { Thread.sleep(2000); }catch(Exception ex) {}
+		
 		if (mostrarAnulats) {
 			// Seleccionamos los activos y anulados
-			WebElement select = driver.findElement(By.xpath("//*[@id='mostrarAnulats0']"));
-			List<WebElement> options = select.findElements(By.tagName("option"));
+			List<WebElement> options = driver.findElement(By.id("mostrarAnulats0")).findElements(By.tagName("option"));
 			options.get(2).click();	
 		}
 		
@@ -1508,6 +1605,7 @@ public abstract class BaseTest {
 			actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']//a[@href='/helium/tasca/grupLlistat.html']")));
 		else
 			actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuTasques']//a[@href='/helium/tasca/personaLlistat.html']")));
+		Thread.sleep(1000);
 		actions.click();
 		actions.build().perform();
 		
@@ -1619,6 +1717,48 @@ public abstract class BaseTest {
 		driver.findElement(By.xpath(xPathLinkTipExp)).click();
 
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/sistra.html')]")).click();
+	}
+	
+	public void accedirPipellaDocsExpedient(String codTipusExp) {
+
+		String xPathLinkTipExp = "//*[@id='registre']/tbody/tr/td[contains(a, '"+codTipusExp+"')]/a";
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+
+		actions.build().perform();
+
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+
+		actions.click();
+
+		actions.build().perform();
+
+		existeixElementAssert(xPathLinkTipExp, "El tipus de expedient no existeix.");
+
+		driver.findElement(By.xpath(xPathLinkTipExp)).click();
+
+		driver.findElement(By.xpath("//a[contains(@href, '/helium/expedientTipus/documentLlistat.html')]")).click();
+	}
+	
+	public void accedirInformacioExpedient(String codTipusExp) {
+
+		String xPathLinkTipExp = "//*[@id='registre']/tbody/tr/td[contains(a, '"+codTipusExp+"')]/a";
+		
+		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
+
+		actions.build().perform();
+
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedientTipus/llistat.html')]")));
+
+		actions.click();
+
+		actions.build().perform();
+
+		existeixElementAssert(xPathLinkTipExp, "El tipus de expedient no existeix.");
+
+		driver.findElement(By.xpath(xPathLinkTipExp)).click();
+
+		driver.findElement(By.xpath("//*[@id='content']/div[3]/form[1]/button")).click();
 	}
 	
 	public void accedirPipellaDefProcExpedient(String codTipusExp) {
@@ -1734,45 +1874,82 @@ public abstract class BaseTest {
 	}
 	
 	protected void comprobarVariable(VariableExpedient variable, boolean esModal, boolean validar) {
-		existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']","La variable no oculta no se ha mostrado : " + variable.getEtiqueta());
+		
+		String XpathElemEtiqueta 	= "//*[@id='command']/div[@class='inlineLabels']/div[@class='ctrlHolder']/label[text() = '"+variable.getEtiqueta()+"']";
+
+		boolean existeixEtiquetaLabel = existeixElement(XpathElemEtiqueta);
+		//Hay variables cuya etiqueta no es un tag "label", sino un tag "p"
+		if (!existeixEtiquetaLabel) {
+			XpathElemEtiqueta = "//*[@id='command']/div[@class='inlineLabels']/div[@class='ctrlHolder']/p[text() = '"+variable.getEtiqueta()+"']";
+			
+			if (!existeixEtiquetaLabel) {
+				existeixElementAssert(XpathElemEtiqueta, "La variable no oculta no se ha mostrado : " + variable.getEtiqueta());
+			}
+		}
+
+		//Div que contiene todos los elementos de la variable, desde aquí se cojerán los demás tags para comprobarlos (parent)
+		String XpathElemDIV		 	= XpathElemEtiqueta+"/..";
+		
+		String XpathElemDIVImgObl	= XpathElemDIV + "/*/em/img";
+		String XpathElemDIVBotMul	= XpathElemDIV + "/button[contains(text(), '+')]";
+		String XpathElemDIVHint		= XpathElemDIV + "/p";
+		if (!existeixEtiquetaLabel) {
+			//Para los campos con la etiqueta en un tag "p", las obs se encuentran en el segundo tag "p"
+			XpathElemDIVHint		= XpathElemDIV + "/p[2]";
+		}
+		String XpathElemDIVInput	= XpathElemDIV + "/input[@class='textInput']";
+		String XpathElemDIVCheck	= XpathElemDIV + "/input[@type='checkbox']";
+		String XpathElemDIVTxtArea	= XpathElemDIV + "/textarea";
+		String XpathElemDIVDate		= XpathElemDIV + "/input[@class='textInput hasDatepicker']";
+		String XpathElemDIVTermSel	= XpathElemDIV + "/div/ul/li/label/select";
+		String XpathElemDIVTermSel1 = XpathElemDIV + "/div/ul/li[1]/label/select";
+		String XpathElemDIVTermSel2 = XpathElemDIV + "/div/ul/li[2]/label/select";
+		String XpathElemDIVTermInp	= XpathElemDIV + "/div/ul/li/label/input";
+		String XpathElemDIVSelect	= XpathElemDIV + "/select";
+		String XpathElemDIVBoto		= XpathElemDIV + "/div/button";
+
+		// Es readonly
 		if (validar && variable.isReadOnly()) {
-			// Es readonly
-			existeixElementAssert("//*[@id='commandReadOnly']/div/div/label[contains(text(), '"+variable.getEtiqueta()+"')]","La variable readonly no se ha mostrado : " + variable.getEtiqueta());
-		} else {
-			// No es readonly
-			existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']", "La etiqueta no coincidia: " + variable.getEtiqueta());
+				//Ya comprobado en el assert anterior, si se ha encontrado es que la variable se muestra (readOnly o no)
+			//existeixElementAssert(XpathElemEtiqueta,"La variable readonly no se ha mostrado : " + variable.getEtiqueta());
+			
+		} else { // No es readonly
+			
+				//Ya comprobado en el assert anterior, si se ha encontrado es que la etiqueta esta correcta
+			//existeixElementAssert(XpathElemEtiqueta, "La etiqueta no coincidia: " + variable.getEtiqueta());
 			
 			if (!esModal) {
 				if (validar) {
 					if (variable.isObligatorio()) {
-						existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/*/em/img", "La variable no estaba como obligatoria : " + variable.getEtiqueta());
+						existeixElementAssert(XpathElemDIVImgObl, "La variable no estaba como obligatoria : " + variable.getEtiqueta());
 					} else {
-						noExisteixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/*/em/img", "La variable estaba como obligatoria : " + variable.getEtiqueta());
+						noExisteixElementAssert(XpathElemDIVImgObl, "La variable estaba como obligatoria : " + variable.getEtiqueta());
 					}
 				}
 				
 				if (!"REGISTRE".equals(variable.getTipo())) {
 					if (variable.isMultiple() && !esModal) {
-						existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]", "La variable no contenía el botón de múltiple : " + variable.getEtiqueta());
+						existeixElementAssert(XpathElemDIVBotMul, "La variable no contenía el botón de múltiple : " + variable.getEtiqueta());
 					} else {
-						noExisteixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]", "La variable contenía el botón de múltiple : " + variable.getEtiqueta());
+						noExisteixElementAssert(XpathElemDIVBotMul, "La variable contenía el botón de múltiple : " + variable.getEtiqueta());
 					}	
 				}
 				if (variable.getObservaciones() != null && !variable.getObservaciones().isEmpty()) {
-					existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/p[@class='formHint']","La variable debe mostrar observaciones : " + variable.getEtiqueta());
-					String obs = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/p[@class='formHint']")).getText();
-					assertTrue("La observación no coincidía : " + variable.getEtiqueta(), obs.equals(variable.getObservaciones()));
+					existeixElementAssert(XpathElemDIVHint,"La variable debe mostrar observaciones : " + variable.getEtiqueta());
+					String obs = driver.findElement(By.xpath(XpathElemDIVHint)).getText();
+					String obsVar = variable.getObservaciones().replace("\n", " ");
+					assertTrue("La observación no coincidía : " + obsVar + " <> " + obs, obs.equalsIgnoreCase(obsVar));
 				} else {
-					noExisteixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/p[@class='formHint']","La variable no debe mostrar observaciones : " + variable.getEtiqueta());
+					noExisteixElementAssert(XpathElemDIVHint,"La variable no debe mostrar observaciones : " + variable.getEtiqueta());
 				}
 			}
 			if ("STRING".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("Texto 1 " + variable.getEtiqueta());
+				existeixElementAssert(XpathElemDIVInput, "No tenía un input: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVInput)).clear();
+				driver.findElement(By.xpath(XpathElemDIVInput)).sendKeys("Texto 1 " + variable.getEtiqueta());
 				
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("Texto 2 " + variable.getEtiqueta());
 					
@@ -1786,12 +1963,12 @@ public abstract class BaseTest {
 					variable.setValor("Texto 1 " + variable.getEtiqueta());
 				}
 			} else if ("INTEGER".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("1234");
+				existeixElementAssert(XpathElemDIVInput, "No tenía un input: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVInput)).clear();
+				driver.findElement(By.xpath(XpathElemDIVInput)).sendKeys("1234");
 				
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("12345");
 					
@@ -1805,12 +1982,12 @@ public abstract class BaseTest {
 					variable.setValor("1234");
 				}
 			} else if ("FLOAT".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("1234");
+				existeixElementAssert(XpathElemDIVInput, "No tenía un input: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVInput)).clear();
+				driver.findElement(By.xpath(XpathElemDIVInput)).sendKeys("1234");
 								
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("12345");
 					
@@ -1824,11 +2001,11 @@ public abstract class BaseTest {
 					variable.setValor("1234");
 				}
 			} else if ("BOOLEAN".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@type='checkbox']", "No tenía un checkbox: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@type='checkbox']")).click();
+				existeixElementAssert(XpathElemDIVCheck, "No tenía un checkbox: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVCheck)).click();
 				
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).click();
 					
@@ -1842,13 +2019,13 @@ public abstract class BaseTest {
 					variable.setValor("Si");
 				}
 			} else if ("TEXTAREA".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/textarea", "No tenía un textarea: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/textarea")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/textarea")).sendKeys("Texto 1 " + variable.getEtiqueta());
+				existeixElementAssert(XpathElemDIVTxtArea, "No tenía un textarea: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVTxtArea)).clear();
+				driver.findElement(By.xpath(XpathElemDIVTxtArea)).sendKeys("Texto 1 " + variable.getEtiqueta());
 				variable.setValor("Texto 1 " + variable.getEtiqueta());
 				
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("Texto 2 " + variable.getEtiqueta());
 					
@@ -1862,12 +2039,12 @@ public abstract class BaseTest {
 					variable.setValor("Texto 1 " + variable.getEtiqueta());
 				}
 			} else if ("DATE".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput hasDatepicker']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput hasDatepicker']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput hasDatepicker']")).sendKeys("13/11/2014");
+				existeixElementAssert(XpathElemDIVDate, "No tenía un input: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVDate)).clear();
+				driver.findElement(By.xpath(XpathElemDIVDate)).sendKeys("13/11/2014");
 				
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("14/12/2014");
 					
@@ -1881,12 +2058,12 @@ public abstract class BaseTest {
 					variable.setValor("13/11/2014");
 				}
 			} else if ("PRICE".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys("1234");
+				existeixElementAssert(XpathElemDIVInput, "No tenía un input: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVInput)).clear();
+				driver.findElement(By.xpath(XpathElemDIVInput)).sendKeys("1234");
 								
 				if (variable.isMultiple() && !esModal) {
-					driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/button[contains(text(), '+')]")).click();
+					driver.findElement(By.xpath(XpathElemDIVBotMul)).click();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).clear();
 					driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"1']")).sendKeys("12345");
 					
@@ -1900,37 +2077,41 @@ public abstract class BaseTest {
 					variable.setValor("12,34");
 				}
 			} else if ("TERMINI".equals(variable.getTipo())) {
-				boolean cond = driver.findElements(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/select")).size() == 2
-						&& driver.findElements(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).size() == 1;
+				boolean cond = driver.findElements(By.xpath(XpathElemDIVTermSel)).size() == 2
+						&& driver.findElements(By.xpath(XpathElemDIVTermInp)).size() == 1;
 				assertTrue("El termini no era correcto : " + variable.getEtiqueta(), cond);
-				WebElement select1 = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li[1]/label/select"));
+				WebElement select1 = driver.findElement(By.xpath(XpathElemDIVTermSel1));
 				List<WebElement> options1 = select1.findElements(By.tagName("option"));
 				options1.get(options1.size()-1).click();
-				WebElement select2 = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li[2]/label/select"));
+				WebElement select2 = driver.findElement(By.xpath(XpathElemDIVTermSel2));
 				List<WebElement> options2 = select2.findElements(By.tagName("option"));
 				options2.get(options2.size()-1).click();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/ul/li/label/input")).sendKeys("2");
+				driver.findElement(By.xpath(XpathElemDIVTermInp)).clear();
+				driver.findElement(By.xpath(XpathElemDIVTermInp)).sendKeys("2");
 				variable.setValor("12 anys, 12 mesos i 2 dies");
 			} else if ("SELECCIO".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/select", "No tenía un select: " + variable.getEtiqueta());
-				WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/select"));
+				existeixElementAssert(XpathElemDIVSelect, "No tenía un select: " + variable.getEtiqueta());
+				WebElement selectTipusExpedient = driver.findElement(By.xpath(XpathElemDIVSelect));
 				List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
 				options.get(options.size()-1).click();
 				variable.setValor(options.get(options.size()-1).getText());
 			} else if ("SUGGEST".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']", "No tenía un input: " + variable.getEtiqueta());
+				existeixElementAssert(XpathElemDIVInput, "No tenía un input: " + variable.getEtiqueta());
 				String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).clear();
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/input[@class='textInput']")).sendKeys(usuari);
+				driver.findElement(By.xpath(XpathElemDIVInput)).clear();
+				driver.findElement(By.xpath(XpathElemDIVInput)).sendKeys(usuari);
 				variable.setValor(usuari);
 				driver.findElement(By.xpath("//*[@class='ac_results']/ul/li[1]")).click();
 			} else if ("REGISTRE".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button", "No tenía un botón: " + variable.getEtiqueta());
-				driver.findElement(By.xpath("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button")).click();
+				
+				existeixElementAssert(XpathElemDIVBoto, "No tenía un botón: " + variable.getEtiqueta());
+				driver.findElement(By.xpath(XpathElemDIVBoto)).click();
+				
+				try {Thread.sleep(5000); }catch (Exception ex) {}
 				
 				String url = driver.findElement(By.xpath("//*[@id='"+variable.getCodi()+"']")).getAttribute("src");
 				url = url.substring(url.indexOf(".html"));
+				
 				if (modalObertaAssert(url)) {
 					vesAModal(url);
 					
@@ -1942,30 +2123,31 @@ public abstract class BaseTest {
 					tornaAPare();
 				}
 			} else if ("ACCIO".equals(variable.getTipo())) {
-				existeixElementAssert("//*[@class='ctrlHolder'][*/text()='"+variable.getEtiqueta()+"']/div/button", "No tenía un botón: " + variable.getEtiqueta());
+				existeixElementAssert(XpathElemDIVBoto, "No tenía un botón: " + variable.getEtiqueta());
 			}
 		}
 
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/4-"+variable.getCodi()+".png");
 	}
 	
-	protected void esperaFinExecucioMassiva() throws InterruptedException {
-		esperaFinExecucioMassiva(null);
+	protected void esperaFinExecucioMassiva(String botoMassiuPath) throws InterruptedException {
+		esperaFinExecucioMassiva(null, botoMassiuPath);
 	}
 	
-	protected void esperaFinExecucioMassiva(List<String[]> expedientes) throws InterruptedException {
+	protected void esperaFinExecucioMassiva(List<String[]> expedientes, String botoMassiuPath) throws InterruptedException {
 		final int esperaMax = 1000*60*2;
 		int espera = esperaMax;
-		if (existeixElement("//*[@id='botoMassiu']")) {
+
+		if (existeixElement(botoMassiuPath)) {
 			if (expedientes == null) {
 				// Supondremos que es la última
-				while (espera > 0 && !terminadaUltimaExecucioMassiva()) {
+				while (espera > 0 && !terminadaUltimaExecucioMassiva(botoMassiuPath)) {
 					espera -= 1000*15;
 					Thread.sleep(1000*15);
 				};
 			} else {
 				for (String[] expedient : expedientes) {
-					while (espera > 0 && !finalizadoExpedientExecucioMassiva(expedient))  {
+					while (espera > 0 && !finalizadoExpedientExecucioMassiva(expedient, botoMassiuPath))  {
 						espera -= 1000*15;
 						Thread.sleep(1000*15);
 					};
@@ -1979,8 +2161,8 @@ public abstract class BaseTest {
 		actions.sendKeys(Keys.ESCAPE);
 	}
 	
-	private boolean finalizadoExpedientExecucioMassiva(String[] expedient) throws InterruptedException {
-		driver.findElement(By.xpath("//*[@id='botoMassiu']")).click();
+	private boolean finalizadoExpedientExecucioMassiva(String[] expedient, String botoMassiuPath) throws InterruptedException {
+		driver.findElement(By.xpath(botoMassiuPath)).click();
 		for (WebElement fila : driver.findElements(By.xpath("//span[contains(@class,'ui-icon-triangle-1-')]"))) {
 			if (fila.getAttribute("class").contains("ui-icon-triangle-1-e"))
 				fila.click();
@@ -1991,24 +2173,24 @@ public abstract class BaseTest {
 		return false;
 	}
 	
-	private boolean terminadaUltimaExecucioMassiva() throws InterruptedException {
-		driver.findElement(By.xpath("//*[@id='botoMassiu']")).click();
+	private boolean terminadaUltimaExecucioMassiva(String botoMassiuPath) throws InterruptedException {
+		Thread.sleep(2000);
+		driver.findElement(By.xpath(botoMassiuPath)).click();
 		driver.findElements(By.xpath("//span[contains(@class,'ui-icon-triangle-1-')]")).get(0).click();
 		
 		int expedientes = driver.findElements(By.xpath("//*[@id='accordio_massiva']//tbody//tr")).size();
 		int terminados = driver.findElements(By.xpath("//*[@id='accordio_massiva']//tbody//img[contains(@src,'/img/mass_fin.png')]")).size();
 		noExisteixElementAssert("//*[@id='accordio_massiva']//tbody//img[contains(@src,'/img/mass_error.png')]", "Algún expediente dio error");
-		
 		return expedientes == terminados;
 	}
 	
-	protected int estadoExpedientExecucioMassiva(String expedient) throws InterruptedException {
+	protected int estadoExpedientExecucioMassiva(String expedient, String botoMassiuPath) throws InterruptedException {
 		// -1 : No encontrado
 		//  0 : Pendiente
 		//  1 : Finalizado
 		//  2 : Error
 		int estado = -1;
-		driver.findElement(By.xpath("//*[@id='botoMassiu']")).click();
+		driver.findElement(By.xpath(botoMassiuPath)).click();
 		for (WebElement fila : driver.findElements(By.xpath("//span[contains(@class,'ui-icon-triangle-1-')]"))) {
 			if (fila.getAttribute("class").contains("ui-icon-triangle-1-e"))
 				fila.click();			
@@ -2340,6 +2522,8 @@ public abstract class BaseTest {
 		
 		String pathBotoNovaPersona = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Crear']";
 		driver.findElement(By.xpath(pathBotoNovaPersona)).click();
+		
+		try { Thread.sleep(2000); } catch (Exception ex) {}
 		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut crear la persona ("+nom +" "+llinatge+") a la configuració de Helium.");
 	}

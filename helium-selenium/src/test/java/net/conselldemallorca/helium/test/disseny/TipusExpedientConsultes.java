@@ -306,8 +306,6 @@ public class TipusExpedientConsultes extends BaseTest {
 			
 			//driver.findElement(By.xpath("/html/body/div/div/button[text() = 'Generar']")).click();
 
-			//TODO: Pendent de mirar aixo de aquesta descarrega. Cas especial, redireccions (codi 302)
-			//postDownloadFile("//*[@id='paramsCommand']", paramNames, paramValues, "expedient/consultaDissenyResultat.html", "expedient/consultaDissenyInforme.html");
 			postDownloadFile("//*[@id='paramsCommand']");
 			
 			screenshotHelper.saveScreenshot("tipusExpedient/consultes/b4_6_descarrega_informes-consulta_multiple_2_descarregar_b.png");

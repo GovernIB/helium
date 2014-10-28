@@ -17,7 +17,6 @@ import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExecucioMassiva extends BaseTest {
@@ -38,6 +37,9 @@ public class ExecucioMassiva extends BaseTest {
 	String exportTipExpMasProc = carregarPropietatPath("tramas_massivo.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	int numExpedientesTramMasiva = Integer.parseInt(carregarPropietat("tramas.num_expedientes_tram_masiva", "Número de espedientes para las pruebas de tramitación masiva al fitxer de properties"));
 	
+	//XPATHS
+	String botoExecMassiva = "//*[@id='page-entorn-menu']/div/a";
+	
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -54,6 +56,8 @@ public class ExecucioMassiva extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 
+		Thread.sleep(2000);
+		
 		importarDadesTipExp(codTipusExp, exportTipExpProc);
 		
 		desplegarDefinicioProcesEntorn(nomTipusExp, nomSubDefProc, pathSubDefProc);
@@ -93,36 +97,38 @@ public class ExecucioMassiva extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='inici']")).click();
 		Thread.sleep(1000*10);
 		
-		// Programamos para dentro de 2 minutos
-		programarEjecucionMasiva(2);
+		// Programamos para dentro de 5 minutos
+		programarEjecucionMasiva(5);
 		
-		// Programamos el envío de correos
+		// Marcamos el check de envío de correos
 		if (!driver.findElement(By.xpath("//*[@id='correu']")).isSelected()) {
 			driver.findElement(By.xpath("//*[@id='correu']")).click();
 		}
 		
-		// Aturamos todos los expedientes		
+		// Guardamos la programación
 		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo");
-		
 		driver.findElement(By.xpath("//*[@id='aturarCommandMas']//button")).click();
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
 		// Comprobamos que no se hayan cerrado los expedientes
-		Thread.sleep(1000*10);
 		consultarExpedientes(null, null, nomTipusExp);
 		
 		// Contamos los expedientes aturados
 		numAturados = driver.findElements(By.xpath("//img[@src = '/helium/img/stop.png']")).size();
-		assertFalse("Todos los expedientes estaban aturados", numAturados == numExpedients);
+		assertFalse("Todos los expedientes estaban parados", numAturados == numExpedients);
 		
-		// Ya deben haberse cerrado los expedientes
-		Thread.sleep(1000*150);
-		consultarExpedientes(null, null, nomTipusExp);
+		// Mmiramos cada minuto a ver si se han parado, daremos un maximo de 10 min aprox. 
+		int intentos =0;
+		while (numAturados==0 && intentos<10) {
+			Thread.sleep(1000*60);
+			consultarExpedientes(null, null, nomTipusExp);
+			// Contamos los expedientes parados
+			numAturados = driver.findElements(By.xpath("//img[@src = '/helium/img/stop.png']")).size();
+			intentos++;
+		}
 		
-		// Contamos los expedientes aturados
-		numAturados = driver.findElements(By.xpath("//img[@src = '/helium/img/stop.png']")).size();
-		assertTrue("No se cerraron todos los expedientes correctamente", numAturados == numExpedients);
+		assertTrue("No se ceró el expediente en el tiempo previsto", numAturados == numExpedients);
 		
 		// Eliminamos los expedientes
 		eliminarExpedient(null, null, nomTipusExp);
@@ -169,7 +175,7 @@ public class ExecucioMassiva extends BaseTest {
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
-		esperaFinExecucioMassiva();
+		esperaFinExecucioMassiva(botoExecMassiva);
 		
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
 			// Comprobamos que la versión haya cambiado
@@ -224,7 +230,7 @@ public class ExecucioMassiva extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
 		// Vemos el estado de los n expedientes, deben ser 'Siguiente'
-		esperaFinExecucioMassiva();
+		esperaFinExecucioMassiva(botoExecMassiva);
 		
 		consultarExpedientes(null, null, nomTipusExp);
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
@@ -266,7 +272,7 @@ public class ExecucioMassiva extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
 		// Vemos las variables de los n expedientes, deben tener una variable llamada 'menssage' con el texto 'El valor de la variable 'message' no era el esperado'
-		esperaFinExecucioMassiva();
+		esperaFinExecucioMassiva(botoExecMassiva);
 		
 		for (int i = 1; i <= numExpedientesTramMasiva; i++) {
 			consultarExpedientes(null, null, nomTipusExp);
@@ -325,7 +331,7 @@ public class ExecucioMassiva extends BaseTest {
 		acceptarAlerta();
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
-		esperaFinExecucioMassiva();
+		esperaFinExecucioMassiva(botoExecMassiva);
 		
 		// Comprobamos que aparezcan
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
@@ -379,14 +385,14 @@ public class ExecucioMassiva extends BaseTest {
 		// Estado pendiente
 		Thread.sleep(1000*10);
 		for (String[] expediente : expedientes) {
-			assertTrue("El expediente '"+expediente+"' no estaba en estado 'pendiente'",estadoExpedientExecucioMassiva(expediente[1]) == 0);
+			assertTrue("El expediente '"+expediente+"' no estaba en estado 'pendiente'",estadoExpedientExecucioMassiva(expediente[1], botoExecMassiva) == 0);
 		}
 		actions.sendKeys(Keys.ESCAPE);
 		
 		Thread.sleep(1000*140);
 		// Estado finalizado
 		for (String[] expediente : expedientes) {
-			assertTrue("El expediente '"+expediente+"' no estaba en estado 'finalizado'",estadoExpedientExecucioMassiva(expediente[1]) == 1);
+			assertTrue("El expediente '"+expediente+"' no estaba en estado 'finalizado'",estadoExpedientExecucioMassiva(expediente[1], botoExecMassiva) == 1);
 		}
 		actions.sendKeys(Keys.ESCAPE);
 		
@@ -400,7 +406,7 @@ public class ExecucioMassiva extends BaseTest {
 		// Estado error
 		Thread.sleep(1000*10);
 		for (String[] expediente : expedientes) {
-			assertTrue("El expediente '"+expediente+"' no estaba en estado 'error'",estadoExpedientExecucioMassiva(expediente[1]) == 2);
+			assertTrue("El expediente '"+expediente+"' no estaba en estado 'error'",estadoExpedientExecucioMassiva(expediente[1], botoExecMassiva) == 2);
 		}
 		actions.sendKeys(Keys.ESCAPE);
 	}
@@ -422,47 +428,18 @@ public class ExecucioMassiva extends BaseTest {
 	}
 	
 	private void programarEjecucionMasiva(int minut) {
-		Calendar calendarFin = Calendar.getInstance();
-		calendarFin.add(Calendar.MINUTE, minut);
-		String[] tiempoFin = new SimpleDateFormat("HH:mm").format(calendarFin.getTime()).split(":");
-		String[] tiempo = driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":");
-		
-		int hora = Integer.parseInt(tiempo[0]);
-		int minutos = Integer.parseInt(tiempo[1]);
-		
-		int horaFin = Integer.parseInt(tiempoFin[0]);
-		int minutosFin = Integer.parseInt(tiempoFin[1]);
-		
-		WebElement barraMinutes = null;
-		WebElement barraHours = null;
-		
-		int i = 1;
-		while (hora != horaFin) {
-			barraHours = driver.findElement(By.xpath("//*[@class='ui_tpicker_hour']//a"));
-			if (hora < horaFin) {
-				new Actions(driver).dragAndDropBy(barraHours, +i, barraHours.getLocation().y).click().perform();
-			} else {
-				new Actions(driver).dragAndDropBy(barraHours, -i, barraHours.getLocation().y).click().perform();				
-			}
-			if (hora == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0])) {
-				i++;
-			}
-			hora = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[0]);
-		}
-		
-		while (minutos != minutosFin) {
-			barraMinutes = driver.findElement(By.xpath("//*[@class='ui_tpicker_minute']//a"));
-			if (minutos < minutosFin) {
-				new Actions(driver).dragAndDropBy(barraMinutes, +i, barraMinutes.getLocation().y).click().perform();
-			} else {
-				new Actions(driver).dragAndDropBy(barraMinutes, -i, barraMinutes.getLocation().y).click().perform();				
-			}
-			if (minutos == Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1])) {
-				i++;
-			}		
-			minutos = Integer.parseInt(driver.findElement(By.xpath("//*[@class='ui_tpicker_time']")).getText().split(":")[1]);
-		}
 
+		long timeInMillis = System.currentTimeMillis() + (minut*60000);
+		Calendar calendarFin = Calendar.getInstance();
+		calendarFin.setTimeInMillis(timeInMillis);
+		//calendarFin.add(Calendar.MINUTE, minut);
+		
+		driver.findElement(By.xpath("//*[@id='inici']")).clear();
+		driver.findElement(By.xpath("//*[@id='inici']")).sendKeys(Keys.TAB);
+		driver.findElement(By.xpath("//*[@id='inici']")).sendKeys(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(calendarFin.getTime()));
+		driver.findElement(By.xpath("//*[@id='inici']")).sendKeys(Keys.TAB);
+		driver.findElement(By.xpath("//*[@id='inici']")).click();
+		try { Thread.sleep(2000); } catch (Exception tEx) {}
 		driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
 	}
 }

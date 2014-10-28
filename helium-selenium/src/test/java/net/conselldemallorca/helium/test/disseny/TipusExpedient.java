@@ -9,6 +9,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
@@ -63,7 +64,8 @@ public class TipusExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp, "tipusExpedient/crear/b1_");
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
+		assignarPermisosTipusExpedient(codTipusExp, usuariAdmin, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
+		assignarPermisosTipusExpedient(codTipusExp, usuari, 	 "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
 		eliminarTipusExpedient(codTipusExp);
 	}
 
@@ -73,7 +75,8 @@ public class TipusExpedient extends BaseTest {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
 		creaTipusExpedientAmbSequenciaAnual();
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
+		assignarPermisosTipusExpedient(codTipusExp, usuariAdmin, "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
+		assignarPermisosTipusExpedient(codTipusExp, usuari, 	 "CREATE", "DESIGN", "MANAGE", "READ", "DELETE");
 		//Assignem la definició de proces a l´expedient
 		desplegarDefPro(TipusDesplegament.EXPORTDEFPRC, defProcNom, nomTipusExp, defProcPath, null, false, false);
 		//Marcam com a procés inicial
@@ -97,7 +100,7 @@ public class TipusExpedient extends BaseTest {
 	}
 	
 	@Test
-	public void e2_comprovar_desplegament_exportacio() {
+	public void e2_comprovar_desplegament_exportacio() throws Exception {
 		
 		carregarUrlDisseny();
 		seleccionarEntorn(titolEntorn);
@@ -149,9 +152,11 @@ public class TipusExpedient extends BaseTest {
 		
 		screenshotHelper.saveScreenshot("tipusExpedient/crear/e2_4_comprovar_importacio-def_proc.png");
 		
+		Thread.sleep(2000);
+		
 		existeixElementAssert("//a[contains(@href, '/helium/definicioProces/info.html')]", "La definició de proces amb codi (Cons1) no es troba");
 		//existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'1')]", "La definició de proces amb versio (1) no es troba");
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[3],'Si')]", "La definició de proces amb inicial=(Si) no es troba");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[4],'Si')]", "La definició de proces amb inicial=(Si) no es troba");
 		
 		//Pestanya integració amb tramits
 		
@@ -307,8 +312,6 @@ public class TipusExpedient extends BaseTest {
 		eliminarTotsEstatsTipusExpedient(codTipusExp);
 		eliminarTipusExpedient(codTipusExp);
 		eliminarDefinicioProces(defProcNom);
-		if (entornActual != null && !"".equals(entornActual)) 
-			marcarEntornDefecte(entornActual);
 	}
 
 	@Test
@@ -337,14 +340,41 @@ public class TipusExpedient extends BaseTest {
 			
 			driver.findElement(By.id("teNumero0")).click();
 			driver.findElement(By.id("demanaNumero0")).click();
-			driver.findElement(By.id("expressioNumero0")).sendKeys(expressioSeq);
-			driver.findElement(By.id("reiniciarCadaAny0")).click();
 			
+			//driver.findElement(By.id("expressioNumero0")).sendKeys("CZ 10/"+anyActual);
+			driver.findElement(By.id("expressioNumero0")).sendKeys(expressioSeq);
+			
+			//TODO: WARN: per a la versio 2.11 del driver de chrome, l´expressió no s´envia bé
+			//A continuacio proves realitzades per intentar solvertar-ho enviant un char
+			
+				/*driver.findElement(By.id("expressioNumero0")).clear();
+				driver.findElement(By.id("expressioNumero0")).sendKeys("CZ $\\{seq}/$\\{any}");
+				driver.findElement(By.id("expressioNumero0")).clear();
+				driver.findElement(By.id("expressioNumero0")).sendKeys("CZ $\\\\{seq}/$\\\\{any}");
+				driver.findElement(By.id("expressioNumero0")).sendKeys("CZ #{seq}/#{any}");
+				String expressioReparada = driver.findElement(By.id("expressioNumero0")).getAttribute("value").replace("#", "${");
+				driver.findElement(By.id("expressioNumero0")).sendKeys(expressioReparada);*/
+				//char abrirLLave = Character.toChars(0x007B)[0];
+				
+				//driver.findElement(By.id("expressioNumero0")).sendKeys(Keys.getKeyFromUnicode('\u007B'));
+				
+				/*Keys[] caracteresRaros = Keys.values();
+				for (int k=0; k<caracteresRaros.length; k++) {
+					Keys kactual = caracteresRaros[k];
+					System.out.println("KEY " + k + " - " + kactual.name() + " = " + Keys.valueOf(kactual.name()));
+				}*/
+				
+				//String s = "\\u007B";
+			    //char c = (char)Integer.parseInt(s.substring(2), 16);
+			    //char uni = '\007';
+				
+				//driver.findElement(By.id("expressioNumero0")).sendKeys(Keys.getKeyFromUnicode('c'));
+			
+			driver.findElement(By.id("reiniciarCadaAny0")).click();
 			driver.findElement(By.xpath("//div[@id='seqMultiple']//button[@class='submitButton']")).click();
 			
 			driver.findElement(By.id("seqany_0")).sendKeys(Integer.toString(anyActual));
 			driver.findElement(By.id("seqseq_0")).sendKeys(Integer.toString(seqTipExp));
-			
 			driver.findElement(By.xpath("//div[@id='seqMultiple']//button[@class='submitButton']")).click();
 			
 			driver.findElement(By.id("seqany_1")).sendKeys(Integer.toString(anyActual_2));

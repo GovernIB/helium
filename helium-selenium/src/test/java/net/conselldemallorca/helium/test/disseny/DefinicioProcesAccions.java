@@ -12,11 +12,11 @@ public class DefinicioProcesAccions extends BaseTest {
 
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
+	String pathExportEntorn = carregarPropietatPath("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin = carregarPropietat("test.base.usuari.configuracio", "Usuari configuracio de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.export.arxiu.path", "Ruta de l'exportació de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.export.arxiu.path", "Ruta de l'exportació de la definició de procés de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codAccio = carregarPropietat("defproc.accio.1.codi", "Codi de la acció de proves no configurat al fitxer de properties");
 	String nomAccio = carregarPropietat("defproc.accio.1.nom", "Nom de la acció de proves no configurat al fitxer de properties");
@@ -28,13 +28,12 @@ public class DefinicioProcesAccions extends BaseTest {
 		crearEntorn(entorn, titolEntorn);
 		assignarPermisosEntorn(entorn, usuariAdmin, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ");
+		marcarEntornDefecte(titolEntorn);
 	}
 	
 	@Test
 	public void a1_inicialitzacio() {
-		carregarUrlDisseny();
-		saveEntornActual();
-		marcarEntornDefecte(titolEntorn);
+		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
 		desplegarDefPro(TipusDesplegament.EXPORTDEFPRC, nomDefProc, null, pathDefProc, null, false, false);
 		seleccionarDefinicioProces(nomDefProc);
@@ -80,7 +79,7 @@ public class DefinicioProcesAccions extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAccio + "')]", "defproces/accio/eliminar/" + codAccio + "/01_eliminar.png", "El termini a eliminar no existeix");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAccio + "')]/td[4]/a")).click();
 		acceptarAlerta();
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codAccio + "')]", "defproces/accio/eliminar/" + codAccio + "/02_eliminar.png", "El termini no s'ha pogut eliminar");
+		existeixElementAssert("//*[@id='infos']/p", "No se borro la accion correctamente");
 	}
 	
 	@Test
@@ -90,8 +89,6 @@ public class DefinicioProcesAccions extends BaseTest {
 		eliminarEnumeracio("enumsel");
 		eliminarDomini("enumerat");
 		eliminarTipusExpedient(codTipusExp);
-		if (entornActual != null && !"".equals(entornActual)) 
-			marcarEntornDefecte(entornActual);
 	}
 	
 	@Test

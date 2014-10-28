@@ -29,9 +29,9 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Registre extends BaseTest {
-	
-	@Test
+
 	// Registrarl la entrada del documento
+	@Test
 	public void a_entrada() {
 		RegistreEntrada registreEntrada = new RegistreEntrada();
 		DadesOficina dadesOficina = new DadesOficina();
@@ -67,8 +67,8 @@ public class Registre extends BaseTest {
 		assertFalse("Error al registrar la entrada del documento", resposta == null || resposta.getNumero() == null);
 	}
 
-	@Test
 	// Registrar la salida o notificación del documento
+	@Test
 	public void b_notificacio() {
 		RegistreNotificacio registreNotificacio = new RegistreNotificacio();
 		DadesExpedient dadesExpedient = new DadesExpedient();

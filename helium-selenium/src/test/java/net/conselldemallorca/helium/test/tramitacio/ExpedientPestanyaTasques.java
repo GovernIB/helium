@@ -56,6 +56,7 @@ public class ExpedientPestanyaTasques extends BaseTest {
 	
 	@Test
 	public void b_delegar_tasca() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 
 		seleccionarEntorn(titolEntorn);
@@ -127,6 +128,8 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='content']/div/h3[contains(text(),'Delegar la tasca')]/img")).click();
 		
+		Thread.sleep(3000);
+		
 		WebElement selectActor = driver.findElement(By.xpath("//*[@id='actorId0']"));
 		for (WebElement option : selectActor.findElements(By.tagName("option"))) {
 			if (option.getText().equals(properties.getProperty("test.base.usuari.configuracio.nom"))) {
@@ -145,7 +148,8 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		}
 		
 		driver.findElement(By.xpath("//*[@id='command']/div/div[5]/button")).click();
-		acceptarAlerta();
+		if (isAlertPresent()) { acceptarAlerta();}
+		Thread.sleep(3000);
 		existeixElementAssert("//*[@id='infos']/p", "No se delegó la tarea correctamente");
 		
 		// Comprobamos el listado de tareas
@@ -204,6 +208,8 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		
 		driver.findElement(By.xpath("//*[@id='content']/div/h3[contains(text(),'Delegar la tasca')]/img")).click();
 		
+		Thread.sleep(3000);
+		
 		WebElement selectActor = driver.findElement(By.xpath("//*[@id='actorId0']"));
 		for (WebElement option : selectActor.findElements(By.tagName("option"))) {
 			if (option.getText().equals(properties.getProperty("test.base.usuari.configuracio.nom"))) {
@@ -222,7 +228,11 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		}
 		
 		driver.findElement(By.xpath("//*[@id='command']/div/div[5]/button")).click();
-		acceptarAlerta();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		Thread.sleep(3000);
+		
 		existeixElementAssert("//*[@id='infos']/p", "No se delegó la tarea correctamente");
 		
 		// Comprobamos el listado de tareas
@@ -235,7 +245,6 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		String supervisadaDel = driver.findElement(By.xpath("//*[@id='content']/div/dl/dd[4]")).getText();
 		assertTrue("Error en el texto de supervisada", "Si".equals(supervisadaDel));
 		
-		
 		existeixElementAssert("//*[@id='content']/div/h3[contains(text(), 'Aquesta tasca vos ha estat delegada')]", "No se encontró la cabecera de delegada");
 		
 		// Comprobamos el listado de tareas
@@ -247,7 +256,6 @@ public class ExpedientPestanyaTasques extends BaseTest {
 		assertTrue("Error en el comentario", comentarioDel.equals(comentario));
 		supervisadaDel = driver.findElement(By.xpath("//*[@id='content']/div/dl/dd[4]")).getText();
 		assertTrue("Error en el texto de supervisada", "Si".equals(supervisadaDel));
-		
 		
 		existeixElementAssert("//*[@id='content']/div/h3[contains(text(), 'Heu delegat aquesta tasca')]", "No se encontró la cabecera de delegada");
 		

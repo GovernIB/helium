@@ -11,13 +11,13 @@ import org.openqa.selenium.By;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedientDominis extends BaseTest {
 	
-							//TEX.7 - Dominis
-								//TEX.7.1 - Crear dominis
-									//TEX.7.1.1 - Crear domini SQL
-									//TEX.7.1.2 - Crear domini WS
-								//TEX.7.2 - Modificar dominis
-								//TEX.7.3 - Provar dominis (TRASPASSAT A ENT.9)
-								//TEX.7.4 - Eliminar dominis
+						//TEX.7 - Dominis
+							//TEX.7.1 - Crear dominis
+								//TEX.7.1.1 - Crear domini SQL
+								//TEX.7.1.2 - Crear domini WS
+							//TEX.7.2 - Modificar dominis
+							//TEX.7.3 - Provar dominis (TRASPASSAT A ENT.9)
+							//TEX.7.4 - Eliminar dominis
 	
 	String entorn 		= carregarPropietat("tipexp.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
@@ -253,6 +253,8 @@ public class TipusExpedientDominis extends BaseTest {
 			driver.findElement(By.xpath(enllaçElimDomini)).click();
 			
 			if (isAlertPresent()) {acceptarAlerta();}
+			
+			try { Thread.sleep(3000); }catch(Exception ex){}
 			
 			screenshotHelper.saveScreenshot("tipusExpedient/dominis/h1_3_"+contadorScreeshots+"_eliminar-despres.png");
 			

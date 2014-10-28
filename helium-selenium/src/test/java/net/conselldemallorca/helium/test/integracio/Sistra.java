@@ -155,11 +155,7 @@ public class Sistra extends BaseTest {
 			borrarPrimerExpediente();
 		}
 
-		eliminarTipusExpedient(codTipusExp);
-		
-		if (entornActual != null && !"".equals(entornActual))
-			marcarEntornDefecte(entornActual);
-		
+		eliminarTipusExpedient(codTipusExp);		
 		eliminarEntorn(entorn);
 	}
 }

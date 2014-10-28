@@ -14,11 +14,11 @@ public class DefinicioProcesVars extends BaseTest {
 
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
+	String pathExportEntorn = carregarPropietatPath("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin = carregarPropietat("test.base.usuari.configuracio", "Usuari configuracio de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codAgrupacio1 = carregarPropietat("defproc.agrupacio.1.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
@@ -31,19 +31,25 @@ public class DefinicioProcesVars extends BaseTest {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
 		assignarPermisosEntorn(entorn, usuariAdmin, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
-		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ");
+		assignarPermisosEntorn(entorn, usuari, 		"DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
+		//seleccionarEntorn(titolEntorn);
+		//crearTipusExpedient("prova", "provaExpImpDefProc");
+		//assignarPermisosTipusExpedient("prova", usuariAdmin, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
+		//assignarPermisosTipusExpedient("prova", usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
 	@Test
 	public void a1_inicialitzacio() {
-		carregarUrlDisseny();
-		saveEntornActual();
+		carregarUrlConfiguracio();
+		//saveEntornActual();
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		desplegarDefinicioProcesEntorn(nomDefProc, pathDefProc);
 		importarDadesEntorn(entorn, pathExportEntorn);
 		crearAgrupacio(nomDefProc, codAgrupacio1, nomAgrupacio1);
 		crearAgrupacio(nomDefProc, codAgrupacio2, nomAgrupacio2);
+		//Necessaria per una de les variables y no incluida dins els arxius importats
+		crearConsultaTipus("selcon", "selcon", nomTipusExp);
 	}
 	
 	@Test
@@ -244,8 +250,8 @@ public class DefinicioProcesVars extends BaseTest {
 	public void p_crearVarDominiIntern() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
-		crearVar(carregarPropietat("defproc.variable.int.codi", "Codi de la variable selecció per domini intern no configurat al fitxer de properties"),
-				carregarPropietat("defproc.variable.int.nom", "Nom de la variable selecció per domini intern no configurat al fitxer de properties"),
+		crearVar(carregarPropietat("defproc.variable.int.dom.cod", "Codi de la variable selecció per domini intern no configurat al fitxer de properties"),
+				carregarPropietat("defproc.variable.int.dom.nom", "Nom de la variable selecció per domini intern no configurat al fitxer de properties"),
 				TipusVar.SEL_INTERN,
 				null,
 				false,
@@ -260,8 +266,11 @@ public class DefinicioProcesVars extends BaseTest {
 	
 	@Test
 	public void q_crearVarConsulta() {
+		
 		carregarUrlDisseny();
+		
 		seleccionarDefinicioProces(nomDefProc);
+		
 		crearVar(carregarPropietat("defproc.variable.con.codi", "Codi de la variable selecció per consulta no configurat al fitxer de properties"),
 				carregarPropietat("defproc.variable.con.nom", "Nom de la variable selecció per consulta no configurat al fitxer de properties"),
 				TipusVar.SEL_CONSULTA,
@@ -303,6 +312,7 @@ public class DefinicioProcesVars extends BaseTest {
 				false,
 				carregarPropietat("defproc.variable.accio.accio", "Nom de la acció no configurat al fitxer de properties"));
 	}
+	
 	@Test
 	public void t_modificarVariable() {
 		carregarUrlDisseny();
@@ -383,25 +393,26 @@ public class DefinicioProcesVars extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "No existeix la variable a esborrar");
 
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]/td[7]/a")).click();
+		
 		acceptarAlerta();
 
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codVar + "')]", "defproces/variable/esborra/2_variablesFi.png", "No s'ha pogut esborrar la variable");
+		existeixElementAssert("//*[@id='infos']/p", "No se borró la variable");
 	}
 	
 	@Test
 	public void z0_finalitzacio() {
-		carregarUrlDisseny();
+		carregarUrlConfiguracio();
 		eliminarDefinicioProces(nomDefProc);
 		eliminarEnumeracio("enumsel");
 		eliminarDomini("enumerat");
 		eliminarTipusExpedient(codTipusExp);
-		if (entornActual != null && !"".equals(entornActual)) 
-			marcarEntornDefecte(entornActual);
 	}
 
 	@Test
 	public void z1_finalitzacio() {
+		
 		carregarUrlConfiguracio();
+		
 		eliminarEntorn(entorn);
 	}
 }

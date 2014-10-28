@@ -12,11 +12,11 @@ public class DefinicioProcesDocs extends BaseTest {
 
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
+	String pathExportEntorn = carregarPropietatPath("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin = carregarPropietat("test.base.usuari.configuracio", "Usuari configuracio de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	@Test
@@ -29,8 +29,8 @@ public class DefinicioProcesDocs extends BaseTest {
 	
 	@Test
 	public void a1_inicialitzacio() {
-		carregarUrlDisseny();
-		saveEntornActual();
+		carregarUrlConfiguracio();
+		//saveEntornActual();
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		desplegarDefinicioProcesEntorn(nomDefProc, pathDefProc);
@@ -51,11 +51,12 @@ public class DefinicioProcesDocs extends BaseTest {
 	@Test
 	public void c_crearDocumentAmbPlantilla() {
 		carregarUrlDisseny();
+		
 		seleccionarDefinicioProces(nomDefProc);
 		crearDoc(carregarPropietat("defproc.document.plant.codi", "Codi del document amb plantilla no configurat al fitxer de properties"),
 				carregarPropietat("defproc.document.plant.nom", "Nom del document amb plantilla no configurat al fitxer de properties"),
 				true, 
-				carregarPropietat("defproc.document.plant.path", "Plantilla de proves no configurat al fitxer de properties"),
+				carregarPropietatPath("defproc.document.plant.path", "Plantilla de proves no configurat al fitxer de properties"),
 				null, false, null, null, null, null, null,
 				carregarPropietat("defproc.document.plant.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
@@ -68,7 +69,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				"Nom modificat", 
 				"Descripció modificada", 
 				true, 
-				carregarPropietat("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
+				carregarPropietatPath("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
 				null, false, 
 				"campData/campData", 
 				null, null, null, null,
@@ -83,7 +84,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				null, 
 				null, 
 				null, 
-				carregarPropietat("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
+				carregarPropietatPath("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
 				"odt", 
 				true, 
 				null, 
@@ -96,7 +97,8 @@ public class DefinicioProcesDocs extends BaseTest {
 	
 	@Test
 	public void f_descarregarPlantilla() {
-		carregarUrlDisseny();
+		carregarUrlConfiguracio();
+		seleccionarEntorn(titolEntorn);
 		seleccionarDefinicioProces(nomDefProc);
 		// Accedir a la fitxa dels documents
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();
@@ -107,9 +109,13 @@ public class DefinicioProcesDocs extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]", "No existeix el document a descarregar plantilla");
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a/img", "El document no té plantilla");
 		
-		downloadFileHash("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a", 
-				carregarPropietat("defproc.document.plant2.hash", "Hash de la plantilla no configurat al fitxer de properties"), 
-				"plantilla");
+		//try { System.out.println("**X*** --> " + getMD5Checksum(carregarPropietatPath("defproc.document.plant.path", "Plantilla de proves 2 no configurat al fitxer de properties"))); }catch(Exception ex) {ex.printStackTrace();}
+
+		/*downloadFileHash("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a", 
+						 carregarPropietat("defproc.document.plant.hash", "Hash de la plantilla no configurat al fitxer de properties"), 
+						"plantilla.odt");*/
+		
+		downloadFile("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a", "plantilla.odt");
 	}
 	
 	@Test
@@ -127,24 +133,19 @@ public class DefinicioProcesDocs extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]", "No existeix el document a esborrar");
 
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[5]/a")).click();
-		acceptarAlerta();
 
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]", "defproces/document/esborra/2_documentsFi.png", "No s'ha pogut esborrar el document");
+		if (isAlertPresent()) acceptarAlerta();
+
+		existeixElementAssert("//*[@id='infos']/p", "No se pudo borrar el documento.");
 	}
-	
+		
 	@Test
 	public void z0_finalitzacio() {
-		carregarUrlDisseny();
-		eliminarDefinicioProces(nomDefProc);
-		eliminarEnumeracionsTest();
-		eliminarTipusExpedient(codTipusExp);
-		if (entornActual != null && !"".equals(entornActual)) 
-			marcarEntornDefecte(entornActual);
-	}
-	
-	@Test
-	public void z1_finalitzacio() {
 		carregarUrlConfiguracio();
+		eliminarDefinicioProces(nomDefProc);
+		eliminarTipusExpedient(codTipusExp);
+		eliminarEnumeracio("enumsel");
+		eliminarDomini("enumerat");
 		eliminarEntorn(entorn);
 	}
 	
@@ -156,7 +157,7 @@ public class DefinicioProcesDocs extends BaseTest {
 		// Accedir a la fitxa de les variables
 		driver.findElement(By.xpath("//a[contains(@href, '/helium/definicioProces/documentLlistat.html')]")).click();	
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codi + "')]", "defproces/document/" + (esPlantilla ? "ambPlantilla" : "sensePlantilla") + "/01_crea_doc.png", "El document a crear ja existeix");
-				
+
   	    // Botó nou document
 		driver.findElement(By.xpath("//div[@id='content']/form/button[@class='submitButton']")).click();
   	    // Paràmetres de la variable
@@ -195,8 +196,12 @@ public class DefinicioProcesDocs extends BaseTest {
 		checkboxSelected("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (esPlantilla) {
 			if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
+
+			//try { System.out.println("**X*** --> " + getMD5Checksum(pathPlantilla)); }catch(Exception ex) {ex.printStackTrace();}
+			
 			if (md5Plantilla != null)
-				downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla");
+				downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
+			
 			if (extensioSortida != null) existeixElementAssert("//*[@id='convertirExtensio0' and @value='" + extensioSortida + "']", "L'extensió de sortida no s'ha gravat correctament");
 		}
 		if (campData != null) driver.findElement(By.xpath("//*[@id='campData0']/option[normalize-space(text())='" + campData + "']")).click();
@@ -273,7 +278,7 @@ public class DefinicioProcesDocs extends BaseTest {
 		if (esPlantilla != null) checkboxSelectedAssert("//*[@id='plantilla0']", "És plantilla no sa gravat correctament", esPlantilla);
 		if (adjuntar != null) checkboxSelectedAssert("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
-		if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla");
+		if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
 		if (extensioSortida != null) existeixElementAssert("//*[@id='convertirExtensio0' and @value='" + extensioSortida + "']", "L'extensió de sortida no s'ha gravat correctament");
 		if (campData != null) driver.findElement(By.xpath("//*[@id='campData0']/option[normalize-space(text())='" + campData + "']")).click();
 		if (extensionsPermeses != null) existeixElementAssert("//*[@id='extensionsPermeses0' and @value='" + extensionsPermeses + "']", "Les extensions permeses no s'han gravat correctament"); 

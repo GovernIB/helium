@@ -5,6 +5,7 @@ import net.conselldemallorca.helium.test.integracio.FormularisExterns;
 import net.conselldemallorca.helium.test.integracio.Portasignatures;
 import net.conselldemallorca.helium.test.integracio.Registre;
 import net.conselldemallorca.helium.test.integracio.Signature;
+import net.conselldemallorca.helium.test.integracio.Sistra;
 import net.conselldemallorca.helium.test.integracio.Tramitacion;
 
 import org.junit.runner.RunWith;
@@ -15,8 +16,9 @@ import org.junit.runners.Suite;
 	Custodia.class,
 	Portasignatures.class,
 	Registre.class,
-	Signature.class,
+	//Signature.class,
 	Tramitacion.class,
-	FormularisExterns.class
+	FormularisExterns.class,
+	Sistra.class
 })
 public class IntegracioSuite {}

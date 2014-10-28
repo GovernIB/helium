@@ -325,6 +325,13 @@ public class Entorn extends BaseTest {
         assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "MANAGE", "WRITE", "DELETE", "ADMINISTRATION", "DESIGN", "SUPERVISION", "READ");
         importarDadesTipExp(codTipusExp, tipusExpPath);
         
+		//Desmarcam de l´expedient alguns checks restrictius per poder-los consultar al llistat
+		accedirInformacioExpedient(codTipusExp);
+		if (driver.findElement(By.id("restringirPerGrup0")).isSelected()) {
+			driver.findElement(By.id("restringirPerGrup0")).click();
+		}
+		driver.findElement(By.xpath("//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Modificar']")).click();
+        
         screenshotHelper.saveScreenshot("entorns/reindexar/1_tipusExpedientImportat.png");
         
         // Iniciamos n expedientes con la última versión
@@ -343,18 +350,10 @@ public class Entorn extends BaseTest {
                     + "String processInstanceId = net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), \""+codTipusExp+"\", \""+expediente[0]+"\").getProcessInstanceId();"
                     + "net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().luceneDeleteExpedient(processInstanceId);";       	
         	
-            actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-            actions.build().perform();
-            actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consultaDisseny.html')]")));
-            actions.click();
-            actions.build().perform();
+        	accedirConsultaLlistatExpedients();
 
-            try {
-            	//A vegades passa directament a la pantalla de consulta disseny sense pasar per la seleccio de tipus Expedient / Consulta
-            	driver.findElement(By.xpath("//*[@id='expedientTipusId0']")).findElements(By.tagName("option")).get(1).click();
-            	driver.findElement(By.xpath("//*[@id='consultaId0']")).findElements(By.tagName("option")).get(1).click();
-            }catch (Exception ex) {}
-            
+        	Thread.sleep(3000);
+        	
             driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
             
             screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_1_llistaExpedients.png");
@@ -402,19 +401,8 @@ public class Entorn extends BaseTest {
 	        
 	        if (element==null) { fail("La reindexació a nivell d' entorn no s´ha executat correctament."); }
 	        
-        // Comprobamos que aparezcan
-        actions.moveToElement(driver.findElement(By.id("menuConsultes")));
-        actions.build().perform();
-        actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConsultes']//a[contains(@href, '/expedient/consultaDisseny.html')]")));
-        actions.click();
-        actions.build().perform();
-        
-        try {
-        	//A vegades passa directament a la pantalla de consulta disseny sense pasar per la seleccio de tipus Expedient / Consulta
-        	driver.findElement(By.xpath("//*[@id='expedientTipusId0']")).findElements(By.tagName("option")).get(1).click();
-        	driver.findElement(By.xpath("//*[@id='consultaId0']")).findElements(By.tagName("option")).get(1).click();
-        }catch (Exception ex) {}
-        
+        // Comprobamos que aparezcan      
+	    accedirConsultaLlistatExpedients();
         driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
 
         screenshotHelper.saveScreenshot("entorns/reindexar/6_llistaExpedientsDespresIndexar.png");
@@ -428,6 +416,9 @@ public class Entorn extends BaseTest {
         while (existeixElement(linkBorrarExpedient)) {
         	driver.findElement(By.xpath(linkBorrarExpedient)).click();
         	if (isAlertPresent()) { acceptarAlerta(); }
+        	Thread.sleep(5000);
+        	accedirConsultaLlistatExpedients();
+        	driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
         }
         
         eliminarTipusExpedient(codTipusExp);
@@ -475,7 +466,7 @@ public class Entorn extends BaseTest {
 		driver.findElement(By.xpath("//button[@value='cancel']")).click();
 	}
 	
-	@Test	
+	@Test
 	public void i2_eliminaEnumeracio() {
 		
 		carregarUrlDisseny();
@@ -493,7 +484,7 @@ public class Entorn extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No existeix l'enumeració a eliminar");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[4]/a")).click();
 		acceptarAlerta();
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
+		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut eliminar l enumeracio");
 	}
 
 
@@ -570,7 +561,7 @@ public class Entorn extends BaseTest {
 		
 		driver.findElement(By.xpath("/html/body/div[9]/div[11]/button[1]")).click();
 
-		if (isAlertPresent()) {			
+		if (isAlertPresent()) {	
 			boolean condicioProvaSQLok = getTexteAlerta().startsWith("[") && getTexteAlerta().endsWith("],"); 
 			assertTrue("El missatge retornat per el boto de prova no es l´esperat", condicioProvaSQLok);
 			acceptarAlerta();
@@ -636,9 +627,39 @@ public class Entorn extends BaseTest {
 	}
 
 	@Test
-	public void m_esborrarEntorns() {
+	public void n_esborrarEntorn_amb_tipus_expedient_actiu() {
 		
 		carregarUrlConfiguracio();
+		
+		seleccionarEntorn(titolEntorn);
+		
+		crearTipusExpedient("prova_elim_ent", "pee");
+		
+		// Intentam eliminar l´entorn, que no hauria de deixar per tenir encara un tipus expedient depenent d´ell
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/entorn/llistat.html')]")));
+		actions.click();
+		actions.build().perform();
+				
+		screenshotHelper.saveScreenshot("entorns/borrar/1_entornsExistents.png");
+
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "L'entorn de proves no existeix.");		
+
+		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[6]/a")).click();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		//Comprovam que apareix el missatge de que no es pot eliminar l´entorn
+		existeixElementAssert("//*[@id='errors']/p", "No s'ha pogut eliminar l'entorn");
+	}
+	
+	@Test
+	public void n_esborrarEntorns() {
+		
+		carregarUrlConfiguracio();
+		
+		//eliminarDefinicioProces("Cons1");		
 		
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 		
@@ -657,7 +678,9 @@ public class Entorn extends BaseTest {
 
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]/td[6]/a")).click();
 		
-		acceptarAlerta();
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		existeixElementAssert("//*[@id='infos']/p", "No s'ha pogut eliminar l'entorn");
 		
 		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "entorns/borrar/2_entornsExistents.png", "No s'ha pogut eliminar l'entorn");
 		
@@ -709,9 +732,11 @@ public class Entorn extends BaseTest {
 		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[2],'" + userol + "')]") && borraActuals) {
 			// eliminam els permisos actuals
 			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[2],'" + userol + "')]/td[4]/a")).click();
+			
+			//*[@id="registre"]/tbody/tr/td[4]/a
+			
 			acceptarAlerta();
-			noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2],'" + userol + "')]", 
-					"entorns/permisos/" + tipus + "/2_permisos.png", "No s'han pogut eliminar els permisos");
+			existeixElementAssert("//*[@id='infos']/p", "No se borraron los permisos correctamente");
 		}
 		
 		driver.findElement(By.id("nom0")).sendKeys(userol);

@@ -17,11 +17,11 @@ public class DefinicioProcesAgrupacions extends BaseTest {
 
 	String entorn = carregarPropietat("defproc.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("defproc.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
-	String pathExportEntorn = carregarPropietat("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
+	String pathExportEntorn = carregarPropietatPath("defproc.export.entorn.arxiu.path", "Ruta de l'exportació de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.disseny", "Usuari disseny de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin = carregarPropietat("test.base.usuari.configuracio", "Usuari configuracio de l'entorn de proves no configurat al fitxer de properties");
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
-	String pathDefProc = carregarPropietat("defproc.export.arxiu.path", "Ruta de l'exportació de la definició de procés de proves no configurat al fitxer de properties");
+	String pathDefProc = carregarPropietatPath("defproc.export.arxiu.path", "Ruta de l'exportació de la definició de procés de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codiAgrup1 = carregarPropietat("defproc.agrupacio.1.codi", "Codi de la agrupació 1 no configurat al fitxer de properties");
 	String nomAgrup1 = carregarPropietat("defproc.agrupacio.1.nom", "Nom de la agrupació 1 no configurat al fitxer de properties");
@@ -44,8 +44,7 @@ public class DefinicioProcesAgrupacions extends BaseTest {
 	
 	@Test
 	public void a1_inicialitzacio() {
-		carregarUrlDisseny();
-		saveEntornActual();
+		carregarUrlConfiguracio();
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		desplegarDefPro(TipusDesplegament.EXPORTDEFPRC, nomDefProc, null, pathDefProc, null, false, false);
@@ -127,7 +126,7 @@ public class DefinicioProcesAgrupacions extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiAgrup3 + "')]", "defproces/agrupacio/eliminar/" + codiAgrup3 + "/01_eliminar.png", "La agrupació a eliminar no existeix");
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiAgrup3 + "')]/td[4]/a")).click();
 		acceptarAlerta();
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codiAgrup3 + "')]", "defproces/agrupacio/eliminar/" + codiAgrup3 + "/02_eliminar.png", "La agrupació no s'ha pogut eliminar");
+		existeixElementAssert("//*[@id='infos']/p", "No se borro la agrupacion correctamente");
 	}
 	
 	@Test
@@ -137,8 +136,6 @@ public class DefinicioProcesAgrupacions extends BaseTest {
 		eliminarEnumeracio("enumsel");
 		eliminarDomini("enumerat");
 		eliminarTipusExpedient(codTipusExp);
-		if (entornActual != null && !"".equals(entornActual)) 
-			marcarEntornDefecte(entornActual);
 	}
 	
 	@Test

@@ -317,7 +317,9 @@ public class RegistreExpedient extends BaseTest {
 		driver.findElement(By.id("var_dat010")).sendKeys(new SimpleDateFormat("dd/MM/yyyy").format(avull.getTime()));
 		
 		driver.findElement(By.xpath(guardaTasca)).click();
-				
+		
+		Thread.sleep(3000);
+		
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'han pogut guardar els canvis de la tasca del tipus d´expedient "+codTipusExp+".");
 		
 		screenshotHelper.saveScreenshot("RegistreExpedient/retrocedirTascaDetall/3_Tasca_Guardada.png");
@@ -386,6 +388,7 @@ public class RegistreExpedient extends BaseTest {
 		actions.moveToElement(driver.findElement(By.id("menuConsultes")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/expedient/consulta.html')]")));
+		try { Thread.sleep(1000); } catch (Exception ex) {}
 		actions.click();
 		actions.build().perform();
 	}

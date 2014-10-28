@@ -23,6 +23,7 @@ import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ExecucioMassivaDocuments extends BaseTest {
+
 	String entorn = carregarPropietat("tramas.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn = carregarPropietat("tramas.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
@@ -41,6 +42,13 @@ public class ExecucioMassivaDocuments extends BaseTest {
 	String pathDocTipusExp = carregarPropietatPath("tipexp.deploy.expexe_document_massiva.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathArxiuPDF = carregarPropietatPath("deploy.arxiu.pdf.tramitacio_1", "Documento PDF a adjuntar 1");
 	String pathArxiuPlantillaODT = carregarPropietatPath("tramas_massivo.plantilla", "Documento plantilla a adjuntar");
+
+	//XPATHS
+	String botoExecMassiva = "//*[@id='page-entorn-menu']/div/a";
+	String linkDocMass = "//*[@id='registre']/tbody/tr[contains(td/a, 'exp_doc')]/td/a";
+	String botoBorrarDoc = "//*[@id='iconsFileInput_arxiuContingut0']/a[2]";
+	String botoModificarArxiu = "//*[@id='command']/div/button[contains(text(), 'Modificar')]";
+	
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -59,6 +67,33 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 
 		importarDadesTipExp(codTipusExp, pathDocTipusExp);
+		
+		//Canviar document importat per una plantilla
+		accedirPipellaDocsExpedient(codTipusExp);
+		
+		//Seleccionar Def. Proces
+		for (WebElement option : driver.findElement(By.name("definicioProcesId")).findElements(By.tagName("option"))) {
+			if (nomDefProc.equals(option.getText())) {
+				option.click();
+				break;
+			}
+		}
+		
+		driver.findElement(By.xpath(linkDocMass)).click();
+		
+		Thread.sleep(20000);
+		
+		driver.findElement(By.xpath(botoBorrarDoc)).click();
+		
+		Thread.sleep(20000);
+		
+		driver.findElement(By.id("arxiuContingut0")).sendKeys(pathArxiuPlantillaODT);
+
+		driver.findElement(By.xpath(botoModificarArxiu)).click();
+		
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
+		existeixElementAssert("//*[@id='infos']/p", "No se pudo asociar el documento plantilla al expediente.");
 		
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
@@ -134,6 +169,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 	
 	@Test
 	public void c_generar_document() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -153,7 +189,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'generar')]")).click();
 		acceptarAlerta();
 		
-		esperaFinExecucioMassiva();
+		esperaFinExecucioMassiva(botoExecMassiva);
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -194,7 +230,10 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		existeixElementAssert("//*[@id='documentCommandForm']//button[contains(@onclick,'adjunt')]","No existía el botón de generar");
 		assertTrue("El botón de 'Adjuntar document als expedients' no estaba habilitado", driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'adjunt')]")).isEnabled());
 		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'adjunt')]")).click();
-		acceptarAlerta();
+		
+		if (isAlertPresent()) acceptarAlerta();
+		
+		try {Thread.sleep(3000);}catch(Exception ex) {}
 		
 		// Introducimos los datos
 		driver.findElement(By.xpath("//*[@id='nom0']")).clear();
@@ -202,7 +241,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//input[@id='contingut0']")).sendKeys(pathArxiuPDF);
 		driver.findElement(By.xpath("//button[contains(@onclick,'adjunt')]")).click();
 				
-		esperaFinExecucioMassiva();		
+		esperaFinExecucioMassiva(botoExecMassiva);		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -241,7 +280,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='documentCommandForm']//button[contains(@onclick,'delete')]")).click();
 		acceptarAlerta();
 				
-		esperaFinExecucioMassiva();		
+		esperaFinExecucioMassiva(botoExecMassiva);		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -288,7 +327,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//input[@id='contingut0']")).sendKeys(temp.getAbsolutePath());		
 		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
 				
-		esperaFinExecucioMassiva();		
+		esperaFinExecucioMassiva(botoExecMassiva);		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -337,7 +376,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='data0']")).sendKeys(fecha );
 		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
 				
-		esperaFinExecucioMassiva();
+		esperaFinExecucioMassiva(botoExecMassiva);
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -386,7 +425,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		driver.findElement(By.xpath("//input[@id='contingut0']")).sendKeys(pathArxiuPlantillaODT);
 		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
 				
-		esperaFinExecucioMassiva();		
+		esperaFinExecucioMassiva(botoExecMassiva);		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -436,7 +475,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 		
 		driver.findElement(By.xpath("//button[contains(@onclick,'submit')]")).click();
 				
-		esperaFinExecucioMassiva();		
+		esperaFinExecucioMassiva(botoExecMassiva);		
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
@@ -452,9 +491,12 @@ public class ExecucioMassivaDocuments extends BaseTest {
 	
 	@Test
 	public void z_limpiar() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
+		
+		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ", "ADMINISTRATION");
 		
 		eliminarExpedient(null, null, nomTipusExp);
 		
