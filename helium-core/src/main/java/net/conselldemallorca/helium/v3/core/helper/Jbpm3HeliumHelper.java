@@ -1637,14 +1637,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	private net.conselldemallorca.helium.core.model.dto.PersonaDto toPersonaDto26(
 			PersonaDto personaDto30) {
-		net.conselldemallorca.helium.core.model.dto.PersonaDto resposta = new net.conselldemallorca.helium.core.model.dto.PersonaDto(
-				personaDto30.getCodi(),
-				personaDto30.getNom(),
-				personaDto30.getLlinatges(),
-				personaDto30.getEmail(),
-				Sexe.SEXE_HOME);
-		resposta.setDni(personaDto30.getDni());
-		return resposta;
+		if (personaDto30 != null) {
+			net.conselldemallorca.helium.core.model.dto.PersonaDto resposta = new net.conselldemallorca.helium.core.model.dto.PersonaDto(
+					personaDto30.getCodi(),
+					personaDto30.getNom(),
+					personaDto30.getLlinatges(),
+					personaDto30.getEmail(),
+					Sexe.SEXE_HOME);
+			resposta.setDni(personaDto30.getDni());
+			return resposta;
+		} else {
+			return null;
+		}
 	}
 
 	private void imprimirFuncio(String nom) {
