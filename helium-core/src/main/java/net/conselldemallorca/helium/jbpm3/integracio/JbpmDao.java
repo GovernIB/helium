@@ -915,14 +915,16 @@ public class JbpmDao {
 		Map<String, Token> activeTokens = new HashMap<String, Token>();
 		if (token.hasActiveChildren()) {
 			activeTokens = token.getActiveChildren();
-			for (Token t: activeTokens.values()){
-				activeTokens.putAll(getActiveTokens(t));
+			Map<String, Token> tokensPerAfegir = new HashMap<String, Token>();
+			for (Token t: activeTokens.values()) {
+				tokensPerAfegir.putAll(getActiveTokens(t));
 			}
+			activeTokens.putAll(tokensPerAfegir);
 		}
 		mesuresTemporalsHelper.mesuraCalcular("jBPM getActiveTokens", "jbpmDao");
 		return activeTokens;
 	}
-	
+
 	public Map<String, JbpmToken> getAllTokens(String processInstanceId) {
 		mesuresTemporalsHelper.mesuraIniciar("jBPM getAllTokens", "jbpmDao");
 		Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
