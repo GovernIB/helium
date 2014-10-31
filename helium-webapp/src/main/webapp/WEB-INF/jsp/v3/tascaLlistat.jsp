@@ -28,7 +28,10 @@ $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
-		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+		rowClickCallback: function(row) {
+			$('a.consultar-tasca', $(row))[0].click();
+		}
 	});
 	$("#mostrarTasquesPersonalsCheck").click(function() {
 		$("input[name=mostrarTasquesPersonals]").val(!$("#mostrarTasquesPersonalsCheck").hasClass('active'));
@@ -144,7 +147,7 @@ $(document).ready(function() {
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
 								{{if oberta && !suspesa}}
- 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+ 									<li><a class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 								{{/if}}
 								{{if responsables != null && !agafada && oberta && !suspesa}}

@@ -49,6 +49,23 @@ public class AlertaService {
 		if (vella != null)
 			alertaDao.delete(id);
 	}
+	
+	public int countActivesAmbEntornIUsuariAutenticat(Long entornId) {
+		mesuresTemporalsHelper.mesuraIniciar("Obtenir count alertes", "consulta");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		int count = alertaDao.countActivesAmbEntornIUsuari(entornId, auth.getName());
+		mesuresTemporalsHelper.mesuraCalcular("Obtenir count alertes", "consulta");
+		return count;
+	}
+	
+	public int countActivesAmbEntornIUsuariAutenticat(Long entornId, boolean llegides) {
+		mesuresTemporalsHelper.mesuraIniciar("Obtenir count alertes llegides", "consulta");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		int count = alertaDao.countActivesAmbEntornIUsuari(entornId, auth.getName(), llegides);
+		mesuresTemporalsHelper.mesuraCalcular("Obtenir count alertes llegides", "consulta");
+		return count;
+	}
+	
 	public List<Alerta> findActivesAmbEntornIUsuariAutenticat(Long entornId) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir alertes", "consulta");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

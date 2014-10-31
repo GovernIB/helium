@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
@@ -36,7 +35,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
-	public static final String VARIABLE_REQUEST_ALERTES_ACTIVES = "hiHaAlertesActives";
+//	public static final String VARIABLE_REQUEST_ALERTES_ACTIVES = "hiHaAlertesActives";
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
 	@Resource
@@ -109,22 +108,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						request,
 						SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
 						new Boolean(tipus.size() > 0));
-				// Indica si hi ha alertes
-				List<Alerta> alertes = alertaService.findActivesAmbEntornIUsuariAutenticat(
-						entornActual.getId());
-				request.setAttribute(
-						VARIABLE_REQUEST_ALERTES_ACTIVES,
-						new Boolean(alertes != null && alertes.size() > 0));
-				boolean totesLlegides = true;
-				for (Alerta alerta: alertes) {
-					if (!alerta.isLlegida()) {
-						totesLlegides = false;
-						break;
-					}
-				}
-				request.setAttribute(
-						VARIABLE_REQUEST_ALERTES_NOLLEGIDES,
-						new Boolean(!totesLlegides));
+				// Indica si hi ha alertes no llegides
+				int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuariAutenticat(entornActual.getId(), false);
+				request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
+				
 				// Refresca el tipus d'expedient actual
 				String canviExpedientTipus = request.getParameter(VARIABLE_REQUEST_CANVI_EXPTIP);
 				if (canviExpedientTipus != null) {

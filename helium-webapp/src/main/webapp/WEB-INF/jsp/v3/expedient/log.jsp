@@ -173,7 +173,8 @@
 										<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
 										<c:when test="${log.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"></c:when>
 										<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">
-											<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
+										
+											<c:if test="${isAdmin}">
 												<a href="<c:url value="../../v3/expedient/retrocedir">
 													<c:param name="id" value="${expedient.id}"/>
 													<c:param name="logId" value="${log.id}"/>
@@ -186,7 +187,7 @@
 														border="0">
 													</i>
 												</a>
-											</security:accesscontrollist>
+											</c:if>
 										</c:when>				
 										<c:otherwise></c:otherwise>
 									</c:choose>

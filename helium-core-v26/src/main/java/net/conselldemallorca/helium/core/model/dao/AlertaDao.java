@@ -23,7 +23,7 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 		super(Alerta.class);
 	}
 
-	public List<Alerta> findActivesAmbEntornIUsuari(Long entornId, String usuariCodi) {
+	public int countActivesAmbEntornIUsuari(Long entornId, String usuariCodi) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
 		crit.createAlias("expedient", "exp");
@@ -31,6 +31,17 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 		crit.add(Restrictions.eq("destinatari", usuariCodi));
 		crit.add(Restrictions.isNull("dataEliminacio"));
 		crit.add(Restrictions.isNull("exp.dataFi"));
+		return getCountByCriteria(crit);
+	}
+
+	public List<Alerta> findActivesAmbEntornIUsuari(Long entornId, String usuariCodi) {
+		Criteria crit = getSession().createCriteria(
+				getPersistentClass());
+		crit.createAlias("expedient", "exp");
+		crit.add(Restrictions.eq("entorn.id", entornId));
+		crit.add(Restrictions.eq("destinatari", usuariCodi));
+		crit.add(Restrictions.isNull("dataEliminacio"));
+		crit.add(Restrictions.isNull("exp.dataFi"));		
 		return findByCriteria(crit);
 	}
 
@@ -54,4 +65,18 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 				Restrictions.isNull("dataEliminacio"));
 	}
 
+	public int countActivesAmbEntornIUsuari(Long entornId, String usuariCodi, boolean llegides) {
+		Criteria crit = getSession().createCriteria(
+				getPersistentClass());
+		crit.createAlias("expedient", "exp");
+		crit.add(Restrictions.eq("entorn.id", entornId));
+		crit.add(Restrictions.eq("destinatari", usuariCodi));
+		if (llegides)
+			crit.add(Restrictions.isNotNull("dataLectura"));
+		else
+			crit.add(Restrictions.isNull("dataLectura"));
+		crit.add(Restrictions.isNull("dataEliminacio"));
+		crit.add(Restrictions.isNull("exp.dataFi"));
+		return getCountByCriteria(crit);
+	}
 }

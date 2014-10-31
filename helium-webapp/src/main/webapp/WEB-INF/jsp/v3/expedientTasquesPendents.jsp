@@ -7,7 +7,7 @@
 <c:choose>
 	<c:when test="${not empty tasques}">
 		<tr class="table-pendents header">
-			<td class="nodata"></td>
+			<td class="first nodata"></td>
 			<td class="nodata"></td>
 			<td class="maxcols"><spring:message code="expedient.tasca.columna.tasca"/></td>
 			<td class="datacol"><spring:message code="expedient.tasca.columna.datcre"/></td>
@@ -16,7 +16,7 @@
 		</tr>
 		<c:forEach var="tasca" items="${tasques}" varStatus="index">
 			<tr class="table-pendents link-tramitacio-modal <c:if test="${index.last}">fin-table-pendents</c:if>">
-				<td class="nodata"></td>
+				<td class="first nodata"></td>
 				<td class="nodata"></td>
 				<td class="maxcols">
 					${tasca.titol}
@@ -52,7 +52,7 @@
 	</c:when>
 	<c:otherwise>
 		<tr class="table-pendents fin-table-pendents">
-			<td colspan="2"></td>
+			<td id="td_nohiha"></td>
 			<td colspan="100%" class="no-datacol">
 				<div class="well-small"><spring:message code="expedient.tasca.nohiha"/></div>
 			</td>
@@ -88,6 +88,12 @@
 			refrescarPagina: false
 		});
 		var maxcol = $("#taulaDades thead th").length - 5;
+		if($("#taulaDades thead th ").find('input[type="checkbox"]').is(':hidden')) {
+			$(".first").hide();
+			$("#td_nohiha").attr('colspan', 1);
+		} else {
+			$("#td_nohiha").attr('colspan', 2);
+		}
 		$(".maxcols").attr('colspan', maxcol);
 		$(".datacol").attr('colspan', (maxcol > 7) ? 2 : 1);
 	//]]>

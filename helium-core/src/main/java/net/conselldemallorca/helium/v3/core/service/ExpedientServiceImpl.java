@@ -2108,6 +2108,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Camp camp = campRepository.findById(tascaDadaDto.getCampId());
 			if (camp == null) {
 				camp = new Camp(
+//						consulta.getExpedientTipus().getDefinicionsProces(),
 						null,
 						tascaDadaDto.getVarCodi(),
 						TipusCamp.STRING,
@@ -2174,7 +2175,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
 						campsInforme,
-						expedient.getProcessInstanceId());
+						expedient);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
@@ -2524,7 +2525,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (Camp camp: campsFiltre) {
 			if (consulta.getMapValorsPredefinits().containsKey(camp.getCodi())) {
 				valors.put(
-						camp.getDefinicioProces().getJbpmKey() + "." + camp.getCodi(),
+						camp.getDefinicioProces()!= null ? camp.getDefinicioProces().getJbpmKey() + "." + camp.getCodi() : camp.getCodi(),
 						Camp.getComObject(
 								camp.getTipus(),
 								consulta.getMapValorsPredefinits().get(camp.getCodi())));

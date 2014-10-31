@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -318,7 +319,7 @@ public class DtoConverter {
 	public void revisarDadesExpedientAmbValorsEnumeracionsODominis(
 			Map<String, DadaIndexadaDto> dadesExpedient,
 			List<Camp> campsInforme, 
-			String processInstanceId) {
+			Expedient expedient) {
 		String dadaIndexadaClau = null;
 		for (Camp camp: campsInforme) {
 			if (camp != null && camp.getDefinicioProces() != null) {
@@ -329,13 +330,22 @@ public class DtoConverter {
 				DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
 				if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
 					String text = variableHelper.getTextVariableSimple(
-						camp,
-						dadaIndexada.getValorIndex(),
-						null,
-						null,
-						processInstanceId);
+							camp,
+							dadaIndexada.getValorIndex(),
+							null,
+							null,
+							expedient.getProcessInstanceId());	
 					dadaIndexada.setValorMostrar(text);
 				} 
+			} else if (camp.getCodi().equals(ExpedientCamps.EXPEDIENT_CAMP_ESTAT)) {
+				String text = null;
+				if (expedient.getEstat() != null)
+					text = expedient.getEstat().getNom();
+				else if (expedient.getDataFi() != null)
+					text = "Finalizat";
+				else
+					text = "Iniciat";
+				dadesExpedient.get(camp.getCodi()).setValorMostrar(text);
 			}
 		}
 	}
