@@ -63,6 +63,8 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null)
+			return new ArrayList<EntornDto>();
 		String usuariActual = auth.getName();
 		logger.debug("Cercant entorns permesos per a l'usuari actual (codi=" + usuariActual + ")");
 		return usuariActualCacheHelper.findEntornsPermesosUsuariActual(auth.getName());
