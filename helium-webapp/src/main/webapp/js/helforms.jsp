@@ -188,7 +188,7 @@ var submitAction;
 function saveAction(element, action) {
 	submitAction = action;
 // 	if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
-	if($.browser.msie && parseInt(versio.substring(0,3))<=7){
+	if($.browser.msie && parseInt(jQuery.browser.version.substring(0,1))<=7){
 		element.innerHTML = action;
 		var $submits = document.getElementsByName("submit");
 		for (var i = 0; i < $submits.length; i++) {
