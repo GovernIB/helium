@@ -132,6 +132,10 @@ public class EntornService {
 			msg = msg.substring(0, msg.length() - 2);
 			throw new NotRemovableException(getMessage("error.entornService.delete", new Object[]{msg}));
 		}
+		List<Area> areas = areaDao.findAreaAmbEntorn(entornId);
+		for (Area area : areas) {
+			areaDao.delete(area);
+		}
 		entornDao.delete(entornId);
 	}
 	@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})

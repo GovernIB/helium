@@ -42,6 +42,10 @@ public class AreaDao extends HibernateGenericDao<Area, Long> {
 			Long entornId) {
 		return getCountByCriteria(Restrictions.eq("entorn.id", entornId));
 	}
+	public List<Area> findAreaAmbEntorn(
+			Long entornId) {
+		return findByCriteria(Restrictions.eq("entorn.id", entornId));
+	}	
 	public Area findAmbEntornICodi(
 			Long entornId,
 			String codi) {

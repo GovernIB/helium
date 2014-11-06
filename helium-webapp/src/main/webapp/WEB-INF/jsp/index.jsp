@@ -39,7 +39,7 @@
 					<fmt:message key='index.alert_pendents' />
 				</h4>
 				<br/>
-				<p style="padding-left: 18px">($alertesCountLlistat) <a href="<c:url value="/alerta/llistat.html"/>" title="<fmt:message key='index.veure_alert' />"><fmt:message key='index.alertes' /></a> <fmt:message key='index.pendents' /></p>
+				<p style="padding-left: 18px">(${alertesCountLlistat}) <a href="<c:url value="/alerta/llistat.html"/>" title="<fmt:message key='index.veure_alert' />"><fmt:message key='index.alertes' /></a> <fmt:message key='index.pendents' /></p>
 			</div>
 		</c:if>
 	</c:if>

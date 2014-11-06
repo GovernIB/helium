@@ -81,6 +81,9 @@ public class OrganitzacioService {
 	public int countAreaAmbEntorn(Long entornId) {
 		return areaDao.getCountAmbEntorn(entornId);
 	}
+	public List<Area> findAreaAmbEntorn(Long entornId) {
+		return areaDao.findAreaAmbEntorn(entornId);
+	}
 	public Area findAreaAmbEntornICodi(
 			Long entornId,
 			String codi) {
