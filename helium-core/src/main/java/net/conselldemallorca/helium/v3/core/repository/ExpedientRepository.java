@@ -75,7 +75,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives3) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
-			"and (:mostrarAnulats = true or e.anulat = false)")
+			"and (:mostrarAnulats = true or e.anulat = false) " +
+			"and (:nomesAlertes = false or e.errorDesc is not null)")
 	Page<Expedient> findByFiltreGeneralPaginat(
 			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
@@ -106,6 +107,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
+			@Param("nomesAlertes") boolean nomesAlertes,			
 			Pageable pageable);
 
 	@Query(	"select e.id " +
@@ -178,7 +180,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
-			"and (:mostrarAnulats = true or e.anulat = false)")
+			"and (:mostrarAnulats = true or e.anulat = false) " +
+			"and (:nomesAlertes = false or e.errorDesc is not null)")
 	List<String> findProcessInstanceIdsByFiltreGeneral(
 			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
@@ -202,7 +205,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("geoPosY") Double geoPosY,
 			@Param("esNullGeoReferencia") boolean esNullGeoReferencia,
 			@Param("geoReferencia") String geoReferencia,
-			@Param("mostrarAnulats") boolean mostrarAnulats);
+			@Param("mostrarAnulats") boolean mostrarAnulats,
+			@Param("nomesAlertes") boolean nomesAlertes);
 
 	@Query("select e from Expedient e where entorn.id = :entornId AND (titol like '%'||:text||'%' or numero like '%'||:text||'%') order by numero, titol")
 	List<Expedient> findAmbEntornLikeIdentificador(

@@ -39,13 +39,30 @@
 						<c:if test="${tasca.agafada}">
 							<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 						</c:if>
-					</div>
-					 <a href="../../v3/expedient/${tasca.expedientId}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"></</a> 
+						<c:if test="${tasca.tramitacioMassiva}">
+							<a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a>
+						</c:if>
+					</div> 
 				</td>
 				<td class="datacol"><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 				<td class="datacol"><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>
 				<td class="options">
-					<button class="btn btn-primary"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></button>
+					<c:choose>
+						<c:when test="${tasca.tramitacioMassiva}">
+							<div class="dropdown navbar-right">
+								<button class="btn btn-primary" data-toggle="dropdown">
+									<span class="fa fa-cog"></span>&nbsp;<spring:message code="tasca.llistat.accio.tramitar"/>&nbsp;<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a class="consultar-tasca" data-rdt-link-modal="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></li>
+									<li><a id="btnTramitacio" class="consultar-tasca" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></li>
+								</ul>
+							</div>
+						</c:when>
+						<c:otherwise>
+							<a id="btnTramitacio" class="btn btn-primary" data-rdt-link-modal="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/>
+						</c:otherwise>
+					</c:choose>	
 				</td>
 			</tr>
 		</c:forEach>
@@ -77,15 +94,10 @@
 
 <script type="text/javascript">
 	// <![CDATA[
-		$(document).ready(function() {
-			$('.link-tramitacio-modal button').click(function(e) {
-				e.preventDefault();
-				$('.link-tramitacio-modal').find("a").click();
-			});			
-		});
 		$('.link-tramitacio-modal a').heliumEvalLink({
 			refrescarAlertes: true,
-			refrescarPagina: false
+			refrescarPagina: false,
+			maximize: true
 		});
 		var maxcol = $("#taulaDades thead th").length - 5;
 		if($("#taulaDades thead th ").find('input[type="checkbox"]').is(':hidden')) {

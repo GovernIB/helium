@@ -53,6 +53,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
+import net.conselldemallorca.helium.v3.core.helper.DtoConverter.DadesCacheTasca;
 import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
@@ -150,8 +151,6 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private PluginHelper pluginHelper;
 
-
-
 	@Override
 	@Transactional(readOnly = true)
 	public ExpedientTascaDto findAmbIdPerExpedient(
@@ -178,11 +177,72 @@ public class TascaServiceImpl implements TascaService {
 				true);
 		return tascaHelper.getExpedientTascaCompleteDto(task);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> findIdsAmbFiltre (
+			Long entornId,
+			String consultaTramitacioMassivaTascaId,
+			Long expedientTipusId,
+			String responsable) {
+		logger.debug("Consulta de ids tasques segons filtre (" +
+				"entornId=" + entornId + ", " +
+				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"responsable=" + responsable + ")");
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				false,
+				false);
+		// Comprova l'accés al tipus d'expedient
+		if (expedientTipusId != null) {
+			expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					expedientTipusId,
+					true,
+					false,
+					false);
+		}
+		// Obté la llista de tipus d'expedient permesos
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION});
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
+		
+		List<JbpmTask> tasques = jbpmHelper.findPersonalTasks(responsable);
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				consultaTramitacioMassivaTascaId,
+				true,
+				true);
+		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		DadesCacheTasca dadesCache = dtoConverter.getDadesCacheTasca(task, exp);
+		
+		// Filtra les tasques per mostrar només les del entorn seleccionat
+		List<Long> listaIds = new ArrayList<Long>();
+		for (JbpmTask taska: tasques) {
+			DadesCacheTasca expedientTascaDto = dtoConverter.getDadesCacheTasca(taska, exp);
+			if (entornId.equals(exp.getEntorn().getId()) && task.getName().equals(taska.getName()) && dadesCache.getDefinicioProcesJbpmKey().equals(expedientTascaDto.getDefinicioProcesJbpmKey())) {
+				listaIds.add(Long.parseLong(taska.getId()));
+			}
+		}
+		return listaIds;
+	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
+			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
 			String responsable,
 			String tasca,
@@ -197,6 +257,7 @@ public class TascaServiceImpl implements TascaService {
 			final PaginacioParamsDto paginacioParams) {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
+				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"responsable=" + responsable + ", " +
 				"tasca=" + tasca + ", " +
@@ -243,14 +304,6 @@ public class TascaServiceImpl implements TascaService {
 			sort = or.getCamp();
 			break;
 		}
-		List<Long> idsExpedients = expedientDao.findListExpedients(
-				entornId, 
-				responsable,
-				expedient, 
-				null,
-				expedientTipusId,
-				sort,
-				asc);	
 		// Calcula la data d'creacio fi pel filtre
 		if (dataCreacioFi != null) {
 			Calendar cal = Calendar.getInstance();
@@ -265,19 +318,56 @@ public class TascaServiceImpl implements TascaService {
 			cal.add(Calendar.DATE, 1);
 			dataLimitFi.setTime(cal.getTime().getTime());
 		}
-		final LlistatIds ids = jbpmHelper.findListTasks(
-				responsable,
-				tasca,
-				idsExpedients,
-				dataCreacioInici,
-				dataCreacioFi,
-				prioritat,
-				dataLimitInici,
-				dataLimitFi,
-				paginacioParams,
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup,
-				true);
+		LlistatIds ids = new LlistatIds();
+		if (consultaTramitacioMassivaTascaId == null) {
+			List<Long> idsExpedients = expedientDao.findListExpedients(
+					entornId, 
+					responsable,
+					expedient, 
+					null,
+					expedientTipusId,
+					sort,
+					asc);
+		
+			ids = jbpmHelper.findListTasks(
+					responsable,
+					tasca,
+					idsExpedients,
+					dataCreacioInici,
+					dataCreacioFi,
+					prioritat,
+					dataLimitInici,
+					dataLimitFi,
+					paginacioParams,
+					mostrarTasquesPersonals,
+					mostrarTasquesGrup,
+					true);
+		} else {
+			List<JbpmTask> tasques = jbpmHelper.findPersonalTasks(responsable);
+			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+					consultaTramitacioMassivaTascaId,
+					true,
+					true);
+			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+			DadesCacheTasca dadesCache = dtoConverter.getDadesCacheTasca(task, exp);
+			
+			// Filtra les tasques per mostrar només les del entorn seleccionat
+			List<Long> listaIds = new ArrayList<Long>();
+			for (JbpmTask taska: tasques) {
+				DadesCacheTasca expedientTascaDto = dtoConverter.getDadesCacheTasca(taska, exp);
+				if (entornId.equals(exp.getEntorn().getId()) && task.getName().equals(taska.getName()) && dadesCache.getDefinicioProcesJbpmKey().equals(expedientTascaDto.getDefinicioProcesJbpmKey())) {
+					listaIds.add(Long.parseLong(taska.getId()));
+				}
+			}
+			
+			ids.setIds(listaIds);
+			ids.setCount(listaIds.size());
+		}
+		return getPaginaExpedientTascaDto(ids, paginacioParams);
+	}
+
+	private PaginaDto<ExpedientTascaDto> getPaginaExpedientTascaDto(final LlistatIds ids, final PaginacioParamsDto paginacioParams) {
+
 		final List<JbpmTask> tasques = jbpmHelper.findTasks(ids.getIds());
 		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
 			@Override
@@ -322,7 +412,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 			@Override
 			public int getSize() {
-				return paginacioParams.getPaginaTamany();
+				return Math.max(paginacioParams.getPaginaTamany(),ids.getCount());
 			}
 			@Override
 			public int getNumberOfElements() {
@@ -404,6 +494,20 @@ public class TascaServiceImpl implements TascaService {
 				true,
 				true);
 		return variableHelper.findDadesPerInstanciaTasca(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids) {
+		logger.debug("Consultant expedients de las tascas (" +
+				"ids=" + ids + ")");
+
+		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
+		for (Long id : ids) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(id));
+			expedientTasques.add(tascaHelper.getExpedientTascaDto(task));
+		}
+		return expedientTasques;
 	}
 
 	@Override
@@ -986,5 +1090,5 @@ public class TascaServiceImpl implements TascaService {
 			antiga.setDataEliminacio(new Date());
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);	
+	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
 }

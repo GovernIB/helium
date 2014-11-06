@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ attribute name="name" required="true" rtexprvalue="true"%>
@@ -11,7 +12,10 @@
 <%@ attribute name="urlConsultaInicial" required="true" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<%@ attribute name="id" required="false" rtexprvalue="true"%>
+<%@ attribute name="multiple" required="false" rtexprvalue="true"%>
 <c:set var="campPath" value="${name}"/>
+<c:choose><c:when test='${multiple}'><c:set var="campId" value="${fn:replace(fn:replace(id, '[', ''), ']','')}"/></c:when><c:otherwise><c:set var="campId" value="${name}"/></c:otherwise></c:choose>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:choose>
 	<c:when test="${not empty placeholderKey}"><c:set var="placeholderText"><spring:message code="${placeholderKey}"/></c:set></c:when>
@@ -29,18 +33,24 @@
 				<c:if test="${required}">*</c:if>
 			</label>
 			<div class="controls col-xs-8">
-				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"/>
+				<c:choose>
+					<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}" style="width: 100%"/></c:when>
+					<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"/></c:otherwise>
+				</c:choose>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 		</div>
 	</c:when>
 	<c:otherwise>
-		<form:input path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}"/> 
+		<c:choose>
+			<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}"/></c:when>
+			<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"/></c:otherwise>
+		</c:choose>
 	</c:otherwise>
 </c:choose>
 <script>
 $(document).ready(function() {
-	$("#${campPath}").select2({
+	$("#${campId}").select2({
 	    minimumInputLength: 3,
 	    width: '100%',
 	    placeholder: '${placeholderText}',

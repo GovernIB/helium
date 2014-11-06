@@ -51,6 +51,7 @@ public class ExpedientTipusHelper {
 					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.READ,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION},
 					auth)) {
 				throw new NotAllowedException(

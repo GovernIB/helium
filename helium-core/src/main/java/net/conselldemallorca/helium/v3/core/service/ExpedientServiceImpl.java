@@ -879,7 +879,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					geoPosY,
 					(geoReferencia == null),
 					geoReferencia,
-					mostrarAnulats);	
+					mostrarAnulats,
+					nomesAlertes);	
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
 					auth.getName(),
 					idsInstanciesProces);
@@ -942,6 +943,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				rootProcessInstanceIdsAmbTasquesActives4,
 				rootProcessInstanceIdsAmbTasquesActives5,
 				mostrarAnulats,
+				nomesAlertes,
 				paginacioHelper.toSpringDataPageable(paginacioParams));			
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
@@ -1080,7 +1082,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					geoPosY,
 					(geoReferencia == null),
 					geoReferencia,
-					mostrarAnulats);	
+					mostrarAnulats,
+					nomesAlertes);	
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
 					auth.getName(),
 					idsInstanciesProces);

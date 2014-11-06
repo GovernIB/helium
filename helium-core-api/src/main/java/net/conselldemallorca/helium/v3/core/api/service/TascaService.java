@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -63,6 +64,7 @@ public interface TascaService {
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
+	 * @param consultaTramitacioMassiva 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
 	 * @param tasca
@@ -95,6 +97,7 @@ public interface TascaService {
 	 */
 	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
+			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
 			String responsable,
 			String tasca,
@@ -371,4 +374,8 @@ public interface TascaService {
 			int index);
 
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
+	
+	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids);
+
+	public List<Long> findIdsAmbFiltre(Long entornId, String consultaTramitacioMassivaTascaId, Long expedientTipusId, String responsable);
 }

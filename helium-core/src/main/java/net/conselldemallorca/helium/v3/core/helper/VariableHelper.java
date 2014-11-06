@@ -342,6 +342,8 @@ public class VariableHelper {
 			dto.setJbpmAction(camp.getJbpmAction());
 			if (camp.getAgrupacio() != null)
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
+			if (camp.getValidacions() != null)
+				dto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
 		} else {
 			dto.setCampEtiqueta(varCodi);
 			dto.setText(String.valueOf(varValor));
@@ -390,7 +392,13 @@ public class VariableHelper {
 						}
 					}
 				} else {
-					Object[] valorsMultiples = (Object[])varValor;
+					Object[] valorsMultiples = null;
+					// Comprovam que el valor desat actual és de tipus array. En cas contrari el convertim a array
+					if (varValor == null || varValor instanceof Object[]) {
+						valorsMultiples = (Object[])varValor;
+					} else { 
+						valorsMultiples = new Object[] {varValor};
+					}	
 					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
 					if (valorsMultiples != null) {
 						for (Object valor : valorsMultiples) {
@@ -681,6 +689,7 @@ public class VariableHelper {
 		tascaDto.setError(expedientDadaDto.getError());
 		tascaDto.setObservacions(expedientDadaDto.getObservacions());
 		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setValidacions(expedientDadaDto.getValidacions());
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {

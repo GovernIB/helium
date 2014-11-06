@@ -364,6 +364,7 @@ public class TascaHelper {
 		
 		dto.setDocumentsComplet(isDocumentsComplet(task));
 		dto.setSignaturesComplet(isSignaturesComplet(task));
+		dto.setTramitacioMassiva(tasca.isTramitacioMassiva());
 		
 		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
 		
@@ -391,6 +392,7 @@ public class TascaHelper {
 
 	public ExpedientTascaDto getExpedientTascaCompleteDto(JbpmTask task) {
 		ExpedientTascaDto dto = getExpedientTascaDto(task, null);
+		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
 		DelegationInfo delegationInfo = getDelegationInfo(task);
 		if (delegationInfo != null) {
 			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
@@ -426,6 +428,7 @@ public class TascaHelper {
 		DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(
 				task,
 				expedient);
+		dto.setTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
 		dto.setTitol(dadesCacheTasca.getTitol());
 		dto.setDescripcio(task.getDescription());
 		if (task.isCancelled()) {

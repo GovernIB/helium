@@ -30,6 +30,7 @@ public class ExpedientDadaDto {
 	private String text;
 	private List<ExpedientDadaDto> multipleDades;
 	private List<ExpedientDadaDto> registreDades;
+	private List<ValidacioDto> validacions;
 
 	private String error;
 
@@ -110,6 +111,12 @@ public class ExpedientDadaDto {
 	}
 	public void setRegistreDades(List<ExpedientDadaDto> registreDades) {
 		this.registreDades = registreDades;
+	}
+	public List<ValidacioDto> getValidacions() {
+		return validacions;
+	}
+	public void setValidacions(List<ValidacioDto> validacions) {
+		this.validacions = validacions;
 	}
 	public String getError() {
 		return error;

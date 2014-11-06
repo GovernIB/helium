@@ -100,6 +100,7 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean cancelada;
 	private boolean suspesa;
 	private boolean transicioPerDefecte;
+	private boolean tramitacioMassiva;
 	private List<String> transicions;
 	
 	private Long expedientId;
@@ -465,6 +466,12 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	}
 	public void setExpedientTipusNom(String expedientTipusNom) {
 		this.expedientTipusNom = expedientTipusNom;
+	}
+	public boolean isTramitacioMassiva() {
+		return tramitacioMassiva;
+	}
+	public void setTramitacioMassiva(boolean tramitacioMassiva) {
+		this.tramitacioMassiva = tramitacioMassiva;
 	}
 
 }

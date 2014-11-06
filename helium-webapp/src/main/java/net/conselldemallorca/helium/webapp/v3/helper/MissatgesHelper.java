@@ -126,5 +126,15 @@ public class MissatgesHelper {
 			error(request, errorText);
 		}		
 	}
+	
+	public static void errorGlobal(
+			HttpServletRequest request,
+			BindingResult result,
+			String textValidacio) {
+		for (ObjectError error: result.getGlobalErrors()) {
+			String errorText = (error.getDefaultMessage() == null || error.getDefaultMessage().isEmpty()) ? textValidacio : error.getDefaultMessage();
+			error(request, errorText);
+		}
+	}
 
 }

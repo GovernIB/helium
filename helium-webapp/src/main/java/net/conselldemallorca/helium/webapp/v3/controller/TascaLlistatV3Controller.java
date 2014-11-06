@@ -7,7 +7,10 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -22,6 +25,7 @@ import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -33,6 +37,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,6 +62,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
+		SessionHelper.removeAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA);
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		model.addAttribute(filtreCommand);
 		return "v3/tascaLlistat";
@@ -82,6 +90,22 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		filtre(request, filtreCommand, bindingResult, accio);
 		return "redirect:tasca";
 	}
+
+	@RequestMapping(value = "/{tascaId}/massiva", method = RequestMethod.GET)
+	@ResponseStatus(value = HttpStatus.OK)
+	public String tramitarMassiva(
+			HttpServletRequest request,
+			@PathVariable String tascaId, 
+			@Valid TascaConsultaCommand filtreCommand,
+			BindingResult bindingResult) {
+		filtreCommand.setConsultaTramitacioMassivaTascaId(tascaId);
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA,
+				filtreCommand);
+		return "v3/tascaLlistat";
+	}
+	
 	@RequestMapping(value = "/filtre", method = RequestMethod.POST)
 	@ResponseStatus(value = HttpStatus.OK)
 	public void filtre(
@@ -116,6 +140,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 				request,
 				tascaService.findPerFiltrePaginat(
 						entornActual.getId(),
+						filtreCommand.getConsultaTramitacioMassivaTascaId(),
 						filtreCommand.getExpedientTipusId(),
 						request.getUserPrincipal().getName(),
 						filtreCommand.getTasca(),
@@ -128,6 +153,78 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 						filtreCommand.isMostrarTasquesPersonals(),
 						filtreCommand.isMostrarTasquesGrup(),
 						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+	}
+
+	@RequestMapping(value = "/seleccioTots")
+	@ResponseBody
+	public Set<Long> seleccioTots(HttpServletRequest request) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
+		List<Long> ids = tascaService.findIdsAmbFiltre(
+						entornActual.getId(),
+						filtreCommand.getConsultaTramitacioMassivaTascaId(),
+						filtreCommand.getExpedientTipusId(),
+						request.getUserPrincipal().getName());
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaTasca(seleccio);
+		}
+		if (ids != null) {
+			for (Long id: ids) {
+				try {
+					if (id >= 0) {
+						seleccio.add(id);
+					} else {
+						seleccio.remove(-id);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+			Iterator<Long> iterador = seleccio.iterator();
+			while( iterador.hasNext() ) {
+				if (!ids.contains(iterador.next())) {
+					iterador.remove();
+				}
+			}
+		}
+		return seleccio;
+	}
+
+	@RequestMapping(value = "/seleccioNetejar")
+	@ResponseBody
+	public Set<Long> seleccioNetejar(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		ids.clear();
+		return ids;
+	}
+	
+	@RequestMapping(value = "/selection", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> seleccio(
+			HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaTasca(seleccio);
+		}
+		if (ids != null) {
+			String[] idsparts = (ids.contains(",")) ? ids.split(",") : new String[] {ids};
+			for (String id: idsparts) {
+				try {
+					long l = Long.parseLong(id.trim());
+					if (l >= 0) {
+						seleccio.add(l);
+					} else {
+						seleccio.remove(-l);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+		}
+		return seleccio;
 	}
 
 	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)

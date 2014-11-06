@@ -1,10 +1,12 @@
+/**
+ * 
+ */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -63,72 +65,133 @@ public class TascaFormHelper {
 				false);
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map<String, Object> getValorsFromCommand(
 			List<TascaDadaDto> tascaDadas,
 			Object command,
 			boolean perFiltre) {
     	Map<String, Object> resposta = new HashMap<String, Object>();
     	for (TascaDadaDto camp: tascaDadas) {
-    		if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE) && !camp.getCampTipus().equals(CampTipusDto.ACCIO)) {
-	    		try {
+    		try {
+    			if (!camp.getCampTipus().equals(CampTipusDto.ACCIO)) {
 		    		Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-		    		if (camp.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
-		    			valor = Boolean.FALSE;
-		    		}
+		    		if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+    					valor = getArrayFromRegistre(camp, valor);
+    				}
 		    		if (!perFiltre && camp.isCampMultiple()) {
 	    				// Lleva els valors buits de l'array
-		    			int tamany = 0;
-		    			for (int i = 0; i < Array.getLength(valor); i++) {
-		    				Object va = Array.get(valor, i);
-		    				if (va != null && !"".equals(va))
-		    					tamany++;
+		    			List valorSenseBiuts = new ArrayList();
+		    			if (valor != null)
+			    			for (int i = 0; i < Array.getLength(valor); i++) {
+			    				Object va = Array.get(valor, i);
+			    				if (camp.getCampTipus().equals(CampTipusDto.BOOLEAN) && va == null) {
+					    			va = Boolean.FALSE;
+					    		}
+			    				if (!empty(va)) {
+			    					if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+				    					va = ((TerminiDto)va).toSavinString();
+				    				}
+			    					valorSenseBiuts.add(va);
+			    				}
+			    			}
+		    			Object newArray = null;
+		    			if (!valorSenseBiuts.isEmpty()) {
+	    					newArray = Array.newInstance(camp.getCampTipus().equals(CampTipusDto.TERMINI) ? String.class : camp.getJavaClass(), valorSenseBiuts.size());
+		    				int index = 0;
+		    				for (Object val: valorSenseBiuts) {
+		    					Array.set(newArray, index++, val);
+		    				}
 		    			}
-		    			Object newArray = cloneMultipleArray(
-		    					camp.getVarCodi(),
-		    					command,
-		    					tascaDadas,
-		    					tamany - Array.getLength(valor));
-		    			int index = 0;
-		    			for (int i = 0; i < Array.getLength(valor); i++) {
-		    				Object va = Array.get(valor, i);
-		    				if (va != null && !"".equals(va))
-		    					Array.set(newArray, index++, va);
-		    			}
-		    			if (Array.getLength(newArray) > 0)
-		    				resposta.put(
-		    						camp.getVarCodi(),
-		    						newArray);
-		    			else
-		    				resposta.put(
-		    						camp.getVarCodi(),
-		    						null);
+	    				resposta.put(
+	    						camp.getVarCodi(),
+	    						newArray);
 		    		} else {
+		    			if (camp.getCampTipus().equals(CampTipusDto.TERMINI) && valor != null) {
+	    					valor = ((TerminiDto)valor).toSavinString();
+	    				}
+		    			if (camp.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
+			    			valor = Boolean.FALSE;
+			    		}
 		    			resposta.put(
 		    					camp.getVarCodi(),
 		    					valor);
 		    		}
-	    		} catch (Exception ignored) {}
-    		}
+    			}
+    		} catch (Exception ignored) {}
     	}
     	return resposta;
 	}
 
-	public static Object addMultiple(String field, Object command, List<TascaDadaDto> tascaDadas) throws Exception {
-		Object value = PropertyUtils.getSimpleProperty(command, field);
-		Object newArray = cloneMultipleArray(field, command, tascaDadas, 1);
-		for (int i = 0; i < Array.getLength(newArray) - 1; i++)
-			Array.set(newArray, i, Array.get(value, i));
-		return newArray;
+	private static Object getArrayFromRegistre(TascaDadaDto camp, Object valor) throws Exception {
+
+		try {
+			if (camp.isCampMultiple()) {
+				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
+				int mida = ((Object[])valor).length;
+				Object[][] linies = new Object[mida][midaLinia];
+				
+				for (int l = 0; l < mida; l++) {
+					Object registre = ((Object[])valor)[l];
+					int i = 0;
+					for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
+						Object oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
+						if (oValor instanceof TerminiDto)
+							oValor = ((TerminiDto)oValor).toSavinString();
+						linies[l][i++] = oValor;
+					}
+				}
+				return linies;
+			} else {
+				int midaLinia = camp.getRegistreDades().size();
+				Object[] linia = new Object[midaLinia];
+				int i = 0;
+				for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
+					Object oValor = PropertyUtils.getProperty(valor, campRegistre.getVarCodi()); 
+					if (oValor instanceof TerminiDto)
+						oValor = ((TerminiDto)oValor).toSavinString();
+					linia[i++] = oValor;
+				}
+				return linia;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
-	public static Object deleteMultiple(String field, Object command, List<TascaDadaDto> tascaDadas, int index) throws Exception {
-		Object value = PropertyUtils.getSimpleProperty(command, field);
-		Object newArray = cloneMultipleArray(field, command, tascaDadas, -1);
-		int j = 0;
-		for (int i = 0; i < Array.getLength(value); i++)
-			if (i != index)
-				Array.set(newArray, j++, Array.get(value, i));
-		return newArray;
+	private static boolean empty(Object valor) {
+		boolean empty = true;
+		// Registre
+		if (valor instanceof Object[]) {
+			for (Object membre: (Object[])valor) {
+				if (!empty(membre)) {
+					empty = false;
+					break;
+				}
+			}
+		} else {
+			if (valor instanceof TerminiDto)
+				empty = ((TerminiDto)valor).isEmpty();
+			else if (valor != null && !"".equals(valor))
+				empty = false;
+		}
+		return empty;
 	}
+//	public static Object addMultiple(String field, Object command, List<TascaDadaDto> tascaDadas) throws Exception {
+//		Object value = PropertyUtils.getSimpleProperty(command, field);
+//		Object newArray = cloneMultipleArray(field, command, tascaDadas, 1);
+//		for (int i = 0; i < Array.getLength(newArray) - 1; i++)
+//			Array.set(newArray, i, Array.get(value, i));
+//		return newArray;
+//	}
+//	public static Object deleteMultiple(String field, Object command, List<TascaDadaDto> tascaDadas, int index) throws Exception {
+//		Object value = PropertyUtils.getSimpleProperty(command, field);
+//		Object newArray = cloneMultipleArray(field, command, tascaDadas, -1);
+//		int j = 0;
+//		for (int i = 0; i < Array.getLength(value); i++)
+//			if (i != index)
+//				Array.set(newArray, j++, Array.get(value, i));
+//		return newArray;
+//	}
 
 	public static Validator getBeanValidatorForCommand(List<TascaDadaDto> tascaDadas) {
 		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
@@ -183,7 +246,7 @@ public class TascaFormHelper {
 		return getCommandForCamps(tascaDadas, null, null, null, false);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public static Object getCommandForCamps(
 			List<TascaDadaDto> tascaDadas,
 			Map<String, Object> valors,
@@ -211,8 +274,8 @@ public class TascaFormHelper {
 				
 				if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 					// Camps múltiples
-					if (isCampArray(camp, perFiltre)) {
-						List valorMultiple = null;
+					if (isCampMultiple(camp, perFiltre)) {
+						Object valorMultiple = null;
 						if (valor != null) {
 							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 								int mida = 1;
@@ -223,23 +286,25 @@ public class TascaFormHelper {
 									for (String term: (String[])valor) {
 										terminis[i++] = new TerminiDto(term);
 									}
-									valor = terminis;
+									valorMultiple = terminis;
 								} else {
-									valor = new TerminiDto((String)valor);
+									valorMultiple = new TerminiDto[] {new TerminiDto((String)valor)};
 								}
+							} else if (!(valor instanceof Object[])) {
+								valorMultiple = Array.newInstance(camp.getJavaClass(), 1);
+								((Object[])valorMultiple)[0] = valor;
+							} else {
+								valorMultiple = valor;
 							}
-							valorMultiple = new LinkedList(Arrays.asList(valor));
-							PropertyUtils.setSimpleProperty(
-									command,
-									camp.getVarCodi(),
-									valorMultiple);			
-						} else {
-							valorMultiple = new LinkedList();
-							valorMultiple.add(camp.getJavaClass().newInstance());
 							PropertyUtils.setSimpleProperty(
 									command,
 									camp.getVarCodi(),
 									valorMultiple);
+						} else {
+							PropertyUtils.setSimpleProperty(
+									command,
+									camp.getVarCodi(),
+									Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1));
 						}
 					// Camps senzills
 					} else {
@@ -263,7 +328,6 @@ public class TascaFormHelper {
 					// 3. Si el valor obtingut és null, llavors crearem un objecte Registre o Registre[1] amb els atributs buits, depenent de si és múltiple
 					if (valor == null) {
 						if (camp.isCampMultiple()) {
-//							valorRegistre = new LinkedList(Arrays.asList(registre));
 							valorRegistre = Array.newInstance(registre.getClass(), 1);
 							((Object[])valorRegistre)[0] = registre;
 						} else {
@@ -278,25 +342,27 @@ public class TascaFormHelper {
 							for (int l = 0; l < mida; l++){
 								linies[l] = registre.getClass().newInstance();
 							}
-							int i = 0;
+							int i = 0; // Elements del registre
 							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
 								Method metodeSet = registre.getClass().getMethod(
 										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
-										((Object[])((Object[])valor)[0])[i].getClass());
-								int l = 0;
+										campRegistre.getJavaClass());
+								int l = 0; // linies
 								for (Object linia: linies){
-									metodeSet.invoke(linia, ((Object[])((Object[])valor)[l++])[i]);
+									Object[] valin = (Object[])((Object[])valor)[l++];
+									Object valent = (valin.length > i) ? valin[i] : null; 
+									metodeSet.invoke(linia, valent);
 								}
 								i++;
 							}
-							valorRegistre = new LinkedList(Arrays.asList(linies));
+							valorRegistre = linies;
 						} else {
 							valorRegistre = registre;
 							int i = 0;
 							for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
 								Method metodeSet = valorRegistre.getClass().getMethod(
 										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
-										((Object[])valor)[i].getClass());
+										campRegistre.getJavaClass());
 								metodeSet.invoke(valorRegistre, ((Object[])valor)[i++]);
 							}
 						}
@@ -329,6 +395,7 @@ public class TascaFormHelper {
 		return command;
 	}
 	
+	@SuppressWarnings({ "rawtypes" })
 	public static Object getCommandBuitForCamps(
 			List<TascaDadaDto> tascaDadas,
 			Map<String, Object> campsAddicionals,
@@ -346,12 +413,11 @@ public class TascaFormHelper {
 					Class propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
 					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
 					
-					if (isCampArray(camp, perFiltre)) {
+					if (isCampMultiple(camp, perFiltre)) {
 						PropertyUtils.setSimpleProperty(
 								command,
 								camp.getVarCodi(),
-								Array.newInstance(camp.getJavaClass(), (perFiltre ? 2 : 1)));
-						
+								Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1));
 					} else {
 						Object valor = null;
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
@@ -371,7 +437,6 @@ public class TascaFormHelper {
 					Object registre = registres.get(camp.getVarCodi());
 					Object valorRegistre = null;
 					if (camp.isCampMultiple()) {
-//						valorRegistre = new LinkedList(Arrays.asList(registre));
 						valorRegistre = Array.newInstance(registre.getClass(), 1);
 						((Object[])valorRegistre)[0] = registre;
 					} else {
@@ -403,7 +468,7 @@ public class TascaFormHelper {
 		return command;
 	}
 	
-	private static boolean isCampArray (TascaDadaDto camp, boolean perFiltre) {
+	private static boolean isCampMultiple (TascaDadaDto camp, boolean perFiltre) {
 		boolean ambArray = false;
 		if (!perFiltre) {
 			ambArray = camp.isCampMultiple();
@@ -414,6 +479,50 @@ public class TascaFormHelper {
 						camp.getCampTipus().equals(CampTipusDto.PRICE);
 		}
 		return ambArray;
+	}
+	public static void ompleMultiplesBuits(
+			Object command,
+			List<TascaDadaDto> tascaDadas,
+			boolean perFiltre) {
+		Map<String, Object> registres = new HashMap<String, Object>();
+		
+		// Inicialitza els camps del command amb valors buits
+		for (TascaDadaDto camp: tascaDadas) {
+			String tipusCommand = null;
+			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+				try {
+					if (isCampMultiple(camp, perFiltre)) {
+						Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+						if (valor == null)
+							PropertyUtils.setSimpleProperty(
+									command,
+									camp.getVarCodi(),
+									Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1));
+					}
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut afegir el camp '" + camp.getVarCodi() + "' al command", ex);
+				}
+			} else if (!perFiltre) {
+				try {
+					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
+					Object registre = registres.get(camp.getVarCodi());
+					Object valorRegistre = null;
+					if (camp.isCampMultiple()) {
+						Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+						if (valor == null) {
+							valorRegistre = Array.newInstance(registre.getClass(), 1);
+							((Object[])valorRegistre)[0] = registre;
+							PropertyUtils.setSimpleProperty(
+									command, 
+									camp.getVarCodi(),
+									valorRegistre);
+						}
+					}
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut afegir el camp tipus registre '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
+				}
+			}
+		}
 	}
 	@SuppressWarnings("rawtypes")
 	public static Object getCommandModelForCamps(
@@ -432,10 +541,10 @@ public class TascaFormHelper {
 		for (TascaDadaDto camp: tascaDadas) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				if (camp.getCampTipus() != null)  {
-					if (isCampArray(camp, perFiltre)) {
+					if (isCampMultiple(camp, perFiltre)) {
 						bg.addProperty(
 								camp.getVarCodi(),
-								Array.newInstance(camp.getJavaClass(), (perFiltre ? 2 : 1)).getClass());
+								Array.newInstance(camp.getJavaClass(), 1).getClass());
 					} else { 
 						bg.addProperty(
 								camp.getVarCodi(),
@@ -456,8 +565,8 @@ public class TascaFormHelper {
 				if (camp.isCampMultiple()) {
 					// En cas de ser un registre múltiple el que cream és un array de Registre
 					bg.addProperty(
-							camp.getVarCodi(), 
-							Array.newInstance(camp.getJavaClass(), (perFiltre ? 2 : 1)).getClass());
+							camp.getVarCodi(),
+							Array.newInstance(registre.getClass(), 1).getClass());
 				} else {
 					bg.addProperty(camp.getVarCodi(), registre.getClass());
 				}
@@ -468,28 +577,28 @@ public class TascaFormHelper {
 		return bg.create();
 	}
 
-	private static Object cloneMultipleArray(
-			String field,
-			Object command,
-			List<TascaDadaDto> tascaDadas,
-			int addTolength) throws Exception {
-		for (TascaDadaDto camp: tascaDadas) {
-			if (camp.getVarCodi().equals(field)) {
-				Object value = PropertyUtils.getSimpleProperty(command, field);
-				if (value != null) {
-					int length = ((Object[])value).length;
-					return Array.newInstance(
-							camp.getJavaClass(),
-							length + addTolength);
-				} else {
-					return Array.newInstance(
-							camp.getJavaClass(),
-							1);
-				}
-			}
-		}
-		return null;
-	}
+//	private static Object cloneMultipleArray(
+//			String field,
+//			Object command,
+//			List<TascaDadaDto> tascaDadas,
+//			int addTolength) throws Exception {
+//		for (TascaDadaDto camp: tascaDadas) {
+//			if (camp.getVarCodi().equals(field)) {
+//				Object value = PropertyUtils.getSimpleProperty(command, field);
+//				if (value != null) {
+//					int length = ((Object[])value).length;
+//					return Array.newInstance(
+//							camp.getJavaClass(),
+//							length + addTolength);
+//				} else {
+//					return Array.newInstance(
+//							camp.getJavaClass(),
+//							1);
+//				}
+//			}
+//		}
+//		return null;
+//	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);
 }

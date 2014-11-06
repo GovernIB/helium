@@ -56,16 +56,16 @@
 	margin-top: 4px !important;
 }
 
-#contingut-alertes .alert {
+.alert {
 	padding: 10px 15px !important;
 }
-#contingut-alertes button.close-alertes {
+button.close-alertes {
     background: none repeat scroll 0 0 transparent;
     border: 0 none;
     cursor: pointer;
     padding: 0;
 }
-#contingut-alertes .close-alertes {
+.close-alertes {
     color: #000000;
     float: right;
     font-weight: bold;
@@ -85,10 +85,19 @@ p.help-block {
 	margin-top: 4px !important;
 }
 
+.obligatori {
+  	background-image: url("../img/asterisk.png");
+  	background-repeat: no-repeat;
+  	background-position: right 12px;
+  	font-weight: bold !important;
+}
 /* MODALS */
 /*********************************************/
 .modal-dialog.modal-maximize {
 	width: 98%;
 	top: 1%;
 	margin: auto;
+}
+.modal-footer .outcomes {
+	margin-left: 5px;
 }

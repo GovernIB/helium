@@ -67,6 +67,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
+		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(
 				"tasques",
 				expedientService.findTasquesPendents(

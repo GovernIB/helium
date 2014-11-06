@@ -8,6 +8,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.validation.Errors;
+
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
@@ -24,6 +26,7 @@ public class SessionHelper {
 	public static final String VARIABLE_ENTORN_ACTUAL = "entornActual";
 	public static final String VARIABLE_ENTORN_ACTUAL_V3 = "entornActualV3";
 	public static final String VARIABLE_EXPTIP_ACTUAL = "expedientTipusActual";
+	public static final String VARIABLE_CONS_EXPTIP_ACTUAL = "consultesExpedientTipusActual";
 	public static final String VARIABLE_PREFERENCIES_USUARI = "preferenciesUsuari";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
@@ -35,12 +38,14 @@ public class SessionHelper {
 	public static final String VARIABLE_PERMIS_ENTORN_ORGANIZATION = "potOrganitzarEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_ADMINISTRATION = "potAdministrarEntorn";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
-
+	public static final String VARIABLE_TASCA_ERRROR = "tascaError";
+	
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
 	public static final String VARIABLE_FILTRE_CONSULTA_TASCA = "filtreConsultaTasca";
 	public static final String VARIABLE_FILTRE_INFORME = "filtreInforme";
 	public static final String VARIABLE_SELECCIO_CONSULTA_GENERAL = "seleccioConsultaGeneral";
 	public static final String VARIABLE_SELECCIO_INFORME = "seleccioInforme";
+	public static final String VARIABLE_SELECCIO_TASCA = "seleccioTasca";
 
 	public static Object getAttribute(
 			HttpServletRequest request,
@@ -95,6 +100,19 @@ public class SessionHelper {
 					request,
 					VARIABLE_EXPTIP_ACTUAL,
 					expedientTipus);
+		}
+		
+		@SuppressWarnings("unchecked")
+		public List<ExpedientTipusDto> getConsultesExpedientTipusActual() {
+			return (List<ExpedientTipusDto>)getAttribute(
+					request,
+					VARIABLE_CONS_EXPTIP_ACTUAL);
+		}
+		public void setConsultesExpedientTipusActual(List<ExpedientTipusDto> expedientsTipus) {
+			setAttribute(
+					request,
+					VARIABLE_CONS_EXPTIP_ACTUAL,
+					expedientsTipus);
 		}
 		@SuppressWarnings("unchecked")
 		public List<ExpedientTipusDto> getExpedientTipusAccessiblesAmbConsultesActives() {
@@ -243,6 +261,18 @@ public class SessionHelper {
 					seleccioConsultaGeneral);
 		}
 		@SuppressWarnings("unchecked")
+		public Set<Long> getSeleccioConsultaTasca() {
+			return (Set<Long>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_TASCA);
+		}
+		public void setSeleccioConsultaTasca(Set<Long> seleccioConsultaTasca) {
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_TASCA,
+					seleccioConsultaTasca);
+		}
+		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioInforme() {
 			return (Set<Long>)getAttribute(
 					request,
@@ -264,6 +294,17 @@ public class SessionHelper {
 					request,
 					VARIABLE_PREFERENCIES_USUARI,
 					preferencies);
+		}
+		public Errors getTascaError() {
+			return (Errors)getAttribute(
+					request,
+					VARIABLE_TASCA_ERRROR);
+		}
+		public void setTascaError(Errors errors) {
+			setAttribute(
+					request,
+					VARIABLE_TASCA_ERRROR,
+					errors);
 		}
 	}
 }

@@ -14,14 +14,19 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	
 	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
+	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
+	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
+	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	
@@ -150,11 +155,13 @@
 		.panel-default a, .panel-default a:HOVER {text-decoration: none;}
 		.table {margin-bottom: 5px;}
 		.form-horizontal .control-label.col-xs-4 {width: 22.333%;}		
-		.label-titol .control-label {padding-bottom: 20px;}		
+		.label-titol .control-label {padding-bottom: 20px;}
 		.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;}
+		#opciones .label-titol {padding-bottom: 0px;}
 		.form-group { margin-left: 15px;}
 		textarea {width: calc(100% - 15px) !important;}
-		.control-group {width: 49%;display: inline-block;}
+		.control-group {width: 100%;display: inline-block;}
+		.control-group-mid {width: 49%;}
  		.control-group.left {float: left; margin-right:1%;}
 		.control-group.right {float: right; margin-left:1%;}
 		.form-group {padding-bottom: 15px;}
@@ -166,7 +173,6 @@
 		#massivaCanviVersio btn {font-weight: normal}
 		#massivaCanviVersio #subDefinicionsProces.form-group {padding-right: 15px;}
 		#div_timer label {float:left;}
-		#opciones .control-group {width: 100%;}
 		.btn {float: right;}
 	</style>
 </head>
@@ -212,7 +218,7 @@
 		<div class="label-titol">
 			<div class="form-group">
 				<div class="help-block">
-					<div id="div_timer" class="control-group left">
+					<div id="div_timer" class="control-group left control-group-mid">
 				    	<label for="inici"><spring:message code="expedient.consulta.datahorainici" /></label>
 						<div class='col-sm-6'>
 				            <div class="form-group">
@@ -231,7 +237,7 @@
 				    	</div>
 					</div>
 					
-					<div class="control-group form-group">
+					<div class="control-group form-group control-group-mid">
 						<input type="checkbox" id="correu" name="correu" value="${correu}"/>
 						<label for="correu"><spring:message code="expedient.massiva.correu"/></label>
 					</div>

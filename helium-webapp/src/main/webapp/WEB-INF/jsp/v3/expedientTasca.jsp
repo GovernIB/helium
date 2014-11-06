@@ -17,7 +17,7 @@
 				<thead>
 					<tr>
 						<th><spring:message code="expedient.tasca.columna.tasca"/></th>
-						<th><spring:message code="expedient.tasca.columna.responsable"/></th>
+						<th><spring:message code="expedient.tasca.columna.asignada_a"/></th>
 						<th><spring:message code="expedient.tasca.columna.datcre"/></th>
 						<th><spring:message code="expedient.tasca.columna.datlim"/></th>
 						<th></th>
@@ -48,6 +48,9 @@
 										<c:if test="${tasca.agafada}">
 											<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 										</c:if>
+										<c:if test="${tasca.tramitacioMassiva}">
+											<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
+										</c:if>
 									</div>
 								</td>
 								<td><c:if test="${not empty tasca.responsable}">${tasca.responsable.nomSencer}</c:if></td>
@@ -59,7 +62,10 @@
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
-													<li><a href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+													<c:if test="${tasca.tramitacioMassiva}">
+														<li><a href="../../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
+													</c:if>
+				 									<li><a href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 													<li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">

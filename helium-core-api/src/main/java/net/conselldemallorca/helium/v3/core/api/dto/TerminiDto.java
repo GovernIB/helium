@@ -17,7 +17,7 @@ public class TerminiDto {
 	private boolean duradaPredefinida;
 	private int anys;
 	private int mesos;
-	private int dies;
+	private Integer dies;
 	private boolean laborable;
 	private boolean manual = true;
 	private Integer diesPrevisAvis;
@@ -27,13 +27,18 @@ public class TerminiDto {
 	
 	public TerminiDto() {
 		super();
+		this.dies = 0;
 	}
 	public TerminiDto(String valor) {
 		super();
-		String[] dades = ((String)valor).split("/");
-		this.anys = Integer.parseInt(dades[0]);
-		this.mesos = Integer.parseInt(dades[1]);
-		this.dies = Integer.parseInt(dades[2]);
+		if (valor != null) {
+			String[] dades = ((String)valor).split("/");
+			if (dades.length >= 3) {
+				this.anys = Integer.parseInt(dades[0]);
+				this.mesos = Integer.parseInt(dades[1]);
+				this.dies = Integer.parseInt(dades[2]);
+			}
+		}
 	}
 	
 	public Long getId() {
@@ -78,10 +83,10 @@ public class TerminiDto {
 	public void setMesos(int mesos) {
 		this.mesos = mesos;
 	}
-	public int getDies() {
+	public Integer getDies() {
 		return dies;
 	}
-	public void setDies(int dies) {
+	public void setDies(Integer dies) {
 		this.dies = dies;
 	}
 	public boolean isLaborable() {
@@ -144,11 +149,20 @@ public class TerminiDto {
 			if (dies > 0)
 				sb.append(" i ");
 		}
-		if (dies > 0) {
+		if (dies != null && dies > 0) {
 			sb.append(dies);
 			plural = dies > 1;
 			sb.append((plural) ? " dies": " dia");
 		}
 		return sb.toString();
+	}
+	
+	public String toSavinString() {
+		if (isEmpty())
+			return null;
+		return anys + "/" + mesos + "/" + (dies == null ? 0 : dies);
+	}
+	public boolean isEmpty() {
+		return (anys == 0 && mesos == 0 && dies == null);
 	}
 }

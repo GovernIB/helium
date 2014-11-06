@@ -1744,6 +1744,11 @@ public class DissenyService {
 			if (vell.getExpedientTipus() != null) {
 				vell.getExpedientTipus().removeDomini(vell);
 			}
+			if (vell.getCamps() != null) {
+				for (Camp camp : vell.getCamps()) {
+					camp.removeDomini(vell);
+				}
+			}
 			dominiDao.makeDirty(id);
 			dominiDao.delete(id);
 		}

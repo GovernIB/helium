@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -208,6 +209,15 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return seleccio;
 	}
 
+	@RequestMapping(value = "/consultas/{expedientTipusId}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ConsultaDto> consultasTipus(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		return dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId);
+	}
+
 	@RequestMapping(value = "/seleccioNetejar")
 	@ResponseBody
 	public Set<Long> seleccioNetejar(HttpServletRequest request) {
@@ -232,8 +242,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
-
-
 
 	private void omplirModelGet(
 			HttpServletRequest request,

@@ -24,7 +24,7 @@
 				<c:if test="${required}">*</c:if>
 			</label>
 			<div class="controls col-xs-8">
-				<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}"/>
+				<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" rows="6"/>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 		</div>
@@ -32,7 +32,7 @@
 	<c:otherwise>  		
   		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
 			<label class="sr-only" for="${campPath}">${campLabelText}</label>
-			<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}"/>
+			<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" rows="6"/>
 			<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 		</div>
 	</c:otherwise>

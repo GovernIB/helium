@@ -95,10 +95,10 @@
 								<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>"><spring:message code="comuns.tots.tipus"/></a></li>
 							</ul>
 						</li>
-						<li>
+						<!-- <li>
 							<span class="fa fa-bookmark"></span>
 							<spring:message code="decorator.rol.usuari"/>
-						</li>
+						</li> -->
 						<li>
 							<a href="<c:url value="/v3/perfil"/>">
 								<span class="fa fa-user"></span>
@@ -110,21 +110,30 @@
 					<div class="btn-group navbar-btn navbar-right">
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						<div class="btn-group">
-							<c:choose>
-								<c:when test="${not empty expedientTipusActual}"><a href="<c:url value="/v3/informe/${expedientTipusActual.id}"></c:url>" class="btn btn-primary"><spring:message code="comuns.informes"/></a></c:when>
-								<c:otherwise>
-									<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
-									<ul class="dropdown-menu">
-										<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
-											<c:if test="${expedientTipus.conConsultasActivasPorTipo}">
-												<li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>
-											</c:if>
-										</c:forEach>
-									</ul>
-								</c:otherwise>
-							</c:choose>
-						</div>
+						<c:if test="${not empty consultesExpedientTipusActual || not empty expedientTipusAccessiblesAmbConsultesActives}">
+							<div class="btn-group" >
+								<c:choose>
+									<c:when test="${not empty consultesExpedientTipusActual}">
+										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="expedient.llistat.consulta_avanzada"/> <span class="caret"></span></button>
+										<ul class="dropdown-menu">
+											<c:forEach var="consulte" items="${consultesExpedientTipusActual}">
+												<li><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
+											</c:forEach>
+										</ul>
+									</c:when>
+									<c:otherwise>
+										<c:if test="${not empty expedientTipusAccessiblesAmbConsultesActives}">
+											<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
+											<ul class="dropdown-menu">
+												<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}">
+													<li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>
+												</c:forEach>
+											</ul>
+										</c:if>
+									</c:otherwise>
+								</c:choose>
+							</div>
+						</c:if>
 					</div>
 				</div>
 			</div>

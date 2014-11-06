@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.mvc.interceptor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -113,13 +114,13 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
 				
 				// Refresca el tipus d'expedient actual
+				@SuppressWarnings("unchecked")
+				List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+						request,
+						SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 				String canviExpedientTipus = request.getParameter(VARIABLE_REQUEST_CANVI_EXPTIP);
 				if (canviExpedientTipus != null) {
 					if (canviExpedientTipus.length() > 0) {
-						@SuppressWarnings("unchecked")
-						List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
-								request,
-								SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 						if (canviExpedientTipus != null) {
 							Long expedientTipusId = new Long(canviExpedientTipus);
 							for (ExpedientTipusDto expedientTipus: accessibles) {
@@ -137,6 +138,27 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 								request,
 								SessionHelper.VARIABLE_EXPTIP_ACTUAL);
 					}
+				}
+				List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
+				for (ExpedientTipusDto expedientTipus: accessibles) {
+					if (expedientTipus.isConConsultasActivasPorTipo())
+						accessiblesConConsultasActivas.add(expedientTipus);
+				}
+				SessionHelper.setAttribute(
+						request,
+						SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES,
+						accessiblesConConsultasActivas);
+				
+				ExpedientTipusDto expedientTipus = (ExpedientTipusDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACTUAL);
+				if (expedientTipus != null) {
+					SessionHelper.setAttribute(
+							request,
+							SessionHelper.VARIABLE_CONS_EXPTIP_ACTUAL,
+							dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipus.getId()));
+				} else {
+					SessionHelper.removeAttribute(
+							request,
+							SessionHelper.VARIABLE_CONS_EXPTIP_ACTUAL);
 				}
 			}
 		}

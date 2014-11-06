@@ -114,7 +114,9 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.prioritat = prioritat;
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
+		this.mostrarTasquesNomesPersonals = mostrarTasquesPersonals;
 		this.pooled = mostrarTasquesGrup;
+		this.mostrarTasquesTots = (mostrarTasquesPersonals && mostrarTasquesGrup);
 		for (OrdreDto or : ordres) {
 			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 			this.sort = or.getCamp();
@@ -323,12 +325,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				queryPooled.setString("titol", titol.toUpperCase());
 			}
 			
-			
-			if (!(pooled != null ? pooled : false)) {
+			if (mostrarTasquesTots || !(pooled != null ? pooled : false)) {
 				llistaActorId.addAll(queryPersonal.list());
 			}
 			
-			if (pooled == null || pooled == true) {
+			if (mostrarTasquesTots || (pooled == null || pooled == true)) {
 				llistaActorId.addAll(queryPooled.list());
 			}
 		}

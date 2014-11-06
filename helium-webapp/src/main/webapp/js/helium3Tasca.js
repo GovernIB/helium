@@ -2,6 +2,15 @@
  * Funcions a executar al montar un formulari de tasca a la versió 3
  */
 $(function(){
+	
+	if (typeof String.prototype.endsWith !== 'function') {
+	    String.prototype.endsWith = function(suffix) {
+	        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	    };
+	}
+	var action = $("#command").attr('action');
+	$("#command").attr('action', cleanAction($("#command").attr('action')));
+	
 	// Formats
 	$(".price").priceFormat({
 		prefix: '',
@@ -9,26 +18,112 @@ $(function(){
 	    thousandsSeparator: '.',
 	    allowNegative: false
 	});
-	$(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true});
+	$(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
+	$(".btn_date").click(function(){
+		$(this).prev(".date").trigger("focus");
+	});
+	$(".termini").each(function(){
+		$(this).select2({
+		    width: 'resolve',
+		    allowClear: true,
+		    minimumResultsForSearch: 10
+		});
+	});
 	$(".termdia").keyfilter(/^[-+]?[0-9]*$/);
 	$(".enter").keyfilter(/^[-+]?[0-9]*$/);
 	$(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
+	$(".suggest").each(function(){
+		var suggest = $(this);
+		suggest.select2({
+		    minimumInputLength: 3,
+		    width: '100%',
+		    allowClear: true,
+		    ajax: {
+		        url: function (value) {
+		        	return suggest.data("urlconsultallistat") + "/" + value;
+		        },
+		        dataType: 'json',
+		        results: function (data, page) {
+		        	var results = [];
+		        	for (var i = 0; i < data.length; i++) {
+		        		results.push({id: data[i].codi, text: data[i].nom});
+		        	}
+		            return {results: results};
+		        }
+		    },
+		    initSelection: function(element, callback) {
+		    	if ($(element).val()) {
+			    	$.ajax(suggest.data("urlconsultainicial") + "/" + $(element).val(), {
+		                dataType: "json"
+		            }).done(function(data) {
+		            	callback({id: data.codi, text: data.nom});
+		            });
+		    	}
+		    },
+		});
+	});
+	$(".seleccio").each(function(){
+		var seleccio = $(this);
+		seleccio.select2({
+			width: '100%',
+		    placeholder: seleccio.data("placeholder"),
+		    allowClear: true,
+		    minimumResultsForSearch: 10,
+		    ajax: {
+		        url: function (value) {
+		        	return "camp/" + seleccio.data("campid") + "/valorsSeleccio/" +value;
+		        },
+		        dataType: 'json',
+		        results: function (data, page) {
+		        	var results = [];
+		        	for (var i = 0; i < data.length; i++) {
+		        		results.push({id: data[i].codi, text: data[i].nom});
+		        	}
+		            return {results: results};
+		        }
+		    },
+		    initSelection: function(element, callback) {
+		    	if ($(element).val()) {
+			    	$.ajax("camp/" + seleccio.data("campid") + "/valorSeleccioInicial/" + $(element).val(), {
+		                dataType: "json"
+		            }).done(function(data) {
+		            	callback({id: data.codi, text: data.nom});
+		            });
+		    	}
+		    },
+		})
+	});
 	
 	// Afegir múltiple
 	$("#command").on("click", ".btn_multiple", function(){
 		var previousInput = $(this).closest('.form-group').prev();
-		var newInput = previousInput.clone(true);
-		$('input', newInput).each(function(){
+		var newInput = previousInput.clone();
+		$('div.select2-container', newInput).remove();
+		$('input, textarea, select', newInput).each(function(){
 			var input = $(this);
 			input.val('');
-			if (input.attr("name") != null) {
-				var name = input.attr("name");
-				var name_pre = name.substr(0, name.lastIndexOf("["));
-				var name_post = name.substr(name.lastIndexOf("]") + 2);
-				var index = parseInt(name.substr(name.lastIndexOf("[") + 1, name.lastIndexOf("]"))) + 1;
+			input.removeAttr("tabindex");
+			input.removeClass("select2-offscreen");
+			input.removeAttr("checked");
+			if (input.attr("id") != null) {
+				var id = input.attr("id");
+				var id_pre = id.substr(0, id.lastIndexOf("["));
+				var id_post = id.substr(id.lastIndexOf("]") + 1);
+				var index = parseInt(id.substr(id.lastIndexOf("[") + 1, id.lastIndexOf("]"))) + 1;
 				input.attr({ 
-					"id" : name_pre + "[" + index + "]" + name_post, 
-					"name" : name_pre + "[" + index + "]" + name_post});
+					"id" : id_pre + "[" + index + "]" + id_post
+				});
+			}
+			if (input.attr("name") != null) {
+				var nom = input.attr("name");
+				if (nom.indexOf("[") > -1) {
+					var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+					var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+					var index = parseInt(nom.substr(nom.lastIndexOf("[") + 1, nom.lastIndexOf("]"))) + 1;
+					input.attr({ 
+						"name" : nom_pre + "[" + index + "]" + nom_post
+					});
+				}
 			}
 			$('label', newInput).text('');
 			if ($('label', newInput).hasClass('sr-only') && !$('label', newInput).closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
@@ -36,7 +131,6 @@ $(function(){
 			}
 		});
 		previousInput.after(newInput);
-		
 		// Camp de tipus price
 		newInput.find(".price").priceFormat({
 				prefix: '',
@@ -45,13 +139,86 @@ $(function(){
 			    allowNegative: false
 			});
 		// Camp de tipus date
-		newInput.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true});
+		newInput.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
+		newInput.find(".btn_date").click(function(){
+			$(this).prev(".date").trigger("focus");
+		});
 		// Camp de tipus termini
 		newInput.find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
+		newInput.find(".termini").each(function(){
+			$(this).select2({
+			    width: 'resolve',
+			    allowClear: true,
+			    minimumResultsForSearch: 10
+			});
+		});
 		// Camp de tipus enter
 		newInput.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
 		// Camp de tipus float
 		newInput.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
+		// Camp de tipus suggest
+		newInput.find(".suggest").each(function(){
+			var suggest = $(this);
+			suggest.select2({
+			    minimumInputLength: 3,
+			    width: '100%',
+			    allowClear: true,
+			    ajax: {
+			        url: function (value) {
+			        	return suggest.data("urlconsultallistat") + "/" + value;
+			        },
+			        dataType: 'json',
+			        results: function (data, page) {
+			        	var results = [];
+			        	for (var i = 0; i < data.length; i++) {
+			        		results.push({id: data[i].codi, text: data[i].nom});
+			        	}
+			            return {results: results};
+			        }
+			    },
+			    initSelection: function(element, callback) {
+			    	if ($(element).val()) {
+				    	$.ajax(suggest.data("urlconsultainicial") + "/" + $(element).val(), {
+			                dataType: "json"
+			            }).done(function(data) {
+			            	callback({id: data.codi, text: data.nom});
+			            });
+			    	}
+			    },
+			});
+		});
+		// Camp de tipus seleccio
+		newInput.find(".seleccio").each(function(){
+			var seleccio = $(this);
+			seleccio.select2({
+				width: '100%',
+			    placeholder: seleccio.data("placeholder"),
+			    allowClear: true,
+			    minimumResultsForSearch: 10,
+			    ajax: {
+			        url: function (value) {
+			        	return "camp/" + seleccio.data("campid") + "/valorsSeleccio/" +value;
+			        },
+			        dataType: 'json',
+			        results: function (data, page) {
+			        	var results = [];
+			        	for (var i = 0; i < data.length; i++) {
+			        		results.push({id: data[i].codi, text: data[i].nom});
+			        	}
+			            return {results: results};
+			        }
+			    },
+			    initSelection: function(element, callback) {
+			    	if ($(element).val()) {
+				    	$.ajax("camp/" + seleccio.data("campid") + "/valorSeleccioInicial/" + $(element).val(), {
+			                dataType: "json"
+			            }).done(function(data) {
+			            	callback({id: data.codi, text: data.nom});
+			            });
+			    	}
+			    },
+			})
+		});
 	});
 	
 	// Eliminar múltiple
@@ -131,48 +298,208 @@ $(function(){
 	$("#command").on("click", ".btn_date_pre", function(){
 		$(this).next().focus();
 	});
+	$("#command").on("change", ".checkboxmul", function() {
+		if($(this).is(":checked")) {
+			$(this).prev().val(true);
+		} else {
+			$(this).prev().val(false);
+		}
+	})
+	$("#btn_save").click(function(){
+		$("#command").attr('action', $("#command").attr('action') + "/guardar");
+	});
+	$("#btn_validate").click(function(){
+		$("#command").attr('action', $("#command").attr('action') + "/validar");
+	});
+	$(".btn_completar").click(function(){
+		$("#command").attr('action', $("#command").attr('action') + "/completar");
+		$("#__transicio__").val($(this).val());
+	});
+	$("#btn_restore").click(function(){
+		$("#command").attr('action', $("#command").attr('action') + "/restaurar");
+	});
+	$(".btn_accio").click(function(){
+		if (confirm($(this).data("confirmacio"))) {
+			$("#command").attr('action', $("#command").attr('action') + "/accio/" + $(this).data("action"));
+			return true;
+		}
+		return false;
+	});
 //	$("#command").on("change", ".termini", function(){
 //		canviTermini(this);
 //	});
 });
 
+function cleanAction(action) {
+//	if (!action.endsWith("/form")) {
+//		var pos = action.lastIndexOf("/form")
+//		if (pos != -1)
+//			return action.substring(0, action.lastIndexOf("/form") + 5);
+//		if (action.endsWith("/guardar")) {
+//			return action.substring(0, action.length - 8);
+//		} else if (action.endsWith("/validar")) {
+//			return action.substring(0, action.length - 8);
+//		} else if (action.endsWith("/completar")) {
+//			return action.substring(0, action.length - 10);
+//		} else if (action.endsWith("/restaurar")) {
+//			return action.substring(0, action.length - 10);
+//		} else if (action.indexOf("/action/") != -1) {
+//			return action.substring(0, action.lastIndexOf("/action/"));
+//		}
+//	}
+//	return action;
+}
 function addField(idTable) {
 	// TODO No se tiene en cuenta si una variable múltiple está dentro de una de registro
 	tabla = $('#' + idTable);
 	tr = $('tr:last', tabla);
-	var newTr = tr.clone(true);
+	var newTr = tr.clone();
 	limpiarFila(newTr);
-	newTr.find(':input').each(
-		function(indice, valor) {
-			if (this.getAttribute("id") != null) {
-				var id = this.getAttribute("id");
-				var id_lim = id.substr(0, id.indexOf("["));
-				var id_fin = id.substr(id.lastIndexOf("]")+1);
-				var i = 1;
-				while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
-					i = i + 1;
-				}
-				this.setAttribute("id", id_lim + "[" + i + "]" + id_fin);
-				this.setAttribute("name", id_lim + "[" + i + "]" + id_fin);
-				
-				// Camp de tipus price
-				$(this).find(".price").priceFormat({
-						prefix: '',
-						centsSeparator: ',',
-					    thousandsSeparator: '.',
-					    allowNegative: false
-					});
-				// Camp de tipus date
-				$(this).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true});
-				// Camp de tipus termini
-				$(this).find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
-				// Camp de tipus enter
-				$(this).find(".enter").keyfilter(/^[-+]?[0-9]*$/);
-				// Camp de tipus float
-				$(this).find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
+	$('input, textarea, select', newTr).each(function(indice, valor){
+		var input = $(this);
+		input.removeAttr("tabindex");
+		input.removeClass("select2-offscreen");
+		input.removeAttr("checked");
+		if (input.attr("id") != null) {
+			var id = input.attr("id");
+			var id_pre = id.substr(0, id.lastIndexOf("["));
+			var id_post = id.substr(id.lastIndexOf("]") + 1);
+			var index = parseInt(id.substr(id.lastIndexOf("[") + 1, id.lastIndexOf("]"))) + 1;
+			input.attr({ 
+				"id" : id_pre + "[" + index + "]" + id_post
+			});
+		}
+		if (input.attr("name") != null) {
+			var nom = input.attr("name");
+			if (nom.indexOf("[") > -1) {
+				var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+				var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+				var index = parseInt(nom.substr(nom.lastIndexOf("[") + 1, nom.lastIndexOf("]"))) + 1;
+				input.attr({ 
+					"name" : nom_pre + "[" + index + "]" + nom_post
+				});
 			}
-		});
+		}
+	});
+//	newTr.find(':input').each(
+//		function(indice, valor) {
+//			if (this.getAttribute("id") != null) {
+//				var id = this.getAttribute("id");
+//				var id_lim = id.substr(0, id.indexOf("["));
+//				var id_fin = id.substr(id.lastIndexOf("]")+1);
+//				var i = 1;
+//				while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
+//					i = i + 1;
+//				}
+//				this.setAttribute("id", id_lim + "[" + i + "]" + id_fin);
+//				this.setAttribute("name", id_lim + "[" + i + "]" + id_fin);
+//				
+//				// Camp de tipus price
+//				$(this).find(".price").priceFormat({
+//						prefix: '',
+//						centsSeparator: ',',
+//					    thousandsSeparator: '.',
+//					    allowNegative: false
+//					});
+//				// Camp de tipus date
+//				$(this).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true});
+//				// Camp de tipus termini
+//				$(this).find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
+//				// Camp de tipus enter
+//				$(this).find(".enter").keyfilter(/^[-+]?[0-9]*$/);
+//				// Camp de tipus float
+//				$(this).find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
+//			}
+//		});
 	newTr.appendTo(tabla);
+	// Camp de tipus price
+	newTr.find(".price").priceFormat({
+			prefix: '',
+			centsSeparator: ',',
+		    thousandsSeparator: '.',
+		    allowNegative: false
+		});
+	// Camp de tipus date
+	newTr.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
+	newTr.find(".btn_date").click(function(){
+		$(this).prev(".date").trigger("focus");
+	});
+	// Camp de tipus termini
+	newTr.find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
+	newTr.find(".termini").each(function(){
+		$(this).select2({
+		    width: 'resolve',
+		    allowClear: true,
+		    minimumResultsForSearch: 10
+		});
+	});
+	// Camp de tipus enter
+	newTr.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
+	// Camp de tipus float
+	newTr.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
+	// Camp de tipus suggest
+	newTr.find(".suggest").each(function(){
+		var suggest = $(this);
+		suggest.select2({
+		    minimumInputLength: 3,
+		    width: '100%',
+		    allowClear: true,
+		    ajax: {
+		        url: function (value) {
+		        	return suggest.data("urlconsultallistat") + "/" + value;
+		        },
+		        dataType: 'json',
+		        results: function (data, page) {
+		        	var results = [];
+		        	for (var i = 0; i < data.length; i++) {
+		        		results.push({id: data[i].codi, text: data[i].nom});
+		        	}
+		            return {results: results};
+		        }
+		    },
+		    initSelection: function(element, callback) {
+		    	if ($(element).val()) {
+			    	$.ajax(suggest.data("urlconsultainicial") + "/" + $(element).val(), {
+		                dataType: "json"
+		            }).done(function(data) {
+		            	callback({id: data.codi, text: data.nom});
+		            });
+		    	}
+		    },
+		});
+	});
+	// Camp de tipus seleccio
+	newTr.find(".seleccio").each(function(){
+		var seleccio = $(this);
+		seleccio.select2({
+			width: '100%',
+		    placeholder: seleccio.data("placeholder"),
+		    allowClear: true,
+		    minimumResultsForSearch: 10,
+		    ajax: {
+		        url: function (value) {
+		        	return "camp/" + seleccio.data("campid") + "/valorsSeleccio/" +value;
+		        },
+		        dataType: 'json',
+		        results: function (data, page) {
+		        	var results = [];
+		        	for (var i = 0; i < data.length; i++) {
+		        		results.push({id: data[i].codi, text: data[i].nom});
+		        	}
+		            return {results: results};
+		        }
+		    },
+		    initSelection: function(element, callback) {
+		    	if ($(element).val()) {
+			    	$.ajax("camp/" + seleccio.data("campid") + "/valorSeleccioInicial/" + $(element).val(), {
+		                dataType: "json"
+		            }).done(function(data) {
+		            	callback({id: data.codi, text: data.nom});
+		            });
+		    	}
+		    },
+		})
+	});
 	newTr.find('button.btn_eliminar').click(function() {
 		if (newTr.index() < 2) {
 			limpiarFila(newTr);
@@ -228,18 +555,18 @@ function confirmar(form) {
 //	}
 //}
 
-function accioCampExecutar(elem, field) {
-	if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
-		var fieldField = document.getElementById("helAccioCamp");
-		if (fieldField == null) {
-			newField = document.createElement('input');
-			newField.setAttribute("id", "helAccioCamp");
-			newField.setAttribute("name", "helAccioCamp");
-			newField.setAttribute("type", "hidden");
-			newField.setAttribute("value", field);
-			elem.form.appendChild(newField);
-		}
-		return true;
-	}
-	return false;
-}
+//function accioCampExecutar(elem, field) {
+//	if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
+//		var fieldField = document.getElementById("helAccioCamp");
+//		if (fieldField == null) {
+//			newField = document.createElement('input');
+//			newField.setAttribute("id", "helAccioCamp");
+//			newField.setAttribute("name", "helAccioCamp");
+//			newField.setAttribute("type", "hidden");
+//			newField.setAttribute("value", field);
+//			elem.form.appendChild(newField);
+//		}
+//		return true;
+//	}
+//	return false;
+//}

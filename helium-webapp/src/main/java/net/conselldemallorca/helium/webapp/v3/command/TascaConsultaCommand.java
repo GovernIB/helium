@@ -34,6 +34,7 @@ public class TascaConsultaCommand {
 	
 	private boolean filtreDesplegat = false;
 	private boolean consultaRealitzada = false;
+	private String consultaTramitacioMassivaTascaId;
 
 	public TascaConsultaCommand() {
 	}
@@ -120,6 +121,12 @@ public class TascaConsultaCommand {
 	}
 	public void setDataLimitFinal(Date dataLimitFinal) {
 		this.dataLimitFinal = dataLimitFinal;
+	}
+	public String getConsultaTramitacioMassivaTascaId() {
+		return consultaTramitacioMassivaTascaId;
+	}
+	public void setConsultaTramitacioMassivaTascaId(String consultaTramitacioMassivaTascaId) {
+		this.consultaTramitacioMassivaTascaId = consultaTramitacioMassivaTascaId;
 	}
 	@AssertTrue
 	public boolean isValidRangDataCreacio() {

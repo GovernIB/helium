@@ -349,16 +349,10 @@
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 						<c:if test="${not empty accions}">
-							<c:set var="tePermisAccions" value="${false}"/>
-							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
-								<c:set var="tePermisAccions" value="${true}"/>
-							</security:accesscontrollist>
-							<c:if test="${hiHaAccionsPubliques || tePermisAccions}">
-								<li class="divider"></li>
-								<c:forEach var="accio" items="${accions}">
-									<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
-								</c:forEach>
-							</c:if>
+							<li class="divider"></li>
+							<c:forEach var="accio" items="${accions}">
+								<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
+							</c:forEach>
 						</c:if>
 					</ul>
 				</div>

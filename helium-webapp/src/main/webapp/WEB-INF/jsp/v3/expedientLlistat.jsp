@@ -23,6 +23,10 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<style type="text/css">
+		#consultaTipo {padding-bottom: 20px;padding-right: 15px;}
+		.btn-mini {padding: 0 6px;}
+	</style>
 <script>
 $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
@@ -81,6 +85,8 @@ $(document).ready(function() {
 		var tipus = $(this).val();
 		$('#estatText').select2('val', '', true);
 		$('#estatText option[value!=""]').remove();
+		$('#consultaTipo').hide();
+		
 		if ($(this).val()) {
 			$.get('expedient/estatsPerTipus/' + $(this).val())
 			.done(function(data) {
@@ -93,18 +99,70 @@ $(document).ready(function() {
 			.fail(function() {
 				alert("<spring:message code="expedient.llistat.estats.ajax.error"/>");
 			});
+
+			$.get('expedient/consultas/' + $(this).val())
+			.done(function(data) {
+				var datos = '';
+				for (var i = 0; i < data.length; i++) {
+					datos += '<li><a href="<c:url value="/v3/informe/consulta/' + data[i].id + '"></c:url>">' + data[i].nom + '</a></li>';
+				}
+				$('#consultaTipo ul').html(datos);
+				if (data.length > 0) {
+					$('#consultaTipo').show();
+				}
+			})
+			.fail(function() {
+				alert("<spring:message code="expedient.llistat.consults.ajax.error"/>");
+			});
 		} else {
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
-		}		
+		}
 	});
+
 	$('#expedientTipusId').trigger('change');
 });
+function alertaErrorUser(e, desc) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	
+	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
+	$("#dialog-error-user").html(text);
+	$("#dialog-error-user").data('title.dialog', 'Error en la ejecución del expediente'); 
+	$("#dialog-error-user").dialog( "open" );
+	if (e.stopPropagation) e.stopPropagation();
+	
+	return false;
+}
+function alertaErrorAdmin(e, id, desc, full) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+
+	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
+	$("#dialog-error-admin").html(text+"<br/><br/>"+full+$("#dialog-error-admin").html());
+	$("#processInstanceId").val(id);
+	$("#dialog-error-admin").data('title.dialog', 'Error en la ejecución del expediente'); 
+	$("#dialog-error-admin").dialog( "open" );
+
+	if (e.stopPropagation) e.stopPropagation();
+	
+	return false;
+}
 </script>
 </head>
 <body>
 	<input type="hidden" id="netejar" value="false"/>
+									
 	<form:form action="" method="post" cssClass="well" commandName="expedientConsultaCommand">
+		<div id="consultaTipo" class="row">
+			<div class="btn-group pull-right">
+				<a class="btn btn-default btn-mini dropdown-toggle" href="#" data-toggle="dropdown">
+					<spring:message code="expedient.llistat.consulta_avanzada"/> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu"></ul>
+			</div>
+		</div>
+
 		<div class="row">
 			<div class="col-md-2">
 				<hel:inputText name="numero" textKey="expedient.llistat.filtre.camp.numero" placeholderKey="expedient.llistat.filtre.camp.numero" inline="true"/>
@@ -169,8 +227,8 @@ $(document).ready(function() {
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="mostrarAnulats"/>
 				<div class="btn-group">
-					<button id="nomesPendentsCheck" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></button>
-					<button id="nomesAlertesCheck" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="hide btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></button>
+					<button id="nomesPendentsCheck" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-user"></span></button>
+					<button id="nomesAlertesCheck" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-exclamation-triangle"></span></button>
 					<button id="mostrarAnulatsCheck" title="<spring:message code="expedient.llistat.filtre.camp.anulats"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></button>
 				</div>
 			</div>
@@ -215,16 +273,26 @@ $(document).ready(function() {
 						{{else anulat}}
 							<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>">AN</span>
 						{{/if}}
+						{{if errorDesc}}
+							{{if isAdmin}}
+								<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>"><span class="fa fa-exclamation-circle" onclick="return alertaErrorAdmin(event, {{:processInstanceId}}, '{{:errorDesc}}', '{{:errorFull}}')"></span></span>
+							{{else}}
+								<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>"><span class="fa fa-exclamation-circle" onclick="return alertaErrorUser(event, '{{:errorDesc}}')"></span></span>
+							{{/if}}						
+						{{/if}}
 					</div>
 					</script>
 				</th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
+				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>			
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
-				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="false" data-rdt-sortable="false">
+				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>				
+<%--
+				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="true" data-rdt-sortable="false">
 					Permisos
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
 						{{if permisCreate}}C{{/if}}
@@ -235,9 +303,10 @@ $(document).ready(function() {
 						{{if permisReassignment}}G{{/if}}
 					</script>
 				</th>
+--%>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<div class="dropdown">
+						<div class="dropdown navbar-right">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>

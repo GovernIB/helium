@@ -865,8 +865,10 @@ THE SOFTWARE.
                         if (collapseData && collapseData.transitioning) {
                             return;
                         }
-                        expanded.collapse('hide');
-                        closed.collapse('show');
+                        //expanded.collapse('hide');
+                        expanded.slideToggle();
+                        //closed.collapse('show');
+                        closed.slideToggle();
                         $this.find('span').toggleClass(picker.options.icons.time + ' ' + picker.options.icons.date);
                         if (picker.component) {
                             picker.component.find('span').toggleClass(picker.options.icons.time + ' ' + picker.options.icons.date);

@@ -100,7 +100,6 @@
 		.controls.form-group.col-xs-9 {margin-bottom: 0px !important;padding-bottom: 0px !important;}
 		.col-xs-9 .form-group {margin-bottom: 0px !important;padding-bottom: 0px !important;}
 		body .container .panel.panel-default {}
-/* 		body .container .panel.panel-default .panel-body {padding: 0px;} */
 		body .container .panel.panel-default .panel-body .panel.panel-default {padding: 0px;margin-bottom: 0px;}
 		#canviar_consulta {margin-top: 5px;}
 	</style>
@@ -192,7 +191,7 @@ $(document).ready(function() {
 			</h2>
 		</div>
 		<div class="panel-body">
-			<form:form method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeCommand">
+			<form:form method="post" cssClass="well form-horizontal form-tasca" commandName="expedientInformeCommand">
 				<input type="hidden" id="expedientTipusId" name="expedientTipusId" value="${expedientTipusId}"/>
 				<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
 					<c:if test="${expedientTipus.id == expedientTipusId}">
@@ -209,7 +208,6 @@ $(document).ready(function() {
 						</div>
 					</div>
 				</c:if>
-				<div class="panel-body">
 				<div class="control-group fila_reducida">
 					<c:forEach var="camp" items="${campsFiltre}">
 						<c:set var="campActual" value="${camp}" scope="request"/>
@@ -219,27 +217,26 @@ $(document).ready(function() {
 					</c:forEach>
 				</div>
 				<c:if test='${not empty consulta}'>
-					<hr/>
 					<div class="row">
-					<div class="col-md-6">
-						<form:hidden path="nomesPendents"/>
-						<form:hidden path="nomesAlertes"/>
-						<form:hidden path="mostrarAnulats"/>
-						<form:hidden path="tramitacioMassivaActivada"/>
-						<div class="btn-group hide">
-							<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></a>
-							<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></a>
-							<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anul·lats" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
+						<div class="col-md-6">
+							<form:hidden path="nomesPendents"/>
+							<form:hidden path="nomesAlertes"/>
+							<form:hidden path="mostrarAnulats"/>
+							<form:hidden path="tramitacioMassivaActivada"/>
+							<div class="btn-group hide">
+								<a id="nomesPendentsCheck" href="javascript:void(0)" title="Només amb tasques pendents" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></a>
+								<a id="nomesAlertesCheck" href="javascript:void(0)" title="Només amb alertes" class="hide btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></a>
+								<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="Mostrar anul·lats" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="pull-right">
+								<input type="hidden" name="consultaRealitzada" value="true"/>
+								<button type="submit" name="accio" value="netejar" class="btn btn-default">Netejar</button>
+								<button type="submit" name="accio" value="filtrar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;Filtrar</button>
+							</div>
 						</div>
 					</div>
-					<div class="col-md-6">
-						<div class="pull-right">
-							<input type="hidden" name="consultaRealitzada" value="true"/>
-							<button type="submit" name="accio" value="netejar" class="btn btn-default">Netejar</button>
-							<button type="submit" name="accio" value="filtrar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;Filtrar</button>
-						</div>
-					</div>
-				</div>
 				</c:if>
 			</form:form>
 				

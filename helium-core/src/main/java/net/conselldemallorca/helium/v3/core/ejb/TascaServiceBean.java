@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.ejb;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -53,6 +54,7 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
+			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
 			String responsable,
 			String tasca,
@@ -67,6 +69,7 @@ public class TascaServiceBean implements TascaService {
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findPerFiltrePaginat(
 				entornId,
+				consultaTramitacioMassivaTascaId,
 				expedientTipusId,
 				responsable,
 				tasca,
@@ -228,5 +231,21 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
 		return delegate.findDadesPerTascaDto(tasca);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsAmbFiltre(
+			Long entornId,
+			String consultaTramitacioMassivaTascaId,
+			Long expedientTipusId,
+			String responsable) {
+		return delegate.findIdsAmbFiltre(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, responsable);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids) {
+		return delegate.findDadesPerIds(ids);
 	}
 }

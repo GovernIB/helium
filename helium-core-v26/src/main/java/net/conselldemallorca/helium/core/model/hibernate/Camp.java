@@ -278,6 +278,15 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	public void setDomini(Domini domini) {
 		this.domini = domini;
 	}
+	public void removeDomini(Domini domini) {
+		setDomini(null);
+		setDominiId(null);
+		setDominiParams(null);
+		setDominiCampText(null);
+		setDominiCampValor(null);
+		setDominiCacheText(false);
+		setDominiIntern(false);
+	}
 
 	@ManyToOne(optional=true)
 	@JoinColumn(name="enumeracio_id")

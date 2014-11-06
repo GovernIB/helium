@@ -844,21 +844,21 @@ public class JbpmHelper {
 		return resposta;
 	}
 	
-	
 	@SuppressWarnings("unchecked")
 	private  Map<String, Token> getActiveTokens(Token token){
 		adminService.mesuraIniciar("jBPM getActiveTokens", "jbpmDao");
 		Map<String, Token> activeTokens = new HashMap<String, Token>();
 		if (token.hasActiveChildren()) {
 			activeTokens = token.getActiveChildren();
-			for (Token t: activeTokens.values()){
-				activeTokens.putAll(getActiveTokens(t));
+			Map<String, Token> tokensPerAfegir = new HashMap<String, Token>();
+			for (Token t: activeTokens.values()) {
+				tokensPerAfegir.putAll(getActiveTokens(t));
 			}
+			activeTokens.putAll(tokensPerAfegir);
 		}
 		adminService.mesuraCalcular("jBPM getActiveTokens", "jbpmDao");
 		return activeTokens;
 	}
-	
 	
 	public Map<String, JbpmToken> getAllTokens(String processInstanceId) {
 		adminService.mesuraIniciar("jBPM getAllTokens", "jbpmDao");
@@ -1203,8 +1203,15 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM isJoinNode", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		NodeType nodeType = pi.getProcessDefinition().getNode(nodeName).getNodeType();
-		adminService.mesuraCalcular("jBPM isJoinNode", "jbpmDao");
+		NodeType nodeType = null;
+		try {
+			nodeType = pi.getProcessDefinition().getNode(nodeName).getNodeType();
+		} catch (Exception ex) {
+			return false;
+		} finally {
+			adminService.mesuraCalcular("jBPM isJoinNode", "jbpmDao");	
+		}
+		
 		return nodeType == NodeType.Join;
 	}
 	

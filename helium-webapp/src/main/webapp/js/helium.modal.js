@@ -66,20 +66,49 @@
 					var iframe = this;
 					$('#' + settings.buttonContainerId + ' .btn', $(this).contents()).each(function(index) {
 						var element = $(this);
-						var clon = element.clone();
-						if (clon.hasClass(settings.buttonCloseClass)) {
-							clon.on('click', function () {
-								$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
-								$(iframe).parent().parent().parent().parent().modal('hide');
-								return false;
-							});
-						} else {
-							clon.on('click', function () {
-								element.click();
-								return false;
-							});
+						if (!element.parent().hasClass("outcomes")) {
+							var clon = element.clone();
+							if (clon.hasClass(settings.buttonCloseClass)) {
+								clon.on('click', function () {
+									$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
+									$(iframe).parent().parent().parent().parent().modal('hide');
+									return false;
+								});
+							} else {
+								clon.on('click', function () {
+									element.click();
+									return false;
+								});
+							}
+							$('.modal-footer', $(iframe).parent().parent()).append(clon);
 						}
-						$('.modal-footer', $(iframe).parent().parent()).append(clon);
+					});
+					$('#' + settings.buttonContainerId + ' .outcomes', $(this).contents()).each(function(index) {
+						var outcomes = $(this);
+						var dropup = $("<div>", {
+							"class": "btn-group dropup outcomes"
+						});
+						var dropup_button = $("<button type='button' class='btn btn-primary dropdown-toggle' data-toggle='dropdown'>" +
+								"<span class='fa fa-thumbs-o-up'></span>&nbsp;" + outcomes.data("textfi") + "&nbsp;<span class='caret'></span>" +
+								"</button>");
+						dropup.append(dropup_button);
+						var dropup_ul = $("<ul role='menu' class='dropdown-menu dropdown-menu-right'>");
+						dropup.append(dropup_ul);
+						outcomes.find("button").each(function(){
+							var boto = $(this);
+							var dropup_li = $("<li>");
+							var dropup_li_a = $("<a>", {
+								href: "javascript:void(0);",
+								text: boto.val()
+							});
+							dropup_li_a.on('click', function() {
+								boto.click();
+								return false;
+							});
+							dropup_li.append(dropup_li_a);
+							dropup_ul.append(dropup_li);
+						});
+						$('.modal-footer', $(iframe).parent().parent()).append(dropup);
 					});
 					$('#' + settings.buttonContainerId, $(this).contents()).hide();
 					// Ajustar tamany

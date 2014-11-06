@@ -29,10 +29,13 @@
 		input, select, textarea {
 			width: 100%;
 		}
+		label {
+			font-weight: normal;
+		}
 		.form-group {
 			padding-right: 	15px;
 			margin-left: 	0px !important;
-			margin-bottom:	15px;
+			margin-bottom:	0px;
 		}
 		.controls {
 			padding-right: 0 !important;
@@ -40,7 +43,9 @@
 		.form-group input, .form-group textarea {
 			width: 100%;
 		}
-		.input-group-multiple {padding-left: 15px;padding-right: 15px;}
+		.input-group-multiple {
+			padding-left: 15px;
+			padding-right: 0px;}
 		.form-group li > .select2-container {
 			width: 100%;
 			padding-right: 20px;
@@ -64,6 +69,7 @@
 		p.help-block {
 			padding-top: 0;	
 			margin-top: 4px !important;
+			margin-bottom:	0px;
 		}
 		.clear {
 			clear: both;
@@ -71,35 +77,155 @@
 		.clearForm {
 			clear: both;
 			margin-bottom: 10px;
-			border-bottom: solid 1px #EAEAEA;
+			margin-top: 15px;
+			border-bottom: solid 1px #DADADA;
 		}
 		.input-append {
 			width: calc(100% - 27px);
 		}
 		.eliminarFila {
-			padding: 0px;	
+			background-color: #FFF;
+			border: solid 1px rgb(204, 204, 204);
+			border-radius: 4px;
+			padding: 9px 6px;
+/* 			margin-top: 3px; */
+		}
+		.eliminarFila:hover {
+			color: #333;
+			background-color: #e6e6e6;
+			border-color: #adadad;
 		}
 		.btn_eliminar {
-			padding: 0px;	
+			background-color: #FFF;
+			border: solid 1px rgb(204, 204, 204);
+			border-radius: 4px;
+			padding: 9px 6px;
+/* 			margin-top: 3px; */
+		}
+		.table {
+			margin-bottom: 0px;
+		}
+		.col-xs-9 .checkbox {
+			width: auto;
+		}
+		#tabnav .glyphicon {
+			padding-right: 10px;
+		}
+		div.tab-content {
+			width: calc(100% - 15px);
+			padding-bottom: 15px;
+		}
+		.multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {
+			float: left;
+			width: calc(100% - 29px);
+		}
+		.multiple_camp div.suggest, .multiple_camp div.seleccio {
+			float: left;
+			width: calc(100% - 29px) !important;
+		}
+		.registre .multiple input, .registre .multiple textarea, .registre .multiple_camp .input-group, .registre .multiple_camp .inputcheck {
+			float: left;
+			width: 100% !important;
+		}
+		.registre .multiple_camp div.suggest, .registre .multiple_camp div.seleccio {
+			float: left;
+			width: 100% !important;
+		}
+		.registre .multiple input.checkbox {
+			width: auto !important;
+		}
+		.multiple .termgrup {
+			float: left;
+			width: calc(100% - 14px);
+		}
+		.termgrup input, .termgrup select {
+			float: left;
+ 			width: calc(100% - 65px); 
 		}
 		.tercpre {
-			padding-left: 0px !important;
-			padding-right: 8px !important;
+			float: left;
+			width: 32%;
+ 			padding-left: 0px !important;
+ 			padding-right: 8px !important;
 		}
 		.tercmig {
-			padding-left: 4px !important;
-			padding-right: 4px !important;
+			float: left;
+			width: 32%;
+ 			padding-left: 4px !important; 
+ 			padding-right: 4px !important; 
 		}
 		.tercpost {
-			padding-left: 8px !important;
-			padding-right: 0px !important;
+			float: left;
+			width: 36%;
+			padding-left: 8px !important; 
+ 			padding-right: 0px !important; 
 		}
-		.table {margin-bottom: 0px;}
-		.col-xs-9 .checkbox {width: auto;}
-		#tabnav .glyphicon {padding-right: 10px;}
+		.label-term {
+			float: left;
+			width: 60px;
+			text-align: left !important;
+			margin-right: 5px;
+			font-weight: normal !important;
+		}
+		.multiple_camp .btn_eliminar {
+			float: left;
+			margin-left: 4px;
+		}
+		.form-group.multiple_camp {
+			margin-bottom: 6px;		
+		}
+		.btn_date {
+			cursor: pointer;
+		}
+		.has-error .form-control {
+			background-color: #ffefe !important;
+		}
+		#contingut-alertes, .tauladades {
+			padding-right: 15px;
+		}
+/* 		input, textarea, .select2-choice { */
+/* 			background-color: #FFFCF0 !important; */
+/* 		} */
+/* 		.select2-arrow { */
+/* 			background-color: #FFFFFF !important; */
+/* 		} */
+/* 		.registre table { */
+/* 			border: solid 0px; */
+			
+/* 		} */
+/* 		.registre tr td:last-child, .registre tr th:last-child { */
+/* 			border: solid 0px; */
+/* 			padding-right: 0px; */
+/* 		} */
+		.registre th {
+			border-bottom: solid 1px #CACACA !important;
+			background: rgba(221,221,221,1);
+			background: -moz-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+			background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(221,221,221,1)), color-stop(100%, rgba(245,245,245,1)));
+			background: -webkit-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+			background: -o-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+			background: -ms-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+			background: linear-gradient(to bottom, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#f5f5f5', GradientType=0 );
+		}
 	</style>
 </head>
 <body>
+	<c:if test="${not empty numTascaMassiva}">
+		<c:import url="import/tasquesMassiva.jsp">
+			<c:param name="count" value="${numTascaMassiva}"/>
+		</c:import>
+	</c:if>	
+	<c:if test="${not empty dadesNomesLectura}">
+		<c:import url="import/expedientDadesTaula.jsp">
+			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
+			<c:param name="titol" value="Dades de referència"/>
+			<c:param name="numColumnes" value="${numColumnes}"/>
+			<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
+			<c:param name="desplegat" value="${false}"/>
+			<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
+		</c:import>
+	</c:if>		
 	<c:set var="pipellaIndex" value="${1}"/>
 	<ul id="tabnav" class="nav nav-tabs">
 		<c:if test="${not empty dades}">
@@ -119,7 +245,7 @@
 		<c:if test="${not empty dades}">
 			<div class="tab-pane active" id="dades">
 				<c:if test="${not tasca.validada}">
-					<div class="alert alert-danger">
+					<div class="alert alert-warning">
 						<button class="close" data-dismiss="alert">×</button>
 						<c:choose>
 							<c:when test="${empty tasca.formExtern}">
@@ -131,17 +257,14 @@
 						</c:choose>
 					</div>
 				</c:if>
-				<c:if test="${not empty dadesNomesLectura}">
-					<c:import url="import/expedientDadesTaula.jsp">
-						<c:param name="dadesAttribute" value="dadesNomesLectura"/>
-						<c:param name="titol" value="Dades de referència"/>
-						<c:param name="numColumnes" value="${numColumnes}"/>
-						<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
-						<c:param name="desplegat" value="${false}"/>
-						<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
-					</c:import>
-				</c:if>
+				<div class="well">
 				<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
+					<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
+					<input type="hidden" id="inici" name="inici" value="${inici}">
+					<input type="hidden" id="correu" name="correu" value="${correu}">
+					<input type="hidden" id="isTramitacioMassiva" name="isTramitacioMassiva" value="${not empty numTascaMassiva}">
+					
+					<input type="hidden" id="__transicio__" name="__transicio__" value=""/>
 					<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 						<c:set var="inline" value="${false}"/>
 						<c:set var="isRegistre" value="${false}"/>
@@ -150,11 +273,15 @@
 							<c:when test="${dada.campTipus != 'REGISTRE'}">
 								<c:choose>
 									<c:when test="${dada.campMultiple}">
-										<div class="multiple">
-											<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta} - ${dada.campTipus}</label>
-											<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab">
+										<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
+										<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
+											<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta}</label>
+<%-- 											<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab"> --%>
+											<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
 												<c:set var="inline" value="${true}"/>
 												<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
+												<c:set var="campNom" value="${dada.varCodi}"/>
+												<c:set var="campIndex" value="${varStatusCab.index}"/>
 												<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
 													<c:set var="isMultiple" value="${true}"/>
 													<%@ include file="campsTasca.jsp" %>
@@ -162,8 +289,11 @@
 												</div>
 											</c:forEach>
 											<c:if test="${empty dada.multipleDades}">
+												Buit!!
 												<c:set var="inline" value="${true}"/>
 												<c:set var="campCodi" value="${dada.varCodi}[0]"/>
+												<c:set var="campNom" value="${dada.varCodi}"/>
+												<c:set var="campIndex" value="0"/>
 												<div class="col-xs-9 input-group-multiple">
 													<c:set var="isMultiple" value="${true}"/>
 													<%@ include file="campsTasca.jsp" %>
@@ -175,6 +305,8 @@
 													<div class="col-xs-9 pad-left-col-xs-3">
 														<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
 														<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+														<div class="clear"></div>
+														<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
 													</div>
 												</div>
 											</c:if>
@@ -182,6 +314,7 @@
 									</c:when>
 									<c:otherwise>
 										<c:set var="campCodi" value="${dada.varCodi}"/>
+										<c:set var="campNom" value="${dada.varCodi}"/>
 										<%@ include file="campsTasca.jsp" %>
 									</c:otherwise>
 								</c:choose>
@@ -196,6 +329,7 @@
 						<%@ include file="campsTascaBotons.jsp" %>
 					</div>
 				</form:form>
+				</div>
 			</div>
 		</c:if>
 		<c:if test="${not empty documents}">
