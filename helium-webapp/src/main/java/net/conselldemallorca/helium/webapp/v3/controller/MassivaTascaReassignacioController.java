@@ -1,0 +1,218 @@
+/**
+ * 
+ */
+package net.conselldemallorca.helium.webapp.v3.controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.webapp.v3.command.ReassignacioTasquesCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.SessionStatus;
+
+/**
+ * Controlador per reassignacio massiva de tasques
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
+@Controller
+@RequestMapping("/v3/tasca")
+public class MassivaTascaReassignacioController extends BaseExpedientController {	
+	@Autowired
+	private TascaService tascaService;
+	
+	@Autowired
+	private PluginService pluginService;
+	
+	@Autowired
+	private DissenyService dissenyService;
+	
+	@Autowired
+	ExecucioMassivaService execucioMassivaService;
+	
+	@RequestMapping(value = "/massivaReassignacioTasca", method = RequestMethod.GET)
+	public String massivaTramitacio(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "massiva", required = true) boolean massiva,
+			Model model) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		if (seleccio == null || seleccio.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
+			return modalUrlTancar();
+		}
+
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
+		model.addAttribute("massiva", massiva);		
+		model.addAttribute("reassignacioTasquesCommand", new ReassignacioTasquesCommand());
+		
+		return "v3/tasquesReassignacio";
+	}
+
+	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET)
+	@ResponseBody
+	public String suggestAction(
+			@PathVariable String text,
+			Model model) {
+		List<PersonaDto> lista = pluginService.findPersonaLikeNomSencer(text);
+		String json = "[";
+		for (PersonaDto persona: lista) {
+			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
+	}
+
+	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET)
+	@ResponseBody
+	public String suggestIniciAction(
+			@PathVariable String text,
+			Model model) {
+		PersonaDto persona = pluginService.findPersonaAmbCodi(text);
+		if (persona != null) {
+			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
+		}
+		return null;
+	}
+
+	@RequestMapping(value = "massivaReassignacioTasca", method = RequestMethod.POST)
+	public String accioReassignar(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "massiva", required = true) boolean massiva,
+			@ModelAttribute("reassignacioTasquesCommand") ReassignacioTasquesCommand reassignacioTasquesCommand,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {	
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
+		model.addAttribute("massiva", massiva);		
+		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
+			return modalUrlTancar();
+		}
+		String tipus = request.getParameter("tipusExpressio"); 
+		ReassignarValidator validator = new ReassignarValidator();
+		validator.setTipus(tipus);
+		validator.validate(reassignacioTasquesCommand, result);
+		if (result.hasErrors()) {
+			MissatgesHelper.error(request, getMessage(request, "error.executar.reassignacio"));
+			return "v3/tasquesReassignacio";
+        }
+
+		Date dInici = new Date();
+		if (inici != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			try {
+				dInici = sdf.parse(inici);
+			} catch (ParseException e) {}
+		}
+
+		String expression = reassignacioTasquesCommand.getExpression();
+		if ("user".equals(tipus)) {
+			expression = "user(" + reassignacioTasquesCommand.getUsuari() + ")";
+		} else if ("grup".equals(tipus)) {
+			AreaDto grup = dissenyService.findAreaById(reassignacioTasquesCommand.getGrup());
+			expression = "group(" + grup.getCodi() + ")";
+		}
+		try {
+			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		
+			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+			dto.setDataInici(dInici);
+			dto.setEnviarCorreu(correu);
+			List<Long> listIds = new ArrayList<Long>(ids);
+			String[] tasquesId = new String[ids.size() - 1];
+			for (int i = 0; i < listIds.size() - 1; i++)
+				tasquesId[i] = listIds.get(i + 1).toString();
+			dto.setTascaIds(tasquesId);
+			dto.setExpedientTipusId(ids.iterator().next());
+			dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
+			dto.setParam1(expression);
+			Object[] params = new Object[] {entorn.getId()};
+			dto.setParam2(execucioMassivaService.serialize(params));
+			execucioMassivaService.crearExecucioMassiva(dto);
+			MissatgesHelper.info(request, getMessage(request, "info.accio.massiu.reassignat", new Object[] {ids.size()}));
+			ids.clear();
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+			logger.error("Error al programar les accions massives", e);
+			return "v3/tasquesReassignacio";
+		}
+		return modalUrlTancar();
+	}
+	
+	private class ReassignarValidator implements Validator {		
+		private String tipus;
+		
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(ReassignacioTasquesCommand.class);
+		}
+		public void validate(Object obj, Errors errors) {
+			if ("user".equals(tipus)) {
+				ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
+			} else if ("grup".equals(tipus)) {
+				ValidationUtils.rejectIfEmpty(errors, "grup", "not.blank");
+			} else if ("expr".equals(tipus)) {
+				ValidationUtils.rejectIfEmpty(errors, "expression", "not.blank");
+			}
+		}
+		public void setTipus(String tipus) {
+			this.tipus = tipus;
+		}
+	}
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+	}
+
+	private static final Log logger = LogFactory.getLog(MassivaTascaReassignacioController.class);
+}

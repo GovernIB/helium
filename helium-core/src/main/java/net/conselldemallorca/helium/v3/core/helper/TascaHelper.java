@@ -412,6 +412,71 @@ public class TascaHelper {
 		}
 		return dto;
 	}
+	
+	public ExpedientTascaDto getExpedientTascaCacheDto(JbpmTask task, DadesCacheTasca dadesCacheTasca, boolean complete) {
+		ExpedientTascaDto dto = new ExpedientTascaDto();
+		dto.setId(task.getId());
+		dto.setTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
+		dto.setTitol(dadesCacheTasca.getTitol());
+		dto.setDescripcio(task.getDescription());
+		if (task.isCancelled()) {
+			dto.setEstat(TascaEstatDto.CANCELADA);
+		} else if (task.isSuspended()) {
+			dto.setEstat(TascaEstatDto.SUSPESA);
+		} else {
+			if (task.isCompleted())
+				dto.setEstat(TascaEstatDto.FINALITZADA);
+			else
+				dto.setEstat(TascaEstatDto.PENDENT);
+		}
+		dto.setDataLimit(task.getDueDate());
+		dto.setDataCreacio(task.getCreateTime());
+		dto.setDataInici(task.getStartTime());
+		dto.setDataFi(task.getEndTime());
+		
+		if (complete) {
+			if (task.getAssignee() != null) {
+				dto.setResponsable(
+						dtoConverter.getResponsableTasca(task.getAssignee()));
+				dto.setResponsableCodi(task.getAssignee());
+			}
+			Set<String> pooledActors = task.getPooledActors();
+			if (pooledActors != null && pooledActors.size() > 0) {
+				List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+				for (String pooledActor: pooledActors)
+					responsables.add(
+							dtoConverter.getResponsableTasca(pooledActor));
+				dto.setResponsables(responsables);
+			}
+		}
+		switch (task.getPriority()) {
+		case -2:
+			dto.setPrioritat(TascaPrioritatDto.MOLT_BAIXA);
+			break;
+		case -1:
+			dto.setPrioritat(TascaPrioritatDto.BAIXA);
+			break;
+		case 0:
+			dto.setPrioritat(TascaPrioritatDto.NORMAL);
+			break;
+		case 1:
+			dto.setPrioritat(TascaPrioritatDto.ALTA);
+			break;
+		case 2:
+			dto.setPrioritat(TascaPrioritatDto.MOLT_ALTA);
+			break;
+		}
+		dto.setOberta(task.isOpen());
+		dto.setCancelada(task.isCancelled());
+		dto.setSuspesa(task.isSuspended());
+		dto.setCompleted(task.isCompleted());
+		dto.setExpedientIdentificador(dadesCacheTasca.getIdentificador());
+		dto.setExpedientTipusNom(dadesCacheTasca.getExpedientTipusNom());
+		dto.setProcessInstanceId(task.getProcessInstanceId());
+		dto.setAgafada(task.isAgafada());
+		
+		return dto;
+	}
 
 	public ExpedientTascaDto getExpedientTascaDto(JbpmTask task) {
 		return getExpedientTascaDto(task, null);

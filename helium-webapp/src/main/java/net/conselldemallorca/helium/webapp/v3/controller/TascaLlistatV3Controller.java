@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
@@ -57,6 +58,8 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	private TascaService tascaService;
 	@Autowired
 	private DissenyService dissenyService;
+	@Autowired
+	private PluginService pluginService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -160,11 +163,20 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	public Set<Long> seleccioTots(HttpServletRequest request) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
-		List<Long> ids = tascaService.findIdsAmbFiltre(
-						entornActual.getId(),
-						filtreCommand.getConsultaTramitacioMassivaTascaId(),
-						filtreCommand.getExpedientTipusId(),
-						request.getUserPrincipal().getName());
+		List<Long> ids = tascaService.findIdsPerFiltre(
+			entornActual.getId(),
+			filtreCommand.getConsultaTramitacioMassivaTascaId(),
+			filtreCommand.getExpedientTipusId(),
+			request.getUserPrincipal().getName(),
+			filtreCommand.getTasca(),
+			filtreCommand.getExpedient(),
+			filtreCommand.getDataCreacioInicial(),
+			filtreCommand.getDataCreacioFinal(),
+			filtreCommand.getDataLimitInicial(),
+			filtreCommand.getDataLimitFinal(),
+			filtreCommand.getPrioritat(),
+			filtreCommand.isMostrarTasquesPersonals(),
+			filtreCommand.isMostrarTasquesGrup());
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null) {

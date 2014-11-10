@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCom
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,7 +103,11 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
 
 				TascaFormHelper.getBeanValidatorForCommand(dades).validate(command, result);
+				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
+				validator.setTasca(dades);
+				validator.setRequest(request);
 				Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(dades, command, false);
+				validarForm(validator, valors, command, result, request, tasca.getId());
 				
 				DefinicioProcesDto definicioProces = null;
 				if (definicioProcesId != null) {
@@ -154,6 +159,22 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		}
 
 		return "redirect:/modal/v3/expedient/iniciar";
+	}
+	
+	private void validarForm(
+			TascaFormValidatorHelper validator, 
+			Map<String, Object> variables, 
+			Object command, 
+			BindingResult result, 
+			HttpServletRequest request,
+			String tascaId) {
+		validator.setValidarObligatoris(true);
+		validator.validate(command, result);
+		if (result.hasErrors()) {
+			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+			MissatgesHelper.errorGlobal(request, result, getMessage(request, "error.validacio"));
+			System.out.println(result);
+		}
 	}
 
 	private synchronized ExpedientDto iniciarExpedient(Long entornId, Long expedientTipusId, Long definicioProcesId, String numero, String titol, Integer any, Map<String, Object> valors) {

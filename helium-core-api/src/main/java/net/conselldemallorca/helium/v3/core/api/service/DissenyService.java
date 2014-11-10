@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -126,4 +127,6 @@ public interface DissenyService {
 	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmId);
 
 	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId);
+
+	public AreaDto findAreaById(Long areaId);
 }

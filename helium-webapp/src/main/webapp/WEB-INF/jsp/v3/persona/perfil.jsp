@@ -139,7 +139,7 @@
 			<form:form action="" method="post" cssClass="formbox form-horizontal" commandName="personaUsuariCommand">
 				<div class="control-group">
 					<div class="label-titol">
-						<label class="control-label" for="lc_time">Generales</label>
+						<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.nota.generales"/></label>
 						<!-- 
 						<div class="control-group">
 							<hel:inputSelect name="expedientTipusId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
@@ -151,42 +151,42 @@
 						<div class="control-group">
 							<hel:inputSelect name="listado" text="Listado inicial" placeholder="Listado inicial" optionItems="${pantallas}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
-								<span class="label label-info">Nota</span> Veure la pantalla d'expedients o de tasques per defecte.
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.pantalla"/>
 							</p>
 						</div>
 						<div class="control-group">
 							<hel:inputSelect name="cabeceraReducida" text="Capcalera" placeholder="Capcalera" optionItems="${cabeceras}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
-								<span class="label label-info">Nota</span> Mida i format de capcalera.
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.cabecera"/>
 							</p>
 						</div>
 						<div class="control-group">
 							<hel:inputSelect name="entornCodi" text="Entorno" placeholder="Entorno" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" inline="false"/>
 							<p class="help-block">
-								<span class="label label-info">Nota</span> Entorn per defecte que s'ha d'obrir.
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.entorn"/>
 							</p>
 						</div>
 						<div class="control-group">
 							<hel:inputSelect name="numElementosPagina" text="Elementos por página" placeholder="Elementos por página" optionItems="${numElementsPagina}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
-								<span class="label label-info">Nota</span> Numero d'elements que s'han de mostrar per defecte en les taules paginades.
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.numelements"/>
 							</p>
 						</div>
 						</div>
 						</div>
 						<div class="control-group">
 							<div class="label-titol">
-								<label class="control-label" for="lc_time">Consulta por tipo</label>
+								<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.consulta"/></label>
 								<hel:inputSelect name="expedientTipusId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
 								<hel:inputSelect name="consultaId" text="Consulta por tipo" placeholder="Consulta por tipo" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
 								<p class="help-block">
-									<span class="label label-info">Nota</span> Consulta per tipus per defecte que s'ha d'obrir.
+									<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.consulta"/>
 								</p>
 							</div>
 						</div>
 				<div class="control-group">
 					<div class="label-titol">
-						<label class="control-label">Filtros por defecto</label>
+						<label class="control-label"><spring:message code="perfil.usuari.nota.filtres"/></label>
 						<div class="form-group">
 							<div class="help-block">
 								<hel:inputCheckbox name="filtroExpedientesActivos" text="Llistat d'expedients filtra per defecte o no expedients amb tasques actives per part de l'usuari." inline="true"/>

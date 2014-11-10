@@ -128,13 +128,16 @@ public class EntornService {
 				}
 			}
 		}
-		if (!"".equals(msg)) {
+		if (!msg.isEmpty()) {
 			msg = msg.substring(0, msg.length() - 2);
 			throw new NotRemovableException(getMessage("error.entornService.delete", new Object[]{msg}));
 		}
+		
 		List<Area> areas = areaDao.findAreaAmbEntorn(entornId);
 		for (Area area : areas) {
 			areaDao.delete(area);
+			area.getTipus().removeFill(area);
+			areaTipusDao.delete(area.getTipus());
 		}
 		entornDao.delete(entornId);
 	}

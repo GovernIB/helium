@@ -23,6 +23,12 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	
+	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
+	<link href="<c:url value="/css/autocomplete.css"/>" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 	<style type="text/css">
 		#consultaTipo {padding-bottom: 20px;padding-right: 15px;}
 		.btn-mini {padding: 0 6px;}
@@ -122,16 +128,35 @@ $(document).ready(function() {
 
 	$('#expedientTipusId').trigger('change');
 });
+
+$(function() {
+	$( "#dialog-error" ).dialog({
+		autoOpen: false,
+		height: 120,
+		width: 1000,
+		modal: true,
+		resizable: true,
+		eventType: 'click',
+		loader: 1,
+		loaderHeight: 50,
+		loaderWidth: 100,
+		eventType:'click', 
+		overlayOpacity: 10,							
+		windowPadding: 10,
+		draggable: 1
+	});
+});
+
 function alertaErrorUser(e, desc) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	
 	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
-	$("#dialog-error-user").html(text);
-	$("#dialog-error-user").data('title.dialog', 'Error en la ejecución del expediente'); 
-	$("#dialog-error-user").dialog( "open" );
+	$("#dialog-error").html(text);
+	$("#dialog-error").data('title.dialog', desc); 
+	$("#dialog-error").dialog( "open" );
 	if (e.stopPropagation) e.stopPropagation();
-	
+
 	return false;
 }
 function alertaErrorAdmin(e, id, desc, full) {
@@ -139,19 +164,20 @@ function alertaErrorAdmin(e, id, desc, full) {
 	e.cancelBubble = true;
 
 	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
-	$("#dialog-error-admin").html(text+"<br/><br/>"+full+$("#dialog-error-admin").html());
+	$("#dialog-error").html(text+"<br/><br/>"+full);
 	$("#processInstanceId").val(id);
-	$("#dialog-error-admin").data('title.dialog', 'Error en la ejecución del expediente'); 
-	$("#dialog-error-admin").dialog( "open" );
-
+	$("#dialog-error").data('title.dialog', desc); 
+	$("#dialog-error").dialog( "open" );
 	if (e.stopPropagation) e.stopPropagation();
-	
+
 	return false;
 }
 </script>
 </head>
 <body>
 	<input type="hidden" id="netejar" value="false"/>
+	
+	<div id="dialog-error" title="Error" style="display:none" class="ui-dialog-content ui-widget-content"></div>
 									
 	<form:form action="" method="post" cssClass="well" commandName="expedientConsultaCommand">
 		<div id="consultaTipo" class="row">
@@ -268,6 +294,9 @@ function alertaErrorAdmin(e, id, desc, full) {
 					{{/if}}
 
 					<div class="pull-right">
+						{{if errorsIntegracions}}
+							<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span></span>
+						{{/if}}
 						{{if aturat}}
 							<span class="label label-danger" title="<spring:message code="expedient.info.aturat"/>">AT</span>
 						{{else anulat}}
@@ -275,9 +304,9 @@ function alertaErrorAdmin(e, id, desc, full) {
 						{{/if}}
 						{{if errorDesc}}
 							{{if isAdmin}}
-								<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>"><span class="fa fa-exclamation-circle" onclick="return alertaErrorAdmin(event, {{:processInstanceId}}, '{{:errorDesc}}', '{{:errorFull}}')"></span></span>
+								<span class="label label-warning" title="{{:errorDesc}}"><span class="fa fa-exclamation-circle" onclick="return alertaErrorAdmin(event, {{:processInstanceId}}, '{{:errorDesc}}', '{{:errorFull}}')"></span></span>
 							{{else}}
-								<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>"><span class="fa fa-exclamation-circle" onclick="return alertaErrorUser(event, '{{:errorDesc}}')"></span></span>
+								<span class="label label-warning" title="{{:errorDesc}}"><span class="fa fa-exclamation-circle" onclick="return alertaErrorUser(event, '{{:errorDesc}}')"></span></span>
 							{{/if}}						
 						{{/if}}
 					</div>
@@ -290,7 +319,8 @@ function alertaErrorAdmin(e, id, desc, full) {
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>				
+				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
+				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>				
 <%--
 				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="true" data-rdt-sortable="false">
 					Permisos

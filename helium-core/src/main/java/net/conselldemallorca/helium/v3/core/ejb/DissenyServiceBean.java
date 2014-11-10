@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -201,5 +202,10 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
 		return delegate.findDefinicioProcesAmbJbpmId(jbpmId);
+	}
+
+	@Override
+	public AreaDto findAreaById(Long areaId) {
+		return delegate.findAreaById(areaId);
 	}
 }

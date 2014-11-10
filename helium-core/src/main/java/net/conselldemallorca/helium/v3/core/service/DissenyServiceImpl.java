@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -47,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
+import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
@@ -111,6 +113,16 @@ public class DissenyServiceImpl implements DissenyService {
 	private AccioRepository accioRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
+	@Resource
+	private AreaRepository areaRepository;
+
+	@Transactional(readOnly=true)
+	@Override
+	public AreaDto findAreaById(Long areaId) {
+		return conversioTipusHelper.convertir(
+				areaRepository.findById(areaId),
+				AreaDto.class);
+	}
 
 	@Transactional(readOnly=true)
 	@Override

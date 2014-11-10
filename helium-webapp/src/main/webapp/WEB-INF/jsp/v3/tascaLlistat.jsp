@@ -16,9 +16,10 @@
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	
-	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
+	<script src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
@@ -36,19 +37,25 @@
 				localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 				rowClickCallback: function(row) {
+					alert($(row));
 					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						$('a.consultar-tasca', $(row))[0].click();
 					</c:if>
 				},
 				seleccioCallback: function(seleccio) {
-					$('#tramitacioMassivaCount').html(seleccio.length);
+					$('#reasignacioMassivaCount').html(seleccio.length);
+					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">
+						$('#tramitacioMassivaCount').html(seleccio.length);
+						$("input[name=correu]").trigger('change');	
+					</c:if>
 				}
 			});		
             $("#inici_timer").on("dp.change",function (e) {
-				$("a[id='btnMassiva']").attr("href","../../../v3/expedient/massivaTramitacioTasca?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
+            	$("input[name=correu]").trigger('change');
 			});
 			$("input[name=correu]").change(function(){
 				$("a[id='btnMassiva']").attr("href","../../../v3/expedient/massivaTramitacioTasca?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
+				$("a[id='btnReassignacioMassiva']").attr("href","../../../v3/tasca/massivaReassignacioTasca?massiva=true&inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 			});
 			$("#mostrarTasquesPersonalsCheck").click(function() {
 				$("input[name=mostrarTasquesPersonals]").val(!$("#mostrarTasquesPersonalsCheck").hasClass('active'));
@@ -62,7 +69,7 @@
 				language: '${idioma}',
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
-		    });			
+		    });
 		});
 	</script>
 	<style type="text/css">
@@ -166,10 +173,10 @@
 		</c:choose>
 	</form:form>
 
-	<table id="taulaDades" class="table table-striped table-bordered table-hover" <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false" data-rdt-button-template="tableButtonsTemplate" data-rdt-seleccionable-columna="0"</c:if> data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"/>" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
+	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if> data-rdt-seleccionable-columna="0" data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="true" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr>
-				<th data-rdt-property="id" width="4%" data-rdt-sortable="false" data-rdt-visible="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"></th>
+				<th data-rdt-property="id" width="4%" data-rdt-sortable="false" data-rdt-visible="true"></th>
 				<th data-rdt-property="titol" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >
 					<spring:message code="tasca.llistat.columna.titol"/>
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
@@ -245,26 +252,34 @@
 			</tr>
 		</thead>
 	</table>
-	<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">
+	
 		<script id="tableButtonsTemplate" type="text/x-jsrender">
 			<div style="text-align:right">
 				<div id="btnTramitacio" class="btn-group">
-					<a class="btn btn-default" href="../../../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-					<a class="btn btn-default" href="../../../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-					<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="../../../v3/expedient/massivaTramitacioTasca"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+					<c:choose>
+						<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
+							<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+							<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+							<a class="btn btn-default" data-rdt-link-modal="true" href="../v3/tasca/massivaReassignacioTasca?massiva=false"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						</c:when>
+						<c:otherwise>
+							<a class="btn btn-default" href="../../../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+							<a class="btn btn-default" href="../../../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+							<a id="btnReassignacioMassiva" class="btn btn-default" data-rdt-link-modal="true" href="../../../v3/tasca/massivaReassignacioTasca?massiva=true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+							<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="../../../v3/expedient/massivaTramitacioTasca"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+						</c:otherwise>
+					</c:choose>	
 				</div>
 			</div>
-		</script>
-
+		</script>				
+					
 		<script type="text/javascript">
 			// <![CDATA[
-				$('#btnMassiva').heliumEvalLink({
+				$('#btnTramitacio').heliumEvalLink({
 					refrescarAlertes: true,
-					refrescarPagina: false,
-					maximize: true
+					refrescarPagina: false
 				});
 			//]]>
 		</script>
-	</c:if>
 </body>
 </html>

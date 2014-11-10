@@ -235,17 +235,13 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsAmbFiltre(
-			Long entornId,
-			String consultaTramitacioMassivaTascaId,
-			Long expedientTipusId,
-			String responsable) {
-		return delegate.findIdsAmbFiltre(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, responsable);
+	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids) {
+		return delegate.findDadesPerIds(ids);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids) {
-		return delegate.findDadesPerIds(ids);
+	public List<Long> findIdsPerFiltre(Long entornId, String consultaTramitacioMassivaTascaId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
+		return delegate.findIdsPerFiltre(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, responsable, tasca, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup);
 	}
 }

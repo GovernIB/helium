@@ -21,4 +21,7 @@ public interface AreaRepository extends JpaRepository<Area, Long> {
 			Entorn entorn,
 			String codi);
 
+	Area findById(
+			Long id);
+
 }

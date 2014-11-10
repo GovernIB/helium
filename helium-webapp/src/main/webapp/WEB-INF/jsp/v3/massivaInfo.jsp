@@ -17,6 +17,7 @@
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	
 	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>

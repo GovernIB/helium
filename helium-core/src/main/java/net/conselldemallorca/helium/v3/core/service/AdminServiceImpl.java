@@ -74,6 +74,8 @@ public class AdminServiceImpl implements AdminService {
 	public UsuariPreferenciesDto getPreferenciesUsuariActual() {
 		logger.debug("Obtenint preferències per a l'usuari actual");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null)
+			return null;
 		String usuariActual = auth.getName();
 		logger.debug("Obtenint preferències per a l'usuari actual (codi=" + usuariActual + ")");
 		return conversioTipusHelper.convertir(

@@ -137,6 +137,7 @@ public class DtoConverter {
 		}
 		return titol;
 	}
+	
 	public DadesCacheTasca getDadesCacheTasca(
 			JbpmTask task,
 			Expedient expedient) {
@@ -396,6 +397,7 @@ public class DtoConverter {
 		dto.setAvisosMobil(expedient.getAvisosMobil());
 		dto.setErrorDesc(expedient.getErrorDesc());
 		dto.setErrorFull(expedient.getErrorFull());
+		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
 		dto.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
 		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
