@@ -83,11 +83,10 @@
 						<include>**/ExecucioMassivaSuite.java</include>
 						<include>**/InformesSuite.java</include>
 						<include>**/IntegracioSuite.java</include>
-						<include>**/TestSuite.java</include>
 						<include>**/TipusExpedientSuite.java</include>
 						<include>**/TramitacioSuite.java</include>
 					</includes>
-<!-- 					<skipTests>${skipTests}</skipTests> -->
+					<skipTests>${skipTests}</skipTests>
 				</configuration>
 			</plugin>
 		</plugins>
