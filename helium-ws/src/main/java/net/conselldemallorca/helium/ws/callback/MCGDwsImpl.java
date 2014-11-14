@@ -7,9 +7,6 @@
 
 package net.conselldemallorca.helium.ws.callback;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 
@@ -76,21 +73,13 @@ public class MCGDwsImpl implements es.indra.www.portafirmasmcgdws.mcgdws.MCGDws 
 				logger.error("Error procés petició callback portasignatures (id=" + document + ", estat=" + estat.getValue() + ", resposta=" + resposta + "): " + ex.getMessage());
 			}
 			callbackResponse.setVersion("1.0");
-			callbackResponse.setLogMessages(new LogMessage[0]);
+			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
 			callbackResponse.set_return(resposta.doubleValue());
 		} catch (Exception e) {
 			logger.error("Error obtenint l'estat del document.", e);
 			callbackResponse.setVersion("1.0");
-			LogMessage logMessage = new LogMessage();
-			logMessage.setCode("-1");
-			logMessage.setSeverity("High");
-			logMessage.setTitle(e.getMessage());
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			e.printStackTrace(pw);
-			logMessage.setDescription(sw.toString());
-			callbackResponse.setLogMessages(new LogMessage[] { logMessage });
-			callbackResponse.set_return((double) -1);
+			callbackResponse.setLogMessages(new LogMessage[] {new LogMessage()});
+			callbackResponse.set_return((double)-1);
 		}
 		return callbackResponse;
 	}
