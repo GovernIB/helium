@@ -194,11 +194,31 @@ public abstract class BaseTest {
 		baseUrl = properties.getProperty("test.base.url.disseny");
 		assertNotNull("Url base no configurada al fitxer de properties", baseUrl);
 		driver.get(baseUrl);
+		
+		seycon = "true".equals(properties.getProperty("test.base.url.inicio.seycon"));
+		if (seycon) {
+			String user = properties.getProperty("test.base.usuari.configuracio");
+			String pass = properties.getProperty("test.base.usuari.configuracio.pass");
+			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
+			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
+			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
+		}
+		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 	protected void carregarUrlFeina() {
 		baseUrl = properties.getProperty("test.base.url.feina");
 		assertNotNull("Url base no configurada al fitxer de properties", baseUrl);
 		driver.get(baseUrl);
+		
+		seycon = "true".equals(properties.getProperty("test.base.url.inicio.seycon"));
+		if (seycon) {
+			String user = properties.getProperty("test.base.usuari.configuracio");
+			String pass = properties.getProperty("test.base.usuari.configuracio.pass");
+			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
+			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
+			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
+		}
+		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 
 	// Funcions d'ajuda

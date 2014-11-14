@@ -34,6 +34,8 @@ public class Entorn extends BaseTest {
 	String usuariDis = carregarPropietat("test.base.usuari.disseny", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	String rol		 = carregarPropietat("test.base.rol.configuracio", "Rol configuració de l'entorn de proves no configurat al fitxer de properties");
 	
+	String urlWS	 = carregarPropietat("test.url.ws.domini.intern", "Configuració de la URL del WS no trobada al fitxer de properties");
+	
 	String nomTipusExp	= carregarPropietat("entorn.reindexacio.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp	= carregarPropietat("entorn.reindexacio.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	String tipusExpPath	= carregarPropietatPath("entorn.reindexacio.tipexp.deploy.path", "Path del tipus d'expedient de proves no configurat al fitxer de properties");
@@ -517,7 +519,7 @@ public class Entorn extends BaseTest {
 		
 		driver.findElement(By.xpath(botoNouDomini)).click();
 		
-		emplenaDadesDominiWS("wsDomId", "Nom consulta WS", "0", "Descripció consulta WS", "http://localhost:8080/helium/ws/DominiIntern", "NONE", "ATRIBUTS", "", "");
+		emplenaDadesDominiWS("wsDomId", "Nom consulta WS", "0", "Descripció consulta WS", urlWS, "NONE", "ATRIBUTS", "", "");
 		
 		screenshotHelper.saveScreenshot("entorns/domini/j1_4_creacioDominis_dades.png");
 		
