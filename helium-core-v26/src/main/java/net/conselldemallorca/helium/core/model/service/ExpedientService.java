@@ -1660,9 +1660,10 @@ public class ExpedientService {
 
 	public List<TokenDto> getAllTokens(String processInstanceId) {
 		List<TokenDto> resposta = new ArrayList<TokenDto>();
-		Map<String, JbpmToken> activeTokens = jbpmHelper.getActiveTokens(processInstanceId);
-		for (String tokenName: activeTokens.keySet()) {
-			JbpmToken token = activeTokens.get(tokenName);
+//		Map<String, JbpmToken> tokens = jbpmHelper.getActiveTokens(processInstanceId);
+		Map<String, JbpmToken> tokens = jbpmHelper.getAllTokens(processInstanceId);
+		for (String tokenName: tokens.keySet()) {
+			JbpmToken token = tokens.get(tokenName);
 			TokenDto dto = toTokenDto(token);
 			resposta.add(dto);
 		}

@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ReassignacioUsuarisServi
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ReassignacioUsuarisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ReassignacioUsuarisValidatorHelper;
 
 import org.apache.commons.logging.Log;
@@ -149,6 +150,9 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
 	
 	private static final Log logger = LogFactory.getLog(ReassignacioUsuarisController.class);

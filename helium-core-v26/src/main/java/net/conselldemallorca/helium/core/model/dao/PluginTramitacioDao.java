@@ -5,6 +5,10 @@ package net.conselldemallorca.helium.core.model.dao;
 
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
@@ -51,6 +55,15 @@ public class PluginTramitacioDao {
 		}
 	}
 
+	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio) {
+		try {
+			return getTramitacioPlugin().registrarNotificacio(registreNotificacio);
+		} catch (TramitacioPluginException ex) {
+			logger.error("Error al crear una notificació", ex);
+			throw new PluginException("Error al crear una notificació", ex);
+		}
+	}
+
 	public DadesTramit obtenirDadesTramit(
 			ObtenirDadesTramitRequest request) {
 		try {
@@ -70,6 +83,26 @@ public class PluginTramitacioDao {
 			throw new PluginException("Error al obtenir la vista del document " + request, ex);
 		}
 	}
+	
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(
+			String numeroRegistre) throws TramitacioPluginException {
+		try {
+			return getTramitacioPlugin().obtenirJustificantRecepcio(numeroRegistre);
+		} catch (TramitacioPluginException ex) {
+			logger.error("Error al obtenir justificant de recepció", ex);
+			throw new PluginException("Error al obtenir justificant de recepció", ex);
+		}
+	}
+	
+	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(
+			String numeroRegistre) throws TramitacioPluginException {
+		try {
+			return getTramitacioPlugin().obtenirJustificantDetallRecepcio(numeroRegistre);
+		} catch (TramitacioPluginException ex) {
+			logger.error("Error al obtenir justificant de recepció", ex);
+			throw new PluginException("Error al obtenir justificant de recepció", ex);
+		}
+	}	
 
 	public void comunicarResultatProcesTramit(
 			ResultatProcesTramitRequest request) {
@@ -109,5 +142,4 @@ public class PluginTramitacioDao {
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginTramitacioDao.class);
-
 }

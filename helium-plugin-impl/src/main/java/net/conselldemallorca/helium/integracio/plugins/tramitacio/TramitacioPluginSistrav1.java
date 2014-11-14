@@ -13,6 +13,10 @@ import javax.xml.namespace.QName;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -155,6 +159,21 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 			logger.error("Error al comunicar el resultat de processar el tràmit", ex);
 			throw new TramitacioPluginException("Error al obtenir dades del tràmit", ex);
 		}
+	}
+
+	@Override
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(String numeroRegistre) throws TramitacioPluginException {
+		throw new TramitacioPluginException("Error al obtenir justificant de recepció: petició no suportada");
+	}
+
+	@Override
+	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio) throws TramitacioPluginException {
+		throw new TramitacioPluginException("Error al registrar notificació: petició no suportada");
+		}
+
+	@Override
+	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre) throws TramitacioPluginException {
+		throw new TramitacioPluginException("Error al obtenir justificant detall de recepció: petició no suportada");
 	}
 
 	public DadesVistaDocument obtenirVistaDocument(ObtenirVistaDocumentRequest request) throws TramitacioPluginException {
@@ -436,5 +455,4 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginSistrav1.class);
-
 }

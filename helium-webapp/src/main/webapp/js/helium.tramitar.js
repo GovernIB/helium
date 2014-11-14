@@ -25,21 +25,21 @@ function infoRegistre(docId) {
 	return false;
 }
 
-function accioCampExecutar(elem, field) {
-	if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
-		var fieldField = document.getElementById("helAccioCamp");
-		if (fieldField == null) {
-			newField = document.createElement('input');
-			newField.setAttribute("id", "helAccioCamp");
-			newField.setAttribute("name", "helAccioCamp");
-			newField.setAttribute("type", "hidden");
-			newField.setAttribute("value", field);
-			elem.form.appendChild(newField);
-		}
-		return true;
-	}
-	return false;
-}
+//function accioCampExecutar(elem, field) {
+//	if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
+//		var fieldField = document.getElementById("helAccioCamp");
+//		if (fieldField == null) {
+//			newField = document.createElement('input');
+//			newField.setAttribute("id", "helAccioCamp");
+//			newField.setAttribute("name", "helAccioCamp");
+//			newField.setAttribute("type", "hidden");
+//			newField.setAttribute("value", field);
+//			elem.form.appendChild(newField);
+//		}
+//		return true;
+//	}
+//	return false;
+//}
 
 function esborrarRegistre(e, campId, index) {
 	var e = e || window.event;

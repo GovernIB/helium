@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ReferenciaRDSJustificante;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
@@ -42,6 +43,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -505,9 +508,45 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
 			resposta.setData(anotacioId.getData());
+			ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
+			referenciaRDSJustificante.setClave(anotacioId.getReferenciaRDSJustificante().getClave());
+			referenciaRDSJustificante.setCodigo(anotacioId.getReferenciaRDSJustificante().getCodigo());
+			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
 			return resposta;
 		} catch (PluginException ex) {
 			throw new JbpmException("No s'ha pogut enviar la notificació", ex);
+		}
+	}
+
+	/**
+	 * Consulta la data del justificant de recepció d'una notificació.
+	 * 
+	 * @param registreNumero
+	 * @return
+	 * @throws Exception 
+	 */
+	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(String registreNumero) throws Exception {
+		try {
+			return Jbpm3HeliumBridge.getInstanceService().obtenirJustificantRecepcio(
+					registreNumero);
+		} catch (PluginException ex) {
+			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
+		}
+	}
+
+	/**
+	 * Consulta la data del justificant de recepció d'una notificació.
+	 * 
+	 * @param registreNumero
+	 * @return
+	 * @throws Exception 
+	 */
+	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(String registreNumero) throws Exception {
+		try {
+			return Jbpm3HeliumBridge.getInstanceService().obtenirJustificantDetallRecepcio(
+					registreNumero);
+		} catch (PluginException ex) {
+			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
 		}
 	}
 

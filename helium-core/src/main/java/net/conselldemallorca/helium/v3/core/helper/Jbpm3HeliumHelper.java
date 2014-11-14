@@ -64,10 +64,13 @@ import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesOficina;
 import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreSortida;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -94,6 +97,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -120,6 +125,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
+import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1242,19 +1248,95 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public RegistreIdDto registreNotificacio(
-			RegistreNotificacioDto notificacio) throws PluginException {
-		imprimirFuncio("registreNotificacio");
-		throw new PluginException("Funcionalitat no implementada");
-	}
-
-	@Override
 	public Date registreNotificacioComprovarRecepcio(
 			String registreNumero) throws PluginException {
 		imprimirFuncio("registreNotificacioComprovarRecepcio");
 		RespostaJustificantRecepcio resposta = pluginRegistreDao.obtenirJustificantRecepcio(registreNumero);
 		if (!resposta.isError()) {
 			return resposta.getData();
+		} else {
+			throw new PluginException("[" + resposta.getErrorCodi() + "]: " + resposta.getErrorDescripcio());
+		}
+	}
+
+	@Override
+	public RegistreIdDto registreNotificacio(
+			RegistreNotificacioDto notificacio) throws PluginException {
+		imprimirFuncio("registreNotificacio");
+//		throw new PluginException("Funcionalitat no implementada");
+		imprimirFuncio("registreAnotacioSortida");
+		RegistreNotificacio registreSortida = new RegistreNotificacio();
+		DadesOficina dadesOficina = new DadesOficina();
+		dadesOficina.setOrganCodi(notificacio.getOrganCodi());
+		dadesOficina.setOficinaCodi(notificacio.getOficinaCodi());
+		registreSortida.setDadesOficina(dadesOficina);
+		DadesInteressat dadesInteressat = new DadesInteressat();
+		dadesInteressat.setAutenticat(true);
+		dadesInteressat.setEntitatCodi(notificacio.getEntitatCodi());
+		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
+		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
+		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
+		registreSortida.setDadesInteressat(dadesInteressat);
+		DadesAssumpte dadesAssumpte = new DadesAssumpte();
+		String idiomaExtracte = notificacio.getAssumpteIdiomaCodi();
+		dadesAssumpte.setAssumpte(notificacio.getAssumpteExtracte());
+		dadesAssumpte.setIdiomaCodi(
+				(idiomaExtracte != null) ? idiomaExtracte : "ca");
+		dadesAssumpte.setTipus(
+				notificacio.getAssumpteTipus());
+		dadesAssumpte.setRegistreNumero(
+				notificacio.getAssumpteRegistreNumero());
+		dadesAssumpte.setRegistreAny(
+				notificacio.getAssumpteRegistreAny());
+		if (notificacio.getAnnexos() != null) {
+			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+			for (RegistreAnnexDto annex: notificacio.getAnnexos()) {
+				DocumentRegistre document = new DocumentRegistre();
+				document.setNom(annex.getNom());
+				document.setIdiomaCodi((annex.getIdiomaCodi() != null) ? annex.getIdiomaCodi() : "ca");
+				document.setData(annex.getData());
+				document.setArxiuNom(annex.getArxiuNom());
+				document.setArxiuContingut(annex.getArxiuContingut());
+				documents.add(document);
+			}
+			registreSortida.setDocuments(documents);
+		}
+		RespostaAnotacioRegistre respostaPlugin = pluginTramitacioDao.registrarNotificacio(
+				registreSortida);
+		if (respostaPlugin.isOk()) {
+			RegistreIdDto resposta = new RegistreIdDto();
+			resposta.setNumero(respostaPlugin.getNumero());
+			resposta.setData(respostaPlugin.getData());
+			ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
+			referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
+			referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
+			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
+			return resposta;
+		} else {
+			throw new PluginException("[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+		}
+	}
+
+	@Override
+	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(
+			String registreNumero) throws PluginException, TramitacioPluginException {
+		imprimirFuncio("obtenirJustificantRecepcio");
+		RespostaJustificantRecepcio resposta = pluginTramitacioDao.obtenirJustificantRecepcio(registreNumero);
+		if (!resposta.isError()) {
+			return conversioTipusHelper.convertir(resposta, RespostaJustificantRecepcioDto.class);
+		} else {
+			throw new PluginException("[" + resposta.getErrorCodi() + "]: " + resposta.getErrorDescripcio());
+		}
+	}
+
+	@Override
+	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(
+			String registreNumero) throws PluginException, TramitacioPluginException {
+		imprimirFuncio("obtenirJustificantDetallRecepcio");
+		RespostaJustificantDetallRecepcio resposta = pluginTramitacioDao.obtenirJustificantDetallRecepcio(registreNumero);
+		
+		if (!resposta.isError()) {
+			return conversioTipusHelper.convertir(resposta, RespostaJustificantDetallRecepcioDto.class);
 		} else {
 			throw new PluginException("[" + resposta.getErrorCodi() + "]: " + resposta.getErrorDescripcio());
 		}

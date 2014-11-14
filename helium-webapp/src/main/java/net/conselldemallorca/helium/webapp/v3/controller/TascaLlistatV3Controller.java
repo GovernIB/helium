@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
@@ -253,6 +254,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
 
 	private TascaConsultaCommand getFiltreCommand(

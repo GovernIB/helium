@@ -286,10 +286,10 @@ $(function(){
 	});
 	
 	// Executar accions
-	$("#command").on("click", ".btn_accio", function(){
-		var accio = $(this).data(action);
-		accioCampExecutar(this, accio);
-	});
+//	$("#command").on("click", ".btn_accio", function(){
+//		var accio = $(this).data(action);
+//		accioCampExecutar(this, accio);
+//	});
 	
 	// Funcionalitats concretes
 	$("#command").on("click", ".btn_date", function(){
@@ -331,10 +331,10 @@ $(function(){
 });
 
 function cleanAction(action) {
-//	if (!action.endsWith("/form")) {
-//		var pos = action.lastIndexOf("/form")
-//		if (pos != -1)
-//			return action.substring(0, action.lastIndexOf("/form") + 5);
+	if (!action.endsWith("/form")) {
+		var pos = action.lastIndexOf("/form")
+		if (pos != -1)
+			return action.substring(0, action.lastIndexOf("/form") + 5);
 //		if (action.endsWith("/guardar")) {
 //			return action.substring(0, action.length - 8);
 //		} else if (action.endsWith("/validar")) {
@@ -346,8 +346,8 @@ function cleanAction(action) {
 //		} else if (action.indexOf("/action/") != -1) {
 //			return action.substring(0, action.lastIndexOf("/action/"));
 //		}
-//	}
-//	return action;
+	}
+	return action;
 }
 function addField(idTable) {
 	// TODO No se tiene en cuenta si una variable múltiple está dentro de una de registro

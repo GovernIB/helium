@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCo
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
@@ -679,6 +680,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 		binder.registerCustomEditor(
 				Boolean.class,
 				new CustomBooleanEditor(false));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
 
 	private static final Log logger = LogFactory.getLog(MassivaExpedientController.class);

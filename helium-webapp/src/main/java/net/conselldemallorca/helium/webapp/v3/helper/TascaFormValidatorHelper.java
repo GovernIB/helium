@@ -169,11 +169,12 @@ public class TascaFormValidatorHelper implements Validator {
 			if (validarObligatoris) {
 				getValidatorExpresions(tascas, command).validate(command, errors);
 			}
-			SessionHelper.setAttribute(
-					request,
-					SessionHelper.VARIABLE_TASCA_ERRROR,
-					errors);
-			
+			if (request != null) {
+				SessionHelper.setAttribute(
+						request,
+						SessionHelper.VARIABLE_TASCA_ERRROR,
+						errors);
+			}
 			System.out.println(errors.toString());
 		} catch (Exception ex) {
 			logger.error("Error en el validator", ex);

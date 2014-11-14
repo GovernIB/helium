@@ -120,8 +120,7 @@
 			
 <%-- ACCIO --------------------------------------------------------------------------------------%>					
 			<c:if test="${dada.campTipus == 'ACCIO'}">
-				<c:set var="confirmacio"><spring:message code='js.helforms.confirmacio' /></c:set>
-				<button class="btn btn-default pull-lef btn_accio" name="submit" type="submit" value="submit" data-action="${dada.jbpmAction}" data-confirmacio="${confirmacio}"> <%-- onclick="saveAction(this, 'submit'); return accioCampExecutar(this, '${dada.jbpmAction}')"> --%>
+				<button class="btn btn-default pull-lef btn_accio" name="submit" type="submit" value="submit" data-action="${dada.jbpmAction}" data-confirmacio="<spring:message code='js.helforms.confirmacio' />">
 					<spring:message code="common.camptasca.executar" />
 				</button>
 			</c:if>

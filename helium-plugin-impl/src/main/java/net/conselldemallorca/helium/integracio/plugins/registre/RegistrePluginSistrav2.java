@@ -417,6 +417,12 @@ public class RegistrePluginSistrav2 implements RegistrePlugin {
 						resultado.getNumeroRegistro());
 				resposta.setData(
 						resultado.getFechaRegistro().toGregorianCalendar().getTime());
+				if (resultado.getReferenciaRDSJustificante() != null) {
+					ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
+					referenciaRDSJustificante.setClave(resultado.getReferenciaRDSJustificante().getClave());
+					referenciaRDSJustificante.setCodigo(resultado.getReferenciaRDSJustificante().getCodigo());
+					resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
+				}
 			} catch (BackofficeFacadeException ex) {
 				logger.error("Error al registrar la sortida", ex);
 				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);

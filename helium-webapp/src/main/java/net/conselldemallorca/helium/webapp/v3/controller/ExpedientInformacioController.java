@@ -10,6 +10,7 @@ import java.util.List;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -69,5 +70,8 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
 }

@@ -211,9 +211,9 @@
 	</style>
 </head>
 <body>
-	<c:if test="${not empty numTascaMassiva}">
+	<c:if test="${not empty command.numTascaMassiva && command.numTascaMassiva > 0}">
 		<c:import url="import/tasquesMassiva.jsp">
-			<c:param name="count" value="${numTascaMassiva}"/>
+			<c:param name="count" value="${command.numTascaMassiva}"/>
 		</c:import>
 	</c:if>	
 	<c:if test="${not empty dadesNomesLectura}">
@@ -260,9 +260,9 @@
 				<div class="well">
 				<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 					<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
-					<input type="hidden" id="inici" name="inici" value="${inici}">
-					<input type="hidden" id="correu" name="correu" value="${correu}">
-					<input type="hidden" id="isTramitacioMassiva" name="isTramitacioMassiva" value="${not empty numTascaMassiva}">
+					<form:hidden path="inici"/>
+					<form:hidden path="correu"/>
+					<form:hidden path="numTascaMassiva"/>					
 					
 					<input type="hidden" id="__transicio__" name="__transicio__" value=""/>
 					<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">

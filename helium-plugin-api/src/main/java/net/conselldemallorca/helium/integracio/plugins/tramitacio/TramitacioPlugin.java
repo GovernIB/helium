@@ -3,6 +3,11 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+
 /**
  * Interfície per accedir al sistema de tramitacio
  * 
@@ -20,4 +25,9 @@ public interface TramitacioPlugin {
 
 	public DadesVistaDocument obtenirVistaDocument(ObtenirVistaDocumentRequest request) throws TramitacioPluginException;
 
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(String numeroRegistre) throws TramitacioPluginException;
+
+	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio) throws TramitacioPluginException;
+
+	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre) throws TramitacioPluginException;
 }

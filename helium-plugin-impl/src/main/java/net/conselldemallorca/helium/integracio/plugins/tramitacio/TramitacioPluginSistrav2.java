@@ -13,6 +13,14 @@ import javax.xml.namespace.QName;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.ReferenciaRDSJustificante;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +31,23 @@ import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v2.model.tramitebte.TramiteBTE;
 import es.caib.redose.ws.v2.model.documentords.DocumentoRDS;
 import es.caib.redose.ws.v2.model.referenciards.ReferenciaRDS;
+import es.caib.regtel.ws.v2.model.acuserecibo.AcuseRecibo;
+import es.caib.regtel.ws.v2.model.aviso.Aviso;
+import es.caib.regtel.ws.v2.model.datosexpediente.DatosExpediente;
+import es.caib.regtel.ws.v2.model.datosinteresado.DatosInteresado;
+import es.caib.regtel.ws.v2.model.datosnotificacion.DatosNotificacion;
+import es.caib.regtel.ws.v2.model.datosregistrosalida.DatosRegistroSalida;
+import es.caib.regtel.ws.v2.model.datosrepresentado.DatosRepresentado;
+import es.caib.regtel.ws.v2.model.documento.Documento;
+import es.caib.regtel.ws.v2.model.documento.Documentos;
+import es.caib.regtel.ws.v2.model.oficinaregistral.OficinaRegistral;
+import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision;
+import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion;
+import es.caib.regtel.ws.v2.model.oficioremision.OficioRemision.TramiteSubsanacion.ParametrosTramite;
+import es.caib.regtel.ws.v2.model.oficioremision.ParametroTramite;
+import es.caib.regtel.ws.v2.model.resultadoregistro.ResultadoRegistro;
+import es.caib.regtel.ws.v2.services.BackofficeFacade;
+import es.caib.regtel.ws.v2.services.BackofficeFacadeException;
 import es.caib.zonaper.ws.v2.model.configuracionavisosexpediente.ConfiguracionAvisosExpediente;
 import es.caib.zonaper.ws.v2.model.documentoexpediente.DocumentoExpediente;
 import es.caib.zonaper.ws.v2.model.documentoexpediente.DocumentosExpediente;
@@ -132,6 +157,81 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			throw new TramitacioPluginException("Error al crear expedient a la zona personal", ex);
 		}
 	}
+	
+	@Override
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(String numeroRegistre) throws TramitacioPluginException {
+		try {
+			RespostaJustificantRecepcio resposta = new RespostaJustificantRecepcio();
+			try {
+				AcuseRecibo acuseRecibo = getRegtelClient().obtenerAcuseRecibo(numeroRegistre);
+				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+				if (acuseRecibo.getFechaAcuseRecibo() != null) {
+					resposta.setData(acuseRecibo.getFechaAcuseRecibo().toGregorianCalendar().getTime());
+				}
+			} catch (BackofficeFacadeException ex) {
+				logger.error("Error al obtenir el justificant de recepció", ex);
+				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);
+				resposta.setErrorDescripcio(ex.getMessage());
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("Error al obtenir el justificant de recepció", ex);
+			throw new TramitacioPluginException("Error al obtenir el justificant de recepció", ex);
+		}
+	}
+	
+	@Override
+	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre) throws TramitacioPluginException {
+		try {
+			RespostaJustificantDetallRecepcio resposta = new RespostaJustificantDetallRecepcio();
+//			try {
+//				DetalleAcuseRecibo acuseRecibo = getRegtelClient().obtenerDetalleAcuseRecibo(numeroRegistre);
+//				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+//				if (acuseRecibo.getFechaAcuseRecibo() != null) {
+//					resposta.setData(acuseRecibo.getFechaAcuseRecibo().getValue().toGregorianCalendar().getTime());
+//					resposta.setFechaAcuseRecibo(acuseRecibo.getFechaAcuseRecibo().getValue());					
+//					ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
+//					referenciaRDSJustificante.setCodigo(acuseRecibo.getFicheroAcuseRecibo().getValue().getCodigo());
+//					referenciaRDSJustificante.setClave(acuseRecibo.getFicheroAcuseRecibo().getValue().getClave());
+//					resposta.setFicheroAcuseRecibo(referenciaRDSJustificante);
+//					for (DetalleAviso aviso : acuseRecibo.getAvisos().getValue().getAviso()) {
+//						net.conselldemallorca.helium.integracio.plugins.registre.DetalleAviso detalle = new net.conselldemallorca.helium.integracio.plugins.registre.DetalleAviso();
+//						detalle.setConfirmarEnvio(aviso.isConfirmarEnvio());
+//						detalle.setDestinatario(aviso.getDestinatario());
+//						detalle.setFechaEnvio(aviso.getFechaEnvio().getValue());
+//
+//						if (aviso.getTipo().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoAviso.EMAIL))
+//							detalle.setTipo(net.conselldemallorca.helium.integracio.plugins.registre.TipoAviso.EMAIL);
+//						else if (aviso.getTipo().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoAviso.EMAIL))
+//							detalle.setTipo(net.conselldemallorca.helium.integracio.plugins.registre.TipoAviso.EMAIL);
+//							
+//						if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.DESCONOCIDO))
+//							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.DESCONOCIDO);
+//						else if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.ENVIADO))
+//							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.ENVIADO);
+//						else if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.NO_ENVIADO))
+//							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.NO_ENVIADO);
+//						
+//						resposta.getAvisos().getAviso().add(detalle);
+//					}
+//					if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.ENTREGADA))
+//						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.ENTREGADA);
+//					else if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.PENDIENTE))
+//						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.PENDIENTE);
+//					else if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.RECHAZADA))
+//						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.RECHAZADA);
+//				}
+//			} catch (BackofficeFacadeException ex) {
+//				logger.error("Error al obtenir el justificant de recepció", ex);
+//				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);
+//				resposta.setErrorDescripcio(ex.getMessage());
+//			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("Error al obtenir el justificant de recepció", ex);
+			throw new TramitacioPluginException("Error al obtenir el justificant de recepció", ex);
+		}
+	}
 
 	public void publicarEvent(
 			PublicarEventRequest request) throws TramitacioPluginException {
@@ -197,6 +297,230 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		} catch (Exception ex) {
 			logger.error("Error al comunicar el resultat de processar el tràmit", ex);
 			throw new TramitacioPluginException("Error al obtenir dades del tràmit", ex);
+		}
+	}
+
+	public RespostaAnotacioRegistre registrarNotificacio(
+			RegistreNotificacio registreNotificacio) throws TramitacioPluginException {
+		try {
+			RespostaAnotacioRegistre resposta = new RespostaAnotacioRegistre();
+			DatosRegistroSalida datosRegistroSalida = new DatosRegistroSalida();
+			if (registreNotificacio.getDadesOficina() != null) {
+				OficinaRegistral oficinaRegistral = new OficinaRegistral();
+				oficinaRegistral.setCodigoOrgano(
+						registreNotificacio.getDadesOficina().getOrganCodi());
+				oficinaRegistral.setCodigoOficina(
+						registreNotificacio.getDadesOficina().getOficinaCodi());
+				datosRegistroSalida.setOficinaRegistral(oficinaRegistral);
+			}
+			if (registreNotificacio.getDadesInteressat() != null) {
+				DatosInteresado datosInteresado = new DatosInteresado();
+				datosInteresado.setAutenticado(
+						new JAXBElement<Boolean>(
+								new QName("autenticado"),
+								Boolean.class,
+								new Boolean(registreNotificacio.getDadesInteressat().isAutenticat())));
+				datosInteresado.setNombreApellidos(
+						registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+				datosInteresado.setNif(
+						registreNotificacio.getDadesInteressat().getNif());
+				if (registreNotificacio.getDadesInteressat().getPaisCodi() != null)
+					datosInteresado.setCodigoPais(
+							new JAXBElement<String>(
+									new QName("codigoPais"),
+									String.class,
+									registreNotificacio.getDadesInteressat().getPaisCodi()));
+				if (registreNotificacio.getDadesInteressat().getPaisNom() != null)
+					datosInteresado.setNombrePais(
+							new JAXBElement<String>(
+									new QName("nombrePais"),
+									String.class,
+									registreNotificacio.getDadesInteressat().getPaisNom()));
+				if (registreNotificacio.getDadesInteressat().getProvinciaCodi() != null)
+					datosInteresado.setCodigoProvincia(
+							new JAXBElement<String>(
+									new QName("codigoProvincia"),
+									String.class,
+									registreNotificacio.getDadesInteressat().getProvinciaCodi()));
+				if (registreNotificacio.getDadesInteressat().getProvinciaNom() != null)
+					datosInteresado.setNombreProvincia(
+							new JAXBElement<String>(
+									new QName("nombreProvincia"),
+									String.class,
+									registreNotificacio.getDadesInteressat().getProvinciaNom()));
+				if (registreNotificacio.getDadesInteressat().getMunicipiCodi() != null)
+					datosInteresado.setCodigoLocalidad(
+							new JAXBElement<String>(
+									new QName("codigoLocalidad"),
+									String.class,
+									registreNotificacio.getDadesInteressat().getMunicipiCodi()));
+				if (registreNotificacio.getDadesInteressat().getMunicipiNom() != null)
+					datosInteresado.setNombreLocalidad(
+							new JAXBElement<String>(
+									new QName("nombreLocalidad"),
+									String.class,
+									registreNotificacio.getDadesInteressat().getMunicipiNom()));
+				datosRegistroSalida.setDatosInteresado(datosInteresado);
+			}
+			if (registreNotificacio.getDadesRepresentat() != null) {
+				DatosRepresentado datosRepresentado = new DatosRepresentado();
+				datosRepresentado.setNif(registreNotificacio.getDadesRepresentat().getNif());
+				datosRepresentado.setNombreApellidos(registreNotificacio.getDadesRepresentat().getNomAmbCognoms());
+				datosRegistroSalida.setDatosRepresentado(datosRepresentado);
+			}
+			if (registreNotificacio.getDadesExpedient() != null) {
+				DatosExpediente datosExpediente = new DatosExpediente();
+				datosExpediente.setUnidadAdministrativa(
+						Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
+				datosExpediente.setIdentificadorExpediente(
+						registreNotificacio.getDadesExpedient().getIdentificador());
+				datosExpediente.setClaveExpediente(
+						registreNotificacio.getDadesExpedient().getClau());
+				datosRegistroSalida.setDatosExpediente(datosExpediente);
+			}
+			if (registreNotificacio.getDadesNotificacio() != null) {
+				DatosNotificacion datosNotificacion = new DatosNotificacion();
+				datosNotificacion.setIdioma(
+						registreNotificacio.getDadesNotificacio().getIdiomaCodi());
+				datosNotificacion.setTipoAsunto(
+						registreNotificacio.getDadesNotificacio().getTipus());
+				datosNotificacion.setAcuseRecibo(
+						registreNotificacio.getDadesNotificacio().isJustificantRecepcio());
+				OficioRemision oficioRemision = new OficioRemision();
+				oficioRemision.setTitulo(
+						registreNotificacio.getDadesNotificacio().getOficiTitol());
+				oficioRemision.setTexto(
+						registreNotificacio.getDadesNotificacio().getOficiText());
+				if (registreNotificacio.getDadesNotificacio().getOficiTramitSubsanacio() != null) {
+					TramitSubsanacio tramitSubsanacio = registreNotificacio.getDadesNotificacio().getOficiTramitSubsanacio();
+					TramiteSubsanacion tramiteSubsanacion = new TramiteSubsanacion();
+					tramiteSubsanacion.setIdentificadorTramite(
+							tramitSubsanacio.getIdentificador());
+					tramiteSubsanacion.setVersionTramite(
+							tramitSubsanacio.getVersio());
+					tramiteSubsanacion.setDescripcionTramite(
+							tramitSubsanacio.getDescripcio());
+					if (tramitSubsanacio.getParametres() != null) {
+						ParametrosTramite parametrosTramite = new ParametrosTramite();
+						for (TramitSubsanacioParametre parametre: tramitSubsanacio.getParametres()) {
+							ParametroTramite parametro = new ParametroTramite();
+							parametro.setParametro(parametre.getParametre());
+							parametro.setValor(parametre.getValor());
+							parametrosTramite.getParametroTramite().add(parametro);
+						}
+						tramiteSubsanacion.setParametrosTramite(
+								new JAXBElement<ParametrosTramite>(
+										new QName("parametrosTramite"),
+										ParametrosTramite.class,
+										parametrosTramite));
+					}
+					oficioRemision.setTramiteSubsanacion(
+							new JAXBElement<TramiteSubsanacion>(
+									new QName("tramiteSubsanacion"),
+									TramiteSubsanacion.class,
+									tramiteSubsanacion));
+				}
+				datosNotificacion.setOficioRemision(oficioRemision);
+				if (registreNotificacio.getDadesNotificacio().getAvisTitol() != null) {
+					Aviso aviso = new Aviso();
+					aviso.setTitulo(
+							registreNotificacio.getDadesNotificacio().getAvisTitol());
+					aviso.setTexto(
+							registreNotificacio.getDadesNotificacio().getAvisText());
+					aviso.setTextoSMS(
+							new JAXBElement<String>(
+									new QName("textoSMS"),
+									String.class,
+									registreNotificacio.getDadesNotificacio().getAvisTextSms()));
+					datosNotificacion.setAviso(aviso);
+				}
+				datosRegistroSalida.setDatosNotificacion(datosNotificacion);
+			}
+			if (registreNotificacio.getDocuments() != null) {
+				Documentos documentos = new Documentos();
+				for (DocumentRegistre document: registreNotificacio.getDocuments()) {
+					Documento documento = new Documento();
+					documento.setModelo(
+						new JAXBElement<String>(
+									new QName("modelo"),
+									String.class,
+									getModelo()));
+					documento.setVersion(
+						new JAXBElement<Integer>(
+									new QName("version"),
+									Integer.class,
+									getVersion()));
+					int indexPunt = document.getArxiuNom().indexOf(".");
+					if (indexPunt != -1 && ! document.getArxiuNom().endsWith(".")) {
+						documento.setNombre(
+								new JAXBElement<String>(
+											new QName("nombre"),
+											String.class,
+											document.getArxiuNom().substring(0, indexPunt)));
+						documento.setExtension(
+							new JAXBElement<String>(
+										new QName("extension"),
+										String.class,
+										document.getArxiuNom().substring(indexPunt + 1)));
+					} else {
+						documento.setNombre(
+								new JAXBElement<String>(
+											new QName("nombre"),
+											String.class,
+											document.getArxiuNom()));
+						documento.setExtension(
+								new JAXBElement<String>(
+											new QName("extension"),
+											String.class,
+											""));
+					}
+					documento.setDatosFichero(
+							new JAXBElement<byte[]>(
+									new QName("datosFichero"),
+									byte[].class,
+									document.getArxiuContingut()));
+					documentos.getDocumentos().add(documento);
+				}
+				datosRegistroSalida.setDocumentos(
+						new JAXBElement<Documentos>(
+								new QName("documentos"),
+								Documentos.class,
+								documentos));
+			}
+			try {
+				crearZonaPers(registreNotificacio.getDadesInteressat().getNif(), registreNotificacio.getDadesInteressat().getNomAmbCognoms());
+				ResultadoRegistro resultado = getRegtelClient().registroSalida(datosRegistroSalida);
+				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+				resposta.setNumero(
+						resultado.getNumeroRegistro());
+				resposta.setData(
+						resultado.getFechaRegistro().toGregorianCalendar().getTime());				
+				ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
+				referenciaRDSJustificante.setClave(resultado.getReferenciaRDSJustificante().getClave());
+				referenciaRDSJustificante.setCodigo(resultado.getReferenciaRDSJustificante().getCodigo());
+				resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
+			} catch (BackofficeFacadeException ex) {
+				logger.error("Error al registrar la sortida", ex);
+				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);
+				resposta.setErrorDescripcio(ex.getMessage());
+			}
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("Error al registrar la sortida", ex);
+			throw new TramitacioPluginException("Error al registrar la sortida", ex);
+		}
+	}
+
+	private void crearZonaPers(String nif, String nom) throws es.caib.zonaper.ws.v2.services.BackofficeFacadeException, TramitacioPluginException {
+		if (!getZonaperClient().existeZonaPersonalUsuario(nif) && !getZonaperClient().existeZonaPersonalUsuario(nif.toUpperCase())) {
+			if (getZonaperClient().altaZonaPersonalUsuario(
+					nif.toUpperCase(), 
+					nom == null ? "" : nom, 
+					null, 
+					null) == null) {
+				logger.error("registrarNotificacio >> Error al crear la zona personal: " + nif);
+				throw new TramitacioPluginException("registrarNotificacio >> Error al crear la zona personal: " + nif);
+			}
 		}
 	}
 
@@ -385,6 +709,13 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 		return evento;
 	}
 
+	private String getModelo() {
+		return GlobalProperties.getInstance().getProperty("app.registre.plugin.rds.model");
+	}
+	private Integer getVersion() {
+		return new Integer(GlobalProperties.getInstance().getProperty("app.registre.plugin.rds.versio"));
+	}
+
 	private es.caib.bantel.ws.v2.services.BackofficeFacade getBantelClient() {
 		String url = GlobalProperties.getInstance().getProperty("app.bantel.entrades.url");
 		if (url == null)
@@ -475,7 +806,22 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			disableCnCheck = GlobalProperties.getInstance().getProperty("app.ws.client.disable.cn.check");
 		return "true".equalsIgnoreCase(disableCnCheck);
 	}
+	
+	private BackofficeFacade getRegtelClient() {
+		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.url");
+		String userName = GlobalProperties.getInstance().getProperty("app.registre.plugin.username");
+		String password = GlobalProperties.getInstance().getProperty("app.registre.plugin.password");
+		Object wsClientProxy = WsClientUtils.getWsClientProxy(
+				BackofficeFacade.class,
+				url,
+				userName,
+				password,
+				getWsClientAuthType(),
+				isWsClientGenerateTimestamp(),
+				isWsClientLogCalls(),
+				isWsClientDisableCnCheck());
+		return (BackofficeFacade)wsClientProxy;
+	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginSistrav2.class);
-
 }

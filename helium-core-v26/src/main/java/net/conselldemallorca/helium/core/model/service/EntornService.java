@@ -132,15 +132,23 @@ public class EntornService {
 			msg = msg.substring(0, msg.length() - 2);
 			throw new NotRemovableException(getMessage("error.entornService.delete", new Object[]{msg}));
 		}
-		
+
 		List<Area> areas = areaDao.findAreaAmbEntorn(entornId);
 		for (Area area : areas) {
-			areaDao.delete(area);
-			area.getTipus().removeFill(area);
-			areaTipusDao.delete(area.getTipus());
+			deleteArea(area);
 		}
 		entornDao.delete(entornId);
 	}
+	
+	private void deleteArea(Area area) {
+		if (area.getPare() != null) {
+			deleteArea(area.getPare());
+		}
+		areaTipusDao.delete(area.getTipus());
+//		area.getTipus().removeFill(area);
+		areaDao.delete(area);
+	}
+	
 	@Secured({"ROLE_ADMIN", "AFTER_ACL_COLLECTION_READ"})
 	public List<Entorn> findAll() {
 		return entornDao.findAll();

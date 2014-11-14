@@ -285,6 +285,7 @@ public class TascaServiceImpl implements TascaService {
 			ids.setIds(new ArrayList<Long>()); 
 			for (JbpmTask taska: jbpmHelper.findPersonalTasks(responsable)) {
 				DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(taska, null);
+//				comprobar tipo expediente
 				if (entornId.equals(dadesCache.getEntornId()) && task.getName().equals(taska.getName()) && dadesCache.getDefinicioProcesJbpmKey().equals(dadesCacheTasca.getDefinicioProcesJbpmKey())) {
 					ids.getIds().add(Long.parseLong(taska.getId()));
 				}

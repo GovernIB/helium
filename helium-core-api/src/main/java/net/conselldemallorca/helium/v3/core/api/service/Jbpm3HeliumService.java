@@ -28,6 +28,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -980,5 +982,9 @@ public interface Jbpm3HeliumService {
 	 * @param operacioMassiva
 	 */
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva);
+
+	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(String registreNumero) throws Exception;
+
+	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(String registreNumero) throws Exception;
 
 }

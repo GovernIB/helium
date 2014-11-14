@@ -37,7 +37,7 @@
 				localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 				rowClickCallback: function(row) {
-					alert($(row));
+// 					alert($(row));
 					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						$('a.consultar-tasca', $(row))[0].click();
 					</c:if>

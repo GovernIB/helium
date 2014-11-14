@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -548,6 +549,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
 
 	public class ExpedientConsultaDissenyCommand {
