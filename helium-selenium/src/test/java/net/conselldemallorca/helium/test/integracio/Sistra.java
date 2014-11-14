@@ -49,7 +49,7 @@ public class Sistra extends BaseTest {
 	String botoMarcaProcesInicial = "//*[@id='registre']/tbody/tr/td/form[contains(@action, '/expedientTipus/definicioProcesInicial.html')]/button[contains(text(), 'inicial')]";
 	
 	String iframeFormExt = "//*[@id='formExtern']";
-	String urlFormExt = "http://localhost:8080/helium/ws/IniciFormulari";
+	String urlFormExt = carregarPropietatPath("test.url.ws.inici.formulari", "Ruta del WS de inici formulari no configurat al fitxer de properties");
 	String idFormExt = "command";
 	String botoGuardarDadesIntegracio = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Guardar']";
 	

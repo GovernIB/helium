@@ -609,27 +609,9 @@ public class Entorn extends BaseTest {
 	}
 	
 	// -------------- Fi dominis Entorn --------------------
-	
-	@Test
-	public void k_desassignarPermisosUsuari() {
-		
-		carregarUrlConfiguracio();
-		
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
-		
-		eliminaPermisos("borrar/usuari", usuari);
-	}
-	
-	@Test
-	public void l_desassignarPermisosRol() {
-		carregarUrlConfiguracio();
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
-		
-		eliminaPermisos("borrar/rol", rol);
-	}
 
 	@Test
-	public void n_esborrarEntorn_amb_tipus_expedient_actiu() {
+	public void k_esborrarEntorn_amb_tipus_expedient_actiu() {
 		
 		carregarUrlConfiguracio();
 		
@@ -654,8 +636,28 @@ public class Entorn extends BaseTest {
 		
 		//Comprovam que apareix el missatge de que no es pot eliminar l´entorn
 		existeixElementAssert("//*[@id='errors']/p", "No s'ha pogut eliminar l'entorn");
+		
+		eliminarTipusExpedient("pee");
+	}
+
+	@Test
+	public void l_desassignarPermisosUsuari() {
+		
+		carregarUrlConfiguracio();
+		
+		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
+		
+		eliminaPermisos("borrar/usuari", usuari);
 	}
 	
+	@Test
+	public void m_desassignarPermisosRol() {
+		carregarUrlConfiguracio();
+		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
+		
+		eliminaPermisos("borrar/rol", rol);
+	}
+
 	@Test
 	public void n_esborrarEntorns() {
 		

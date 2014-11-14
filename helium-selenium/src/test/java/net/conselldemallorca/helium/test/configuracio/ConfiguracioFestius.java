@@ -24,7 +24,7 @@ public class ConfiguracioFestius extends BaseTest {
 	String entorn 		 = carregarPropietat("config.aplicacio.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	 = carregarPropietat("config.festius.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
 	String usuariAdmin   = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
-	String urlBaseEntorn = carregarPropietat("config.url.festiu.service", "No s´ha pogut obtenir la URL base del servei de festius.");
+	//String urlBaseEntorn = carregarPropietat("config.url.festiu.service", "No s´ha pogut obtenir la URL base del servei de festius.");
 	Calendar dataAvull   = Calendar.getInstance(); 
 	
 	@Test

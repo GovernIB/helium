@@ -54,7 +54,8 @@ public class FormularisExterns extends BaseTest {
 	String botoMarcaProcesInicial = "//*[@id='registre']/tbody/tr/td/form[contains(@action, '/expedientTipus/definicioProcesInicial.html')]/button[contains(text(), 'inicial')]";
 
 	String iframeFormExt = "//*[@id='formExtern']";
-	String urlFormExt = "http://localhost:8080/helium/ws/IniciFormulari";
+	String urlFormExt = carregarPropietat("test.url.ws.inici.formulari", "URL de WS de formularis externs no configurat al fitxer de properties");
+	String urlFormExt2 = carregarPropietat("test.url.ws.formulari.extern", "URL de WS de formularis externs no configurat al fitxer de properties");
 	String idFormExt = "command";
 	String botoGuardarDadesIntegracio = "//*[@id='command']/div[@class='buttonHolder']/button[text() = 'Guardar']";
 	
@@ -220,10 +221,9 @@ public class FormularisExterns extends BaseTest {
 	
 	private void guardarFormulariExtern (String codTasca) {
 		try {
-			String SERVICE_URL = "http://localhost:8080/helium/ws/FormulariExtern";
 			List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
 			valors.add(new ParellaCodiValor("import", new BigDecimal("100")));
-			GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.core.util.ws.WsClientUtils.getWsClientProxy(GuardarFormulari.class, SERVICE_URL, null,	null, "NONE", false, true, true);
+			GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.core.util.ws.WsClientUtils.getWsClientProxy(GuardarFormulari.class, urlFormExt2, null,	null, "NONE", false, true, true);
 			gf.guardar(codTasca, valors);
 		}catch (Exception ex) {
 			ex.printStackTrace();
