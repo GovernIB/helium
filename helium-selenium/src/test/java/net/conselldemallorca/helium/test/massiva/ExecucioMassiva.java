@@ -40,7 +40,7 @@ public class ExecucioMassiva extends BaseTest {
 	//XPATHS
 	String botoExecMassiva = "//*[@id='page-entorn-menu']/div/a";
 	
-	@Test
+	//@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -50,7 +50,7 @@ public class ExecucioMassiva extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-	@Test
+	//@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -318,7 +318,7 @@ public class ExecucioMassiva extends BaseTest {
 			
 			driver.findElement(By.xpath("//*[@id='script0']")).sendKeys(script);
 			driver.findElement(By.xpath("//button[contains(text(), 'Executar')]")).click();
-			acceptarAlerta();
+			if (isAlertPresent()) { acceptarAlerta(); }
 			existeixElementAssert("//*[@id='infos']/p", "No se ejecutó el script correctamente del expediente: " + expediente);			
 		}
 		
@@ -328,7 +328,7 @@ public class ExecucioMassiva extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='massivaInfoForm']/button[2]")).click();
 		
 		driver.findElement(By.xpath("//button[contains(text(), 'Reindexar')]")).click();
-		acceptarAlerta();
+		if (isAlertPresent()) { acceptarAlerta(); }
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 		
 		esperaFinExecucioMassiva(botoExecMassiva);
@@ -346,12 +346,16 @@ public class ExecucioMassiva extends BaseTest {
 		driver.findElement(By.xpath("//button[contains(text(), 'Consultar')]")).click();
 
 		for (String[] expediente : expedientes) {
-			existeixElementAssert("//td[contains(a/text(),'"+expediente[0]+"')]", "No se encontró el expediente: " + expediente);			
+			existeixElementAssert("//td[contains(a/text(),'"+expediente[0]+"')]", "No se encontró el expediente: " + expediente);
+			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr/td/a[contains(@href, '/helium/expedient/delete.html')]")).click();
+			if (isAlertPresent()) { acceptarAlerta(); }
+			existeixElementAssert("//*[@id='infos']/p", "No se borró el expediente correctamente");
 		}
 	}
 
 	@Test
 	public void i_consultar_estat_execucións_massives() throws InterruptedException {
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -379,7 +383,7 @@ public class ExecucioMassiva extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo para finalizar correctamente");
 		
 		driver.findElement(By.xpath("//*[@id='aturarCommandMas']//button")).click();
-		acceptarAlerta();
+		if (isAlertPresent()) { acceptarAlerta(); }
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
 		// Estado pendiente
@@ -400,7 +404,7 @@ public class ExecucioMassiva extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo para que de error");
 		
 		driver.findElement(By.xpath("//*[@id='aturarCommandMas']//button")).click();
-		acceptarAlerta();
+		if (isAlertPresent()) { acceptarAlerta(); }
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
 				
 		// Estado error

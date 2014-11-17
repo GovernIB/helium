@@ -1614,7 +1614,8 @@ public abstract class BaseTest {
 			options.get(2).click();	
 		}
 		
-		driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		//driver.findElement(By.xpath("//*[@id='command']/div[2]/div[6]/button[1]")).click();
+		driver.findElement(By.xpath("//*[@id='command']/div/div/button[contains(text(), 'Consultar')]")).click();
 	}
 	
 	protected void consultarTareas(String tasca, String expediente, String tipusExp, boolean grupo) throws InterruptedException {
