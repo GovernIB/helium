@@ -1191,10 +1191,18 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		Node node = pi.getProcessDefinition().getNode(nodeName);
-		String nodeClassName = node.toString();
-		NodeType nodeType = node.getNodeType();
-		adminService.mesuraCalcular("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
+		String nodeClassName = null;
+		NodeType nodeType = null;
+		try {
+			Node node = pi.getProcessDefinition().getNode(nodeName);
+			nodeClassName = node.toString();
+			nodeType = node.getNodeType();
+		} catch (Exception ex) {
+			return false;
+		} finally {
+			adminService.mesuraCalcular("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
+		}
+		
 		return (nodeClassName.startsWith("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
 	}
 	

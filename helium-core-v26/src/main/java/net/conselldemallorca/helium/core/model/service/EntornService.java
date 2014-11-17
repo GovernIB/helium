@@ -109,6 +109,8 @@ public class EntornService {
 				if (enumeracio.getExpedientTipus() == null) {
 					msg += getMessage("error.entornService.delete.enumeracions");
 					break;
+				} else {
+					enumeracioDao.delete(enumeracio);
 				}
 			}
 		}
@@ -145,7 +147,6 @@ public class EntornService {
 			deleteArea(area.getPare());
 		}
 		areaTipusDao.delete(area.getTipus());
-//		area.getTipus().removeFill(area);
 		areaDao.delete(area);
 	}
 	

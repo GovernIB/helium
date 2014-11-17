@@ -120,9 +120,16 @@
 			
 <%-- ACCIO --------------------------------------------------------------------------------------%>					
 			<c:if test="${dada.campTipus == 'ACCIO'}">
-				<button class="btn btn-default pull-lef btn_accio" name="submit" type="submit" value="submit" data-action="${dada.jbpmAction}" data-confirmacio="<spring:message code='js.helforms.confirmacio' />">
+				<button  class="btn btn-primary pull-lef btn_accio" name="submit" type="submit" value="submit" data-action="${dada.jbpmAction}" data-confirmacio="<spring:message code='js.helforms.confirmacio' />">
 					<spring:message code="common.camptasca.executar" />
 				</button>
+				
+				<c:if test="${not empty campFocus}">
+					<script>
+						alert("campFocus: " + ${campFocus});
+						campOnFocus(${dada.jbpmAction});
+					</script>
+				</c:if>
 			</c:if>
 			
 <%-- SUGGEST ------------------------------------------------------------------------------------%>

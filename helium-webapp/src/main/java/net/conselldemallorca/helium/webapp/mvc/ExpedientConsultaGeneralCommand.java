@@ -7,6 +7,7 @@ import java.util.Date;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 /**
  * Command per fer una consulta general d'expedients
@@ -26,6 +27,7 @@ public class ExpedientConsultaGeneralCommand {
 	private String geoReferencia;
 	private FiltreAnulat mostrarAnulats = FiltreAnulat.ACTIUS;
 	private boolean massivaActiu = false;
+	private int objectsPerPage = BaseController.DEFAULT_OBJECTS_PER_PAGE;
 
 
 
@@ -101,6 +103,18 @@ public class ExpedientConsultaGeneralCommand {
 	}
 	public void setMassivaActiu(boolean massivaActiu) {
 		this.massivaActiu = massivaActiu;
+	}
+
+
+
+	public int getObjectsPerPage() {
+		return objectsPerPage;
+	}
+
+
+
+	public void setObjectsPerPage(int objectsPerPage) {
+		this.objectsPerPage = objectsPerPage;
 	}
 
 }

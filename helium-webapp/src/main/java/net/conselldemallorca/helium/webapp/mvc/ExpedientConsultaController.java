@@ -149,7 +149,6 @@ public class ExpedientConsultaController extends BaseController {
 			@RequestParam(value = "page", required = false) String page,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "dir", required = false) String dir,
-			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			HttpSession session,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -161,8 +160,7 @@ public class ExpedientConsultaController extends BaseController {
 						command,
 						page,
 						sort,
-						dir,
-						objectsPerPage);
+						dir);
 				List<String> piis = new ArrayList<String>();
 				for (ExpedientDto expedient: (List<ExpedientDto>)pagina.getList())
 					piis.add(expedient.getProcessInstanceId());
@@ -176,7 +174,8 @@ public class ExpedientConsultaController extends BaseController {
 				model.addAttribute("llistat", pagina);
 				model.addAttribute("piis", piis);
 			} else {
-				model.addAttribute("command", new ExpedientConsultaGeneralCommand());
+				command = new ExpedientConsultaGeneralCommand();
+				model.addAttribute("command", command);
 			}
 			List<Estat> estats;
 			if (command != null && command.getExpedientTipus() != null)
@@ -185,7 +184,6 @@ public class ExpedientConsultaController extends BaseController {
 				estats = new ArrayList<Estat>();
 			afegirEstatsInicialIFinal(estats);
 			model.addAttribute("estats", estats);
-			model.addAttribute("objectsPerPage", objectsPerPage);
 			return "expedient/consulta";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -317,8 +315,7 @@ public class ExpedientConsultaController extends BaseController {
 			ExpedientConsultaGeneralCommand command,
 			String page,
 			String sort,
-			String dir,
-			String objectsPerPage) {
+			String dir) {
 		boolean iniciat = false;
 		boolean finalitzat = false;
 		Long estatId = null;
@@ -327,7 +324,7 @@ public class ExpedientConsultaController extends BaseController {
 			finalitzat = (command.getEstat() == -1);
 			estatId = (!iniciat && !finalitzat) ? command.getEstat() : null;
 		}
-		int maxResults = getObjectsPerPage(objectsPerPage);
+		int maxResults = command.getObjectsPerPage();
 		int pagina = (page != null) ? new Integer(page).intValue() : 1;
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);

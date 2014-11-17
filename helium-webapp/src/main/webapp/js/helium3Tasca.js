@@ -535,9 +535,10 @@ function confirmar(form) {
 	});
 	return true;
 }
-//function reorder(multiple) {
-//	multiple.find
-//}
+
+function campOnFocus(camp) {
+	$("#command").find("[data-action='" + camp + "']").focus();
+}
 
 //function canviTermini(input) {
 //	var campId = input.id.substring(0, input.id.lastIndexOf("_"));

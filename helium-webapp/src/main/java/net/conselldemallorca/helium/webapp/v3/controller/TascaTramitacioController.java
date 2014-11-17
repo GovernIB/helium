@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
@@ -335,21 +334,16 @@ public class TascaTramitacioController extends BaseController {
 	BindingResult result, 
 	SessionStatus status, 
 	ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {
-			List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-			validator.setTasca(tascaDadas);
-			validator.setRequest(request);
-			validator.validate(command, result);
-			if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables, command)) {
-				MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
-			} else {
-				accioExecutarAccio(request, tascaId, accioCamp, command);
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
+		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
+		validator.setTasca(tascaDadas);
+		validator.setRequest(request);
+		validator.validate(command, result);
+		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables, command)) {
+			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
+		} else if (accioExecutarAccio(request, tascaId, accioCamp, command)) {
+			model.addAttribute("campFocus", accioCamp);
 		}
 		
 		return getReturnUrl(request, expedientId, tascaId);

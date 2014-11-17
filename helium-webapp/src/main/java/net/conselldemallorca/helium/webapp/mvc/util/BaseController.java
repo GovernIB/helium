@@ -26,7 +26,7 @@ public class BaseController implements MessageSourceAware {
 
 	protected static final String INFO_MSG_SESSION_KEY = "missatgesInfo";
 	protected static final String ERROR_MSG_SESSION_KEY = "missatgesError";
-	private static final int DEFAULT_OBJECTS_PER_PAGE = 20;
+	public static final int DEFAULT_OBJECTS_PER_PAGE = 20;
 
 	private MessageSource messageSource;
 
