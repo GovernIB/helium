@@ -11,6 +11,7 @@ import es.caib.signatura.api.SignerFactory;
 public class SignaturaCaibApplet extends Applet {
 
 	private Signer signer;
+	private final int MAX_SIZE_STRING = 500000;
 
 	/**
 	 * Consulta dels certificats disponibles per a la signatura
@@ -37,7 +38,7 @@ public class SignaturaCaibApplet extends Applet {
 	 * @param contentType
 	 * @return
 	 */
-	public String signaturaPdf(
+	public String[] signaturaPdf(
 			String url,
 			String certName,
 			String password,
@@ -56,14 +57,20 @@ public class SignaturaCaibApplet extends Applet {
 					null,
 					Signer.PDF_SIGN_POSITION_NONE,
 					true);
-			return new String(Base64Coder.encode(baos.toByteArray()));
+			String file = new String(Base64Coder.encode(baos.toByteArray()));
+			return split(file, MAX_SIZE_STRING);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		return null;
 	}
 
-
+	private String[] split(String src, int len) {
+	    String[] result = new String[(int)Math.ceil((double)src.length()/(double)len)];
+	    for (int i=0; i<result.length; i++)
+	        result[i] = src.substring(i*len, Math.min(src.length(), (i+1)*len));
+	    return result;
+	}
 
 	private Signer getSigner() throws Exception {
 		if (signer == null) {
