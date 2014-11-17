@@ -138,16 +138,22 @@ function signarCaib(token, form, contentType) {
 		if (cert == null || cert.length == 0) {
 			alert("<fmt:message key="tasca.signa.alert.nosel"/>");
 		} else {
-			var signaturaB64 = signaturaApplet.signaturaPdf(
-					"${sourceUrl}?token=" + token,
-					cert,
-					form.passwd.value,
-					contentType);
-			if (signaturaB64 == null) {
+			try {
+				var signaturaB64 = signaturaApplet.signaturaPdf(
+						"${sourceUrl}?token=" + token,
+						cert,
+						form.passwd.value,
+						contentType);
+				if (signaturaB64 == null) {
+					alert("<fmt:message key="tasca.signa.alert.error"/>");
+				} else {
+					for (var i = 0; i < signaturaB64.length; i++) {
+						$("#command").append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+					}
+					form.submit();
+				}
+			} catch (e) {
 				alert("<fmt:message key="tasca.signa.alert.error"/>");
-			} else {
-				form.data.value = signaturaB64;
-				form.submit();
 			}
 		}
 	}
@@ -210,7 +216,6 @@ function signarCaib(token, form, contentType) {
 							<form:form action="../signatura/signarAmbToken.html" cssClass="uniForm" onsubmit="return false">
 								<input type="hidden" name="taskId" value="${tasca.id}"/>
 								<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
-								<input type="hidden" name="data"/>
 								<div class="inlineLabels col first">
 									<div class="ctrlHolder">
 										<label for="certs${documentActual.id}"><fmt:message key="tasca.signa.camp.cert"/></label>

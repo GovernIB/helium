@@ -91,13 +91,17 @@ public class SignaturaController extends BaseController {
 			HttpServletResponse response,
 			@RequestParam(value="taskId", required = true) String taskId,
 			@RequestParam(value="token", required = true) String token,
-			@RequestParam(value="data", required = true) String data) throws ServletException {
+			@RequestParam(value="data", required = true) String[] data) throws ServletException {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
+				StringBuffer aData = new StringBuffer();
+				for (String dat : data) {
+					aData.append(dat);
+				}
 				boolean signat = documentService.signarDocumentTascaAmbToken(
 						token,
-						Base64.decodeBase64(data.getBytes()));
+						Base64.decodeBase64(aData.toString().getBytes()));
 				if (signat) {
 					logger.info("Signatura del document amb el token " + token + " processada correctament");
 					missatgeInfo(request, getMessage("info.signatura.doc.processat") );

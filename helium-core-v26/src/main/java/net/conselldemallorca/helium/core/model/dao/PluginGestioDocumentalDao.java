@@ -68,7 +68,8 @@ public class PluginGestioDocumentalDao {
 
 	public void deleteDocument(String documentId) {
 		try {
-			getGestioDocumentalPlugin().deleteDocument(documentId);
+			if (isGestioDocumentalActiu())
+				getGestioDocumentalPlugin().deleteDocument(documentId);
 		} catch (GestioDocumentalPluginException ex) {
 			logger.error("Error al esborrar el document de la gestió documental", ex);
 			throw new PluginException("Error al esborrar el document de la gestió documental", ex);
