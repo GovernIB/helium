@@ -142,6 +142,7 @@ public class MesuresTemporalsHelper {
 //		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
 //		for (String family: families) {
 		for (String family: estadistiquesFamilia.keySet()) {
+			System.out.print("[TEMPS] >>>>>>>>>>> Obtenció estadístiques de la família " + family + " ... ");
 			Map<Clau, Estadistiques> estadistiques = estadistiquesFamilia.get(family);
 			if (estadistiques != null) {
 //				SortedSet<Clau> claus = new TreeSet<Clau>(estadistiques.keySet());
@@ -181,6 +182,7 @@ public class MesuresTemporalsHelper {
 					}
 				}
 			}
+			System.out.println("OK");
 		}
 		Collections.sort(resposta);
 		return resposta;

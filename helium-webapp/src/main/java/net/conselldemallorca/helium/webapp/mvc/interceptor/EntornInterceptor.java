@@ -48,13 +48,19 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 
 	private AlertaService alertaService;
 
-
+	private boolean isRequestResource(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		String root = request.getContextPath();
+		if (uri.contains(root + "/img/") || uri.contains(root + "/css/") || uri.contains(root + "/js/"))
+			return true;
+		return false;
+	}
 
 	public boolean preHandle(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			Object handler) throws Exception {
-		if (request.getUserPrincipal() != null) {
+		if (request.getUserPrincipal() != null && !isRequestResource(request)) {
 			EntornDto entornSessio = (EntornDto)SessionHelper.getAttribute(
 					request,
 					SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);

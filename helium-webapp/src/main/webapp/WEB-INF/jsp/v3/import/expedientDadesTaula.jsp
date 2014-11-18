@@ -36,7 +36,7 @@ div.grup .panel-body-grup {
 
 <div class="panel panel-default">
 	<c:if test="${paramMostrarCapsalera}">
-		<div id="${grupId}-titol" class="panel-heading clicable grup" data-toggle="collapse" data-target="#${grupId}-dades">
+		<div id="${grupId}-titol" class="panel-heading clicable grup tauladades" data-toggle="collapse" data-target="#${grupId}-dades">
 			${paramTitol}
 			<c:if test="${not empty paramCount}"><span class="badge">${paramCount}</span></c:if>
 			<div class="pull-right"><span class="icona-collapse fa fa-chevron-<c:if test="${paramDesplegat}">up</c:if><c:if test="${not paramDesplegat}">down</c:if>"></span></div>
