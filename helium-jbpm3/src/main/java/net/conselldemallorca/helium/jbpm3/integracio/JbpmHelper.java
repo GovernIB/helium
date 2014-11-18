@@ -65,6 +65,7 @@ import net.conselldemallorca.helium.jbpm3.command.SuspendProcessInstanceTimerCom
 import net.conselldemallorca.helium.jbpm3.command.SuspendProcessInstancesCommand;
 import net.conselldemallorca.helium.jbpm3.command.SuspendTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
+import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
@@ -907,6 +908,23 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM tokenRedirect", "jbpmDao");
 	}
 
+
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		adminService.mesuraIniciar("jBPM tokenActivar", "jbpmDao");		
+		try {
+			TokenActivarCommand command = new TokenActivarCommand(tokenId, activar);
+			executeCommandWithAutoSave(
+					command,
+					tokenId,
+					AddToAutoSaveCommand.TIPUS_TOKEN);
+			return true;
+		} catch (Exception ex) {
+			return false;
+		} finally {
+			adminService.mesuraCalcular("jBPM tokenActivar", "jbpmDao");
+		}
+	}
+
 	
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> evaluateScript(
@@ -1191,17 +1209,10 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
-		String nodeClassName = null;
-		NodeType nodeType = null;
-		try {
-			Node node = pi.getProcessDefinition().getNode(nodeName);
-			nodeClassName = node.toString();
-			nodeType = node.getNodeType();
-		} catch (Exception ex) {
-			return false;
-		} finally {
-			adminService.mesuraCalcular("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
-		}
+		Node node = pi.getProcessDefinition().getNode(nodeName);
+		String nodeClassName = node.toString();
+		NodeType nodeType = node.getNodeType();
+		adminService.mesuraCalcular("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
 		
 		return (nodeClassName.startsWith("ProcessState") || nodeType == NodeType.Fork || nodeType == NodeType.Join);
 	}

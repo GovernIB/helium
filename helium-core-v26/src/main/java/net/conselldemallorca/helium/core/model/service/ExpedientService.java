@@ -2881,4 +2881,8 @@ public class ExpedientService {
 			Hibernate.initialize(expedientTipus.getDefinicionsProces());
 		}
 	}
+
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		return jbpmHelper.tokenActivar(tokenId, activar);
+	}
 }

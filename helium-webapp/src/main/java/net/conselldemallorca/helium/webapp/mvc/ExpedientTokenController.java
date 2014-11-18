@@ -113,6 +113,34 @@ public class ExpedientTokenController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/expedient/tokenActivar", method = RequestMethod.GET)
+	public String tokenActivarGet(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "tokenId", required = true) String tokenId,
+			@RequestParam(value = "activar", required = true) Boolean activar,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potModificarExpedient(expedient)) {
+				setArrivingNodeNames(id, tokenId, expedient, model);
+				
+				if (expedientService.tokenActivar(Long.parseLong(tokenId), activar))
+					missatgeInfo(request, getMessage("info.token.activar") );
+				else
+					missatgeError(request, getMessage("error.activar.token"));
+				return "redirect:/expedient/tokens.html?id=" + id;
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
 	@RequestMapping(value = "/expedient/tokenRetrocedir", method = RequestMethod.POST)
 	public String tokenRetrocedirPost(
 			HttpServletRequest request,

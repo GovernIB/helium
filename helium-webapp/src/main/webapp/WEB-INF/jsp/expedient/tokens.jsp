@@ -11,6 +11,22 @@
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript">
+		//<![CDATA[
+			function confirmarActivar(e) {
+				var e = e || window.event;
+				e.cancelBubble = true;
+				if (e.stopPropagation) e.stopPropagation();
+				return confirm("<fmt:message key='info.token.activar.confirmacio' />");
+			}
+			function confirmarDesactivar(e) {
+				var e = e || window.event;
+				e.cancelBubble = true;
+				if (e.stopPropagation) e.stopPropagation();
+				return confirm("<fmt:message key='info.token.desactivar.confirmacio' />");
+			}
+		//]]>
+	</script>
 </head>
 <body>
 
@@ -38,9 +54,15 @@
 			<c:if test="${registre.suspended}">S</c:if>
 		</display:column>
 		<display:column sortable="false">
-			<c:if test="${empty registre.end}">
-				<a href="<c:url value="/expedient/tokenRetrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="tokenId" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/arrow_undo.png"/>" alt="Retrocedir" title="Retrocedir" border="0"/></a>
-			</c:if>
+			<c:choose> 
+				<c:when test="${empty registre.end}">
+					<a href="<c:url value="/expedient/tokenRetrocedir.html"><c:param name="id" value="${param.id}"/><c:param name="tokenId" value="${registre.id}"/></c:url>"><img src="<c:url value="/img/arrow_undo.png"/>" alt="Retrocedir" title="Retrocedir" border="0"/></a>
+					<a href="<c:url value="/expedient/tokenActivar.html"><c:param name="activar" value="false"/><c:param name="id" value="${param.id}"/><c:param name="tokenId" value="${registre.id}"/></c:url>" onclick="return confirmarDesactivar(event)"><img src="<c:url value="/img/control_pause_blue.png"/>" alt="Desactivar token" title="Desactivar token" border="0"/></a>
+				</c:when>
+				<c:otherwise>
+					<a href="<c:url value="/expedient/tokenActivar.html"><c:param name="activar" value="true"/><c:param name="id" value="${param.id}"/><c:param name="tokenId" value="${registre.id}"/></c:url>" onclick="return confirmarActivar(event)"><img src="<c:url value="/img/control_play_blue.png"/>" alt="Activar token" title="Activar token" border="0"/></a>
+				</c:otherwise>
+			</c:choose>
 		</display:column>
 	</display:table>
 
