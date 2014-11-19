@@ -37,12 +37,13 @@ public class SignaturaCaibApplet extends Applet {
 	 * @param password
 	 * @param contentType
 	 * @return
+	 * @throws SignaturaException 
 	 */
 	public String[] signaturaPdf(
 			String url,
 			String certName,
 			String password,
-			String contentType) {
+			String contentType) throws SignaturaException {
 		HttpURLConnection conn;
 		try {
 			conn = (HttpURLConnection)new URL(url).openConnection();
@@ -61,8 +62,8 @@ public class SignaturaCaibApplet extends Applet {
 			return split(file, MAX_SIZE_STRING);
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			throw new SignaturaException("No s'ha pogut signar el document", ex);
 		}
-		return null;
 	}
 
 	private String[] split(String src, int len) {
