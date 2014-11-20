@@ -153,7 +153,7 @@ function signarCaib(token, form, contentType) {
 					form.submit();
 				}
 			} catch (e) {
-				alert("<fmt:message key="tasca.signa.alert.error"/>");
+				alert(e);
 			}
 		}
 	}
