@@ -44,7 +44,7 @@ public class Sistra extends BaseTest {
 	
 	String pathExport	= carregarPropietatPath("tipexp.integracio.sistra.deploy.arxiu.path", "Ruta de l´arxiu del tipus d´expedient exportat no configurat al fitxer de properties");
 	
-	String urlWSBantel	= carregarPropietatPath("tipexp.integracio.sistra.url.bantel", "Ruta del WS a la Safata Telematica no configurat al fitxer de properties");
+	String urlWSBantel	= carregarPropietat("tipexp.integracio.sistra.url.bantel", "Ruta del WS a la Safata Telematica no configurat al fitxer de properties");
 	
 	String nomDefProc	= "Cons1";
 	
@@ -98,13 +98,13 @@ public class Sistra extends BaseTest {
 		
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				es.caib.bantel.ws.v2.services.BantelFacade.class,
-				urlWSBantel,
-				userName,
+				urlWSBantel, null,	null, "NONE", false, true, true);
+				/*userName,
 				password,
 				authType,
 				getTimeS,
 				logCalls,
-				disableCnCheck);
+				disableCnCheck);*/
 		
 		return (es.caib.bantel.ws.v2.services.BantelFacade)wsClientProxy;
 	}
@@ -170,6 +170,7 @@ public class Sistra extends BaseTest {
 			bof.avisoEntradas(re);
 			
 		}catch (Exception ex) {
+			ex.printStackTrace();
 			fail("Ha fallado la llamada a  BantelV3.avisoEntradas(): motivo: " + ex.getMessage());
 		}
 		
