@@ -41,6 +41,12 @@ public class DefinicioProcesAccions extends BaseTest {
 	}
 	
 	@Test
+	public void a2_inicialitzacio() {
+		carregarUrlDisseny();
+		marcarEntornDefecte(titolEntorn);
+	}	
+	
+	@Test
 	public void b_crearAccio() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);

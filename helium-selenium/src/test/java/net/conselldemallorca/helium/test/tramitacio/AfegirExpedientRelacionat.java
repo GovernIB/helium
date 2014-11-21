@@ -10,6 +10,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AfegirExpedientRelacionat extends BaseTest {
@@ -63,10 +64,22 @@ public class AfegirExpedientRelacionat extends BaseTest {
 
 		driver.findElement(By.xpath("//*[@action='/helium/expedient/relacionar.html']//button")).click();
 
-		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).clear();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")));
+		actions.click();
+		actions.build().perform();
+		
+		//driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).clear();
 		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys(res_dest[1]);
+		
+		try { Thread.sleep(1000); }catch( Exception ex ) {}
+		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys(Keys.BACK_SPACE);
+		try { Thread.sleep(1000); }catch( Exception ex ) {}
+		driver.findElement(By.xpath("//*[@id='suggest_expedientIdDesti0']")).sendKeys(Keys.BACK_SPACE);
+		
+		try { Thread.sleep(3000); }catch( Exception ex ) {}
+		
 		driver.findElement(By.xpath("//*[@class='ac_results']/ul/li[1]")).click();
-
+		
 		driver.findElement(By.xpath("//*[@id='relacionarCommand']//button[1]")).click();
 		
 		assertTrue("El expediente no se relacionó de forma correcta", driver.findElements(By.xpath("//*[@id='registre']/tbody/tr")).size() > 0);

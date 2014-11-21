@@ -30,8 +30,7 @@ public class TipusExpedientDocuments extends BaseTest {
 	String defProcPath	= carregarPropietatPath("tipexp.documents.definicio.proces.path", "Ruta de l´arxiu de definicio de proces exportada no configurat al fitxer de properties");
 
 	String provaDocPath	= carregarPropietatPath("tipexp.documents.path.doc.proves", "Ruta de l´arxiu de definicio de proces exportada no configurat al fitxer de properties");
-	
-	
+
 	// XPATHS
 	String pestanyaDefProc 	= "//*[@id='tabnav']/li/a[contains(@href, '/expedientTipus/definicioProcesLlistat.html')]";
 	String pestanyaDocs		= "//*[@id='tabnav']/li/a[contains(@href, '/expedientTipus/documentLlistat.html')]";
@@ -45,8 +44,8 @@ public class TipusExpedientDocuments extends BaseTest {
 
 	String botoModificarArxiu = "//*[@id='command']/div/button[contains(text(), 'Modificar')]";
 	String enllaçDocumentAdjuntat = "//*[@id='iconsFileInput_arxiuContingut0']/a[contains(@href, '/expedientTipus/documentDownload.html')]";
-	
-	
+
+
 	@Test
 	public void a1_inicialitzacio() {
 		carregarUrlConfiguracio();

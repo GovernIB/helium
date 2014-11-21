@@ -25,6 +25,7 @@ public class ModificarExpedient extends BaseTest {
 	String exportTipExpProc = carregarPropietatPath("tipexp.tasca_dades_doc.exp.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
+	String isSeycon = carregarPropietat("test.base.url.inicio.seycon", "Propietat de inici seycon no configurada al fitxer de properties.");
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -94,8 +95,10 @@ public class ModificarExpedient extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='comentari0']")).clear();
 		driver.findElement(By.xpath("//*[@id='comentari0']")).sendKeys("Un comentario");
 		
-		driver.findElement(By.xpath("//*[@id='geoReferencia0']")).clear();
-		driver.findElement(By.xpath("//*[@id='geoReferencia0']")).sendKeys("geoReferencia");
+		if (!"true".equalsIgnoreCase(isSeycon)) {
+			driver.findElement(By.xpath("//*[@id='geoReferencia0']")).clear();
+			driver.findElement(By.xpath("//*[@id='geoReferencia0']")).sendKeys("geoReferencia");
+		}
 		driver.findElement(By.xpath("//*[@id='grupCodi0']")).clear();
 		driver.findElement(By.xpath("//*[@id='grupCodi0']")).sendKeys("grupCodi");
 
@@ -126,7 +129,7 @@ public class ModificarExpedient extends BaseTest {
 				result = !valores.get(i).getText().isEmpty();
 			else if ("Persona responsable".equals(claves.get(i).getText()))
 				result = !valores.get(i).getText().isEmpty();
-			else if ("Georeferència".equals(claves.get(i).getText()))
+			else if (!"true".equalsIgnoreCase(isSeycon) && "Georeferència".equals(claves.get(i).getText()))
 				result = "geoReferencia".equals(valores.get(i).getText());
 
 			assertTrue("Error al comprobar el campo " + claves.get(i).getText(), result);

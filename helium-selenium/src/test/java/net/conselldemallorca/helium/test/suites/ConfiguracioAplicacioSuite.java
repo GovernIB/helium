@@ -10,8 +10,8 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	ConfiguracioPersones.class,
-	ConfiguracioRols.class,
+	//ConfiguracioPersones.class, //Si es va per seycon, aquesta prova no aplica
+	//ConfiguracioRols.class, //Si es va per seycon, aquesta prova no aplica
 	ConfiguracioFestius.class,
 	ConfiguracioReassignacions.class
 })

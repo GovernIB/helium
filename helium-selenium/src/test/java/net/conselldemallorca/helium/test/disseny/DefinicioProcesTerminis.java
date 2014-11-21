@@ -40,6 +40,12 @@ public class DefinicioProcesTerminis extends BaseTest {
 	}
 	
 	@Test
+	public void a2_inicialitzacio() {
+		carregarUrlDisseny();
+		marcarEntornDefecte(titolEntorn);
+	}	
+	
+	@Test
 	public void b_crearTermini() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);

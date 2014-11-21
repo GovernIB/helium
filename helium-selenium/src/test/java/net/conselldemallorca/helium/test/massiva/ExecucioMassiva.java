@@ -40,7 +40,7 @@ public class ExecucioMassiva extends BaseTest {
 	//XPATHS
 	String botoExecMassiva = "//*[@id='page-entorn-menu']/div/a";
 	
-	//@Test
+	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
 		crearEntorn(entorn, titolEntorn);
@@ -50,7 +50,7 @@ public class ExecucioMassiva extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
 	}
 	
-	//@Test
+	@Test
 	public void a_crear_dades() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -128,7 +128,7 @@ public class ExecucioMassiva extends BaseTest {
 			intentos++;
 		}
 		
-		assertTrue("No se ceró el expediente en el tiempo previsto", numAturados == numExpedients);
+		assertTrue("No se paró el expediente en el tiempo previsto.", numAturados == numExpedients);
 		
 		// Eliminamos los expedientes
 		eliminarExpedient(null, null, nomTipusExp);
@@ -196,11 +196,11 @@ public class ExecucioMassiva extends BaseTest {
 			assertFalse("No se cambió la versión del subproceso del expediente: " + i, versioSub.equals(versioSubAct));
 			assertTrue("No coincidía la versión del subproceso del expediente: " + i, versioSubProc.equals(versioSubAct));
 		}
-		
+
 		// Eliminamos los expedientes
 		eliminarExpedient(null, null, nomTipusExp);
 	}
-	
+
 	@Test
 	public void e_executar_script() throws InterruptedException {
 		carregarUrlConfiguracio();
@@ -385,20 +385,24 @@ public class ExecucioMassiva extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='aturarCommandMas']//button")).click();
 		if (isAlertPresent()) { acceptarAlerta(); }
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó la operación masiva correctamente");
-				
+					
 		// Estado pendiente
 		Thread.sleep(1000*10);
 		for (String[] expediente : expedientes) {
 			assertTrue("El expediente '"+expediente+"' no estaba en estado 'pendiente'",estadoExpedientExecucioMassiva(expediente[1], botoExecMassiva) == 0);
 		}
-		actions.sendKeys(Keys.ESCAPE);
 		
+		//actions.sendKeys(Keys.ESCAPE);
+		driver.findElement(By.xpath("/html/body/div[contains(@aria-labelledby,'ui-dialog-title-dialog-form-mass')]/div[1]/a")).click();
+						
 		Thread.sleep(1000*140);
 		// Estado finalizado
 		for (String[] expediente : expedientes) {
 			assertTrue("El expediente '"+expediente+"' no estaba en estado 'finalizado'",estadoExpedientExecucioMassiva(expediente[1], botoExecMassiva) == 1);
 		}
-		actions.sendKeys(Keys.ESCAPE);
+		
+		//actions.sendKeys(Keys.ESCAPE);
+		driver.findElement(By.xpath("/html/body/div[contains(@aria-labelledby,'ui-dialog-title-dialog-form-mass')]/div[1]/a")).click();
 		
 		// Ejecutamos de nuevo que ature los expedientes para que de error
 		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo para que de error");
@@ -412,7 +416,8 @@ public class ExecucioMassiva extends BaseTest {
 		for (String[] expediente : expedientes) {
 			assertTrue("El expediente '"+expediente+"' no estaba en estado 'error'",estadoExpedientExecucioMassiva(expediente[1], botoExecMassiva) == 2);
 		}
-		actions.sendKeys(Keys.ESCAPE);
+		//actions.sendKeys(Keys.ESCAPE);
+		driver.findElement(By.xpath("/html/body/div[contains(@aria-labelledby,'ui-dialog-title-dialog-form-mass')]/div[1]/a")).click();		
 	}
 
 	@Test
@@ -422,7 +427,7 @@ public class ExecucioMassiva extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		
 		eliminarExpedient(null, null, nomTipusExp);
-		
+				
 		// Eliminar el tipo de expediente
 		eliminarTipusExpedient(codTipusExp);
 		
@@ -439,11 +444,21 @@ public class ExecucioMassiva extends BaseTest {
 		//calendarFin.add(Calendar.MINUTE, minut);
 		
 		driver.findElement(By.xpath("//*[@id='inici']")).clear();
+		try { Thread.sleep(1000); } catch (Exception tEx) {}
 		driver.findElement(By.xpath("//*[@id='inici']")).sendKeys(Keys.TAB);
+		try { Thread.sleep(1000); } catch (Exception tEx) {}
 		driver.findElement(By.xpath("//*[@id='inici']")).sendKeys(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(calendarFin.getTime()));
+		try { Thread.sleep(1000); } catch (Exception tEx) {}
 		driver.findElement(By.xpath("//*[@id='inici']")).sendKeys(Keys.TAB);
+		try { Thread.sleep(1000); } catch (Exception tEx) {}
 		driver.findElement(By.xpath("//*[@id='inici']")).click();
 		try { Thread.sleep(2000); } catch (Exception tEx) {}
-		driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
+		try {
+			driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
+		}catch (Exception ex) {
+			driver.findElement(By.xpath("//*[@id='inici']")).click();
+			try { Thread.sleep(1000); } catch (Exception tEx) {}
+			driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[3]/button[2]")).click();
+		}
 	}
 }

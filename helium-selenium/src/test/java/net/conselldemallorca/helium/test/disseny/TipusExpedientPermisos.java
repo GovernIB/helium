@@ -31,6 +31,8 @@ public class TipusExpedientPermisos extends BaseTest {
 	String defProcNom	= carregarPropietat("informe.deploy.definicio.proces.nom", "Codi de la definicio de proces de proves no configurat al fitxer de properties");
 	String defProcPath	= carregarPropietatPath("informe.deploy.definicio.proces.path", "Ruta de l´arxiu de definicio de proces exportada no configurat al fitxer de properties");
 	
+	String isSeycon	= carregarPropietat("test.base.url.inicio.seycon", "Propietat inicio.seycon no configurat al fitxer de properties");
+	
 	//XPATHS
 	String botoNouTipusExpedient = "//*[@id='content']/form/button";
 	
@@ -42,7 +44,9 @@ public class TipusExpedientPermisos extends BaseTest {
 		assignarPermisosEntorn(entorn, usuari, "DESIGN", "ORGANIZATION", "READ");
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
-		crearRol(rol, "Descripcio Rol proves");
+		if (!"true".equalsIgnoreCase(isSeycon)) {
+			crearRol(rol, "Descripcio Rol proves");
+		}
 	}
 	
 	@Test
@@ -59,7 +63,7 @@ public class TipusExpedientPermisos extends BaseTest {
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "tipusExpedient/permisos/c1_asginar_usuari", false, "DESIGN", "MANAGE", "CREATE", "DELETE", "SUPERVISION", "READ", "WRITE", "REASSIGNMENT", "ADMINISTRATION");
 	}
 
-	@Test
+	//@Test
 	public void d1_assignar_permisos_rol() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
@@ -73,7 +77,7 @@ public class TipusExpedientPermisos extends BaseTest {
 		desasignarPermisosTipusExpedient(codTipusExp, usuari, "tipusExpedient/permisos/e1_desasignar_usuari");
 	}
 
-	@Test
+	//@Test
 	public void f1_desassignar_permisos_rol() {
 		carregarUrlConfiguracio();
 		seleccionarEntorn(titolEntorn);
@@ -84,7 +88,9 @@ public class TipusExpedientPermisos extends BaseTest {
 	public void z0_finalitzacio() {
 		carregarUrlConfiguracio();
 		eliminarTipusExpedient(codTipusExp);
-		eliminarRol(rol);
+		if (!"true".equalsIgnoreCase(isSeycon)) {
+			eliminarRol(rol);
+		}
 		eliminarEntorn(entorn);
 	}
 }

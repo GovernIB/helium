@@ -16,7 +16,7 @@ import org.junit.runners.Suite;
 	Custodia.class,
 	Portasignatures.class,
 	Registre.class,
-	//Signature.class,
+	Signature.class,
 	Tramitacion.class,
 	FormularisExterns.class,
 	Sistra.class

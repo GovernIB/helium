@@ -15,6 +15,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -56,6 +57,8 @@ public class InformesExpedients extends BaseTest {
 	String nomInforme 		= carregarPropietat("informe.consulta.titol", "Nom de l'informe");
 	String codiTipusExp 	= carregarPropietat("informe.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de l'informe");
 	String pathExportTipExp = carregarPropietatPath("informe.deploy.tipus.expedient.path", "Path de l'entorn de proves no configurat al fitxer de properties");
+	
+	String formatFecha 	= carregarPropietat("test.base.formato.fecha", "Formato de fecha para el filtro del informe no configurado en el properties");
 	
 	String anyActual = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
 	
@@ -163,8 +166,12 @@ public class InformesExpedients extends BaseTest {
 			//Amb dates de l´1 al 10 d´agost, n´hi hauría d´haver 10. (cada cop netejam primer el filtre anterior)
 			optionsBoolean = driver.findElement(By.id("Cons1_var_boolean0")).findElements(By.tagName("option"));
 			optionsBoolean.get(0).click();
-			driver.findElement(By.id("Cons1_var_date0")).sendKeys("08/01/14");
-			driver.findElement(By.id("Cons1_var_date1")).sendKeys("08/10/14");
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys("01/08/2014");
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys("10/08/2014");
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys(Keys.TAB);
 			filtraIcomprovaResultats("10", "expedients/informes/e1_3_");
 			
 			//Els floats van de 2.0 a 48.0. De 2.0 a 10.0 hi hauria de haver 5 resultats
@@ -224,8 +231,13 @@ public class InformesExpedients extends BaseTest {
 			optionsBoolean = driver.findElement(By.id("Cons1_var_boolean0")).findElements(By.tagName("option"));
 			optionsBoolean.get(optionsBoolean.size()-1).click();
 			//A més filtram per dates, ara haurien de ser nomes (5)
-			driver.findElement(By.id("Cons1_var_date0")).sendKeys("08/01/14");
-			driver.findElement(By.id("Cons1_var_date1")).sendKeys("08/10/14");
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys("01/08/2014");
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys("10/08/2014");
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys(Keys.TAB);			
+
 			filtraIcomprovaResultats("5", "expedients/informes/e1_11_");
 
 			//Segona prova amb filtres amb condicions mesclades: fecha, textarea i titol
@@ -234,9 +246,14 @@ public class InformesExpedients extends BaseTest {
 				//driver.findElement(By.id("Cons1_var_date0")).clear();
 				//driver.findElement(By.id("Cons1_var_date1")).clear();
 			
-			//Ara que tenim els filtres netejats. Primer, dates: aixi en quedaràn 15		
-			driver.findElement(By.id("Cons1_var_date0")).sendKeys("08/10/14");
-			driver.findElement(By.id("Cons1_var_date1")).sendKeys("08/24/14");		
+			//Ara que tenim els filtres netejats. Primer, dates: aixi en quedaràn 15
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys("10/08/2014");
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date0")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys("24/08/2014");
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys(Keys.TAB);
+			driver.findElement(By.id("Cons1_var_date1")).sendKeys(Keys.TAB);
+			
 			//Filtrant per titol, posant un 2, només quedaràn els de 20 a 24 (5)
 			driver.findElement(By.id("Cons1_vtitol0")).sendKeys("Titol String 2");
 			//La variable de selecció, esta amb la opció 1 per els 20 primers expedients. Option 2 per els 4 darrers

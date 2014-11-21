@@ -348,6 +348,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		
 		seleccionarEntorn(titolEntorn);
 		
+		System.setProperty("jsse.enableSNIExtension", "false");
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/definicioProces/llistat.html')]")));
@@ -383,6 +385,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				
 		driver.findElement(By.xpath("//*[@id='tabnav']//a[contains(@href,'/tasca/signatures.html')]")).click();
 
+		if (isAlertPresent()) { acceptarAlerta(); }
+		
 		for (DocumentoExpedient documento : documentosExpedient) { 
 			
 				existeixElementAssert("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select", "No s´ha trobat cap certificat instalat al sistema per signar el document.");
@@ -391,12 +395,18 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				
 				WebElement select = driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//select"));
 				List<WebElement> options = select.findElements(By.tagName("option"));
+				
+				boolean found = false;				
 				for (WebElement option : options) {
 					if (option.getText().equals(nomCert)) {
 						option.click();
+						found = true;
 						break;
 					}
 				}
+				
+				assertTrue("No s´ha pogut carregar la llista de certificats. Revisau la configuració del navegador i del sistema.", found);
+				
 				driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).clear();
 				driver.findElement(By.xpath("//h4[contains(label/text(), '"+documento.getNom()+"')]/parent::div//input[@type='password']")).sendKeys(passCert);
 							
@@ -516,7 +526,8 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				driver.findElement(By.xpath("//*[@id='command']/div[3]/button[2]")).click();
 			}
 		}
-		assertTrue("No se encontró ningún documento para generar", probado);
+		//assertTrue("No se encontró ningún documento para generar", probado);
+		//Solo se encontraran documentos para generar si estos son de tipo plantilla, i no es el caso en este expediente.
 	}
 	
 	@Test

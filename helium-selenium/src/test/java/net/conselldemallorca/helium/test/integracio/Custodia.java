@@ -1,7 +1,8 @@
 package net.conselldemallorca.helium.test.integracio;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -49,10 +50,11 @@ public class Custodia extends BaseTest {
 				cacheHash.put("1", token);
 			}
 			String baseUrl = properties.getProperty("app.custodia.plugin.caib.verificacio.baseurl");
-			assertTrue("Error al comprobar la URL del plugin de custodia: " + (baseUrl + token), !(baseUrl + token).isEmpty());
+			assertTrue("Error al comprobar la URL del plugin de custodia: " + (baseUrl + token), !(baseUrl + token).isEmpty());	
 		} catch (Exception ex) {
 			throw new CustodiaPluginException("No s'ha pogut generar la url de comprovació de custodia", ex);
 		}
+		
 	}
 	
 	@Test

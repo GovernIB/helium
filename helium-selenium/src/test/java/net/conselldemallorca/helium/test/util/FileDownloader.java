@@ -1,13 +1,27 @@
 package net.conselldemallorca.helium.test.util;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Set;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -145,32 +159,22 @@ public class FileDownloader {
         return mimicWebDriverCookieStore;
     }
  
-    /**
-     * Perform the file/image download.
-     *
-     * @param element
-     * @param attribute
-     * @return
-     * @throws IOException
-     * @throws NullPointerException
-     */
-    @SuppressWarnings({ "resource" })
-	private byte[] downloader(WebElement element, String attribute) throws IOException, NullPointerException, URISyntaxException {
-        String fileToDownloadLocation = element.getAttribute(attribute);
-        if (fileToDownloadLocation.trim().equals("")) throw new NullPointerException("The element you have specified does not link to anything!");
- 
+    private byte[] downloadHTTPfile(String fileToDownloadLocation) throws IOException, NullPointerException, URISyntaxException {
+    	
         URL fileToDownload = new URL(fileToDownloadLocation);
+        
         File downloadedFile = new File(this.localDownloadPath + fileToDownload.getFile().replaceFirst("/|\\\\", ""));
         if (downloadedFile.canWrite() == false) downloadedFile.setWritable(true);
  
-        HttpClient client = new DefaultHttpClient();
+        @SuppressWarnings("resource")
+		HttpClient client = new DefaultHttpClient();
         BasicHttpContext localContext = new BasicHttpContext();
  
         LOG.info("Mimic WebDriver cookie state: " + this.mimicWebDriverCookieState);
         if (this.mimicWebDriverCookieState) {
             localContext.setAttribute(ClientContext.COOKIE_STORE, mimicCookieState(this.driver.manage().getCookies()));
         }
- 
+        
         HttpGet httpget = new HttpGet(fileToDownload.toURI());
         HttpParams httpRequestParameters = httpget.getParams();
         httpRequestParameters.setParameter(ClientPNames.HANDLE_REDIRECTS, this.followRedirects);
@@ -181,15 +185,114 @@ public class FileDownloader {
         this.httpStatusOfLastDownloadAttempt = response.getStatusLine().getStatusCode();
         LOG.info("HTTP GET request status: " + this.httpStatusOfLastDownloadAttempt);
         LOG.info("Downloading file: " + downloadedFile.getName());
-//        FileUtils.copyInputStreamToFile(response.getEntity().getContent(), downloadedFile);
-// 
-//        String downloadedFileAbsolutePath = downloadedFile.getAbsolutePath();
-//        LOG.info("File downloaded to '" + downloadedFileAbsolutePath + "'");
-// 
-//        return downloadedFileAbsolutePath;
+
         byte[] file = IOUtils.toByteArray(response.getEntity().getContent());
         response.getEntity().getContent().close();
         return file;
+    }
+    
+    private byte[] downloadHTTPSfile(String fileToDownloadLocation) throws IOException, NullPointerException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+		SSLContext ctx = SSLContext.getInstance("TLS");
+		ctx.init(new KeyManager[0], new TrustManager[] { new DefaultTrustManager() }, new SecureRandom());
+		SSLContext.setDefault(ctx);
+
+		if (fileToDownloadLocation.trim().equals(""))
+			throw new NullPointerException("The element you have specified does not link to anything!");
+
+		URL url = new URL(fileToDownloadLocation);
+		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		conn.setHostnameVerifier(new HostnameVerifier() {
+			@Override
+			public boolean verify(String arg0, SSLSession arg1) {
+				return true;
+			}
+		});
+		
+		byte[] buffer = null;
+		this.httpStatusOfLastDownloadAttempt = conn.getResponseCode();
+		
+		if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+			// opens input stream from the HTTP connection
+			InputStream inputStream = conn.getInputStream();
+
+			buffer = IOUtils.toByteArray(inputStream);
+			
+			/*int bytesRead = 1;
+			buffer = new byte[4096];
+			while (bytesRead>0) {
+				bytesRead = inputStream.read(buffer);
+			}*/			
+		
+			inputStream.close();
+			conn.disconnect();
+		}
+		
+		return buffer;
+    }
+    
+    private byte[] downloadHTTPSfile_post(String fileToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+		
+    	SSLContext ctx = SSLContext.getInstance("TLS");
+		ctx.init(new KeyManager[0], new TrustManager[] { new DefaultTrustManager() }, new SecureRandom());
+		SSLContext.setDefault(ctx);
+
+		if (fileToDownloadLocation.trim().equals(""))
+			throw new NullPointerException("The element you have specified does not link to anything!");
+
+		URL url = new URL(fileToDownloadLocation);
+		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		
+		conn.setRequestMethod("POST");
+		
+		conn.setHostnameVerifier(new HostnameVerifier() {
+			@Override
+			public boolean verify(String arg0, SSLSession arg1) {
+				return true;
+			}
+		});
+		
+		byte[] buffer = null;
+		this.httpStatusOfLastDownloadAttempt = conn.getResponseCode();
+		
+		if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+			// opens input stream from the HTTP connection
+			InputStream inputStream = conn.getInputStream();
+
+			int bytesRead = 1;
+			buffer = new byte[4096];
+			while (bytesRead>0) {
+				bytesRead = inputStream.read(buffer);
+			}
+		
+			inputStream.close();
+			conn.disconnect();
+		}
+		
+		return buffer;
+    }
+    
+    /**
+     * Perform the file/image download.
+     *
+     * @param element
+     * @param attribute
+     * @return
+     * @throws IOException
+     * @throws NullPointerException
+     */
+	private byte[] downloader(WebElement element, String attribute) throws IOException, NullPointerException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+    	
+        String fileToDownloadLocation = element.getAttribute(attribute);
+        
+        if (fileToDownloadLocation.trim().equals("")) throw new NullPointerException("The element you have specified does not link to anything!");
+ 
+        if (fileToDownloadLocation.startsWith("https")) {
+        	return downloadHTTPSfile(fileToDownloadLocation);
+        }else{
+        	return downloadHTTPfile(fileToDownloadLocation);
+        }
     }
     
     /**
@@ -202,8 +305,19 @@ public class FileDownloader {
      * @throws NullPointerException
      */
     @SuppressWarnings({ "resource" })
-	private byte[] postdownloader(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException {
-        HttpClient client = new DefaultHttpClient();
+	private byte[] postdownloader(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        
+    	if (formToDownloadLocation.startsWith("https")) {
+    		return downloadHTTPSfile_post(formToDownloadLocation, params);
+    	}else{
+    		return downloadHTTPfile_post(formToDownloadLocation, params);
+    	}
+    }
+    
+    private byte[] downloadHTTPfile_post(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException {
+    	
+    	HttpClient client = new DefaultHttpClient();
+    	
         BasicHttpContext localContext = new BasicHttpContext();
  
         LOG.info("Mimic WebDriver cookie state: " + this.mimicWebDriverCookieState);
@@ -217,7 +331,6 @@ public class FileDownloader {
         httppost.setParams(httpRequestParameters);
         httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
         
- 
         LOG.info("Sending POST request for: " + httppost.getURI());
         HttpResponse response = client.execute(httppost, localContext);
         this.httpStatusOfLastDownloadAttempt = response.getStatusLine().getStatusCode();
@@ -228,7 +341,6 @@ public class FileDownloader {
         return file;
     }
     
-    @SuppressWarnings({ "resource" })
 	public byte[] postDownloaderWithRedirects(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException {
     	
         HttpClient client = new DefaultHttpClient();
@@ -275,4 +387,20 @@ public class FileDownloader {
         LOG.info("Sending POST request for: " + httppost.getURI());
         return client.execute(httppost, localContext);
     }
+    
+	private static class DefaultTrustManager implements X509TrustManager {
+
+		@Override
+		public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+		}
+
+		@Override
+		public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+		}
+
+		@Override
+		public X509Certificate[] getAcceptedIssuers() {
+			return null;
+		}
+	}
 }

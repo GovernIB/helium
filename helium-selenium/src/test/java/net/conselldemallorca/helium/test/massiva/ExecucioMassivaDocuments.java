@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.test.massiva;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,6 +12,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLHandshakeException;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
 import net.conselldemallorca.helium.test.util.DocumentoExpedient;
@@ -204,6 +207,7 @@ public class ExecucioMassivaDocuments extends BaseTest {
 			
 			// Bajamos el documento
 			byte[] archivo = downloadFile("//tr[contains(td/text(), '"+document+"')]//a[contains(@href,'/expedient/documentModificar.html')]", "blank.pdf");
+
 			// Comprobamos que los hash de todos sean diferentes
 			String md5 = getMd5(archivo);
 			assertFalse("El documento '"+document+"' ya estaba en otro expediente",hash.contains(md5));

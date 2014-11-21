@@ -274,7 +274,7 @@ public class TasquesExpedient extends BaseTest {
 		existeixElementAssert("//*[@id='page-title']/h2/span[contains(text(), '"+expedient+"')]", "El nombre del expediente no coincidía");
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2]/text(),'"+tasca+"')]","No se encontró la tarea agafada");
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2]/text(),'"+tasca+"')]/td[contains(text(),'Usuari Administrador')]","El responsable no coincidía");
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2]/text(),'"+tasca+"')]/td[contains(text(),'"+user175+"')]","El responsable no coincidía");
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[2]/text(),'"+tasca+"')]/td/a/img[@alt='Alliberar']","No existía la imagen de alliberar");
 
 		screenshotHelper.saveScreenshot("TasquesExpedient/agafar_tasca/3.png");		

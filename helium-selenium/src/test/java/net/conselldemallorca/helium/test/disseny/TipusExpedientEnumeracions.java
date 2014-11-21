@@ -63,7 +63,7 @@ public class TipusExpedientEnumeracions extends BaseTest {
 		marcarEntornDefecte(titolEntorn);
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
-		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "WRITE", "READ", "DELETE");
+		assignarPermisosTipusExpedient(codTipusExp, usuari, "CREATE", "DESIGN", "MANAGE", "WRITE", "READ", "DELETE", "ADMINISTRATION");
 	}
 	
 	@Test

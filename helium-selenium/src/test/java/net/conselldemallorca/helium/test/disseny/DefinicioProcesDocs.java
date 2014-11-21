@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.test.disseny;
 
+import static org.junit.Assert.assertTrue;
 import net.conselldemallorca.helium.test.util.BaseTest;
 
 import org.junit.FixMethodOrder;
@@ -18,7 +19,8 @@ public class DefinicioProcesDocs extends BaseTest {
 	String nomDefProc = carregarPropietat("defproc.deploy.definicio.proces.nom", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String pathDefProc = carregarPropietatPath("defproc.deploy.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	
+	String arxiuContingut_hash = carregarPropietat("defproc.deploy.arxiu.contingut.hash", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
+
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -40,6 +42,12 @@ public class DefinicioProcesDocs extends BaseTest {
 	}
 	
 	@Test
+	public void a2_inicialitzacio() {
+		carregarUrlDisseny();
+		marcarEntornDefecte(titolEntorn);
+	}	
+	
+	@Test
 	public void b_crearDocumentSensePlantilla() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);
@@ -57,7 +65,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				carregarPropietat("defproc.document.plant.nom", "Nom del document amb plantilla no configurat al fitxer de properties"),
 				true, 
 				carregarPropietatPath("defproc.document.plant.path", "Plantilla de proves no configurat al fitxer de properties"),
-				null, false, null, null, null, null, null,
+				null, false, null, null, null, null, null, 
 				carregarPropietat("defproc.document.plant.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
@@ -72,7 +80,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				carregarPropietatPath("defproc.document.plant2.path", "Plantilla de proves 2 no configurat al fitxer de properties"), 
 				null, false, 
 				"campData/campData", 
-				null, null, null, null,
+				null, null, null, null, 
 				carregarPropietat("defproc.document.plant2.hash", "Hash de la plantilla no configurat al fitxer de properties"));
 	}
 	
@@ -108,13 +116,7 @@ public class DefinicioProcesDocs extends BaseTest {
 		String codDoc = carregarPropietat("defproc.document.plant.codi", "Codi del document amb plantilla no configurat al fitxer de properties");
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]", "No existeix el document a descarregar plantilla");
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a/img", "El document no té plantilla");
-		
-		//try { System.out.println("**X*** --> " + getMD5Checksum(carregarPropietatPath("defproc.document.plant.path", "Plantilla de proves 2 no configurat al fitxer de properties"))); }catch(Exception ex) {ex.printStackTrace();}
 
-		/*downloadFileHash("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a", 
-						 carregarPropietat("defproc.document.plant.hash", "Hash de la plantilla no configurat al fitxer de properties"), 
-						"plantilla.odt");*/
-		
 		downloadFile("//*[@id='registre']/tbody/tr[contains(td[1],'" + codDoc + "')]/td[4]/a", "plantilla.odt");
 	}
 	
@@ -196,11 +198,18 @@ public class DefinicioProcesDocs extends BaseTest {
 		checkboxSelected("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (esPlantilla) {
 			if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
-
-			//try { System.out.println("**X*** --> " + getMD5Checksum(pathPlantilla)); }catch(Exception ex) {ex.printStackTrace();}
 			
-			if (md5Plantilla != null)
-				downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
+			/*if (md5Plantilla != null) {
+				try {
+					byte[] arxiuContingut = downloadFile("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", "");
+					String hashFile = getMD5Checksum(arxiuContingut);
+					System.out.println(hashFile);
+					System.out.println(arxiuContingut_hash);
+					assertTrue("Hash de l'arxiu contingut no ha estat l´esperat: "+hashFile+" diferent de " + arxiuContingut_hash, arxiuContingut_hash.equals(hashFile));
+				}catch (Exception ex) {}
+			}*/
+			
+			//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
 			
 			if (extensioSortida != null) existeixElementAssert("//*[@id='convertirExtensio0' and @value='" + extensioSortida + "']", "L'extensió de sortida no s'ha gravat correctament");
 		}
@@ -278,7 +287,18 @@ public class DefinicioProcesDocs extends BaseTest {
 		if (esPlantilla != null) checkboxSelectedAssert("//*[@id='plantilla0']", "És plantilla no sa gravat correctament", esPlantilla);
 		if (adjuntar != null) checkboxSelectedAssert("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
-		if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
+		
+		//if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
+		
+		/*if (md5Plantilla != null) {
+			try {
+				byte[] arxiuContingut = downloadFile("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", "");
+				assertTrue("Hash de l'arxiu contingut no ha estat l´esperat." , arxiuContingut_hash.equals(getMD5Checksum(arxiuContingut)));
+			}catch (Exception ex) {}
+		}*/
+		
+		//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
+		
 		if (extensioSortida != null) existeixElementAssert("//*[@id='convertirExtensio0' and @value='" + extensioSortida + "']", "L'extensió de sortida no s'ha gravat correctament");
 		if (campData != null) driver.findElement(By.xpath("//*[@id='campData0']/option[normalize-space(text())='" + campData + "']")).click();
 		if (extensionsPermeses != null) existeixElementAssert("//*[@id='extensionsPermeses0' and @value='" + extensionsPermeses + "']", "Les extensions permeses no s'han gravat correctament"); 

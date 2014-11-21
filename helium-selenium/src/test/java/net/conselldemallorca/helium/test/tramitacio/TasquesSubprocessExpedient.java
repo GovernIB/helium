@@ -34,7 +34,8 @@ public class TasquesSubprocessExpedient extends BaseTest {
 	String pathTipExp = carregarPropietatPath("tramsel_subproces.export.arxiu.path", "Nom de la definició de procés de proves no configurat al fitxer de properties");
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
-	
+	String urlWSdomini = carregarPropietat("defproc.deploy.url.ws.domini", "La URL del WS que ha de emplenar el desplegable amb valors no esta configurat al properties");
+
 	// XPATHS
 	
 	String linkAccesInfoDefProc = "//*[@id='registre']/tbody/tr[contains(td/a, '"+nomDefProc+"')]/td/a[contains(@href, '/definicioProces/info.html')]";
@@ -160,7 +161,7 @@ public class TasquesSubprocessExpedient extends BaseTest {
 		
 		//Cream un domini WS
 		driver.findElement(By.xpath(botoNouDomini)).click();
-		emplenaDadesDominiWS("wsDomId", "Nom consulta WS", "0", "Descripció consulta WS", "http://localhost:8080/helium/ws/DominiIntern", "NONE", "ATRIBUTS", "", "");
+		emplenaDadesDominiWS("wsDomId", "Nom consulta WS", "0", "Descripció consulta WS", urlWSdomini, "NONE", "ATRIBUTS", "", "");
 		driver.findElement(By.xpath(botoGuardaDomini)).click();
 		
 		screenshotHelper.saveScreenshot("tramitar/dades/carregaDominis/c1_3_crear_dominis-domini_ws_creat.png");

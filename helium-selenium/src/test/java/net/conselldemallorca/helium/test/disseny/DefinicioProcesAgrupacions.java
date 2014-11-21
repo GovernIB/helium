@@ -53,6 +53,12 @@ public class DefinicioProcesAgrupacions extends BaseTest {
 	}
 	
 	@Test
+	public void a2_inicialitzacio() {
+		carregarUrlDisseny();
+		marcarEntornDefecte(titolEntorn);
+	}	
+	
+	@Test
 	public void b_crearAgupacio() {
 		carregarUrlDisseny();
 		crearAgrupacio(nomDefProc, codiAgrup3, nomAgrup3);

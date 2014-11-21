@@ -124,7 +124,7 @@ public class TasquesFlux extends BaseTest {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.DATE, -4);
 		String fechaTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
-		calendar.add(Calendar.DATE, 25);
+		calendar.add(Calendar.DATE, 24);
 		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
@@ -256,9 +256,9 @@ public class TasquesFlux extends BaseTest {
 		assertTrue("El campo play inicial de '"+nom+"' no era correcto", play.getAttribute("src").contains("control_play.png"));
 		
 		// Pause
-		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1]/text(), 'Termini automatic')]/td[8]/img", "El campo pause inicial de '"+nom+"' no era correcto");
-		WebElement pause = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1]/text(), 'Termini automatic')]/td[8]/img"));
-		assertTrue("El campo pause inicial de '"+nom+"' no era correcto", pause.getAttribute("src").contains("control_pause.png"));
+		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1]/text(), 'Termini automatic')]/td[8]/a/img", "El campo pause inicial de '"+nom+"' no era correcto");
+		WebElement pause = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1]/text(), 'Termini automatic')]/td[8]/a/img"));
+		assertTrue("El campo pause inicial de '"+nom+"' no era correcto", pause.getAttribute("src").contains("control_pause_blue.png"));
 					
 		// Stop
 		existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1]/text(), 'Termini automatic')]/td[9]/a/img", "El campo stop inicial de '"+nom+"' no era correcto");
@@ -286,7 +286,7 @@ public class TasquesFlux extends BaseTest {
 		// Comprobamos que haya una nueva alerta
 		Thread.sleep(waitTime);
 		driver.findElement(By.xpath("//*[@id='page-entorn-title']/h2/a")).click();
-		
+		Thread.sleep(waitTime);
 		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='content']//select"));
 		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
 		for (WebElement option : options) {

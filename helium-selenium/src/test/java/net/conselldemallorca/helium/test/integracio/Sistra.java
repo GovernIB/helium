@@ -1,14 +1,26 @@
 package net.conselldemallorca.helium.test.integracio;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.net.URL;
+
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.test.util.BaseTest;
 import net.conselldemallorca.helium.ws.backoffice.BantelV3BackofficeServiceLocator;
+import net.conselldemallorca.helium.ws.backoffice.BantelV3BackofficeServiceSoapBindingStub;
+import net.conselldemallorca.helium.ws.backoffice.plugin.TramitacioPluginSistraSelenium;
+import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub;
+import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaServiceLocator;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
 
+import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
+import services.v2.ws.bantel.caib.es.BantelFacadeProxy;
 import ReferenciaEntrada.model.v2.ws.bantel.caib.es.ReferenciaEntrada;
 
 
@@ -31,6 +43,9 @@ public class Sistra extends BaseTest {
 	String codTipusExp	= carregarPropietat("tipexp.integracio.sistra.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	
 	String pathExport	= carregarPropietatPath("tipexp.integracio.sistra.deploy.arxiu.path", "Ruta de l´arxiu del tipus d´expedient exportat no configurat al fitxer de properties");
+	
+	String urlWSBantel	= carregarPropietatPath("tipexp.integracio.sistra.url.bantel", "Ruta del WS a la Safata Telematica no configurat al fitxer de properties");
+	
 	String nomDefProc	= "Cons1";
 	
 	// XPATHS
@@ -72,6 +87,28 @@ public class Sistra extends BaseTest {
 	String tdDadaMapejada		= "//*[@id='codi']/tbody/tr/td[contains(text(), 'Etiqueta modificada')]";
 	String tdValorDadaMapejada	= "//*[@id='codi']/tbody/tr/td[contains(text(), '7122')]";
 
+	private es.caib.bantel.ws.v2.services.BantelFacade getBantelClient() {
+		
+		String userName = "";
+		String password = "";
+		String authType = "NONE";
+		boolean getTimeS = true;
+		boolean logCalls = false;
+		boolean disableCnCheck = true;		
+		
+		Object wsClientProxy = WsClientUtils.getWsClientProxy(
+				es.caib.bantel.ws.v2.services.BantelFacade.class,
+				urlWSBantel,
+				userName,
+				password,
+				authType,
+				getTimeS,
+				logCalls,
+				disableCnCheck);
+		
+		return (es.caib.bantel.ws.v2.services.BantelFacade)wsClientProxy;
+	}
+	
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -105,18 +142,35 @@ public class Sistra extends BaseTest {
 		 * http://localhost:8080/helium/ws/NotificacioEntradaV3?wsdl
 		 */
 		
-		BantelV3BackofficeServiceLocator banTelSL = null;
+		//String urlEndPoint = properties.getProperty("app.custodia.plugin.caib.url");
+		//CustodiaServiceLocator service = new CustodiaServiceLocator(); 
+		//clienteCustodia = (CustodiaDocumentosSoapBindingStub) service.getCustodiaDocumentos(new URL(urlEndPoint));
+		//clienteCustodia.setTimeout(100000);
+		
+		/*BantelV3BackofficeServiceLocator banTelSL = null;
 		
 		ReferenciaEntrada[] refEnt = new ReferenciaEntrada[1];
 		ReferenciaEntrada re = new ReferenciaEntrada("1", "clave");
-		refEnt[0] = re;
+		refEnt[0] = re;*/
 		
 		try {
-			banTelSL = new BantelV3BackofficeServiceLocator();
-			banTelSL.getBantelV3BackofficePort().avisoEntradas(refEnt);
+			//banTelSL = new BantelV3BackofficeServiceLocator();
+			//banTelSL.setBantelV3BackofficePortEndpointAddress(urlWSBantel);
+			//banTelSL.getBantelV3BackofficePort().avisoEntradas(refEnt);
+
+			es.caib.bantel.ws.v2.services.BantelFacade bof = this.getBantelClient();
+			ReferenciasEntrada re = new ReferenciasEntrada();
+			
+			es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada ref_ent = new es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada();
+			ref_ent.setNumeroEntrada("1");
+			ref_ent.setClaveAcceso("clave");
+			
+			re.getReferenciaEntrada().add(ref_ent);
+			
+			bof.avisoEntradas(re);
+			
 		}catch (Exception ex) {
-			System.out.println(" # # Ha fallado la llamada a  BantelV3.avisoEntradas() # #  ");
-			ex.printStackTrace();
+			fail("Ha fallado la llamada a  BantelV3.avisoEntradas(): motivo: " + ex.getMessage());
 		}
 		
 		carregarUrlDisseny();

@@ -97,8 +97,12 @@ public class ConsultaExpedients extends BaseTest {
 			}
 		}
 		
+		Thread.sleep(3000);
+		
 		List<WebElement> options = driver.findElement(By.id("expedientTipus0")).findElements(By.tagName("option"));
 		options.get(options.size()-1).click();
+		
+		Thread.sleep(3000);
 		
 		List<WebElement> options2 = driver.findElement(By.id("estat0")).findElements(By.tagName("option"));
 		options2.get(options2.size()-1).click();

@@ -22,7 +22,7 @@ public class IniciFormulariImpl implements net.conselldemallorca.helium.core.ext
 		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
 		resposta.setWidth(640);
 		resposta.setHeight(480);
-		resposta.setUrl("http://localhost:8080/helium/enumeracio/form.html");
+		resposta.setUrl("https://proves.caib.es/helium/enumeracio/form.html");
 		resposta.setFormulariId(taskId);
 		System.out.println(">>> Enviant cap a la URL: " + resposta.getUrl());
 		return resposta;

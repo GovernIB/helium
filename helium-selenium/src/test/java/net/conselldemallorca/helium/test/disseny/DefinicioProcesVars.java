@@ -53,6 +53,12 @@ public class DefinicioProcesVars extends BaseTest {
 	}
 	
 	@Test
+	public void a2_inicialitzacio() {
+		carregarUrlDisseny();
+		marcarEntornDefecte(titolEntorn);
+	}
+	
+	@Test
 	public void b_crearVarString() {
 		carregarUrlDisseny();
 		seleccionarDefinicioProces(nomDefProc);

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLHandshakeException;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.xpath.operations.NotEquals;
@@ -130,7 +132,8 @@ public abstract class BaseTest {
 //				plugin.state.java = 0 --> never activate
 //				plugin.state.java = 1 --> ask to activate
 //				plugin.state.java = 2 --> always activate
-			driver = new FirefoxDriver( fp );
+			
+			driver = new FirefoxDriver(  fp );
 			driverConfig("FF");
 		}
 
@@ -188,6 +191,7 @@ public abstract class BaseTest {
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
 		}
+		try { Thread.sleep(3000); } catch (InterruptedException e) {}
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 	protected void carregarUrlDisseny() {
@@ -197,13 +201,13 @@ public abstract class BaseTest {
 		
 		seycon = "true".equals(properties.getProperty("test.base.url.inicio.seycon"));
 		if (seycon) {
-			String user = properties.getProperty("test.base.usuari.configuracio");
-			String pass = properties.getProperty("test.base.usuari.configuracio.pass");
+			String user = properties.getProperty("test.base.usuari.disseny");
+			String pass = properties.getProperty("test.base.usuari.disseny.pass");
 			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
 		}
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
+		//existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 	protected void carregarUrlFeina() {
 		baseUrl = properties.getProperty("test.base.url.feina");
@@ -212,13 +216,13 @@ public abstract class BaseTest {
 		
 		seycon = "true".equals(properties.getProperty("test.base.url.inicio.seycon"));
 		if (seycon) {
-			String user = properties.getProperty("test.base.usuari.configuracio");
-			String pass = properties.getProperty("test.base.usuari.configuracio.pass");
+			String user = properties.getProperty("test.base.usuari.feina");
+			String pass = properties.getProperty("test.base.usuari.feina.pass");
 			driver.findElement(By.xpath("//*[@id='j_username']")).sendKeys(user);
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
 		}
-		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
+		//existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 
 	// Funcions d'ajuda
@@ -388,6 +392,9 @@ public abstract class BaseTest {
 	// ............................................................................................................		
 	protected void crearEntorn(String entorn, String titolEntorn) {
 		// Crear entorn
+		
+		esperaPerElementVisible("//*[@id='menuConfiguracio']", 10);
+		
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/entorn/llistat.html')]")));
@@ -405,6 +412,16 @@ public abstract class BaseTest {
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut crear l'entorn");
 		}
 		//marcarEntornDefecte(titolEntorn);
+	}
+	
+	protected void esperaPerElementVisible(String xpath, int timeoutSegons) {
+		try {
+			int temps_esperat = 0;
+			while (!existeixElement(xpath) && temps_esperat<timeoutSegons) {
+				Thread.sleep(2000);
+				temps_esperat = temps_esperat + 2;
+			}
+		}catch (Exception ex) {}
 	}
 	
 	protected void assignarPermisosEntorn(String entorn, String usuari, String... permisos) {
@@ -457,6 +474,9 @@ public abstract class BaseTest {
 	}
 	
 	protected void seleccionarEntorn(String titolEntorn) {
+		
+		esperaPerElementVisible("//*[@id='menuEntorn']", 10);
+		
 		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//li[@id='menuEntorn']/ul[@class='llista-entorns']/li[contains(., '" + titolEntorn + "')]/a")));
@@ -1315,6 +1335,8 @@ public abstract class BaseTest {
 	
 	protected byte[] downloadFile(String xpath, String fitxer) {
 		
+		//System.setProperty ("jsse.enableSNIExtension", "false");
+		
 		FileDownloader downloader = new FileDownloader(driver);
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
@@ -1325,11 +1347,16 @@ public abstract class BaseTest {
 		
 		try {
 			downloadedFile = downloader.downloadFile(driver.findElement(By.xpath(xpath)));
+		} catch (SSLHandshakeException certEx) {
+			certEx.printStackTrace();
+			fail("No s'ha pogut descarregar el fitxer " + fitxer + ". Error de certificat.");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("No s'ha pogut descarregar el fitxer " + fitxer);
 		}
+		
 		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
+		
 		return downloadedFile;
 	}
 	
@@ -1348,7 +1375,9 @@ public abstract class BaseTest {
 			e.printStackTrace();
 			fail("No s'ha pogut descarregar el fitxer " + fitxer);
 		}
+		
 		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
+		
 		return downloadedFile;
 	}
 	
@@ -1388,6 +1417,8 @@ public abstract class BaseTest {
 	 */
 	protected byte[] postDownloadFile(String formXpath, String[] parametres, String[] valors, String replaceURL, String toThisURL) {
 		
+		//System.setProperty("jsse.enableSNIExtension", "false");
+		
 		FileDownloader downloader = new FileDownloader(driver);
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 		boolean isPresent = driver.findElements(By.xpath(formXpath)).size() > 0;
@@ -1418,12 +1449,16 @@ public abstract class BaseTest {
 		
 		byte[] downloadedFile = null;
 		try {
-			downloadedFile = downloader.postDownloaderWithRedirects(formAction, params);
+			//downloadedFile = downloader.postDownloaderWithRedirects(formAction, params);
+			downloadedFile = downloader.postDownloadFile(formAction, params);
 		} catch (Exception e) {
-			fail("No s'ha pogut descarregar el formulari");
+			e.printStackTrace();
+			fail("No s'ha pogut descarregar l'arxiu. Error: " + e.getMessage());
 		}
+		
+		//System.out.println(downloader.getHTTPStatusOfLastDownloadAttempt());
 	
-		assertFalse( (downloader.getHTTPStatusOfLastDownloadAttempt()==404 ||  downloader.getHTTPStatusOfLastDownloadAttempt()==500) );
+		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
 		
 		return downloadedFile;
 	}
@@ -2216,11 +2251,11 @@ public abstract class BaseTest {
 			if (fila.getAttribute("class").contains("ui-icon-triangle-1-e"))
 				fila.click();			
 			if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//label")) {
-				if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//img[contains(@src,'/img/mass_fin.png')]")) {
+				if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')][1]//img[contains(@src,'/img/mass_error.png')]")) {
+					estado = 2;					
+				} else if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')][1]//img[contains(@src,'/img/mass_fin.png')]")) {
 					estado = 1;
-				} else if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//img[contains(@src,'/img/mass_error.png')]")) {
-					estado = 2;
-				} else if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')]//img[contains(@src,'/img/mass_pend.png')]")) {
+				} else if (existeixElement("//tbody/tr[contains(td/text(),'"+expedient+"')][1]//img[contains(@src,'/img/mass_pend.png')]")) {
 					estado = 0;
 				}
 				break;
