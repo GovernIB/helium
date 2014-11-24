@@ -101,6 +101,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
@@ -809,6 +810,8 @@ public class DissenyService {
 		sequenciaAnyDao.clearSequencies();
 		return et;
 	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void deleteExpedientTipus(Long id) {
 		ExpedientTipus vell = getExpedientTipusById(id);
 		if (vell != null) {
@@ -824,7 +827,7 @@ public class DissenyService {
 			for (Estat estat : findEstatAmbExpedientTipus(id)) {
 				estatDao.delete(estat);
 			}
-			for (Consulta consulte : findConsultesAmbEntornAmbOSenseTipusExp(vell.getEntorn().getId(), id)) {
+			for (Consulta consulte : consultaDao.findAmbEntornIExpedientTipus(vell.getEntorn().getId(), id)) {
 				consultaDao.delete(consulte);
 			}
 			expedientTipusDao.delete(id);
@@ -1452,6 +1455,8 @@ public class DissenyService {
 		dto.setDefinicionsProces(definicionsProces);
 		return dto;
 	}
+	
+	@CacheEvict(value = "consultaCache", key="{#entornId,#expedientTipusId}")
 	public void importarExpedientTipus(
 			Long entornId,
 			Long expedientTipusId,
@@ -1693,6 +1698,8 @@ public class DissenyService {
 				exportacio,
 				definicioProces);
 	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void goUpConsulta(Long expedientTipusId, Long consultaId) {
 		
 		Consulta valor = consultaDao.getById(consultaId, false);
@@ -1710,6 +1717,8 @@ public class DissenyService {
 			valor.setOrdre(ordreActual - 1);
 		}
 	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void goDownConsulta(Long expedientTipusId, Long consultaId) {
 		
 		Consulta valor = consultaDao.getById(consultaId, false);
@@ -1971,23 +1980,24 @@ public class DissenyService {
 	public Consulta getConsultaById(Long id) {
 		return consultaDao.getById(id, false);
 	}
+	
+	@CacheEvict(value = "consultaCache", key="{#entity.entorn.id,#entity.expedientTipus.id}")
 	public Consulta createConsulta(Consulta entity) {
 		entity.setOrdre(consultaDao.getNextOrder(entity.getExpedientTipus().getId()));
 		return consultaDao.saveOrUpdate(entity);
 	}
+	
+	@CacheEvict(value = "consultaCache", key="{#entity.entorn.id,#entity.expedientTipus.id}")
 	public Consulta updateConsulta(Consulta entity, boolean delete) {
-//		Consulta vella = consultaDao.getById(entity.getId(), false);
-//		if (vella != null && !delete) {
-//			if (entity.getInformeContingut() == null || entity.getInformeContingut().length == 0) {
-//				entity.setInformeNom(vella.getInformeNom());
-//				entity.setInformeContingut(vella.getInformeContingut());
-//			}
-//		}
 		return consultaDao.merge(entity);
 	}
+	
+	@CacheEvict(value = "consultaCache", key="{#entity.entorn.id,#entity.expedientTipus.id}")
 	public Consulta updateConsulta(Consulta entity) {
 		return consultaDao.merge(entity);
 	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void deleteConsulta(Long id) {
 		Consulta vell = getConsultaById(id);
 		Long expedientTipusId = vell.getExpedientTipus().getId();
@@ -1996,13 +2006,16 @@ public class DissenyService {
 			consultaDao.delete(id);
 			reordenarConsultes(entornId, expedientTipusId); 
 		}
-	}
+	}	
+
 	public List<Consulta> findConsultesAmbEntorn(Long entornId) {
 		return consultaDao.findAmbEntorn(entornId);
 	}
+	
 	public List<Consulta> findConsultesAmbEntornAmbOSenseTipusExp(Long entornId, Long expedientTipusId) {
 		return consultaDao.findAmbEntornAmbOSenseTipusExp(entornId, expedientTipusId);
 	}
+	
 	public List<Consulta> findConsultesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) {
 		return consultaDao.findAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
 	}
@@ -3118,8 +3131,6 @@ public class DissenyService {
 		campDao.merge(camp);
 	}
 
-
-
 	private void filtrarCampsConsultaFiltre(
 			Long consultaId,
 			List<Camp> camps) {
@@ -3139,6 +3150,7 @@ public class DissenyService {
 			}
 		}
 	}
+	
 	private ServiceUtils getServiceUtils() {
 		if (serviceUtils == null) {
 			serviceUtils = new ServiceUtils(
@@ -3856,6 +3868,7 @@ public class DissenyService {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void goToCampConsLlistat(Long id, int NouOrd) {
 		Consulta consulta = getConsultaById(id);
 		Long idEntorn  = consulta.getEntorn().getId(); 
@@ -3917,13 +3930,6 @@ public class DissenyService {
 		consultaDao.saveOrUpdate(consulta);
 		consultaDao.merge(consulta);
 	}
-	
-	
-	
-	
-	
-	
-	
 	 
 	public void goToCampProces(Long id, int NouOrd) {
 		CampTasca campTasca = getCampTascaById(id);

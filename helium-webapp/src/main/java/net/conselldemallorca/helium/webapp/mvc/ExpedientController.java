@@ -437,7 +437,7 @@ public class ExpedientController extends BaseController {
 				for (TascaDto tasca: tasques){
 					tasquesId.add(tasca.getId());
 				}
-				model.addAttribute("expedientLogIds", expedientService.findLogIdTasquesById(tasquesId));
+				model.addAttribute("expedientLogIds", tasquesId.isEmpty() ? null : expedientService.findLogIdTasquesById(tasquesId));
 				model.addAttribute(
 						"tasques",
 						tasques);

@@ -44,7 +44,11 @@ public class DocumentArxiuController extends BaseController {
 		if (entorn != null) {
 			ArxiuDto arxiu = null;
 			if (token != null)
-				arxiu = documentService.arxiuDocumentPerMostrar(token);
+				try {
+					arxiu = documentService.arxiuDocumentPerMostrar(token);
+				} catch (Exception e) {
+					return e.getCause().getLocalizedMessage();
+				}
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
@@ -65,10 +69,14 @@ public class DocumentArxiuController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			boolean estampar = (noe != null) ? !noe.booleanValue() : true;
-			ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
-			if (arxiu != null) {
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
-				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			try {
+				ArxiuDto arxiu = documentService.arxiuDocumentPerSignar(token, estampar);
+				if (arxiu != null) {
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+				}
+			} catch (Exception e) {
+				return e.getCause().getLocalizedMessage();
 			}
 	        return "arxiuView";
 		} else {

@@ -217,7 +217,7 @@ public class DocumentHelper {
 
 	public boolean signarDocumentTascaAmbToken(
 			String token,
-			byte[] signatura) {
+			byte[] signatura) throws Exception {
 		String taskInstanceId = getTaskInstanceIdPerToken(token);
 		Long documentStoreId = getDocumentStoreIdPerToken(token);
 		DocumentDto dto = toDocumentDto(
@@ -290,49 +290,56 @@ public class DocumentHelper {
 			boolean perSignarEnTasca,
 			boolean ambInfoPsigna) {
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null) {
-			DocumentDto dto = toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					false,
-					false,
-					false);
-			if (perSignarEnTasca) {
-				try {
-					dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
-							new String[] {
-									taskInstanceId,
-									documentStoreId.toString()}));
-				} catch (Exception ex) {
-					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+		if (documentStoreId != null) {			
+			try {
+				DocumentDto dto = toDocumentDto(
+						documentStoreId,
+						false,
+						false,
+						false,
+						false,
+						false);
+				if (perSignarEnTasca) {
+					try {
+						dto.setTokenSignaturaMultiple(getDocumentTokenUtils().xifrarTokenMultiple(
+								new String[] {
+										taskInstanceId,
+										documentStoreId.toString()}));
+					} catch (Exception ex) {
+						logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+					}
+					if (dto.isSignat()) {
+						Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskInstanceId, DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi());
+						dto.setSignatEnTasca(signatEnTasca != null);
+					} else {
+						dto.setSignatEnTasca(false);
+					}
 				}
-				if (dto.isSignat()) {
-					Object signatEnTasca = jbpmDao.getTaskInstanceVariable(taskInstanceId, DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi());
-					dto.setSignatEnTasca(signatEnTasca != null);
-				} else {
-					dto.setSignatEnTasca(false);
-				}
+				return dto;
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			return dto;
-		} else {
-			return null;
-		}
+		} 
+		return null;
 	}
 	public DocumentDto getDocumentSenseContingut(
 			Long documentStoreId) {
 		if (documentStoreId != null) {
-			DocumentDto dto = toDocumentDto(
-					documentStoreId,
-					false,
-					false,
-					false,
-					false,
-					false);
-			return dto;
-		} else {
-			return null;
-		}
+			DocumentDto dto;
+			try {
+				dto = toDocumentDto(
+						documentStoreId,
+						false,
+						false,
+						false,
+						false,
+						false);
+				return dto;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}			
+		} 
+		return null;
 	}
 	public DocumentDto getDocumentOriginal(
 			String taskInstanceId,
@@ -354,16 +361,19 @@ public class DocumentHelper {
 			Long documentStoreId,
 			boolean ambContingut) {
 		if (documentStoreId != null) {
-			return toDocumentDto(
-					documentStoreId,
-					ambContingut,
-					false,
-					false,
-					false,
-					false);
-		} else {
-			return null;
-		}
+			try {
+				return toDocumentDto(
+						documentStoreId,
+						ambContingut,
+						false,
+						false,
+						false,
+						false);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} 
+		return null;
 	}
 
 	public DocumentDto getDocumentVista(
@@ -371,7 +381,7 @@ public class DocumentHelper {
 			String processInstanceId,
 			String documentCodi,
 			boolean perSignar,
-			boolean ambSegellSignatura) {
+			boolean ambSegellSignatura) throws Exception {
 		return getDocumentVista(
 				getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi),
 				perSignar,
@@ -380,7 +390,7 @@ public class DocumentHelper {
 	public DocumentDto getDocumentVistaPerToken(
 			String token,
 			boolean perSignar,
-			boolean ambSegellSignatura) {
+			boolean ambSegellSignatura) throws Exception {
 		return getDocumentVista(
 				getDocumentStoreIdPerToken(token),
 				perSignar,
@@ -389,7 +399,7 @@ public class DocumentHelper {
 	public DocumentDto getDocumentVista(
 			Long documentStoreId,
 			boolean perSignar,
-			boolean ambSegellSignatura) {
+			boolean ambSegellSignatura) throws Exception {
 		if (documentStoreId != null) {
 			return toDocumentDto(
 					documentStoreId,
@@ -507,7 +517,7 @@ public class DocumentHelper {
 			boolean ambContingutSignat,
 			boolean ambContingutVista,
 			boolean perSignar,
-			boolean ambSegellSignatura) {
+			boolean ambSegellSignatura) throws Exception {
 		if (documentStoreId != null) {
 			DocumentStore document = documentStoreDao.getById(documentStoreId, false);
 			if (document != null) {
@@ -611,21 +621,26 @@ public class DocumentHelper {
 							if (document.getRegistreData() != null)
 								dataRegistre = df.format(document.getRegistreData());
 							String numeroRegistre = document.getRegistreNumero();
-							getPdfUtils().estampar(
-									arxiuOrigenNom,
-									arxiuOrigenContingut,
-									(ambSegellSignatura) ? !document.isSignat() : false,
-									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-									document.isRegistrat(),
-									numeroRegistre,
-									dataRegistre,
-									document.getRegistreOficinaNom(),
-									document.isRegistreEntrada(),
-									vistaContingut,
-									extensioDesti);
+							try {
+								getPdfUtils().estampar(
+										arxiuOrigenNom,
+										arxiuOrigenContingut,
+										(ambSegellSignatura) ? !document.isSignat() : false,
+										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+										document.isRegistrat(),
+										numeroRegistre,
+										dataRegistre,
+										document.getRegistreOficinaNom(),
+										document.isRegistreEntrada(),
+										vistaContingut,
+										extensioDesti);
+							} catch (Exception ex) {
+								throw new Exception(ex);
+							}
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+							throw new Exception("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
 						}
 					} else {
 						// Si no és un pdf retornam la vista directament

@@ -1902,7 +1902,7 @@ public class ExpedientService {
 		return output.get(outputVar);
 	}
 
-	public List<RespostaValidacioSignatura> verificarSignatura(Long id) {
+	public List<RespostaValidacioSignatura> verificarSignatura(Long id) throws Exception {
 		DocumentStore documentStore = documentStoreDao.getById(id, false);
 		DocumentDto document = documentHelper.getDocumentOriginal(id, true);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {

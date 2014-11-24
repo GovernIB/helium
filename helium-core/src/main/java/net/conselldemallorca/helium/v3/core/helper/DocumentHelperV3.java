@@ -138,18 +138,22 @@ public class DocumentHelperV3 {
 				String urlComprovacioSignatura = null;
 				if (ambSegellSignatura)
 					urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
-				getPdfUtils().estampar(
-						arxiuNomOriginal,
-						arxiuOrigenContingut,
-						(ambSegellSignatura) ? !documentStore.isSignat() : false,
-						urlComprovacioSignatura,
-						documentStore.isRegistrat(),
-						numeroRegistre,
-						dataRegistre,
-						documentStore.getRegistreOficinaNom(),
-						documentStore.isRegistreEntrada(),
-						vistaContingut,
-						extensioDesti);
+				try {
+					getPdfUtils().estampar(
+							arxiuNomOriginal,
+							arxiuOrigenContingut,
+							(ambSegellSignatura) ? !documentStore.isSignat() : false,
+							urlComprovacioSignatura,
+							documentStore.isRegistrat(),
+							numeroRegistre,
+							dataRegistre,
+							documentStore.getRegistreOficinaNom(),
+							documentStore.isRegistreEntrada(),
+							vistaContingut,
+							extensioDesti);
+				} catch (Exception ex) {
+					throw new Exception(ex);
+				}
 				resposta.setContingut(vistaContingut.toByteArray());
 			} catch (Exception ex) {
 				throw new DocumentDescarregarException("No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", ex);
@@ -567,18 +571,22 @@ public class DocumentHelperV3 {
 							if (document.getRegistreData() != null)
 								dataRegistre = df.format(document.getRegistreData());
 							String numeroRegistre = document.getRegistreNumero();
-							getPdfUtils().estampar(
-									arxiuOrigenNom,
-									arxiuOrigenContingut,
-									(ambSegellSignatura) ? !document.isSignat() : false,
-									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-									document.isRegistrat(),
-									numeroRegistre,
-									dataRegistre,
-									document.getRegistreOficinaNom(),
-									document.isRegistreEntrada(),
-									vistaContingut,
-									extensioDesti);
+							try {
+								getPdfUtils().estampar(
+										arxiuOrigenNom,
+										arxiuOrigenContingut,
+										(ambSegellSignatura) ? !document.isSignat() : false,
+										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+										document.isRegistrat(),
+										numeroRegistre,
+										dataRegistre,
+										document.getRegistreOficinaNom(),
+										document.isRegistreEntrada(),
+										vistaContingut,
+										extensioDesti);
+							} catch (Exception ex) {
+								throw new Exception(ex);
+							}
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);

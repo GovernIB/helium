@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
@@ -14,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.activation.MimetypesFileTypeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
 import com.artofsolving.jodconverter.DocumentConverter;
@@ -32,8 +36,6 @@ public class OpenOfficeUtils {
 
 	private DocumentFormatRegistry documentFormatRegistry;
 
-
-
 	public void convertir(
 			String arxiuNom,
 			byte[] arxiuContingut,
@@ -50,7 +52,8 @@ public class OpenOfficeUtils {
 			InputStream arxiuContingut,
 			String extensioSortida,
 			OutputStream sortida) throws Exception {
-		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);
+		logger.info("OpenOfficeUtils > convertir > INI > arxiuNom=" + arxiuNom + ", size=" + arxiuContingut.available() + " bytes");
+		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);			
 		DocumentFormat outputFormat = getDocumentFormatRegistry().getFormatByFileExtension(extensioSortida);
 		if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
 			convert(
@@ -68,6 +71,7 @@ public class OpenOfficeUtils {
 			arxiuContingut.close();
 			sortida.close();
 		}
+		logger.info("OpenOfficeUtils > convertir > FIN > arxiuNom=" + arxiuNom + ", extensioSortida=" + extensioSortida + ", size=" + ((ByteArrayOutputStream) sortida).size() + " bytes");
 	}
 	public String nomArxiuConvertit(
 			String arxiuNom,
@@ -157,5 +161,5 @@ public class OpenOfficeUtils {
 		else
 			return Integer.parseInt(timeout);
 	}
-
+	private static final Logger logger = LoggerFactory.getLogger(OpenOfficeUtils.class);
 }

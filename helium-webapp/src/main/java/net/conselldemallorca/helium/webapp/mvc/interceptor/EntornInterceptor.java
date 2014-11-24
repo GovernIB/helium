@@ -25,6 +25,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
@@ -36,7 +38,6 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 
 	public static final String VARIABLE_REQUEST_CANVI_ENTORN = "entornCanviarAmbId";
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
-//	public static final String VARIABLE_REQUEST_ALERTES_ACTIVES = "hiHaAlertesActives";
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
 	@Resource
@@ -116,7 +117,8 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
 						new Boolean(tipus.size() > 0));
 				// Indica si hi ha alertes no llegides
-				int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuariAutenticat(entornActual.getId(), false);
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
 				request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
 				
 				// Refresca el tipus d'expedient actual

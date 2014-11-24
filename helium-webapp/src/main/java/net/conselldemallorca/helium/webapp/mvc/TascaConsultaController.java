@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -55,8 +56,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Controlador per a mostrar els llistats de tasques pendents

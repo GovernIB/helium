@@ -1003,9 +1003,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public ArxiuDto getArxiuPerMostrar(Long documentStoreId) {
 		imprimirFuncio("getArxiuPerMostrar");
 		logger.debug("Obtenint arxiu del document (documentStoreId=" + documentStoreId + ")");
-		return conversioTipusHelper.convertir(
-				documentService.arxiuDocumentPerMostrar(documentStoreId),
-				ArxiuDto.class);
+		try {
+			return conversioTipusHelper.convertir(
+					documentService.arxiuDocumentPerMostrar(documentStoreId),
+					ArxiuDto.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override

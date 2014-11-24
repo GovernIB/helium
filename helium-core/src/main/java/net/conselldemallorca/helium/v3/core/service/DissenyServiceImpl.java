@@ -61,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -338,6 +339,7 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	@Transactional(readOnly=true)
 	@Override
+	@Cacheable(value="consultaCache", key="{#entornId, #expedientTipusId}")
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			Long entornId,
 			Long expedientTipusId) throws EntornNotFoundException {

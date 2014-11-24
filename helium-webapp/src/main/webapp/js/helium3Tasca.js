@@ -331,7 +331,7 @@ $(function(){
 });
 
 function cleanAction(action) {
-	if (!action.endsWith("/form")) {
+	if (typeof action !== 'undefined' && !action.endsWith("/form")) {
 		var pos = action.lastIndexOf("/form")
 		if (pos != -1)
 			return action.substring(0, action.lastIndexOf("/form") + 5);

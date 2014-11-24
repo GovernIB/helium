@@ -67,7 +67,7 @@
 				</c:if>
 				<c:if test="${alertes > 0}">
 					<br/>
-					<p style="padding-left: 18px">($alertes) <a href="<c:url value="/alerta/llistat.html"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>"><fmt:message key='index.hi_ha_alert' /></a></p>
+					<p style="padding-left: 18px">(${alertes}) <a href="<c:url value="/alerta/llistat.html"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>"><fmt:message key='index.hi_ha_alert' /></a></p>
 				</c:if>
 			</div>
 		</c:forEach>

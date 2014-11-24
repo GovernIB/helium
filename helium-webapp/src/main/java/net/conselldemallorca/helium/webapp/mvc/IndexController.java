@@ -21,6 +21,8 @@ import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,11 +62,12 @@ public class IndexController extends BaseController {
 			HttpServletRequest request,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (entorn != null) {
 			adminService.mesuraIniciar("Index", "general");
 			model.addAttribute("countPersonaLlistat", tascaService.findCountTasquesPersonalsIndex(entorn.getId()));
 			model.addAttribute("countGrupLlistat", tascaService.findCountTasquesGrupIndex(entorn.getId()));
-			model.addAttribute("alertesCountLlistat", alertaService.countActivesAmbEntornIUsuariAutenticat(entorn.getId()));
+			model.addAttribute("alertesCountLlistat", alertaService.countActivesAmbEntornIUsuari(entorn.getId(), auth.getName(), AlertaService.ALERTAS_TODAS));
 			adminService.mesuraCalcular("Index", "general");
 		} else {
 			adminService.mesuraIniciar("Index sense entorn actiu", "general");
@@ -81,7 +84,7 @@ public class IndexController extends BaseController {
 			for (Entorn ent: entornsActius) {
 				tasquesPersonaEntorn.put(ent, tascaService.findTasquesPersonalsIndex(ent.getId()));
 				tasquesGrupEntorn.put(ent, tascaService.findTasquesGrupIndex(ent.getId()));
-				alertesEntorn.put(ent, alertaService.countActivesAmbEntornIUsuariAutenticat(ent.getId()));
+				alertesEntorn.put(ent, alertaService.countActivesAmbEntornIUsuari(ent.getId(), auth.getName(), AlertaService.ALERTAS_TODAS));
 			}
 			model.addAttribute("entornsActius", entornsActius);
 			model.addAttribute("tasquesPersonaEntorn", tasquesPersonaEntorn);

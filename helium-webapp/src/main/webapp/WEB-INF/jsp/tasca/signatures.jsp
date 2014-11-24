@@ -138,23 +138,30 @@ function signarCaib(token, form, contentType) {
 		if (cert == null || cert.length == 0) {
 			alert("<fmt:message key="tasca.signa.alert.nosel"/>");
 		} else {
-			try {
-				var signaturaB64 = signaturaApplet.signaturaPdf(
-						"${sourceUrl}?token=" + token,
-						cert,
-						form.passwd.value,
-						contentType);
-				if (signaturaB64 == null) {
-					alert("<fmt:message key="tasca.signa.alert.error"/>");
-				} else {
-					for (var i = 0; i < signaturaB64.length; i++) {
-						$("#command").append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
-					}
-					form.submit();
+			// Comprobar fichero
+			$.get("${sourceUrl}?token=" + token)
+			.done(function(data) {
+				try {
+	 				var signaturaB64 = signaturaApplet.signaturaPdf(
+	 						"${sourceUrl}?token=" + token,
+	 						cert,
+	 						form.passwd.value,
+	 						contentType);
+	 				if (signaturaB64 == null) {
+	 					alert("<fmt:message key="tasca.signa.alert.error"/>");
+	 				} else {
+	 					for (var i = 0; i < signaturaB64.length; i++) {
+	 						$("#command").append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+	 					}
+	 					form.submit();
+	 				}
+				} catch (e) {
+					alert(e);
 				}
-			} catch (e) {
-				alert(e);
-			}
+			})
+			.fail(function(xhr, status, error) {
+				alert("<fmt:message key="tasca.signa.alert.no.document"/>: " + xhr.responseText);
+			});
 		}
 	}
 }

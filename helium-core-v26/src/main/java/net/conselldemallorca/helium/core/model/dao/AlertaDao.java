@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.service.AlertaService;
 
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
@@ -21,17 +22,6 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 
 	public AlertaDao() {
 		super(Alerta.class);
-	}
-
-	public int countActivesAmbEntornIUsuari(Long entornId, String usuariCodi) {
-		Criteria crit = getSession().createCriteria(
-				getPersistentClass());
-		crit.createAlias("expedient", "exp");
-		crit.add(Restrictions.eq("entorn.id", entornId));
-		crit.add(Restrictions.eq("destinatari", usuariCodi));
-		crit.add(Restrictions.isNull("dataEliminacio"));
-		crit.add(Restrictions.isNull("exp.dataFi"));
-		return getCountByCriteria(crit);
 	}
 
 	public List<Alerta> findActivesAmbEntornIUsuari(Long entornId, String usuariCodi) {
@@ -65,18 +55,18 @@ public class AlertaDao extends HibernateGenericDao<Alerta, Long> {
 				Restrictions.isNull("dataEliminacio"));
 	}
 
-	public int countActivesAmbEntornIUsuari(Long entornId, String usuariCodi, boolean llegides) {
+	public int countActivesAmbEntornIUsuari(Long entornId, String usuariCodi, int llegides) {
 		Criteria crit = getSession().createCriteria(
 				getPersistentClass());
 		crit.createAlias("expedient", "exp");
 		crit.add(Restrictions.eq("entorn.id", entornId));
 		crit.add(Restrictions.eq("destinatari", usuariCodi));
-		if (llegides)
+		if (llegides == AlertaService.ALERTAS_LLEGIDES)
 			crit.add(Restrictions.isNotNull("dataLectura"));
-		else
+		else if (llegides == AlertaService.ALERTAS_NO_LLEGIDES)
 			crit.add(Restrictions.isNull("dataLectura"));
 		crit.add(Restrictions.isNull("dataEliminacio"));
 		crit.add(Restrictions.isNull("exp.dataFi"));
 		return getCountByCriteria(crit);
-	}
+	}	
 }

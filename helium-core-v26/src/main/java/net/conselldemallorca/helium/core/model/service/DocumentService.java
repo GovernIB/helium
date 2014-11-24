@@ -374,7 +374,7 @@ public class DocumentService {
 		return dto;
 	}
 
-	public ArxiuDto arxiuDocumentPerMostrar(String token) {
+	public ArxiuDto arxiuDocumentPerMostrar(String token) throws Exception {
 		DocumentDto document = getDocumentInfo(token);
 		if (document == null)
 			return null;
@@ -384,7 +384,7 @@ public class DocumentService {
 			return getArxiuDocumentOriginal(token);
 		}
 	}
-	public ArxiuDto arxiuDocumentPerMostrar(Long documentStoreId) {
+	public ArxiuDto arxiuDocumentPerMostrar(Long documentStoreId) throws Exception {
 		DocumentDto document = getDocumentInfo(documentStoreId);
 		if (document == null)
 			return null;
@@ -395,7 +395,7 @@ public class DocumentService {
 		}
 	}
 
-	public ArxiuDto arxiuDocumentPerSignar(String token, boolean ambSegellSignatura) {
+	public ArxiuDto arxiuDocumentPerSignar(String token, boolean ambSegellSignatura) throws Exception {
 		DocumentDto dto = documentHelper.getDocumentVistaPerToken(token, true, ambSegellSignatura);
 		if (dto != null)
 			return new ArxiuDto(
@@ -407,7 +407,7 @@ public class DocumentService {
 
 	public boolean signarDocumentTascaAmbToken(
 			String token,
-			byte[] signatura) {
+			byte[] signatura) throws Exception {
 		boolean signat = documentHelper.signarDocumentTascaAmbToken(token, signatura);
 		if (signat) {
 			DocumentDto dto = documentHelper.getDocumentOriginalPerToken(token, false);
@@ -662,7 +662,7 @@ public class DocumentService {
 				dto.getArxiuNom(),
 				dto.getArxiuContingut());
 	}
-	private ArxiuDto getArxiuDocumentVista(String token) {
+	private ArxiuDto getArxiuDocumentVista(String token) throws Exception {
 		DocumentDto dto = documentHelper.getDocumentVistaPerToken(token, false, false);
 		if (dto == null)
 			return null;
@@ -670,7 +670,7 @@ public class DocumentService {
 				dto.getVistaNom(),
 				dto.getVistaContingut());
 	}
-	private ArxiuDto getArxiuDocumentVista(Long documentStoreId) {
+	private ArxiuDto getArxiuDocumentVista(Long documentStoreId) throws Exception {
 		DocumentDto dto = documentHelper.getDocumentVista(documentStoreId, false, false);
 		if (dto == null)
 			return null;

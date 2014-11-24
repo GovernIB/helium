@@ -148,6 +148,12 @@
 				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
 					<property name="name" value="dominiCache"/>
 				</bean>
+				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="alertaCache"/>
+				</bean>
+				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="consultaCache"/>
+				</bean>
 			</set>
 		</property>
 	</bean>
