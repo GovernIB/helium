@@ -1,11 +1,14 @@
 package net.conselldemallorca.helium.test.tramitacio;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.conselldemallorca.helium.test.util.BaseTest;
@@ -27,6 +30,8 @@ public class TerminisExpedient extends BaseTest {
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
+	private static String fecha = "";
+	
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -35,10 +40,34 @@ public class TerminisExpedient extends BaseTest {
 		seleccionarEntorn(titolEntorn);
 		crearTipusExpedient(nomTipusExp, codTipusExp);
 		assignarPermisosTipusExpedient(codTipusExp, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
+		
+		/**
+		 * Salto de dias no laborables hacia atras
+		 */
+		Calendar calendar = Calendar.getInstance();
+		//calendar.add(Calendar.DATE, -1);
+		/*
+		//Controlamos que si cae en sabado, se pase a viernes
+		if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
+			calendar.add(Calendar.DATE, -1);
+		//Controlamos que si cae en domingo, se pase a viernes
+		}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
+			calendar.add(Calendar.DATE, -2);
+		}
+		
+		fecha = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+		*/
+		try {
+			this.fecha = getFechaDiasLaborables(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()), -1);
+		}catch (Exception ex) {
+			fail("Error al restar dias no laborables: " + ex.getMessage());
+		}
+		System.out.println("this.fecha: " + this.fecha);
 	}
 	
 	@Test
 	public void a_crear_dades() throws InterruptedException {
+		System.out.println("this.fecha: " + this.fecha);
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -52,6 +81,7 @@ public class TerminisExpedient extends BaseTest {
 	
 	@Test
 	public void b_visualizar_terminis() throws InterruptedException {
+		System.out.println("this.fecha: " + this.fecha);
 		carregarUrlConfiguracio(); 
 		
 		seleccionarEntorn(titolEntorn);
@@ -195,7 +225,7 @@ public class TerminisExpedient extends BaseTest {
 				assertTrue("La duración de '"+nom+"' no coincidía con lo esperado", "".equals(durada));
 				assertTrue("El campo 'iniciat' de '"+nom+"' no era correcto", hoy.equals(iniciat));
 			} else if ("Termini 2".equals(nom)) {				
-				// Hace 3 meses
+				// Hace 3 meses (no tiene en cuenta festivos intermedios o que caiga en festivo)
 				assertTrue("La duración de '"+nom+"' no coincidía con lo esperado", "3 mesos".equals(durada));
 				Calendar calendar = Calendar.getInstance();
 				calendar.add(Calendar.MONTH, -3);
@@ -203,18 +233,8 @@ public class TerminisExpedient extends BaseTest {
 				String fecha = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 				assertTrue("El campo 'iniciat' de '"+nom+"' no era correcto", fecha.equals(iniciat));
 			} else if ("Termini 3".equals(nom)) {
-				// Hace 2 días				
+				// Hace 2 días (laborales)
 				assertTrue("La duración de '"+nom+"' no coincidía con lo esperado", "2 dies naturals".equals(durada));
-				Calendar calendar = Calendar.getInstance();
-				calendar.add(Calendar.DATE, -1);
-				//Controlamos que si cae en sabado, se pase a viernes
-				if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
-					calendar.add(Calendar.DATE, -1);
-				//Controlamos que si cae en domingo, se pase a viernes
-				}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
-					calendar.add(Calendar.DATE, -2);
-				}
-				String fecha = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 				assertTrue("El campo 'iniciat' de '"+nom+"' no era correcto", fecha.equals(iniciat));
 			}
 			
@@ -397,5 +417,39 @@ public class TerminisExpedient extends BaseTest {
 		eliminarEntorn(entorn);
 		
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/finalizar_expedient/1.png");	
+	}
+	
+	private String getFechaDiasLaborables(String sFecha, int numDias) throws ParseException {
+		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
+		actions.build().perform();
+		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuConfiguracio']/ul/li[contains(a/text(), 'Festius')]/a")));
+		actions.click();
+		actions.build().perform();
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new SimpleDateFormat("dd/MM/yyyy").parse(sFecha));
+		String fechaTerminiNoLab = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+		int numLab = 0;
+		while (numLab >= numDias) {
+			fechaTerminiNoLab = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+			
+			WebElement select = driver.findElement(By.xpath("//*[@id='content']/h3/form/select"));
+			List<WebElement> options = select.findElements(By.tagName("option"));
+			for (WebElement option : options) {
+				if (option.getText().equals(String.valueOf(calendar.get(Calendar.YEAR)))) {
+					option.click();
+					break;
+				}
+			}
+			
+			if (existeixElement("//*[@id='dia_"+fechaTerminiNoLab+"']")) {
+				String clase = driver.findElement(By.xpath("//*[@id='dia_"+fechaTerminiNoLab+"']")).getAttribute("class");
+				if (!"dia nolab".equals(clase) && !"dia festiu".equals(clase)) {
+					numLab--;
+				}
+			}
+			calendar.add(Calendar.DATE, -1);
+		}
+		return fechaTerminiNoLab;
 	}
 }

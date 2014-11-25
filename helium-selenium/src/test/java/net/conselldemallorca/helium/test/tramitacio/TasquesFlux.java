@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.test.tramitacio;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,37 @@ public class TasquesFlux extends BaseTest {
 	String codTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.codi", "Codi del tipus d'expedient de proves no configurat al fitxer de properties");
 	long waitTime = 1000*15;
 	
+	String fechaTermini = "";
+	String fechafinTermini = "";
+	
+	private void calcularDadesTermini() {
+		
+		try {
+		
+		//Calcular dades Terminis		
+		Calendar calendar = Calendar.getInstance();
+		calendar.add(Calendar.DATE, -4);
+		fechaTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+		calendar.add(Calendar.DATE, 24);
+		
+		//Controlamos que si cae en sabado, se sumen dos dias mas
+		if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
+			calendar.add(Calendar.DATE, 2);
+		//Controlamos que si cae en domingo, se sume un dia mas
+		}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
+			calendar.add(Calendar.DATE, 1);
+		}
+
+		// Comprobamos los 25 días laborables a partir de una fecha
+		//fechafinTermini = getFechaDiasLaborables(fechaTermini, 25);
+		
+		fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
+		
+		}catch (Exception ex) {
+			fail("Error al calcular les dades de terminis: " + ex.getMessage());
+		}		
+	}
+	
 	@Test
 	public void a0_inicialitzacio() {
 		carregarUrlConfiguracio();
@@ -42,6 +74,7 @@ public class TasquesFlux extends BaseTest {
 	
 	@Test
 	public void a_crear_dades() throws InterruptedException {
+			
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -53,6 +86,9 @@ public class TasquesFlux extends BaseTest {
 
 	@Test
 	public void b_comprobar_flux_tasca() throws InterruptedException, ParseException {
+	
+		calcularDadesTermini();
+		
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -62,7 +98,7 @@ public class TasquesFlux extends BaseTest {
 		eliminarExpedient(null, null, nomTipusExp);
 		
 		existeixElementAssert("//li[@id='menuDisseny']", "No te permisos sobre disseny entorn");
-			
+		
 		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
 		actions.build().perform();
 		actions.moveToElement(driver.findElement(By.xpath("//*[@id='menuDisseny']//a[contains(@href,'/definicioProces/llistat.html')]")));
@@ -119,21 +155,6 @@ public class TasquesFlux extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]//button[contains(text(), 'Agafar')]")).click();
 		
 		screenshotHelper.saveScreenshot("ExpedientPestanyaTasques/tramitar_delegar_tasca/3.png");
-						
-		// Comprobamos que al finalizar cambie el título de la tarea según el nombre que le introducimos en "exp_nom"
-		Calendar calendar = Calendar.getInstance();
-		calendar.add(Calendar.DATE, -4);
-		String fechaTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
-		calendar.add(Calendar.DATE, 24);
-		//Controlamos que si cae en sabado, se sumen dos dias mas
-		if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
-			calendar.add(Calendar.DATE, 2);
-		//Controlamos que si cae en domingo, se sume un dia mas
-		}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
-			calendar.add(Calendar.DATE, 1);
-		}
-		
-		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
 			driver.findElement(By.xpath("//*[@id='correcte0']")).click();
