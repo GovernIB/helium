@@ -125,6 +125,14 @@ public class TasquesFlux extends BaseTest {
 		calendar.add(Calendar.DATE, -4);
 		String fechaTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		calendar.add(Calendar.DATE, 24);
+		//Controlamos que si cae en sabado, se sumen dos dias mas
+		if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
+			calendar.add(Calendar.DATE, 2);
+		//Controlamos que si cae en domingo, se sume un dia mas
+		}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
+			calendar.add(Calendar.DATE, 1);
+		}
+		
 		String fechafinTermini = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 		
 		if (driver.findElement(By.xpath("//*[@id='correcte0']")).isSelected()) {
@@ -308,6 +316,7 @@ public class TasquesFlux extends BaseTest {
 		driver.findElement(By.xpath("//*[@id='script0']")).sendKeys("executionContext.getProcessInstance().signal();");
 		driver.findElement(By.xpath("//button[contains(text(), 'Executar')]")).click();
 		acceptarAlerta();
+		Thread.sleep(3000);
 		existeixElementAssert("//*[@id='infos']/p", "No se ejecutó el script correctamente");
 		
 		// Comprobamos que se haya cambiado el estado a "Siguiente"

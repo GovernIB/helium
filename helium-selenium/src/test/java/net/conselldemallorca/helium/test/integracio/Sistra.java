@@ -2,26 +2,20 @@ package net.conselldemallorca.helium.test.integracio;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.net.URL;
-
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.test.integracio.utils.WsClientUtils;
 import net.conselldemallorca.helium.test.util.BaseTest;
-import net.conselldemallorca.helium.ws.backoffice.BantelV3BackofficeServiceLocator;
-import net.conselldemallorca.helium.ws.backoffice.BantelV3BackofficeServiceSoapBindingStub;
-import net.conselldemallorca.helium.ws.backoffice.plugin.TramitacioPluginSistraSelenium;
-import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub;
-import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaServiceLocator;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
 
+import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada;
 import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
-import services.v2.ws.bantel.caib.es.BantelFacadeProxy;
-import ReferenciaEntrada.model.v2.ws.bantel.caib.es.ReferenciaEntrada;
+import es.caib.bantel.ws.v2.services.BantelFacade;
+//import net.conselldemallorca.helium.wsintegraciones.backoffice.BantelV2Backoffice;
+//import ReferenciaEntrada.model.v2.ws.bantel.caib.es.ReferenciaEntrada;
+//import services.v2.ws.bantel.caib.es.BantelFacade;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -32,6 +26,8 @@ public class Sistra extends BaseTest {
 	/**
 	*   A C T I V A R   A   T R U E   L A   P R O P I E D A D:   app.selenium.ws.integracion del archivo helium.properties del modulo helium-webapp
 	*/
+	
+	private BantelFacade bof = null;
 	
 	String entorn		= carregarPropietat("tipexp.integracio.sistra.entorn.nom", "Nom de l'entorn de proves no configurat al fitxer de properties");
 	String titolEntorn	= carregarPropietat("tipexp.integracio.sistra.entorn.titol", "Titol de l'entorn de proves no configurat al fitxer de properties");
@@ -86,27 +82,10 @@ public class Sistra extends BaseTest {
 	String linkDades			= "//*[@id='tabnav']/li/a[contains(@href, '/expedient/dades.html')]";
 	String tdDadaMapejada		= "//*[@id='codi']/tbody/tr/td[contains(text(), 'Etiqueta modificada')]";
 	String tdValorDadaMapejada	= "//*[@id='codi']/tbody/tr/td[contains(text(), '7122')]";
-
-	private es.caib.bantel.ws.v2.services.BantelFacade getBantelClient() {
-		
-		String userName = "";
-		String password = "";
-		String authType = "NONE";
-		boolean getTimeS = true;
-		boolean logCalls = false;
-		boolean disableCnCheck = true;		
-		
-		Object wsClientProxy = WsClientUtils.getWsClientProxy(
-				es.caib.bantel.ws.v2.services.BantelFacade.class,
-				urlWSBantel, null,	null, "NONE", false, true, true);
-				/*userName,
-				password,
-				authType,
-				getTimeS,
-				logCalls,
-				disableCnCheck);*/
-		
-		return (es.caib.bantel.ws.v2.services.BantelFacade)wsClientProxy;
+	
+	private void getBantelClient() {
+		this.bof = (BantelFacade) WsClientUtils.getWsClientProxy(BantelFacade.class, urlWSBantel, null,	null, "NONE", false, true, false);
+		//this.bbo = (BantelV2Backoffice)net.conselldemallorca.helium.test.integracio.utils.WsClientUtils.getWsClientProxy(BantelV2Backoffice.class, urlWSBantel, null,	null, "NONE", false, true, true);
 	}
 	
 	@Test
@@ -147,6 +126,9 @@ public class Sistra extends BaseTest {
 		//clienteCustodia = (CustodiaDocumentosSoapBindingStub) service.getCustodiaDocumentos(new URL(urlEndPoint));
 		//clienteCustodia.setTimeout(100000);
 		
+		//InstallCertificate ic = new InstallCertificate();
+		//ic.install("proves.caib.es:443", null);
+		
 		/*BantelV3BackofficeServiceLocator banTelSL = null;
 		
 		ReferenciaEntrada[] refEnt = new ReferenciaEntrada[1];
@@ -154,11 +136,14 @@ public class Sistra extends BaseTest {
 		refEnt[0] = re;*/
 		
 		try {
+
 			//banTelSL = new BantelV3BackofficeServiceLocator();
 			//banTelSL.setBantelV3BackofficePortEndpointAddress(urlWSBantel);
 			//banTelSL.getBantelV3BackofficePort().avisoEntradas(refEnt);
 
-			es.caib.bantel.ws.v2.services.BantelFacade bof = this.getBantelClient();
+			/** ************************************ **/
+			
+			/*getBantelClient();
 			ReferenciasEntrada re = new ReferenciasEntrada();
 			
 			es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada ref_ent = new es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada();
@@ -167,8 +152,32 @@ public class Sistra extends BaseTest {
 			
 			re.getReferenciaEntrada().add(ref_ent);
 			
+			bof.avisoEntradas(re);*/
+
+			/** ************************************ **/
+			
+			getBantelClient();
+			ReferenciasEntrada re = new ReferenciasEntrada();
+			
+			ReferenciaEntrada ref_ent = new ReferenciaEntrada();
+			ref_ent.setNumeroEntrada("1");
+			ref_ent.setClaveAcceso("clave");
+			
+			re.getReferenciaEntrada().add(ref_ent);
+			
 			bof.avisoEntradas(re);
 			
+			/** ************************************ **/
+			
+			/*BantelV3BackofficeServiceLocator banTelSL = null;
+			
+			ReferenciaEntrada[] refEnt = new ReferenciaEntrada[1];
+			ReferenciaEntrada re = new ReferenciaEntrada("1", "clave");
+			refEnt[0] = re;
+			
+			banTelSL = new BantelV3BackofficeServiceLocator();
+			banTelSL.getBantelV3BackofficePort().avisoEntradas(refEnt);*/			
+		
 		}catch (Exception ex) {
 			ex.printStackTrace();
 			fail("Ha fallado la llamada a  BantelV3.avisoEntradas(): motivo: " + ex.getMessage());

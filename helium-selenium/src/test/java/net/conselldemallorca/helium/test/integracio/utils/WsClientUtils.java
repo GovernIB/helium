@@ -3,8 +3,13 @@
  */
 package net.conselldemallorca.helium.test.integracio.utils;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import net.conselldemallorca.helium.core.util.ws.ClientPasswordCallback;
 
@@ -29,6 +34,48 @@ import org.apache.ws.security.handler.WSHandlerConstants;
  */
 public class WsClientUtils {
 
+	public static Object getWsClientProxyHTTPS(
+			Class<?> clientClass,
+			String wsUrl,
+			String wsUserName,
+			String wsPassword,
+			String authType,
+			boolean generateTimestamp,
+			boolean logCalls,
+			boolean disableCnCheck) {
+		
+		ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+		factory.setAddress(wsUrl);
+		factory.setServiceClass(clientClass);
+		Object c = factory.create();
+		
+		Client clientProxy = ClientProxy.getClient(c);
+
+		HTTPConduit conduit = (HTTPConduit) clientProxy.getConduit();
+		String targetAddr = conduit.getTarget().getAddress().getValue();
+		
+		TrustManager[] simpleTrustManager = new TrustManager[] { new X509TrustManager() {
+			
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+			
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+			
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+		}};
+
+		TLSClientParameters tlsParams = new TLSClientParameters();
+		tlsParams.setTrustManagers(simpleTrustManager);
+		tlsParams.setDisableCNCheck(true);
+		conduit.setTlsClientParameters(tlsParams);
+		
+		return c;
+	}
+	
 	public static Object getWsClientProxy(
 			Class<?> clientClass,
 			String wsUrl,
@@ -38,6 +85,7 @@ public class WsClientUtils {
 			boolean generateTimestamp,
 			boolean logCalls,
 			boolean disableCnCheck) {
+
 		ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 		factory.setAddress(wsUrl);
 		factory.setServiceClass(clientClass);
@@ -70,16 +118,40 @@ public class WsClientUtils {
 		
 		Client client = ClientProxy.getClient(c);
         HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
+        
         HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
         // Envi­o chunked
 		httpClientPolicy.setAllowChunking(true);
         httpConduit.setClient(httpClientPolicy);
+
+        TLSClientParameters tlsParams = new TLSClientParameters();
         
 		if (disableCnCheck) {
-	        TLSClientParameters tlsParams = new TLSClientParameters();
 	        tlsParams.setDisableCNCheck(true);
-	        httpConduit.setTlsClientParameters(tlsParams);
 		}
+		
+		if (wsUrl.startsWith("https")) {
+			
+			TrustManager[] simpleTrustManager = new TrustManager[] { new X509TrustManager() {
+				
+				@Override
+				public X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+				
+				@Override
+				public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+				
+				@Override
+				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+			}};
+			
+			tlsParams.setTrustManagers(simpleTrustManager);
+			tlsParams.setDisableCNCheck(true);
+		}
+		
+		httpConduit.setTlsClientParameters(tlsParams);
+		
 		return c;
 	}
 }

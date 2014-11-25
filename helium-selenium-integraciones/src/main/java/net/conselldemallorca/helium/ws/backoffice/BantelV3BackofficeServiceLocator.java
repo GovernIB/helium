@@ -22,7 +22,7 @@ public class BantelV3BackofficeServiceLocator extends org.apache.axis.client.Ser
     }
 
     // Use to get a proxy class for BantelV3BackofficePort
-    private java.lang.String BantelV3BackofficePort_address = "http://localhost:8080/helium/ws/NotificacioEntradaV3";
+    private java.lang.String BantelV3BackofficePort_address = "https://proves.caib.es/helium/ws/NotificacioEntradaV3";
 
     public java.lang.String getBantelV3BackofficePortAddress() {
         return BantelV3BackofficePort_address;

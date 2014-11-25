@@ -223,7 +223,7 @@ public class FormularisExterns extends BaseTest {
 		try {
 			List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
 			valors.add(new ParellaCodiValor("import", new BigDecimal("100")));
-			GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.core.util.ws.WsClientUtils.getWsClientProxy(GuardarFormulari.class, urlFormExt2, null,	null, "NONE", false, true, true);
+			GuardarFormulari gf = (GuardarFormulari)net.conselldemallorca.helium.test.integracio.utils.WsClientUtils.getWsClientProxy(GuardarFormulari.class, urlFormExt2, null,	null, "NONE", false, true, false);
 			gf.guardar(codTasca, valors);
 		}catch (Exception ex) {
 			ex.printStackTrace();

@@ -12,7 +12,7 @@ import org.junit.runners.Suite;
 	ConsultaExpedientSuite.class,
 	InformesSuite.class,
 	ExecucioMassivaSuite.class,
-	IntegracioSuite.class,
 	TramitacioSuite.class,
+	IntegracioSuite.class
 })
 public class TestSuite {}

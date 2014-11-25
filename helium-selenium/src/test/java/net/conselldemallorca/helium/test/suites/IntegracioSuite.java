@@ -14,11 +14,11 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	Custodia.class,
-	Portasignatures.class,
 	Registre.class,
-	Signature.class,
 	Tramitacion.class,
 	FormularisExterns.class,
-	Sistra.class
+	Sistra.class,
+	Portasignatures.class,
+	Signature.class
 })
 public class IntegracioSuite {}

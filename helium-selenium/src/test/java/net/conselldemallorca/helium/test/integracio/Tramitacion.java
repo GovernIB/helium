@@ -94,11 +94,15 @@ public class Tramitacion extends BaseTest {
 			
 			// Cogemos la tarea de grupo
 			List<TascaTramitacio> listaTareasGrupo = getClientTramitacio().consultaTasquesGrup(entorn, usuari);
+			boolean agafar = false;
 			if (listaTareasGrupo != null) {
 				for (TascaTramitacio tasca : listaTareasGrupo) {
 					getClientTramitacio().agafarTasca(entorn, usuari, tasca.getId());
+					agafar = true;
 				}
 			}
+			
+			assertTrue("No se agafó la tarea" , agafar);
 			
 			TascaTramitacio tascaTramitacio = null;
 			listaTareasPersonales = getClientTramitacio().consultaTasquesPersonals(entorn, usuari);
@@ -204,7 +208,7 @@ public class Tramitacion extends BaseTest {
 				"NONE",
 				false,
 				true,
-				true);
+				false);
 		}
 		return clientTramitacio;
 	}

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaResponseCaib;
+import net.conselldemallorca.helium.test.integracio.utils.WsClientUtils;
 import net.conselldemallorca.helium.test.util.BaseTest;
 import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub;
 import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaServiceLocator;
@@ -26,11 +27,13 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import es.caib.bantel.ws.v2.services.BantelFacade;
 import es.caib.signatura.cliente.custodia.CustodiaRequestBuilder;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class Custodia extends BaseTest {
-	private CustodiaDocumentosSoapBindingStub clienteCustodia;
+	
+	private net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia clienteCustodia;
 	
 	private Map<String, String> cacheHash = new HashMap<String, String>();
 
@@ -45,7 +48,7 @@ public class Custodia extends BaseTest {
 		try {
 			String token = cacheHash.get("1");
 			if (token == null) {
-				byte[] resposta = getClienteCustodia().reservarDocumento_v2("1", "2", "3");
+				byte[] resposta = getClienteCustodia().reservarDocumentoV2("1", "2", "3");
 				token = new String(resposta);
 				cacheHash.put("1", token);
 			}
@@ -66,7 +69,7 @@ public class Custodia extends BaseTest {
 		byte[] xmlRequest = custodiaRequestBuilder.buildXML(new ByteArrayInputStream(IOUtils.toByteArray(new FileInputStream(filename))), "original.pdf",
 				"3500",
 				"HELIUM_COMINF_DOCAPRO1");
-		byte[] xmlResponse = getClienteCustodia().custodiarDocumento_v2(xmlRequest);
+		byte[] xmlResponse = getClienteCustodia().custodiarDocumentoV2(xmlRequest);
 		
 		CustodiaResponseCaib resposta = parseResponse(xmlResponse);
 		if (resposta.isError())
@@ -76,7 +79,7 @@ public class Custodia extends BaseTest {
 	
 	@Test
 	public void c_consultarDocumento() throws Exception {
-		byte[] xmlResponse = getClienteCustodia().consultarDocumento_v2("a", "b", "c");
+		byte[] xmlResponse = getClienteCustodia().consultarDocumentoV2("a", "b", "c");
 		
 		CustodiaResponseCaib resposta = parseResponse(xmlResponse);
 		if (resposta.isError())
@@ -124,13 +127,15 @@ public class Custodia extends BaseTest {
 				resultMajor.contains("ERROR"));
 	}
 
-	private CustodiaDocumentosSoapBindingStub getClienteCustodia() {
+	private net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia getClienteCustodia() {
 		if (clienteCustodia == null) {
 			try {
-				String urlEndPoint = properties.getProperty("app.custodia.plugin.caib.url");
+				/*String urlEndPoint = properties.getProperty("app.custodia.plugin.caib.url");
 				CustodiaServiceLocator service = new CustodiaServiceLocator(); 
-				clienteCustodia = (CustodiaDocumentosSoapBindingStub) service.getCustodiaDocumentos(new URL(urlEndPoint));
-				clienteCustodia.setTimeout(100000);
+				clienteCustodia = (net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia) service.getCustodiaDocumentos(new URL(urlEndPoint));
+				clienteCustodia.setTimeout(100000);*/
+				String urlEndPoint = properties.getProperty("app.custodia.plugin.caib.url");
+				return (net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia)WsClientUtils.getWsClientProxy(net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia.class, urlEndPoint, null,	null, "NONE", false, true, false);
 			} catch (Exception e) {
 				return null;
 			} 

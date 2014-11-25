@@ -191,7 +191,7 @@ public abstract class BaseTest {
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
 		}
-		try { Thread.sleep(3000); } catch (InterruptedException e) {}
+		esperaPerElementVisible("//li[@id='menuConfiguracio']", 60);
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 	protected void carregarUrlDisseny() {
@@ -393,7 +393,7 @@ public abstract class BaseTest {
 	protected void crearEntorn(String entorn, String titolEntorn) {
 		// Crear entorn
 		
-		esperaPerElementVisible("//*[@id='menuConfiguracio']", 10);
+		esperaPerElementVisible("//*[@id='menuConfiguracio']", 60);
 		
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
@@ -475,7 +475,7 @@ public abstract class BaseTest {
 	
 	protected void seleccionarEntorn(String titolEntorn) {
 		
-		esperaPerElementVisible("//*[@id='menuEntorn']", 10);
+		esperaPerElementVisible("//*[@id='menuEntorn']", 60);
 		
 		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
 		actions.build().perform();

@@ -207,6 +207,13 @@ public class TerminisExpedient extends BaseTest {
 				assertTrue("La duración de '"+nom+"' no coincidía con lo esperado", "2 dies naturals".equals(durada));
 				Calendar calendar = Calendar.getInstance();
 				calendar.add(Calendar.DATE, -1);
+				//Controlamos que si cae en sabado, se pase a viernes
+				if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
+					calendar.add(Calendar.DATE, -1);
+				//Controlamos que si cae en domingo, se pase a viernes
+				}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
+					calendar.add(Calendar.DATE, -2);
+				}
 				String fecha = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
 				assertTrue("El campo 'iniciat' de '"+nom+"' no era correcto", fecha.equals(iniciat));
 			}
