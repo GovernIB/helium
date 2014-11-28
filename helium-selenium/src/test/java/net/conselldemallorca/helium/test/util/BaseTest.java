@@ -16,6 +16,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +25,6 @@ import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.xpath.operations.NotEquals;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,6 +45,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.thoughtworks.selenium.Selenium;
 
+@SuppressWarnings("deprecation")
 @Ignore("Classe base per a la execució dels tests amb Selenium")
 public abstract class BaseTest {
 
@@ -57,6 +57,7 @@ public abstract class BaseTest {
 	protected static boolean seycon;
 	protected static ScreenshotHelper screenshotHelper;
 	protected static Actions actions;
+	private static final int TIMEOUT_PRESENT = 20*1000;
 	
 	protected static enum TipusVar {
 		STRING			("STRING"),
@@ -191,7 +192,6 @@ public abstract class BaseTest {
 			driver.findElement(By.xpath("//*[@id='j_password']")).sendKeys(pass);
 			driver.findElement(By.xpath("//*[@id='usuariclau']/form/p[3]/input")).click();
 		}
-		esperaPerElementVisible("//li[@id='menuConfiguracio']", 60);
 		existeixElementAssert("//li[@id='menuConfiguracio']", "No te permisos de configuració a Helium");
 	}
 	protected void carregarUrlDisseny() {
@@ -267,9 +267,24 @@ public abstract class BaseTest {
 	}
 	
 	protected boolean comprovaElement(String xpath, String screenShot, long waitTime, String msgNotFound, boolean existeix, boolean continuarTest) {
-		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+//		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+//		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
+//		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		
+		boolean isPresent = false;
+		try {
+			long temps_esperat = new Date().getTime();
+			while (!isPresent && (new Date().getTime()-temps_esperat) < TIMEOUT_PRESENT) {				
+				if (driver.findElements(By.xpath(xpath)).size() > 0) {
+					isPresent = true;
+				} else {
+					Thread.sleep(1000);
+				}
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		
 		if (screenShot != null)
 			if (waitTime > 0L)
 				try {
@@ -393,7 +408,7 @@ public abstract class BaseTest {
 	protected void crearEntorn(String entorn, String titolEntorn) {
 		// Crear entorn
 		
-		esperaPerElementVisible("//*[@id='menuConfiguracio']", 60);
+		existeixElement("//*[@id='menuConfiguracio']");
 		
 		actions.moveToElement(driver.findElement(By.id("menuConfiguracio")));
 		actions.build().perform();
@@ -412,16 +427,6 @@ public abstract class BaseTest {
 			existeixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'" + entorn + "')]", "No s'ha pogut crear l'entorn");
 		}
 		//marcarEntornDefecte(titolEntorn);
-	}
-	
-	protected void esperaPerElementVisible(String xpath, int timeoutSegons) {
-		try {
-			int temps_esperat = 0;
-			while (!existeixElement(xpath) && temps_esperat<timeoutSegons) {
-				Thread.sleep(2000);
-				temps_esperat = temps_esperat + 2;
-			}
-		}catch (Exception ex) {}
 	}
 	
 	protected void assignarPermisosEntorn(String entorn, String usuari, String... permisos) {
@@ -475,7 +480,7 @@ public abstract class BaseTest {
 	
 	protected void seleccionarEntorn(String titolEntorn) {
 		
-		esperaPerElementVisible("//*[@id='menuEntorn']", 60);
+		existeixElement("//*[@id='menuEntorn']");
 		
 		actions.moveToElement(driver.findElement(By.id("menuEntorn")));
 		actions.build().perform();

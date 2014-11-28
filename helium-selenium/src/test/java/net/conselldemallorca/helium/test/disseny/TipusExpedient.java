@@ -5,14 +5,13 @@ import static org.junit.Assert.fail;
 import java.util.Calendar;
 import java.util.List;
 
+import net.conselldemallorca.helium.test.util.BaseTest;
+
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-
-import net.conselldemallorca.helium.test.util.BaseTest;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TipusExpedient extends BaseTest {

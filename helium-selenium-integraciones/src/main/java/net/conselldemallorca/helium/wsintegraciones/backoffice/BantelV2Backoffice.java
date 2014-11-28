@@ -8,6 +8,8 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTipus;
+import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
 import net.conselldemallorca.helium.ws.backoffice.plugin.PluginService;
 
 import org.apache.commons.logging.Log;
@@ -25,24 +27,23 @@ import es.caib.bantel.ws.v2.services.BantelFacadeException;
  */
 @WebService(endpointInterface = "es.caib.bantel.ws.v2.services.BantelFacade")
 public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
-	
+
 	public void avisoEntradas(ReferenciasEntrada numeroEntradas) throws BantelFacadeException {
-		
+
 		List<ReferenciaEntrada> entrades = numeroEntradas.getReferenciaEntrada();
-	
-		for (ReferenciaEntrada referenciaEntrada: entrades) {
-			
+
+		for (ReferenciaEntrada referenciaEntrada : entrades) {
+
 			ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
 			request.setNumero(referenciaEntrada.getNumeroEntrada());
 			request.setClau(referenciaEntrada.getClaveAcceso());
 			boolean error = false;
-			
-			try {
+			PluginService ps = new PluginService();
 
-				PluginService ps = new PluginService();
+			try {
 				DadesTramit dadesTramit = ps.obtenirDadesTramitSelenium(request);
-				//DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramitSelenium(request);
-				
+				// DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramitSelenium(request);
+
 				logger.info("Petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador() + " --> " + dadesTramit);
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
@@ -50,8 +51,8 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 				logger.error("Error a l'hora de processar el tramit " + request, ex);
 				error = true;
 			}
-			
-			/*try {
+
+			try {
 				ResultatProcesTramitRequest requestResultat = new ResultatProcesTramitRequest();
 				requestResultat.setNumeroEntrada(referenciaEntrada.getNumeroEntrada());
 				requestResultat.setClauAcces(referenciaEntrada.getClaveAcceso());
@@ -62,21 +63,17 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 				logger.info("Comunicant el resultat de processar el tràmit " + request + ": " + requestResultat.getResultatProces());
 				ps.comunicarResultatProcesTramitSelenium(requestResultat);
 			} catch (Exception ex) {
+				error = true;
 				logger.error("Error a l'hora de comunicar el resultat de processar el tramit " + request, ex);
-			}*/
-			
+			}
 		}
 	}
-	
+
 	public void establecerResultadoProceso(ReferenciaEntrada arg0, String arg1, String arg2) {
 		System.out.println(" El resultado del proceso de creación del tramite ha ido bien y así lo ha recibido el WS de la Bandeja Telematica.");
 	}
 
-	protected DadesVistaDocument getVistaDocumentTramit(
-			long referenciaCodi,
-			String referenciaClau,
-			String plantillaTipus,
-			String idioma) {
+	protected DadesVistaDocument getVistaDocumentTramit(long referenciaCodi, String referenciaClau, String plantillaTipus, String idioma) {
 		ObtenirVistaDocumentRequest request = new ObtenirVistaDocumentRequest();
 		request.setReferenciaCodi(referenciaCodi);
 		request.setReferenciaClau(referenciaClau);
@@ -84,7 +81,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 		request.setIdioma(idioma);
 		try {
 			PluginService ps = new PluginService();
-			//return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
+			// return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 			return ps.obtenirVistaDocument(request);
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el document del tramit " + request, ex);

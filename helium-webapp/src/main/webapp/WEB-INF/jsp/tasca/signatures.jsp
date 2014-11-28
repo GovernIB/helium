@@ -150,10 +150,14 @@ function signarCaib(token, form, contentType) {
 	 				if (signaturaB64 == null) {
 	 					alert("<fmt:message key="tasca.signa.alert.error"/>");
 	 				} else {
-	 					for (var i = 0; i < signaturaB64.length; i++) {
-	 						$("#command").append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+	 					if (signaturaB64.length > 0) {
+		 					for (var i = 0; i < signaturaB64.length; i++) {
+		 						$("#command").append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+		 					}
+		 					form.submit();
+	 					} else {
+	 						alert("<fmt:message key="tasca.signa.alert.no.document.signar"/>: ${sourceUrl}?token=" + token);
 	 					}
-	 					form.submit();
 	 				}
 				} catch (e) {
 					alert(e);
