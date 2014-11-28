@@ -66,6 +66,9 @@ public class LuceneHelper extends LuceneIndexSupport {
 	private static final String VALOR_CAMP_BUIT = "H3l1um#camp.buit";
 	protected static final String VALOR_DOMINI_SUFIX = "@text@";
 	
+	private static final String MIN_VALUE = "0000";
+	private static final String MAX_VALUE = "99999999999999999999999999999999999999999999999";
+	
 	protected LuceneSearchTemplate searchTemplate;
 	
 	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
@@ -78,16 +81,17 @@ public class LuceneHelper extends LuceneIndexSupport {
 	// que no sortiran als resultats de les consultes per tipus.
 	protected static final boolean PEGAT_ENTORN_ACTIU = true;
 
-	/*public synchronized void createExpedientAsync(
+	public synchronized void createExpedientAsync(
 			final Expedient expedient,
 			final Map<String, DefinicioProces> definicionsProces,
 			final Map<String, Set<Camp>> camps,
 			final Map<String, Map<String, Object>> valors,
 			final Map<String, Map<String, String>> textDominis,
-			final boolean finalitzat) {
+			final boolean finalitzat,
+			final boolean comprovarIniciant) {
 		Thread thread = new Thread() {
 			public void run() {
-				createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
+				createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat, comprovarIniciant);
 			}
 		};
 		thread.start();
@@ -123,7 +127,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 			}
 		};
 		thread.start();
-	}*/
+	}
 
 	public synchronized void createExpedient(
 			Expedient expedient,
@@ -385,6 +389,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 							calFinal.set(Calendar.SECOND, 99);
 							// System.out.println(">>> TermRangeQuery " + codiCamp + ": " + dataPerIndexar(valorInicial) + ", " + dataPerIndexar(calFinal.getTime()));
 							return new TermRangeQuery(codiCamp, dataPerIndexar(valorInicial), dataPerIndexar(calFinal.getTime()), true, true);
+						} else if (valorInicial != null) {
+							return new TermRangeQuery(codiCamp, dataPerIndexar(valorInicial), MAX_VALUE, true, true);
+						} else if (valorFinal != null) {
+							Calendar calFinal = Calendar.getInstance();
+							calFinal.setTime(valorFinal);
+							calFinal.set(Calendar.HOUR, 23);
+							calFinal.set(Calendar.MINUTE, 59);
+							calFinal.set(Calendar.SECOND, 99);
+							return new TermRangeQuery(codiCamp, MIN_VALUE, dataPerIndexar(calFinal.getTime()), true, true);
 						}
 					}
 				} else {
@@ -404,6 +417,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 								if (valorInicial != null && valorFinal != null) {
 									// System.out.println(">>> TermRangeQuery " + codiCamp + ": " + valorIndexPerCamp(camp, valorInicial) + ", " + valorIndexPerCamp(camp, valorFinal));
 									return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), valorIndexPerCamp(camp, valorFinal), true, true);
+								} else if (valorInicial != null) {
+									return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), MAX_VALUE, true, true);
+								} else if (valorFinal != null) {
+									return new TermRangeQuery(codiCamp, MIN_VALUE, valorIndexPerCamp(camp, valorFinal), true, true);
 								}
 							} else if (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 								String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();

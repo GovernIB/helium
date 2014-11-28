@@ -178,7 +178,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			PaginacioParamsDto paginacioParams) {
+			PaginacioParamsDto paginacioParams) throws Exception {
 		return delegate.findAmbFiltrePaginat(
 				entornId,
 				expedientTipusId,

@@ -242,6 +242,7 @@ public interface ExpedientService {
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat d'expedients.
+	 * @throws Exception 
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
@@ -266,7 +267,7 @@ public interface ExpedientService {
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			PaginacioParamsDto paginacioParams);
+			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
 	 * Consulta només ids d'expedient per entorn.

@@ -21,7 +21,6 @@ import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentTascaDao;
-import net.conselldemallorca.helium.core.model.dao.DominiDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
@@ -89,7 +88,6 @@ public class DtoConverter {
 	private FirmaTascaDao firmaTascaDao;
 	private TascaDao tascaDao;
 	private DefinicioProcesDao definicioProcesDao;
-	private DominiDao dominiDao;
 	private PluginPersonaDao pluginPersonaDao;
 	private JbpmHelper jbpmDao;
 	private EnumeracioValorsDao enumeracioValorsDao;
@@ -98,6 +96,7 @@ public class DtoConverter {
 	private ConsultaCampDao consultaCampDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
+	private CacheHelper cacheHelper;
 
 	private DocumentHelper documentHelper;
 	private ServiceUtils serviceUtils;
@@ -675,7 +674,7 @@ public class DtoConverter {
 				dominiId = domini.getId();
 			}	
 			try {
-				List<FilaResultat> resultat = dominiDao.consultar(
+				List<FilaResultat> resultat = cacheHelper.getResultatDomini(
 						camp.getDefinicioProces().getEntorn().getId(),
 						dominiId,
 						camp.getDominiId(),
@@ -757,7 +756,11 @@ public class DtoConverter {
 			}
 		}
 	}
-
+	
+	@Autowired
+	public void setCacheHelper(CacheHelper cacheHelper) {
+		this.cacheHelper = cacheHelper;
+	}
 	@Autowired
 	public void setExpedientService(ExpedientService expedientService) {
 		this.expedientService = expedientService;
@@ -793,10 +796,6 @@ public class DtoConverter {
 	@Autowired
 	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
 		this.definicioProcesDao = definicioProcesDao;
-	}
-	@Autowired
-	public void setDominiDao(DominiDao dominiDao) {
-		this.dominiDao = dominiDao;
 	}
 	@Autowired
 	public void setPluginPersonaDao(PluginPersonaDao pluginPersonaDao) {
@@ -937,7 +936,7 @@ public class DtoConverter {
 							processInstanceId,
 							camp,
 							valorsAddicionals);
-					List<FilaResultat> resultat = dominiDao.consultar(
+					List<FilaResultat> resultat = cacheHelper.getResultatDomini(
 							camp.getDefinicioProces().getEntorn().getId(),
 							dominiId,
 							camp.getDominiId(),

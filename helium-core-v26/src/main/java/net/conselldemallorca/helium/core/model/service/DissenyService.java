@@ -134,6 +134,7 @@ public class DissenyService {
 	private MapeigSistraDao mapeigSistraDao;
 	private DominiDao dominiDao;
 	private CampAgrupacioDao campAgrupacioDao;
+	private CacheHelper cacheHelper;
 	private ConsultaDao consultaDao;
 	private ConsultaCampDao consultaCampDao;
 	private AccioDao accioDao;
@@ -1781,7 +1782,7 @@ public class DissenyService {
 	}
 	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, Map<String, Object> params) {
 		try {
-			return dominiDao.consultar(entornId, dominiId, null, params);
+			return cacheHelper.getResultatDomini(entornId, dominiId, null, params);
 		} catch (Exception ex) {
 			throw new DominiException(
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
@@ -1794,14 +1795,12 @@ public class DissenyService {
 	
 	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId, Map<String, Object> params) {
 		try {
-			return dominiDao.consultar(entornId, dominiId, dominiWsId, params);
+			return cacheHelper.getResultatDomini(entornId, dominiId, dominiWsId, params);
 		} catch (Exception ex) {
 			throw new DominiException(
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini") + " : " + dominiWsId + " << parametros >> " + params, ex);
 		}
-	}
-	
-	
+	}	
 
 	public DefinicioProcesDto findDefinicioProcesAmbProcessInstanceId(String processInstanceId) {
 		String processDefinitionId = jbpmDao.getProcessInstance(processInstanceId).getProcessDefinitionId();
@@ -2202,6 +2201,11 @@ public class DissenyService {
 		Collections.sort(accions);
 		return accions;
 	}
+	
+	@Autowired
+	public void setCacheHelper(CacheHelper cacheHelper) {
+		this.cacheHelper = cacheHelper;
+	}	
 
 	@Autowired
 	public void setDefinicioProcesDao(DefinicioProcesDao definicioProcesDao) {
@@ -3973,6 +3977,5 @@ public class DissenyService {
 
 	public EnumeracioValors findEnumeracioValorsAmbId(Long enumeracioId, Long id) {
 		return enumeracioValorsDao.findAmbEnumeracioIId(enumeracioId, id);
-	}	
-
+	}
 }

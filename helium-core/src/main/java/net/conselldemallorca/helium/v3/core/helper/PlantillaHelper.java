@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.service.CacheHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
@@ -90,6 +91,8 @@ public class PlantillaHelper {
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private CacheHelper cacheHelper;
 	@Resource
 	private EntornRepository entornRepository;
 	@Resource
@@ -534,7 +537,7 @@ public class PlantillaHelper {
 												}
 											}
 										}
-										List<FilaResultat> files = dominiDao.consultar(
+										List<FilaResultat> files = cacheHelper.getResultatDomini(
 												entorn.getId(),
 												domini.getId(),
 												arg1,

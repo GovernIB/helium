@@ -88,7 +88,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					UsuariPreferenciesDto prefs = adminService.getPreferenciesUsuariActual();
 					if (prefs != null && prefs.getDefaultEntornCodi() != null) {
 						for (EntornDto entorn: entorns) {
-							if (entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
+							if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
 								entornActual = entorn;
 								setEntornActual(request, entornActual);
 								break;

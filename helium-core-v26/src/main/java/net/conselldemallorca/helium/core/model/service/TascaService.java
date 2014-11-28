@@ -276,6 +276,7 @@ public class TascaService {
 		mesuresTemporalsHelper.mesuraCalcular("Recompte tasques grup", "consulta");
 		return count;
 	}
+	
 	public PaginaLlistatDto findTasquesGrupFiltre(
 			Long entornId,
 			String usuari,

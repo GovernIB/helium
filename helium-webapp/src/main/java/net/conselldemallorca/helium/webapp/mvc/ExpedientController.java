@@ -35,7 +35,9 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 
 
@@ -100,6 +102,20 @@ public class ExpedientController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
+	}
+
+	@RequestMapping(value = "deleteInconsistencias", method = RequestMethod.GET)
+	@ResponseBody
+	public String deletePIInconsistenciasAction(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id) {
+		try {
+			return expedientService.deleteProcessInstanceInconsistencias(id);
+		} catch (Exception ex) {
+			missatgeError(request, getMessage("error.esborrar.expedient"), ex.getLocalizedMessage());
+        	logger.error("No s'ha pogut esborrar el registre", ex);
+		}
+		return "KO";
 	}
 
 	@RequestMapping(value = "delete")

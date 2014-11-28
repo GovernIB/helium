@@ -152,7 +152,7 @@ function signarCaib(token, form, contentType) {
 	 				} else {
 	 					if (signaturaB64.length > 0) {
 		 					for (var i = 0; i < signaturaB64.length; i++) {
-		 						$("#command").append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+		 						$(form).append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
 		 					}
 		 					form.submit();
 	 					} else {

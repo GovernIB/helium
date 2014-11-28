@@ -175,7 +175,6 @@ public class TascaLlistatController extends BaseController {
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
 			
 			// Asignamos los valores del filtro a la pestaña de grup
-			model.addAttribute("grupLlistatCount", getPaginaTasquesGrup(entorn,tascaPersonaFiltreCommand,null,null,null,objectsPerPage).getFullListSize());
 			request.getSession().setAttribute("commandTascaGrupFiltre", tascaPersonaFiltreCommand);
 			
 			return "tasca/personaLlistat";
@@ -254,7 +253,6 @@ public class TascaLlistatController extends BaseController {
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
 			
 			// Asignamos los valores del filtro a la pestaña de personals
-			model.addAttribute("personaLlistatCount", getPaginaTasquesPersonals(entorn,tascaGrupFiltreCommand,null,null,null,objectsPerPage).getFullListSize());
 			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaGrupFiltreCommand);
 			
 			return "tasca/grupLlistat";

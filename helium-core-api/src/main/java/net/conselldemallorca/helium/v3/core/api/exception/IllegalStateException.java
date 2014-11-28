@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.api.exception;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 
 /**
  * Excepció que es llança quan l'objecte que s'intenta accedir

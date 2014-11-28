@@ -753,7 +753,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
+	public PaginaDto<ExpedientDto> findAmbFiltrePaginat (
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -770,7 +770,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			PaginacioParamsDto paginacioParams) {
+			PaginacioParamsDto paginacioParams) throws Exception {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

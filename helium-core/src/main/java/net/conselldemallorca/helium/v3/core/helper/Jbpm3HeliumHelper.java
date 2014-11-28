@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.service.CacheHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
@@ -170,6 +171,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private TerminiIniciatDao terminiIniciatDao;
 	@Resource
 	private DominiDao dominiDao;
+	@Resource
+	private CacheHelper cacheHelper;
 	@Resource
 	private EnumeracioDao enumeracioDao;
 	@Resource
@@ -906,7 +909,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (domini == null)
 			throw new DominiNotFoundException();
 		try {
-			List<FilaResultat> files = dominiDao.consultar(
+			List<FilaResultat> files = cacheHelper.getResultatDomini(
 					expedient.getEntorn().getId(),
 					domini.getId(),
 					dominiId,

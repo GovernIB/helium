@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.core.model.dao;
 
 import java.sql.ResultSet;
@@ -31,7 +28,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 
 import org.hibernate.criterion.Restrictions;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -44,8 +40,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DominiDao extends HibernateGenericDao<Domini, Long> {
-
-	private static final String CACHE_KEY_SEPARATOR = "#";
 
 	private Map<Long, DominiHelium> wsCache = new HashMap<Long, DominiHelium>();
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
@@ -95,59 +89,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 				return dominis.get(0);
 			return null;
 		}
-	}
-
-	public List<FilaResultat> consultar(
-			Long entornId,
-			Long dominiId,
-			String id,
-			Map<String, Object> parametres) throws Exception {
-		List<FilaResultat> resultat = null;
-		Domini domini = null;
-		if (dominiId == 0) {
-			domini = new Domini();
-			domini.setId((long) 0);
-			domini.setCacheSegons(30);
-			domini.setCodi("intern");
-			domini.setNom("Domini intern");
-			domini.setTipus(TipusDomini.CONSULTA_WS);
-			domini.setTipusAuth(TipusAuthDomini.NONE);
-			domini.setEntorn((Entorn)getSession().load(Entorn.class, entornId));
-			domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
-		} else {
-			if (dominiId != null){
-				domini = getById(dominiId, false);
-			}
-		}
-		String cacheKey = getCacheKey(domini.getId(), id, parametres);
-		resultat = getResultatFromCache(
-				domini,
-				id,
-				parametres,
-				cacheKey);
-		/*Element element = null;
-		if (dominiCache != null)
-			element = dominiCache.get(cacheKey);
-		if (element == null) {
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
-				resultat = consultaWs(domini, id, parametres);
-			else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
-				resultat = consultaSql(domini, parametres);
-			if (domini.getCacheSegons() > 0) {
-				element = new Element(cacheKey, resultat);
-				element.setTimeToLive(domini.getCacheSegons());
-				if (dominiCache != null) {
-					dominiCache.put(element);
-					//logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
-				}
-			}
-		} else {
-			resultat = (List<FilaResultat>)element.getValue();
-			//logger.info("Resultat en cache");
-		}*/
-		if (resultat == null)
-			resultat = new ArrayList<FilaResultat>();
-		return resultat;
 	}
 
 	public void makeDirty(Long dominiId) {
@@ -260,49 +201,17 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return jdbcTemplate;
 	}
 
-	private String getCacheKey(
-			Long dominiId,
-			String dominiWsId, 
-			Map<String, Object> parametres) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(dominiId.toString());
-		sb.append(CACHE_KEY_SEPARATOR);
-		sb.append(dominiWsId);
-		sb.append(CACHE_KEY_SEPARATOR);
-		if (parametres != null) {
-			for (String clau: parametres.keySet()) {
-				sb.append(clau);
-				sb.append(CACHE_KEY_SEPARATOR);
-				Object valor = parametres.get(clau);
-				if (valor == null)
-					sb.append("<null>");
-				else
-					sb.append(valor.toString());
-				sb.append(CACHE_KEY_SEPARATOR);
-			}
-		}
-		return sb.toString();
-	}
-
-	@Cacheable(value="dominiCache", key="cacheKey", condition="domini.cacheSegons > 0")
-	private List<FilaResultat> getResultatFromCache(
+	public List<FilaResultat> getResultat(
 			Domini domini,
 			String dominiConsultaWsId,
-			Map<String, Object> parametres,
-			String cacheKey) throws Exception {
+			Map<String, Object> parametres) throws Exception {
 		List<FilaResultat> resultat = null;
 		if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 			resultat = consultaWs(domini, dominiConsultaWsId, parametres);
 		else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
 			resultat = consultaSql(domini, parametres);
-		/*if (domini.getCacheSegons() > 0) {
-			element = new Element(cacheKey, resultat);
-			element.setTimeToLive(domini.getCacheSegons());
-			if (dominiCache != null) {
-				dominiCache.put(element);
-				//logger.info("Cache domini '" + cacheKey + "': " + resultat.size() + " registres");
-			}
-		}*/
+		if (resultat == null)
+			resultat = new ArrayList<FilaResultat>();
 		return resultat;
 	}
 

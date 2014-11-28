@@ -26,6 +26,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -95,26 +97,34 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
 				filtreCommand);
-		return PaginacioHelper.getPaginaPerDatatables(
-				request,
-				expedientService.findAmbFiltrePaginat(
-						entornActual.getId(),
-						filtreCommand.getExpedientTipusId(),
-						filtreCommand.getTitol(),
-						filtreCommand.getNumero(),
-						filtreCommand.getDataIniciInicial(),
-						filtreCommand.getDataIniciFinal(),
-						filtreCommand.getDataFiInicial(),
-						filtreCommand.getDataFiFinal(),
-						filtreCommand.getEstatTipus(),
-						filtreCommand.getEstatId(),
-						filtreCommand.getGeoPosX(),
-						filtreCommand.getGeoPosY(),
-						filtreCommand.getGeoReferencia(),
-						filtreCommand.isNomesPendents(),
-						filtreCommand.isNomesAlertes(),
-						filtreCommand.isMostrarAnulats(),
-						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+		
+		DatatablesPagina<ExpedientDto> result;
+		try {
+			result = PaginacioHelper.getPaginaPerDatatables(
+					request,
+					expedientService.findAmbFiltrePaginat(
+							entornActual.getId(),
+							filtreCommand.getExpedientTipusId(),
+							filtreCommand.getTitol(),
+							filtreCommand.getNumero(),
+							filtreCommand.getDataIniciInicial(),
+							filtreCommand.getDataIniciFinal(),
+							filtreCommand.getDataFiInicial(),
+							filtreCommand.getDataFiFinal(),
+							filtreCommand.getEstatTipus(),
+							filtreCommand.getEstatId(),
+							filtreCommand.getGeoPosX(),
+							filtreCommand.getGeoPosY(),
+							filtreCommand.getGeoReferencia(),
+							filtreCommand.isNomesPendents(),
+							filtreCommand.isNomesAlertes(),
+							filtreCommand.isMostrarAnulats(),
+							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+		} catch (Exception e) {
+			logger.error("No se pudo obtener la lista de expedientes", e);
+			result = new DatatablesPagina<ExpedientDto>();
+		}
+		return result;
 	}
 	/*@RequestMapping(value = "/filtre", method = RequestMethod.POST)
 	@ResponseStatus(value = HttpStatus.OK)
@@ -272,4 +282,5 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return filtreCommand;
 	}
 
+	protected static final Log logger = LogFactory.getLog(ExpedientLlistatController.class);
 }

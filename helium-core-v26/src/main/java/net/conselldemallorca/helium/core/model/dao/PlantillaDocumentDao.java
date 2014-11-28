@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.service.CacheHelper;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
@@ -76,6 +77,7 @@ public class PlantillaDocumentDao {
 	private AreaJbpmIdDao areaJbpmIdDao;
 	private JbpmHelper jbpmHelper;
 	private DominiDao dominiDao;
+	private CacheHelper cacheHelper;
 	private DocumentStoreDao documentStoreDao;
 	private DocumentHelper documentHelper;
 
@@ -162,6 +164,10 @@ public class PlantillaDocumentDao {
 	@Autowired
 	public void setDominiDao(DominiDao dominiDao) {
 		this.dominiDao = dominiDao;
+	}
+	@Autowired
+	public void setCacheHelper(CacheHelper cacheHelper) {
+		this.cacheHelper = cacheHelper;
 	}
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
@@ -537,7 +543,7 @@ public class PlantillaDocumentDao {
 												}
 											}
 										}
-										List<FilaResultat> files = dominiDao.consultar(
+										List<FilaResultat> files = cacheHelper.getResultatDomini(
 												entornId,
 												domini.getId(),
 												arg1,
@@ -620,5 +626,4 @@ public class PlantillaDocumentDao {
 		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
 		return (identitySource.equalsIgnoreCase("helium"));
 	}
-
 }
