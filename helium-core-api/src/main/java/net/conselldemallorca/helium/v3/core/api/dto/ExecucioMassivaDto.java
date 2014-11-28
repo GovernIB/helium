@@ -23,7 +23,8 @@ public class ExecucioMassivaDto {
 		MODIFICAR_VARIABLE,
 		MODIFICAR_DOCUMENT,
 		REINDEXAR,
-		REASSIGNAR
+		REASSIGNAR,
+		BUIDARLOG
 	}
 
 	private Long id;

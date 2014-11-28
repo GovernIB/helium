@@ -85,6 +85,12 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_reassignar_expedients' />");
 		}
+		function confirmarBuidarLogExpedient(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			return confirm("<fmt:message key='expedient.eines.confirm_buidarlog_expedients' />");
+		}
 		$(document).ready(function(){			
 			$('#inici_timer').datetimepicker({
 				language: '${idioma}',
@@ -253,6 +259,7 @@
 							<option value="reindexarMas"><spring:message code='expedient.eines.reindexar.expedients' /></option>
 							<option value="modificarVariablesMasCommand"><spring:message code='expedient.massiva.modificar_variables' /></option>
 							<option value="documentModificarMas"><spring:message code='expedient.massiva.documents' /></option>
+							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
 						</select>
 						<script>
 							$(document).ready(function() {
@@ -398,6 +405,19 @@
 				<form:form cssClass="form-horizontal form-tasca" id="reindexarMas" name="reindexarMas" action="massiva/reindexarMas" method="post" onsubmit="return confirmarReindexar(event)">
 					<button class="btn btn-primary right" type="submit" name="accio" value="reindexar">
 						<spring:message code='comuns.reindexar' />
+					</button>
+				</form:form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="opcionMasiva control-group right">
+		<div class="label-titol">
+			<label class="control-label"><spring:message code='expedient.eines.buidarlog.expedients' /></label>
+			<div class="form-group">
+				<form:form cssClass="form-horizontal form-tasca" id="buidarlogMas" name="buidarlogMas" action="massiva/buidarlogMas" method="post" onsubmit="return confirmarBuidarLog(event)">
+					<button class="btn btn-primary right" type="submit" name="accio" value="buidarlog">
+						<spring:message code='comuns.buidarlog' />
 					</button>
 				</form:form>
 			</div>

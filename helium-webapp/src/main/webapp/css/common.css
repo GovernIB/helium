@@ -335,6 +335,12 @@ h3.titol-reindexar {
 	background-repeat: no-repeat;
 	background-position: 2px 6px;
 }
+h3.titol-buidarlog {
+	padding-left: 24px;
+	background-image: url(../img/clear.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
 h3.titol-documents-tasca {
 	padding-left: 24px;
 	background-image: url(../img/page_white_stack.png);

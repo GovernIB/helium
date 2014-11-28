@@ -1399,6 +1399,61 @@ public class ExpedientMassivaController extends BaseController {
 		}
 	}
 	
+	@RequestMapping(value = "/expedient/buidarlogMas")
+	public String accioBuidarLog(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = true) String inici,
+			@RequestParam(value = "correu", required = true) String correu,
+			ModelMap model) {
+		model.addAttribute("inici", inici);
+		model.addAttribute("correu", correu);
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<Long> ids = getIdsMassius(request);
+			if (ids == null || ids.size() <= 1) {
+				missatgeError(request, getMessage("error.no.exp.selec"));
+				return getRedirMassius(request);
+			}
+			
+			int numExp = ids.size() - 1;
+			// Obtenim informació de l'execució massiva
+			// Data d'inici
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dInici = new Date();
+			if (inici != null) {
+				try { dInici = sdf.parse(inici); } catch (ParseException pe) {};
+			}
+			// Enviar correu
+			Boolean bCorreu = false;
+			if (correu != null && correu.equals("true")) bCorreu = true;
+			
+			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
+			if (potModificarExpedient(expedientPrimer)) {
+				try {
+					ExecucioMassivaDto dto = new ExecucioMassivaDto();
+					dto.setDataInici(dInici);
+					dto.setEnviarCorreu(bCorreu);
+					dto.setExpedientIds(ids.subList(1, ids.size()));
+					dto.setExpedientTipusId(ids.get(0));
+					dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
+					execucioMassivaService.crearExecucioMassiva(dto);
+					
+					missatgeInfo(request, getMessage("info.buidarlog.massiu.executat", new Object[] {numExp}));
+				} catch (Exception e) {
+					missatgeError(request, getMessage("error.no.massiu"));
+					logger.error("Error al programar les accions massives", e);
+				}
+			} else {
+				missatgeError(request, getMessage("info.massiu.permisos.no"));
+			}
+			
+			return getRedirMassius(request);
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
 //	@RequestMapping(value = "/expedient/reassignarMas")
 //	public String accioReassignar(
 //			HttpServletRequest request,

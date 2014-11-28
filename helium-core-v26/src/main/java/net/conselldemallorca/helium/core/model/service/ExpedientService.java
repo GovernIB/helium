@@ -1221,6 +1221,9 @@ public class ExpedientService {
 	public void luceneDeleteExpedient(String processInstanceId) {
 		getServiceUtils().expedientIndexLuceneDelete(processInstanceId);
 	}
+	public void buidarLogExpedient(String processInstanceId) {
+		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
+	}
 
 	@Secured({"ROLE_ADMIN"})
 	public void luceneReindexarEntorn(Long entornId) {

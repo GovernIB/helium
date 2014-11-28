@@ -365,6 +365,16 @@ public interface Jbpm3HeliumService {
 	 */
 	public void expedientReindexar(
 			String processInstanceId) throws ProcessInstanceNotFoundException, ExpedientNotFoundException;
+	
+	/**
+	 * Buida els logs l'expedient.
+	 * 
+	 * @param processInstanceId
+	 * @throws ProcessInstanceNotFoundException
+	 * @throws ExpedientNotFoundException
+	 */
+	public void expedientBuidaLogs(
+			String processInstanceId) throws ProcessInstanceNotFoundException, ExpedientNotFoundException;
 
 	/**
 	 * Genera un document a partir d'una plantilla.

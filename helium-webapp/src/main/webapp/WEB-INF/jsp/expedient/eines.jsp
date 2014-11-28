@@ -44,6 +44,14 @@ function confirmarReindexaExpedient(e) {
 		document.getElementById("reindexaForm").submit();
 	}
 }
+function confirmarBuidarLogExpedient(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.eines.confirm_buidarlog_expedient' />")) {
+		document.getElementById("buidarlogForm").submit();
+	}
+}
 
 // ]]>
 </script>
@@ -194,6 +202,12 @@ function confirmarReindexaExpedient(e) {
 		<a href="#" class="reindexaLink" onclick='javascript:confirmarReindexaExpedient(event);'><fmt:message key='expedient.eines.reindexa_proces' /></a>
 	</h3>
 	<form:form id="reindexaForm" action="reindexa.html">
+		<input type="hidden" name="id" value="${param.id}" />
+	</form:form>
+	<h3 class="titol-tab titol-buidarlog">
+		<a href="#" class="buidarlogLink" onclick='javascript:confirmarBuidarLogExpedient(event);'><fmt:message key='expedient.eines.buidarlog_proces' /></a>
+	</h3>
+	<form:form id="buidarlogForm" action="buidarlog.html">
 		<input type="hidden" name="id" value="${param.id}" />
 	</form:form>	
 </body>

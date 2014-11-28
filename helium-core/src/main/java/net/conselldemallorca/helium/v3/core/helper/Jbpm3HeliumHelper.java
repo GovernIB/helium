@@ -641,6 +641,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.luceneReindexarExpedient(processInstanceId);
 	}
+	
+	@Override
+	public void expedientBuidaLogs(
+			String processInstanceId) {
+		imprimirFuncio("expedientBuidaLogs");
+		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		jbpmHelper.deleteProcessInstanceTreeLogs(rootProcessInstance.getId());
+	}
 
 	@Override
 	public ArxiuDto documentGenerarAmbPlantilla(

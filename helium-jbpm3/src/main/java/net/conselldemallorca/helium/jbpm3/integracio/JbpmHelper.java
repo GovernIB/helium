@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.jbpm3.command.CancelProcessInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.CancelTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.CloneTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceCommand;
+import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceVariablesCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteTaskInstanceVariablesCommand;
 import net.conselldemallorca.helium.jbpm3.command.DescribeProcessInstanceCommand;
@@ -1528,6 +1529,17 @@ public class JbpmHelper {
 		return resultat;
 	}
 
+	@SuppressWarnings("unchecked")
+	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {
+		adminService.mesuraIniciar("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
+		final long id = Long.parseLong(rootProcessInstanceId);
+		GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(id);
+		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
+			DeleteProcessInstanceLogsCommand deleteCommand = new DeleteProcessInstanceLogsCommand(pd);
+			commandService.execute(deleteCommand);
+		}
+		adminService.mesuraCalcular("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
+	}
 
 
 	private Object executeCommandWithAutoSave(

@@ -285,6 +285,8 @@ public class ExecucioMassivaService {
 			label = getMessage("expedient.massiva.documents");
 		} else if (tipus.equals(ExecucioMassivaTipus.REINDEXAR)){
 			label = getMessage("expedient.eines.reindexar.expedients");
+		} else if (tipus.equals(ExecucioMassivaTipus.BUIDARLOG)){
+			label = getMessage("expedient.eines.buidarlog.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
 			label = getMessage("expedient.eines.reassignar.expedients");
 		} else {
@@ -471,6 +473,10 @@ public class ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient);
 				reindexarExpedient(dto);
 				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipus.BUIDARLOG){
+				mesuresTemporalsHelper.mesuraIniciar("Buidar log", "massiva", expedient);
+				buidarLogExpedient(dto);
+				mesuresTemporalsHelper.mesuraCalcular("Buidar log", "massiva", expedient);
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
 				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient);
 				//reassignarExpedient(dto);
@@ -1014,6 +1020,22 @@ public class ExecucioMassivaService {
 			execucioMassivaExpedientDao.saveOrUpdate(eme);
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reindexar l'expedient", ex);
+			throw ex;
+		}
+	}
+	
+	private void buidarLogExpedient(OperacioMassivaDto dto) throws Exception {
+		ExecucioMassivaExpedient eme = null;
+		ExpedientDto exp = dto.getExpedient();
+		try {
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
+			eme.setDataInici(new Date());
+			expedientService.buidarLogExpedient(exp.getProcessInstanceId());
+			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			eme.setDataFi(new Date());
+			execucioMassivaExpedientDao.saveOrUpdate(eme);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut eliminar la informació de registre de l'expedient", ex);
 			throw ex;
 		}
 	}

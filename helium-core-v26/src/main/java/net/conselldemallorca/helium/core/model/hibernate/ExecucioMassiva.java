@@ -51,7 +51,8 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		MODIFICAR_VARIABLE,
 		MODIFICAR_DOCUMENT,
 		REINDEXAR,
-		REASSIGNAR
+		REASSIGNAR,
+		BUIDARLOG
 	}
 
 	private Long id;
