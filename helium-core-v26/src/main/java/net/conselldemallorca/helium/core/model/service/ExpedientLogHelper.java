@@ -219,6 +219,7 @@ public class ExpedientLogHelper {
 //		LogObject currentLog = null;
 		Node nodeDesti = null;
 		boolean tascaActual = false;
+		boolean retrocedirTascaActualCompleta = retrocedirPerTasques;
 		
 		if (debugRetroces)
 			printLogs(logsJbpm);
@@ -289,6 +290,12 @@ public class ExpedientLogHelper {
 					if (ti.getId() == jtask.getTask().getId()){
 						nodeDesti = ti.getTask().getTaskNode();
 						tascaActual = true;
+						if (!retrocedirPerTasques) {
+							List<ExpedientLog> expedientTascaLogs = expedientLogDao.findLogsTascaById(expedientLog.getTargetId());
+							if (expedientTascaLogs != null && expedientTascaLogs.size() == expedientLogs.size()) {
+								retrocedirTascaActualCompleta = true;
+							}
+						}
 						if (debugRetroces)
 							System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
 						break;
@@ -655,7 +662,7 @@ public class ExpedientLogHelper {
 		}*/
 		
 		// Si retrocedim la tasca actual...
-		if (tascaActual) {
+		if (tascaActual && retrocedirTascaActualCompleta) {
 //			Node ndesti = jbpmDao.getNodeByName(expedientLog.getProcessInstanceId(), desti);
 			boolean enterNode = retrocedirPerTasques; //&& (nodeDesti.getId() == jtask.getTask().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
 			boolean executeNode = (!jbpmDao.isProcessStateNodeJoinOrFork( //(!jbpmDao.isProcessStateNode(
@@ -679,14 +686,6 @@ public class ExpedientLogHelper {
 			}
 		}
 		if (retrocedirPerTasques && nodeEnterTokenId != null) {//nodeEnterObjectId > 0) {
-//			if (debugRetroces)
-//				System.out.println(">>> [RETLOG] Retornar token (name=" + nodeEnterName + ") al node (name=" + nodeEnterDesti + ", enter = true, execute = true)");
-//			jbpmDao.tokenRedirect(
-//					nodeEnterObjectId,
-//					nodeEnterDesti,
-//					true,
-//					true,
-//					true);
 			JbpmTask task = jbpmDao.findEquivalentTaskInstance(nodeEnterTokenId, Long.valueOf(expedientLog.getTargetId()));
 			TaskInstance ti = task.getTask();
 			ContextInstance ci = ti.getProcessInstance().getContextInstance();
