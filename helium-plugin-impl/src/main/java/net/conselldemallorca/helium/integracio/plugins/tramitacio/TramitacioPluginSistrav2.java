@@ -38,6 +38,8 @@ import es.caib.regtel.ws.v2.model.datosinteresado.DatosInteresado;
 import es.caib.regtel.ws.v2.model.datosnotificacion.DatosNotificacion;
 import es.caib.regtel.ws.v2.model.datosregistrosalida.DatosRegistroSalida;
 import es.caib.regtel.ws.v2.model.datosrepresentado.DatosRepresentado;
+import es.caib.regtel.ws.v2.model.detalleacuserecibo.DetalleAcuseRecibo;
+import es.caib.regtel.ws.v2.model.detalleacuserecibo.DetalleAviso;
 import es.caib.regtel.ws.v2.model.documento.Documento;
 import es.caib.regtel.ws.v2.model.documento.Documentos;
 import es.caib.regtel.ws.v2.model.oficinaregistral.OficinaRegistral;
@@ -184,48 +186,48 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre) throws TramitacioPluginException {
 		try {
 			RespostaJustificantDetallRecepcio resposta = new RespostaJustificantDetallRecepcio();
-//			try {
-//				DetalleAcuseRecibo acuseRecibo = getRegtelClient().obtenerDetalleAcuseRecibo(numeroRegistre);
-//				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
-//				if (acuseRecibo.getFechaAcuseRecibo() != null) {
-//					resposta.setData(acuseRecibo.getFechaAcuseRecibo().getValue().toGregorianCalendar().getTime());
-//					resposta.setFechaAcuseRecibo(acuseRecibo.getFechaAcuseRecibo().getValue());					
-//					ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
-//					referenciaRDSJustificante.setCodigo(acuseRecibo.getFicheroAcuseRecibo().getValue().getCodigo());
-//					referenciaRDSJustificante.setClave(acuseRecibo.getFicheroAcuseRecibo().getValue().getClave());
-//					resposta.setFicheroAcuseRecibo(referenciaRDSJustificante);
-//					for (DetalleAviso aviso : acuseRecibo.getAvisos().getValue().getAviso()) {
-//						net.conselldemallorca.helium.integracio.plugins.registre.DetalleAviso detalle = new net.conselldemallorca.helium.integracio.plugins.registre.DetalleAviso();
-//						detalle.setConfirmarEnvio(aviso.isConfirmarEnvio());
-//						detalle.setDestinatario(aviso.getDestinatario());
-//						detalle.setFechaEnvio(aviso.getFechaEnvio().getValue());
-//
-//						if (aviso.getTipo().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoAviso.EMAIL))
-//							detalle.setTipo(net.conselldemallorca.helium.integracio.plugins.registre.TipoAviso.EMAIL);
-//						else if (aviso.getTipo().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoAviso.EMAIL))
-//							detalle.setTipo(net.conselldemallorca.helium.integracio.plugins.registre.TipoAviso.EMAIL);
-//							
-//						if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.DESCONOCIDO))
-//							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.DESCONOCIDO);
-//						else if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.ENVIADO))
-//							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.ENVIADO);
-//						else if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.NO_ENVIADO))
-//							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.NO_ENVIADO);
-//						
-//						resposta.getAvisos().getAviso().add(detalle);
-//					}
-//					if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.ENTREGADA))
-//						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.ENTREGADA);
-//					else if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.PENDIENTE))
-//						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.PENDIENTE);
-//					else if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.RECHAZADA))
-//						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.RECHAZADA);
-//				}
-//			} catch (BackofficeFacadeException ex) {
-//				logger.error("Error al obtenir el justificant de recepció", ex);
-//				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);
-//				resposta.setErrorDescripcio(ex.getMessage());
-//			}
+			try {
+				DetalleAcuseRecibo acuseRecibo = getRegtelClient().obtenerDetalleAcuseRecibo(numeroRegistre);
+				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
+				if (acuseRecibo.getFechaAcuseRecibo() != null) {
+					resposta.setData(acuseRecibo.getFechaAcuseRecibo().getValue().toGregorianCalendar().getTime());
+					resposta.setFechaAcuseRecibo(acuseRecibo.getFechaAcuseRecibo().getValue());					
+					ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
+					referenciaRDSJustificante.setCodigo(acuseRecibo.getFicheroAcuseRecibo().getValue().getCodigo());
+					referenciaRDSJustificante.setClave(acuseRecibo.getFicheroAcuseRecibo().getValue().getClave());
+					resposta.setFicheroAcuseRecibo(referenciaRDSJustificante);
+					for (DetalleAviso aviso : acuseRecibo.getAvisos().getValue().getAviso()) {
+						net.conselldemallorca.helium.integracio.plugins.registre.DetalleAviso detalle = new net.conselldemallorca.helium.integracio.plugins.registre.DetalleAviso();
+						detalle.setConfirmarEnvio(aviso.isConfirmarEnvio());
+						detalle.setDestinatario(aviso.getDestinatario());
+						detalle.setFechaEnvio(aviso.getFechaEnvio().getValue());
+
+						if (aviso.getTipo().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoAviso.EMAIL))
+							detalle.setTipo(net.conselldemallorca.helium.integracio.plugins.registre.TipoAviso.EMAIL);
+						else if (aviso.getTipo().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoAviso.EMAIL))
+							detalle.setTipo(net.conselldemallorca.helium.integracio.plugins.registre.TipoAviso.EMAIL);
+							
+						if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.DESCONOCIDO))
+							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.DESCONOCIDO);
+						else if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.ENVIADO))
+							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.ENVIADO);
+						else if (aviso.getConfirmadoEnvio().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoConfirmacionAviso.NO_ENVIADO))
+							detalle.setConfirmadoEnvio(net.conselldemallorca.helium.integracio.plugins.registre.TipoConfirmacionAviso.NO_ENVIADO);
+						
+						resposta.getAvisos().getAviso().add(detalle);
+					}
+					if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.ENTREGADA))
+						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.ENTREGADA);
+					else if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.PENDIENTE))
+						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.PENDIENTE);
+					else if (acuseRecibo.getEstado().equals(es.caib.regtel.ws.v2.model.detalleacuserecibo.TipoEstadoNotificacion.RECHAZADA))
+						resposta.setEstado(net.conselldemallorca.helium.integracio.plugins.registre.TipoEstadoNotificacion.RECHAZADA);
+				}
+			} catch (BackofficeFacadeException ex) {
+				logger.error("Error al obtenir el justificant de recepció", ex);
+				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);
+				resposta.setErrorDescripcio(ex.getMessage());
+			}
 			return resposta;
 		} catch (Exception ex) {
 			logger.error("Error al obtenir el justificant de recepció", ex);
@@ -378,19 +380,17 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 						registreNotificacio.getDadesExpedient().getClau());
 				datosRegistroSalida.setDatosExpediente(datosExpediente);
 			}
-			if (registreNotificacio.getDadesNotificacio() != null) {
+			if (registreNotificacio.getDadesNotificacio() != null) {				
 				DatosNotificacion datosNotificacion = new DatosNotificacion();
 				datosNotificacion.setIdioma(
 						registreNotificacio.getDadesNotificacio().getIdiomaCodi());
 				datosNotificacion.setTipoAsunto(
 						registreNotificacio.getDadesNotificacio().getTipus());
 				datosNotificacion.setAcuseRecibo(
-						registreNotificacio.getDadesNotificacio().isJustificantRecepcio());
+						registreNotificacio.getDadesNotificacio().isJustificantRecepcio());				
 				OficioRemision oficioRemision = new OficioRemision();
-				oficioRemision.setTitulo(
-						registreNotificacio.getDadesNotificacio().getOficiTitol());
-				oficioRemision.setTexto(
-						registreNotificacio.getDadesNotificacio().getOficiText());
+				oficioRemision.setTitulo(registreNotificacio.getDadesNotificacio().getOficiTitol());
+				oficioRemision.setTexto(registreNotificacio.getDadesNotificacio().getOficiText());
 				if (registreNotificacio.getDadesNotificacio().getOficiTramitSubsanacio() != null) {
 					TramitSubsanacio tramitSubsanacio = registreNotificacio.getDadesNotificacio().getOficiTramitSubsanacio();
 					TramiteSubsanacion tramiteSubsanacion = new TramiteSubsanacion();
@@ -500,13 +500,13 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 				referenciaRDSJustificante.setCodigo(resultado.getReferenciaRDSJustificante().getCodigo());
 				resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
 			} catch (BackofficeFacadeException ex) {
-				logger.error("Error al registrar la sortida", ex);
+				logger.error("Error al registrar la notificacion electronica", ex);
 				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_ERROR);
 				resposta.setErrorDescripcio(ex.getMessage());
 			}
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("Error al registrar la sortida", ex);
+			logger.error("Error al registrar la notificacion electronica", ex);
 			throw new TramitacioPluginException("Error al registrar la sortida", ex);
 		}
 	}

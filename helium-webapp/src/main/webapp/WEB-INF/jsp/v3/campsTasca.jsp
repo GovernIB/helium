@@ -8,11 +8,11 @@
 
 <c:set var="campInline" value="${inline}"/>
 <c:set var="obligatorio"><c:if test="${dada.required}"> data-required="true"</c:if></c:set>
-<c:if test="${!dada.readOnly && !tasca.validada}">
+<c:if test="${!dada.readOnly}">
 	
 <%-- 	<c:set var="campError"><c:choose><c:when test='${dada.campMultiple or isMultiple}'>${campNom}</c:when><c:otherwise>${campCodi}</c:otherwise></c:choose></c:set> --%>
 	<c:set var="campErrors"><form:errors path="${campCodi}"/></c:set>
-	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if>">
+	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if>">
 		<label for="${dada.varCodi}" class="control-label<c:choose><c:when test='${inline}'> sr-only</c:when><c:otherwise> col-xs-3<c:if test="${dada.required}"> obligatori</c:if></c:otherwise></c:choose>">${dada.campEtiqueta}</label>
 		<div class="controls<c:if test='${not inline}'> col-xs-9</c:if> <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if>">
 
@@ -78,7 +78,7 @@
 									</c:forEach>
 								</select>
 							</c:when>
-							<c:otherwise><form:select itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}.anys" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
+							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}.anys" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
 						</c:choose>
 					</div>
 					<div class="tercmig">
@@ -91,7 +91,7 @@
 									</c:forEach>
 								</select>
 							</c:when>
-							<c:otherwise><form:select itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}.mesos" id="${campCodi}_mesos" cssClass="termini" /></c:otherwise>
+							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}.mesos" id="${campCodi}_mesos" cssClass="termini" /></c:otherwise>
 						</c:choose>
 	 				</div>
 	 				<div class="tercpost">
@@ -183,15 +183,15 @@
 <%---------------------------------------------------------------------------------------------------%>
 </c:if>
 
-<c:if test="${dada.readOnly || tasca.validada}">
+<c:if test="${dada.readOnly}">
 	<div class="controls">
 		<label class="control-label-value"><c:out value="${dada.text}"/></label>
 	</div>
+	
 	<c:if test="${dada.campTipus == 'TERMINI' && not empty dada.varValor}">
 		<c:out value="${dada.varValor.anys}/${dada.varValor.mesos}/${dada.varValor.dies}"/>
-	</c:if>
+	</c:if>	
 </c:if>
-	
 <c:set var="campCodi" value=""/>
 <c:set var="campInline" value="${false}"/>
 <c:set var="campErrors" value=""/>

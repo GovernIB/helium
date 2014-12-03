@@ -165,18 +165,19 @@ public class PerfilesController extends BaseController {
 			model.addAttribute("consultes", new ArrayList<ConsultaDto>());
 		}
 		
-		List<ExpedientTipusDto> expedientTipusConConsultas = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
-		Iterator<ExpedientTipusDto> it = expedientTipusConConsultas.iterator();
-		while (it.hasNext()) {
-			ExpedientTipusDto expTip = it.next();
-			if (!expTip.isConConsultasActivasPorTipo()) {
-				it.remove();
+		List<ExpedientTipusDto> expedientTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
+		model.addAttribute("expedientTipus", expedientTipus);
+		List<ExpedientTipusDto> expedientTipusConConsultas = new ArrayList<ExpedientTipusDto>();
+		for (ExpedientTipusDto expTip : expedientTipus) {
+			if (expTip.isConConsultasActivasPorTipo()) {
+				expedientTipusConConsultas.add(expTip);
 			}
 		}
-		model.addAttribute("expedientTipus", expedientTipusConConsultas);
+		model.addAttribute("expedientTipusConConsultas", expedientTipusConConsultas);
 		filtreCommand.setFiltroExpedientesActivos(preferencies.isFiltroTareasActivas());
 		filtreCommand.setListado(preferencies.getListado());
 		filtreCommand.setNumElementosPagina(preferencies.getNumElementosPagina());
+		filtreCommand.setExpedientTipusDefecteId(preferencies.getExpedientTipusDefecteId());
 		
 		PersonaDto usuari = getPersonaActual(request);
 		filtreCommand.setNom(usuari.getNom());
@@ -202,6 +203,7 @@ public class PerfilesController extends BaseController {
 	        	preferencies.setCodi(request.getUserPrincipal().getName());
 	        	preferencies.setCabeceraReducida(personaUsuariCommand.isCabeceraReducida());
 	        	preferencies.setConsultaId(personaUsuariCommand.getConsultaId());
+	        	preferencies.setExpedientTipusDefecteId(personaUsuariCommand.getExpedientTipusDefecteId());
 	        	preferencies.setDefaultEntornCodi(personaUsuariCommand.getEntornCodi());
 	        	preferencies.setFiltroTareasActivas(personaUsuariCommand.isFiltroExpedientesActivos());
 	        	preferencies.setListado(personaUsuariCommand.getListado());
@@ -226,12 +228,13 @@ public class PerfilesController extends BaseController {
                 personaUsuariCommand.setConsultaId(pars.getConsultaId());
                 personaUsuariCommand.setEntornCodi(pars.getEntornCodi());
                 personaUsuariCommand.setExpedientTipusId(pars.getExpedientTipusId());
+                personaUsuariCommand.setExpedientTipusDefecteId(pars.getExpedientTipusDefecteId());
                 personaUsuariCommand.setFiltroExpedientesActivos(pars.isFiltroExpedientesActivos());
                 personaUsuariCommand.setListado(pars.getListado());
                 personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
                 	                
         		return "v3/persona/perfil";
-        	}	        	
+        	}
         	MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
         } catch (Exception ex) {
         	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));

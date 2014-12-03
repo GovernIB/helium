@@ -91,7 +91,6 @@ import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.v3.core.helper.DominiHelper;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
@@ -203,8 +202,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DtoConverter dtoConverter;
 	@Resource
 	private LuceneHelper luceneHelper;
-	@Resource
-	private DominiHelper dominiHelper;
 	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource

@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Persona;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.access.annotation.Secured;
@@ -88,7 +89,7 @@ public class EntornService {
 		return entornDao.merge(entity);
 	}
 	@Secured({"ROLE_ADMIN"})
-	@CacheEvict(value = "entornsUsuariActual", allEntries=true)
+	@Caching(evict = { @CacheEvict(value = "entornsUsuariActual", allEntries=true), @CacheEvict(value = "consultaCache", allEntries=true)})
 	public void delete(Long entornId) {
 		Entorn entorn = getById(entornId);
 		if (entorn == null)
@@ -326,6 +327,7 @@ public class EntornService {
 	}
 
 	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void importar(Long entornId, EntornExportacio exportacio) {
 		Entorn entorn = entornDao.getById(entornId, false);
 		if (entorn == null)

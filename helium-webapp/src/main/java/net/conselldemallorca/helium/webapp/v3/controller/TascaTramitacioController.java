@@ -305,21 +305,15 @@ public class TascaTramitacioController extends BaseController {
 			@ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
-			ModelMap model) {
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entorn != null) {			
-//			ExpedientTascaDto tasca = (ExpedientTascaDto) model.get("tasca");
-//			List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-//
-//			boolean ok = accioRestaurarForm(request, entorn.getId(), tascaId, tascaDadas, command);
-//			if (ok) {
-//				status.setComplete();
-//			} else {
-//				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
-//			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
-		}
+			ModelMap model) {		
+		try {
+			List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
+			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+			accioRestaurarForm(request, tascaId, variables, command); 	
+        } catch (Exception ex) {
+        	MissatgesHelper.error(request, ex.getMessage());
+        	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
+        }
 		
 		return getReturnUrl(request, expedientId, tascaId);
 	}
@@ -430,6 +424,82 @@ public class TascaTramitacioController extends BaseController {
 		}
 		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
 		model.addAttribute("documents", documents);
+	}
+	
+	private boolean accioRestaurarForm(
+			HttpServletRequest request, 
+			String tascaId, 
+			Map<String, Object> variables, 
+			Object command) {
+		boolean resposta = false;
+
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+
+		if (seleccio != null && !seleccio.isEmpty()) {
+			try {
+				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
+				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
+
+				Date dInici = new Date();
+				if (inici != null) {
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+					try {
+						dInici = sdf.parse(inici);
+					} catch (ParseException e) {
+					}
+				}
+
+				String[] tascaIds = new String[seleccio.size()];
+				int i = 0;
+				for (Long tId : seleccio) {
+					tascaIds[i++] = tId.toString();
+				}
+
+				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(dInici);
+				dto.setEnviarCorreu(correu);
+				dto.setTascaIds(tascaIds);
+				// dto.setExpedientTipusId(expTipusId);
+				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
+				dto.setParam1("Restaurar");
+				Object[] params = new Object[3];
+				params[0] = entorn.getId();
+				params[1] = auth.getCredentials();
+				List<String> rols = new ArrayList<String>();
+				for (GrantedAuthority gauth : auth.getAuthorities()) {
+					rols.add(gauth.getAuthority());
+				}
+				params[2] = rols;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+
+				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.restaurar", new Object[] { seleccio.size() }));
+
+				tascaService.restaurar(tascaId);
+				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.guardar", new Object[] { seleccio.size() }));
+				resposta = true;
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				logger.error("No s'ha pogut restaurat les dades del formulari massiu en la tasca " + tascaId, ex);
+			}
+		} else {
+			try {
+				tascaService.restaurar(tascaId);
+				MissatgesHelper.info(request, getMessage(request, "info.formulari.restaurat"));
+				resposta = true;
+			} catch (Exception ex) {
+				// String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+				// MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaIdLog);
+				// logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + tascaIdLog, ex);
+				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaId);
+				logger.error("No s'ha pogut restaurat les dades del formulari en la tasca " + tascaId, ex);
+			}
+		}
+		return resposta;
 	}
 	
 	private boolean accioGuardarForm(

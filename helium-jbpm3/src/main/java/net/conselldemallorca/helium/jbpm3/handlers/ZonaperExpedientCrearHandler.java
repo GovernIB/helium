@@ -120,9 +120,6 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 	private ZonaperExpedientDto construirExpedient(
 			ExecutionContext executionContext,
 			ExpedientDto expedient) throws JbpmException {
-		System.out.println("ZPers: expedient : " + expedient);
-		System.out.println("ZPers: NIF : " + getValorOVariable(executionContext,representatNif,varRepresentatNif));
-		System.out.println("ZPers: NOM : " + getValorOVariable(executionContext,representatNom,varRepresentatNom));
 		ZonaperExpedientDto zonaperExpedient = new ZonaperExpedientDto();
 		if (IniciadorTipusDto.SISTRA.equals(expedient.getIniciadorTipus())) {
 			zonaperExpedient.setIdioma(expedient.getIdioma());
@@ -150,7 +147,6 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 			} else {
 				zonaperExpedient.setRepresentatNom(expedient.getInteressatNom());
 			}
-			System.out.println("ZPers: zonaperExpedient 1 : " + zonaperExpedient);
 		} else {
 			zonaperExpedient.setIdioma(
 					(String)getValorOVariable(
@@ -180,7 +176,6 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 							executionContext,
 							representatNom,
 							varRepresentatNom));
-			System.out.println("ZPers: zonaperExpedient 2 : " + zonaperExpedient);
 		}
 		String desc = (String)getValorOVariable(
 				executionContext,
@@ -209,7 +204,6 @@ public class ZonaperExpedientCrearHandler extends AbstractHeliumActionHandler im
 			zonaperExpedient.setAvisosEmail(expedient.getAvisosEmail());
 			zonaperExpedient.setAvisosSMS(expedient.getAvisosMobil());
 		}
-		System.out.println("ZPers: zonaperExpedient 3 : " + zonaperExpedient);
 		return zonaperExpedient;
 	}
 

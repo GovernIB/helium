@@ -34,6 +34,8 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	private Integer listado;
 	@MaxLength(255)
 	private Long consultaId;
+	@MaxLength(255)
+	private Long expedientTipusDefecteId;	
 	private Boolean filtroTareasActivas;
 	@MaxLength(255)
 	private Long numElementosPagina;
@@ -77,6 +79,13 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	}
 	public void setCabeceraReducida(Boolean cabeceraReducida) {
 		this.cabeceraReducida = cabeceraReducida;
+	}
+	@Column(name="default_tipus_expedient", length=255, nullable=true)
+	public Long getExpedientTipusDefecteId() {
+		return expedientTipusDefecteId;
+	}
+	public void setExpedientTipusDefecteId(Long expedientTipusDefecteId) {
+		this.expedientTipusDefecteId = expedientTipusDefecteId;
 	}
 	@Column(name="listado",nullable=true)
 	public Integer getListado() {

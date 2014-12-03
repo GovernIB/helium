@@ -514,7 +514,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
 			return resposta;
 		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut enviar la notificació", ex);
+			throw new JbpmException("No s'ha pogut enviar la notificació: " + ex.getLocalizedMessage(), ex);
 		}
 	}
 

@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -28,7 +27,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiConsultaException;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
@@ -44,9 +42,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DominiHelper {
-
-	@Resource
-	private DominiRepository dominiRepository;
 
 	private static final String CACHE_KEY_SEPARATOR = "#";
 	private Ehcache dominiCache;

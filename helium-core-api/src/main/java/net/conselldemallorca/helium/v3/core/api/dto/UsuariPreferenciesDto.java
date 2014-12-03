@@ -16,6 +16,7 @@ public class UsuariPreferenciesDto {
 	private boolean cabeceraReducida;
 	private int listado;
 	private Long consultaId;
+	private Long expedientTipusDefecteId;
 	private boolean filtroTareasActivas;
 	private Long numElementosPagina;
 
@@ -66,5 +67,11 @@ public class UsuariPreferenciesDto {
 	}
 	public void setNumElementosPagina(Long numElementosPagina) {
 		this.numElementosPagina = numElementosPagina;
+	}
+	public Long getExpedientTipusDefecteId() {
+		return expedientTipusDefecteId;
+	}
+	public void setExpedientTipusDefecteId(Long expedientTipusDefecteId) {
+		this.expedientTipusDefecteId = expedientTipusDefecteId;
 	}
 }

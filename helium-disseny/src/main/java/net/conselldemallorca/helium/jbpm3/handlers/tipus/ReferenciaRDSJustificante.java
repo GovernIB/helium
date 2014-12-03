@@ -13,6 +13,7 @@ public class ReferenciaRDSJustificante {
 
 	private String clave;
 	private Long codigo;
+	
 	public String getClave() {
 		return clave;
 	}
@@ -24,5 +25,9 @@ public class ReferenciaRDSJustificante {
 	}
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
+	}
+	@Override
+	public String toString() {
+		return "ReferenciaRDSJustificante [clave=" + clave + ", codigo=" + codigo + "]";
 	}
 }

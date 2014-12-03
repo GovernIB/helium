@@ -7,7 +7,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ReferenciaRDSJustificanteDto {
-
 	private String clave;
 	private Long codigo;
 	public String getClave() {
@@ -21,5 +20,10 @@ public class ReferenciaRDSJustificanteDto {
 	}
 	public void setCodigo(Long codigo) {
 		this.codigo = codigo;
+	}
+
+	@Override
+	public String toString() {
+		return "ReferenciaRDSJustificanteDto [clave=" + clave + ", codigo=" + codigo + "]";
 	}
 }

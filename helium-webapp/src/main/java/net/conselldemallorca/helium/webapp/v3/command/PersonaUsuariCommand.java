@@ -19,6 +19,7 @@ public class PersonaUsuariCommand {
 	private Long numElementosPagina;
 	private boolean filtroExpedientesActivos;
 	private boolean usuarioModificable;
+	private Long expedientTipusDefecteId;
 
 	@NotEmpty(message="Per favor, especifiqui algun valor")
 	private String nom;
@@ -119,5 +120,11 @@ public class PersonaUsuariCommand {
 	}
 	public void setUsuarioModificable(boolean usuarioModificable) {
 		this.usuarioModificable = usuarioModificable;
+	}
+	public Long getExpedientTipusDefecteId() {
+		return expedientTipusDefecteId;
+	}
+	public void setExpedientTipusDefecteId(Long expedientTipusDefecteId) {
+		this.expedientTipusDefecteId = expedientTipusDefecteId;
 	}
 }

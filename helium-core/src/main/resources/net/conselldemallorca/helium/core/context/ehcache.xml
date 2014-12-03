@@ -16,4 +16,9 @@
 		timeToLiveSeconds="300" 
 		eternal="false" 
 		overflowToDisk="false" />	
+	<cache name="entornsUsuariActual" 
+		maxElementsInMemory="1000" 
+		eternal="false" 
+		timeToLiveSeconds="3600" 
+		overflowToDisk="false" />
 </ehcache>

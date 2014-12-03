@@ -86,12 +86,25 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					setEntornActual(request, entornActual);
 				} else {
 					UsuariPreferenciesDto prefs = adminService.getPreferenciesUsuariActual();
-					if (prefs != null && prefs.getDefaultEntornCodi() != null) {
-						for (EntornDto entorn: entorns) {
-							if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
-								entornActual = entorn;
-								setEntornActual(request, entornActual);
-								break;
+					if (prefs != null) {
+						if (prefs.getDefaultEntornCodi() != null) {
+							for (EntornDto entorn: entorns) {
+								if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
+									entornActual = entorn;
+									setEntornActual(request, entornActual);
+									break;
+								}
+							}
+						}
+						if (prefs.getExpedientTipusDefecteId() != null) {
+							for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {
+								if (expTipus.getId().equals(prefs.getExpedientTipusDefecteId())) {
+									SessionHelper.setAttribute(
+											request,
+											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
+											expTipus);
+									break;
+								}							
 							}
 						}
 					}
@@ -129,16 +142,14 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				String canviExpedientTipus = request.getParameter(VARIABLE_REQUEST_CANVI_EXPTIP);
 				if (canviExpedientTipus != null) {
 					if (canviExpedientTipus.length() > 0) {
-						if (canviExpedientTipus != null) {
-							Long expedientTipusId = new Long(canviExpedientTipus);
-							for (ExpedientTipusDto expedientTipus: accessibles) {
-								if (expedientTipus.getId().equals(expedientTipusId)) {
-									SessionHelper.setAttribute(
-											request,
-											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
-											expedientTipus);
-									break;
-								}
+						Long expedientTipusId = new Long(canviExpedientTipus);
+						for (ExpedientTipusDto expedientTipus: accessibles) {
+							if (expedientTipus.getId().equals(expedientTipusId)) {
+								SessionHelper.setAttribute(
+										request,
+										SessionHelper.VARIABLE_EXPTIP_ACTUAL,
+										expedientTipus);
+								break;
 							}
 						}
 					} else {
@@ -166,7 +177,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				} else {
 					SessionHelper.removeAttribute(
 							request,
-							SessionHelper.VARIABLE_CONS_EXPTIP_ACTUAL);
+							SessionHelper.VARIABLE_EXPTIP_ACTUAL);
 				}
 			}
 		}

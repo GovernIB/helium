@@ -150,8 +150,7 @@ public class DissenyService {
 
 	private Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 
-
-
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public DefinicioProces deploy(
 			Long entornId,
 			Long expedientTipusId,
@@ -220,6 +219,7 @@ public class DissenyService {
 		}
 	}
 
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void undeploy(
 			Long entornId,
 			Long expedientTipusId,
@@ -1327,6 +1327,8 @@ public class DissenyService {
 		
         return definicioProcesExportacio;
 	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void importar(
 			Long entornId,
 			Long expedientTipusId,
@@ -1457,7 +1459,7 @@ public class DissenyService {
 		return dto;
 	}
 	
-	@CacheEvict(value = "consultaCache", key="{#entornId,#expedientTipusId}")
+	@CacheEvict(value = "consultaCache", allEntries=true)
 	public void importarExpedientTipus(
 			Long entornId,
 			Long expedientTipusId,
@@ -2009,10 +2011,6 @@ public class DissenyService {
 
 	public List<Consulta> findConsultesAmbEntorn(Long entornId) {
 		return consultaDao.findAmbEntorn(entornId);
-	}
-	
-	public List<Consulta> findConsultesAmbEntornAmbOSenseTipusExp(Long entornId, Long expedientTipusId) {
-		return consultaDao.findAmbEntornAmbOSenseTipusExp(entornId, expedientTipusId);
 	}
 	
 	public List<Consulta> findConsultesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) {

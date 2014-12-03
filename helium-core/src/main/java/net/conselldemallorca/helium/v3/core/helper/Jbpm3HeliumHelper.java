@@ -61,7 +61,9 @@ import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
+import net.conselldemallorca.helium.integracio.plugins.registre.DadesNotificacio;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesOficina;
 import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RegistreEntrada;
@@ -1280,20 +1282,24 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public RegistreIdDto registreNotificacio(
 			RegistreNotificacioDto notificacio) throws PluginException {
 		imprimirFuncio("registreNotificacio");
-//		throw new PluginException("Funcionalitat no implementada");
-		imprimirFuncio("registreAnotacioSortida");
-		RegistreNotificacio registreSortida = new RegistreNotificacio();
+		RegistreNotificacio registreNotificacio = new RegistreNotificacio();
 		DadesOficina dadesOficina = new DadesOficina();
 		dadesOficina.setOrganCodi(notificacio.getOrganCodi());
 		dadesOficina.setOficinaCodi(notificacio.getOficinaCodi());
-		registreSortida.setDadesOficina(dadesOficina);
+		registreNotificacio.setDadesOficina(dadesOficina);
 		DadesInteressat dadesInteressat = new DadesInteressat();
 		dadesInteressat.setAutenticat(true);
 		dadesInteressat.setEntitatCodi(notificacio.getEntitatCodi());
 		dadesInteressat.setNomAmbCognoms(notificacio.getInteressatNomAmbCognoms());
 		dadesInteressat.setMunicipiCodi(notificacio.getInteressatMunicipiCodi());
 		dadesInteressat.setMunicipiNom(notificacio.getInteressatMunicipiNom());
-		registreSortida.setDadesInteressat(dadesInteressat);
+		dadesInteressat.setNif(notificacio.getInteressatNif());
+		registreNotificacio.setDadesInteressat(dadesInteressat);
+		DadesExpedient dadesExpedient = new DadesExpedient();
+		dadesExpedient.setIdentificador(notificacio.getExpedientIdentificador());
+		dadesExpedient.setClau(notificacio.getExpedientClau());
+		dadesExpedient.setUnitatAdministrativa(notificacio.getExpedientUnitatAdministrativa());
+		registreNotificacio.setDadesExpedient(dadesExpedient);		
 		DadesAssumpte dadesAssumpte = new DadesAssumpte();
 		String idiomaExtracte = notificacio.getAssumpteIdiomaCodi();
 		dadesAssumpte.setAssumpte(notificacio.getAssumpteExtracte());
@@ -1305,6 +1311,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				notificacio.getAssumpteRegistreNumero());
 		dadesAssumpte.setRegistreAny(
 				notificacio.getAssumpteRegistreAny());
+		DadesNotificacio dadesNotificacio = new DadesNotificacio();
+		dadesNotificacio.setJustificantRecepcio(notificacio.isNotificacioJustificantRecepcio());
+		dadesNotificacio.setAvisTitol(notificacio.getNotificacioAvisTitol());
+		dadesNotificacio.setAvisText(notificacio.getNotificacioAvisText());
+		dadesNotificacio.setAvisTextSms(notificacio.getNotificacioAvisTextSms());
+		dadesNotificacio.setOficiTitol(notificacio.getNotificacioOficiTitol());
+		dadesNotificacio.setOficiText(notificacio.getNotificacioOficiText());
+		dadesNotificacio.setIdiomaCodi(notificacio.getAssumpteIdiomaCodi());
+		dadesNotificacio.setTipus(notificacio.getAssumpteTipus());
+		dadesNotificacio.setAssumpte(notificacio.getAssumpteExtracte());
+		dadesNotificacio.setUnitatAdministrativa(notificacio.getUnitatAdministrativa());
+		dadesNotificacio.setRegistreNumero(notificacio.getAssumpteRegistreNumero());
+		dadesNotificacio.setRegistreAny(notificacio.getAssumpteRegistreAny());
+		registreNotificacio.setDadesNotificacio(dadesNotificacio);
 		if (notificacio.getAnnexos() != null) {
 			List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
 			for (RegistreAnnexDto annex: notificacio.getAnnexos()) {
@@ -1316,10 +1336,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				document.setArxiuContingut(annex.getArxiuContingut());
 				documents.add(document);
 			}
-			registreSortida.setDocuments(documents);
+			registreNotificacio.setDocuments(documents);
 		}
 		RespostaAnotacioRegistre respostaPlugin = pluginTramitacioDao.registrarNotificacio(
-				registreSortida);
+				registreNotificacio);
 		if (respostaPlugin.isOk()) {
 			RegistreIdDto resposta = new RegistreIdDto();
 			resposta.setNumero(respostaPlugin.getNumero());

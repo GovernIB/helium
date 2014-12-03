@@ -98,7 +98,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
 				filtreCommand);
 		
-		DatatablesPagina<ExpedientDto> result;
+		DatatablesPagina<ExpedientDto> result = null;
 		try {
 			result = PaginacioHelper.getPaginaPerDatatables(
 					request,
@@ -122,7 +122,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
 			logger.error("No se pudo obtener la lista de expedientes", e);
-			result = new DatatablesPagina<ExpedientDto>();
 		}
 		return result;
 	}

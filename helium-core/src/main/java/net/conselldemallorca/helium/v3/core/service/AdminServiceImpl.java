@@ -248,6 +248,7 @@ public class AdminServiceImpl implements AdminService {
 		UsuariPreferencies usuari = usuariPreferenciesRepository.findByCodi(preferencies.getCodi());
 		usuari.setCabeceraReducida(preferencies.isCabeceraReducida());
 		usuari.setConsultaId(preferencies.getConsultaId());
+		usuari.setExpedientTipusDefecteId(preferencies.getExpedientTipusDefecteId());
 		usuari.setDefaultEntornCodi(preferencies.getDefaultEntornCodi());
 		usuari.setFiltroTareasActivas(preferencies.isFiltroTareasActivas());
 		usuari.setListado(preferencies.getListado());

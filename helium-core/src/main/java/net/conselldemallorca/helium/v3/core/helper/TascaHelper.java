@@ -548,7 +548,8 @@ public class TascaHelper {
 		dto.setExpedientIdentificador(expedient.getIdentificador());
 		dto.setExpedientTipusNom(expedient.getTipus().getNom());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada(task.isAgafada());		
+		dto.setAgafada(task.isAgafada());
+		dto.setValidada(isTascaValidada(task));
 		return dto;
 	}
 

@@ -172,12 +172,18 @@
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.numelements"/>
 							</p>
 						</div>
+						<div class="control-group">
+							<hel:inputSelect name="expedientTipusDefecteId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
+							<p class="help-block">
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.tipusexpedientdefecte"/>
+							</p>
+						</div>
 						</div>
 						</div>
 						<div class="control-group">
 							<div class="label-titol">
 								<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.consulta"/></label>
-								<hel:inputSelect name="expedientTipusId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
+								<hel:inputSelect name="expedientTipusId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipusConConsultas}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
 								<hel:inputSelect name="consultaId" text="Consulta por tipo" placeholder="Consulta por tipo" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
 								<p class="help-block">
 									<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.consulta"/>

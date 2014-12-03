@@ -38,14 +38,9 @@ public class ZonaperEventNotificacioJustificantHandler extends BasicActionHandle
 	private String varConfirmarEnvio;
 	private String varConfirmadoEnvio;
 
-	public void execute(ExecutionContext executionContext) throws Exception {
-		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreActiu())
-			throw new JbpmException("El plugin de registre no està configurat");
-		if (varNumeroRegistre == null || varNumeroRegistre.length() == 0)
-			throw new JbpmException("És obligatori especificar un numero de registre");
-		
+	public void execute(ExecutionContext executionContext) throws Exception {		
 		boolean detalle = false;
-		if (varDetall != null || varDetall.length() > 0) {
+		if (varDetall != null || !varDetall.isEmpty()) {
 			String val = ((String)getValorOVariable(
 					executionContext,
 					detall,

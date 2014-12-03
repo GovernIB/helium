@@ -220,6 +220,9 @@ $(function(){
 			})
 		});
 	});
+	$(".validada").each(function(index){
+		validado(true);
+	});
 	
 	// Eliminar múltiple
 	$("#command").on("click", ".btn_eliminar", function(){
@@ -329,6 +332,33 @@ $(function(){
 //		canviTermini(this);
 //	});
 });
+
+function validado(validar) {
+	$('#command input[type=text]').each(function(){
+		$(this).attr("disabled",validar);
+	});
+	$('#command textarea').each(function(){
+		$(this).attr("disabled",validar);
+	});
+	$('#command button').each(function(){
+		$(this).attr("disabled",validar);
+	});
+	$('#command select').each(function(){
+		$(this).attr("disabled",validar);
+	});
+	$('#command input[type=checkbox]').each(function(){
+		$(this).attr("disabled",validar);
+	});
+	$('#command span').each(function(){
+		if (validar)
+			$(this).unbind("click");
+		else
+			$(this).bind("click");
+	});
+	$('#command #guardarValidarTarea button').each(function(){
+		$(this).attr("disabled",false);
+	});
+}
 
 function cleanAction(action) {
 	if (typeof action !== 'undefined' && !action.endsWith("/form")) {

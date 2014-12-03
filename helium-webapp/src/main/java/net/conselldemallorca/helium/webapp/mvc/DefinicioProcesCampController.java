@@ -96,9 +96,9 @@ public class DefinicioProcesCampController extends BaseController {
 			if (definicioProcesId != null){		
 				DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
 				if (definicioProces != null && definicioProces.getExpedientTipus() != null)
-					return dissenyService.findConsultesAmbEntornAmbOSenseTipusExp(entorn.getId(), definicioProces.getExpedientTipus().getId());
+					return dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(entorn.getId(), definicioProces.getExpedientTipus().getId());
 			}	
-			return dissenyService.findConsultesAmbEntornAmbOSenseTipusExp(entorn.getId(), null);
+			return dissenyService.findConsultesAmbEntorn(entorn.getId());
 		}
 		return null;
 	}

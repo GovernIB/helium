@@ -16,9 +16,9 @@
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	
-	<script src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
+<%-- 	<script src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script>  --%>
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+<%-- 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script> --%>
     <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
@@ -37,7 +37,6 @@
 				localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 				rowClickCallback: function(row) {
-// 					alert($(row));
 					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						$('a.consultar-tasca', $(row))[0].click();
 					</c:if>

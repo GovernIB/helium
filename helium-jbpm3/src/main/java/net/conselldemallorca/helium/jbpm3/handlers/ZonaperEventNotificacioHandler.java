@@ -1,18 +1,14 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
-import org.dom4j.DocumentHelper;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
@@ -23,7 +19,9 @@ import org.jbpm.graph.exe.ExecutionContext;
  */
 @SuppressWarnings({"serial", "unused"})
 public class ZonaperEventNotificacioHandler extends BasicActionHandler implements RegistreSortidaHandlerInterface {
-	
+
+	private String representatNif;
+	private String varRepresentatNif;
 	private String oficina;
 	private String varOficina;
 	private String oficinaFisica;
@@ -65,6 +63,12 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varData;
 	private String varReferenciaRDSJustificanteClave;
 	private String varReferenciaRDSJustificanteCodigo;
+	private String unitatAdministrativa;
+	private String varUnitatAdministrativa;
+	private String avisTitol;
+	private String varAvisTitol;
+	private String varAvisText;
+	private String avisText;
 
 	private String notificacioOficiTitol;
 	private String varNotificacioOficiTitol;
@@ -78,12 +82,33 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String notificacioSubsanacioTramitDescripcio;
 	private String varNotificacioSubsanacioTramitDescripcio;
 	
-	public void execute(ExecutionContext executionContext) throws Exception {
-		if (!Jbpm3HeliumBridge.getInstanceService().isRegistreActiu())
-			throw new JbpmException("El plugin de registre no està configurat");
-		if (varDocument == null || varDocument.length() == 0)
-			throw new JbpmException("És obligatori especificar un document per registrar");
+	public void execute(ExecutionContext executionContext) throws Exception {		
+		ExpedientDto expedient = getExpedientActual(executionContext);
+		expedient.setTramitExpedientIdentificador(expedient.getIdentificador()); // TODO: Borrar
+		if (expedient.getTramitExpedientIdentificador() == null)
+			throw new JbpmException("El expediente " + expedient.getIdentificador() + " no tiene número de sistra asociado."
+					+ "Una notificación tiene que generarse dentro de un expediente, por tanto un paso "
+					+ "previo a generar una notificación es haber publicado el expediente en la zona "
+					+ "personal.");
+		
 		DadesRegistreNotificacio anotacio = new DadesRegistreNotificacio();
+		
+		String identificador = expedient.getNumeroIdentificador();
+		String clau = new Long(System.currentTimeMillis()).toString();
+		anotacio.setExpedientIdentificador(identificador);
+		anotacio.setExpedientClau(clau);
+		String ua = (String)getValorOVariable(
+				executionContext,
+				unitatAdministrativa,
+				varUnitatAdministrativa);
+		if (ua != null)
+			anotacio.setExpedientUnitatAdministrativa(ua);
+		
+		anotacio.setInteressatNif((String)getValorOVariable(
+				executionContext,
+				representatNif,
+				varRepresentatNif));
+		
 		anotacio.setOrganCodi((String)getValorOVariable(
 				executionContext,
 				remitentCodiEntitat,
@@ -126,7 +151,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 						executionContext,
 						documentTipus,
 						varDocumentTipus));
-		
+		anotacio.setNotificacioJustificantRecepcio(true);
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos = new ArrayList<DocumentInfo>();
 		if (varDocument != null && !varDocument.isEmpty()) {
@@ -134,11 +159,20 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				executionContext,
 				varDocument,
 				true);
-			ExpedientDto expedient = getExpedientActual(executionContext);
-			anotacio.setAnotacioAssumpte(
-					expedient.getIdentificador() + ": " + documentInfo.getTitol());
-			annexos.add(documentInfo);
+			if (documentInfo != null) {
+				anotacio.setAnotacioAssumpte(
+						expedient.getIdentificador() + ": " + documentInfo.getTitol());
+				annexos.add(documentInfo);
+			} else {
+				System.out.println("No existia nungun documento con documentCodi: " + varDocument);
+			}
 		}
+		
+		anotacio.setNotificacioOficiTitol(
+				(String)getValorOVariable(
+						executionContext,
+						notificacioOficiTitol,
+						varNotificacioOficiTitol));
 		
 		anotacio.setNotificacioOficiText(
 				(String)getValorOVariable(
@@ -146,11 +180,17 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 						notificacioOficiText,
 						varNotificacioOficiText));
 		
-		anotacio.setNotificacioOficiTitol(
+		anotacio.setNotificacioAvisTitol(
 				(String)getValorOVariable(
 						executionContext,
-						notificacioOficiTitol,
-						varNotificacioOficiTitol));
+						avisTitol,
+						varAvisTitol));
+		
+		anotacio.setNotificacioAvisText(
+				(String)getValorOVariable(
+						executionContext,
+						avisText,
+						varAvisText));
 		
 		if (varNotificacioSubsanacioTramitIdentificador != null && !varNotificacioSubsanacioTramitIdentificador.isEmpty()) {
 			anotacio.setNotificacioSubsanacioTramitIdentificador(
@@ -176,19 +216,21 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				executionContext,
 				anotacio,
 				annexos);
-		if (documentInfo != null) {
-			Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
-					documentInfo.getId(),
-					resposta.getNumero(),
-					resposta.getData(),
-					anotacio.getOficinaCodi(),
-					Jbpm3HeliumBridge.getInstanceService().getRegistreOficinaNom(anotacio.getOficinaCodi()),
-					false);
+		if (resposta != null) {
+			// TODO: Falta actualizar expediente en Helium
+			String oficina = Jbpm3HeliumBridge.getInstanceService().getRegistreOficinaNom(anotacio.getOficinaCodi());
+			System.out.println("resposta para : " + expedient.getId() + " -> " + resposta);
+			// CREATE TABLE HEL_EXPEDIENT_NOTIF_ELECTRONICA (
+			// EXPEDIENT_ID VARCHAR2 NOT NULL ,
+			// NUMERO VARCHAR2 NULL ,
+			// DATA TIMESTAMP(0) NULL ,
+			// RDS_CODI VARCHAR2 NULL ,
+			// RDS_CLAVE VARCHAR2 NULL
+			// )
+			// NOCOMPRESS
+			// ;
 		}
-		if (varNumeroAnyRegistre != null)
-			executionContext.setVariable(
-					varNumeroAnyRegistre,
-					resposta.getNumero());
+
 		if (varNumeroRegistre != null)
 			executionContext.setVariable(
 					varNumeroRegistre,
@@ -196,11 +238,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		if (varDataRegistre != null)
 			executionContext.setVariable(
 					varDataRegistre,
-					resposta.getData());
-		if (varData != null)
-			executionContext.setVariable(
-					varData,
-					resposta.getData());				
+					resposta.getData());		
 		if (varReferenciaRDSJustificanteClave != null)
 			executionContext.setVariable(
 					varReferenciaRDSJustificanteClave,
@@ -232,6 +270,12 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	public void setNotificacioSubsanacioTramitVersio(int notificacioSubsanacioTramitVersio) {
 		this.notificacioSubsanacioTramitVersio = notificacioSubsanacioTramitVersio;
 	}
+	public void setVarUnitatAdministrativa(String varUnitatAdministrativa) {
+		this.varUnitatAdministrativa = varUnitatAdministrativa;
+	}
+	public void setUnitatAdministrativa(String unitatAdministrativa) {
+		this.unitatAdministrativa = unitatAdministrativa;
+	}
 	public void setVarNotificacioSubsanacioTramitVersio(String varNotificacioSubsanacioTramitVersio) {
 		this.varNotificacioSubsanacioTramitVersio = varNotificacioSubsanacioTramitVersio;
 	}
@@ -240,6 +284,19 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	}
 	public void setVarNotificacioSubsanacioTramitDescripcio(String varNotificacioSubsanacioTramitDescripcio) {
 		this.varNotificacioSubsanacioTramitDescripcio = varNotificacioSubsanacioTramitDescripcio;
+	}
+	public void setRepresentatNif(String representatNif) {
+		this.representatNif = representatNif;
+	}
+	public void setVarAvisTitol(String varAvisTitol) {
+		this.varAvisTitol = varAvisTitol;
+	}
+
+	public void setVarAvisText(String varAvisText) {
+		this.varAvisText = varAvisText;
+	}
+	public void setVarRepresentatNif(String varRepresentatNif) {
+		this.varRepresentatNif = varRepresentatNif;
 	}
 	public void setOficina(String oficina) {
 		this.oficina = oficina;
@@ -312,6 +369,12 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	}
 	public void setVarDestinatariNomGeografic(String varDestinatariNomGeografic) {
 		this.varDestinatariNomGeografic = varDestinatariNomGeografic;
+	}
+	public void setAvisTitol(String avisTitol) {
+		this.avisTitol = avisTitol;
+	}
+	public void setAvisText(String avisText) {
+		this.avisText = avisText;
 	}
 	public void setDestinatariRegistreNumero(String destinatariRegistreNumero) {
 		this.destinatariRegistreNumero = destinatariRegistreNumero;

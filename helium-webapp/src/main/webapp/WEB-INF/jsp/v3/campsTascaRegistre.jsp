@@ -11,7 +11,7 @@
 <c:set var="isRegistre" value="${true}"/>
 <c:set var="campErrorsReg"><form:errors path="${dadaActual.varCodi}"/></c:set>
 <div class="form-group registre<c:if test="${not empty campErrorsReg}"> has-error</c:if>">
-	<label for="${dadaActual.varCodi}" class="control-label col-xs-3">${dadaActual.campEtiqueta}</label>
+	<label for="${dadaActual.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dadaActual.campEtiqueta}</label>
 	<div class="controls col-xs-9 registre">	
 		<c:set var="nomReg" value="command.${dadaActual.varCodi}" />
 		
