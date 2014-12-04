@@ -341,6 +341,12 @@ h3.titol-buidarlog {
 	background-repeat: no-repeat;
 	background-position: 2px 6px;
 }
+h3.titol-reprendre-expedient {
+	padding-left: 24px;
+	background-image: url(../img/arrow_undo.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
 h3.titol-documents-tasca {
 	padding-left: 24px;
 	background-image: url(../img/page_white_stack.png);
