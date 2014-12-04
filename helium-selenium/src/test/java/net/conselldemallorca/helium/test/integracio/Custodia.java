@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,8 +13,6 @@ import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginEx
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaResponseCaib;
 import net.conselldemallorca.helium.test.integracio.utils.WsClientUtils;
 import net.conselldemallorca.helium.test.util.BaseTest;
-import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaDocumentosSoapBindingStub;
-import net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.cliente.CustodiaServiceLocator;
 
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
@@ -27,7 +24,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import es.caib.bantel.ws.v2.services.BantelFacade;
 import es.caib.signatura.cliente.custodia.CustodiaRequestBuilder;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -130,10 +126,6 @@ public class Custodia extends BaseTest {
 	private net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia getClienteCustodia() {
 		if (clienteCustodia == null) {
 			try {
-				/*String urlEndPoint = properties.getProperty("app.custodia.plugin.caib.url");
-				CustodiaServiceLocator service = new CustodiaServiceLocator(); 
-				clienteCustodia = (net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia) service.getCustodiaDocumentos(new URL(urlEndPoint));
-				clienteCustodia.setTimeout(100000);*/
 				String urlEndPoint = properties.getProperty("app.custodia.plugin.caib.url");
 				return (net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia)WsClientUtils.getWsClientProxy(net.conselldemallorca.helium.wsintegraciones.custodiadocumentos.Custodia.class, urlEndPoint, null,	null, "NONE", false, true, false);
 			} catch (Exception e) {

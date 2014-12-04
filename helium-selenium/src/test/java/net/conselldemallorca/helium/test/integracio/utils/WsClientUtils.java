@@ -52,7 +52,6 @@ public class WsClientUtils {
 		Client clientProxy = ClientProxy.getClient(c);
 
 		HTTPConduit conduit = (HTTPConduit) clientProxy.getConduit();
-		String targetAddr = conduit.getTarget().getAddress().getValue();
 		
 		TrustManager[] simpleTrustManager = new TrustManager[] { new X509TrustManager() {
 			
