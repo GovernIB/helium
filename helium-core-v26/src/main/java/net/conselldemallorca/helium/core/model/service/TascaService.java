@@ -191,6 +191,52 @@ public class TascaService {
 		mesuresTemporalsHelper.mesuraCalcular("Recompte tasques personals", "consulta");		
 		return count;
 	}
+	public int findCountTasquesPersonalsFiltre(
+			Long entornId,
+			String usuari,
+			String tasca,
+			String expedient,
+			String numeroExpedient,
+			Long tipusExpedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Integer prioritat,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES COUNT PERSONA", "consulta");
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo,
+				expedient, 
+				numeroExpedient,
+				tipusExpedient,
+				sort,
+				asc
+				);
+
+		LlistatIds ids = jbpmDao.findListPersonalTasks(
+				usuariBo, 
+				tasca, 
+				idsExpedients, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi, firstRow, maxResults, sort, asc);
+
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES COUNT PERSONA", "consulta");
+		return ids.getCount();
+	}
 	public PaginaLlistatDto findTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
@@ -274,6 +320,50 @@ public class TascaService {
 		LlistatIds lista = jbpmDao.findListIdsGroupTasks(usuariBo, idsExpedients);
 		count = lista.getCount();
 		mesuresTemporalsHelper.mesuraCalcular("Recompte tasques grup", "consulta");
+		return count;
+	}
+	public int findCountTasquesGrupFiltre(
+			Long entornId,
+			String usuari,
+			String tasca,
+			String expedient,
+			String numeroExpedient,
+			Long tipusExpedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Integer prioritat,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			int firstRow,
+			int maxResults,
+			String sort,
+			boolean asc) {
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP COUNT", "consulta");
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo,
+				expedient, 
+				numeroExpedient,
+				tipusExpedient,
+				sort,
+				asc);
+		
+		int count = jbpmDao.findListGroupTasks(
+				usuariBo, 
+				tasca, 
+				idsExpedients, 
+				dataCreacioInici, 
+				dataCreacioFi, 
+				prioritat, 
+				dataLimitInici, 
+				dataLimitFi, firstRow, maxResults, sort, asc).getCount();
+		
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP COUNT", "consulta");
 		return count;
 	}
 	

@@ -1555,6 +1555,47 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
 	}
 
+	public void reprendreExpedient(String processInstanceId) throws Exception{
+		adminService.mesuraIniciar("jBPM reprendreExpedient", "jbpmDao");
+		
+		// Recuperamos el token EndState más reciente
+		JbpmProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
+		List<JbpmProcessInstance> lista = getProcessInstanceTree(String.valueOf(rootProcessInstance.getProcessInstance().getId()));
+		Token token = null;
+		for (JbpmProcessInstance pi : lista) {
+			Map<String, JbpmToken> tokens = getAllTokens(String.valueOf(pi.getProcessInstance().getId()));
+			for (String tokenName: tokens.keySet()) {
+				Token tokenTmp = tokens.get(tokenName).getToken();
+				if (!NodeType.EndState.equals(tokenTmp.getNode().getNodeType())) {
+					if(tokenTmp.hasParent()) {
+						tokenTmp = tokenTmp.getParent();
+						if (NodeType.EndState.equals(tokenTmp.getNode().getNodeType()) && tokenTmp.hasEnded()) {
+							if (token == null)
+								token = tokenTmp;
+							else if (tokenTmp.getEnd().after(token.getEnd()))
+								token = tokenTmp;
+						}
+					}
+				} else if (tokenTmp.hasEnded()) {
+					if (token == null)
+						token = tokenTmp;
+					else if (tokenTmp.getEnd().after(token.getEnd()))
+						token = tokenTmp;
+				}
+			}
+		}
+				
+		// Activamos recursivamente
+		while (token != null) {
+			revertTokenEnd(token.getId());
+			token = token.getParent();
+		}
+		
+		// Activamos la instancia de proceso
+		revertProcessInstanceEnd(rootProcessInstance.getProcessInstance().getId());
+		
+		adminService.mesuraCalcular("jBPM reprendreExpedient", "jbpmDao");
+	}
 
 	private Object executeCommandWithAutoSave(
 			Command command,

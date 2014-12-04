@@ -163,11 +163,6 @@ public class TascaLlistatController extends BaseController {
 			model.addAttribute("personaLlistat", pagina);
 			model.addAttribute("personaLlistatCount", pagina.getFullListSize());
 			model.addAttribute(
-					"grupLlistatCount",
-					tascaService.countTasquesGrupEntorn(
-							entorn.getId(),
-							null));
-			model.addAttribute(
 					"terminisIniciats",
 					findTerminisIniciatsPerTasques(
 							(List<TascaLlistatDto>)pagina.getList()));
@@ -175,6 +170,7 @@ public class TascaLlistatController extends BaseController {
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
 			
 			// Asignamos los valores del filtro a la pestaña de grup
+			model.addAttribute("grupLlistatCount", getPaginaTasquesCountGrup(entorn,tascaPersonaFiltreCommand,objectsPerPage));
 			request.getSession().setAttribute("commandTascaGrupFiltre", tascaPersonaFiltreCommand);
 			
 			return "tasca/personaLlistat";
@@ -241,11 +237,6 @@ public class TascaLlistatController extends BaseController {
 			model.addAttribute("grupLlistat", pagina);
 			model.addAttribute("grupLlistatCount", pagina.getFullListSize());
 			model.addAttribute(
-					"personaLlistatCount",
-					tascaService.countTasquesPersonalsEntorn(
-							entorn.getId(),
-							null));
-			model.addAttribute(
 					"terminisIniciats",
 					findTerminisIniciatsPerTasques(
 							(List<TascaLlistatDto>)pagina.getList()));
@@ -253,6 +244,7 @@ public class TascaLlistatController extends BaseController {
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
 			
 			// Asignamos los valores del filtro a la pestaña de personals
+			model.addAttribute("personaLlistatCount", getPaginaTasquesPersonalsCount(entorn,tascaGrupFiltreCommand,objectsPerPage));
 			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaGrupFiltreCommand);
 			
 			return "tasca/grupLlistat";
@@ -387,6 +379,28 @@ public class TascaLlistatController extends BaseController {
 		return resposta;
 	}
 
+	private int getPaginaTasquesPersonalsCount(
+			Entorn entorn,
+			TascaFiltreCommand command,
+			String objectsPerPage) {
+		return tascaService.findCountTasquesPersonalsFiltre(
+				entorn.getId(),
+				null,
+				command.getNom(),
+				command.getExpedient(),
+				command.getNumeroExpedient(),
+				command.getTipusExpedient(),
+				command.getDataCreacioInici(),
+				command.getDataCreacioFi(),
+				command.getPrioritat(),
+				command.getDataLimitInici(),
+				command.getDataLimitFi(),
+				0,
+				-1,
+				null,
+				false);
+	}
+
 	private PaginatedList getPaginaTasquesPersonals(
 			Entorn entorn,
 			TascaFiltreCommand command,
@@ -428,6 +442,28 @@ public class TascaLlistatController extends BaseController {
 		paginatedList.setFullListSize(dadesLlistat.getCount());
 		paginatedList.setList(dadesLlistat.getLlistat());
 		return paginatedList;
+	}
+	
+	private int getPaginaTasquesCountGrup(
+			Entorn entorn,
+			TascaFiltreCommand command,
+			String objectsPerPage) {		
+		return tascaService.findCountTasquesGrupFiltre(
+				entorn.getId(),
+				null,
+				command.getNom(),
+				command.getExpedient(),
+				command.getNumeroExpedient(),
+				command.getTipusExpedient(),
+				command.getDataCreacioInici(),
+				command.getDataCreacioFi(),
+				command.getPrioritat(),
+				command.getDataLimitInici(),
+				command.getDataLimitFi(),
+				0,
+				-1,
+				null,
+				false);
 	}
 	private PaginatedList getPaginaTasquesGrup(
 			Entorn entorn,

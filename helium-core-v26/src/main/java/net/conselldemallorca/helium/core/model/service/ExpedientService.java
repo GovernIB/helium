@@ -731,11 +731,7 @@ public class ExpedientService {
 		} catch (Exception ex) {
 
 		}
-		try {
-			jbpmHelper.deleteProcessInstanceInconsistencias(String.valueOf(processInstanceId));
-		} catch (Exception ex) {
-
-		}
+		jbpmHelper.deleteProcessInstanceInconsistencias(String.valueOf(processInstanceId));
 		for (DocumentStore documentStore : documentStoreDao.findAmbProcessInstanceId(String.valueOf(processInstanceId))) {
 			if (documentStore.isSignat()) {
 				try {
@@ -1275,6 +1271,25 @@ public class ExpedientService {
 	}
 	public void buidarLogExpedient(String processInstanceId) {
 		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
+	}
+	public void reprendreExpedient(String processInstanceId) throws Exception {
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+		logger.debug("Desfinalitzant l'expedient (" +
+				"id=" + expedient.getId());		
+		mesuresTemporalsHelper.mesuraIniciar("Desfinalitzar", "expedient", expedient.getTipus().getNom());
+		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
+				null);
+		jbpmHelper.reprendreExpedient(processInstanceId);
+		expedient.setDataFi(null);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		
+		registreDao.crearRegistreReprendreExpedient(
+				expedient.getId(),
+				getUsuariPerRegistre());
+		
+		mesuresTemporalsHelper.mesuraCalcular("Desfinalitzar", "expedient", expedient.getTipus().getNom());
 	}
 
 	@Secured({"ROLE_ADMIN"})

@@ -96,6 +96,13 @@ function confirmarBuidarLogExpedient(e) {
 		document.getElementById("buidarlogForm").submit();
 	}
 }
+function confirmarReprendreExpedient(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	programacio();
+	return confirm("<fmt:message key='expedient.eines.confirm_reprendre_expedients' />");
+}
 function programacio(){
 	var inici = $("#inici").val();
 	var correu = $("#correu").is(":checked") ? true : false;
@@ -471,6 +478,17 @@ $(document).ready(function(){
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
 					<c:param name="titles"><fmt:message key='comuns.buidarlog' /></c:param>
+				</c:import>
+			</form:form>
+			
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reprendre_expedients' /></h3>
+			<form:form action="reprendreExpedientMas.html" cssClass="uniForm" onsubmit="return confirmarReprendreExpedient(event)"  onclick="javascript:massiva(this)">
+				<input type="hidden" id="idx_inici" name="inici">
+				<input type="hidden" id="idx_correu" name="correu">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">submit</c:param>
+					<c:param name="titles"><fmt:message key='comuns.reprendre' /></c:param>
 				</c:import>
 			</form:form>
 <%--			

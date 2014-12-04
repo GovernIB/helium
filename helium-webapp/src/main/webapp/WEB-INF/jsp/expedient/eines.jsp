@@ -52,6 +52,14 @@ function confirmarBuidarLogExpedient(e) {
 		document.getElementById("buidarlogForm").submit();
 	}
 }
+function confirmarReprendreExpedientExpedient(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.eines.confirm_reprendre_expedient' />")) {
+		document.getElementById("reprendreExpedientForm").submit();
+	}
+}
 
 // ]]>
 </script>
@@ -207,7 +215,15 @@ function confirmarBuidarLogExpedient(e) {
 	<h3 class="titol-tab titol-buidarlog">
 		<a href="#" class="buidarlogLink" onclick='javascript:confirmarBuidarLogExpedient(event);'><fmt:message key='expedient.eines.buidarlog_proces' /></a>
 	</h3>
+	<c:if test="${expedient.dataFi != null}">
+		<h3 class="titol-tab titol-reprendre-expedient">
+			<a href="#" class="reprendreExpedientLink" onclick='javascript:confirmarReprendreExpedientExpedient(event);'><fmt:message key='expedient.eines.reprendre_expedient' /></a>
+		</h3>
+	</c:if>
 	<form:form id="buidarlogForm" action="buidarlog.html">
+		<input type="hidden" name="id" value="${param.id}" />
+	</form:form>
+	<form:form id="reprendreExpedientForm" action="reprendreExpedient.html">
 		<input type="hidden" name="id" value="${param.id}" />
 	</form:form>	
 </body>

@@ -85,11 +85,17 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_reassignar_expedients' />");
 		}
-		function confirmarBuidarLogExpedient(e) {
+		function confirmarBuidarLog(e) {
 			var e = e || window.event;
 			e.cancelBubble = true;
 			if (e.stopPropagation) e.stopPropagation();
-			return confirm("<fmt:message key='expedient.eines.confirm_buidarlog_expedients' />");
+			return confirm("<spring:message code='expedient.eines.confirm_buidarlog_expedients' />");
+		}
+		function confirmarReprendreExpedient(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			return confirm("<spring:message code='expedient.eines.confirm_reprendre_expedients' />");
 		}
 		$(document).ready(function(){			
 			$('#inici_timer').datetimepicker({
@@ -260,6 +266,7 @@
 							<option value="modificarVariablesMasCommand"><spring:message code='expedient.massiva.modificar_variables' /></option>
 							<option value="documentModificarMas"><spring:message code='expedient.massiva.documents' /></option>
 							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
+							<option value="reprendreExpedientMas"><spring:message code='expedient.eines.reprendre_expedients' /></option>
 						</select>
 						<script>
 							$(document).ready(function() {
@@ -418,6 +425,19 @@
 				<form:form cssClass="form-horizontal form-tasca" id="buidarlogMas" name="buidarlogMas" action="massiva/buidarlogMas" method="post" onsubmit="return confirmarBuidarLog(event)">
 					<button class="btn btn-primary right" type="submit" name="accio" value="buidarlog">
 						<spring:message code='comuns.buidarlog' />
+					</button>
+				</form:form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="opcionMasiva control-group right">
+		<div class="label-titol">
+			<label class="control-label"><spring:message code='expedient.eines.reprendre_expedients' /></label>
+			<div class="form-group">
+				<form:form cssClass="form-horizontal form-tasca" id="reprendreExpedientMas" name="reprendreExpedientMas" action="massiva/reprendreExpedientMas" method="post" onsubmit="return confirmarReprendreExpedient(event)">
+					<button class="btn btn-primary right" type="submit" name="accio" value="reprendreExpedient">
+						<spring:message code='comuns.reprendre' />
 					</button>
 				</form:form>
 			</div>

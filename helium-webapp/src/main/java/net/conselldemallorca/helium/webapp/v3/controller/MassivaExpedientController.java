@@ -182,6 +182,16 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
 	}
+
+	@RequestMapping(value="reprendreExpedientMas", method = RequestMethod.POST)
+	public String reprendreExpedientMasPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "accio", required = true) String accio,
+			Model model) {
+		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
+	}
 	
 	@RequestMapping(value="massivaExecutarAccio", method = RequestMethod.POST)
 	public String execucioAccioCommandPost(
@@ -282,6 +292,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.BUIDARLOG);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.info(request, getMessage(request, "info.buidarlog.massiu.executat", new Object[] {listIds.size()}));
+			} else if ("reprendreExpedient".equals(accio)) {
+				dto.setTipus(ExecucioMassivaTipusDto.REPRENDRE_EXPEDIENT);
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.info(request, getMessage(request, "info.accio.massiu.reprendre_expedient", new Object[] {listIds.size()}));
 			} else if ("executar".equals(accio)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {

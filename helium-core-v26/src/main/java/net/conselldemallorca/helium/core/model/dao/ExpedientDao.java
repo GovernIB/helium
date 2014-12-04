@@ -316,7 +316,8 @@ public class ExpedientDao extends HibernateGenericDao<Expedient, Long> {
 			hql += " and ex.tipus.restringirPerGrup = false ";
 		}
 		if (estatId != null && !finalitzat) {
-			hql += " and ex.estat.id = :estatId";
+			hql += 	  " and ex.estat.id = :estatId"
+					+ " and ex.dataFi is null";
 		}
 		if (iniciat && !finalitzat) {
 			hql += " and ex.estat.id is null ";

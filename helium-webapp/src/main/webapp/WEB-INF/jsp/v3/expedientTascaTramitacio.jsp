@@ -334,21 +334,7 @@
 		</c:if>
 		<c:if test="${not empty documents}">
 			<div class="tab-pane" id="documents">
-				<c:if test="${not empty documentsNomesLectura}">
-					<c:import url="import/expedientDadesTaula.jsp">
-						<c:param name="dadesAttribute" value="documentsNomesLectura"/>
-						<c:param name="titol" value="Documents de referència"/>
-						<c:param name="numColumnes" value="${numColumnes}"/>
-						<c:param name="count" value="${fn:length(documentsNomesLectura)}"/>
-						<c:param name="desplegat" value="${false}"/>
-						<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
-					</c:import>
-				</c:if>
-				<c:forEach var="document" items="${documents}">
-					<div class="well well-small">
-						<h4>${document.documentNom}</h4>
-					</div>
-				</c:forEach>
+				<%@ include file="expedientTascaTramitacioDocuments.jsp" %>
 			</div>
 		</c:if>
 		<c:if test="${not empty signatures}">
