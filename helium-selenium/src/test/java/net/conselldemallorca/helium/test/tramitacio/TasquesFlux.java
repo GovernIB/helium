@@ -313,9 +313,9 @@ public class TasquesFlux extends BaseTest {
 		assertTrue("El campo de 'Data de fi del termini' de 'Termini lab' no era correcto : Inicio : " + dataIniTerminiNoLab + " - Fin esperado : " +dataFiTerminiNoLab+ " - Fin real : " + fechaTerminiNoLab, fechaTerminiNoLab.equals(dataFiTerminiNoLab));
 		
 		// Comprobamos que haya una nueva alerta
-		Thread.sleep(waitTime);
-		driver.findElement(By.xpath("//*[@id='page-entorn-title']/h2/a")).click();
-		Thread.sleep(waitTime);
+		if (existeixElementAssert("//*[@id='page-entorn-title']/h2/a", "No hay una nueva alerta"))
+			driver.findElement(By.xpath("//*[@id='page-entorn-title']/h2/a")).click();
+		
 		WebElement selectTipusExpedient = driver.findElement(By.xpath("//*[@id='content']//select"));
 		List<WebElement> options = selectTipusExpedient.findElements(By.tagName("option"));
 		for (WebElement option : options) {

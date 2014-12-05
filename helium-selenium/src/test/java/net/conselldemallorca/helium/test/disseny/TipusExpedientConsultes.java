@@ -306,7 +306,7 @@ public class TipusExpedientConsultes extends BaseTest {
 			
 			//driver.findElement(By.xpath("/html/body/div/div/button[text() = 'Generar']")).click();
 
-			postDownloadFile("//*[@id='paramsCommand']");
+//			postDownloadFile("//*[@id='paramsCommand']");
 			
 			screenshotHelper.saveScreenshot("tipusExpedient/consultes/b4_6_descarrega_informes-consulta_multiple_2_descarregar_b.png");
 	}

@@ -350,11 +350,14 @@ public abstract class BaseTest {
 	
 	public boolean isAlertPresent() { 
 		try {
+			Thread.sleep(5000);
 			driver.switchTo().alert();
             return true;
         } catch (NoAlertPresentException e) {
             return false;
-        }
+        } catch (InterruptedException e) {
+        	 return false;
+		}
 	} 
 	
 	protected void acceptarAlerta() {
@@ -1093,15 +1096,16 @@ public abstract class BaseTest {
 		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_1_importar_tipexp-inici.png"); }
 		
 		// Deploy
-		driver.findElement(By.xpath("//*[@id='content']/div/h3/img[contains(@src,'magnifier_zoom_in.png')]")).click();
-		driver.findElement(By.id("arxiu0")).sendKeys(path);
+		if(existeixElement("//*[@id='content']/div/h3/img[contains(@src,'magnifier_zoom_in.png')]")) {
+			driver.findElement(By.xpath("//*[@id='content']/div/h3/img[contains(@src,'magnifier_zoom_in.png')]")).click();
+			driver.findElement(By.id("arxiu0")).sendKeys(path);
 		
-		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_importar_tipexp-arxiu_seleccionat.png"); }
-		
-		driver.findElement(By.xpath("//*[@id='command']//div[@class='buttonHolder']/button[text() = 'Importar']")).click();
-		
-		if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_importar_tipexp-resultat.png"); }
-		
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_2_importar_tipexp-arxiu_seleccionat.png"); }
+			
+			driver.findElement(By.xpath("//*[@id='command']//div[@class='buttonHolder']/button[text() = 'Importar']")).click();
+			
+			if (prefixeScreenShot!=null && !"".equals(prefixeScreenShot)) { screenshotHelper.saveScreenshot(prefixeScreenShot+"_3_importar_tipexp-resultat.png"); }
+		}
 		existeixElementAssert("//*[@class='missatgesOk']", "No s'ha pogut importar el tipus d´expedient de test");
 	}
 	
@@ -1471,7 +1475,15 @@ public abstract class BaseTest {
 	protected void postDownloadFileHash(String formXpath, String md5) {
 		byte[] downloadedFile = postDownloadFile(formXpath);
 		
-		try {
+		try {	
+//			java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+//	        byte[] array = md.digest(downloadedFile);
+//	        StringBuffer sb = new StringBuffer();
+//	        for (int i = 0; i < array.length; ++i) {
+//	          sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+//	       }
+//	        System.out.println("MD5: " + sb.toString());
+	        
 			CheckFileHash fileToCheck = new CheckFileHash();
 			fileToCheck.fileToCheck(downloadedFile);
 			fileToCheck.hashDetails(md5, HashType.MD5);

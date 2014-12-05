@@ -274,7 +274,7 @@ public class ConsultaExpedients extends BaseTest {
 		assertTrue("No se llegó a la pantalla de tasques pendents", "Tasques pendents".equals(driver.findElement(By.xpath("//*[@id='page-title']/h2/span")).getText()));
 		
 		//TODO: Pendiente de solucionar la codificacion del enlace para titulos de expediente con acentos
-		//assertTrue("No se realizó la búsqueda con el nombre del expediente correcto", nomExpediente.equals(driver.findElement(By.xpath("//*[@id='expedient0']")).getAttribute("value")));
+		assertTrue("No se realizó la búsqueda con el nombre del expediente correcto", nomExpediente.equals(driver.findElement(By.xpath("//*[@id='expedient0']")).getAttribute("value")));
 	}
 	
 	@Test
@@ -295,7 +295,7 @@ public class ConsultaExpedients extends BaseTest {
 		assertTrue("No se llegó a la pantalla de tasques pendents", "Tasques pendents".equals(driver.findElement(By.xpath("//*[@id='page-title']/h2/span")).getText()));
 		
 		//TODO: Pendiente de solucionar la codificacion del enlace para titulos de expediente con acentos
-		//assertTrue("No se realizó la búsqueda con el nombre del expediente correcto", nomExpediente.equals(driver.findElement(By.xpath("//*[@id='expedient0']")).getAttribute("value")));
+		assertTrue("No se realizó la búsqueda con el nombre del expediente correcto", nomExpediente.equals(driver.findElement(By.xpath("//*[@id='expedient0']")).getAttribute("value")));
 		
 		if (existeixElement("//*[@id='registre']/tbody/tr[1]/td[1]/a")) {
 			String nomTasca = driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td[1]/a")).getText();
@@ -509,52 +509,6 @@ public class ConsultaExpedients extends BaseTest {
 		
 		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td/img[@src = '/helium/img/stop.png']", "No exitía la imagen de expediente aturado");
 	}
-	
-//	@Test
-//	public void l_aturar_expedient() throws InterruptedException, ParseException {
-//		carregarUrlDisseny();
-//		seleccionarEntorn(titolEntorn);
-//		
-//		// Comprobamos permisos de borrado
-//		
-//		// Los quitamos
-//		assignarPermisosTipusExpedient(codTipusExp1, usuari, "READ");
-//		
-//		consultarExpedientes(null, null, nomTipusExp1);
-//		
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td/a/img[@src = '/helium/img/information.png']", "No exitía la imagen de ver la información de un expediente");
-//		
-//		// Abrimos el expediente
-//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/a/img[@src = '/helium/img/information.png']")).click();
-//		
-//		noExisteixElementAssert("//*[@id='tabnav']/li/a[contains(text(), 'Eines')]", "Tenía permisos de eines");
-//		
-//		// Los ponemos
-//		assignarPermisosTipusExpedient(codTipusExp1, usuari, "CREATE","WRITE","DELETE","READ");
-//		
-//		consultarExpedientes(null, null, nomTipusExp1);
-//		
-//		// Abrimos el expediente
-//		driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[1]/td/a/img[@src = '/helium/img/information.png']")).click();
-//		
-//		existeixElementAssert("//*[@id='tabnav']/li/a[contains(text(), 'Eines')]", "No tenía permisos de eines");
-//		
-//		noExisteixElementAssert("//*[@id='content']/div[@class='missatgesAturat']", "El expediente ya estaba aturado");
-//		
-//		// Aturamos el expediente
-//		driver.findElement(By.xpath("//*[@id='tabnav']/li/a[contains(text(), 'Eines')]")).click();
-//		driver.findElement(By.xpath("//*[@id='content']/div/h3[1]/a")).click();
-//		driver.findElement(By.xpath("//*[@id='motiu0']")).sendKeys("El motivo");
-//		driver.findElement(By.xpath("//button[contains(text(), 'Aturar')]")).click();
-//		acceptarAlerta();
-//		
-//		existeixElementAssert("//*[@id='infos']/p", "No aturo el expediente correctamente");
-//		existeixElementAssert("//*[@id='content']/div[@class='missatgesAturat']", "No existía el mensaje de aturar expediente");
-//		
-//		consultarExpedientes(null, null, nomTipusExp1);
-//		
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td/img[@src = '/helium/img/stop.png']", "No exitía la imagen de expediente aturado");
-//	}
 
 	@Test
 	public void n1_borrar_expedient() throws InterruptedException, ParseException {	
@@ -599,33 +553,7 @@ public class ConsultaExpedients extends BaseTest {
 		
 		// Borramos el primer expediente
 		borrarPrimerExpediente();
-	}
-	
-//	@Test
-//	public void n_borrar_expedient() throws InterruptedException, ParseException {	
-//		carregarUrlDisseny();
-//		seleccionarEntorn(titolEntorn);
-//		
-//		// Comprobamos permisos de borrado
-//		
-//		// Los quitamos
-//		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","READ","ADMINISTRATION");
-//		
-//		consultarExpedientes(null, null, nomTipusExp1);
-//		
-//		noExisteixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "Tenía permisos de borrado");
-//		
-//		// Los ponemos
-//		assignarPermisosTipusExpedient(codTipusExp1, usuari, "DESIGN","CREATE","SUPERVISION","WRITE","MANAGE","DELETE","READ","ADMINISTRATION");
-//		
-//		consultarExpedientes(null, null, nomTipusExp1);
-//		
-//		existeixElementAssert("//*[@id='registre']/tbody/tr[1]/td[contains(a/img/@src,'/helium/img/cross.png')]/a/img", "No tenía permisos de borrado");
-//		
-//		// Borramos el primer expediente
-//		borrarPrimerExpediente();
-//	}
-	
+	}	
 	
 	@Test
 	public void z0_finalitzacio() {

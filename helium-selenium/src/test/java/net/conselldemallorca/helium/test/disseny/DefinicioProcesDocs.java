@@ -197,17 +197,16 @@ public class DefinicioProcesDocs extends BaseTest {
 		checkboxSelected("//*[@id='plantilla0']", "És plantilla no sa gravat correctament", esPlantilla);
 		checkboxSelected("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (esPlantilla) {
-			if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
+//			if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
 			
-			/*if (md5Plantilla != null) {
+			if (md5Plantilla != null) {
 				try {
 					byte[] arxiuContingut = downloadFile("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", "");
 					String hashFile = getMD5Checksum(arxiuContingut);
-					System.out.println(hashFile);
-					System.out.println(arxiuContingut_hash);
+					System.out.println("defproc.deploy.arxiu.contingut.hash" + hashFile);
 					assertTrue("Hash de l'arxiu contingut no ha estat l´esperat: "+hashFile+" diferent de " + arxiuContingut_hash, arxiuContingut_hash.equals(hashFile));
 				}catch (Exception ex) {}
-			}*/
+			}
 			
 			//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
 			
@@ -288,14 +287,15 @@ public class DefinicioProcesDocs extends BaseTest {
 		if (adjuntar != null) checkboxSelectedAssert("//*[@id='adjuntarAuto0']", "Adjuntar automàticament no s'ha gravat correctament", adjuntar);
 		if (pathPlantilla != null) existeixElementAssert("//*[@id='iconsFileInput_arxiuContingut0']/a[1]/img", "L'arxiu de la plantilla no s'ha gravat correctament");
 		
-		//if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
+//		if (md5Plantilla != null) downloadFileHash("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", md5Plantilla, "plantilla.odt");
 		
-		/*if (md5Plantilla != null) {
+		if (md5Plantilla != null) {
 			try {
 				byte[] arxiuContingut = downloadFile("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", "");
+				System.out.println("defproc.deploy.arxiu.contingut.hash" + arxiuContingut_hash);
 				assertTrue("Hash de l'arxiu contingut no ha estat l´esperat." , arxiuContingut_hash.equals(getMD5Checksum(arxiuContingut)));
 			}catch (Exception ex) {}
-		}*/
+		}
 		
 		//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
 		
@@ -307,19 +307,5 @@ public class DefinicioProcesDocs extends BaseTest {
 		if (tipusDoc != null) existeixElementAssert("//*[@id='tipusDocPortasignatures0' and @value='" + tipusDoc + "']", "El tipus de document de protasigantures no s'ha gravat correctament");
 		
 		driver.findElement(By.xpath("//button[@value='cancel']")).click();
-	}
-	
-	private void eliminarEnumeracionsTest() {
-		actions.moveToElement(driver.findElement(By.id("menuDisseny")));
-		actions.build().perform();
-		actions.moveToElement(driver.findElement(By.xpath("//a[contains(@href, '/helium/enumeracio/llistat.html')]")));
-		actions.click();
-		actions.build().perform();
-		
-		if (existeixElement("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]")) {
-			driver.findElement(By.xpath("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]/td[4]/a")).click();
-			acceptarAlerta();
-		}
-		noExisteixElementAssert("//*[@id='registre']/tbody/tr[contains(td[1],'enumsel')]", "No s'han pogut eliminar l'enumeració");
 	}
 }

@@ -31,6 +31,7 @@ public class TascaDocumentDto {
 	private boolean signat = false;
 	private Long signaturaPortasignaturesId;
 	private String signaturaUrlVerificacio;
+	private String tokenSignatura;
 
 	private boolean registrat = false;
 	private String registreNumero;
@@ -39,11 +40,12 @@ public class TascaDocumentDto {
 	private String registreOficinaNom;
 	private boolean registreEntrada = true;
 	
+	private boolean plantilla;
+	
 	private String arxiuNom;
+//	private byte[] arxiuContingut;
 
 	private String error;
-
-
 
 	public TascaDocumentDto() {
 	}
@@ -174,6 +176,24 @@ public class TascaDocumentDto {
 	public void setError(String error) {
 		this.error = error;
 	}
+	public String getTokenSignatura() {
+		return tokenSignatura;
+	}
+	public void setTokenSignatura(String tokenSignatura) {
+		this.tokenSignatura = tokenSignatura;
+	}
+	public boolean isPlantilla() {
+		return plantilla;
+	}
+	public void setPlantilla(boolean plantilla) {
+		this.plantilla = plantilla;
+	}
+//	public byte[] getArxiuContingut() {
+//		return arxiuContingut;
+//	}
+//	public void setArxiuContingut(byte[] arxiuContingut) {
+//		this.arxiuContingut = arxiuContingut;
+//	}
 
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
@@ -196,5 +216,4 @@ public class TascaDocumentDto {
 			return null;
 		}
 	}
-
 }

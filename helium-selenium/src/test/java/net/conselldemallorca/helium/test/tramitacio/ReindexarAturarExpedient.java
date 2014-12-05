@@ -71,7 +71,7 @@ public class ReindexarAturarExpedient extends BaseTest {
 
         int contadorExpedientsScript = 1;
         // Eliminamos los expedientes en Lucene
-        /*for (String[] expediente : expedientes) {
+        for (String[] expediente : expedientes) {
             
         	String script = ""
                     + "String processInstanceId = net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getExpedientAmbEntornITipusINumero(net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge.getInstanceService().getEntornActual().getId(), \""+codTipusExp+"\", \""+expediente[0]+"\").getProcessInstanceId();"
@@ -111,7 +111,7 @@ public class ReindexarAturarExpedient extends BaseTest {
             screenshotHelper.saveScreenshot("entorns/reindexar/3_"+contadorExpedientsScript+"_4_resultatScript.png");
             
             contadorExpedientsScript++;
-        }*/
+        }
         
         //Comprobamos que no aparecen expedientes en la consulta
         //consultaExpedients();
@@ -144,11 +144,11 @@ public class ReindexarAturarExpedient extends BaseTest {
         consultaExpedients();
         
         screenshotHelper.saveScreenshot("tramitar/reindexar_aturar/b1_3_llistaExpedientsDespresIndexar.png");
-//        
-//        //Comprovam que els expedients tornen a apareixer
-//        for (String[] expediente : expedientes) {
-//            existeixElementAssert("//td[contains(a/text(),'"+expediente[0]+"')]", "No se encontró el expediente: " + expediente[0]);            
-//        }
+        
+        //Comprovam que els expedients tornen a apareixer
+        for (String[] expediente : expedientes) {
+            existeixElementAssert("//td[contains(a/text(),'"+expediente[0]+"')]", "No se encontró el expediente: " + expediente[0]);            
+        }
 	}
 	
 	@Test

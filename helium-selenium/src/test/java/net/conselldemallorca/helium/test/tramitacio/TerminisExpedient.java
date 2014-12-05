@@ -30,7 +30,7 @@ public class TerminisExpedient extends BaseTest {
 	String nomTipusExp = carregarPropietat("defproc.deploy.tipus.expedient.nom", "Nom del tipus d'expedient de proves no configurat al fitxer de properties");
 	String usuari = carregarPropietat("test.base.usuari.configuracio", "Usuari configuració de l'entorn de proves no configurat al fitxer de properties");
 	
-	private static String fecha = "";
+	private String fecha;
 	
 	@Test
 	public void a0_inicialitzacio() {
@@ -45,29 +45,15 @@ public class TerminisExpedient extends BaseTest {
 		 * Salto de dias no laborables hacia atras
 		 */
 		Calendar calendar = Calendar.getInstance();
-		//calendar.add(Calendar.DATE, -1);
-		/*
-		//Controlamos que si cae en sabado, se pase a viernes
-		if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY) {
-			calendar.add(Calendar.DATE, -1);
-		//Controlamos que si cae en domingo, se pase a viernes
-		}else if (calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY) {
-			calendar.add(Calendar.DATE, -2);
-		}
-		
-		fecha = new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime());
-		*/
 		try {
-			this.fecha = getFechaDiasLaborables(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()), -1);
+			fecha = getFechaDiasLaborables(new SimpleDateFormat("dd/MM/yyyy").format(calendar.getTime()), -1);
 		}catch (Exception ex) {
 			fail("Error al restar dias no laborables: " + ex.getMessage());
 		}
-		System.out.println("this.fecha: " + this.fecha);
 	}
 	
 	@Test
 	public void a_crear_dades() throws InterruptedException {
-		System.out.println("this.fecha: " + this.fecha);
 		carregarUrlConfiguracio();
 		
 		seleccionarEntorn(titolEntorn);
@@ -81,7 +67,6 @@ public class TerminisExpedient extends BaseTest {
 	
 	@Test
 	public void b_visualizar_terminis() throws InterruptedException {
-		System.out.println("this.fecha: " + this.fecha);
 		carregarUrlConfiguracio(); 
 		
 		seleccionarEntorn(titolEntorn);

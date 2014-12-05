@@ -310,11 +310,15 @@ public class DocumentHelperV3 {
 		String varCodi = getVarPerDocumentCodi(
 				document.getCodi(),
 				false);
+		dto.setId(document.getId());
 		dto.setVarCodi(varCodi);
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
 		dto.setRequired(documentTasca.isRequired());
 		dto.setReadOnly(documentTasca.isReadOnly());
+		dto.setPlantilla(document.isPlantilla());
+		dto.setArxiuNom(document.getArxiuNom());
+//		dto.setArxiuContingut(document.getArxiuContingut());
 		Long documentStoreId = (Long)jbpmHelper.getProcessInstanceVariable(
 				processInstanceId,
 				varCodi);
@@ -327,6 +331,11 @@ public class DocumentHelperV3 {
 				dto.setDataModificacio(documentStore.getDataModificacio());
 				dto.setDataDocument(documentStore.getDataDocument());
 				dto.setSignat(documentStore.isSignat());
+				try {
+					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+				}
 				if (documentStore.isRegistrat()) {
 					dto.setRegistrat(true);
 					dto.setRegistreData(documentStore.getRegistreData());
@@ -335,7 +344,6 @@ public class DocumentHelperV3 {
 					dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
 					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 				}
-				dto.setArxiuNom(documentStore.getArxiuNom());
 			}
 		}
 		return dto;

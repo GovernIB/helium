@@ -90,7 +90,6 @@ public class DefinicioProces extends BaseTest {
 			fail("No s'ha pogut obtenir la nova versió de la definició de procés");
 		}
 		assertTrue("No s'ha podut eliminar la versió de procés", versioNova < versioActual);
-//		eliminar(false);
 	}
 	
 	@Test
@@ -106,40 +105,22 @@ public class DefinicioProces extends BaseTest {
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[1][text() ='processimage.jpg']", "No existeix el recurs processimage.jpg a descarregar");
 		existeixElementAssert("//*[@id='registre']/tbody/tr/td[1][text() ='processdefinition.xml']", "No existeix el recurs processdefinition.xml a descarregar");
 		
-		try {
-		
+		try {		
 			Thread.sleep(2000);
 				
 			byte[] archivo_gpd = downloadFile("//*[@id='registre']/tbody/tr/td[1][text() ='gpd.xml']/../td[2]/a", "");
-			//assertTrue("Hash del gpd.xml no ha estat l´esperat." , archivo_gpd_hash.equals(getMD5Checksum(archivo_gpd)));
-			
-			//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
+			assertTrue("Hash del gpd.xml no ha estat l´esperat." , archivo_gpd_hash.equals(getMD5Checksum(archivo_gpd)));
 			
 			Thread.sleep(2000);
 			
 			byte[] archivo_processimage = downloadFile("//*[@id='registre']/tbody/tr/td[1][text() ='processimage.jpg']/../td[2]/a", "");
-			//assertTrue("Hash del processimage.jpg no ha estat l´esperat." , archivo_processimage_hash.equals(getMD5Checksum(archivo_processimage)));
-			
-			//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
+			assertTrue("Hash del processimage.jpg no ha estat l´esperat." , archivo_processimage_hash.equals(getMD5Checksum(archivo_processimage)));
 			
 			Thread.sleep(2000);
 			
 			byte[] archivo_processdefinition = downloadFile("//*[@id='registre']/tbody/tr/td[1][text() ='processdefinition.xml']/../td[2]/a", "");
-			//assertTrue("Hash del processdefinition.xml no ha estat l´esperat." , archivo_processdefinition_hash.equals(getMD5Checksum(archivo_processdefinition)));
-			
-			//TODO: Revisar funcion de comprobacion MD5 con el metodo de descarga de archivos HTTPS
-			
+			assertTrue("Hash del processdefinition.xml no ha estat l´esperat." , archivo_processdefinition_hash.equals(getMD5Checksum(archivo_processdefinition)));
 		}catch (Exception ex) {}
-		
-		/*downloadFileHash("//*[@id='registre']/tbody/tr/td[1][text() ='gpd.xml']/../td[2]/a",
-				carregarPropietat("defproc.recurs.gpd.hash", "Hash del gpd.xml no configurat al fitxer de properties"), 
-				"gpd.xml");
-		downloadFileHash("//*[@id='registre']/tbody/tr/td[1][text() ='processimage.jpg']/../td[2]/a", 
-				carregarPropietat("defproc.recurs.processimage.hash", "Hash del processimage.jpg no configurat al fitxer de properties"), 
-				"processimage.jpg");
-		downloadFileHash("//*[@id='registre']/tbody/tr/td[1][text() ='processdefinition.xml']/../td[2]/a", 
-				carregarPropietat("defproc.recurs.processdefinition.hash", "Hash del processdefinition.xml no configurat al fitxer de properties"), 
-				"processdefinition.xml");*/
 	}
 	
 	@Test

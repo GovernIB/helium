@@ -74,7 +74,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("tramitar/dadesexpedient/crear_dades/1.png");
 	}
 
-	@Test
+	//@Test
 	public void b_visualizacio_tasca_dades() throws InterruptedException {		
 		
 		carregarUrlConfiguracio();
@@ -199,7 +199,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
 	}
 	
-	@Test
+	//@Test
 	public void c_documents() throws InterruptedException {		
 		
 		carregarUrlConfiguracio();
@@ -342,7 +342,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("TasquesDadesTasca/visualizacio_tasca_dades/5.png");
 	}
 
-	@Test
+	//@Test
 	public void d_signatura() throws InterruptedException, IOException {		
 		carregarUrlConfiguracio();
 		
@@ -441,7 +441,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		existeixElementAssert("//*[@id='infos']/p", "No se finalizó la tarea correctamente");
 	}
 	
-	@Test
+	//@Test
 	public void f_adjuntar_documents() throws InterruptedException {
 		
 		carregarUrlConfiguracio();		
@@ -455,7 +455,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/adjuntar_documents/2.png");		
 	}
 	
-	@Test
+	//@Test
 	public void g_visualizacio_documents_i_descarrega() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -478,7 +478,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		}
 	}
 	
-	@Test
+	//@Test
 	public void h_generar_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 
@@ -511,7 +511,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 			if (existeixElement("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/documentModificar.html')]")) {
 				driver.findElement(By.xpath("//*[@id='codi']/tbody/tr["+i+"]//a[contains(@href,'/expedient/documentModificar.html')]")).click();
 				if (isAlertPresent()) { acceptarAlerta(); }
-				Thread.sleep(3000);
+//				Thread.sleep(3000);
 				
 				// Generamos un documento
 				if (existeixElement("//*[@id='content']//a[contains(@href,'/expedient/documentGenerar.html')]")) {
@@ -526,11 +526,11 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 				driver.findElement(By.xpath("//*[@id='command']/div[3]/button[2]")).click();
 			}
 		}
-		//assertTrue("No se encontró ningún documento para generar", probado);
+		assertTrue("No se encontró ningún documento para generar", probado);
 		//Solo se encontraran documentos para generar si estos son de tipo plantilla, i no es el caso en este expediente.
 	}
 	
-	@Test
+	//@Test
 	public void i_descarregar_document() throws InterruptedException {
 		
 		carregarUrlConfiguracio(); 
@@ -566,7 +566,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/descarregar_document/4.png");		
 	}
 	
-	@Test
+	//@Test
 	public void j_modificar_data_document() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -610,7 +610,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/modificar_data_document/4.png");
 	}
 	
-	@Test
+	//@Test
 	public void k_esborrar_document_adjunt() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -648,7 +648,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_adjunt/3.png");
 	}
 	
-	@Test
+	//@Test
 	public void l_esborrar_document_tipus_expedient() throws InterruptedException {
 		carregarUrlConfiguracio(); 
 		
@@ -698,7 +698,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		screenshotHelper.saveScreenshot("documentsexpedient/esborrar_document_tipus_expedient/4.png");
 	}
 	
-	@Test
+	//@Test
 	public void m_execucio_accions() throws InterruptedException {
 		carregarUrlConfiguracio();
 		
@@ -737,7 +737,7 @@ public class TasquesDadesDocumentsTasca extends BaseTest {
 		assertTrue("El valor de la variable 'message' no era el esperado", "Se ha ejecutado la acción".equals(mensaje));
 	}
 
-	@Test
+	//@Test
 	public void z_limpiar() throws InterruptedException {
 		
 		carregarUrlConfiguracio();

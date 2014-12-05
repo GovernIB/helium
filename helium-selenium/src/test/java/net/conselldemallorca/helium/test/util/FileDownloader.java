@@ -303,8 +303,7 @@ public class FileDownloader {
      * @throws IOException
      * @throws NullPointerException
      */
-    @SuppressWarnings({ "resource" })
-	private byte[] postdownloader(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+    private byte[] postdownloader(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
         
     	if (formToDownloadLocation.startsWith("https")) {
     		return downloadHTTPSfile_post(formToDownloadLocation, params);
@@ -314,10 +313,7 @@ public class FileDownloader {
     }
     
     private byte[] downloadHTTPfile_post(String formToDownloadLocation, List<NameValuePair> params) throws IOException, NullPointerException, URISyntaxException {
-    	
-    	HttpClient client = new DefaultHttpClient();
-    	
-        BasicHttpContext localContext = new BasicHttpContext();
+    	BasicHttpContext localContext = new BasicHttpContext();
  
         LOG.info("Mimic WebDriver cookie state: " + this.mimicWebDriverCookieState);
         if (this.mimicWebDriverCookieState) {
@@ -331,7 +327,8 @@ public class FileDownloader {
         httppost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
         
         LOG.info("Sending POST request for: " + httppost.getURI());
-        HttpResponse response = client.execute(httppost, localContext);
+        @SuppressWarnings("resource")
+		HttpResponse response = new DefaultHttpClient().execute(httppost, localContext);
         this.httpStatusOfLastDownloadAttempt = response.getStatusLine().getStatusCode();
         LOG.info("HTTP GET request status: " + this.httpStatusOfLastDownloadAttempt);
  
