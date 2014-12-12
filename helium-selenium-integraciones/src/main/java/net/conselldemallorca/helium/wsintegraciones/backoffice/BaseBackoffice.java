@@ -334,7 +334,7 @@ public abstract class BaseBackoffice {
 				    if (node.hasAttribute("indice")) {
 						return node.getAttribute("indice");
 					} else if (node.getChildNodes().getLength() == 1) {
-						return node.getNodeValue();
+						return node.getTextContent();
 					} else {
 						List<String[]> valorsFiles = new ArrayList<String[]>();
 						NodeList nodes = node.getChildNodes();
@@ -348,7 +348,7 @@ public abstract class BaseBackoffice {
 									if (columna.hasAttribute("indice"))
 										valors[i] = columna.getAttribute("indice");
 									else
-										valors[i] = columna.getNodeValue();
+										valors[i] = columna.getTextContent();
 								}
 								valorsFiles.add(valors);
 							}
