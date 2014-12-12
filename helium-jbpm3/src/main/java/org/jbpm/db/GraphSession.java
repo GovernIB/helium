@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -516,22 +514,26 @@ public class GraphSession
 			// add the process instance
 			log.info("hibernate session delete for process instance " + processInstance.getId());
 
-//			Query qTok = session.createQuery("select token from org.jbpm.graph.exe.Token token where token.processInstance.id=?").setLong(0, processInstance.getId());
+			List<Token> resposta = new ArrayList<Token>();
+			
+			Query qTok = session.createQuery("select token from org.jbpm.graph.exe.Token token where token.processInstance.id=?").setLong(0, processInstance.getId());
+			resposta.addAll(qTok.list());
 			
 			Token root = processInstance.getRootToken();
-			Map<String, JbpmToken> resposta = new HashMap<String, JbpmToken>();
 			
-			if (!root.hasEnded())
-				resposta.put(root.getName(), new JbpmToken(root));
+			if (!root.hasEnded() && !resposta.contains(root)) {
+				resposta.add(root);
+			}
 			Map<String, Token> activeTokens = processInstance.getRootToken().getChildren();
 			for (String tokenName: activeTokens.keySet()) {
-				resposta.put(tokenName, new JbpmToken(activeTokens.get(tokenName)));
+				if (!resposta.contains(root)) {
+					resposta.add(activeTokens.get(tokenName));
+				}
 			}
 			
-			Iterator listaToken = resposta.entrySet().iterator();
-			while(listaToken.hasNext()) {
-				Map.Entry<String, JbpmToken> jbpmTok = (Map.Entry) listaToken.next();
-				Token tok = jbpmTok.getValue().getToken();
+			System.out.println("Tokens a eliminar : " + resposta);
+			
+			for (Token tok : resposta) {
 				System.out.println("XX 0: " + tok.getId());
 				boolean borrar = true;
 				Query b = session.createQuery("select processInstance from org.jbpm.graph.exe.ProcessInstance processInstance where rootToken.id = ?").setLong(0, tok.getId());

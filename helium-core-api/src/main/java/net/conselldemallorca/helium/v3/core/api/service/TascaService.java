@@ -11,6 +11,7 @@ import java.util.Set;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -378,4 +379,14 @@ public interface TascaService {
 	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids);
 
 	public List<Long> findIdsPerFiltre(Long entornId, String consultaTramitacioMassivaTascaId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup);
+
+	public TascaDocumentDto findDocument(String tascaId, Long docId);
+
+	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user);
+
+	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
+
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception;
+
+	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String token, String tascaId, byte[] signatura) throws Exception;
 }

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -24,13 +26,16 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
+import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -38,6 +43,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentDescarregarException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -70,7 +76,11 @@ public class DocumentHelperV3 {
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private TascaHelper tascaHelper;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -81,6 +91,8 @@ public class DocumentHelperV3 {
 	private PluginCustodiaDao pluginCustodiaDao;
 	@Resource
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
+	@Resource
+	private PluginSignaturaDao pluginSignaturaDao;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -223,6 +235,23 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
+	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId) {
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+				task.getProcessDefinitionId());
+		DocumentTasca documentTasca = documentTascaRepository.findAmbDefinicioProcesITascaJbpmNameDocumentId(
+				docId,
+				definicioProces.getId(),
+				task.getName());
+		
+		return toTascaDocumentDto(
+					task,
+					documentTasca);
+	}
+
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(JbpmTask task) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
@@ -232,7 +261,7 @@ public class DocumentHelperV3 {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 		for (DocumentTasca documentTasca: documentsTasca) {
 			resposta.add(toTascaDocumentDto(
-					task.getProcessInstanceId(),
+					task,
 					documentTasca));
 		}
 		return resposta;
@@ -302,14 +331,61 @@ public class DocumentHelperV3 {
 		return dto;
 	}
 
+	public DocumentStore getDocumentStore(
+			JbpmTask task,
+			String documentCodi) {
+		DocumentStore documentStore = null;
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), documentCodi);
+		if (documentStoreId != null) {
+			documentStore = documentStoreRepository.findById(documentStoreId);
+		}
+		return documentStore;
+	}
+	
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception {
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				false,
+				false);
+		
+		DocumentStore documentStore = getDocumentStore(task, documentRepository.findOne(docId).getCodi());
+		DocumentDto document = getDocumentOriginal(documentStore.getId(), true);
+		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
+			return conversioTipusHelper.convertirList(pluginCustodiaDao.dadesValidacioSignatura(
+					documentStore.getReferenciaCustodia()), RespostaValidacioSignaturaDto.class);
+		} else if (isSignaturaFileAttached()) {
+			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
+					documentStore.getReferenciaCustodia());
+			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
+			RespostaValidacioSignatura res = pluginSignaturaDao.verificarSignatura(
+					null,
+					signatures.get(0),
+					true);
+			resposta.add(res);
+			return conversioTipusHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
+		} else {
+			List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();
+			List<byte[]> signatures = pluginCustodiaDao.obtenirSignatures(
+					documentStore.getReferenciaCustodia());
+			for (byte[] signatura: signatures) {
+				RespostaValidacioSignatura res = pluginSignaturaDao.verificarSignatura(
+						document.getArxiuContingut(),
+						signatura,
+						true);
+				resposta.add(res);
+			}
+			return conversioTipusHelper.convertirList(resposta, RespostaValidacioSignaturaDto.class);
+		}
+	}
+	
 	private TascaDocumentDto toTascaDocumentDto(
-			String processInstanceId,
+			JbpmTask task,
 			DocumentTasca documentTasca) {
 		TascaDocumentDto dto = new TascaDocumentDto();
 		Document document = documentTasca.getDocument();
 		String varCodi = getVarPerDocumentCodi(
 				document.getCodi(),
-				false);
+				document.isAdjuntarAuto());
 		dto.setId(document.getId());
 		dto.setVarCodi(varCodi);
 		dto.setDocumentCodi(document.getCodi());
@@ -319,18 +395,30 @@ public class DocumentHelperV3 {
 		dto.setPlantilla(document.isPlantilla());
 		dto.setArxiuNom(document.getArxiuNom());
 //		dto.setArxiuContingut(document.getArxiuContingut());
-		Long documentStoreId = (Long)jbpmHelper.getProcessInstanceVariable(
-				processInstanceId,
-				varCodi);
+		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
 		if (documentStoreId != null) {
 			dto.setDocumentPendent(false);
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 			if (documentStore != null) {
-				dto.setId(documentStore.getId());
 				dto.setDataCreacio(documentStore.getDataCreacio());
 				dto.setDataModificacio(documentStore.getDataModificacio());
 				dto.setDataDocument(documentStore.getDataDocument());
 				dto.setSignat(documentStore.isSignat());
+				if (documentStore.isSignat()) {
+					dto.setDocumentPendentSignar(documentStore.isSignat());
+					dto.setUrlVerificacioCustodia(
+							pluginCustodiaDao.getUrlComprovacioSignatura(
+									documentStoreId.toString()));
+				} else if (!document.getFirmes().isEmpty()) {
+					dto.setDocumentPendentSignar(true);
+					Iterator<FirmaTasca> firmas = document.getFirmes().iterator();
+					while (firmas.hasNext()) {						
+						if (firmas.next().isRequired()) {
+							dto.setSignatRequired(true);
+							break;
+						}
+					}
+				}
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
 				} catch (Exception ex) {
@@ -345,7 +433,7 @@ public class DocumentHelperV3 {
 					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 				}
 			}
-		}
+		}		
 		return dto;
 	}
 
@@ -467,6 +555,59 @@ public class DocumentHelperV3 {
 			documentTokenUtils = new DocumentTokenUtils(
 					(String)GlobalProperties.getInstance().get("app.encriptacio.clau"));
 		return documentTokenUtils;
+	}
+
+	public DocumentDto signarDocumentTascaAmbToken(Long docId, String tascaId, String token, byte[] signatura) throws Exception {
+		DocumentDto dto = null;
+		Long documentStoreId = getDocumentStoreIdPerToken(token);		
+		if (documentStoreId != null) {
+			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+			dto = getDocumentSenseContingut(documentStoreId);
+			boolean custodiat = false;
+			if (pluginCustodiaDao.isCustodiaActiu()) {
+				String nomArxiu = getNomArxiuAmbExtensio(
+						dto.getArxiuNom(),
+						getExtensioArxiuSignat());
+				String referenciaCustodia = null;
+				if (pluginCustodiaDao.isValidacioImplicita()) {
+					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+							documentStore.getId(),
+							documentStore.getReferenciaFont(),
+							nomArxiu,
+							dto.getCustodiaCodi(),
+							signatura);
+					custodiat = true;
+				} else {
+					RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
+							dto.getVistaContingut(),
+							signatura,
+							false);
+					if (resposta.isEstatOk()) {
+						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
+								documentStore.getId(),
+								documentStore.getReferenciaFont(),
+								nomArxiu,
+								dto.getCustodiaCodi(),
+								signatura);
+						custodiat = true;
+					}
+				}
+				documentStore.setReferenciaCustodia(referenciaCustodia);
+			}
+			if (custodiat) {
+				documentStore.setSignat(true);
+				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+						tascaId,
+						true,
+						true);
+				String.valueOf(task.getTask().getId());
+				jbpmHelper.setTaskInstanceVariable(
+						tascaId,
+						DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+						documentStore.getId());
+			}
+		}
+		return dto;
 	}
 
 	private DocumentDto toDocumentDto(
@@ -762,7 +903,8 @@ public class DocumentHelperV3 {
 			ds.setAdjunt(isAdjunt);
 			if (isAdjunt)
 				ds.setAdjuntTitol(documentNom);
-			if (pluginGestioDocumentalDao.isGestioDocumentalActiu())
+			ds.setArxiuNom(arxiuNom);
+			if (!pluginGestioDocumentalDao.isGestioDocumentalActiu())
 				ds.setArxiuContingut(arxiuContingut);
 			documentStoreRepository.save(ds);
 			documentStoreId = ds.getId();
@@ -774,7 +916,7 @@ public class DocumentHelperV3 {
 			if (ds.isAdjunt())
 				ds.setAdjuntTitol(documentNom);
 			ds.setArxiuNom(arxiuNom);
-			if (pluginGestioDocumentalDao.isGestioDocumentalActiu())
+			if (!pluginGestioDocumentalDao.isGestioDocumentalActiu())
 				ds.setArxiuContingut(arxiuContingut);
 			if (arxiuContingut != null && pluginGestioDocumentalDao.isGestioDocumentalActiu())
 				pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
@@ -879,7 +1021,6 @@ public class DocumentHelperV3 {
 					documentCodi);
 		}
 	}
-
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,
 			String processInstanceId,
@@ -917,5 +1058,4 @@ public class DocumentHelperV3 {
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
-
 }

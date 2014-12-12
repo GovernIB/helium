@@ -8,6 +8,4 @@ public interface PluginService {
 	PersonaDto findPersonaAmbCodi(String responsableDefecteCodi);
 
 	List<PersonaDto> findPersonaLikeNomSencer(String text);
-
-	boolean isPersonesPluginJdbc();
 }

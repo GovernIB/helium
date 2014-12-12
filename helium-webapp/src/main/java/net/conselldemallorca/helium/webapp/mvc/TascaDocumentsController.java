@@ -503,7 +503,7 @@ public class TascaDocumentsController extends BaseController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				missatgeInfo(request, getMessage("info.tasca.massiu.document.gaurdar", new Object[] {tIds.length}));
+				missatgeInfo(request, getMessage("info.tasca.massiu.document.guardar", new Object[] {tIds.length}));
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
 				return false;

@@ -225,6 +225,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	private String textBloqueigIniciExpedient;
+	@Resource
 	private OpenOfficeUtils openOfficeUtils;
 
 	@Override
@@ -688,6 +689,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				Registre.Accio.ESBORRAR);
+	}
+
+	@Override
+	public void modificarContingutDocument(Long docId, byte[] arxiu) throws Exception {
+		Document document = documentRepository.findOne(docId);
+		document.setArxiuContingut(arxiu);
 	}
 
 	@Override
@@ -1158,12 +1165,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 		DocumentDto dto = null;
 		if (document.isSignat() || document.isRegistrat()) {
 			dto = documentHelper.getDocumentVista(documentStoreId, false, false);
+			if (dto == null)
+				return null;
+			return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
 		} else {
 			dto = documentHelper.getDocumentOriginal(documentStoreId, true);
+			if (dto == null)
+				return null;
+			return new ArxiuDto(dto.getArxiuNom(), dto.getArxiuContingut());
 		}
-		if (dto == null)
-			return null;
-		return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
 	}
 
 	@Override
@@ -1883,19 +1893,51 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		return resposta;
 	}
+
+	@Override
+	public boolean isExtensioDocumentPermesa(String nomArxiu) {
+		return (new Document()).isExtensioPermesa(getExtension(nomArxiu));
+	}
+
+	private String getExtension(String nomArxiu) {
+		int index = nomArxiu.lastIndexOf('.');
+		if (index == -1) {
+			return "";
+		} else {
+			return nomArxiu.substring(index + 1);
+		}
+	}
+        
+	@Override
+	@Transactional
+	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long documentId, Long expedientId) throws Exception {
+		ExpedientDto expedient = findAmbId(expedientId);
+		DocumentDto doc = generarDocumentPlantilla(documentId, expedient);
+		documentHelper.actualitzarDocument(
+				tascaId,
+				expedient.getProcessInstanceId(),
+				doc.getCodi(),
+				null,
+				doc.getDataDocument(),
+				doc.getArxiuNom(),
+				doc.getArxiuContingut(),
+				false);
+		
+		return doc;
+	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public DocumentDto generarDocumentPlantilla(Long documentId, ExpedientDto expedient) {
+	public DocumentDto generarDocumentPlantilla(Long documentId, ExpedientDto expedient) throws Exception {
 		Document document = documentRepository.findOne(documentId);
 		DocumentDto resposta = new DocumentDto();
+		resposta.setCodi(document.getCodi());
 		resposta.setDataCreacio(new Date());
 		resposta.setDataDocument(new Date());
 		resposta.setArxiuNom(document.getNom() + ".odt");
 		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.isPlantilla()) {
-			try {
-				
+			try {				
 				ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
 						expedient.getEntorn().getId(),
 						documentId,
@@ -1918,7 +1960,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					resposta.setArxiuContingut(resultat.getContingut());
 				}
 			} catch (Exception ex) {
-				return null;
+				throw new Exception(ex);
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());

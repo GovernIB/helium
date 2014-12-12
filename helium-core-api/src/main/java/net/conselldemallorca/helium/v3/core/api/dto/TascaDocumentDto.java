@@ -23,12 +23,15 @@ public class TascaDocumentDto {
 	private boolean readOnly;
 
 	private boolean documentPendent = true;
+	private boolean documentPendentSignar = false;
 
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
 
 	private boolean signat = false;
+	private boolean signatRequired = false;
+	
 	private Long signaturaPortasignaturesId;
 	private String signaturaUrlVerificacio;
 	private String tokenSignatura;
@@ -43,9 +46,10 @@ public class TascaDocumentDto {
 	private boolean plantilla;
 	
 	private String arxiuNom;
-//	private byte[] arxiuContingut;
 
 	private String error;
+	
+	private String urlVerificacioCustodia;
 
 	public TascaDocumentDto() {
 	}
@@ -188,12 +192,24 @@ public class TascaDocumentDto {
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
 	}
-//	public byte[] getArxiuContingut() {
-//		return arxiuContingut;
-//	}
-//	public void setArxiuContingut(byte[] arxiuContingut) {
-//		this.arxiuContingut = arxiuContingut;
-//	}
+	public boolean isDocumentPendentSignar() {
+		return documentPendentSignar;
+	}
+	public void setDocumentPendentSignar(boolean documentPendentSignar) {
+		this.documentPendentSignar = documentPendentSignar;
+	}
+	public boolean isSignatRequired() {
+		return signatRequired;
+	}
+	public void setSignatRequired(boolean signatRequired) {
+		this.signatRequired = signatRequired;
+	}
+	public String getUrlVerificacioCustodia() {
+		return urlVerificacioCustodia;
+	}
+	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
+		this.urlVerificacioCustodia = urlVerificacioCustodia;
+	}
 
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)

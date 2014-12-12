@@ -563,7 +563,25 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) {
+	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) throws Exception {
 		return delegate.generarDocumentPlantilla(docId, expedient);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long docId, Long expedientId) throws Exception {
+		return delegate.generarDocumentPlantillaTasca(tascaId, docId, expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void modificarContingutDocument(Long docId, byte[] arxiu) throws Exception {
+		delegate.modificarContingutDocument(docId, arxiu);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isExtensioDocumentPermesa(String extensio) {
+		return delegate.isExtensioDocumentPermesa(extensio);
 	}
 }

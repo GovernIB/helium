@@ -38,6 +38,8 @@
 		</property>
 	</bean>
 
+	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
+
 	<bean id="monitorHelper" class="net.conselldemallorca.helium.core.model.service.MonitorHelper">
 		<constructor-arg type="java.lang.String" value="${app.expedient.monitor?false}"/>
 	</bean>

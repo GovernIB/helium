@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -45,6 +46,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -119,7 +121,6 @@ public class TascaServiceImpl implements TascaService {
 	private RegistreRepository registreRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
-
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -590,6 +591,16 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public TascaDocumentDto findDocument(
+			String tascaId,
+			Long docId) {
+		logger.debug("Consultant document de la tasca (" +
+				"docId=" + docId + ")");
+		return documentHelper.findDocumentPerId(tascaId, docId);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<TascaDocumentDto> findDocuments(
 			String id) {
 		logger.debug("Consultant documents de la tasca (" +
@@ -709,6 +720,12 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception {
+		return documentHelper.verificarSignatura(tascaId, docId);
+	}
+
+	@Override
 	@Transactional
 	public ExpedientTascaDto alliberar(
 			String id) {
@@ -737,6 +754,131 @@ public class TascaServiceImpl implements TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Amollar tasca \"" + tasca.getTitol() + "\"");
 		return tasca;
+	}
+	
+	@Override
+	@Transactional
+	public void esborrarDocument(
+			String taskInstanceId,
+			String documentCodi,
+			String user) {		
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				taskInstanceId,
+				true,
+				true);
+		if (taskInstanceId != null) {
+			expedientLoggerHelper.afegirLogExpedientPerTasca(
+					taskInstanceId,
+					ExpedientLogAccioTipus.TASCA_DOCUMENT_ESBORRAR,
+					documentCodi);
+		} else {
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
+					documentCodi);
+		}
+		documentHelper.esborrarDocument(
+				taskInstanceId,
+				task.getProcessInstanceId(),
+				documentCodi);
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmHelper.getRootProcessInstance(task.getProcessInstanceId()).getId());
+		if (taskInstanceId != null) {
+			registreDao.crearRegistreEsborrarDocumentTasca(
+					expedient.getId(),
+					taskInstanceId,
+					user,
+					documentCodi);
+		} else {
+			registreDao.crearRegistreEsborrarDocumentInstanciaProces(
+					expedient.getId(),
+					task.getProcessInstanceId(),
+					user,
+					documentCodi);
+		}
+	}
+
+	@Override
+	@Transactional
+	public boolean signarDocumentTascaAmbToken(
+			Long expedientId, 
+			Long docId, 
+			String tascaId,
+			String token,
+			byte[] signatura) throws Exception {
+		boolean signat = false;
+		net.conselldemallorca.helium.v3.core.api.dto.DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
+		if (dto != null) {
+			registreDao.crearRegistreSignarDocument(
+					expedientId,
+					dto.getProcessInstanceId(),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					dto.getDocumentCodi());
+			signat = true;
+		}
+		return signat;
+	}
+
+	@Override
+	@Transactional
+	public Long guardarDocumentTasca(
+			Long entornId,
+			String taskInstanceId,
+			String documentCodi,
+			Date documentData,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String user) {
+		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
+		boolean creat = (documentStore == null);
+		if (creat) {
+			expedientLoggerHelper.afegirLogExpedientPerTasca(
+					taskInstanceId,
+					ExpedientLogAccioTipus.TASCA_DOCUMENT_AFEGIR,
+					documentCodi);
+		} else {
+			expedientLoggerHelper.afegirLogExpedientPerTasca(
+					taskInstanceId,
+					ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR,
+					documentCodi);
+		}
+		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
+		Long documentStoreId = documentHelper.actualitzarDocument(
+				taskInstanceId,
+				task.getProcessInstanceId(),
+				documentCodi,
+				null,
+				documentData,
+				arxiuNom,
+				arxiuContingut,
+				false);
+		// Registra l'acció
+		if (user == null) {
+			user = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmHelper.getRootProcessInstance(task.getProcessInstanceId()).getId());
+		if (creat) {
+			registreDao.crearRegistreCrearDocumentTasca(
+					expedient.getId(),
+					taskInstanceId,
+					user,
+					documentCodi,
+					arxiuNom);
+		} else {
+			registreDao.crearRegistreModificarDocumentTasca(
+					expedient.getId(),
+					taskInstanceId,
+					user,
+					documentCodi,
+					arxiuNomAntic,
+					arxiuNom);
+		}
+		return documentStoreId;
 	}
 
 	@Override
@@ -829,7 +971,7 @@ public class TascaServiceImpl implements TascaService {
 		registre.setMissatge("Restaurar \"" + tasca.getTitol() + "\"");
 		registreRepository.save(registre);
 		return tasca;
-	}	
+	}
 
 	@Override
 	@Transactional

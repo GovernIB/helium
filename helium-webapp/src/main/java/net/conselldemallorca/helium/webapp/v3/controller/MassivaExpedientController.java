@@ -569,14 +569,19 @@ public class MassivaExpedientController extends BaseExpedientController {
 		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
 		List<Long> listIds = new ArrayList<Long>(ids);
 		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
-		DocumentDto generat = expedientService.generarDocumentPlantilla(docId, expedient);
-		if (generat != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
-			logger.error("Error generant el document " + docId);
-			return documentModificarGet(request, docId, inici, correu, model);
+		try {
+			DocumentDto generat = expedientService.generarDocumentPlantilla(docId, expedient);
+			if (generat != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
+				logger.error("Error generant el document " + docId);
+				return documentModificarGet(request, docId, inici, correu, model);
+			} 
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
+			logger.error("Error generant el document " + docId, ex);
 		}
 		return "arxiuView";
 	}

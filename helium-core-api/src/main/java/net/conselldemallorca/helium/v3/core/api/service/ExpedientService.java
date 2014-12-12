@@ -813,5 +813,11 @@ public interface ExpedientService {
 
 	public ArxiuDto arxiuDocumentPerMostrar(String token);
 
-	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient);
+	public void modificarContingutDocument(Long docId, byte[] arxiu) throws Exception;
+
+	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) throws Exception;
+
+	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long docId, Long expedientId) throws Exception;
+
+	public boolean isExtensioDocumentPermesa(String extensio);
 }

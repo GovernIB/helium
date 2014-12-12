@@ -18,6 +18,7 @@ import javax.activation.MimetypesFileTypeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
 import com.artofsolving.jodconverter.DocumentConverter;
@@ -32,6 +33,7 @@ import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocume
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component
 public class OpenOfficeUtils {
 
 	private DocumentFormatRegistry documentFormatRegistry;

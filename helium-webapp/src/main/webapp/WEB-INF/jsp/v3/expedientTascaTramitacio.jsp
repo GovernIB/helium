@@ -339,7 +339,7 @@
 		</c:if>
 		<c:if test="${not empty signatures}">
 			<div class="tab-pane" id="signatures">
-				signatures
+<%-- 				<%@ include file="expedientTascaTramitacioSignar.jsp" %> --%>
 			</div>
 		</c:if>
 		<div id="finalizarTarea">

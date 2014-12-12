@@ -18,7 +18,6 @@ public class PersonaUsuariCommand {
 	private Long consultaId;
 	private Long numElementosPagina;
 	private boolean filtroExpedientesActivos;
-	private boolean usuarioModificable;
 	private Long expedientTipusDefecteId;
 
 	@NotEmpty(message="Per favor, especifiqui algun valor")
@@ -114,12 +113,6 @@ public class PersonaUsuariCommand {
 	}
 	public void setHombre(boolean hombre) {
 		this.hombre = hombre;
-	}
-	public boolean isUsuarioModificable() {
-		return usuarioModificable;
-	}
-	public void setUsuarioModificable(boolean usuarioModificable) {
-		this.usuarioModificable = usuarioModificable;
 	}
 	public Long getExpedientTipusDefecteId() {
 		return expedientTipusDefecteId;

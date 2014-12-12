@@ -44,12 +44,6 @@ public class PluginServiceImpl implements PluginService{
 		return pluginPersonaHelper.findAmbCodiPlugin(codi);
 	}
 	
-	@Override
-	public boolean isPersonesPluginJdbc() {
-		String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-		return pluginClass.contains("PersonesPluginJdbc");
-	}
-	
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
 			List<PersonaDto> persones = pluginPersonaHelper.findAllPlugin();
