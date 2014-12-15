@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
@@ -820,4 +821,12 @@ public interface ExpedientService {
 	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long docId, Long expedientId) throws Exception;
 
 	public boolean isExtensioDocumentPermesa(String extensio);
+
+	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi);
+
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
+
+	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception;
+
+	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception;
 }

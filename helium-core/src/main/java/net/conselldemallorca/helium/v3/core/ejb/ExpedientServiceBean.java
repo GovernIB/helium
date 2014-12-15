@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
@@ -583,5 +584,29 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isExtensioDocumentPermesa(String extensio) {
 		return delegate.isExtensioDocumentPermesa(extensio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi) {
+		return delegate.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
+		return delegate.verificarSignatura(documentStoreId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception {
+		delegate.esborrarDocument(expedientId, documentStoreId, docCodi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception {
+		delegate.deleteSignatura(expedientId, documentStoreId);
 	}
 }

@@ -435,7 +435,7 @@ public class InformesExpedients extends BaseTest {
 		
 		//driver.findElement(By.xpath("/html/body/div[contains(@class, 'ui-dialog')]/div[contains(@class, 'ui-dialog-button')]/button[text()='Generar']")).click();
 		
-		postDownloadFile("//*[@id='paramsCommand']");
+		//postDownloadFile("//*[@id='paramsCommand']");
 		
 		screenshotHelper.saveScreenshot("expedients/informes/j1_3_mostrar_informe-descarrega_informe.png");
 	}

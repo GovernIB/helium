@@ -1878,7 +1878,7 @@ public class ExpedientMassivaController extends BaseController {
 		return String.valueOf(progres);		
 	}
 	
-	@RequestMapping(value="/expedient/refreshBarsExpedientMassive", method = RequestMethod.GET)
+	@RequestMapping(value="/expedient/refreshBarsExpedientMassive", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String refreshBarsExpedientMassiveAct(@RequestParam(value = "results", required = false) Integer numResults, HttpServletRequest request,HttpServletResponse response,ModelMap model, HttpSession session)  throws ServletException, IOException {
 		return execucioMassivaService.getJsonExecucionsMassivesByUser(request.getUserPrincipal().getName(), numResults);

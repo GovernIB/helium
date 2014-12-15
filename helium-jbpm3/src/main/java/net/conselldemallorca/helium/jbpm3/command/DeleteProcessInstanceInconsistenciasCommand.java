@@ -17,20 +17,27 @@ public class DeleteProcessInstanceInconsistenciasCommand extends AbstractGetObje
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private long id;
+	private boolean met;
 
 	public DeleteProcessInstanceInconsistenciasCommand() {}
 
-	public DeleteProcessInstanceInconsistenciasCommand(long id){
+	public DeleteProcessInstanceInconsistenciasCommand(long id, boolean met){
 		super();
 		this.id = id;
+		this.met = met;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		ProcessInstance processInstance = jbpmContext.getProcessInstance(id);
 		List<Long> lista = new ArrayList<Long>();
 		lista.add(id);
-		if (processInstance != null)
-			jbpmContext.getGraphSession().deleteProcessInstanceInconsistencias(processInstance, true, true);
+		if (processInstance != null) {
+			if (met)
+				jbpmContext.getGraphSession().deleteProcessInstanceInconsistencias(processInstance, true, true);
+			else {
+				jbpmContext.getGraphSession().deleteProcessInstanceInconsistencias2(processInstance, true, true);
+			}
+		}
 		return null;
 	}
 
@@ -50,6 +57,14 @@ public class DeleteProcessInstanceInconsistenciasCommand extends AbstractGetObje
 	public DeleteProcessInstanceInconsistenciasCommand id(long id) {
 		setId(id);
 	    return this;
+	}
+
+	public boolean isMet() {
+		return met;
+	}
+
+	public void setMet(boolean met) {
+		this.met = met;
 	}
 
 }

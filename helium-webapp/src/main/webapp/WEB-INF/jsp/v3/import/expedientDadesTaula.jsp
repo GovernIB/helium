@@ -16,6 +16,16 @@ div.grup .panel-body-grup {
 .panel-body-grup {
 	margin: -1px;
 }
+.extensionIcon {
+	color: white;
+    font-size: 10px;
+    font-weight: bold;
+    margin-left: -38px;
+}
+a, a:HOVER, a:FOCUS {text-decoration: none;}
+.table.table-bordered {margin-bottom: 0px;}
+.tableDocuments .left {padding: 10px;}
+.tableDocuments .right {padding: 15px;width: 100%;}
 </style>
 
 <c:set var="grupId" value="grup-default"/>
@@ -122,20 +132,68 @@ div.grup .panel-body-grup {
 											<span class="fa fa-warning fa-2x" title="${document.error}"></span>
 										</c:when>
 										<c:otherwise>
-											<dl class="dl-horizontal">
-												<dt><a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document"><span class="fa fa-file fa-4x"></span><span style="float:left;position:relative;left:2.5em;top:-2.4em;font-size:10px">${fn:toUpperCase(document.arxiuExtensio)}</span></a></dt>
-												<dd>
-													<strong>${document.documentNom}</strong><br/>
-													<c:if test="${not empty document.id}">
-														<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
-														<c:if test="${document.signat or document.registrat}">
-														<br/>
-														<c:if test="${document.signat}"><a href="#"><span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span></a></c:if>
-														<c:if test="${document.registrat}"><a href="#"><span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span></a></c:if>
-														</c:if>
-													</c:if>
-												</dd>
-											</dl>
+											<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments">
+												<thead>
+													<tr>
+														<td class="left">
+															<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
+																<span class="fa fa-file fa-4x"></span>
+																<span class="extensionIcon">
+																	${fn:toUpperCase(document.arxiuExtensio)}
+																</span>
+															</a>
+														</td>
+														<td class="right">
+															<c:if test="${not empty document.id}">
+																<table class="table-condensed marTop6 tableDocuments">
+																	<thead>
+																		<tr>
+																			<td>
+																				<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
+																			</td>
+																		</tr>
+																		<tr>
+																			<td>
+																				<c:if test="${document.signat or document.registrat}">
+																					<a data-rdt-link-modal="true" class="icon signature" href="<c:url value='../../v3/expedient/${expedientId}/verificarSignatura/${document.id}/${document.documentCodi}'/>">
+																						<span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span>
+																					</a>
+																					<script type="text/javascript">
+																						// <![CDATA[
+																							$('.icon').heliumEvalLink({
+																								refrescarAlertes: true,
+																								refrescarPagina: false
+																							});
+																						//]]>
+																					</script>
+																				</c:if>
+																				<span class="fa fa-trash-o fa-lg" onclick="return confirmarBorrarExpedient(event, '${expedientId}', '${document.id}', '${document.documentCodi}')" style="cursor: pointer"></span>
+																				
+																				<c:if test="${document.signat}">
+																					<span class="fa fa-trash-o fa-lg signature" onclick="return confirmarEsborrarSignatura(event, '${expedientId}', '${document.id}')" style="cursor: pointer"></span>
+																				</c:if>
+																				
+																				<c:if test="${document.registrat}">
+																					<a href="#">
+																						<span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span>
+																					</a>
+																				</c:if>
+																			</td>
+																		</tr>
+																	</thead>
+																</table>
+															</c:if>
+														</td>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td colspan="2">
+															<strong>${document.documentNom}</strong><br/>
+														</td>
+													</tr>
+												</tbody>
+											</table>
 										</c:otherwise>
 									</c:choose>
 								</c:when>
@@ -162,6 +220,58 @@ $(document).ready(function() {
 		$('#${grupId}-titol .icona-collapse').toggleClass('fa-chevron-down');
 		$('#${grupId}-titol .icona-collapse').toggleClass('fa-chevron-up');
 	});
-	$('.panel.panel-default').find('a').attr('target', 'BLANK');
+	$('#${grupId}-dades address').find('a').attr('target', 'BLANK');
 });
+
+function confirmarBorrarExpedient(e, idExpedient, documentStoreId, docCodi) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.document.confirm_esborrar_proces' />")) {
+		$.ajax({
+            type: 'POST',
+            url: idExpedient+"/documentEsborrar/"+documentStoreId+"/"+docCodi,
+            success: function(data) {
+            	if (data) {
+            		$("#document_"+documentStoreId).closest("td").remove();
+            	}
+            	
+            	// Refrescar alertas
+            	refrescarAlertas(e);
+            }
+        });
+	}
+}
+
+function confirmarEsborrarSignatura(e, idExpedient, documentStoreId) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.document.confirm_esborrar_signatures' />")) {
+		$.ajax({
+            type: 'POST',
+            url: idExpedient+"/signaturaEsborrar/"+documentStoreId,
+            success: function(data) {
+            	if (data) {
+            		$("#document_"+documentStoreId).find(".signature").remove();
+            	}
+            	
+            	// Refrescar alertas
+            	refrescarAlertas(e);
+            }
+        });
+	}
+}
+
+function refrescarAlertas(e) {
+	$.ajax({
+		url: "<c:url value="/nodeco/v3/missatges"/>",
+		async: false,
+		timeout: 20000,
+		success: function (data) {
+			$('#contingut-alertes *').remove();
+			$('#contingut-alertes').append(data);
+		}
+	});
+}
 </script>

@@ -29,6 +29,8 @@ public class DocumentDto implements Serializable {
 	private String documentContentType;
 	private String documentCustodiaCodi;
 	private Integer documentTipusDocPortasignatures;
+	private boolean documentPendentSignar = false;
+	private boolean signatRequired = false;
 
 	private boolean signat = false;
 	private Long portasignaturesId;
@@ -335,6 +337,20 @@ public class DocumentDto implements Serializable {
 	}
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
+	}
+
+	public boolean isDocumentPendentSignar() {
+		return documentPendentSignar;
+	}
+	public void setDocumentPendentSignar(boolean documentPendentSignar) {
+		this.documentPendentSignar = documentPendentSignar;
+	}
+
+	public boolean isSignatRequired() {
+		return signatRequired;
+	}
+	public void setSignatRequired(boolean signatRequired) {
+		this.signatRequired = signatRequired;
 	}
 
 	private static final long serialVersionUID = 774909297938469787L;

@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,6 +72,8 @@ public class DocumentHelperV3 {
 	private DocumentRepository documentRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
@@ -218,7 +221,6 @@ public class DocumentHelperV3 {
 				if (documentStoreId != null) {
 					String documentCodi = getDocumentCodiDeVariableJbpm(var);
 					ExpedientDocumentDto dto = toExpedientDocumentDto(
-							processInstanceId,
 							documentStoreId,
 							var.startsWith(VariableHelper.PREFIX_VAR_DOCUMENT),
 							documentCodi,
@@ -235,6 +237,26 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
+	public ExpedientDocumentDto findDocumentPerExpedientDocumentStoreId(Expedient expedient, Long documentStoreId, String docCodi) {
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "0");
+		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "1");
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
+		Document document = documentRepository.findByDefinicioProcesAndCodi(definicioProces, docCodi);
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		
+		ExpedientDocumentDto resposta = toExpedientDocumentDto(
+			documentStoreId,
+			documentStore.getJbpmVariable().startsWith(VariableHelper.PREFIX_VAR_DOCUMENT),
+			docCodi,
+			documentStore.getJbpmVariable().startsWith(VariableHelper.PREFIX_VAR_ADJUNT),
+			getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
+			document);
+		
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "1");
+		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient",expedient.getTipus().getCodi());
+		return resposta;
+	}
+		
 	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId) {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
@@ -267,10 +289,7 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
-
-
 	private ExpedientDocumentDto toExpedientDocumentDto(
-			String processInstanceId,
 			Long documentStoreId,
 			boolean esDocument,
 			String documentCodi,
@@ -287,11 +306,22 @@ public class DocumentHelperV3 {
 			dto.setSignat(documentStore.isSignat());
 			// TODO
 			//dto.setPortasignaturesId(portasignaturesId);
+			if (documentStore.isSignat()) {
+				dto.setDocumentPendentSignar(documentStore.isSignat());
+				dto.setUrlVerificacioCustodia(
+						pluginCustodiaDao.getUrlComprovacioSignatura(
+								documentStoreId.toString()));
+			}
+			try {
+				dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
+			} catch (Exception ex) {
+				logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
+			}
 			try {
 				dto.setSignaturaUrlVerificacio(getUrlComprovacioSignatura(documentStoreId));
 			} catch (Exception ex) {
-				dto.setError("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ", processInstanceId=" + processInstanceId + ")");
-				logger.error("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ", processInstanceId=" + processInstanceId + ")", ex);
+				dto.setError("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")");
+				logger.error("No s'ha pogut obtenir la URL de comprovació de signatura (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")", ex);
 			}
 			dto.setRegistrat(documentStore.isRegistrat());
 			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
@@ -299,6 +329,7 @@ public class DocumentHelperV3 {
 			dto.setRegistreData(documentStore.getRegistreData());
 			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
 			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
 			if (esDocument) {
 				dto.setDocumentCodi(documentCodi);
 				if (document != null) {
@@ -308,7 +339,7 @@ public class DocumentHelperV3 {
 					dto.setDocumentCustodiaCodi(document.getCustodiaCodi());
 					dto.setDocumentTipusDocPortasignatures(document.getTipusDocPortasignatures());
 				} else {
-					dto.setError("No s'ha trobat el document (id=" + documentStoreId + ",documentCodi=" + documentCodi + ", processInstanceId=" + processInstanceId + ")");
+					dto.setError("No s'ha trobat el document (id=" + documentStoreId + ",documentCodi=" + documentCodi + ")");
 				}
 			} else if (esAdjunt) {
 				dto.setAdjunt(true);
@@ -319,13 +350,23 @@ public class DocumentHelperV3 {
 		} else {
 			if (esDocument) {
 				dto.setDocumentCodi(documentCodi);
-				dto.setError("No s'ha trobat el documentStore del document (id=" + documentStoreId + ", documentCodi=" + documentCodi + ", processInstanceId=" + processInstanceId + ")");
+				dto.setError("No s'ha trobat el documentStore del document (id=" + documentStoreId + ", documentCodi=" + documentCodi + ")");
 			} else if (esAdjunt) {
 				dto.setAdjuntId(adjuntId);
 				dto.setAdjunt(true);
-				dto.setError("No s'ha trobat el documentStore del adjunt (id=" + documentStoreId + ", adjuntId=" + adjuntId + ", processInstanceId=" + processInstanceId + ")");
+				dto.setError("No s'ha trobat el documentStore del adjunt (id=" + documentStoreId + ", adjuntId=" + adjuntId + ")");
 			} else {
-				dto.setError("No s'ha trobat el documentStore i no es ni document ni adjunt (id=" + documentStoreId + ", processInstanceId=" + processInstanceId + ")"); 
+				dto.setError("No s'ha trobat el documentStore i no es ni document ni adjunt (id=" + documentStoreId + ")"); 
+			}
+		}
+		if (!document.getFirmes().isEmpty()) {
+			dto.setDocumentPendentSignar(true);
+			Iterator<FirmaTasca> firmas = document.getFirmes().iterator();
+			while (firmas.hasNext()) {						
+				if (firmas.next().isRequired()) {
+					dto.setSignatRequired(true);
+					break;
+				}
 			}
 		}
 		return dto;
@@ -349,6 +390,11 @@ public class DocumentHelperV3 {
 				false);
 		
 		DocumentStore documentStore = getDocumentStore(task, documentRepository.findOne(docId).getCodi());
+		
+		return getRespostasValidacioSignatura(documentStore);
+	}
+	
+	public List<RespostaValidacioSignaturaDto> getRespostasValidacioSignatura(DocumentStore documentStore) {
 		DocumentDto document = getDocumentOriginal(documentStore.getId(), true);
 		if (pluginCustodiaDao.potObtenirInfoSignatures()) {
 			return conversioTipusHelper.convertirList(pluginCustodiaDao.dadesValidacioSignatura(
@@ -409,15 +455,6 @@ public class DocumentHelperV3 {
 					dto.setUrlVerificacioCustodia(
 							pluginCustodiaDao.getUrlComprovacioSignatura(
 									documentStoreId.toString()));
-				} else if (!document.getFirmes().isEmpty()) {
-					dto.setDocumentPendentSignar(true);
-					Iterator<FirmaTasca> firmas = document.getFirmes().iterator();
-					while (firmas.hasNext()) {						
-						if (firmas.next().isRequired()) {
-							dto.setSignatRequired(true);
-							break;
-						}
-					}
 				}
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
@@ -431,6 +468,16 @@ public class DocumentHelperV3 {
 					dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
 					dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
 					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+				}
+			}
+		}
+		if (!document.getFirmes().isEmpty()) {
+			dto.setDocumentPendentSignar(true);
+			Iterator<FirmaTasca> firmas = document.getFirmes().iterator();
+			while (firmas.hasNext()) {						
+				if (firmas.next().isRequired()) {
+					dto.setSignatRequired(true);
+					break;
 				}
 			}
 		}		

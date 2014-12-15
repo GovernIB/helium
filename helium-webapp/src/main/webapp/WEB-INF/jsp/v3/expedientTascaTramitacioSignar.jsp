@@ -31,6 +31,7 @@
 	.inlineLabels.col.first {padding-top: 10px;padding-bottom: 10px;}
 	.inlineLabels .ctrlHolder {padding-top: 10px;}
 	.iconos {display: inline;}
+	.no-disponible {padding-top:  30px;}
 </style>
 <c:set var="sourceUrl" value="${globalProperties['app.base.url']}/document/arxiuPerSignar.html"/>
 <script src="https://www.java.com/js/deployJava.js"></script>
@@ -154,49 +155,53 @@ function signarCaib(token, form, contentType) {
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-		 			<c:if test="${not empty document.tokenSignatura}">
-						<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
-						<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
-							<i class="fa fa-download"></i>
-						</a>
-						<div id="iconos${document.id}" class="iconos"></div>
-						<div id="firmar${document.id}">
-							<c:if test="${not document.signat}">						
-								<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
-									<input type="hidden" id="docId" name="docId" value="${document.id}"/>
-									<input type="hidden" id="taskId" name="taskId" value="${tasca.id}"/>
-									<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
-									<div class="inlineLabels col first">
-										<div class="ctrlHolder">
-											<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-											<select style="display: none" id="certs${document.id}" name="certs"></select>
+					<c:choose>
+						<c:when test="not empty document.tokenSignatura"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
+							<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
+								<i class="fa fa-download"></i>
+							</a>
+							<div id="iconos${document.id}" class="iconos"></div>
+							<div id="firmar${document.id}">
+								<c:if test="${not document.signat}">						
+									<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+										<input type="hidden" id="docId" name="docId" value="${document.id}"/>
+										<input type="hidden" id="taskId" name="taskId" value="${tasca.id}"/>
+										<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
+										<div class="inlineLabels col first">
+											<div class="ctrlHolder">
+												<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
+												<select style="display: none" id="certs${document.id}" name="certs"></select>
+											</div>
+											<div class="ctrlHolder">
+												<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
+												<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+											</div>
 										</div>
-										<div class="ctrlHolder">
-											<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
-											<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+										<div id="modal-botons${document.id}" class="modal-botons">
+											<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
 										</div>
-									</div>
-									<div id="modal-botons${document.id}" class="modal-botons">
-										<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
-									</div>
-									<script>
-									// <![CDATA[
-										$(document).ready( function() {								
-											obtenirCertificats("certs${document.id}", "1");
-										});
-									//]]>
-									</script>
-								</form:form>
-							</c:if>
-						</div>
-						<script>
-						// <![CDATA[
-							$(document).ready( function() {
-								$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/icones/${document.id}"/>');
-							});
-						//]]>
-						</script>
-					</c:if>
+										<script>
+										// <![CDATA[
+											$(document).ready( function() {								
+												obtenirCertificats("certs${document.id}", "1");
+											});
+										//]]>
+										</script>
+									</form:form>
+								</c:if>
+							</div>
+							<script>
+							// <![CDATA[
+								$(document).ready( function() {
+									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/icones/${document.id}"/>');
+								});
+							//]]>
+							</script>
+						</c:when>
+						<c:otherwise>
+							<div class="no-disponible">Document no disponible</div>
+						</c:otherwise>
+					</c:choose>
 				</h4>
 			</div>
 		</div>

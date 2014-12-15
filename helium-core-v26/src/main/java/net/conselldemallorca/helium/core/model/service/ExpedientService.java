@@ -721,7 +721,7 @@ public class ExpedientService {
 	/**
 	 * Para borrar inconsistencias de PROVES
 	 */
-	public String deleteProcessInstanceInconsistencias(Long processInstanceId) {
+	public String deleteProcessInstanceInconsistencias(Long processInstanceId, boolean met) {
 		String res = "";
 		try {
 			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(String.valueOf(processInstanceId));
@@ -731,7 +731,7 @@ public class ExpedientService {
 		} catch (Exception ex) {
 
 		}
-		jbpmHelper.deleteProcessInstanceInconsistencias(String.valueOf(processInstanceId));
+		jbpmHelper.deleteProcessInstanceInconsistencias(String.valueOf(processInstanceId), met);
 		for (DocumentStore documentStore : documentStoreDao.findAmbProcessInstanceId(String.valueOf(processInstanceId))) {
 			if (documentStore.isSignat()) {
 				try {

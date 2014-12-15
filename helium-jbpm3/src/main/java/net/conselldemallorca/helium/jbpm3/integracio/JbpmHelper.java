@@ -338,10 +338,10 @@ public class JbpmHelper {
 	 * Para borrar inconsistencias de PROVES
 	 */
 	public void deleteProcessInstanceInconsistencias(
-			String processInstanceId) {
+			String processInstanceId, boolean met) {
 		adminService.mesuraIniciar("jBPM deleteProcessInstance", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
-		DeleteProcessInstanceInconsistenciasCommand command = new DeleteProcessInstanceInconsistenciasCommand(id);
+		DeleteProcessInstanceInconsistenciasCommand command = new DeleteProcessInstanceInconsistenciasCommand(id, met);
 		commandService.execute(command);
 		adminService.mesuraCalcular("jBPM deleteProcessInstance", "jbpmDao");
 	}

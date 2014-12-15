@@ -20,6 +20,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
+import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -45,6 +46,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEs
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -80,6 +82,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDire
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
@@ -148,6 +151,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private RegistreDao registreDao;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -650,6 +655,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		luceneHelper.updateExpedientCapsalera(
 				expedient,
 				expedientHelper.isFinalitzat(expedient));
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		return documentHelper.getRespostasValidacioSignatura(documentStore);
 	}
 
 	@Override
@@ -1350,6 +1362,73 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return conversioTipusHelper.convertirList(
 				definicioProces.getAgrupacions(),
 				CampAgrupacioDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi) {
+		logger.debug("Consulta el document de l'expedient (" +
+				"expedientId=" + expedientId + ", " +
+				"docCodi=" + docCodi + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false);
+		return documentHelper.findDocumentPerExpedientDocumentStoreId(
+				expedient,
+				documentStoreId,
+				docCodi);
+	}
+
+	@Override
+	@Transactional
+	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception {
+		ExpedientDocumentDto document = findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(document.getProcessInstanceId());
+		for (JbpmTask task: tasks) {
+			documentHelper.esborrarDocument(
+					String.valueOf(task.getTask().getId()),
+					document.getProcessInstanceId(),
+					document.getDocumentCodi());
+		}
+	}
+
+	@Override
+	@Transactional
+	public void deleteSignatura(
+			Long expedientId,
+			Long documentStoreId) throws Exception {
+		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		if (documentStore != null && documentStore.isSignat()) {
+			try {
+				pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+			} catch (Exception ignored) {}
+			String jbpmVariable = documentStore.getJbpmVariable();
+			documentStore.setReferenciaCustodia(null);
+			documentStore.setSignat(false);
+			Expedient expedient = expedientRepository.findOne(expedientId);
+			registreDao.crearRegistreEsborrarSignatura(
+					expedient.getId(),
+					expedient.getProcessInstanceId(),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					getVarNameFromDocumentStore(documentStore));
+			List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+			for (JbpmTask task: tasks) {
+				jbpmHelper.deleteTaskInstanceVariable(
+						task.getId(),
+						jbpmVariable);
+			}
+		}
+	}
+
+	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
+		String jbpmVariable = documentStore.getJbpmVariable();
+		if (documentStore.isAdjunt())
+			return jbpmVariable.substring(DocumentHelper.PREFIX_ADJUNT.length());
+		else
+			return jbpmVariable.substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 	}
 
 	@Override

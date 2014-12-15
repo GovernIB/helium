@@ -467,13 +467,13 @@ public class GraphSession
     deleteProcessInstance(processInstance, true, true);
   }
   
-  	/**
+	/**
 	 * Para borrar inconsistencias de PROVES
 	 */
 	public void deleteProcessInstanceInconsistencias(ProcessInstance processInstance, boolean includeTasks, boolean includeJobs) {
 		if (processInstance == null)
 			throw new JbpmException("processInstance is null in JbpmSession.deleteProcessInstance()");
-		log.info("deleting process instance " + processInstance.getId());
+		log.info("deleting process instance metodo 1 " + processInstance.getId());
 
 		try {
 			// jobs
@@ -531,7 +531,7 @@ public class GraphSession
 				}
 			}
 			
-			System.out.println("Tokens a eliminar : " + resposta);
+			System.out.println("Tokens a eliminar: " + resposta);
 			
 			for (Token tok : resposta) {
 				System.out.println("XX 0: " + tok.getId());
@@ -589,7 +589,7 @@ public class GraphSession
 				Query qTokParent = session.createQuery("select token.parent from org.jbpm.graph.exe.Token token where token.id=?").setLong(0, tok.getId());
 				List<Token> listaTokenParent = qTokParent.list();
 				for (Token tokPar : listaTokenParent) {
-					session.createQuery("delete from org.jbpm.graph.exe.Token token where token.id=?").setLong(0, tokPar.getId());
+					session.createQuery("delete from org.jbpm.graph.exe.Token token where token.id=?").setLong(0, tokPar.getId()).executeUpdate();
 					System.out.println("XX 8: " + tokPar.getId());
 				}
 			}
@@ -597,6 +597,145 @@ public class GraphSession
 				session.delete(processInstance.getRootToken());
 				System.out.println("XX 9");
 			}
+			session.delete(processInstance);
+			System.out.println("XX 10");
+		} catch (Exception e) {
+			log.error(e);
+			jbpmSession.handleException();
+			throw new JbpmException("couldn't delete process instance '" + processInstance.getId() + "'");
+		}
+	}
+  
+  	/**
+	 * Para borrar inconsistencias de PROVES
+	 */
+	public void deleteProcessInstanceInconsistencias2(ProcessInstance processInstance, boolean includeTasks, boolean includeJobs) {
+		if (processInstance == null)
+			throw new JbpmException("processInstance is null in JbpmSession.deleteProcessInstance()");
+		log.info("deleting process instance metodo 2 " + processInstance.getId());
+
+		try {
+			// jobs
+			if (includeJobs) {
+				log.info("deleting jobs for process instance " + processInstance.getId());
+				Query query = session.getNamedQuery("GraphSession.deleteJobsForProcessInstance");
+				query.setEntity("processInstance", processInstance);
+				query.executeUpdate();
+			}
+
+			// tasks
+			if (includeTasks) {
+				Query query = session.getNamedQuery("GraphSession.findTaskInstanceIdsForProcessInstance");
+				query.setEntity("processInstance", processInstance);
+				List taskInstanceIds = query.list();
+
+				if ((taskInstanceIds != null) && (!taskInstanceIds.isEmpty())) {
+					log.info("deleting tasks " + taskInstanceIds + " for process instance " + processInstance.getId());
+					query = session.getNamedQuery("GraphSession.deleteTaskInstancesById");
+					query.setParameterList("taskInstanceIds", taskInstanceIds);
+				}
+			}
+
+			// delete the logs
+			log.info("deleting logs for process instance " + processInstance.getId());
+			deleteLogs(processInstance);
+
+			// delete the tokens and subprocess instances
+			log.info("deleting subprocesses for process instance " + processInstance.getId());
+			deleteSubProcesses(processInstance.getRootToken());
+
+			// null out the parent process token
+			Token superProcessToken = processInstance.getSuperProcessToken();
+			if (superProcessToken != null) {
+				log.info("nulling property subProcessInstance in superProcessToken " + superProcessToken.getId() + " which is referencing the process instance " + processInstance.getId() + " which is being deleted");
+				superProcessToken.setSubProcessInstance(null);
+			}
+			// add the process instance
+			log.info("hibernate session delete for process instance " + processInstance.getId());
+
+			List<Token> resposta = new ArrayList<Token>();
+			
+			Query qTok = session.createQuery("select token from org.jbpm.graph.exe.Token token where token.processInstance.id=?").setLong(0, processInstance.getId());
+			List<Token> lista = qTok.list();
+			resposta.addAll(lista);
+			for (Token tok : lista) {
+				Query qTokParent = session.createQuery("select token.parent from org.jbpm.graph.exe.Token token where token.id=?").setLong(0, tok.getId());
+				List<Token> listaTokenParent = qTokParent.list();
+				for (Token tokPar : listaTokenParent) {
+					if (!resposta.contains(tokPar)) {
+						resposta.add(tokPar);
+					}
+				}				
+			}
+			
+			Token root = processInstance.getRootToken();
+			
+			if (!root.hasEnded() && !resposta.contains(root)) {
+				resposta.add(root);
+			}
+			Map<String, Token> activeTokens = processInstance.getRootToken().getChildren();
+			for (String tokenName: activeTokens.keySet()) {
+				if (!resposta.contains(root)) {
+					resposta.add(activeTokens.get(tokenName));
+				}
+			}
+			
+			System.out.println("Tokens a eliminar: " + resposta);
+			
+			for (Token tok : resposta) {
+				System.out.println("XX 0: " + tok.getId());
+				boolean borrar = true;
+				Query b = session.createQuery("select processInstance from org.jbpm.graph.exe.ProcessInstance processInstance where rootToken.id = ?").setLong(0, tok.getId());
+				List<ProcessInstance> lPI = b.list();
+				for (ProcessInstance proc : lPI) {
+					if (!processInstance.equals(proc)) {
+						proc.setRootToken(null);
+						borrar = false;
+					}
+				}
+				System.out.println("XX 1");
+				b = session.createQuery("select processInstance from org.jbpm.graph.exe.ProcessInstance processInstance where superProcessToken.id = ?").setLong(0, tok.getId());
+				lPI = b.list();
+				for (ProcessInstance proc : lPI) {
+					if (!processInstance.equals(proc)) {
+						proc.setSuperProcessToken(null);
+						borrar = false;
+					}
+				}
+				System.out.println("XX 2");
+				if (!processInstance.equals(tok.getProcessInstance())) {
+					tok.setProcessInstance(null);
+					borrar = false;
+				}
+				if (tok.getProcessInstance() != null && tok.getProcessInstance().getRootToken() != null && !processInstance.equals(tok.getProcessInstance().getRootToken().getProcessInstance())) {
+					tok.getProcessInstance().getRootToken().setProcessInstance(null);
+					borrar = false;
+				}
+				if (tok.getProcessInstance() != null && tok.getProcessInstance().getSuperProcessToken() != null && !processInstance.equals(tok.getProcessInstance().getSuperProcessToken().getProcessInstance())) {
+					tok.getProcessInstance().getSuperProcessToken().setProcessInstance(null);
+					borrar = false;
+				}
+				System.out.println("XX 3");
+				if (borrar) {
+					session.createQuery("delete from org.jbpm.logging.log.ProcessLog log where log.token.id=?").setLong(0, tok.getId()).executeUpdate();
+					System.out.println("XX 4");
+					Query qq = session.createQuery("select a from org.jbpm.taskmgmt.exe.TaskInstance a where a.token.id = ?)").setLong(0, tok.getId());
+					List<TaskInstance> list = qq.list();
+					for (TaskInstance ts : list) {
+						String sql = "delete FROM JBPM_TASKACTORPOOL where TASKINSTANCE_ = " + ts.getId();
+						SQLQuery query = session.createSQLQuery(sql);
+						query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+						query.executeUpdate();
+					}
+					System.out.println("XX 5");
+
+					session.createQuery("delete from org.jbpm.context.exe.VariableInstance a where a.token.id = ?)").setLong(0, tok.getId()).executeUpdate();
+					System.out.println("XX 6");
+					session.createQuery("delete from org.jbpm.context.exe.TokenVariableMap a where a.token.id = ?)").setLong(0, tok.getId()).executeUpdate();
+					System.out.println("XX 7");
+				}
+			}
+			
 			session.delete(processInstance);
 			System.out.println("XX 10");
 		} catch (Exception e) {

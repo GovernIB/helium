@@ -108,14 +108,15 @@ public class ExpedientController extends BaseController {
 	@ResponseBody
 	public String deletePIInconsistenciasAction(
 			HttpServletRequest request,
-			@RequestParam(value = "id", required = true) Long id) {
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "met", required = true) boolean met) {
 		try {
-			return expedientService.deleteProcessInstanceInconsistencias(id);
+			return expedientService.deleteProcessInstanceInconsistencias(id, met);
 		} catch (Exception ex) {
 			missatgeError(request, getMessage("error.esborrar.expedient"), ex.getLocalizedMessage());
         	logger.error("No s'ha pogut esborrar el registre", ex);
 		}
-		return "KO";
+		return "KO: " + met + ": ";
 	}
 
 	@RequestMapping(value = "delete")
