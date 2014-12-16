@@ -21,7 +21,8 @@
 				// <![CDATA[
 					$('.icon').heliumEvalLink({
 						refrescarAlertes: true,
-						refrescarPagina: false
+						refrescarPagina: false,
+						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 					});
 				//]]>
 			</script>

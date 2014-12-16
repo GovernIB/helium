@@ -156,7 +156,7 @@ function signarCaib(token, form, contentType) {
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
 					<c:choose>
-						<c:when test="not empty document.tokenSignatura"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
+						<c:when test="${not empty document.tokenSignatura}"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
 							<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
 								<i class="fa fa-download"></i>
 							</a>

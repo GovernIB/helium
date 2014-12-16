@@ -6,26 +6,25 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
 <style>
-div.grup:hover {
-	background-color: #e5e5e5 !important;
-	border-color: #ccc !important;
-}
-div.grup .panel-body-grup {
-	padding-bottom: 0px !important;
-}
-.panel-body-grup {
-	margin: -1px;
-}
-.extensionIcon {
-	color: white;
-    font-size: 10px;
-    font-weight: bold;
-    margin-left: -38px;
-}
-a, a:HOVER, a:FOCUS {text-decoration: none;}
-.table.table-bordered {margin-bottom: 0px;}
-.tableDocuments .left {padding: 10px;}
-.tableDocuments .right {padding: 15px;width: 100%;}
+	div.grup:hover {background-color: #e5e5e5 !important;border-color: #ccc !important;}
+	div.grup .panel-body-grup {padding-bottom: 0px !important;}
+	.panel-body-grup {margin: -1px;}
+	.extensionIcon {color: white;font-size: 10px;font-weight: bold;margin-left: -33px;}
+	.signature {margin-top: -5px;}
+	a, a:HOVER, a:FOCUS {text-decoration: none;}
+	.table.table-bordered {margin-bottom: 0px;}
+	.tableDocuments .left {padding: 10px;}
+	.tableDocuments .right {padding: 15px;width: 100%;}
+	.icon, .icon:hover, .icon:focus {
+	    text-decoration: none;
+	    color: #2a6496;
+	}
+	.icon {
+	    color: #428bca;
+	}
+	.icon {
+	    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+	}
 </style>
 
 <c:set var="grupId" value="grup-default"/>
@@ -137,7 +136,7 @@ a, a:HOVER, a:FOCUS {text-decoration: none;}
 													<tr>
 														<td class="left">
 															<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
-																<span class="fa fa-file fa-4x"></span>
+																<span class="fa fa-file fa-3x"></span>
 																<span class="extensionIcon">
 																	${fn:toUpperCase(document.arxiuExtensio)}
 																</span>
@@ -156,7 +155,7 @@ a, a:HOVER, a:FOCUS {text-decoration: none;}
 																			<td>
 																				<c:if test="${document.signat or document.registrat}">
 																					<a data-rdt-link-modal="true" class="icon signature" href="<c:url value='../../v3/expedient/${expedientId}/verificarSignatura/${document.id}/${document.documentCodi}'/>">
-																						<span class="fa fa-certificate fa-lg" title="Document signat (clic per veure detalls)"></span>
+																						<span class="fa fa-2x fa-certificate" title="Document signat (clic per veure detalls)"></span>
 																					</a>
 																					<script type="text/javascript">
 																						// <![CDATA[
@@ -167,15 +166,20 @@ a, a:HOVER, a:FOCUS {text-decoration: none;}
 																						//]]>
 																					</script>
 																				</c:if>
-																				<span class="fa fa-trash-o fa-lg" onclick="return confirmarBorrarExpedient(event, '${expedientId}', '${document.id}', '${document.documentCodi}')" style="cursor: pointer"></span>
 																				
 																				<c:if test="${document.signat}">
-																					<span class="fa fa-trash-o fa-lg signature" onclick="return confirmarEsborrarSignatura(event, '${expedientId}', '${document.id}')" style="cursor: pointer"></span>
+																					<span class="icon signature fa-stack fa-2x" onclick="return confirmarEsborrarSignatura(event, '${expedientId}', '${document.id}')" style="cursor: pointer">
+																					  <i class="fa fa-certificate fa-stack-1x"></i>
+																					  <i class="fa fa-ban fa-stack-2x text-danger"></i>
+																					</span>
 																				</c:if>
 																				
+																				<c:if test="${!document.registrat}">
+																					<span class="icon fa fa-trash-o fa-2x" onclick="return confirmarBorrarExpedient(event, '${expedientId}', '${document.id}', '${document.documentCodi}')" style="cursor: pointer"></span>
+																				</c:if>
 																				<c:if test="${document.registrat}">
 																					<a href="#">
-																						<span class="fa fa-book fa-lg" title="Document registrat (clic per veure detalls)"></span>
+																						<span class="icon fa fa-book fa-2x" title="Document registrat (clic per veure detalls)"></span>
 																					</a>
 																				</c:if>
 																			</td>
@@ -269,8 +273,7 @@ function refrescarAlertas(e) {
 		async: false,
 		timeout: 20000,
 		success: function (data) {
-			$('#contingut-alertes *').remove();
-			$('#contingut-alertes').append(data);
+			$('#contingut-alertes').html(data);
 		}
 	});
 }

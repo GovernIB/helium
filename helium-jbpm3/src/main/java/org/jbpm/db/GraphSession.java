@@ -526,7 +526,7 @@ public class GraphSession
 			}
 			Map<String, Token> activeTokens = processInstance.getRootToken().getChildren();
 			for (String tokenName: activeTokens.keySet()) {
-				if (!resposta.contains(root)) {
+				if (!resposta.contains(activeTokens.get(tokenName))) {
 					resposta.add(activeTokens.get(tokenName));
 				}
 			}
@@ -589,8 +589,23 @@ public class GraphSession
 				Query qTokParent = session.createQuery("select token.parent from org.jbpm.graph.exe.Token token where token.id=?").setLong(0, tok.getId());
 				List<Token> listaTokenParent = qTokParent.list();
 				for (Token tokPar : listaTokenParent) {
+					session.createQuery("delete from org.jbpm.logging.log.ProcessLog log where log.token.id=?").setLong(0, tokPar.getId()).executeUpdate();
+					System.out.println("XX 41");
+					Query qq = session.createQuery("select a from org.jbpm.taskmgmt.exe.TaskInstance a where a.token.id = ?)").setLong(0, tokPar.getId());
+					List<TaskInstance> lista = qq.list();
+					for (TaskInstance ts : lista) {
+						String sql = "delete FROM JBPM_TASKACTORPOOL where TASKINSTANCE_ = " + ts.getId();
+						SQLQuery query = session.createSQLQuery(sql);
+						query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+						query.executeUpdate();
+					}
+					System.out.println("XX 51");
+					session.createQuery("delete from org.jbpm.context.exe.VariableInstance a where a.token.id = ?)").setLong(0, tokPar.getId()).executeUpdate();
+					System.out.println("XX 61");
+					session.createQuery("delete from org.jbpm.context.exe.TokenVariableMap a where a.token.id = ?)").setLong(0, tokPar.getId()).executeUpdate();
+					System.out.println("XX 71");
 					session.createQuery("delete from org.jbpm.graph.exe.Token token where token.id=?").setLong(0, tokPar.getId()).executeUpdate();
-					System.out.println("XX 8: " + tokPar.getId());
+					System.out.println("XX 81: " + tokPar.getId());
 				}
 			}
 			if (processInstance.getRootToken() != null) {
@@ -675,7 +690,7 @@ public class GraphSession
 			}
 			Map<String, Token> activeTokens = processInstance.getRootToken().getChildren();
 			for (String tokenName: activeTokens.keySet()) {
-				if (!resposta.contains(root)) {
+				if (!resposta.contains(activeTokens.get(tokenName))) {
 					resposta.add(activeTokens.get(tokenName));
 				}
 			}
