@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.core.model.dao.EntornDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioValorsDao;
 import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.FirmaTascaDao;
@@ -86,6 +87,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
@@ -139,6 +141,7 @@ public class DissenyService {
 	private ConsultaCampDao consultaCampDao;
 	private AccioDao accioDao;
 	private SequenciaAnyDao sequenciaAnyDao;
+	private ExecucioMassivaDao execucioMassivaDao;
 
 	private DtoConverter dtoConverter;
 	private JbpmHelper jbpmDao;
@@ -828,6 +831,12 @@ public class DissenyService {
 			for (Estat estat : findEstatAmbExpedientTipus(id)) {
 				estatDao.delete(estat);
 			}
+			for (ExecucioMassiva eme : execucioMassivaDao.getExecucionsMassivesByIdTipusExpedient(id)) {
+				execucioMassivaDao.delete(eme);
+			}
+
+			sequenciaAnyDao.deleteAmbExpedientTipus(id);
+
 			for (Consulta consulte : consultaDao.findAmbEntornIExpedientTipus(vell.getEntorn().getId(), id)) {
 				consultaDao.delete(consulte);
 			}
@@ -2203,6 +2212,11 @@ public class DissenyService {
 	@Autowired
 	public void setCacheHelper(CacheHelper cacheHelper) {
 		this.cacheHelper = cacheHelper;
+	}
+	
+	@Autowired
+	public void setExecucioMassivaDao(ExecucioMassivaDao execucioMassivaDao) {
+		this.execucioMassivaDao = execucioMassivaDao;
 	}	
 
 	@Autowired

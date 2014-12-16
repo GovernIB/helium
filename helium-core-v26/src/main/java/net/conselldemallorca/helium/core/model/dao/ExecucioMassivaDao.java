@@ -54,6 +54,16 @@ public class ExecucioMassivaDao extends HibernateGenericDao<ExecucioMassiva, Lon
 		return (List<ExecucioMassiva>)query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public List<ExecucioMassiva> getExecucionsMassivesByIdTipusExpedient(Long idTipusExpedient) {
+		Query query = null;
+		query = getSession().createQuery(
+				"from	ExecucioMassiva e " +
+				"where 	e.expedientTipus.id = " + idTipusExpedient);
+
+		return (List<ExecucioMassiva>)query.list();
+	}
+	
 	public List<ExecucioMassiva> getExecucionsPendentsMassivesByUser(String username) {
 		return findByCriteria(
 				Restrictions.and(

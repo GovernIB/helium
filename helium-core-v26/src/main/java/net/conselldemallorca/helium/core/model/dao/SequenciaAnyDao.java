@@ -41,4 +41,10 @@ public class SequenciaAnyDao extends HibernateGenericDao<SequenciaAny, Long> {
 		}
 		return null;
 	}
+	
+	public void deleteAmbExpedientTipus(Long expedientTipusId) {
+		getSession().createQuery("delete from SequenciaAny sa where sa.expedientTipus.id = ?")
+		.setLong(0, expedientTipusId)
+		.executeUpdate();
+	}
 }
