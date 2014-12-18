@@ -718,53 +718,6 @@ public class ExpedientService {
 		}		
 	}
 
-	/**
-	 * Para borrar inconsistencias de PROVES
-	 */
-	public String deleteProcessInstanceInconsistencias(Long processInstanceId, boolean met) {
-		String res = "";
-		try {
-			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(String.valueOf(processInstanceId));
-			for (JbpmProcessInstance pi : processInstancesTree)
-				for (TerminiIniciat ti : terminiIniciatDao.findAmbProcessInstanceId(pi.getId()))
-					terminiIniciatDao.delete(ti);
-		} catch (Exception ex) {
-
-		}
-		jbpmHelper.deleteProcessInstanceInconsistencias(String.valueOf(processInstanceId), met);
-		for (DocumentStore documentStore : documentStoreDao.findAmbProcessInstanceId(String.valueOf(processInstanceId))) {
-			if (documentStore.isSignat()) {
-				try {
-					pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
-				} catch (Exception ignored) {
-				}
-			}
-			if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-				pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
-			documentStoreDao.delete(documentStore.getId());
-		}
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId.toString());
-		if (expedient != null) {
-			for (Portasignatures psigna : expedient.getPortasignatures()) {
-				psigna.setEstat(TipusEstat.ESBORRAT);
-			}
-			for (ExecucioMassivaExpedient eme : execucioMassivaExpedientDao.getExecucioMassivaByExpedient(expedient.getId())) {
-				execucioMassivaExpedientDao.delete(eme);
-			}
-			for (Alerta al : expedient.getAlertes()) {
-				if (!al.isEliminada()) {
-					al.setDataEliminacio(new Date());
-				}
-			}
-	
-			expedientDao.delete(expedient);
-			luceneDao.deleteExpedient(expedient);
-			res = "Borrado: ";
-		} else {
-			res = "Ya estaba borrado: ";
-		}
-		return res + processInstanceId;
-	}
 	public void delete(Long entornId, Long id) {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		if (expedient != null) {

@@ -23,7 +23,6 @@ import net.conselldemallorca.helium.jbpm3.command.CancelProcessInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.CancelTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.CloneTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceInconsistenciasCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceVariablesCommand;
 import net.conselldemallorca.helium.jbpm3.command.DeleteTaskInstanceVariablesCommand;
@@ -332,20 +331,6 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM getProcessInstanceTree", "jbpmDao");
 		return resposta;
 	}
-
-	
-	/**
-	 * Para borrar inconsistencias de PROVES
-	 */
-	public void deleteProcessInstanceInconsistencias(
-			String processInstanceId, boolean met) {
-		adminService.mesuraIniciar("jBPM deleteProcessInstance", "jbpmDao");
-		final long id = Long.parseLong(processInstanceId);
-		DeleteProcessInstanceInconsistenciasCommand command = new DeleteProcessInstanceInconsistenciasCommand(id, met);
-		commandService.execute(command);
-		adminService.mesuraCalcular("jBPM deleteProcessInstance", "jbpmDao");
-	}
-
 	
 	public void deleteProcessInstance(
 			String processInstanceId) {
