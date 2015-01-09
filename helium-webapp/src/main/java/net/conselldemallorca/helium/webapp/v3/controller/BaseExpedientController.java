@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -41,18 +41,12 @@ public class BaseExpedientController extends BaseController {
 			ExpedientService expedientService) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute("expedient", expedient);
-		model.addAttribute(
-				"participants",
-				expedientService.findParticipants(expedientId));		
-		model.addAttribute(
-				"accions",
-				expedientService.findAccionsVisibles(expedientId));
-		model.addAttribute(
-				"relacionats",
-				expedientService.findRelacionats(expedientId));		
-		DefinicioProcesDto definicioProces = dissenyService.getByInstanciaProcesById(expedient.getProcessInstanceId());
-		model.addAttribute("definicioProces",definicioProces);
-		model.addAttribute("definicioProcesJbpmId",definicioProces.getJbpmId());
+		model.addAttribute("participants", expedientService.findParticipants(expedientId));		
+		model.addAttribute("accions", expedientService.findAccionsVisibles(expedientId));
+		model.addAttribute("relacionats", expedientService.findRelacionats(expedientId));
+		DefinicioProcesVersioDto versions = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
+		model.addAttribute("definicioProces", versions);
+		model.addAttribute("definicioProcesVersio",versions.getVersio());
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)

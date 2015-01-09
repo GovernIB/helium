@@ -3,26 +3,53 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -41,23 +68,39 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientPerPipella(
-					request,
-					expedientId,
-					model,
-					"documents",
-					expedientService);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		// Per a cada instància de procés ordenem les dades per agrupació  
+		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
+		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			List<ExpedientDocumentDto> dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
+			documents.put(instanciaProces, dadesInstancia);
 		}
-		model.addAttribute(
-				"expedient",
-				expedientService.findAmbId(expedientId));
-		model.addAttribute(
-				"documents",
-				expedientService.findDocumentsPerInstanciaProces(
-						expedientId,
-						null));
+
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("documents",documents);
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "documents", expedientService);
+		}
 		return "v3/expedientDocument";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/documents/{procesId}", method = RequestMethod.GET)
+	public String dadesProces(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		List<ExpedientDocumentDto> dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
+		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		documents.put(instanciaProces, dadesInstancia);
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("documents",documents);
+		return "v3/procesDocuments";
 	}
 
 	@RequestMapping(value = "/{expedientId}/verificarSignatura/{documentStoreId}/{docCodi}", method = RequestMethod.GET)
@@ -65,9 +108,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
-			@PathVariable String docCodi,			
+			@PathVariable String docCodi,
+			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
 			ModelMap model) throws ServletException {
 		try {
+			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
+				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
+				model.addAttribute("url", urlVerificacioCustodia);
+				return "v3/utils/modalIframe";
+			}
 			model.addAttribute("signatura", expedientService.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi));
 			model.addAttribute("signatures", expedientService.verificarSignatura(documentStoreId));
 			return "v3/expedientTascaTramitacioSignarVerificar";
@@ -76,8 +125,148 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			throw new ServletException(ex);
 	    }
 	}
+
+	@RequestMapping(value = "/{expedientId}/verificarRegistre/{documentStoreId}/{docCodi}", method = RequestMethod.GET)
+	public String verificarRegistre(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@PathVariable String docCodi,			
+			ModelMap model) throws ServletException {
+		try {
+			model.addAttribute("document", expedientService.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi));
+			return "v3/expedientDocumentRegistreVerificar";
+		} catch(Exception ex) {
+			logger.error("Error al verificar la signatura", ex);
+			throw new ServletException(ex);
+	    }
+	}
 	
-	@RequestMapping(value = "/{expedientId}/documentEsborrar/{documentStoreId}/{docCodi}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/documentGenerar", method = RequestMethod.GET)
+	public String documentGenerarGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@RequestParam(value = "docId", required = false) final Long docId,
+			Model model) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			DocumentDto generat = expedientService.generarDocumentPlantilla(docId, expedient);
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
+			logger.error("Error generant el document: " + docId, ex);
+			return modalUrlTancar(false);
+		} 
+		return "arxiuView";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/nouDocument", method = RequestMethod.GET)
+	public String nouDocumentGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setData(new Date());
+		model.addAttribute("documentExpedientCommand", command);
+		return "v3/expedientDocumentNou";
+	}
+
+	@RequestMapping(value="/{expedientId}/documentAdjuntar", method = RequestMethod.POST)
+	public String documentModificarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@ModelAttribute DocumentExpedientCommand command, 
+			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+		try {
+			new DocumentModificarValidator().validate(command, result);
+			if (result.hasErrors() || arxiu == null || arxiu.isEmpty()) {
+	        	if (arxiu == null || arxiu.isEmpty()) {
+		        	MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));				        	
+		        }
+	        	return "v3/expedientDocumentNou";
+	        }
+			
+			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
+			String nomArxiu = arxiu.getOriginalFilename();
+			command.setNomArxiu(nomArxiu);
+			command.setContingut(contingutArxiu);
+
+			expedientService.crearModificarDocument(expedientId, null, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
+			MissatgesHelper.info(request, getMessage(request, "info.document.guardat") );
+        } catch (Exception ex) {
+			logger.error("No s'ha pogut crear el document: expedientId: " + expedientId, ex);
+			MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + ": " + ex.getLocalizedMessage());
+        }
+		return modalUrlTancar(false);
+	}
+	
+	@RequestMapping(value = "/{expedientId}/documentModificar/{documentStoreId}/{docCodi}", method = RequestMethod.GET)
+	public String documentModificarGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@PathVariable String docCodi,
+			Model model) {
+		DocumentDto document = expedientService.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setDocId(document.getDocumentId());
+		command.setNom(document.getDocumentNom());
+		command.setCodi(document.getDocumentCodi());
+		command.setContingut(document.getArxiuContingut());		
+		command.setData(document.getDataDocument());
+		model.addAttribute("documentExpedientCommand", command);
+		model.addAttribute("document", document);		
+		return "v3/expedientDocumentModificar";
+	}
+
+	@RequestMapping(value="/{expedientId}/documentModificar/{documentStoreId}/modificar", method = RequestMethod.POST)
+	public String documentModificarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@ModelAttribute DocumentExpedientCommand command, 
+			@RequestParam(value = "modificarArxiu", required = true) boolean modificarArxiu,
+			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+		try {
+			if (!arxiu.isEmpty()) {
+				byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
+				String nomArxiu = arxiu.getOriginalFilename();
+				command.setNomArxiu(nomArxiu);
+				command.setContingut(contingutArxiu);
+			}
+			new DocumentModificarValidator().validate(command, result);
+			boolean docAdjunto = !(modificarArxiu && arxiu.isEmpty());
+			if (result.hasErrors() || !docAdjunto) {
+	        	if (!docAdjunto) {
+	        		model.addAttribute("modificarArxiu", modificarArxiu);
+		        	MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));				        	
+		        }
+	        	
+	        	DocumentDto document = expedientService.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, command.getCodi());
+	    		model.addAttribute("documentExpedientCommand", command);
+	    		model.addAttribute("document", document);		
+	        	
+	        	return "v3/expedientDocumentModificar";
+	        }
+			expedientService.crearModificarDocument(expedientId, documentStoreId, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
+			MissatgesHelper.info(request, getMessage(request, "info.document.guardat") );
+        } catch (Exception ex) {
+			logger.error("No s'ha pogut guardar el document: expedientId: " + expedientId + " : documentStoreId : " + documentStoreId, ex);
+			MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + ": " + ex.getLocalizedMessage());
+        }
+		return modalUrlTancar(false);
+	}
+	
+	@RequestMapping(value = "/{expedientId}/documentEsborrar/{documentStoreId}/{docCodi}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentProcesEsborrar(
 			HttpServletRequest request,
@@ -97,7 +286,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return response;
 	}
 
-	@RequestMapping(value = "/{expedientId}/signaturaEsborrar/{documentStoreId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/signaturaEsborrar/{documentStoreId}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean signaturaEsborrar(
 			HttpServletRequest request,
@@ -115,251 +304,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 		return response;
 	}
-	
-//	@ModelAttribute("command")
-//	public DocumentExpedientCommand populateCommand(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id") String id,
-//			@RequestParam(value = "adjuntId", required = false) String adjuntId) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			DocumentExpedientCommand command = new DocumentExpedientCommand();
-//			if (adjuntId == null)
-//				command.setData(new Date());
-//			return command;
-//		}
-//		return null;
-//	}
-
-//	@RequestMapping(value = "/expedient/documentAdjuntForm", method = RequestMethod.GET)
-//	public String formGet(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = false) String id,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-//			if (potModificarOReassignarExpedient(expedient)) {
-//				return "expedient/documentAdjuntForm";
-//			} else {
-//				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-//			}
-//			return "redirect:/expedient/consulta.html";
-//		} else {
-//			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
-	
-//	@RequestMapping(value = "/expedient/documentAdjuntForm", method = RequestMethod.POST)
-//	public String formPost(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = false) String id,
-//			@RequestParam(value = "submit", required = false) String submit,
-//			@RequestParam("contingut") final MultipartFile multipartFile,
-//			@ModelAttribute("command") DocumentExpedientCommand command,
-//			BindingResult result,
-//			SessionStatus status,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-//			if (potModificarOReassignarExpedient(expedient)) {
-//				if ("submit".equals(submit) || submit.length() == 0) {
-//					new DocumentAdjuntCrearValidator().validate(command, result);
-//			        if (result.hasErrors())
-//			        	return "expedient/documentAdjuntForm";
-//			        String nomArxiu = "arxiu";
-//			        if (multipartFile.getSize() > 0) {
-//						try {
-//							nomArxiu = multipartFile.getOriginalFilename();
-//						} catch (Exception ignored) {}
-//					}
-//			        try {
-//			        	documentService.guardarAdjunt(
-//				        		id,
-//				        		null,
-//				        		command.getNom(),
-//				        		command.getData(),
-//				        		nomArxiu,
-//				        		(multipartFile.getSize() > 0) ? command.getContingut() : null);
-//						MissatgesHelper.error(request, getMessage(request, "info.document.adjuntat") );
-//						status.setComplete();
-//			        } catch (Exception ex) {
-//			        	Long entornId = entorn.getId();
-//						String numeroExpedient = id;
-//						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut crear el document adjunt", ex);
-//			        	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"), ex.getLocalizedMessage());
-//			        }
-//				}
-//				return "redirect:/expedient/documents.html?id=" + id;
-//			} else {
-//				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-//				return "redirect:/expedient/consulta.html";
-//			}
-//		} else {
-//			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
-	
-//	@ModelAttribute("command")
-//	public DocumentExpedientCommand populateCommand(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "docId", required = true) Long docId) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			DocumentExpedientCommand command = new DocumentExpedientCommand();
-//			DocumentDto dto = documentService.documentInfo(docId);
-//			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
-//			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
-//					instanciaProces.getDefinicioProces().getId(),
-//					dto.getDocumentCodi());
-//			command.setDocId(docId);
-//			if (dto.isAdjunt())
-//				command.setNom(dto.getAdjuntTitol());
-//			else
-//				command.setNom(document.getNom());
-//			command.setData(dto.getDataDocument());
-//			return command;
-//		}
-//		return null;
-//	}
-
-//	@RequestMapping(value = "/expedient/documentModificar", method = RequestMethod.GET)
-//	public String documentModificarGet(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "docId", required = true) Long docId,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-//			if (potModificarExpedient(expedient)) {
-//				DocumentDto doc = documentService.documentInfo(docId);
-//				if (!doc.isSignat()) {
-//					model.addAttribute("expedient", expedient);
-//					model.addAttribute("document", doc);
-//					model.addAttribute(
-//							"documentDisseny",
-//							doc.isAdjunt() ? dissenyService.getDocumentStoreById(doc.getId()) : dissenyService.getDocumentById(doc.getDocumentId()));
-//					return "expedient/documentForm";
-//				} else {
-//					MissatgesHelper.error(request, getMessage(request, "error.modificar.doc.signat") );
-//					return "redirect:/expedient/documents.html?id=" + id;
-//				}
-//			} else {
-//				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-//			}
-//			return "redirect:/expedient/consulta.html";
-//		} else {
-//			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
-	
-//	@RequestMapping(value = "/expedient/documentModificar", method = RequestMethod.POST)
-//	public String documentModificarPost(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "submit", required = false) String submit,
-//			@RequestParam("contingut") final MultipartFile multipartFile,
-//			@ModelAttribute("command") DocumentExpedientCommand command,
-//			BindingResult result,
-//			SessionStatus status,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-//			if (potModificarExpedient(expedient)) {
-//				if ("submit".equals(submit) || submit.length() == 0) {
-//					new DocumentModificarValidator().validate(command, result);
-//					boolean docAdjunto = !("deleted".equals(request.getParameter("contingut_deleted")) && command.getContingut().length == 0);
-//			        if (result.hasErrors() || !docAdjunto) {
-//			        	DocumentDto document = documentService.documentInfo(command.getDocId());
-//				        if (!docAdjunto) {
-//				        	document.setTokenSignatura(null);
-//				        	MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));				        	
-//				        }
-//			        	model.addAttribute("expedient", expedient);
-//						model.addAttribute(
-//								"document",
-//								document);
-//			        	return "expedient/documentForm";
-//			        }
-//					try {
-//						DocumentDto doc = documentService.documentInfo(command.getDocId());
-//						if (!doc.isAdjunt()) {
-//							documentService.guardarDocumentProces(
-//									id,
-//									doc.getDocumentCodi(),
-//									null,
-//									command.getData(),
-//									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : doc.getArxiuNom(),
-//									(multipartFile.getSize() > 0) ? command.getContingut() : doc.getArxiuContingut(),
-//									false);
-//						} else {
-//							documentService.guardarAdjunt(
-//									id,
-//									doc.getAdjuntId(),
-//									command.getNom(),
-//									command.getData(),
-//									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : doc.getArxiuNom(),
-//									(multipartFile.getSize() > 0) ? command.getContingut() : doc.getArxiuContingut());
-//						}
-//						MissatgesHelper.error(request, getMessage(request, "info.document.guardat") );
-//			        } catch (Exception ex) {
-//			        	Long entornId = entorn.getId();
-//						String numeroExpedient = id;
-//						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut guardar el document", ex);
-//			        	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"), ex.getLocalizedMessage());
-//			        }
-//				}
-//				return "redirect:/expedient/documents.html?id=" + id;
-//			} else {
-//				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-//				return "redirect:/expedient/consulta.html";
-//			}
-//		} else {
-//			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
-
-//	@RequestMapping(value = "/expedient/documentGenerar", method = RequestMethod.GET)
-//	public String documentGenerarGet(
-//			HttpServletRequest request,
-//			@RequestParam(value = "id", required = true) String id,
-//			@RequestParam(value = "docId", required = true) Long docId,
-//			@RequestParam(value = "data", required = false) Date data,
-//			ModelMap model) {
-//		Entorn entorn = getEntornActiu(request);
-//		if (entorn != null) {
-//			try {
-//				DocumentDto doc = documentService.documentInfo(docId);
-//				DocumentDto generat = documentService.generarDocumentPlantilla(
-//						entorn.getId(),
-//						doc.getDocumentId(),
-//						null,
-//						id,
-//						(data != null) ? data : new Date(),
-//						false);
-//				if (generat != null) {
-//					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
-//					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
-//				}
-//				return "arxiuView";
-//			} catch (Exception ex) {
-//				MissatgesHelper.error(request, getMessage(request, "error.generar.document"), ex.getLocalizedMessage());
-//	        	logger.error("Error generant el document " + docId + " per la instància de procés " + id, ex);
-//	        	return "redirect:/expedient/documentModificar.html?id=" + id + "&docId=" + docId;
-//			}
-//		} else {
-//			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec") );
-//			return "redirect:/index.html";
-//		}
-//	}
 
 	@RequestMapping(value = "/document/arxiuMostrar")
 	public String arxiuMostrar(
@@ -392,6 +336,42 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				ArxiuView.MODEL_ATTRIBUTE_DATA,
 				arxiu.getContingut());
 		return "arxiuView";
+	}
+
+	public class DocumentModificarValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Object.class);
+		}
+		public void validate(Object command, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
+		}
+	}
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,##0.00"),
+						true));
+		binder.registerCustomEditor(
+				Boolean.class,
+				new CustomBooleanEditor(true));
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDocumentController.class);

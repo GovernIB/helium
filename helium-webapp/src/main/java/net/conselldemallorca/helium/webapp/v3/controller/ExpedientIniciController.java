@@ -51,15 +51,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientIniciController extends BaseExpedientController {
+	public static final String CLAU_SESSIO_ANY = "iniciexp_any";
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
-	public static final String CLAU_SESSIO_ANY = "iniciexp_any";
 	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
-	public static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
+	private static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
-	public static final String CLAU_SESSIO_PREFIX_REGISTRE = "ExpedientIniciarController_reg_";
-	public static final String VARIABLE_COMMAND_INICI_EXPEDIENT = "iniciexp_command";
+	private static final String CLAU_SESSIO_PREFIX_REGISTRE = "ExpedientIniciarController_reg_";
 
 	@Autowired
 	private ExpedientService expedientService;

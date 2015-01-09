@@ -614,6 +614,45 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public boolean hasDocuments(
+			String id) {
+		logger.debug("Consultant has documents de la tasca (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return documentHelper.hasDocumentsPerInstanciaTasca(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<TascaDocumentDto> findDocumentsSignar(
+			String id) {
+		logger.debug("Consultant documents per signar de la tasca (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return documentHelper.findDocumentsPerInstanciaTascaSignar(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean hasDocumentsSignar(
+			String id) {
+		logger.debug("Consultant has documents per signar de la tasca (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return documentHelper.hasDocumentsPerInstanciaTascaSignar(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<SeleccioOpcioDto> findllistaValorsPerCampDesplegable(
 			String id,
 			Long campId,

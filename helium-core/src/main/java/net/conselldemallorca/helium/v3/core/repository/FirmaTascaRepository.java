@@ -35,10 +35,22 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 	@Query("select ft from " +
 			"    FirmaTasca ft " +
 			"where " +
-			"    ft.tasca.id=:tascaId " +
+			"   ft.tasca.jbpmName=:jbpmName " +
+			"	and ft.tasca.definicioProces.jbpmId=:jbpmId " +
 			"order by " +
 			"    ft.order")
-	List<FirmaTasca> findAmbTascaOrdenats(@Param("tascaId") Long tascaId);
+	List<FirmaTasca> findAmbTascaOrdenats(
+			@Param("jbpmName") String name,
+			@Param("jbpmId") String jbpmId);
+
+	@Query("select count(ft) from " +
+			"    FirmaTasca ft " +
+			"where " +
+			"   ft.tasca.jbpmName=:jbpmName " +
+			"	and ft.tasca.definicioProces.jbpmId=:jbpmId")
+	Long countAmbTasca(
+			@Param("jbpmName") String name,
+			@Param("jbpmId") String jbpmId);
 
 	@Query("select ft from " +
 			"    FirmaTasca ft " +

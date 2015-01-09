@@ -7,81 +7,102 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <style type="text/css">
-	.btn-file {position: relative; overflow: hidden;}
-	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.form-group {width: 100%;display: inline-flex;}
-	.fila_reducida {width: 100%;}
-	.col-xs-1 {width: auto;padding-left: 0px;}				
-	.col-xs-4 {width: 20%;}		
-	.col-xs-8 {width: 77%;}
-	.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
-	.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
-	.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
-	.col-xs-11 {padding-left: 0px;}				
-	.select2-container {width: 100% !important;}
-	.arxiu {margin-left: 0%; margin-top: 10px;}
-	h4.titol-missatge {width: 100%;}
-	h4.titol-missatge a{margin-left: 0px;}
-	a.icon {margin-left: 10px !important;}
-	.comentari {padding-top: 30px;}
-	.comentari label {font-weight: bold;}
-	.modal-botons {padding-bottom: 30px;padding-top: 15px;}
-	.form-horizontal .control-label {padding-top: 0px;}
-	.obligatori {background-position: right 8px;}
-	.inlineLabels.col.first {padding-top: 10px;padding-bottom: 10px;}
-	.inlineLabels .ctrlHolder {padding-top: 10px;}
-	.iconos {display: inline;}
-	.no-disponible {padding-top:  30px;}
+	.signarTramitacio .btn-file {position: relative; overflow: hidden;}
+	.signarTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
+	.signarTramitacio .form-group {width: 100%;display: inline-flex;}
+	.signarTramitacio .fila_reducida {width: 100%;}
+	.signarTramitacio .col-xs-1 {width: auto;padding-left: 0px;}				
+	.signarTramitacio .col-xs-4 {width: 20%;}		
+	.signarTramitacio .col-xs-8 {width: 77%;}
+	.signarTramitacio .col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
+	.signarTramitacio .col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
+	.signarTramitacio .col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
+	.signarTramitacio .col-xs-11 {padding-left: 0px;}				
+	.signarTramitacio .select2-container {width: 100% !important;}
+	.signarTramitacio .arxiu {margin-left: 0%; margin-top: 10px;}
+	.signarTramitacio h4.titol-missatge {width: 100%;}
+	.signarTramitacio h4.titol-missatge a{margin-left: 0px;}
+	.signarTramitacio a.icon {margin-left: 10px !important;}
+	.signarTramitacio .comentari {padding-top: 30px;}
+	.signarTramitacio .comentari label {font-weight: bold;}
+	.signarTramitacio .modal-botons {padding-bottom: 30px;padding-top: 15px;}
+	.signarTramitacio .form-horizontal .control-label {padding-top: 0px;}
+	.signarTramitacio .obligatori {background-position: right 8px;}
+	.signarTramitacio .inlineLabels.col.first {padding-top: 10px;padding-bottom: 10px;}
+	.signarTramitacio .inlineLabels .ctrlHolder {padding-top: 10px;}
+	.signarTramitacio .iconos {display: inline;}
+	.signarTramitacio .no-disponible {padding-top:  30px;}
 </style>
-<c:set var="sourceUrl" value="${globalProperties['app.base.url']}/document/arxiuPerSignar.html"/>
 <script src="https://www.java.com/js/deployJava.js"></script>
+<c:set var="sourceUrl" value="${globalProperties['app.base.url']}/document/arxiuPerSignar.html"/>
 <script type="text/javascript">
 //<![CDATA[
-var attributes = {
-		id: 'signaturaApplet',
-		code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
-		archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
-		width: 1,
-		height: 1};
-var parameters = {};
-deployJava.runApplet(
-		attributes,
-		parameters,
-		'1.5');
+cargarApplet();
 
-function obtenirCertificats(selectId, contentType) {
-	if (typeof(signaturaApplet.findCertificats) != "undefined") {
-		var certs = signaturaApplet.findCertificats(contentType);
-		if (!certs) {
-			alert("<spring:message code="tasca.signa.alert.certerr"/>");
-			$(".modal-botons button").hide();
-		} else if (certs.length == 0) {
-			$("#l"+selectId).append(": <spring:message code="tasca.signa.alert.nocert"/>");
-			$(".modal-botons button").hide();
-		} else {
-			$.each(certs, function (i, item) {
-			    $('#'+selectId).append($('<option>', { 
-			        value: item,
-			        text : item 
-			    }));
-			});
-			$("#"+selectId).show();
-			$("#"+selectId).select2({
-				width:'resolve',
-			    allowClear: true,
-			    minimumResultsForSearch: 10
-			});
-			
+function cargarApplet() {
+	try {
+		if (typeof(signaturaApplet) == "undefined") {
+			var attributes = {
+					id: 'signaturaApplet',
+					code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
+					archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
+					width: 1,
+					height: 1};
+			if (typeof(deployJava) != "undefined") {
+				deployJava.runApplet(
+						attributes,
+						{},
+						'1.5');
+			}
 		}
-	} else {
-		setTimeout("obtenirCertificats('"+selectId+"', '"+contentType+"')", 1000);
+	} catch (e) {
+		alert(e);
+	}
+} 
+
+function obtenirCertificats() {
+	try {
+		if (typeof(signaturaApplet) != "undefined") {
+		 	if (typeof(signaturaApplet.findCertificats) != "undefined") {
+				var certs = signaturaApplet.findCertificats(1);
+				if (!certs) {
+					alert("<spring:message code='tasca.signa.alert.certerr'/>");
+					$(".modal-botons button").hide();
+				} else if (certs.length == 0) {
+					$('select[name=certs]').append($('<option>', { 
+				        value: -1,
+				        text : "<spring:message code='tasca.signa.alert.nocert'/>" 
+				    }));
+					$('select[name=certs]').show();
+					$(".modal-botons button").hide();
+				} else {
+					$('select[name=certs]').empty();
+					$.each(certs, function (i, item) {
+						$('select[name=certs]').append($('<option>', { 
+					        value: item,
+					        text : item 
+					    }));
+					});
+					$('select[name=certs]').show();
+					$('select[name=certs]').select2({
+						width:'resolve',
+					    allowClear: true,
+					    minimumResultsForSearch: 10
+					});			
+				}
+		 	} else {
+		 		setTimeout("obtenirCertificats()", 1000);
+		 	}
+		}
+	} catch (e) {
+		setTimeout("obtenirCertificats()", 1000);
 	}
 }
 
 function signarCaib(token, form, contentType) {
 	var cert = form.certs.value;
 	if (cert == null || cert.length == 0) {
-		alert("<spring:message code="tasca.signa.alert.nosel"/>");
+		alert("<spring:message code='tasca.signa.alert.nosel'/>");
 	} else {
 		// Comprobar fichero
 		$.get("${sourceUrl}?token=" + token)
@@ -110,12 +131,12 @@ function signarCaib(token, form, contentType) {
  				            success: function(data) {
  				            	if (data) {
  				            		$("#firmar"+$(form).find('#docId').val()).hide();
- 				            		$("#iconos"+$(form).find('#docId').val()).load('<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/icones/'+$(form).find('#docId').val()+'"/>');
+ 				            		$("#iconos"+$(form).find('#docId').val()).load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/'+$(form).find('#docId').val()+'"/>');
  				            	}
  				            	
  				            	// Refrescar alertas
  				            	$.ajax({
- 									url: "<c:url value="/nodeco/v3/missatges"/>",
+ 									url: "<c:url value='/nodeco/v3/missatges'/>",
  									async: false,
  									timeout: 20000,
  									success: function (data) {
@@ -148,62 +169,61 @@ function signarCaib(token, form, contentType) {
 }
 // ]]>
 </script>
-
-<c:forEach var="document" items="${signatures}">
-	<div class="well well-small">
-		<div class="form-horizontal form-tasca">
-			<div class="inlineLabels">
-				<h4 class="titol-missatge">
-					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-					<c:choose>
-						<c:when test="${not empty document.tokenSignatura}"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
-							<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
-								<i class="fa fa-download"></i>
-							</a>
-							<div id="iconos${document.id}" class="iconos"></div>
-							<div id="firmar${document.id}">
-								<c:if test="${not document.signat}">						
-									<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
-										<input type="hidden" id="docId" name="docId" value="${document.id}"/>
-										<input type="hidden" id="taskId" name="taskId" value="${tasca.id}"/>
-										<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
-										<div class="inlineLabels col first">
-											<div class="ctrlHolder">
-												<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-												<select style="display: none" id="certs${document.id}" name="certs"></select>
+<div class="dades">
+	<script type="text/javascript">
+	// <![CDATA[
+		obtenirCertificats();
+	//]]>
+	</script>
+	<c:forEach var="document" items="${signatures}">
+		<div class="signarTramitacio well well-small">
+			<div class="form-horizontal form-tasca">
+				<div class="inlineLabels">
+					<h4 class="titol-missatge">
+						<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
+						<c:choose>
+							<c:when test="${not empty document.tokenSignatura}"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
+								<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
+									<i class="fa fa-download"></i>
+								</a>
+								<div id="iconos${document.id}" class="iconos"></div>
+								<div id="firmar${document.id}">
+									<c:if test="${not document.signat}">						
+										<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+											<input type="hidden" id="docId" name="docId" value="${document.id}"/>
+											<input type="hidden" id="taskId" name="taskId" value="${tascaId}"/>
+											<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
+											<div class="inlineLabels col first">
+												<div class="ctrlHolder">
+													<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
+													<select style="display: none" id="certs${document.id}" name="certs"></select>
+												</div>
+												<div class="ctrlHolder">
+													<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
+													<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+												</div>
 											</div>
-											<div class="ctrlHolder">
-												<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
-												<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+											<div id="modal-botons${document.id}" class="modal-botons">
+												<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
 											</div>
-										</div>
-										<div id="modal-botons${document.id}" class="modal-botons">
-											<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
-										</div>
-										<script>
-										// <![CDATA[
-											$(document).ready( function() {								
-												obtenirCertificats("certs${document.id}", "1");
-											});
-										//]]>
-										</script>
-									</form:form>
-								</c:if>
-							</div>
-							<script>
-							// <![CDATA[
-								$(document).ready( function() {
-									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/icones/${document.id}"/>');
-								});
-							//]]>
-							</script>
-						</c:when>
-						<c:otherwise>
-							<div class="no-disponible">Document no disponible</div>
-						</c:otherwise>
-					</c:choose>
-				</h4>
+										</form:form>
+									</c:if>
+								</div>
+								<script type="text/javascript">
+								// <![CDATA[
+									$(document).ready( function() {
+										$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/${document.id}"/>');
+									});
+								//]]>
+								</script>
+							</c:when>
+							<c:otherwise>
+								<div class="no-disponible"><spring:message code="expedient.document.no_disponible"/></div>
+							</c:otherwise>
+						</c:choose>
+					</h4>
+				</div>
 			</div>
 		</div>
-	</div>
-</c:forEach>
+	</c:forEach>
+</div>

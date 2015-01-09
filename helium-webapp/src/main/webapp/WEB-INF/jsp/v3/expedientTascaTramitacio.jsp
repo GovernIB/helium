@@ -19,6 +19,7 @@
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium.modal.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
@@ -107,6 +108,12 @@
 		}
 		.col-xs-9 .checkbox {
 			width: auto;
+		}
+		.form_extern {
+			padding-bottom: 15px;
+			width: 100%;
+			text-align: right;
+			margin-right: -15px;
 		}
 		#tabnav .glyphicon {
 			padding-right: 10px;
@@ -208,6 +215,10 @@
 			background: linear-gradient(to bottom, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
 			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#f5f5f5', GradientType=0 );
 		}
+		.contingut-carregant {
+			padding-top: 50px;
+	    	text-align: center;
+	    }
 	</style>
 </head>
 <body>
@@ -232,15 +243,51 @@
 			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="glyphicon glyphicon-warning-sign"> </span></c:if>${pipellaIndex}. Dades</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		</c:if>
-		<c:if test="${not empty documents}">
-			<li class=""><a href="#documents" data-toggle="tab">${pipellaIndex}. Documents</a></li>
+		<c:if test="${hasDocuments == true}">
+			<li class="<c:if test="${empty dades}">active</c:if>"><a id="tab_documents" href="#documents" data-toggle="tab">${pipellaIndex}. Documents</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		</c:if>
-		<c:if test="${not empty signatures}">
-			<li class=""><a href="#signatures" data-toggle="tab">${pipellaIndex}. Signatures</a></li>
+		<c:if test="${hasSignatures == true}">
+			<li class="<c:if test="${empty dades and empty documents}">active</c:if>"><a id="tab_signatures" href="#signatures" data-toggle="tab">${pipellaIndex}. Signatures</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		</c:if>
 	</ul>
+	<script type="text/javascript">
+		$('#tabnav li').on('click', function() {
+			var tab = $(this).find('a').attr('href');
+			var tamMin = 400;
+			var height = Math.max(tamMin, $(window.frameElement).contents().find("html").find(tab).outerHeight());
+			if (height < tamMin) {
+				modalAdjustHeight(window.frameElement, height);
+			}
+		});
+		$(document).ready(function() {
+			$('#tab_documents').click( function() {
+				$('#documents .dades').hide();
+				$('#documents .contingut-carregant').show();
+				$('#documents .dades').load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tasca.id}/documents"/>', function(responseTxt,statusTxt,xhr){
+					if(statusTxt=="success") {
+						$('#documents .contingut-carregant').hide();
+						$('#documents .dades').show();
+					} else if(statusTxt=="error") {
+			      		alert("Error: "+xhr.status+": "+xhr.statusText);
+					}
+			    });
+			});
+			$('#tab_signatures').click( function() {
+				$('#signatures .dades').hide();
+				$('#signatures .contingut-carregant').show();
+				$('#signatures .dades').load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tasca.id}/signatures"/>', function(responseTxt,statusTxt,xhr){
+					if(statusTxt=="success") {
+						$('#signatures .contingut-carregant').hide();
+						$('#signatures .dades').show();
+					} else if(statusTxt=="error") {
+			      		alert("Error: "+xhr.status+": "+xhr.statusText);
+					}
+			    });
+			});
+		});
+	</script>
 	<div class="tab-content">
 		<c:if test="${not empty dades}">
 			<div class="tab-pane active" id="dades">
@@ -257,7 +304,56 @@
 						</c:choose>
 					</div>
 				</c:if>
-				<div class="well">
+				
+				<div class="well">					
+					<c:if test="${not empty tasca.formExtern}">	
+						<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
+						<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
+						<script type="text/javascript">
+						// <![CDATA[
+							function clickFormExtern(form) {
+								formulariExternDwrService.dadesIniciFormulari(
+										form.id.value,
+										{
+											callback: function(retval) {
+												if (retval) {
+													$("#linkClickFormExtern").attr('href', '<c:url value='../../../../../v3/expedient/formExtern'/>?width='+retval[1]+'&height='+retval[2]+'&url='+retval[0]).click();
+												} else {
+													alert("<spring:message code='tasca.form.error_ini' />");
+												}
+											},
+											async: false
+										});
+								return false;
+							}
+						// ]]>
+						</script>
+						<div class="form-group">
+							<form id="formExtern" action="formExtern" class="form-horizontal form-tasca" onclick="return clickFormExtern(this)">
+								<input type="hidden" name="id" value="${tasca.id}"/>
+								<div id="modal-botons-form-extern" class="pull-right form_extern">
+									<button type="submit" id="btn_formextern" name="accio" value="formextern" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></button>
+								</div>								
+								<a 	id="linkClickFormExtern" data-rdt-link-modal="true" data-rdt-link-modal-min-height="400" data-rdt-link-callback="recargarPanel(this);" href="#" class="hide"></a>
+										
+								<script type="text/javascript">
+									// <![CDATA[
+										$('#linkClickFormExtern').heliumEvalLink({
+											refrescarAlertes: true,
+											refrescarPagina: false,
+											alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+										});
+
+										function recargarPanel (tag, correcte) {
+											if (correcte) {
+												location.reload();
+											}
+										}
+									//]]>
+								</script>
+							</form>
+						</div>
+					</c:if>
 				<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 					<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
 					<form:hidden path="inici"/>
@@ -276,7 +372,6 @@
 										<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
 										<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
 											<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta}</label>
-<%-- 											<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab"> --%>
 											<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
 												<c:set var="inline" value="${true}"/>
 												<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
@@ -332,19 +427,21 @@
 				</div>
 			</div>
 		</c:if>
-		<c:if test="${not empty documents}">
+		<c:if test="${hasDocuments == true}">
 			<div class="tab-pane" id="documents">
-				<%@ include file="expedientTascaTramitacioDocuments.jsp" %>
+				<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				<div class="dades"></div>
 			</div>
 		</c:if>
-		<c:if test="${not empty signatures}">
+		<c:if test="${hasSignatures == true}">
 			<div class="tab-pane" id="signatures">
+				<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				<%@ include file="expedientTascaTramitacioSignar.jsp" %>
 			</div>
 		</c:if>
-		<div id="finalizarTarea">
-			<%@ include file="campsTascaTramitacioTasca.jsp" %>
-		</div>
+<!-- 		<div id="finalizarTarea"> -->
+<%-- 			<%@ include file="campsTascaTramitacioTasca.jsp" %> --%>
+<!-- 		</div> -->
 	</div>
 </body>
 </html>

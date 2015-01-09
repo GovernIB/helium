@@ -16,6 +16,7 @@ div.grup .panel-body-grup {
 .panel-body-grup {
 	margin: -1px;
 }
+.panel {width: calc(100% - 15px);}
 </style>
 
 <c:set var="paramCount" value="${param.count}"/>

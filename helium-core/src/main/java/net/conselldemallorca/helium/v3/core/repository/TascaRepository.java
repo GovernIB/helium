@@ -33,7 +33,7 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 						"and t.definicioProces.jbpmId=:jbpmId")
 	Tasca findAmbActivityNameIProcessDefinitionId(
 			@Param("jbpmName") String name,
-			@Param("jbpmId") String jbpmId);	
+			@Param("jbpmId") String jbpmId);
 	
 	@Query(	"select ct from " +
 			"    CampTasca ct " +

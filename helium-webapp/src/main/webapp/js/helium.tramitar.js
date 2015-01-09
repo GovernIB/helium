@@ -1,17 +1,3 @@
-function verificarSignatura(element) {
-	var amplada = 800;
-	var alcada = 600;
-	$('<iframe id="verificacio" src="' + element.href + '"/>').dialog({
-		title : "<spring:message code='tasca.form.verif_signa' />",
-		autoOpen : true,
-		modal : true,
-		autoResize : true,
-		width : parseInt(amplada),
-		height : parseInt(alcada)
-	}).width(amplada - 30).height(alcada - 30);
-	return false;
-}
-
 function infoRegistre(docId) {
 	var amplada = 600;
 	var alcada = 200;
@@ -24,22 +10,6 @@ function infoRegistre(docId) {
 	}).width(amplada - 30).height(alcada - 30);
 	return false;
 }
-
-//function accioCampExecutar(elem, field) {
-//	if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
-//		var fieldField = document.getElementById("helAccioCamp");
-//		if (fieldField == null) {
-//			newField = document.createElement('input');
-//			newField.setAttribute("id", "helAccioCamp");
-//			newField.setAttribute("name", "helAccioCamp");
-//			newField.setAttribute("type", "hidden");
-//			newField.setAttribute("value", field);
-//			elem.form.appendChild(newField);
-//		}
-//		return true;
-//	}
-//	return false;
-//}
 
 function esborrarRegistre(e, campId, index) {
 	var e = e || window.event;

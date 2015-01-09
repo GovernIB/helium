@@ -158,10 +158,9 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			command.setExpedientTipusId(expedientTipusId); 
 		}
 		if (canviar != null && canviar.booleanValue()) {
-		command.setConsultaId(consultaId);
-		if (consultaId != null && expedientTipusId == null) {
-			command.setExpedientTipusId(
-					dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
+			command.setConsultaId(consultaId);
+			if (consultaId != null && expedientTipusId == null) {
+				command.setExpedientTipusId(dissenyService.getConsultaById(consultaId).getExpedientTipus().getId());
 			}
 			session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 		}

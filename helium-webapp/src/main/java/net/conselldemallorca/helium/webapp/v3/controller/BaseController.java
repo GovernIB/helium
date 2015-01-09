@@ -26,9 +26,17 @@ public class BaseController implements MessageSourceAware {
 
 	MessageSource messageSource;
 
-	protected String modalUrlTancar() {
-		return "v3/utils/modalTancar";
+	protected String modalUrlTancar(boolean refrescar) {
+		if (refrescar)
+			return modalUrlTancar();
+		else
+			return "v3/utils/modalTancar";
 	}
+
+	protected String modalUrlTancar() {
+		return "v3/utils/modalTancarIRefrescar";
+	}
+	
 	protected String ajaxUrlOk() {
 		return "redirect:/nodeco/util/ajaxOk";
 	}

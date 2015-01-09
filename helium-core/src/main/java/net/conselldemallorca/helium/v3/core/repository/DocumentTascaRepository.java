@@ -67,6 +67,16 @@ public interface DocumentTascaRepository extends JpaRepository<DocumentTasca, Lo
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("jbpmName") String jbpmName);
 
+	@Query(	"select count(dt)" +
+			"from " +
+			"    DocumentTasca dt " +
+			"where " +
+			"    dt.tasca.definicioProces.id=:definicioProcesId " +
+			"and dt.tasca.jbpmName=:jbpmName")
+	public Long countAmbDefinicioProcesITascaJbpmName(
+			@Param("definicioProcesId") Long definicioProcesId,
+			@Param("jbpmName") String jbpmName);
+
 	@Query(	"select " +
 			"    dt " +
 			"from " +

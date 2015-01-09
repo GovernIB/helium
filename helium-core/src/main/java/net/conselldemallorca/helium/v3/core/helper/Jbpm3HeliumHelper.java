@@ -1121,6 +1121,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
+	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
+		imprimirFuncio("guardarNotificacioElectronica");
+		logger.debug("Guardant una notificació de l'expedient (" +
+				"expedientId=" + expedientId + ", " +
+				"numero=" + numero + ", " +
+				"data=" + data + ", " +
+				"RDSClave=" + RDSClave + ", " +
+				"RDSCodigo=" + RDSCodigo + ")");
+		expedientService.guardarNotificacioElectronica(expedientId, numero, data, RDSClave, RDSCodigo);
+	}
+
+	@Override
 	public void emailSend(
 			String fromAddress,
 			List<String> recipients,

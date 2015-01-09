@@ -549,7 +549,10 @@ public class TascaHelper {
 		dto.setExpedientTipusNom(expedient.getTipus().getNom());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
 		dto.setAgafada(task.isAgafada());
+		Tasca tasca = findTascaByJbpmTask((JbpmTask)task);
 		dto.setValidada(isTascaValidada(task));
+		dto.setFormExtern(tasca.getFormExtern());
+		
 		return dto;
 	}
 

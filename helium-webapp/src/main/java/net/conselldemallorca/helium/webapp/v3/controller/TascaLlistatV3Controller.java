@@ -66,9 +66,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
-		SessionHelper.removeAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA);
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		model.addAttribute(filtreCommand);
 		return "v3/tascaLlistat";
@@ -103,10 +100,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			@Valid TascaConsultaCommand filtreCommand,
 			BindingResult bindingResult) {
 		filtreCommand.setConsultaTramitacioMassivaTascaId(tascaId);
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA,
-				filtreCommand);
+		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 		return "v3/tascaLlistat";
 	}
 	
@@ -118,14 +112,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio) {
 		if ("netejar".equals(accio)) {
-			SessionHelper.removeAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA);
+			SessionHelper.getSessionManager(request).removeFiltreConsultaTasca();
 		} else {
-			SessionHelper.setAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA,
-					filtreCommand);
+			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 		}
 	}
 
@@ -136,10 +125,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA,
-				filtreCommand);
+		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 		return PaginacioHelper.getPaginaPerDatatables(
 				request,
 				tascaService.findPerFiltrePaginat(
@@ -242,9 +228,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 
 	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
 	public String filtreNetejar(HttpServletRequest request) {
-		SessionHelper.removeAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA);
+		SessionHelper.getSessionManager(request).removeFiltreConsultaTasca();
 		return "redirect:../../tasca";
 	}
 
@@ -265,10 +249,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		if (filtreCommand == null) {
 			filtreCommand = new TascaConsultaCommand();
 			filtreCommand.setConsultaRealitzada(true);
-			SessionHelper.setAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA,
-					filtreCommand);
+			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 		}
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null)

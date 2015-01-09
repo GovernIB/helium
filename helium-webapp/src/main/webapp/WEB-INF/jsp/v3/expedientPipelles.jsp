@@ -101,7 +101,7 @@
 			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
 
-		$('#definicioProcesJbpmId').on('change', function () {
+		$('#definicioProcesVersio').on('change', function () {
 			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
 				$.ajax({
 				    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
@@ -114,9 +114,7 @@
 							async: false,
 							timeout: 20000,
 							success: function (data) {
-								if (data.contains("alert alert-info")) {
-									$("#desc_def_proc").text(data);
-								}
+								$("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
 								$('#contingut-alertes *').remove();
 								$('#contingut-alertes').append(data);
 							}
@@ -127,130 +125,16 @@
 				});
 			}
 		});
-		
-		/*$("#pipella-dades").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-dades').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-dades').load(
-						'<c:url value="/nodeco/v3/expedient/${expedient.id}/dades"/>',
-						function() {
-							$("i.agrupacio-desplegador").click(function() {
-								var taula = $(this).parent().parent().parent().parent().parent();
-								$('tbody', taula).toggleClass('hide');
-								$(this).removeClass('icon-chevron-up');
-								$(this).removeClass('icon-chevron-down');
-								if ($('tbody', taula).hasClass('hide'))
-									$(this).addClass('icon-chevron-down');
-								else
-									$(this).addClass('icon-chevron-up');
-							});
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-dades').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-dades').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-dades').addClass('active');
-			return false;
-		});
-		$("#pipella-documents").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-documents').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-documents').load(
-						'<c:url value="/nodeco/v3/expedient/${expedient.id}/documents"/>',
-						function() {
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-documents').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-documents').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-documents').addClass('active');
-			return false;
-		});
-		$("#pipella-terminis").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-terminis').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-terminis').load(
-						'<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>',
-						function() {
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-terminis').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-terminis').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-terminis').addClass('active');
-			return false;
-		});
-		$("#pipella-tasques").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-tasques').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-tasques').load(
-						'<c:url value="/nodeco/v3/expedient/${expedient.id}/tasques"/>',
-						function() {
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-tasques').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-tasques').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-tasques').addClass('active');
-			return false;
-		});
-		$("#pipella-registre").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-registre').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-registre').load(
-						'<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>',
-						function() {
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-registre').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-registre').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-registre').addClass('active');
-			return false;
-		});
-		$("#pipella-cronograma").click(function() {
-			$('#contingut-carregant').hide();
-			if (!$('#contingut-cronograma').data('carregat')) {
-				$('#contingut-carregant').show();
-				$('#contingut-cronograma').load(
-						'<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>',
-						function() {
-							$('#contingut-carregant').hide();
-						});
-				$('#contingut-cronograma').data('carregat', 'true');
-			}
-			$('#contingut-contenidor .contingut').hide();
-			$('#contingut-cronograma').show();
-			$('#pipelles-expedient .pipella').removeClass('active');
-			$('#pipella-cronograma').addClass('active');
-			return false;
-		});
-		$("#pipella-${pipellaActiva}").click();*/
-	});
 
-	function confirmarEsborrarRelacio(e, idExpedient) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
-			$('#' + idExpedient + '_formRelacioDelete').submit();
+		function confirmarEsborrarRelacio(e, idExpedient) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
+				$('#' + idExpedient + '_formRelacioDelete').submit();
+			}
 		}
-	}
+	});
 </script>
 </head>
 <body>
@@ -295,7 +179,7 @@
 						--%>
 					</dd>
 					<div id="canviDefinicioProcesJbpm" class="hide">
-						<hel:inputSelect inline="true" name="definicioProcesJbpmId" optionItems="${definicioProces.jbpmIdsAmbDescripcio}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
+						<hel:inputSelect inline="true" name="definicioProcesVersio" optionItems="${definicioProces.listVersioAmbEtiqueta}" optionValueAttribute="versio" optionTextAttribute="etiqueta"/>
 					</div>
 				</dl>
 				<%--div class="buttonList">
@@ -392,10 +276,6 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
-		$("#definicioProcesJbpmId").select2({
-		    allowClear: true,
-		    minimumResultsForSearch: 10
-		});
 		$("#expedient-info-accio a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false

@@ -14,6 +14,7 @@ import java.util.Date;
 public class TascaDocumentDto {
 
 	private Long id;
+	private Long documentStoreId;
 	private String varCodi;
 
 	private String documentCodi;
@@ -209,6 +210,12 @@ public class TascaDocumentDto {
 	}
 	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
 		this.urlVerificacioCustodia = urlVerificacioCustodia;
+	}
+	public Long getDocumentStoreId() {
+		return documentStoreId;
+	}
+	public void setDocumentStoreId(Long documentStoreId) {
+		this.documentStoreId = documentStoreId;
 	}
 
 	public String getArxiuNomSenseExtensio() {

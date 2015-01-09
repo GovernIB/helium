@@ -275,4 +275,22 @@ public class TascaServiceBean implements TascaService {
 	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String tascaId, String token, byte[] signatura) throws Exception {
 		return delegate.signarDocumentTascaAmbToken(expedientId, docId, tascaId, token, signatura);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaDocumentDto> findDocumentsSignar(String id) {
+		return delegate.findDocumentsSignar(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean hasDocuments(String tascaId) {
+		return delegate.hasDocuments(tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean hasDocumentsSignar(String tascaId) {
+		return delegate.hasDocumentsSignar(tascaId);
+	}
 }

@@ -248,6 +248,11 @@ public class SessionHelper {
 					VARIABLE_FILTRE_CONSULTA_TASCA,
 					filtreConsultaTasca);
 		}
+		public void removeFiltreConsultaTasca() {
+			removeAttribute(
+					request,
+					VARIABLE_FILTRE_CONSULTA_TASCA);
+		}
 		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioConsultaGeneral() {
 			return (Set<Long>)getAttribute(

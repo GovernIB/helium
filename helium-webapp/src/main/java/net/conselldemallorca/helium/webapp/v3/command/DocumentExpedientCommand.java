@@ -14,11 +14,10 @@ public class DocumentExpedientCommand {
 
 	private Long docId;
 	private Date data;
+	private String nomArxiu;
 	private byte[] contingut;
 	private String nom;
 	private String codi;
-
-
 
 	public DocumentExpedientCommand() {}
 
@@ -52,5 +51,10 @@ public class DocumentExpedientCommand {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-
+	public String getNomArxiu() {
+		return nomArxiu;
+	}
+	public void setNomArxiu(String nomArxiu) {
+		this.nomArxiu = nomArxiu;
+	}
 }

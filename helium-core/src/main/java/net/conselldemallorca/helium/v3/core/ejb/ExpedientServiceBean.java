@@ -576,8 +576,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void modificarContingutDocument(Long docId, byte[] arxiu) throws Exception {
-		delegate.modificarContingutDocument(docId, arxiu);
+	public void crearModificarDocument(Long expedientId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
+		delegate.crearModificarDocument(expedientId, documentStoreId, nom, nomArxiu, docId, arxiu, data);
 	}
 
 	@Override

@@ -7,27 +7,23 @@
 <script src="<c:url value="/js/helium.modal.js"/>"></script>
 
 <c:if test="${document.signat}">
-	<c:choose>
-		<c:when test="${not empty document.urlVerificacioCustodia}"><a href="${document.urlVerificacioCustodia}" onclick="return verificarSignatura(this)"><img src="<c:url value="/img/rosette.png"/>" alt="<spring:message code='common.icon.verif_signa' />" title="<spring:message code='common.icon.verif_signa' />" border="0"/></a></c:when>
-		<c:otherwise>
-			<a data-rdt-link-modal="true" class="icon" href="
-				<c:url value="../../../../../v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/verificarSignatura">
-					<c:param name="docId" value="${document.id}"/>
-				</c:url>"> 
-				<i class="fa fa-certificate" alt="<spring:message code='common.icon.verif_signa' />" title="<spring:message code='common.icon.verif_signa' />"></i>
-			</a>			
-					
-			<script type="text/javascript">
-				// <![CDATA[
-					$('.icon').heliumEvalLink({
-						refrescarAlertes: true,
-						refrescarPagina: false,
-						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
-					});
-				//]]>
-			</script>
-		</c:otherwise>
-	</c:choose>	
+	<a 	id="verificar${document.id}"
+		data-rdt-link-modal="true" 
+		<c:if test="${not empty document.urlVerificacioCustodia}">data-rdt-link-modal-min-height="400"</c:if>
+		class="icon signature" 
+		href="<c:url value='../../../../../v3/expedient/${tasca.expedientId}/verificarSignatura/${document.documentStoreId}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.urlVerificacioCustodia}">
+		<span class="fa fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+	</a>
+			
+	<script type="text/javascript">
+		// <![CDATA[
+			$('#verificar${document.id}').heliumEvalLink({
+				refrescarAlertes: true,
+				refrescarPagina: false,
+				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+			});
+		//]]>
+	</script>
 </c:if>
 <%--
 <c:if test="${document.registrat}">

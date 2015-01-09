@@ -679,6 +679,7 @@ public class VariableHelper {
 		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
 		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
 		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
+		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
 		if (campTasca != null) {
 			tascaDto.setReadOnly(campTasca.isReadOnly());
 			tascaDto.setReadFrom(campTasca.isReadFrom());

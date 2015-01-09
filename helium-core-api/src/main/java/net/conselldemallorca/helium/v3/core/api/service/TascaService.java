@@ -389,4 +389,10 @@ public interface TascaService {
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception;
 
 	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String token, String tascaId, byte[] signatura) throws Exception;
+
+	public List<TascaDocumentDto> findDocumentsSignar(String id);
+
+	public boolean hasDocuments(String tascaId);
+
+	public boolean hasDocumentsSignar(String tascaId);
 }

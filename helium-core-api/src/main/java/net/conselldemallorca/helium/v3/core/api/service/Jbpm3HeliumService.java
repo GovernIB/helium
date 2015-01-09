@@ -997,4 +997,6 @@ public interface Jbpm3HeliumService {
 
 	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(String registreNumero) throws Exception;
 
+	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo);
+
 }

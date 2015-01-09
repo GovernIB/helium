@@ -140,6 +140,7 @@ public class ExpedientService {
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
 	private AccioDao accioDao;
+//	private NotifElectronicaDao notifElectronicaDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
@@ -488,6 +489,10 @@ public class ExpedientService {
 		if (increment > 1)
 			expedientTipus.updateSequenciaDefault(any, increment - 1);
 		return numero;
+	}
+
+	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
+//		notifElectronicaDao.create(expedientId, numero, data, RDSClave, RDSCodigo);
 	}
 
 	public void editar(
@@ -2454,6 +2459,10 @@ public class ExpedientService {
 	public void setAccioDao(AccioDao accioDao) {
 		this.accioDao = accioDao;
 	}
+//	@Autowired
+//	public void setNotifElectronicaDao(NotifElectronicaDao notifElectronicaDao) {
+//		this.notifElectronicaDao = notifElectronicaDao;
+//	}	
 	@Autowired
 	public void setAlertaDao(
 			AlertaDao alertaDao) {

@@ -814,7 +814,7 @@ public interface ExpedientService {
 
 	public ArxiuDto arxiuDocumentPerMostrar(String token);
 
-	public void modificarContingutDocument(Long docId, byte[] arxiu) throws Exception;
+	public void crearModificarDocument(Long expedientId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception;
 
 	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) throws Exception;
 

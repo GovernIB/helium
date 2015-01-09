@@ -23,6 +23,7 @@ public class TascaDadaDto {
 	private CampTipusDto campTipus;
 	private String campEtiqueta;
 	private boolean campMultiple;
+	private boolean campOcult;
 	private String jbpmAction;
 	private String observacions;
 
@@ -127,6 +128,12 @@ public class TascaDadaDto {
 	}
 	public void setText(String text) {
 		this.text = text;
+	}
+	public boolean isCampOcult() {
+		return campOcult;
+	}
+	public void setCampOcult(boolean campOcult) {
+		this.campOcult = campOcult;
 	}
 	public List<TascaDadaDto> getMultipleDades() {
 		return multipleDades;

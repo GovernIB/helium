@@ -2,7 +2,7 @@
 <html>
 <head>
 <script>
-	window.parent.modalTancar(window.frameElement, false);
+	window.parent.modalTancar(window.frameElement, true);
 </script>
 </head>
 <body></body>

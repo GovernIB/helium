@@ -704,9 +704,90 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public void modificarContingutDocument(Long docId, byte[] arxiu) throws Exception {
-		Document document = documentRepository.findOne(docId);
-		document.setArxiuContingut(arxiu);
+	@Transactional
+	public void crearModificarDocument(Long expedientId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
+		boolean creat = false;
+		String arxiuNomAntic = null;
+		boolean adjunt = false;
+		DocumentStore documentStore = null;
+		if (documentStoreId == null) {
+			creat = true;
+			adjunt = true;
+		} else {
+			documentStore = documentStoreRepository.findById(documentStoreId);
+			arxiuNomAntic = documentStore.getArxiuNom();
+		}
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		DocumentDto document = null;
+		String codi = null;
+		
+		if (docId != null) {
+			document = findDocumentsPerId(docId);
+			if (document == null) {
+				document = documentHelper.getDocumentSenseContingut(documentStoreId);
+			}		
+			if (document != null) {
+				adjunt = document.isAdjunt();
+				codi = document.getCodi();
+			}
+		}
+		
+		if (codi == null && (document == null || document.isAdjunt())) { 
+			codi = new Long(new Date().getTime()).toString();
+		}
+		
+		if (arxiu == null && document != null) {
+			arxiu = document.getArxiuContingut();
+			nomArxiu = document.getArxiuNom();
+		} else if (arxiu == null && documentStore != null) {
+			arxiu = documentStore.getArxiuContingut();
+			nomArxiu = documentStore.getArxiuNom();
+		}
+		
+		if (document != null && document.isAdjunt()) {
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedient.getProcessInstanceId(),
+					ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
+					codi);			
+		} else if (creat) {
+				expedientLoggerHelper.afegirLogExpedientPerProces(
+						expedient.getProcessInstanceId(),
+						ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+						codi);
+		} else {
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					expedient.getProcessInstanceId(),
+					ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
+					codi);
+		}
+		documentStoreId = documentHelper.actualitzarDocument(
+				null,
+				expedient.getProcessInstanceId(),
+				codi,
+				nom,
+				data,
+				nomArxiu,
+				arxiu,
+				adjunt);
+		String user = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		// Registra l'acció
+		if (creat) {
+			registreDao.crearRegistreCrearDocumentInstanciaProces(
+					expedientId,
+					expedient.getProcessInstanceId(),
+					user,
+					codi,
+					nomArxiu);
+		} else {
+			registreDao.crearRegistreModificarDocumentInstanciaProces(
+					expedientId,
+					expedient.getProcessInstanceId(),
+					user,
+					codi,
+					arxiuNomAntic,
+					nomArxiu);
+		}
 	}
 
 	@Override
@@ -1386,13 +1467,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception {
 		ExpedientDocumentDto document = findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);
-		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(document.getProcessInstanceId());
-		for (JbpmTask task: tasks) {
-			documentHelper.esborrarDocument(
-					String.valueOf(task.getTask().getId()),
-					document.getProcessInstanceId(),
-					document.getDocumentCodi());
-		}
+		documentHelper.esborrarDocument(
+				null,
+				document.getProcessInstanceId(),
+				docCodi,
+				documentStoreId);
 	}
 
 	@Override
@@ -1435,7 +1514,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly = true)
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
 			Long id,
-			String processInstanceId) {
+			String processInstanceId) {		
+		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
+		
 		logger.debug("Consulta els documents de l'expedient (" +
 				"id=" + id + ", " +
 				"processInstanceId=" + processInstanceId + ")");
@@ -1445,15 +1526,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		if (processInstanceId == null) {
-			return documentHelper.findDocumentsPerInstanciaProces(
-					expedient.getProcessInstanceId());
+			resposta.addAll(documentHelper.findDocumentsPerInstanciaProces(
+					expedient.getProcessInstanceId()));
 		} else {
 			expedientHelper.comprovarInstanciaProces(
 					expedient,
 					processInstanceId);
-			return documentHelper.findDocumentsPerInstanciaProces(
-					processInstanceId);
+			resposta.addAll(documentHelper.findDocumentsPerInstanciaProces(
+					processInstanceId));
 		}
+		
+		return resposta;
 	}
 
 	@Override
@@ -1992,7 +2075,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long documentId, Long expedientId) throws Exception {
 		ExpedientDto expedient = findAmbId(expedientId);
 		DocumentDto doc = generarDocumentPlantilla(documentId, expedient);
-		documentHelper.actualitzarDocument(
+		Long documentStoreId = documentHelper.actualitzarDocument(
 				tascaId,
 				expedient.getProcessInstanceId(),
 				doc.getCodi(),
@@ -2001,7 +2084,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				doc.getArxiuNom(),
 				doc.getArxiuContingut(),
 				false);
-		
+		doc.setId(documentStoreId);
 		return doc;
 	}
 	

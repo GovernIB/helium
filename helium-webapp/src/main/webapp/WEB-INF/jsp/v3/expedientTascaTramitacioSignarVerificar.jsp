@@ -18,7 +18,7 @@
 	</style>
 </head>
 <body>
-	<c:if test="${not signatura.signat}">
+	<c:if test="${not signatura.signat or empty signatures}">
 		<div id="errors" class="alert alert-danger">
 			<button class="close" data-dismiss="alert">×</button>
 			<p><spring:message code='signa.verif.no_valides' /></p>

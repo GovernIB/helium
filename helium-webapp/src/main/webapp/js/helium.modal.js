@@ -7,7 +7,9 @@
 				refrescarPagina: false,
 				adjustWidth: false,
 				adjustHeight: true,
+				minHeight: false,
 				maximize: false,
+				callback: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
@@ -37,7 +39,7 @@
 					'				<h4 class="modal-title"></h4>' +
 					'			</div>' +
 					'			<div class="modal-body">' +
-					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="99.6%"></iframe>' +
+					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="100%"></iframe>' +
 					'			</div>' +
 					'			<div class="modal-footer">' +
 					'			</div>' +
@@ -137,6 +139,9 @@
 							$('.modal-body', modalobj).css('height', (contentHeight + 15) + 'px');
 						}
 					}
+					if (settings.minHeight) {
+						modalAdjustHeight($('iframe', modalobj),settings.minHeight);
+					}
 				});
 			});
 			modalobj.on('hide.bs.modal', function () {
@@ -162,24 +167,34 @@
 						if (settings.refrescarPagina) {
 							window.parent.location.reload();
 						}
-						if (settings.refrescarAlertes && settings.alertesRefreshUrl) {
-							$.ajax({
-								url: settings.alertesRefreshUrl,
-								async: false,
-								timeout: 20000,
-								success: function (data) {
-									$('#contingut-alertes *').remove();
-									$('#contingut-alertes').append(data);
-								},
-								error: ajaxErrorFunction
-						    });
-						}
+					}
+				}
+				if (settings.refrescarAlertes && settings.alertesRefreshUrl) {
+					$.ajax({
+						url: settings.alertesRefreshUrl,
+						async: false,
+						timeout: 20000,
+						success: function (data) {
+							$('#contingut-alertes *').remove();
+							$('#contingut-alertes').append(data);
+						},
+						error: ajaxErrorFunction
+				    });
+				}
+				if (settings.callback) {
+					var scb = settings.callback;
+					var sep = scb.indexOf('(');
+					if ( sep != -1) {
+						callbackFunctionName = scb.substring(0, sep);
+						callbackFunctionParams = scb.substring(sep + 1, scb.lastIndexOf(')')).split(",");
+						executeFunctionByName(callbackFunctionName, window, callbackFunctionParams, true);
 					}
 				}
 			});
 			modalobj.modal({show:true});
 		});
 	};
+	
 	$.fn.heliumEvalLink = function(options) {
 		return this.filter("a").each(function() {
 			var settings = $.extend({
@@ -187,6 +202,7 @@
 				refrescarPagina: false,
 				adjustWidth: false,
 				adjustHeight: true,
+				minHeight: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
@@ -213,6 +229,7 @@
 					confirmat = confirm($(this).data('rdt-link-confirm'));
 				var ajax = ($(this).data("rdt-link-ajax") != undefined) ? $(this).data("rdt-link-ajax") === true : false;
 				var modal = ($(this).data("rdt-link-modal") != undefined) ? $(this).data("rdt-link-modal") === true : false;
+				var callback = ($(this).data("rdt-link-callback") != undefined) ? $(this).data("rdt-link-callback") : false;
 				var refrescarPaginaFunction = function() {
 					//alert('REF. PAGINA');
 					window.parent.location.reload();
@@ -230,6 +247,16 @@
 						error: ajaxErrorFunction
 				    });
 				};
+				var executeCallbackFunction = function(data) {
+					//alert('REF. CALLBACK');
+					var scb = callback;
+					var sep = scb.indexOf('(');
+					if ( sep != -1) {
+						callbackFunctionName = scb.substring(0, sep);
+						callbackFunctionParams = scb.substring(sep + 1, scb.lastIndexOf(')')).split(",");
+						executeFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
+					}
+				};
 				if (confirmat) {
 					if (ajax) {
 						var ajaxUrl = $(this).attr("href");
@@ -242,11 +269,13 @@
 							url: ajaxUrl,
 							async: false,
 							timeout: 20000,
-							success: function() {
-								if (settings.ajaxRefrescarPagina)
+							success: function( data ) {
+								if (settings.refrescarPagina)
 									refrescarPaginaFunction();
-								if (settings.ajaxRefrescarAlertes && settings.alertesRefreshUrl)
+								if (settings.refrescarAlertes && settings.alertesRefreshUrl)
 									refrescarAlertesFunction();
+								if (callback)
+									executeCallbackFunction(data);
 							},
 							error: ajaxErrorFunction
 					    });
@@ -255,8 +284,10 @@
 						var modalCloseFunction = function() {
 							if (settings.refrescarPagina)
 								refrescarPaginaFunction();
-							if (settings.refrescarAlertes && settings.alertesRefreshUrl)
-								refrescarAlertesFunction();
+//							if (settings.refrescarAlertes && settings.alertesRefreshUrl)
+//								refrescarAlertesFunction();
+//							if (callback)
+//								executeCallbackFunction(true);
 						};
 						var modalDivId = $(this).attr('id') + "_modal";
 						if ($('#' + modalDivId).length == 0)
@@ -264,15 +295,18 @@
 						$('#' + modalDivId).heliumModal({
 							modalUrl: $(this).attr("href"),
 							maximize: $(this).data("rdt-link-modal-maximize"),
+							minHeight:  $(this).data("rdt-link-modal-min-height"),
+							callback:  $(this).data("rdt-link-callback"),
 							modalCloseFunction: modalCloseFunction,
 							refrescarPagina: settings.refrescarPagina,
-							refrescarAlertes: settings.refrescarAlertes
+							refrescarAlertes: settings.refrescarAlertes,
+							alertesRefreshUrl: settings.alertesRefreshUrl
 						});
 						return false;
 					} else {
 						return true;
 					}
-				} else {
+				} else {			
 					return false;
 				}
 			});
@@ -280,8 +314,30 @@
 	};
 }(jQuery));
 
-function modalTancarIRefrescar(iframe) {
+function modalTancar(iframe, refrescar) {
 	$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
 	$(iframe).parent().parent().parent().parent().modal('hide');
-	window.parent.location.reload();
+	if (refrescar)	
+		window.parent.location.reload();
+}
+
+function modalAdjustHeight(iframe, height) {
+	$(iframe).parent().css('height', height + 15 + 'px');
+	$(iframe).css('height', height + 'px');
+}
+
+function executeFunctionByName(functionName, context /*, args */) {
+	var argsarr = [].slice.call(arguments).splice(2);
+	var args = argsarr[0];
+	for (var i = 0; i < args.length; i++)
+		args[i] = args[i].trim();
+	args.push(argsarr[1]);
+	var namespaces = functionName.split(".");
+	var func = namespaces.pop();
+	for(var i = 0; i < namespaces.length; i++) {
+		context = context[namespaces[i]];
+	}
+	if (context[func] === undefined)
+		return false;
+	return context[func].apply(this, args);
 }

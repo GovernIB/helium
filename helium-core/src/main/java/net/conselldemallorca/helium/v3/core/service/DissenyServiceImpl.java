@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -138,14 +139,12 @@ public class DissenyServiceImpl implements DissenyService {
 				EstatDto.class);
 	}
 	
-	private DefinicioProcesDto toDefinicioProcesDto(DefinicioProces definicioProces) {
-		DefinicioProcesDto definicioProcesDto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
-		JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+	private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto) {	
+		JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProcesDto.getJbpmId());
 		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
-		
-		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesRepository.findByEntornAndJbpmKeyOrderByVersioDesc(
-				definicioProces.getEntorn(),
-				definicioProces.getJbpmKey());
+		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(
+				definicioProcesDto.getEntorn().getId(),
+				definicioProcesDto.getJbpmKey());
 		definicioProcesDto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
 		definicioProcesDto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
 		definicioProcesDto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
@@ -154,7 +153,6 @@ public class DissenyServiceImpl implements DissenyService {
 			definicioProcesDto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
 			definicioProcesDto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
 		}
-		return definicioProcesDto;
 	}
 
 	@Transactional(readOnly=true)
@@ -165,6 +163,24 @@ public class DissenyServiceImpl implements DissenyService {
 			return getById(instanciaProces.getDefinicioProces().getId());
 		}
 		return null;
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		DefinicioProcesVersioDto dto = new DefinicioProcesVersioDto();
+		dto.setId(definicioProces.getId());
+		dto.setVersio(definicioProces.getVersio());
+		List<DefinicioProces> listDefProces = definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(definicioProces.getEntorn().getId(), definicioProces.getJbpmKey());
+		for (DefinicioProces defProces : listDefProces) {
+			dto.addVersioAmbEtiqueta(defProces.getVersio(), pi.getProcessInstance().getProcessDefinition().getName() + " v." + defProces.getVersio());
+			if (defProces.getVersio() == definicioProces.getVersio()) {
+				dto.setEtiqueta(pi.getProcessInstance().getProcessDefinition().getName() + " v." + defProces.getVersio());
+			}
+		}
+		return dto;
 	}
 	
 	@Transactional(readOnly=true)
@@ -210,7 +226,7 @@ public class DissenyServiceImpl implements DissenyService {
 	public DefinicioProcesDto getById(Long id) {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(id);
 		if (definicioProces != null) {	
-			return toDefinicioProcesDto(definicioProces);
+			return conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 		}
 		return null;
 	}
@@ -224,15 +240,10 @@ public class DissenyServiceImpl implements DissenyService {
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				DefinicioProcesDto dto = toDefinicioProcesDto(definicioProces);
+				DefinicioProcesDto dto = conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class);
 				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();
 				dto.setHasStartTask(hasStartTask(definicioProces, hasStartTask));
-//				dto.setStartTaskName(jbpmHelper.getStartTaskName(definicioProces.getJbpmId()));
-//				dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
-//				for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-//					dto.getHasStartTaskWithSameKey()[i] = new Boolean(
-//							hasStartTask(mateixaKeyIEntorn.get(i), hasStartTask));
-//				}
+				getAllDefinicioProcesOrderByVersio(dto);
 				return dto;
 			}
 		}

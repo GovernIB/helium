@@ -99,7 +99,7 @@ function confirmarEsborrar(e) {
 				<fmt:formatDate value="${registre.terminiIniciat.dataFi}" pattern="dd/MM/yyyy"/>
 			</c:if>
 		</display:column>
-		<c:if test="${empty param.expedientTipusId}">
+		<%-- <c:if test="${empty param.expedientTipusId}"> --%>
 			<display:column>
 				<c:choose>
 					<c:when test="${registre.llegida}">
@@ -113,7 +113,7 @@ function confirmarEsborrar(e) {
 			<display:column>
 				<a href="<c:url value="/alerta/esborrar.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
 			</display:column>
-		</c:if>
+		<%-- </c:if> --%>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 

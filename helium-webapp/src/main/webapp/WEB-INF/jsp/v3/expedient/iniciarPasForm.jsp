@@ -100,8 +100,7 @@
 	</style>
 	</style>
 	<script type="text/javascript">
-	// <![CDATA[		
-		var accioInici;
+	// <![CDATA[
 		function confirmarInicio(e) {
 			if (!e) var e = window.event;
 			e.cancelBubble = true;
@@ -127,66 +126,58 @@
 		}
 	// ]]>
 	</script>
-	<c:if test="${not empty tasca.formExtern}">
-		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
-		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-	<script type="text/javascript">
-	// <![CDATA[
-		function clickFormExtern(form) {
-			formulariExternDwrService.dadesIniciFormulariInicial(
-					form.id.value,
-					'${expedientTipus.id}',
-					<c:choose><c:when test="${not empty definicioProces.id}">'${definicioProces.id}'</c:when><c:otherwise>null</c:otherwise></c:choose>,
-					{
-						callback: function(retval) {
-							if (retval) {
-								$('<iframe id="formExtern" src="' + retval[0] + '"/>').dialog({
-									title: '<spring:message code="tasca.form.dades_form" />',
-					                autoOpen: true,
-					                modal: true,
-					                autoResize: true,
-					                width: parseInt(retval[1]),
-					                height: parseInt(retval[2]),
-					                close: function() {
-										form.submit();
-									}
-					            }).width(parseInt(retval[1]) - 30).height(parseInt(retval[2]) - 30);
-							} else {
-								alert("<spring:message code='tasca.form.error_ini' />");
-							}
-						},
-						async: false
-					});
-			return false;
-		}
-		
-		function editarRegistre(campId, campCodi, campEtiqueta, numCamps, index) {
-			var amplada = 686;
-			var alcada = 64 * numCamps + 80;
-			var url = "registre.html?id=${tasca.id}&registreId=" + campId;
-			if (index != null)
-				url = url + "&index=" + index;
-			$('<iframe id="' + campCodi + '" src="' + url + '" frameborder="0" marginheight="0" marginwidth="0"/>').dialog({
-				title: campEtiqueta,
-				autoOpen: true,
-				modal: true,
-				autoResize: true,
-				width: parseInt(amplada),
-				height: parseInt(alcada)
-			}).width(amplada - 30).height(alcada - 30);
-			return false;
-		}
-	// ]]>
-	</script>
-	</c:if>
 </head>
 <body>
 	<c:if test="${not empty tasca.formExtern}">
-		<form action="iniciarPasForm" onclick="return clickFormExtern(this)">
-			<input type="hidden" name="id" value="${tasca.id}"/>
-			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
-			<button type="submit" class="submitButton"><spring:message code='tasca.form.obrir_form' /></button>
-		</form><br/>
+		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
+		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
+		<script type="text/javascript">
+		// <![CDATA[
+			function clickFormExtern(form) {
+				formulariExternDwrService.dadesIniciFormulariInicial(
+						form.id.value,
+						'${expedientTipus.id}',
+						<c:choose><c:when test="${not empty definicioProces.id}">'${definicioProces.id}'</c:when><c:otherwise>null</c:otherwise></c:choose>,
+						{
+							callback: function(retval) {
+								if (retval) {
+									$("#linkClickFormExtern").attr('href', '<c:url value='../../../../../v3/expedient/formExtern'/>?width='+retval[1]+'&height='+retval[2]+'&url='+retval[0]).click();
+								} else {
+									alert("<spring:message code='tasca.form.error_ini' />");
+								}
+							},
+							async: false
+						});
+				return false;
+			}
+		// ]]>
+		</script>
+		<div class="form-group">
+			<form id="formExtern" action="formExtern" class="form-horizontal form-tasca" onclick="return clickFormExtern(this)">
+				<input type="hidden" name="id" value="${tasca.id}"/>
+				<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+				<div id="modal-botons-form-extern" class="pull-right form_extern">
+					<button type="submit" id="btn_formextern" name="accio" value="formextern" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></button>
+				</div>								
+				<a 	id="linkClickFormExtern" data-rdt-link-modal="true" data-rdt-link-modal-min-height="400" data-rdt-link-callback="recargarPanel(this);" href="#" class="hide"></a>
+						
+				<script type="text/javascript">
+					// <![CDATA[
+						$('#linkClickFormExtern').heliumEvalLink({
+							refrescarAlertes: true,
+							refrescarPagina: false,
+							alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+						});
+
+						function recargarPanel (tag, correcte) {
+							if (correcte) {
+								location.reload();
+							}
+						}
+					//]]>
+				</script>
+			</form>
+		</div>
 	</c:if>
 
 	<form:form id="command" name="command" onsubmit="return confirmarInicio(this)" action="iniciarPasForm" cssClass="form-horizontal form-tasca" method="post">
@@ -194,63 +185,70 @@
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
 		<form:hidden path="definicioProcesId"/>
-		<c:if test="${(empty tasca.formExtern) or (not empty tasca.formExtern and tasca.validada)}">
-			<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-				<c:set var="inline" value="${false}"/>
-				<c:set var="isRegistre" value="${false}"/>
-				<c:set var="isMultiple" value="${false}"/>
-				<c:choose>
-					<c:when test="${dada.campTipus != 'REGISTRE'}">
-						<c:choose>
-							<c:when test="${dada.campMultiple}">
-								<div class="multiple">
-									<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta} - ${dada.campTipus}</label>
-									<c:forEach var="membre" items="${dada.multipleDades}" varStatus="varStatusCab">
-										<c:set var="inline" value="${true}"/>
-										<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
-										<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
-											<c:set var="isMultiple" value="${true}"/>
-											<%@ include file="../campsTasca.jsp" %>
-											<c:set var="isMultiple" value="${false}"/>
+		<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+			<c:set var="inline" value="${false}"/>
+			<c:set var="isRegistre" value="${false}"/>
+			<c:set var="isMultiple" value="${false}"/>
+			<c:choose>
+				<c:when test="${dada.campTipus != 'REGISTRE'}">
+					<c:choose>
+						<c:when test="${dada.campMultiple}">
+							<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
+							<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
+								<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta}</label>
+								<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
+									<c:set var="inline" value="${true}"/>
+									<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
+									<c:set var="campNom" value="${dada.varCodi}"/>
+									<c:set var="campIndex" value="${varStatusCab.index}"/>
+									<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
+										<c:set var="isMultiple" value="${true}"/>
+										<%@ include file="campsTasca.jsp" %>
+										<c:set var="isMultiple" value="${false}"/>
+									</div>
+								</c:forEach>
+								<c:if test="${empty dada.multipleDades}">
+									Buit!!
+									<c:set var="inline" value="${true}"/>
+									<c:set var="campCodi" value="${dada.varCodi}[0]"/>
+									<c:set var="campNom" value="${dada.varCodi}"/>
+									<c:set var="campIndex" value="0"/>
+									<div class="col-xs-9 input-group-multiple">
+										<c:set var="isMultiple" value="${true}"/>
+										<%@ include file="campsTasca.jsp" %>
+										<c:set var="isMultiple" value="${false}"/>
+									</div>
+								</c:if>
+								<c:if test="${!dada.readOnly && !tasca.validada}">
+									<div class="form-group">
+										<div class="col-xs-9 pad-left-col-xs-3">
+											<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
+											<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+											<div class="clear"></div>
+											<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
 										</div>
-									</c:forEach>
-									<c:if test="${empty dada.multipleDades}">
-										<c:set var="inline" value="${true}"/>
-										<c:set var="campCodi" value="${dada.varCodi}[0]"/>
-										<div class="col-xs-9 input-group-multiple">
-											<c:set var="isMultiple" value="${true}"/>
-											<%@ include file="../campsTasca.jsp" %>
-											<c:set var="isMultiple" value="${false}"/>
-										</div>
-									</c:if>
-									<c:if test="${!dada.readOnly && !tasca.validada}">
-										<div class="form-group">
-											<div class="col-xs-9 pad-left-col-xs-3">
-												<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
-												<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
-											</div>
-										</div>
-									</c:if>
-								</div>
-							</c:when>
-							<c:otherwise>
-								<c:set var="campCodi" value="${dada.varCodi}"/>
-								<%@ include file="../campsTasca.jsp" %>
-							</c:otherwise>
-						</c:choose>
-					</c:when>
-					<c:otherwise>
-						<%@ include file="../campsTascaRegistre.jsp" %>
-					</c:otherwise>
-				</c:choose>
-				<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
-			</c:forEach>
-		</c:if>
+									</div>
+								</c:if>
+							</div>
+						</c:when>
+						<c:otherwise>
+							<c:set var="campCodi" value="${dada.varCodi}"/>
+							<c:set var="campNom" value="${dada.varCodi}"/>
+							<%@ include file="campsTasca.jsp" %>
+						</c:otherwise>
+					</c:choose>
+				</c:when>
+				<c:otherwise>
+					<%@ include file="campsTascaRegistre.jsp" %>
+				</c:otherwise>
+			</c:choose>
+			<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
+		</c:forEach>
 		<div id="modal-botons">
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
 			</button>			
-			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar" onclick="accioInici=this.value">
+			<button type="submit" id="iniciar" name="accio" class="btn btn-primary" value="iniciar">
 				<spring:message code='comuns.iniciar' />
 			</button>
 		</div>

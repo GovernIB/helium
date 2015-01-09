@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import org.apache.commons.codec.binary.Base64;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
@@ -45,6 +44,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +96,7 @@ public class TascaTramitacioController extends BaseController {
 	public String massivaTramitacio(
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
+			@RequestParam(value = "correu", required = false) Boolean correu,
 			Model model) throws IOException, ServletException {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
@@ -154,6 +154,24 @@ public class TascaTramitacioController extends BaseController {
 			} catch (Exception ignored) {} 
 		}
 		return null;
+	}
+
+	@RequestMapping(value = "/formExtern", method = RequestMethod.GET)
+	public String formExtern(
+			HttpServletRequest request,
+			@RequestParam(value = "width", required = false) final String width,
+			@RequestParam(value = "height", required = false) final String height,
+			@RequestParam(value = "url", required = false) final String url,
+			ModelMap model) throws ServletException {
+		try {
+			model.addAttribute("tittle", getMessage(request, "tasca.form.dades_form"));
+			model.addAttribute("url", url);
+			model.addAttribute("height", height);
+			return "v3/utils/modalIframe";
+		} catch(Exception ex) {
+			logger.error("Error al comprobar el formulario externo", ex);
+			throw new ServletException(ex);
+	    }
 	}
 
 	private Object populateCommand(HttpServletRequest request, String tascaId, String inici, boolean correu, int numTascaMassiva, Model model) {
@@ -414,10 +432,20 @@ public class TascaTramitacioController extends BaseController {
 		}
 		model.addAttribute("dadesNomesLectura", dadesNomesLectura);
 		model.addAttribute("dades", dades);
+		model.addAttribute("hasDocuments", tascaService.hasDocuments(tascaId));
+		model.addAttribute("hasSignatures", tascaService.hasDocumentsSignar(tascaId));
 		
+		signatures(null, tasca.getExpedientId(), tascaId, model);
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documents", method = RequestMethod.GET)
+	public String documents(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
 		// Omple els documents per adjuntar i els de només lectura
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
-		List<TascaDocumentDto> signatures = new ArrayList<TascaDocumentDto>();
 		List<TascaDocumentDto> documentsNomesLectura = new ArrayList<TascaDocumentDto>();
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
@@ -427,13 +455,24 @@ public class TascaTramitacioController extends BaseController {
 					documentsNomesLectura.add(document);
 				itDocuments.remove();
 			}
-			if (document.isDocumentPendentSignar()) {
-				signatures.add(document);
-			}
 		}
 		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
 		model.addAttribute("documents", documents);
-		model.addAttribute("signatures", signatures);
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("tascaId", tascaId);
+		return "v3/expedientTascaTramitacioDocuments";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signatures", method = RequestMethod.GET)
+	public String signatures(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("tascaId", tascaId);
+		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
+		return "v3/expedientTascaTramitacioSignar";
 	}
 	
 	private boolean accioRestaurarForm(
@@ -928,16 +967,16 @@ public class TascaTramitacioController extends BaseController {
 	}	
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentAdjuntar", method = RequestMethod.POST)
+	@ResponseBody
 	public String documentAdjuntar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = true) Long docId,
+			@RequestParam(value = "docId", required = false) Long docId,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
 			@RequestParam(value = "data", required = false) Date data,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,			
 			Model model) {
+		String resposta = "";
 		try {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
@@ -947,35 +986,31 @@ public class TascaTramitacioController extends BaseController {
 			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
 			} else {
-				accioDocumentAdjuntar(
+				resposta = accioDocumentAdjuntar(
 						request,
 						tascaId,
 						docId,
 						nomArxiu,
 						contingutArxiu,
-						inici,
-						correu,
-						data);
+						data).toString();
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error al adjuntar el document " + docId, ex);
 		}
-		getModelTramitacio(tascaId, model);
-		model.addAttribute("command", populateCommand(request, tascaId, model));
-		return "v3/expedientTascaTramitacio";
+		return resposta;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar", method = RequestMethod.GET)
+	@ResponseBody
 	public String documentGenerarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "docId", required = true) Long docId,		
 			@RequestParam(value = "data", required = false) Date data,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
 			Model model) {
+		String generatId = "";
 		try {
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (!tasca.isValidada()) {
@@ -986,65 +1021,54 @@ public class TascaTramitacioController extends BaseController {
 						tascaId, 
 						docId, 
 						expedientId,
-						inici,
-						correu,
 						data);
 				if (generat != null) {
-					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
-					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
-					if (!generat.isAdjuntarAuto())
+					generatId = String.valueOf(generat.getId());
+					if (!generat.isAdjuntarAuto()) {
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
 						return "arxiuView";
-				} else {
-					MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
-					logger.error("Error generant el document " + docId);
+					}
 				}
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error generant el document " + docId, ex);
 		}
-		getModelTramitacio(tascaId, model);
-		model.addAttribute("command", populateCommand(request, tascaId, model));
-		return "v3/expedientTascaTramitacio";
+		return generatId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentEsborrar", method = RequestMethod.GET)
-	public String documentEsborrar(
+	@ResponseBody
+	public boolean documentEsborrar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "docId", required = true) Long docId,		
 			@RequestParam(value = "data", required = false) Date data,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) boolean correu,
 			Model model) {
+		boolean response = false;
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		if (!tasca.isValidada()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 		} else {
-			accioDocumentEsborrar(
+			response = accioDocumentEsborrar(
 					request,
 					tascaId,
 					docId,
-					inici,
-					correu,
 					data);
 		}
-		getModelTramitacio(tascaId, model);
-		model.addAttribute("command", populateCommand(request, tascaId, model));
-		return "v3/expedientTascaTramitacio";
+		return response;
 	}
 
-	private boolean accioDocumentAdjuntar(
+	private Long accioDocumentAdjuntar(
 			HttpServletRequest request,
 			String tascaId,
 			Long docId,
 			String nomArxiu,
 			byte[] contingutArxiu,
-			String inici,
-			boolean correu, 
 			Date data) {
-		boolean resposta = false;
+		Long documentStoreId = null;
 		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
@@ -1053,6 +1077,20 @@ public class TascaTramitacioController extends BaseController {
 		
 		if (seleccio != null && !seleccio.isEmpty()) {
 			try {
+				Object command = populateCommand(request, tascaId, null,false,0,null);
+				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
+				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
+				
+				// Guardamos el documento de la primera tarea
+				documentStoreId = tascaService.guardarDocumentTasca(
+						entorn.getId(),
+						tascaId,
+						document.getDocumentCodi(),
+						(data == null) ? new Date() : data,
+						nomArxiu,
+						contingutArxiu,
+						null);
+				
 				Date dInici = (data == null) ? new Date() : data;
 				if (inici != null) {
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -1092,15 +1130,13 @@ public class TascaTramitacioController extends BaseController {
 				execucioMassivaService.crearExecucioMassiva(dto);
 
 				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {seleccio.size()}));
-				
-				resposta = true;
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
 			}
 		} else {
 			try {
-				tascaService.guardarDocumentTasca(
+				documentStoreId = tascaService.guardarDocumentTasca(
 					entorn.getId(),
 					tascaId,
 					document.getDocumentCodi(),
@@ -1109,7 +1145,6 @@ public class TascaTramitacioController extends BaseController {
 					contingutArxiu,
 					null);
 				MissatgesHelper.info(request, getMessage(request, "info.document.adjuntat"));
-				resposta = true;
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 					MissatgesHelper.error(
@@ -1124,14 +1159,12 @@ public class TascaTramitacioController extends BaseController {
 				}
 			}
 		}
-		return resposta;
+		return documentStoreId;
 	}
 	private boolean accioDocumentEsborrar(
 			HttpServletRequest request,
 			String tascaId,
 			Long docId,
-			String inici,
-			boolean correu, 
 			Date data) {
 		boolean resposta = false;
 		
@@ -1141,6 +1174,9 @@ public class TascaTramitacioController extends BaseController {
 		if (seleccio != null && !seleccio.isEmpty()) {
 			try {				
 				Date dInici = (data == null) ? new Date() : data;
+				Object command = populateCommand(request, tascaId, null,false,0,null);
+				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
+				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
 				if (inici != null) {
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 					try {
@@ -1207,23 +1243,6 @@ public class TascaTramitacioController extends BaseController {
 		return resposta;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/verificarSignatura", method = RequestMethod.GET)
-	public String verificarSignatura(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = true) final Long docId,
-			ModelMap model) throws ServletException {
-		try {
-			model.addAttribute("signatura", tascaService.findDocument(tascaId, docId));
-			model.addAttribute("signatures", tascaService.verificarSignatura(tascaId, docId));
-			return "v3/expedientTascaTramitacioSignarVerificar";
-		} catch(Exception ex) {
-			logger.error("Error verificar signatura del document", ex);
-			throw new ServletException(ex);
-	    }
-	}
-
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/icones/{docId}", method = RequestMethod.GET)
 	public String documentEsborrar(
 			HttpServletRequest request,
@@ -1283,8 +1302,6 @@ public class TascaTramitacioController extends BaseController {
 			String tascaId,
 			Long docId,
 			Long expedientId,
-			String inici,
-			boolean correu, 
 			Date data) {		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
@@ -1292,6 +1309,9 @@ public class TascaTramitacioController extends BaseController {
 		
 		if (seleccio != null && !seleccio.isEmpty()) {
 			try {
+				Object command = populateCommand(request, tascaId, null,false,0,null);
+				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
+				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
 				Date dInici = (data == null) ? new Date() : data;
 				if (inici != null) {
 					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");

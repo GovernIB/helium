@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -129,4 +130,6 @@ public interface DissenyService {
 	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId);
 
 	public AreaDto findAreaById(Long areaId);
+
+	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId);
 }
