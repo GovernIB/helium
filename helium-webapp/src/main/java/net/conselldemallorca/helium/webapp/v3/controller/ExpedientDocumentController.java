@@ -165,9 +165,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	public String nouDocumentGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
 			Model model) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setData(new Date());
+		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("documentExpedientCommand", command);
 		return "v3/expedientDocumentNou";
 	}
@@ -176,9 +178,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	public String documentModificarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@RequestParam(value = "accio", required = true) String accio,
 			@ModelAttribute DocumentExpedientCommand command, 
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
-			@RequestParam(value = "accio", required = true) String accio,
+			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
@@ -196,7 +199,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			command.setNomArxiu(nomArxiu);
 			command.setContingut(contingutArxiu);
 
-			expedientService.crearModificarDocument(expedientId, null, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
+			expedientService.crearModificarDocument(expedientId, processInstanceId, null, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
 			MissatgesHelper.info(request, getMessage(request, "info.document.guardat") );
         } catch (Exception ex) {
 			logger.error("No s'ha pogut crear el document: expedientId: " + expedientId, ex);
@@ -230,6 +233,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
 			@ModelAttribute DocumentExpedientCommand command, 
+			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
 			@RequestParam(value = "modificarArxiu", required = true) boolean modificarArxiu,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
 			@RequestParam(value = "accio", required = true) String accio,
@@ -257,7 +261,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	        	
 	        	return "v3/expedientDocumentModificar";
 	        }
-			expedientService.crearModificarDocument(expedientId, documentStoreId, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
+			expedientService.crearModificarDocument(expedientId, processInstanceId, documentStoreId, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
 			MissatgesHelper.info(request, getMessage(request, "info.document.guardat") );
         } catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: expedientId: " + expedientId + " : documentStoreId : " + documentStoreId, ex);

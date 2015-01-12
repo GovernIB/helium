@@ -14,7 +14,7 @@
 	<style>
 		body {background-image: none; padding-top: 0px;}
 		.form-horizontal .form-group {margin-right: 0px;margin-left: 0px;;padding-left: 0px;}
-		.col-xs-8,.col-xs-4 {width: 100%;margin-left: 0px;padding-left: 0px;padding-right: 0px;}
+/* 		.col-xs-8,.col-xs-4 {width: 100%;margin-left: 0px;padding-left: 0px;padding-right: 0px;} */
 		.form-horizontal .control-label {text-align: left;}
 		.fila_reducida {margin-left: 0px;margin-right: 0px;padding-left: 0px;padding-right: 0px;}
 		#s2id_any {width: 100% !important;}

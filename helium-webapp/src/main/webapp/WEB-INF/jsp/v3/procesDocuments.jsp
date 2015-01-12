@@ -29,6 +29,10 @@ div.procesDocument:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
+.btnNouDocument {
+	text-align:right;
+	padding-right: 15px;
+}
 #dataTables_new {padding-top: 5px;padding-bottom: 10px;}
 </style>
 <c:choose>
@@ -37,81 +41,66 @@ div.procesDocument:hover {
 		<c:forEach items="${documents}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
-
-			<div id="dataTables_new">
-				<div style="text-align:right">
-					<a 	class="icon btn btn-default" 
-						href="../../v3/expedient/${expedientId}/nouDocument" 
-						data-rdt-link-modal="true" 
-						data-rdt-link-callback="recargarPanel(${proces.id});"
-						data-rdt-link-modal-min-height="170">
-						<span class="fa fa-plus"></span>
-						 <spring:message code="expedient.boto.nou_document"/>
-					</a>
+			<div id="dataTable_${proces.id}">
+				<div id="dataTables_new">
+					<div class="btnNouDocument">
+						<a 	class="icon btn btn-default" 
+							href="../../v3/expedient/${expedientId}/nouDocument?processInstanceId=${proces.id}" 
+							data-rdt-link-modal="true" 
+							data-rdt-link-callback="recargarPanel(${proces.id});"
+							data-rdt-link-modal-min-height="170">
+							<span class="fa fa-plus"></span>
+							 <spring:message code="expedient.boto.nou_document"/>
+						</a>
+					</div>
 				</div>
-			</div>
-			<div class="panel panel-default">
-				<div id="${proces.id}-titol" class="panel-heading clicable procesDocument" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_${dadesProces.key}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
-					<c:choose>
-						<c:when test="${proces.id == inicialProcesInstanceId}">
-							<spring:message code='common.tabsexp.proc_princip'/>
-						</c:when>
-						<c:otherwise>${proces.titol}</c:otherwise>
-					</c:choose>
-					<div class="pull-right">
+				<div class="panel panel-default">
+					<div id="${proces.id}-titol" class="panel-heading clicable procesDocument" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_${dadesProces.key}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 						<c:choose>
-							<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
-							<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+							<c:when test="${proces.id == inicialProcesInstanceId}">
+								<spring:message code='common.tabsexp.proc_princip'/>
+							</c:when>
+							<c:otherwise>${proces.titol}</c:otherwise>
+						</c:choose>
+						<div class="pull-right">
+							<c:choose>
+								<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
+								<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+							</c:choose>
+						</div>
+					</div>
+					<div id="panel_document_${proces.id}" class="panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
+						<c:choose>
+							<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
+								<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>
+								<c:set var="count" value="${fn:length(dadesProces.value)}"/>
+								<c:import url="import/expedientDadesTaula.jsp">
+									<c:param name="dadesAttribute" value="dadesAgrupacio"/>
+									<c:param name="numColumnes" value="${numColumnes}"/>
+									<c:param name="count" value="${count}"/>
+									<c:param name="desplegat" value="${true}"/>
+									<c:param name="mostrarCapsalera" value="${false}"/>
+								</c:import>
+								<c:set var="agrupacioFirst" value="${false}"/>
+							</c:when>
+							<c:otherwise>
+								<div class="well well-small"><spring:message code='expedient.document.proces.cap' /></div>
+							</c:otherwise>
 						</c:choose>
 					</div>
 				</div>
-				<div id="panel_document_${proces.id}" class="panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
-				<c:choose>
-				<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
-					<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>
-					<c:set var="count" value="${fn:length(dadesProces.value)}"/>
-					<c:import url="import/expedientDadesTaula.jsp">
-						<c:param name="dadesAttribute" value="dadesAgrupacio"/>
-						<c:param name="numColumnes" value="${numColumnes}"/>
-						<c:param name="count" value="${count}"/>
-						<c:param name="desplegat" value="${true}"/>
-						<c:param name="mostrarCapsalera" value="${false}"/>
-					</c:import>
-					<c:set var="agrupacioFirst" value="${false}"/>
-				</c:when>
-				<c:otherwise>
-					<div class="well well-small"><spring:message code='expedient.document.proces.cap' /></div>
-				</c:otherwise>
-				</c:choose>
-				</div>
 			</div>
 			<c:set var="procesFirst" value="${false}"/>
+			<script type="text/javascript">
+				$('#dataTable_${proces.id} .icon').heliumEvalLink({
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+				});	
+			</script>
 		</c:forEach>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.document.expedient.cap' /></div>
 	</c:otherwise>
 </c:choose>
-
-<script type="text/javascript">
-$('.icon').heliumEvalLink({
-	refrescarAlertes: true,
-	refrescarPagina: false,
-	alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
-});	
-
-function recargarPanel (processInstanceId, correcte) {
-	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/documents/"/>' + processInstanceId;
-		var panell = $("#" + processInstanceId + "-titol").closest('.panel.panel-default').parent();
-		panell.load(url);
-	}
-}
-
-
-function esborrarSignatura(documentStoreId, correcte) {
-	if (correcte) {
-		$("#document_"+documentStoreId).find(".signature").remove();
-	}
-}
-</script>

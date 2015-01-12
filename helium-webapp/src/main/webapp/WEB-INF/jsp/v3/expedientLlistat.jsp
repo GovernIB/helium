@@ -320,7 +320,7 @@ function alertaErrorAdmin(e, id, desc, full) {
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
-				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>				
+				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
 <%--
 				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="true" data-rdt-sortable="false">
 					Permisos
@@ -357,7 +357,7 @@ function alertaErrorAdmin(e, id, desc, full) {
 				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 				<a class="btn btn-default" href="../v3/expedient/massiva"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
-			<a data-rdt-link-modal="true" id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
+			<a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 		</div>
 	</script>
 

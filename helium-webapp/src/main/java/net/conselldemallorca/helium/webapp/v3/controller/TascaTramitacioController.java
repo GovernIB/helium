@@ -161,7 +161,7 @@ public class TascaTramitacioController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "width", required = false) final String width,
 			@RequestParam(value = "height", required = false) final String height,
-			@RequestParam(value = "url", required = false) final String url,
+			@RequestParam(value = "url", required = true) final String url,
 			ModelMap model) throws ServletException {
 		try {
 			model.addAttribute("tittle", getMessage(request, "tasca.form.dades_form"));

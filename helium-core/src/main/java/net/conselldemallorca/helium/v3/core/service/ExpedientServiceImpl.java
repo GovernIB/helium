@@ -705,7 +705,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional
-	public void crearModificarDocument(Long expedientId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
+	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
 		boolean creat = false;
 		String arxiuNomAntic = null;
 		boolean adjunt = false;
@@ -717,7 +717,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			documentStore = documentStoreRepository.findById(documentStoreId);
 			arxiuNomAntic = documentStore.getArxiuNom();
 		}
-		Expedient expedient = expedientRepository.findOne(expedientId);
 		DocumentDto document = null;
 		String codi = null;
 		
@@ -746,23 +745,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		if (document != null && document.isAdjunt()) {
 			expedientLoggerHelper.afegirLogExpedientPerProces(
-					expedient.getProcessInstanceId(),
+					processInstanceId,
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
 					codi);			
 		} else if (creat) {
 				expedientLoggerHelper.afegirLogExpedientPerProces(
-						expedient.getProcessInstanceId(),
+						processInstanceId,
 						ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
 						codi);
 		} else {
 			expedientLoggerHelper.afegirLogExpedientPerProces(
-					expedient.getProcessInstanceId(),
+					processInstanceId,
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 					codi);
 		}
 		documentStoreId = documentHelper.actualitzarDocument(
 				null,
-				expedient.getProcessInstanceId(),
+				processInstanceId,
 				codi,
 				nom,
 				data,
@@ -775,14 +774,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentInstanciaProces(
 					expedientId,
-					expedient.getProcessInstanceId(),
+					processInstanceId,
 					user,
 					codi,
 					nomArxiu);
 		} else {
 			registreDao.crearRegistreModificarDocumentInstanciaProces(
 					expedientId,
-					expedient.getProcessInstanceId(),
+					processInstanceId,
 					user,
 					codi,
 					arxiuNomAntic,

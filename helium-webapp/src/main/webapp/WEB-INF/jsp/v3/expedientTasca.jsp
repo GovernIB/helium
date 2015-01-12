@@ -91,6 +91,13 @@
 					</c:forEach>
 				</tbody>
 			</table>
+
+			<script type="text/javascript">
+				$("#tasques-pendents-meves a").heliumEvalLink({
+					refrescarAlertes: true,
+					refrescarPagina: false
+				});
+			</script>
 		</c:if>
 		<c:if test="${hiHaNoPendents}">
 			<div class="well well-sm">
@@ -134,10 +141,3 @@
 		<div class="well well-small"><spring:message code="expedient.tasca.nohiha"/></div>
 	</c:otherwise>
 </c:choose>
-
-<script type="text/javascript">
-	$("#tasques-pendents-meves a").heliumEvalLink({
-		refrescarAlertes: true,
-		refrescarPagina: false
-	});
-</script>

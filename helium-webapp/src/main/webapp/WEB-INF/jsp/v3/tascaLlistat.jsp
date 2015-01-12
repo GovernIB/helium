@@ -112,10 +112,10 @@
 			<c:otherwise>			
 				<div id="filtresCollapsable" class="collapse<c:if test="${true or tascaConsultaCommand.filtreDesplegat}"> in</c:if>">
 					<div class="row">
-						<div class="col-md-2">
+						<div class="col-md-4">
 							<hel:inputText name="tasca" textKey="tasca.llistat.filtre.camp.titol" placeholderKey="tasca.llistat.filtre.camp.titol" inline="true"/>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-5">
 							<hel:inputText name="expedient" textKey="tasca.llistat.filtre.camp.expedient" placeholderKey="tasca.llistat.filtre.camp.expedient" inline="true"/>
 						</div>
 						<!-- <div class="col-md-3">
@@ -191,7 +191,7 @@
 							<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 						{{/if}}
 						{{if oberta}}
-							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>">PD</span>
+							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>"></span>
 						{{/if}}
 						{{if completed}}
 							<span class="label label-success" title="<spring:message code="enum.tasca.etiqueta.FI"/>">FI</span>
@@ -216,11 +216,11 @@
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
 								{{if oberta && !suspesa}}
+									<li><a class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 									{{if tramitacioMassiva}}
 										<li><a href="../v3/tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 									{{/if}}
- 									<li><a class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
-									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
+ 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 								{{/if}}
 								{{if responsables != null && !agafada && oberta && !suspesa}}
  									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" data-rdt-link-ajax="true"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>

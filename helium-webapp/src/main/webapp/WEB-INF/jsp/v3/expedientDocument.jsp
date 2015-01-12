@@ -49,5 +49,18 @@ $(document).ready(function() {
 		}
 	});
 });
+function recargarPanel (processInstanceId, correcte) {
+	if (correcte) {
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/documents/"/>' + processInstanceId;
+		var panell = $("#dataTable_"+processInstanceId);
+		panell.load(url);
+	}
+}
+
+function esborrarSignatura(documentStoreId, correcte) {
+	if (correcte) {
+		$("#document_"+documentStoreId).find(".signature").remove();
+	}
+}
 //]]>
 </script>

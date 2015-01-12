@@ -491,9 +491,9 @@ public class ExpedientService {
 		return numero;
 	}
 
-	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
+//	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
 //		notifElectronicaDao.create(expedientId, numero, data, RDSClave, RDSCodigo);
-	}
+//	}
 
 	public void editar(
 			Long entornId,

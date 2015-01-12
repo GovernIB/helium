@@ -139,7 +139,8 @@ public class PerfilesController extends BaseController {
 	private PersonaUsuariCommand getFiltreCommand(HttpServletRequest request, Model model) {		
 		PersonaUsuariCommand filtreCommand = new PersonaUsuariCommand();
 		UsuariPreferenciesDto preferencies = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
-		
+		if (preferencies == null)
+			preferencies = new UsuariPreferenciesDto();
 		EntornDto entornUsuari = null;
 		List<EntornDto> entorns = adminService.findEntornAmbPermisReadUsuariActual();
 		
@@ -149,9 +150,18 @@ public class PerfilesController extends BaseController {
 				break;
 			}
 		}
+		List<ExpedientTipusDto> expedientTipusConConsultas = new ArrayList<ExpedientTipusDto>();
 		if (entornUsuari == null)
 			entornUsuari = SessionHelper.getSessionManager(request).getEntornActual();
-		
+		if (entornUsuari != null) {
+			List<ExpedientTipusDto> expedientTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
+			model.addAttribute("expedientTipus", expedientTipus);
+			for (ExpedientTipusDto expTip : expedientTipus) {
+				if (expTip.isConConsultasActivasPorTipo()) {
+					expedientTipusConConsultas.add(expTip);
+				}
+			}
+		}
 		filtreCommand.setCabeceraReducida(preferencies.isCabeceraReducida());
 		filtreCommand.setEntornCodi(preferencies.getDefaultEntornCodi());
 		if (preferencies.getConsultaId() != null) {
@@ -163,15 +173,6 @@ public class PerfilesController extends BaseController {
 			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornUsuari.getId(),filtreCommand.getExpedientTipusId()));
 		} else {
 			model.addAttribute("consultes", new ArrayList<ConsultaDto>());
-		}
-		
-		List<ExpedientTipusDto> expedientTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
-		model.addAttribute("expedientTipus", expedientTipus);
-		List<ExpedientTipusDto> expedientTipusConConsultas = new ArrayList<ExpedientTipusDto>();
-		for (ExpedientTipusDto expTip : expedientTipus) {
-			if (expTip.isConConsultasActivasPorTipo()) {
-				expedientTipusConConsultas.add(expTip);
-			}
 		}
 		model.addAttribute("expedientTipusConConsultas", expedientTipusConConsultas);
 		filtreCommand.setFiltroExpedientesActivos(preferencies.isFiltroTareasActivas());

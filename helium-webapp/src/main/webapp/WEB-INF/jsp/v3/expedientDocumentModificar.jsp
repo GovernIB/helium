@@ -41,7 +41,8 @@
 	<form:form cssClass="form-horizontal form-tasca" action="modificar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
 			<form:hidden path="docId"/>
-			<form:hidden path="codi"/>
+			<form:hidden path="codi"/>			
+			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${document.processInstanceId}"/>
 			<input type="hidden" id="modificarArxiu" name="modificarArxiu" value="false"/>
 			<h4 class="titol-missatge">
 	 			<c:if test="${document.plantilla}"> 

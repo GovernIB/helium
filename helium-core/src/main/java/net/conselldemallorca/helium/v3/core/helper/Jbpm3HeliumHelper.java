@@ -1129,7 +1129,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"RDSClave=" + RDSClave + ", " +
 				"RDSCodigo=" + RDSCodigo + ")");
-		expedientService.guardarNotificacioElectronica(expedientId, numero, data, RDSClave, RDSCodigo);
+//		expedientService.guardarNotificacioElectronica(expedientId, numero, data, RDSClave, RDSCodigo);
 	}
 
 	@Override

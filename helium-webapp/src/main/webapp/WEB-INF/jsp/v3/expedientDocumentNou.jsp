@@ -40,6 +40,7 @@
 	<form:form cssClass="form-horizontal form-tasca" action="documentAdjuntar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
 			<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
+			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${processInstanceId}"/>
 			<div class="form-group">
 				<div class="col-xs-8 arxiu">
 		            <div class="input-group">

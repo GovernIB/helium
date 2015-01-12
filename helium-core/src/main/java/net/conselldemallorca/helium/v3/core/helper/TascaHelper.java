@@ -571,6 +571,8 @@ public class TascaHelper {
 	public boolean isTascaValidada(Object task) {
 		Tasca tasca = findTascaByJbpmTask((JbpmTask)task);
 		boolean hiHaCampsModificables = false;
+		if (tasca == null)
+			return false;
 		for (CampTasca camp: tasca.getCamps()) {
 			if (!camp.isReadOnly()) {
 				hiHaCampsModificables = true;

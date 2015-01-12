@@ -5,10 +5,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
-<c:import url="../common/formIncludes.jsp"/>
-<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
-<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 
 <script type="text/javascript">
 	function confirmarRetrocedir(e) {
