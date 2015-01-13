@@ -9,7 +9,7 @@
 <head>
 	<title><spring:message code="consulta.form.informe" /></title>
 	<meta name="title" content="${consulta.expedientTipus.nom}"/>
-	<meta name="subtitle" content="${consulta.expedientTipus.nom}"/>	
+	<meta name="subtitle" content="${consulta.nom}"/>	
 	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
@@ -30,10 +30,21 @@
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<style>
 		#filtresCollapsable .controls{ width: 100% !important;}
-		#taulaDades_wrapper {overflow-x: auto;padding-top: 7px;}
 		#filtresCollapsable {padding-top: 20px;}
 		input, select, textarea {width: 100%;}
-		form .fila_reducida {padding-top: 20px;;margin-bottom: 5px;}
+		form .fila_reducida {padding-top: 0px;margin-bottom: 5px;}
+		#expedientInformeCommand .row {margin-bottom: -5px;}
+		#taulaDades {
+			display: block;
+			overflow-x: auto;
+			border-left: 0 none;
+			border-right: 0 none;
+			border-bottom: 0 none;
+		}
+		.col-xs-13 {
+    		margin-left: -5px;
+    		margin-right: -15px;
+    	}
 		.form-group {
 			padding-right: 	15px;
 			margin-left: 	10px !important;
@@ -95,7 +106,8 @@
 			padding-right: 0px !important;
 		}
 		.pagination {margin : 0px !important;}
-		#btn_exportar {margin-top : 10px;}
+		#btn_exportar {padding-right : 10px;}
+		.row {padding-bottom: 5px;}
 		.col-xs-3 {width: 17.5%;}
 		.control-label.col-xs-4 {width: auto !important;}
 		.col-xs-5 {padding-left: 0px !important;margin-right: -55px;}
@@ -278,15 +290,12 @@ $(document).ready(function() {
 			</thead>
 		</table>
 		<script id="tableButtonsTemplate" type="text/x-jsrender">
-			<div style="text-align:right">
-				<div class="btn-group">
-					<a class="btn btn-default" href="../../v3/informe/${consulta.expedientTipus.id}/${consulta.id}/seleccioTots" data-rdt-link-ajax="true" title="Seleccionar tots"><span class="fa fa-check-square-o"></span></a>
-					<a class="btn btn-default" href="<c:url value="../../v3/informe/seleccioNetejar"/>" data-rdt-link-ajax="true" title="Netejar selecció"><span class="fa fa-square-o"></span></a>
-					<a class="btn btn-default" href="#">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
-				</div>
+			<div class="btn-group pull-right">
+				<a class="btn btn-default" href="../../v3/informe/${consulta.expedientTipus.id}/${consulta.id}/seleccioTots" data-rdt-link-ajax="true" title="Seleccionar tots"><span class="fa fa-check-square-o"></span></a>
+				<a class="btn btn-default" href="<c:url value="../../v3/informe/seleccioNetejar"/>" data-rdt-link-ajax="true" title="Netejar selecció"><span class="fa fa-square-o"></span></a>
+				<a class="btn btn-default" href="#">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
-		</script>
-			<div id="btn_exportar" class="btn-toolbar pull-left btn_under_taulaDades">
+			<div id="btn_exportar" class="btn-toolbar pull-right btn_under_taulaDades">
 				<a id="exportar_excel" href="${consulta.expedientTipus.id}/${consulta.id}/exportar_excel" class="btn btn-default">
 					<span class="icon-download-alt"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 				</a>
@@ -295,9 +304,9 @@ $(document).ready(function() {
 						<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 					</a>
 				</c:if>
-			</div>
-		</c:if>
-	</div>
+			</div>			
+		</script>
+	</c:if>
 	
 	<script type="text/javascript">
 		$("#btn_exportar a").heliumEvalLink({

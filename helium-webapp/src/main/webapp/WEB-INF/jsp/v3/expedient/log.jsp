@@ -6,8 +6,58 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
-
+<style type="text/css">
+	.registre_a_retrocedir {background-color: #eeeeee;}
+</style>
 <script type="text/javascript">
+// <![CDATA[
+	jQuery(document).ready(function(){
+		jQuery("#registro_tasques table").find("tbody > tr > td > a.retroces").each(function(){
+			jQuery(this).hover(
+				function(){
+					var $fil = jQuery(this).parent().parent();					// Fila de la taula
+					var element = $fil.find("td:nth-child(3)").html().trim(); 	// Tasca
+					var token = $fil.find("td:nth-child(6)").html().trim();		// Token
+					var tokens = token.split("/");
+					$fil.addClass("registre_a_retrocedir");
+					
+					if (element.indexOf("Tasca") == 0) {						// És una tasca
+						$fil.nextAll().each(function(){
+							var elem = jQuery(this).find("td:nth-child(3)").html().trim();
+							var tok = jQuery(this).find("td:nth-child(6)").html().trim();
+							var toks = tok.split("/");
+							
+							if (elem.indexOf("Tasca") == 0) {
+								var t = "/";
+								for (i = 0; i < tokens.length; i++){
+									if (tokens[i] != "" && t != "/") t = t + "/";
+									t = t + tokens[i];
+									subt = t + "/";
+									if (tok == t || tok == subt) {
+										jQuery(this).addClass("registre_a_retrocedir");
+										return;
+									}
+								}
+								var t = "/";
+								var subt = "";
+								for (i = 0; i < toks.length; i++){
+									if (toks[i] != "" && t != "/") t = t + "/";
+									t = t + toks[i];
+									subt = t + "/";
+									if (token == t || token == subt) {
+										jQuery(this).addClass("registre_a_retrocedir");
+										return;
+									}
+								}
+							}
+						});
+					}
+				},
+				function(){
+					jQuery("#registro_tasques table").find("tbody > tr").removeClass("registre_a_retrocedir");
+				});
+		});
+	});
 	function confirmarRetrocedir(e) {
 		var e = e || window.event;
 		e.cancelBubble = true;
@@ -25,6 +75,7 @@
 					$('#registro_tasques').show();
 		});
 	}
+// ]]>
 </script>
 
 <div id="spinner"></div>
@@ -101,7 +152,7 @@
 										<c:when test="${log.targetTasca and param.tipus_retroces != 0}">
 											${tasques[log.targetId].nom}
 											<span class="right">
-												<a class="a-modal-registre" href="<c:url value="../../v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="fa fa-search"></i></a>
+												<a data-rdt-link-modal="true" class="a-modal-registre" href="<c:url value="../../v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="fa fa-search"></i></a>
 											</span>
 										</c:when>
 										<c:otherwise>
@@ -169,8 +220,7 @@
 									<c:choose>
 										<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
 										<c:when test="${log.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"></c:when>
-										<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">
-										
+										<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">										
 											<c:if test="${isAdmin}">
 												<a href="<c:url value="../../v3/expedient/retrocedir">
 													<c:param name="id" value="${expedient.id}"/>
@@ -202,24 +252,12 @@
 		</c:otherwise>
 	</c:choose>
 </div>
-
-<div id="expedient-registre-modal"></div>
-
+	
 <script type="text/javascript">
 // <![CDATA[
-	$('.a-modal-registre').click(function() {
-		$('#expedient-registre-modal').heliumModal({
-			modalUrl: $(this).attr('href'),
-			refrescarTaula: false,
-			refrescarAlertes: true,
-			refrescarPagina: false,
-			adjustWidth: false,
-			adjustHeight: true,
-			maximize: true,
-			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-			valignTop: true
-		});
-		return false;
+	$(".a-modal-registre").heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false
 	});
 //]]>
 </script>

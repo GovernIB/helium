@@ -15,7 +15,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
@@ -446,9 +445,8 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId) {
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(expedient.getProcessInstanceId());
+	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId) {
+		InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(instanciaProcesId);
 		return conversioTipusHelper.convertirList(
 				terminiRepository.findByDefinicioProcesId(instanciaProces.getDefinicioProces().getId()),
 				TerminiDto.class);
@@ -456,9 +454,8 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId) {
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
+		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(instanciaProcesId);
 		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
 	}
 

@@ -74,5 +74,10 @@
 				<div class="well well-small">No hi ha logs per a mostrar</div>
 			</c:otherwise>
 		</c:choose>
+		<div id="modal-botons">
+			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel">
+				<spring:message code="comu.boto.tancar"/>
+			</button>
+		</div>
 	</body>
 </html>

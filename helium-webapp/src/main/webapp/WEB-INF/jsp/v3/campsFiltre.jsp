@@ -23,60 +23,60 @@
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'INTEGER'}">
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right enter" id="${campPath}[0]" data-required="false"/>
 					</div>
 				</div>
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
+					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right enter" id="${campPath}[1]" data-required="false"/>
 					</div>
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'FLOAT'}">
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right float" id="${campPath}[0]" data-required="false"/>
 					</div>
 				</div>
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
+					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right float" id="${campPath}[1]" data-required="false"/>
 					</div>
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'PRICE'}">
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+					<div class="col-xs-13">
 						<form:input path="${campPath}[0]" cssClass="form-control text-right price" id="${campPath}[0]" data-required="false"/>
 					</div>
 				</div>
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
+					<div class="col-xs-13">
 						<form:input path="${campPath}[1]" cssClass="form-control text-right price" id="${campPath}[1]" data-required="false"/>
 					</div>
 				</div>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'DATE'}">
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+					<div class="col-xs-13">
 						<div class="input-group">
 							<form:input path="${campPath}[0]" id="${campPath}[0]" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="false"/>
 							<span class="input-group-addon btn_date"><span class="glyphicon glyphicon-calendar"></span></span>
 						</div>
 					</div>
 				</div>
-				<div class="col-xs-5">
-					<label class="control-label col-xs-4" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
-					<div class="col-xs-8">
+				<div class="col-xs-6">
+					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
+					<div class="col-xs-13">
 						<div class="input-group">
 							<form:input path="${campPath}[1]" id="${campPath}[1]" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="false"/>
 							<span class="input-group-addon btn_date"><span class="glyphicon glyphicon-calendar"></span></span>
@@ -95,14 +95,13 @@
 							<script>
 								$(".selEstat select").select2({
 								    width: 'resolve',
-								    placeholder: "${campActual.campEtiqueta}",
 								    allowClear: true
 								});
 							</script>
 						</div>
 					</c:when>
 					<c:otherwise>
-						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholder="${campActual.campEtiqueta}" optionItems="${campActual.varValor}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" optionItems="${campActual.varValor}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					</c:otherwise>
 				</c:choose>
 			</c:when>
@@ -122,7 +121,7 @@
 	 				</div>
 	 				<div class="col-xs-4 tercpost">
 	 					<label class="control-label col-xs-4" for="${campPath}_dies"><spring:message code="common.camptasca.dies"/></label>
-	 					<div class="col-xs-8">
+	 					<div class="col-xs-9">
 	 						<hel:inputText inline="true" name="${campPath}.dies" textKey="common.camptasca.dies" placeholderKey="common.camptasca.dies"/>
 	 					</div>
 	 				</div>
@@ -146,7 +145,7 @@
 				<div class="form-group">
 					<c:set var="urlConsultaInicial" value="../../v3/domini/consulta/inicial/${campActual.campId}"/>
 					<c:set var="urlConsultaLlistat" value="../../v3/domini/consulta/${campActual.campId}"/>
-					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" textKey="expedient.editar.responsable"/>
 				</div>
 			</c:when>
 			<c:otherwise>

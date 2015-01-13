@@ -117,9 +117,9 @@ public interface DissenyService {
 
 	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto camp, String textInicial,Map<String, Object> mapDelsValors);
 
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId);
+	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId);
 
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId);
+	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId);
 
 	public TerminiIniciatDto findIniciatAmbId(Long id);
 

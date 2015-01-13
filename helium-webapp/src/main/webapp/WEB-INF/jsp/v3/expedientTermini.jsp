@@ -33,33 +33,28 @@ div.proces:hover {
 
 </style>
 
-<c:import url="procesDocuments.jsp"/>
+<c:import url="procesTerminis.jsp"/>
 <script type="text/javascript">
-// <![CDATA[			
+// <![CDATA[
 $(document).ready(function() {				
-	$('.procesDocument').click( function() {
+	$('.procesTermini').click( function() {
 		var icona = $(this).find('.icona-collapse');
 		icona.toggleClass('fa-chevron-down');
 		icona.toggleClass('fa-chevron-up');
 		if ($(this).data('carrega') == "ajax") {
 			$('#contingut-carregant').show();
 			var id = $(this).data('id');
-			var panell = $('#panel_document_' + id);
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/documents/"/>' + id);
+			var panell = $('#panel_termini_' + id);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/terminis/"/>' + id);
 		}
 	});
 });
-function recargarPanel (processInstanceId, correcte) {
-	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/documents/"/>' + processInstanceId;
-		var panell = $("#dataTable_documents_"+processInstanceId);
-		panell.load(url);
-	}
-}
 
-function esborrarSignatura(documentStoreId, correcte) {
+function recargarPanelTermini (processInstanceId, correcte) {
 	if (correcte) {
-		$("#document_"+documentStoreId).find(".signature").remove();
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/terminis/"/>' + processInstanceId;
+		var panell = $("#dataTable_termini_"+processInstanceId);
+		panell.load(url);
 	}
 }
 //]]>

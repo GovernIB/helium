@@ -45,12 +45,23 @@
 				}
 			});	
 	
+			$("select[name=expedientTipusDefecteId]").on('change', function () {
+				if($('select[name=expedientTipusId]').val($(this).val())) {
+					$('select[name=expedientTipusId]').select2("val", $(this).val());
+					$('select[name=expedientTipusId]').change();
+				} else {
+					$('select[name=expedientTipusId]').select2("val", "");
+				}
+			});
+			
 			$('select[name=expedientTipusId]').on('change', function () {
 				$("select[name=consultaId] option").each(function (index, option) {
 		    		if (index > 0 && $("select[name=consultaId] option").size() > 0)
 						$(option).remove();
 				});
 				if ($(this).val()) {
+					if ($('select[name=expedientTipusDefecteId]').val() != $('select[name=expedientTipusId]').val())
+						$('select[name=expedientTipusDefecteId]').select2("val", "");	
 					$.ajax({
 					    url:'perfil/consulta/' + $(this).val() + '/' + $('#entornCodi').val(),
 					    type:'GET',

@@ -6,13 +6,13 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <c:set var="numColumnes" value="${3}"/>
 <style type="text/css">
-div.procesDocument {
+div.procesTermini {
 	color: white !important;
 	background-color: #428bca !important;
 	border-color: #357ebd !important;
 	font-weight: bold;
 }
-div.procesDocument:hover {
+div.procesTermini:hover {
 	background-color: #3071a9 !important;
 	border-color: #285e8e !important;
 }
@@ -29,32 +29,25 @@ div.procesDocument:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
-.btnNouDocument {
-	text-align:right;
+.termini_options {min-width: 110px;}
+.termini_options i, .options a {
+	padding-right: 2px;
+	padding-left: 2px;			
 }
-#dataTables_new {padding-top: 5px;padding-bottom: 10px;}
+.dataTable_termini .panel.panel-default {
+	border: 0 none;
+	margin-bottom: 1px;
+}
 </style>
 <c:choose>
-	<c:when test="${not empty documents}">
+	<c:when test="${not empty terminis}">
 		<c:set var="procesFirst" value="${true}"/>
-		<c:forEach items="${documents}" var="dadesProces" varStatus="procesosStatus">
+		<c:forEach items="${terminis}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
-			<div id="dataTable_documents_${proces.id}">
-				<div id="dataTables_new">
-					<div class="btnNouDocument">
-						<a 	class="icon btn btn-default" 
-							href="../../v3/expedient/${expedientId}/nouDocument?processInstanceId=${proces.id}" 
-							data-rdt-link-modal="true" 
-							data-rdt-link-callback="recargarPanel(${proces.id});"
-							data-rdt-link-modal-min-height="170">
-							<span class="fa fa-plus"></span>
-							 <spring:message code="expedient.boto.nou_document"/>
-						</a>
-					</div>
-				</div>
+			<div id="dataTable_termini_${proces.id}">
 				<div class="panel panel-default">
-					<div id="${proces.id}-titol" class="panel-heading clicable procesDocument" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_${dadesProces.key}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
+					<div id="${proces.id}-titol" class="panel-heading clicable procesTermini" data-toggle="collapse" data-target="#panel_termini_${proces.id}" data-id="${proces.id}_${dadesProces.key}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 						<c:choose>
 							<c:when test="${proces.id == inicialProcesInstanceId}">
 								<spring:message code='common.tabsexp.proc_princip'/>
@@ -68,10 +61,12 @@ div.procesDocument:hover {
 							</c:choose>
 						</div>
 					</div>
-					<div id="panel_document_${proces.id}" class="panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
+					<div id="panel_termini_${proces.id}" class="dataTable_termini panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
 						<c:choose>
 							<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
 								<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>
+								<c:set var="iniciats_termini" value="${iniciats[proces.id]}" scope="request"/>
+								<c:set var="procesId" value="${proces.id}" scope="request"/>								
 								<c:set var="count" value="${fn:length(dadesProces.value)}"/>
 								<c:import url="import/expedientDadesTaula.jsp">
 									<c:param name="dadesAttribute" value="dadesAgrupacio"/>
@@ -83,7 +78,7 @@ div.procesDocument:hover {
 								<c:set var="agrupacioFirst" value="${false}"/>
 							</c:when>
 							<c:otherwise>
-								<div class="well well-small"><spring:message code='expedient.document.proces.cap' /></div>
+								<div class="well well-small"><spring:message code='expedient.termini.proces.cap' /></div>
 							</c:otherwise>
 						</c:choose>
 					</div>
@@ -91,7 +86,7 @@ div.procesDocument:hover {
 			</div>
 			<c:set var="procesFirst" value="${false}"/>
 			<script type="text/javascript">
-				$('#dataTable_documents_${proces.id} .icon').heliumEvalLink({
+				$('#panel_termini_${proces.id} .icon').heliumEvalLink({
 					refrescarAlertes: true,
 					refrescarPagina: false,
 					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
@@ -100,6 +95,6 @@ div.procesDocument:hover {
 		</c:forEach>
 	</c:when>
 	<c:otherwise>
-		<div class="well well-small"><spring:message code='expedient.document.expedient.cap' /></div>
+		<div class="well well-small"><spring:message code='expedient.termini.expedient.cap' /></div>
 	</c:otherwise>
 </c:choose>

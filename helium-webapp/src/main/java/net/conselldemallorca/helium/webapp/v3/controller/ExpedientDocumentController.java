@@ -191,6 +191,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	        	if (arxiu == null || arxiu.isEmpty()) {
 		        	MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));				        	
 		        }
+	    		model.addAttribute("processInstanceId", processInstanceId);
 	        	return "v3/expedientDocumentNou";
 	        }
 			
@@ -257,6 +258,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	        	
 	        	DocumentDto document = expedientService.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, command.getCodi());
 	    		model.addAttribute("documentExpedientCommand", command);
+	    		model.addAttribute("processInstanceId", processInstanceId);
 	    		model.addAttribute("document", document);		
 	        	
 	        	return "v3/expedientDocumentModificar";
