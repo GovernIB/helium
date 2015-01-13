@@ -132,8 +132,10 @@ public class ConversioTipusHelper {
 						target.setId(source.getId());
 						for (Consulta consulta : source.getConsultes()) {
 							if (!consulta.isOcultarActiu()) {
-								target.setConConsultasActivasPorTipo(true);
-								break;
+								ConsultaDto consulte = new ConsultaDto();
+								consulte.setId(consulta.getId());
+								consulte.setNom(consulta.getNom());
+								target.getConsultes().add(consulte);
 							}
 						}
 						target.setJbpmProcessDefinitionKey(source.getJbpmProcessDefinitionKey());

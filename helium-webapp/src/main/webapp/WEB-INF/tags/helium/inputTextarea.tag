@@ -11,17 +11,16 @@
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
-
+<c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-4" for="${campPath}">
+			<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">
 				<c:choose>
 					<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 					<c:when test="${not empty text}">${text}</c:when>
 					<c:otherwise>${campPath}</c:otherwise>
 				</c:choose>
-				<c:if test="${required}">*</c:if>
 			</label>
 			<div class="controls col-xs-8">
 				<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" rows="6"/>
@@ -31,7 +30,7 @@
 	</c:when>
 	<c:otherwise>  		
   		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="sr-only" for="${campPath}">${campLabelText}</label>
+			<label class="sr-only ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<form:textarea path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" rows="6"/>
 			<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 		</div>

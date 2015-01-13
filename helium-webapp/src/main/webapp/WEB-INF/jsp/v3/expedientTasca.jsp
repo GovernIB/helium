@@ -62,11 +62,11 @@
 										<ul class="dropdown-menu">
 											<c:if test="${tasca.oberta and not tasca.suspesa}">
 												<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+													<li><a href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 													<c:if test="${tasca.tramitacioMassiva}">
 														<li><a href="../../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 													</c:if>
-				 									<li><a href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
-													<li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
+				 									<li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 												</c:if>
 												<c:if test="${not empty tasca.responsables && not tasca.agafada}">
 													<li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/tascaAgafar"/>"><span class="fa fa-chain"></span> Agafar</a></li>

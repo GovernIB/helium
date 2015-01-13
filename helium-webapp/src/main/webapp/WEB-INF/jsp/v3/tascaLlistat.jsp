@@ -8,8 +8,8 @@
 <html>
 <head>
 	<title><spring:message code="tasca.llistat.titol"/></title>
-	<meta name="capsaleraTipus" content="llistat"/>
-	
+	<meta name="title" content="<spring:message code='tasca.llistat.titol'/>"/>	
+	<meta name="capsaleraTipus" content="llistat"/>	
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
@@ -215,11 +215,13 @@
  						<div class="dropdown navbar-right"> 
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
-								{{if oberta && !suspesa}}
+								{{if !(responsables != null && !agafada && oberta && !suspesa)}}
 									<li><a class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 									{{if tramitacioMassiva}}
 										<li><a href="../v3/tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 									{{/if}}
+								{{/if}}
+								{{if oberta && !suspesa}}
  									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 								{{/if}}
 								{{if responsables != null && !agafada && oberta && !suspesa}}
@@ -276,7 +278,8 @@
 			// <![CDATA[
 				$('#btnTramitacio').heliumEvalLink({
 					refrescarAlertes: true,
-					refrescarPagina: false
+					refrescarPagina: false,
+					maximize: true
 				});
 			//]]>
 		</script>

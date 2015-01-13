@@ -110,23 +110,29 @@
 					<div class="btn-group navbar-btn navbar-right">
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						<c:if test="${not empty consultesExpedientTipusActual || not empty expedientTipusAccessiblesAmbConsultesActives}">
+						<c:if test="${not empty expedientTipusActual || not empty expedientTipusAccessiblesAmbConsultesActives}">
 							<div class="btn-group" >
 								<c:choose>
-									<c:when test="${not empty consultesExpedientTipusActual}">
-										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="expedient.llistat.consulta_avanzada"/> <span class="caret"></span></button>
+									<c:when test="${not empty expedientTipusActual.consultes}">
+										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
 										<ul class="dropdown-menu">
-											<c:forEach var="consulte" items="${consultesExpedientTipusActual}">
+											<li class="nav-header">${expedientTipusActual.nom}</li>
+											<c:forEach var="consulte" items="${expedientTipusActual.consultes}">
 												<li><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
 											</c:forEach>
 										</ul>
 									</c:when>
 									<c:otherwise>
-										<c:if test="${not empty expedientTipusAccessiblesAmbConsultesActives}">
+										<c:if test="${empty expedientTipusActual and not empty expedientTipusAccessiblesAmbConsultesActives}">
 											<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
 											<ul class="dropdown-menu">
 												<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}">
-													<li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>
+													<!-- <li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>  -->
+													<c:if test="${fn:length(expedientTipusAccessiblesAmbConsultesActives) gt 1}"><li class="divider"></li></c:if>													
+													<li class="nav-header">${expedientTipus.nom}</li>
+													<c:forEach var="consulte" items="${expedientTipus.consultes}">
+														<li><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
+													</c:forEach>
 												</c:forEach>
 											</ul>
 										</c:if>

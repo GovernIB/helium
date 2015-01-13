@@ -7,6 +7,10 @@
 <head>
 	<title><spring:message code="expedient.accio.aturar.titol"/></title>
 	<hel:modalHead/>
+	<style type="text/css">
+		.col-xs-4 {width: 8.33333%;}
+		.col-xs-8 {width: 91.6667%;}
+	</style>
 <script>
 	function confirmar(e) {
 		var e = e || window.event;

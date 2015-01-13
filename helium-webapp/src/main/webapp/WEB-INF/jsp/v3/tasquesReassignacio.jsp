@@ -33,7 +33,7 @@
 		<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 		<style>
 			body {background-image: none; padding-top: 0px;}
-			.col-xs-4 {width: 100%;padding-left: 0px;padding-right: 0px;}
+			.col-xs-4 {width: auto;padding-left: 0px;}
 			.col-xs-8 {width: 100%;padding-bottom: 100px;padding-left: 0px;padding-right: 0px;}
 			#opciones .label-titol {padding-bottom: 0px;} 
 	 		.control-group {width: 100%;display: inline-block;} 
@@ -45,6 +45,9 @@
 			.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;}			
 			.label-titol .control-label {padding-bottom: 20px;}		
 			.label-titol .form-group .control-label{padding-bottom: 0px;}	
+			.obligatori {
+			    background-position: right 6px;
+			}
 		</style>		
 		<script>
 			$(document).ready(function() {

@@ -160,7 +160,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				}
 				List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
 				for (ExpedientTipusDto expedientTipus: accessibles) {
-					if (expedientTipus.isConConsultasActivasPorTipo())
+					if (!expedientTipus.getConsultes().isEmpty())
 						accessiblesConConsultasActivas.add(expedientTipus);
 				}
 				SessionHelper.setAttribute(

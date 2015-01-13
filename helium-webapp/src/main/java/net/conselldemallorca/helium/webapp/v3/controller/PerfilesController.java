@@ -78,7 +78,7 @@ public class PerfilesController extends BaseController {
 				Iterator<ExpedientTipusDto> it = expedientTipusConConsultas.iterator();
 				while (it.hasNext()) {
 					ExpedientTipusDto expTip = it.next();
-					if (!expTip.isConConsultasActivasPorTipo()) {
+					if (expTip.getConsultes().isEmpty()) {
 						it.remove();
 					}
 				}
@@ -157,7 +157,7 @@ public class PerfilesController extends BaseController {
 			List<ExpedientTipusDto> expedientTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
 			for (ExpedientTipusDto expTip : expedientTipus) {
-				if (expTip.isConConsultasActivasPorTipo()) {
+				if (!expTip.getConsultes().isEmpty()) {
 					expedientTipusConConsultas.add(expTip);
 				}
 			}

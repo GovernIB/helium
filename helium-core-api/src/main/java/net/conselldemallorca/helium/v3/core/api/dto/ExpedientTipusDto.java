@@ -27,7 +27,7 @@ public class ExpedientTipusDto implements Serializable {
 	private EntornDto entorn;
 	
 	private boolean demanaNumero;
-	private boolean conConsultasActivasPorTipo;
+	private List<ConsultaDto> consultes;
 	private boolean demanaTitol;
 	
 	private String expressioNumero;
@@ -229,11 +229,14 @@ public class ExpedientTipusDto implements Serializable {
 	public void setSeleccionarAny(boolean seleccionarAny) {
 		this.seleccionarAny = seleccionarAny;
 	}
-	public boolean isConConsultasActivasPorTipo() {
-		return conConsultasActivasPorTipo;
+
+	public List<ConsultaDto> getConsultes() {
+		if (consultes == null)
+			consultes = new ArrayList<ConsultaDto>();
+		return consultes;
 	}
-	public void setConConsultasActivasPorTipo(boolean conConsultasActivasPorTipo) {
-		this.conConsultasActivasPorTipo = conConsultasActivasPorTipo;
+	public void setConsultes(List<ConsultaDto> consultes) {
+		this.consultes = consultes;
 	}
 
 	private static final long serialVersionUID = 4990928454645567913L;

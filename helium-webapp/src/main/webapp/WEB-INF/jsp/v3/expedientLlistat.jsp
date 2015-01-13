@@ -9,6 +9,7 @@
 <head>
 	<title><spring:message code="expedient.llistat.titol"/></title>
 	<meta name="capsaleraTipus" content="llistat"/>
+	<meta name="title" content="<spring:message code='expedient.llistat.titol'/>"/>	
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
@@ -47,29 +48,31 @@ $(document).ready(function() {
 			$("th:eq(" + seleccioColumna + ")", $("#taulaDades")).toggleClass("hide", !seleccionable);
 		},
 		rowClickCallback: function(row) {
-// 			$('a.consultar-expedient', $(row))[0].click();
-			$.ajax({
-				"url": "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
-				"beforeSend": function( xhr ) {	
-					$('.fa-chevron-up').addClass('fa-chevron-down').removeClass('fa-chevron-up');
-					$(row).find('.icona-collapse').removeClass('fa-chevron-down').addClass('fa-circle-o-notch fa-spin');
-					$(".table-pendents").find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(400, function(){
-					  	$(this).parent().parent().remove();
-					});
-				},
-				"success": function (data) {
-					$(row).find('.icona-collapse').removeClass('fa-circle-o-notch fa-spin').addClass('fa-chevron-up');
-					$(row).after(data);
-					$(".table-pendents").find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(400, function(){
-						  var $set = $(this);
-						  $set.replaceWith($set.contents());
-					});
-				},
-			  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
-					$('.fa-chevron-up').removeClass('fa-chevron-down fa-circle-o-notch fa-spin fa-chevron-up');
-					$(".table-pendents").remove();
-				}
-			});
+ 			//$('a.consultar-expedient', $(row))[0].click(); 			
+//  			$(".desplegar").click(function() {
+				$.ajax({
+					"url": "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
+					"beforeSend": function( xhr ) {	
+						$('.fa-chevron-up').addClass('fa-chevron-down').removeClass('fa-chevron-up');
+						$(row).find('.icona-collapse').removeClass('fa-chevron-down').addClass('fa-circle-o-notch fa-spin');
+						$(".table-pendents").find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(400, function(){
+						  	$(this).parent().parent().remove();
+						});
+					},
+					"success": function (data) {
+						$(row).find('.icona-collapse').removeClass('fa-circle-o-notch fa-spin').addClass('fa-chevron-up');
+						$(row).after(data);
+						$(".table-pendents").find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(400, function(){
+							  var $set = $(this);
+							  $set.replaceWith($set.contents());
+						});
+					},
+				  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
+						$('.fa-chevron-up').removeClass('fa-chevron-down fa-circle-o-notch fa-spin fa-chevron-up');
+						$(".table-pendents").remove();
+					}
+				});
+//  			});
 		},
 		seleccioCallback: function(seleccio) {
 			$('#tramitacioMassivaCount').html(seleccio.length);
@@ -273,7 +276,7 @@ function alertaErrorAdmin(e, id, desc, full) {
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-						<div class="pull-left">
+						<div class="desplegar pull-left">
 							<span class="icona-collapse fa fa-chevron-down"></i>						
 						</div>
 					</script>

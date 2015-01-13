@@ -101,19 +101,6 @@ public class SessionHelper {
 					VARIABLE_EXPTIP_ACTUAL,
 					expedientTipus);
 		}
-		
-		@SuppressWarnings("unchecked")
-		public List<ExpedientTipusDto> getConsultesExpedientTipusActual() {
-			return (List<ExpedientTipusDto>)getAttribute(
-					request,
-					VARIABLE_CONS_EXPTIP_ACTUAL);
-		}
-		public void setConsultesExpedientTipusActual(List<ExpedientTipusDto> expedientsTipus) {
-			setAttribute(
-					request,
-					VARIABLE_CONS_EXPTIP_ACTUAL,
-					expedientsTipus);
-		}
 		@SuppressWarnings("unchecked")
 		public List<ExpedientTipusDto> getExpedientTipusAccessiblesAmbConsultesActives() {
 			return (List<ExpedientTipusDto>)getAttribute(

@@ -25,7 +25,6 @@
 	.icon {background: none repeat scroll 0 0 rgba(0, 0, 0, 0);}
 	.fa-stack-2x {font-size: 1.7em;margin-top: 2px;}
 	.fa.fa-certificate.fa-stack-1x { margin-top: -1px;}
-	.panel {width: calc(100% - 15px);}
 </style>
 
 <c:set var="grupId" value="grup-default"/>

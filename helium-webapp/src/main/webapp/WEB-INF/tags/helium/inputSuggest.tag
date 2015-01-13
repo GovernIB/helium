@@ -17,6 +17,7 @@
 <c:set var="campPath" value="${name}"/>
 <c:choose><c:when test='${multiple}'><c:set var="campId" value="${fn:replace(fn:replace(id, '[', ''), ']','')}"/></c:when><c:otherwise><c:set var="campId" value="${name}"/></c:otherwise></c:choose>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
+<c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:choose>
 	<c:when test="${not empty placeholderKey}"><c:set var="placeholderText"><spring:message code="${placeholderKey}"/></c:set></c:when>
 	<c:otherwise><c:set var="placeholderText" value="${placeholder}"/></c:otherwise>
@@ -24,13 +25,12 @@
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-4" for="${campPath}">
+			<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">
 				<c:choose>
 					<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 					<c:when test="${not empty text}">${text}</c:when>
 					<c:otherwise>${campPath}</c:otherwise>
 				</c:choose>
-				<c:if test="${required}">*</c:if>
 			</label>
 			<div class="controls col-xs-8">
 				<c:choose>

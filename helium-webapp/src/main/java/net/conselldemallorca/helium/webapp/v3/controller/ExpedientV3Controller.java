@@ -161,8 +161,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		expedientEditarCommand.setGeoPosY(expedient.getGeoPosY());
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
-		PersonaDto personaIniciador = pluginService.findPersonaAmbCodi(expedient.getIniciadorCodi());
-		expedientEditarCommand.setIniciadorCodi(personaIniciador.getCodi());
+		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
 		PersonaDto personaResponsable = pluginService.findPersonaAmbCodi(expedient.getResponsableCodi());
 		expedient.setResponsablePersona(personaResponsable);
 		expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());

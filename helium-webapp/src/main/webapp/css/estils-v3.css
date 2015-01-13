@@ -47,6 +47,10 @@
 	margin-top: 10px;
 	margin-bottom: 0px;
 }
+.container-main .panel-heading h2 {
+	margin-top: 4px;
+	margin-bottom: 0px;
+}
 
 .caret-white {
 	border-top-color: white !important;
@@ -100,4 +104,24 @@ p.help-block {
 }
 .modal-footer .outcomes {
 	margin-left: 5px;
+}
+
+.dropdown-menu > li.nav-header {
+    clear: both;
+    color: #999999;
+    display: block;
+    font-weight: bolder;
+    line-height: 1.42857;
+    padding: 3px 20px;
+    white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.btn-file {
+	background-color: #eee;
+    color: #555;
+    font-size: 14px;
+    padding: 6px 12px;
+    text-align: center;
 }

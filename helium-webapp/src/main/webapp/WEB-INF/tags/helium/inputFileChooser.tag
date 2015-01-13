@@ -11,6 +11,7 @@
 <%@ attribute name="ocultarDocuments" required="false" rtexprvalue="true"%>
 <%@ attribute name="contenidorOrigen" required="true" rtexprvalue="true" type="java.lang.Object"%>
 <c:set var="campPath" value="${name}"/>
+<c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:choose>
 	<c:when test="${not empty contenidorOrigen.escriptoriPare}"><c:set var="contenidorBaseId" value="${contenidorOrigen.escriptoriPare.id}"/></c:when>
@@ -22,13 +23,12 @@
 </c:choose>
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-	<label class="control-label col-xs-4" for="${campPath}">
+	<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">
 		<c:choose>
 			<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 			<c:when test="${not empty text}">${text}</c:when>
 			<c:otherwise>${campPath}</c:otherwise>
 		</c:choose>
-		<c:if test="${required}">*</c:if>
 	</label>
 	<div class="controls col-xs-8">
 		<div id="file-chooser-${campPath}-input" class="input-group">

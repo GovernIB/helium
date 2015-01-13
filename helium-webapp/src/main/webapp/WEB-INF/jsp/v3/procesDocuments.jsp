@@ -31,7 +31,6 @@ div.procesDocument:hover {
 }
 .btnNouDocument {
 	text-align:right;
-	padding-right: 15px;
 }
 #dataTables_new {padding-top: 5px;padding-bottom: 10px;}
 </style>

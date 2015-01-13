@@ -31,7 +31,7 @@
 							<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 						</c:if>
 						<c:if test="${tasca.oberta}">
-							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>">PD</span>
+							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>"></span>
 						</c:if>
 						<c:if test="${tasca.completed}">
 							<span class="label label-success" title="<spring:message code="enum.tasca.etiqueta.FI"/>">FI</span>
@@ -54,8 +54,8 @@
 									<span class="fa fa-cog"></span>&nbsp;<spring:message code="tasca.llistat.accio.tramitar"/>&nbsp;<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
-									<li><a class="consultar-tasca" data-rdt-link-modal="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></li>
 									<li><a id="btnTramitacio" class="consultar-tasca" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></li>
+									<li><a class="consultar-tasca" data-rdt-link-modal="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></li>
 								</ul>
 							</div>
 						</c:when>

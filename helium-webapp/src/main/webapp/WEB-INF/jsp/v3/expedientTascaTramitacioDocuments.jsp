@@ -69,12 +69,12 @@
 				<div class="form-group">
 					<div class="col-xs-11 arxiu">
 			            <div id="amagarFile${document.id}" class="input-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
+			                <input id="contingut${document.id}" name="contingut" readonly="readonly" class="form-control" />
 			                <span class="input-group-btn">
-			                    <span class="btn btn-primary btn-file">
-			                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
-			                    </span>
+			                    <span class="btn btn-default btn-file">
+			                         <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
+			                 	</span>
 			                </span>
-			               <input id="contingut${document.id}" name="contingut" readonly="readonly" class="form-control" />
 			            </div>
 					</div>
 				</div>
