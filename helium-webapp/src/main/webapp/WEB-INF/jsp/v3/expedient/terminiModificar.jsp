@@ -12,7 +12,7 @@
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>

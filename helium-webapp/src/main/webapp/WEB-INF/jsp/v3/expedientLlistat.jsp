@@ -11,25 +11,23 @@
 	<meta name="capsaleraTipus" content="llistat"/>
 	<meta name="title" content="<spring:message code='expedient.llistat.titol'/>"/>	
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
+
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
-	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	
-	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
 	<link href="<c:url value="/css/autocomplete.css"/>" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
-	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 	<style type="text/css">
 		#consultaTipo {padding-bottom: 20px;padding-right: 15px;}
 		.btn-mini {padding: 0 6px;}
@@ -131,50 +129,6 @@ $(document).ready(function() {
 
 	$('#expedientTipusId').trigger('change');
 });
-
-$(function() {
-	$( "#dialog-error" ).dialog({
-		autoOpen: false,
-		height: 120,
-		width: 1000,
-		modal: true,
-		resizable: true,
-		eventType: 'click',
-		loader: 1,
-		loaderHeight: 50,
-		loaderWidth: 100,
-		eventType:'click', 
-		overlayOpacity: 10,							
-		windowPadding: 10,
-		draggable: 1
-	});
-});
-
-function alertaErrorUser(e, desc) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-	
-	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
-	$("#dialog-error").html(text);
-	$("#dialog-error").data('title.dialog', desc); 
-	$("#dialog-error").dialog( "open" );
-	if (e.stopPropagation) e.stopPropagation();
-
-	return false;
-}
-function alertaErrorAdmin(e, id, desc, full) {
-	var e = e || window.event;
-	e.cancelBubble = true;
-
-	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
-	$("#dialog-error").html(text+"<br/><br/>"+full);
-	$("#processInstanceId").val(id);
-	$("#dialog-error").data('title.dialog', desc); 
-	$("#dialog-error").dialog( "open" );
-	if (e.stopPropagation) e.stopPropagation();
-
-	return false;
-}
 </script>
 </head>
 <body>

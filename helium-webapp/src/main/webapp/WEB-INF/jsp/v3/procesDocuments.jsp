@@ -54,7 +54,7 @@ div.procesDocument:hover {
 					</div>
 				</div>
 				<div class="panel panel-default">
-					<div id="${proces.id}-titol" class="panel-heading clicable procesDocument" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_${dadesProces.key}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
+					<div id="${proces.id}-titol-documents" class="panel-heading clicable procesDocument" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_documents" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 						<c:choose>
 							<c:when test="${proces.id == inicialProcesInstanceId}">
 								<spring:message code='common.tabsexp.proc_princip'/>

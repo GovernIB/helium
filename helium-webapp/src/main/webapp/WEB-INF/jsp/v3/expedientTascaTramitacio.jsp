@@ -12,12 +12,12 @@
 <head>
 	<title>${tasca.titol}</title>
 	<hel:modalHead/>
-	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js//jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.modal.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>

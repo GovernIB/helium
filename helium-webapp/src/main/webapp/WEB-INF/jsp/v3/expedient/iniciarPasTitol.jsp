@@ -19,12 +19,12 @@
 		.fila_reducida {margin-left: 0px;margin-right: 0px;padding-left: 0px;padding-right: 0px;}
 		#s2id_any {width: 100% !important;}
 	</style>
-	<script type="text/javascript" src="<c:url value="/js/jquery.keyfilter.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js//jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>

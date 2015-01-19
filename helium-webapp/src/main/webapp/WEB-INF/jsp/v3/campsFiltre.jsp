@@ -143,9 +143,9 @@
 			</c:when>			
 			<c:when test="${campActual.campTipus == 'SUGGEST'}">
 				<div class="form-group">
-					<c:set var="urlConsultaInicial" value="../../v3/domini/consulta/inicial/${campActual.campId}"/>
-					<c:set var="urlConsultaLlistat" value="../../v3/domini/consulta/${campActual.campId}"/>
-					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" textKey="expedient.editar.responsable"/>
+					<c:set var="urlConsultaInicial" value="../../domini/consulta/inicial/${campActual.campId}"/>
+					<c:set var="urlConsultaLlistat" value="../../domini/consulta/${campActual.campId}"/>
+					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" placeholder="${campActual.campEtiqueta}" text="${campActual.campEtiqueta}"/>
 				</div>
 			</c:when>
 			<c:otherwise>

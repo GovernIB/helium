@@ -34,16 +34,16 @@ div.proces:hover {
  	padding-bottom: 5px; 
 }
 .btnNovaDada {
-	padding-right: 15px;
+/* 	padding-right: 15px; */
 	padding-bottom: 10px;
 }
-.left {
+#contingut-dades .left {
 	float: left;
 }
-.right {
+#contingut-dades .right {
 	float: right;
 }
-.clear{
+#contingut-dades .clear{
 	clear: both;
 }
 </style>

@@ -4,10 +4,8 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
-
-<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 <style type="text/css">
-	.registre_a_retrocedir {background-color: #eeeeee;}
+	.registre_a_retrocedir {background: #ffffcc;}
 </style>
 <script type="text/javascript">
 // <![CDATA[
@@ -171,31 +169,7 @@
 											<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ESBORRAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
 											<c:when test="${log.accioTipus == 'PROCES_DOCUMENT_ADJUNTAR'}"><spring:message code="expedient.log.info.document"/>: ${log.accioParams}</c:when>
 											<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}">
-												<a href="#scriptForm_${log.id}" class="scriptLink_${log.id}"><i class="fa fa-search"></i></a>
-												<script type="text/javascript">
-													$('.scriptLink_${log.id}').openDOMWindow({
-														eventType: 'click',
-														width: 620,
-														height: 260,
-														loader: 1,
-														loaderHeight: 50,
-														loaderWidth: 100,
-														eventType:'click', 
-														overlayOpacity: 10,							
-														windowPadding: 10,
-														draggable: 1});
-													$('.closeDOMWindow').closeDOMWindow({
-														eventType:'click'
-													});
-												</script>
-												<div id="scriptForm_${log.id}" style="display:none" class="ui-dialog-content ui-widget-content">
-													<h3 class="titol-tab titol-script">	
-														<spring:message code="expedient.log.accio.${log.accioTipus}"/>
-													</h3>
-													<p>
-														${log.accioParams}
-													</p>
-												</div>
+												<a data-rdt-link-modal="true" href="../../v3/expedient/scriptForm/${log.id}" class="a-modal-registre scriptLink_${log.id}"><i class="fa fa-search"></i></a>
 											</c:when>
 											<c:when test="${log.accioTipus == 'TASCA_REASSIGNAR'}"><spring:message code="expedient.log.info.abans"/>: ${fn:split(log.accioParams, "::")[0]}, <spring:message code="expedient.log.info.despres"/>: ${fn:split(log.accioParams, "::")[1]}</c:when>
 											<c:when test="${log.accioTipus == 'TASCA_ACCIO_EXECUTAR'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>

@@ -16,11 +16,9 @@
 		<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 		<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 		<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
-		
-		<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script> 
+	
 		<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-		<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
-		<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 		<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 		<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 		<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
