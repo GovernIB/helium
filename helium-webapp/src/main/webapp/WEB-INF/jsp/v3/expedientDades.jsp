@@ -29,15 +29,51 @@ div.proces:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
+.ocults {
+	margin-top: 10px;
+ 	padding-bottom: 5px; 
+}
+.btnNovaDada {
+	padding-right: 15px;
+	padding-bottom: 10px;
+}
+.left {
+	float: left;
+}
+.right {
+	float: right;
+}
+.clear{
+	clear: both;
+}
 </style>
 
 <c:set var="numColumnes" value="${3}"/>
 <c:choose>
 	<c:when test="${not empty dades}">
+		<c:if test="${isAdmin}">
+			<div class="left ocults">
+				<label class="control-label" for="ambOcults">
+ 					<spring:message code="expedient.dada.ocults"/>
+					<input type="checkbox" <c:if test="${ambOcults}">checked="checked"</c:if> class="span12" id="ambOcults"/>
+				</label>
+			</div>
+		</c:if>
 		<c:set var="procesFirst" value="${true}"/>
 		<c:forEach items="${dades}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
+			<div class="btnNovaDada right">
+				<a 	class="icon btn btn-default" 
+					href="../../v3/expedient/${expedientId}/novaDada?processInstanceId=${proces.id}" 
+					data-rdt-link-modal="true" 
+					data-rdt-link-callback="recargarPanel(${proces.id});"
+					data-rdt-link-modal-min-height="170">
+					<span class="fa fa-plus"></span>
+					<spring:message code="expedient.boto.nova_dada"/>
+				</a>
+			</div>
+			<div class="clear"></div>
 			<div class="panel panel-default">
 				<div id="${proces.id}-titol" class="panel-heading clicable proces" data-toggle="collapse" data-target="#panel_${proces.id}" data-id="${proces.id}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 					<c:choose>
@@ -46,6 +82,7 @@ div.proces:hover {
 						</c:when>
 						<c:otherwise>${proces.titol}</c:otherwise>
 					</c:choose>
+					<span class="badge general"></span>
 					<div class="pull-right">
 						<c:choose>
 							<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
@@ -73,6 +110,7 @@ div.proces:hover {
 	<%-- 													<c:param name="condicioValor" value="${agrupacio.id}"/> --%>
 										<c:param name="desplegat" value="${agrupacioFirst}"/>
 										<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
+										<c:param name="procesId" value="${proces.id}"/>
 									</c:import>
 								</c:when>
 								<c:otherwise>
@@ -85,6 +123,7 @@ div.proces:hover {
 	<%-- 													<c:param name="condicioEmpty" value="${true}"/> --%>
 										<c:param name="desplegat" value="${true}"/>
 										<c:param name="mostrarCapsalera" value="${false}"/>
+										<c:param name="procesId" value="${proces.id}"/>
 									</c:import>
 								</c:otherwise>
 							</c:choose>
@@ -93,8 +132,10 @@ div.proces:hover {
 					</c:forEach>
 				</c:when>
 				<c:otherwise>
-					<div class="contingut-carregant-proces"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-<%-- 					<div class="well well-small"><spring:message code='expedient.dada.proces.cap' /></div> --%>
+					<c:choose>
+						<c:when test='${procesFirst}'><div id="noData" class="well well-small"><spring:message code='expedient.dada.proces.cap' /></div></c:when>
+						<c:otherwise><div class="contingut-carregant-proces"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div></c:otherwise>
+					</c:choose>
 				</c:otherwise>
 				</c:choose>
 				</div>
@@ -113,14 +154,47 @@ $(document).ready(function() {
 		icona.toggleClass('fa-chevron-down');
 		icona.toggleClass('fa-chevron-up');
 		if ($(this).data('carrega') == "ajax") {
-			$('#contingut-carregant').show();
+			$(this).data('carrega', "")
 			var id = $(this).data('id');
 			var panell = $('#panel_' + id);
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + id);
-// 					function() {
-// 						$('#contingut-carregant').hide();
-// 					});
+			var ambOcults = "";
+			if ($("#ambOcults").length)
+				ambOcults = $("#ambOcults").prop('checked');
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + id, {"ambOcults": ambOcults}, updateBadges);
 		}
 	});
+
+ 	if ($("#ambOcults").length) {
+ 		$("#ambOcults").change(function(){
+ 			$("#contingut-dades").data("loaded", false);
+ 			$("#pipella-dades a").trigger('shown.bs.tab');
+ 	 	});
+ 	}
+
+ 	updateBadges();
+
+ 	$('.var-delete').heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false,
+		ajaxRefrescarAlertes: true,
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+	});
+	$('.var-edit').heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false,
+		ajaxRefrescarAlertes: true,
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+	});
+	$('.icon').heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false
+	});
 });
+
+function updateBadges() {
+	$(".badge-nombre").each(function(){
+		var nombre = $(this).data("nombre");
+		$(this).closest(".panel-body").prev(".clicable").find(".badge.general").html(nombre);
+	});
+}
 </script>

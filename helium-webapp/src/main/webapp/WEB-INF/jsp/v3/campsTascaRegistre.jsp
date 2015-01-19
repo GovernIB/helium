@@ -27,6 +27,7 @@
 	
 		<%-- CAPÇALERA TAULA ------------------------------------------------------------------------------------------%>
 		<table id="table_mult_${varStatusMain.index}" class="table table-bordered table-condensed">
+			<thead>
 			<tr>
 				<c:forEach var="membre" items="${registreCap}" varStatus="varStatusCab">
 					<th <c:if test="${membre.required}"> data-required="true"</c:if>>
@@ -40,7 +41,7 @@
 					<th class="colEliminarFila"></th>
 				</c:if>
 			</tr>				
-						
+			</thead>	
 			<%-- TAULA MÚLTIPLE -------------------------------------------------------------------------------------------%>
 			<c:if test="${dadaActual.campMultiple}">
 				<%-- Comprovam si la taula és buida --> Només té una fila amb tots els camps buids --%>
@@ -53,6 +54,7 @@
 				</c:if>
 				
 				<c:set var="mida" value="${fn:length(command[dadaActual.varCodi])}"/>
+				<tbody>
 				<c:forEach var="i" begin="1" end="${mida}">
 					<tr class="multiple">
 						<c:forEach var="membre" items="${registreCap}" varStatus="status">
@@ -79,6 +81,7 @@
 						</c:if>
 					</tr>
 				</c:forEach>
+				</tbody>
 			</c:if>
 			
 			<%-- TAULA SIMPLE -------------------------------------------------------------------------------------------%>

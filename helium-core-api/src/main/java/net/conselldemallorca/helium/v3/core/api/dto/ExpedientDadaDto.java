@@ -3,8 +3,11 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Arrays;
 
 
 /**
@@ -20,12 +23,10 @@ public class ExpedientDadaDto {
 	private Long campId;
 	private CampTipusDto campTipus;
 	private String campEtiqueta;
-	private boolean campOcult;
 	private boolean campMultiple;
+	private boolean campOcult;
 	private String jbpmAction;
 	private String observacions;
-
-	private Long agrupacioId;
 
 	private String text;
 	private List<ExpedientDadaDto> multipleDades;
@@ -33,6 +34,8 @@ public class ExpedientDadaDto {
 	private List<ValidacioDto> validacions;
 
 	private String error;
+	
+	private Long agrupacioId;
 
 	public String getObservacions() {
 		return observacions;
@@ -133,8 +136,26 @@ public class ExpedientDadaDto {
 	}
 
 	public List<ExpedientDadaDto> getDadesRegistrePerTaula() {
-		if (isCampMultiple())
-			return getMultipleDades();
+		if (isCampMultiple()) {
+			if (getMultipleDades().size() == 0) {
+				List<ExpedientDadaDto> filaBuida = new ArrayList<ExpedientDadaDto>();
+				ExpedientDadaDto dada = new ExpedientDadaDto();
+				dada.setCampId(campId);
+				dada.setVarCodi(varCodi);
+				dada.setVarValor(varValor);
+				dada.setCampId(campId);
+				dada.setCampTipus(campTipus);
+				dada.setCampEtiqueta(campEtiqueta);
+				dada.setCampOcult(campOcult);
+				dada.setCampMultiple(campMultiple);
+				dada.setAgrupacioId(agrupacioId);
+				dada.setRegistreDades(registreDades);
+				filaBuida.add(dada);
+				return filaBuida;
+			} else 
+				return getMultipleDades();
+		}
+		
 		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
 		ExpedientDadaDto dada = new ExpedientDadaDto();
 		dada.setCampId(campId);
@@ -157,5 +178,45 @@ public class ExpedientDadaDto {
 	public boolean isCampTipusRegistre() {
 		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
-
+	
+	public String getTextMultiple() {
+		if (isCampMultiple()) {
+			String[] textos = new String[multipleDades.size()];
+			int i = 0;
+			for (ExpedientDadaDto dada: multipleDades)
+				textos[i++] = dada.getText();
+			return Arrays.toString(textos);
+			//return Arrays.toString(getMultipleValor());
+		} else {
+			return text;
+		}
+	}
+	
+	public  Class<?> getJavaClass() {
+		if (CampTipusDto.STRING.equals(campTipus)) {
+			return String.class;
+		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
+			return Long.class;
+		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
+			return Double.class;
+		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {
+			return Boolean.class;
+		} else if (CampTipusDto.TEXTAREA.equals(campTipus)) {
+			return String.class;
+		} else if (CampTipusDto.DATE.equals(campTipus)) {
+			return Date.class;
+		} else if (CampTipusDto.PRICE.equals(campTipus)) {
+			return BigDecimal.class;
+		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
+			return TerminiDto.class;
+		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
+			return Object[].class;
+		} else {
+			return String.class;
+		}
+	}
+	
+	public boolean isRequired() {
+		return false;
+	}
 }

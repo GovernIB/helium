@@ -20,6 +20,10 @@ public abstract class ControlPermisosDto implements Serializable {
 	protected boolean permisSupervision;
 	protected boolean permisReassignment;
 
+	protected boolean permisDesign;
+	protected boolean permisOrganization;
+	protected boolean permisManage;
+	protected boolean permisAdministration;
 
 
 	public boolean isPermisCreate() {
@@ -57,6 +61,30 @@ public abstract class ControlPermisosDto implements Serializable {
 	}
 	public void setPermisReassignment(boolean permisReassignment) {
 		this.permisReassignment = permisReassignment;
+	}
+	public boolean isPermisDesign() {
+		return permisDesign;
+	}
+	public void setPermisDesign(boolean permisDesign) {
+		this.permisDesign = permisDesign;
+	}
+	public boolean isPermisOrganization() {
+		return permisOrganization;
+	}
+	public void setPermisOrganization(boolean permisOrganization) {
+		this.permisOrganization = permisOrganization;
+	}
+	public boolean isPermisManage() {
+		return permisManage;
+	}
+	public void setPermisManage(boolean permisManage) {
+		this.permisManage = permisManage;
+	}
+	public boolean isPermisAdministration() {
+		return permisAdministration;
+	}
+	public void setPermisAdministration(boolean permisAdministration) {
+		this.permisAdministration = permisAdministration;
 	}
 
 	private static final long serialVersionUID = 4183337699114324409L;

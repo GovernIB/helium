@@ -6,16 +6,22 @@ package net.conselldemallorca.helium.core.model.service;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 
+import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
@@ -38,6 +44,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PermisosHelper {
 
+	@Resource
+	private LookupStrategy lookupStrategy;
 	@Resource
 	private MutableAclService aclService;
 
@@ -216,6 +224,44 @@ public class PermisosHelper {
 		}
 		return result;
 	}
+	
+	public List<PermisDto> findPermisos(
+			Long objectIdentifier,
+			Class<?> objectClass) {
+		Acl acl = null;
+		try {
+			ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectIdentifier);
+			acl = aclService.readAclById(oid);
+		} catch (NotFoundException nfex) {
+			return new ArrayList<PermisDto>();
+		}
+		return findPermisosPerAcl(acl);
+	}
+	public Map<Long, List<PermisDto>> findPermisos(
+			List<Long> objectIdentifiers,
+			Class<?> objectClass) {
+		try {
+			Map<Long, List<PermisDto>> resposta = new HashMap<Long, List<PermisDto>>();
+			List<ObjectIdentity> oids = new ArrayList<ObjectIdentity>();
+			for (Long objectIdentifier: objectIdentifiers) {
+				ObjectIdentity oid = new ObjectIdentityImpl(
+						objectClass,
+						objectIdentifier);
+				oids.add(oid);
+			}
+			if (!oids.isEmpty()) {
+				Map<ObjectIdentity, Acl> acls = lookupStrategy.readAclsById(oids, null);
+				for (ObjectIdentity oid: acls.keySet()) {
+					resposta.put(
+							(Long)oid.getIdentifier(),
+							findPermisosPerAcl(acls.get(oid)));
+				}
+			}
+			return resposta;
+		} catch (NotFoundException nfex) {
+			return new HashMap<Long, List<PermisDto>>();
+		}
+	}
 
 	private void assignarPermisos(
 			Sid sid,
@@ -320,6 +366,53 @@ public class PermisosHelper {
 			return propertyMapeig;
 		else
 			return rol;
+	}
+	
+	private List<PermisDto> findPermisosPerAcl(Acl acl) {
+		List<PermisDto> resposta = new ArrayList<PermisDto>();
+		if (acl != null) {
+			Map<String, PermisDto> permisosUsuari = new HashMap<String, PermisDto>();
+			Map<String, PermisDto> permisosRol = new HashMap<String, PermisDto>();
+			for (AccessControlEntry ace: acl.getEntries()) {
+				PermisDto permis = null;
+				if (ace.getSid() instanceof PrincipalSid) {
+					String principal = ((PrincipalSid)ace.getSid()).getPrincipal();
+					permis = permisosUsuari.get(principal);
+					if (permis == null) {
+						permis = new PermisDto();
+						permis.setId((Long)ace.getId());
+						permis.setPrincipalNom(principal);
+						permis.setPrincipalTipus(PrincipalTipusEnumDto.USUARI);
+						permisosUsuari.put(principal, permis);
+					}
+				} else if (ace.getSid() instanceof GrantedAuthoritySid) {
+					String grantedAuthority = ((GrantedAuthoritySid)ace.getSid()).getGrantedAuthority();
+					permis = permisosUsuari.get(grantedAuthority);
+					if (permis == null) {
+						permis = new PermisDto();
+						permis.setId((Long)ace.getId());
+						permis.setPrincipalNom(grantedAuthority);
+						permis.setPrincipalTipus(PrincipalTipusEnumDto.ROL);
+						permisosRol.put(grantedAuthority, permis);
+					}
+				}
+				if (permis != null) {
+					if (BasePermission.READ.equals(ace.getPermission()))
+						permis.setRead(true);
+					if (BasePermission.WRITE.equals(ace.getPermission()))
+						permis.setWrite(true);
+					if (BasePermission.CREATE.equals(ace.getPermission()))
+						permis.setCreate(true);
+					if (BasePermission.DELETE.equals(ace.getPermission()))
+						permis.setDelete(true);
+					if (BasePermission.ADMINISTRATION.equals(ace.getPermission()))
+						permis.setAdministration(true);
+				}
+			}
+			resposta.addAll(permisosUsuari.values());
+			resposta.addAll(permisosRol.values());
+		}
+		return resposta;
 	}
 
 

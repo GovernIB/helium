@@ -60,6 +60,12 @@
 	margin-top: 4em;
 	text-align: center;
 }
+.edita {
+	color: #428bca
+}
+.edita:hover {
+	color: #3071a9
+}
 .formRelacioDelete {float: right;}
 </style>
 <script>
@@ -69,31 +75,64 @@
 			e.relatedTarget // previous tab
 			var targetHref = $(e.target).attr('href');
 			var loaded = $(targetHref).data('loaded')
+			var pdades = e.target.href.indexOf("#contingut-dades") != -1;
 			if (!loaded) {
-				$(targetHref).load(
-					$(targetHref).data('href'),
-					function (responseText, textStatus, jqXHR) {
-						if (textStatus == 'error') {
-							if (jqXHR.status === 0) {
-				                alert('Not connected.\n Verify network.');
-				            } else if (jqXHR.status == 404) {
-				                alert('Requested page not found [404].');
-				            } else if (jqXHR.status == 500) {
-				                alert('Internal server error [500].');
-				            } else if (exception === 'parsererror') {
-				                alert('Requested JSON parse failed.');
-				            } else if (exception === 'timeout') {
-				                alert('Timeout error.');
-				            } else if (exception === 'abort') {
-				                alert('Ajax request aborted.');
-				            } else {
-				                alert('Unknown error:\n' + jqXHR.responseText);
-				            }
-						} else {
-							$(this).data('loaded', 'true');
+				if (pdades) {
+					var ambOcults = "";
+					if ($("#ambOcults").length)
+						ambOcults = $("#ambOcults").prop('checked');
+					$(targetHref).load(
+							$(targetHref).data('href'),
+							{"ambOcults": ambOcults},
+							function (responseText, textStatus, jqXHR) {
+								if (textStatus == 'error') {
+									alertaError(jqXHR);
+									if (jqXHR.status === 0) {
+						                alert('Not connected.\n Verify network.');
+						            } else if (jqXHR.status == 404) {
+						                alert('Requested page not found [404].');
+						            } else if (jqXHR.status == 500) {
+						                alert('Internal server error [500].');
+// 						            } else if (exception === 'parsererror') {
+// 						                alert('Requested JSON parse failed.');
+// 						            } else if (exception === 'timeout') {
+// 						                alert('Timeout error.');
+// 						            } else if (exception === 'abort') {
+// 						                alert('Ajax request aborted.');
+						            } else {
+						                alert('Unknown error:\n' + jqXHR.responseText);
+						            }
+								} else {
+									$(this).data('loaded', 'true');
+								}
+							}
+						);
+				} else {
+					$(targetHref).load(
+						$(targetHref).data('href'),
+						function (responseText, textStatus, jqXHR) {
+							if (textStatus == 'error') {
+								if (jqXHR.status === 0) {
+					                alert('Not connected.\n Verify network.');
+					            } else if (jqXHR.status == 404) {
+					                alert('Requested page not found [404].');
+					            } else if (jqXHR.status == 500) {
+					                alert('Internal server error [500].');
+					            } else if (exception === 'parsererror') {
+					                alert('Requested JSON parse failed.');
+					            } else if (exception === 'timeout') {
+					                alert('Timeout error.');
+					            } else if (exception === 'abort') {
+					                alert('Ajax request aborted.');
+					            } else {
+					                alert('Unknown error:\n' + jqXHR.responseText);
+					            }
+							} else {
+								$(this).data('loaded', 'true');
+							}
 						}
-					}
-				);
+					);
+				}
 			}
 		})
 		<c:choose>
@@ -126,15 +165,45 @@
 			}
 		});
 
-		function confirmarEsborrarRelacio(e, idExpedient) {
-			var e = e || window.event;
-			e.cancelBubble = true;
-			if (e.stopPropagation) e.stopPropagation();
-			if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
-				$('#' + idExpedient + '_formRelacioDelete').submit();
-			}
-		}
 	});
+
+	function alertaError(textStatus, jqXHR) {
+		if (textStatus == 'error') {
+			if (jqXHR.status === 0) {
+                alert('Not connected.\n Verify network.');
+            } else if (jqXHR.status == 404) {
+                alert('Requested page not found [404].');
+            } else if (jqXHR.status == 500) {
+                alert('Internal server error [500].');
+            } else if (exception === 'parsererror') {
+                alert('Requested JSON parse failed.');
+            } else if (exception === 'timeout') {
+                alert('Timeout error.');
+            } else if (exception === 'abort') {
+                alert('Ajax request aborted.');
+            } else {
+                alert('Unknown error:\n' + jqXHR.responseText);
+            }
+		}
+	}
+		
+	function confirmarEsborrarRelacio(e, idExpedient) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
+			$('#' + idExpedient + '_formRelacioDelete').submit();
+		}
+	}
+	function confirmarBuidarLogExpedient(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("<fmt:message key='expedient.accio.buidarlog.confirmacio' />");
+// 		if (confirm("<fmt:message key='expedient.accio.buidarlog.confirmacio' />")) {
+// 			document.getElementById("buidarlogForm").submit();
+// 		}
+	}
 </script>
 </head>
 <body>
@@ -171,7 +240,7 @@
 					<dd>	
 						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
-						<span class="fa fa-pencil" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span>
+						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if>
 						<%-- 				
 						<div id="imgDefinicioProcesJbpm" class="hide">
 							<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
@@ -209,7 +278,7 @@
 									<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
 										<input type="hidden" id="expedientIdOrigen" name="expedientIdOrigen" value="${expedientId}"/>
 										<input type="hidden" id="expedientIdDesti" name="expedientIdDesti" value="${expedientRelacionat.id}"/>
-										<span class="fa fa-trash-o" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span>
+										<c:if test="${expedient.permisWrite}"><span class="fa fa-trash-o edita" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span></c:if>
 									</form>
 <%-- 								</security:accesscontrollist> --%>
 							</li>
@@ -224,6 +293,7 @@
 						</c:forEach>
 					</ul>
 				</c:if>
+				<c:if test="${expedient.permisWrite}">
 				<div id="expedient-info-accio" class="dropdown">
 					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></a>
 					<ul class="dropdown-menu">
@@ -232,6 +302,9 @@
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
+						<c:if test="${expedient.permisAdministration}">
+							<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
+						</c:if>
 						<c:if test="${not empty accions}">
 							<li class="divider"></li>
 							<c:forEach var="accio" items="${accions}">
@@ -240,6 +313,7 @@
 						</c:if>
 					</ul>
 				</div>
+				</c:if>
 			</div>
 		</div>
 		<div id="expedient-pipelles" class="col-md-9">

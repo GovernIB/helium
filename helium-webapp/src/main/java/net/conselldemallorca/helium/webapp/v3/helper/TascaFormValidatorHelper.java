@@ -45,38 +45,38 @@ public class TascaFormValidatorHelper implements Validator {
 	private TascaService tascaService;
 	@Resource(name = "expedientServiceV3")
 	private ExpedientService expedientService;
-//	private Map<String, Object> valorsRegistre;
 	private HttpServletRequest request;
 	boolean inicial;
 	boolean validarObligatoris;
+	boolean validarExpresions;
 
 	public TascaFormValidatorHelper(TascaService tascaService) {
 		this.tascaService = tascaService;
 		this.inicial = false;
 		this.validarObligatoris = true;
+		this.validarExpresions = true;
 	}
 
 	public TascaFormValidatorHelper(TascaService tascaService, boolean validarObligatoris) {
 		this.tascaService = tascaService;
 		this.inicial = false;
+		// Si validam els obligatoris també validarem les expresions
 		this.validarObligatoris = validarObligatoris;
+		this.validarExpresions = validarObligatoris;
 	}
 
 	public TascaFormValidatorHelper(ExpedientService expedientService) {
 		this.expedientService = expedientService;
 		this.inicial = true;
-		this.validarObligatoris = true;
+		this.validarObligatoris = false;
+		this.validarExpresions = true;
 	}
-
-//	public TascaFormValidatorHelper(ExpedientService expedientService, Map<String, Object> valorsRegistre) {
-//		this.expedientService = expedientService;
-//		this.valorsRegistre = valorsRegistre;
-//		this.validarObligatoris = true;
-//		this.inicial = true;
-//	}
 
 	public void setValidarObligatoris(boolean validarObligatoris) {
 		this.validarObligatoris = validarObligatoris;
+	}
+	public void setValidarExpresions(boolean validarExpresions) {
+		this.validarExpresions = validarExpresions;
 	}
 	public void setRequest(HttpServletRequest request) {
 		this.request = request;
@@ -165,8 +165,7 @@ public class TascaFormValidatorHelper implements Validator {
 				}
 				comprovaCamp(camp, command, errors);
 			}
-			// Si hem de validar el obligatoris, també validarem les expresions
-			if (validarObligatoris) {
+			if (validarExpresions) {
 				getValidatorExpresions(tascas, command).validate(command, errors);
 			}
 			if (request != null) {
@@ -268,6 +267,23 @@ public class TascaFormValidatorHelper implements Validator {
 	public void setTasca(List<TascaDadaDto> tasca) {
 		tascaThreadLocal.set(tasca);
 	}
+	
+//	public void setExpedient(List<ExpedientDadaDto> expedient) {
+//		List<TascaDadaDto> tasca = new ArrayList<TascaDadaDto>();
+//		for (ExpedientDadaDto expdada: expedient) {
+//			TascaDadaDto tascaDada = new TascaDadaDto();
+//			tascaDada.setCampTipus(expdada.getCampTipus());
+//			tascaDada.setCampMultiple(expdada.isCampMultiple());
+//			tascaDada.setVarCodi(expdada.getVarCodi());
+//			tascaDada.setCampId(expdada.getCampId());
+//			tascaDada.setText(expdada.getText());
+//			tascaDada.setCampEtiqueta(expdada.getCampEtiqueta());
+//			tascaDada.setRequired(false);
+//			tascaDada.setValidacions(expdada.getValidacions());
+//			tasca.add(tascaDada);
+//		}
+//		tascaThreadLocal.set(tasca);
+//	}
 
 	@SuppressWarnings("unchecked")
 	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {

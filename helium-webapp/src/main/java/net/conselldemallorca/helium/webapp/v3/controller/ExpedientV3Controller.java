@@ -160,6 +160,25 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	        	
 		return JSONValue.toJSONString(nom);
 	}
+	
+	@RequestMapping(value = "/{expedientId}/buidalog", method = RequestMethod.GET)
+	public String buidaLog(
+			HttpServletRequest request,
+			@PathVariable Long expedientId) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			if (potAdministrarExpedient(expedient)) {
+				expedientService.buidarLogExpedient(expedient.getProcessInstanceId());
+				MissatgesHelper.info(request, getMessage(request, "info.expedient.buidatlog"));
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.buidarlog.expedient") + ": " + ex.getLocalizedMessage());
+		}
+		return "redirect:/v3/expedient/" + expedientId;
+	}
 
 	private ExpedientEditarCommand getCommandModificar(ExpedientDto expedient) {		
 		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();

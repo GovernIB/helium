@@ -3,29 +3,55 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.support.SessionStatus;
 
 /**
  * Controlador per a la pipella de dades de l'expedient.
@@ -38,11 +64,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-
-	@RequestMapping(value = "/{expedientId}/dada", method = RequestMethod.GET)
+	@Autowired
+	private TascaService tascaService;
+	
+	@Autowired
+	private VariableHelper variableHelper;
+	
+	@RequestMapping(value = "/{expedientId}/dada") //, method = RequestMethod.GET)
 	public String dades(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@RequestParam(value = "ambOcults", required = false) Boolean ambOcults,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
@@ -82,21 +114,218 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("arbreProcessos", arbreProcessos);
 		model.addAttribute("dades", dades);
+		boolean isAdmin = expedient.isPermisAdministration(); 
+		if (!isAdmin) 
+			ambOcults = false;
+		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
 		return "v3/expedientDades";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/dades/{procesId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/dades/{procesId}") //, method = RequestMethod.GET)
 	public String dadesProces(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
+			@RequestParam(value = "ambOcults", required = false) Boolean ambOcults,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		if (potConsultarExpedient(expedient)) {
-			model.addAttribute("dades", getDadesInstanciaProces(expedientId, procesId));
-		}
+		boolean isAdmin = expedient.isPermisAdministration(); 
+		if (!isAdmin) 
+			ambOcults = false;
+		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
+		model.addAttribute("dades", getDadesInstanciaProces(expedientId, procesId));
 		return "v3/procesDades";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/dades/{procesId}/delete/{varCodi}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean dadaBorrar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			Model model) {
+		try {
+			expedientService.deleteVariable(expedientId, procesId, varCodi);
+			MissatgesHelper.info(request, getMessage(request, "info.dada.proces.esborrada") );
+			return true;
+		} catch (NotAllowedException ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.borrar.error"));
+			logger.error("S'ha produit un error al intentar eliminar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
+		}
+		
+		return false;
+	}
+	
+	@ModelAttribute("modificarVariableCommand")
+	@SuppressWarnings("rawtypes")
+	public Object populateCommand(
+			HttpServletRequest request,
+			String procesId,
+			String varCodi,			
+			Model model) {
+		if (procesId != null && !"".equals(procesId) && varCodi != null && !"".equals(varCodi)) {
+			try {
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				
+//				CampDto camp = null;
+//				for (CampDto c : expedientService.getCampsInstanciaProcesById(procesId)){
+//					if (!CampTipusDto.ACCIO.equals(c.getTipus()) && varCodi.equals(c.getCodi())) {
+//						camp = c;
+//					}
+//				}
+				List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
+				TascaDadaDto tascaDada = variableHelper.getTascaDadaDtoFromExpedientDadaDto(
+						variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+				llistTasca.add(tascaDada);
+				model.addAttribute("procesId", procesId);
+				model.addAttribute("varCodi", varCodi);
+				model.addAttribute("dada", tascaDada);
+				return TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals, campsAddicionalsClasses, false);
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, ex.getMessage());
+				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
+			} 
+			//catch (Exception ignored) {}
+		}
+		return null;
+	}
+	
+	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/{varCodi}", method = RequestMethod.GET)
+	public String modificarVariablesGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			Model model) {
+		Object command = populateCommand(request, procesId, varCodi, model);
+		model.addAttribute("modificarVariableCommand", command);
+		return "v3/expedientDadaModificar";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/{varCodi}", method = RequestMethod.POST)
+	public String dadaEditar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+		try {
+			List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
+//			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
+			TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+			tascaDadas.add(tascaDada);
+			
+//			@SuppressWarnings("unchecked")
+//			Map<String, Object> llista =  PropertyUtils.describe(command);
+//			Object varValue = llista.get(varCodi);
+			
+			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+			Object varValue = variables.get(varCodi);
+			
+			//List<ExpedientDadaDto> expedientDadas = variableHelper.findDadesPerInstanciaProces(procesId);
+			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(expedientService);
+			validator.setTasca(tascaDadas);
+//			Map<String, Object> valors = new HashMap<String, Object>();
+//			valors.put(varCodi, varValue);
+			Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
+					variableHelper.findDadesPerInstanciaProces(procesId),
+					variables); 
+					
+			validator.validate(commandPerValidacio, result);
+			if (result.hasErrors()) {
+				
+				return "v3/expedientDadaModificar";
+			}
+//			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
+			expedientService.updateVariable(expedientId, procesId, varCodi, varValue);
+			MissatgesHelper.info(request, getMessage(request, "info.dada.proces.modificada") );
+		} catch (NotAllowedException ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));
+			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
+		}
+		
+		return modalUrlTancar(false);
+	}
+	
+	@ModelAttribute("listTerminis")
+	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (int i=0; i <= 12 ; i++)		
+			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+		return resposta;
+	}
+	
+//	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
+//	@ResponseBody
+//	public List<SeleccioOpcioDto> valorsSeleccio(
+//			HttpServletRequest request,
+//			@PathVariable Long campId,
+//			Model model) {
+//		return tascaService.findllistaValorsPerCampDesplegable(
+//				null,
+//				campId,
+//				null,
+//				new HashMap<String, Object>());
+//	}
+//
+//	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
+//	@ResponseBody
+//	public List<SeleccioOpcioDto> valorsSeleccio(
+//			HttpServletRequest request,
+//			@PathVariable Long campId,
+//			@PathVariable String valor,
+//			Model model) {
+//		return tascaService.findllistaValorsPerCampDesplegable(
+//				null,
+//				campId,
+//				valor,
+//				new HashMap<String, Object>());
+//	}
+//	
+//	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
+//	@ResponseBody
+//	public SeleccioOpcioDto valorsSeleccioInicial(
+//			HttpServletRequest request,
+//			@PathVariable String tascaId,
+//			@PathVariable Long campId,
+//			@PathVariable String valor,
+//			Model model) {
+//		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findllistaValorsPerCampDesplegable(
+//				null,
+//				campId,
+//				null,
+//				getMapDelsValors(valor));
+//		for (SeleccioOpcioDto sel : valorsSeleccio) {
+//			if (sel.getCodi().equals(valor)) {
+//				return sel;
+//			}
+//		}
+//		return new SeleccioOpcioDto();
+//	}
+//	
+//	private Map<String, Object> getMapDelsValors(String valors) {
+//		if (valors == null)
+//			return null;
+//		Map<String, Object> resposta = new HashMap<String, Object>();
+//		String[] parelles = valors.split(",");
+//		for (int i = 0; i < parelles.length; i++) {
+//			String[] parts = parelles[i].split(":");
+//			if (parts.length == 2)
+//				resposta.put(parts[0], parts[1]);
+//		}
+//		return resposta;
+//	}
 	
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(Long expedientId, String instaciaProcesId) {
 		
@@ -151,4 +380,36 @@ public class ExpedientDadaController extends BaseExpedientController {
 		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
 		return dadesProces;
 	}
+	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,##0.00"),
+						true));
+		binder.registerCustomEditor(
+				Boolean.class,
+//				new CustomBooleanEditor(false));
+				new CustomBooleanEditor(true));
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+//		binder.registerCustomEditor(
+//				TerminiDto.class,
+//				new TerminiTypeEditorHelper());
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
+	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);
+	
 }

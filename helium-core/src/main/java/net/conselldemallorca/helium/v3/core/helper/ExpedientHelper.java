@@ -343,6 +343,15 @@ public class ExpedientHelper {
 					ExtendedPermission.REASSIGNMENT,
 					ExtendedPermission.ADMINISTRATION},
 				auth);
+		List<Long> idsAmbPermisAdministration = new ArrayList<Long>();
+		idsAmbPermisAdministration.addAll(expedientTipusIds);
+		permisosHelper.filterGrantedAll(
+				idsAmbPermisAdministration,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION},
+				auth);
 		for (ExpedientDto expedient: expedients) {
 			Long tipusId = expedient.getTipus().getId();
 			expedient.setPermisCreate(
@@ -357,6 +366,8 @@ public class ExpedientHelper {
 					idsAmbPermisSupervision.contains(tipusId));
 			expedient.setPermisReassignment(
 					idsAmbPermisReassignment.contains(tipusId));
+			expedient.setPermisAdministration(
+					idsAmbPermisAdministration.contains(tipusId));
 		}
 	}
 	public void omplirPermisosExpedient(ExpedientDto expedient) {

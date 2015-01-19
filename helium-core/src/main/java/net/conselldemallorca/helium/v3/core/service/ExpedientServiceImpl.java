@@ -52,7 +52,9 @@ import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -509,7 +511,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				String.valueOf(expedientId));
 		return registreRepository.save(registre);
 	}	
-
 	private Registre crearRegistreTasca(
 			Long expedientId,
 			String tascaId,
@@ -522,6 +523,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 				accio,
 				Registre.Entitat.TASCA,
 				tascaId);
+		return registreRepository.save(registre);
+	}
+	private Registre crearRegistreInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			String responsableCodi,
+			Registre.Accio accio) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				accio,
+				Registre.Entitat.INSTANCIA_PROCES,
+				processInstanceId);
 		return registreRepository.save(registre);
 	}
 
@@ -804,7 +819,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		return expedientDto;
 	}
-
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
@@ -1405,13 +1420,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		if (processInstanceId == null) {
 			return variableHelper.findDadesPerInstanciaProces(
-					expedient.getProcessInstanceId());
+					expedient.getProcessInstanceId(), 
+					true);
 		} else {
 			expedientHelper.comprovarInstanciaProces(
 					expedient,
 					processInstanceId);
 			return variableHelper.findDadesPerInstanciaProces(
-					processInstanceId);
+					processInstanceId,
+					true);
 		}
 	}
 
@@ -2637,7 +2654,95 @@ public class ExpedientServiceImpl implements ExpedientService {
 			return new ArrayList<Object>();
 		}
 	}
-
+	
+	@Override
+	@Transactional
+	public void buidarLogExpedient(String processInstanceId) {
+		logger.debug("Buidant logs de l'expedient amb processInstance(id=" + processInstanceId + ")");
+		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
+	}
+	
+	@Override
+	@Transactional
+	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValue) {
+		@SuppressWarnings("unused")
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				varName);
+		Object valorVell = serviceUtils.getVariableJbpmProcesValor(processInstanceId, varName);
+		Object valorOptimitzat = optimitzarValorPerConsultesDomini(processInstanceId, varName, varValue);
+		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
+		
+		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		Registre registre = crearRegistreInstanciaProces(
+				expedientId,
+				processInstanceId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.MODIFICAR);
+		registre.setMissatge("Modificar variable '" + varName + "'");
+		if (valorVell != null)
+			registre.setValorVell(valorVell.toString());
+		if (varValue != null)
+			registre.setValorNou(varValue.toString());
+	}
+	
+	private Object optimitzarValorPerConsultesDomini(
+			String processInstanceId,
+			String varName,
+			Object varValue) {
+		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
+		Camp camp = campRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				varName);
+		if (camp != null && camp.isDominiCacheText()) {
+			if (varValue != null) {
+				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
+						camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					String text = variableHelper.getTextVariableSimple(
+							camp, 
+							varValue, 
+							null, 
+							null, 
+							processInstanceId);
+					return new DominiCodiDescripcio(
+							(String)varValue,
+							text);
+				}
+			}
+		}
+		return varValue;
+	}
+	
+	@Override
+	@Transactional
+	public void deleteVariable(Long expedientId, String processInstanceId, String varName) {
+		@SuppressWarnings("unused")
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
+				varName);
+		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varName);
+		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		Registre registre = crearRegistreInstanciaProces(
+				expedientId,
+				processInstanceId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.MODIFICAR);
+		registre.setMissatge("Esborrar variable '" + varName + "'");
+	}
+	
 	private void verificarFinalitzacioExpedient(Expedient expedient, JbpmProcessInstance pi) {
 		if (pi.getEnd() != null) {
 			// Actualitzar data de fi de l'expedient
@@ -2655,7 +2760,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 	}
-
+	
 	private List<ExpedientLogDto> logsOrdenats(ExpedientLog log, String parentProcessInstanceId, Map<String, String> processos) {
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
 		// Obtenim el token de cada registre
@@ -2831,6 +2936,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 					PersonaDto.class);
 		}
 	}
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

@@ -388,6 +388,7 @@ public class TascaTramitacioController extends BaseController {
 			String tascaId) {
 		validator.setRequest(request);
 		validator.setValidarObligatoris(true);
+		validator.setValidarExpresions(true);
 		validator.validate(command, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
@@ -877,8 +878,7 @@ public class TascaTramitacioController extends BaseController {
 		return resposta;
 	}
 
-	@RequestMapping(value = {"/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio", 
-							"/{expedientId}/tasca/{tascaId}/form/camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
+	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
@@ -891,23 +891,8 @@ public class TascaTramitacioController extends BaseController {
 				null,
 				new HashMap<String, Object>());
 	}
-
-	@RequestMapping(value = {"/camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
-	@ResponseBody
-	public SeleccioOpcioDto valorsSeleccioInicial(
-			HttpServletRequest request,
-			@PathVariable Long campId,
-			@PathVariable String valor,
-			Model model) {		
-		return valorsSeleccioInicial(
-				request,
-				null,
-				campId,
-				valor,
-				model);
-	}
-
-	@RequestMapping(value = {"/camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
+	
+	@RequestMapping(value = {"/tasca//camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
@@ -919,9 +904,8 @@ public class TascaTramitacioController extends BaseController {
 				campId,
 				model);
 	}
-
-	@RequestMapping(value = {"/{expedientId}/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valor}", 
-							"/{expedientId}/tasca/{tascaId}/form/camp/{campId}/valorsSeleccio/{valor}"}, method = RequestMethod.GET)
+	
+	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
@@ -935,9 +919,8 @@ public class TascaTramitacioController extends BaseController {
 				valor,
 				new HashMap<String, Object>());
 	}
-
-	@RequestMapping(value = {"/{expedientId}/tasca/{tascaId}/camp/{campId}/valorSeleccioInicial/{valor}", 
-							 "/{expedientId}/tasca/{tascaId}/form/camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
+	
+	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto valorsSeleccioInicial(
 			HttpServletRequest request,
@@ -957,6 +940,22 @@ public class TascaTramitacioController extends BaseController {
 		}
 		return new SeleccioOpcioDto();
 	}
+	
+	@RequestMapping(value = {"/tasca//camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public SeleccioOpcioDto valorsSeleccioInicial(
+			HttpServletRequest request,
+			@PathVariable Long campId,
+			@PathVariable String valor,
+			Model model) {		
+		return valorsSeleccioInicial(
+				request,
+				null,
+				campId,
+				valor,
+				model);
+	}
+
 
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {

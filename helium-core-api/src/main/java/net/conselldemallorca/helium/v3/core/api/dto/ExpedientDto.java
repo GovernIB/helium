@@ -88,7 +88,9 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	private PersonaDto iniciadorPersona;
 	private PersonaDto responsablePersona;
-
+	
+	private PermisDto permisos;
+	private boolean usuariActualRead;
 
 
 	public Long getId() {
@@ -361,6 +363,18 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	}
 	public void setResponsablePersona(PersonaDto responsablePersona) {
 		this.responsablePersona = responsablePersona;
+	}
+	public PermisDto getPermisos() {
+		return permisos;
+	}
+	public void setPermisos(PermisDto permisos) {
+		this.permisos = permisos;
+	}
+	public boolean isUsuariActualRead() {
+		return usuariActualRead;
+	}
+	public void setUsuariActualRead(boolean usuariActualRead) {
+		this.usuariActualRead = usuariActualRead;
 	}
 
 	public String getEstatNom() {

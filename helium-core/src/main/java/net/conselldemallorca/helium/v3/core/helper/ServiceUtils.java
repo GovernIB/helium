@@ -272,6 +272,16 @@ public class ServiceUtils {
 	public String getMessage(String key) {
 		return getMessage(key, null);
 	}
+	public Object getVariableJbpmProcesValor(
+			String processInstanceId,
+			String varCodi) {
+		Object valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, varCodi);
+		if (valor instanceof DominiCodiDescripcio) {
+			return ((DominiCodiDescripcio)valor).getCodi();
+		} else {
+			return valor;
+		}
+	}
 	public Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
 		Map<String, Object> valors = jbpmHelper.getProcessInstanceVariables(processInstanceId);

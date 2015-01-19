@@ -71,7 +71,7 @@ $(function(){
 		    minimumResultsForSearch: 10,
 		    ajax: {
 		        url: function (value) {
-		        	return "camp/" + seleccio.data("campid") + "/valorsSeleccio/" +value;
+		        	return seleccio.data("urlselectllistat") + "/" + value;
 		        },
 		        dataType: 'json',
 		        results: function (data, page) {
@@ -84,7 +84,7 @@ $(function(){
 		    },
 		    initSelection: function(element, callback) {
 		    	if ($(element).val()) {
-			    	$.ajax("camp/" + seleccio.data("campid") + "/valorSeleccioInicial/" + $(element).val(), {
+		    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
 		                dataType: "json"
 		            }).done(function(data) {
 		            	callback({id: data.codi, text: data.nom});
@@ -197,7 +197,7 @@ $(function(){
 			    minimumResultsForSearch: 10,
 			    ajax: {
 			        url: function (value) {
-			        	return "camp/" + seleccio.data("campid") + "/valorsSeleccio/" +value;
+			        	return seleccio.data("urlselectllistat") + "/" + value;
 			        },
 			        dataType: 'json',
 			        results: function (data, page) {
@@ -210,7 +210,7 @@ $(function(){
 			    },
 			    initSelection: function(element, callback) {
 			    	if ($(element).val()) {
-				    	$.ajax("camp/" + seleccio.data("campid") + "/valorSeleccioInicial/" + $(element).val(), {
+			    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
 			                dataType: "json"
 			            }).done(function(data) {
 			            	callback({id: data.codi, text: data.nom});
@@ -233,15 +233,29 @@ $(function(){
 			inputgroupmultiple.remove();
 			multiple.find(".input-group-multiple:first").find(".control-label").val(label);
 			multiple.find(".input-group-multiple").each(function(index){
-				$('input', this).each(function(){
+				$('input, textarea, select', this).each(function(){
 					var input = $(this);
-					if (input.attr("name") != null) {
-						var name = input.attr("name");
-						var name_pre = name.substr(0, name.lastIndexOf("["));
-						input.attr({ 
-							"id" : name_pre + "[" + index + "]", 
-							"name" : name_pre + "[" + index + "]"});
+					if (input.attr("id") != null) {
+						var id = input.attr("id");
+						var id_pre = id.substr(0, id.lastIndexOf("["));
+						var id_post = id.substr(id.lastIndexOf("]") + 1);
+						input.attr({"id" : id_pre + "[" + index + "]" + id_post});
 					}
+					if (input.attr("name") != null) {
+						var nom = input.attr("name");
+						if (nom.indexOf("[") > -1) {
+							var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+							var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+							input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
+						}
+					}
+//					if (input.attr("name") != null) {
+//						var name = input.attr("name");
+//						var name_pre = name.substr(0, name.lastIndexOf("["));
+//						input.attr({ 
+//							"id" : name_pre + "[" + index + "]", 
+//							"name" : name_pre + "[" + index + "]"});
+//					}
 					if (index == 0 && input.closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
 						input.closest('.input-group-multiple').removeClass('pad-left-col-xs-3');
 					}
@@ -259,33 +273,41 @@ $(function(){
 					break;
 				}
 			});
+			inputgroupmultiple.find("textarea, select").each(function(){
+				$(this).val('');
+			});
 		}
 	});
 
 	// Eliminar fila
-	$(".eliminarFila").click(function() {
+	$("#command").on("click", ".eliminarFila", function() {
 		var table = $(this).closest('table');
 		var tr = $(this).closest('tr');
-		if (table.find('tr').index() < 2) {
+		if (table.find('tbody tr').size() < 2) {
 			limpiarFila(tr);
 		} else {
 			tr.remove();
-		}
-		
-		// Renumerar filas
-		table.find(".multiple").find('tr').each(function(index){
-			$('input', this).each(function(){
-				var input = $(this);
-				if (input.attr("name") != null) {
-					var name = input.attr("name");
-					var name_pre = name.substr(0, name.lastIndexOf("["));
-					var name_post = name.substr(name.lastIndexOf("]") + 1);
-					input.attr({ 
-						"id" : name_pre + "[" + index + "]" + name_post, 
-						"name" : name_pre + "[" + index + "]" + name_post});
-				}
+			// Renumerar filas
+			table.find("tr.multiple").each(function(index){
+				$('input, textarea, select', this).each(function(){
+					var input = $(this);
+					if (input.attr("id") != null) {
+						var id = input.attr("id");
+						var id_pre = id.substr(0, id.lastIndexOf("["));
+						var id_post = id.substr(id.lastIndexOf("]") + 1);
+						input.attr({"id" : id_pre + "[" + index + "]" + id_post});
+					}
+					if (input.attr("name") != null) {
+						var nom = input.attr("name");
+						if (nom.indexOf("[") > -1) {
+							var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+							var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+							input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
+						}
+					}
+				});
 			});
-		});
+		}
 	});
 	
 	// Executar accions
@@ -335,19 +357,19 @@ $(function(){
 
 function validado(validar) {
 	$('#command input[type=text]').each(function(){
-		$(this).attr("disabled",validar);
+		$(this).attr("readonly",validar);
 	});
 	$('#command textarea').each(function(){
-		$(this).attr("disabled",validar);
+		$(this).attr("readonly",validar);
 	});
 	$('#command button').each(function(){
 		$(this).attr("disabled",validar);
 	});
 	$('#command select').each(function(){
-		$(this).attr("disabled",validar);
+		$(this).attr("readonly",validar);
 	});
 	$('#command input[type=checkbox]').each(function(){
-		$(this).attr("disabled",validar);
+		$(this).attr("readonly",validar);
 	});
 	$('#command span').each(function(){
 		if (validar)
@@ -384,6 +406,7 @@ function addField(idTable) {
 	tabla = $('#' + idTable);
 	tr = $('tr:last', tabla);
 	var newTr = tr.clone();
+	$('.select2-container', newTr).remove();
 	limpiarFila(newTr);
 	$('input, textarea, select', newTr).each(function(indice, valor){
 		var input = $(this);
@@ -508,7 +531,7 @@ function addField(idTable) {
 		    minimumResultsForSearch: 10,
 		    ajax: {
 		        url: function (value) {
-		        	return "camp/" + seleccio.data("campid") + "/valorsSeleccio/" +value;
+		        	return seleccio.data("urlselectllistat") + "/" + value;
 		        },
 		        dataType: 'json',
 		        results: function (data, page) {
@@ -521,7 +544,7 @@ function addField(idTable) {
 		    },
 		    initSelection: function(element, callback) {
 		    	if ($(element).val()) {
-			    	$.ajax("camp/" + seleccio.data("campid") + "/valorSeleccioInicial/" + $(element).val(), {
+		    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
 		                dataType: "json"
 		            }).done(function(data) {
 		            	callback({id: data.codi, text: data.nom});
@@ -551,7 +574,11 @@ function limpiarFila(tr) {
 			this.checked = false;
 			break;
 		default:
-			$(this).val('');
+			if ($(this).hasClass("select2-offscreen")) {
+				$(this).select2("val", "");
+			} else {
+				$(this).val('');
+			}
 			break;
 		}
 	});

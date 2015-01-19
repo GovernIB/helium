@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
@@ -246,6 +247,44 @@ public class TascaFormHelper {
 		return getCommandForCamps(tascaDadas, null, null, null, false);
 	}
 	
+	public static Object getCommandForCampsExpedient(List<ExpedientDadaDto> expDadas, Map<String, Object> valors) {
+		List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
+		for (ExpedientDadaDto expdada: expDadas) {
+			TascaDadaDto tascaDada = toTascaDadaDto(expdada);
+			tascaDadas.add(tascaDada);
+		}
+		
+		return getCommandForCamps(tascaDadas, valors, null, null, false);
+	}
+	
+	public static TascaDadaDto toTascaDadaDto(ExpedientDadaDto expdada) {
+		TascaDadaDto tascaDada = new TascaDadaDto();
+		tascaDada.setCampTipus(expdada.getCampTipus());
+		tascaDada.setCampMultiple(expdada.isCampMultiple());
+		tascaDada.setVarCodi(expdada.getVarCodi());
+		tascaDada.setCampId(expdada.getCampId());
+		tascaDada.setText(expdada.getText());
+		tascaDada.setCampEtiqueta(expdada.getCampEtiqueta());
+		tascaDada.setRequired(false);
+		tascaDada.setValidacions(expdada.getValidacions());
+		
+		if (expdada.getMultipleDades() != null && !expdada.getMultipleDades().isEmpty()) {
+			List<TascaDadaDto> dadesMult = new ArrayList<TascaDadaDto>();
+			for(ExpedientDadaDto dadaMult : expdada.getMultipleDades()) {
+				dadesMult.add(toTascaDadaDto(dadaMult));
+			}
+			tascaDada.setMultipleDades(dadesMult);
+		}
+		if (expdada.getRegistreDades() != null && !expdada.getRegistreDades().isEmpty()) {
+			List<TascaDadaDto> dadesReg = new ArrayList<TascaDadaDto>();
+			for(ExpedientDadaDto dadaReg : expdada.getRegistreDades()) {
+				dadesReg.add(toTascaDadaDto(dadaReg));
+			}
+			tascaDada.setRegistreDades(dadesReg);
+		}
+		return tascaDada;
+	}
+	
 	@SuppressWarnings({ "rawtypes" })
 	public static Object getCommandForCamps(
 			List<TascaDadaDto> tascaDadas,
@@ -350,7 +389,7 @@ public class TascaFormHelper {
 								int l = 0; // linies
 								for (Object linia: linies){
 									Object[] valin = (Object[])((Object[])valor)[l++];
-									Object valent = (valin.length > i) ? valin[i] : null; 
+									Object valent = (valin != null && valin.length > i) ? valin[i] : null; 
 									metodeSet.invoke(linia, valent);
 								}
 								i++;

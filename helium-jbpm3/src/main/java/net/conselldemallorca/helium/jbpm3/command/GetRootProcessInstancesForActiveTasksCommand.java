@@ -115,7 +115,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
 		this.mostrarTasquesNomesPersonals = mostrarTasquesPersonals;
-		this.pooled = mostrarTasquesGrup;
+		this.pooled = this.mostrarTasquesNomesGroup = mostrarTasquesGrup;
 		this.mostrarTasquesTots = (mostrarTasquesPersonals && mostrarTasquesGrup);
 		for (OrdreDto or : ordres) {
 			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
@@ -171,8 +171,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    "  where " +
 		    "  ti.isSuspended = false and ti.isOpen = true " +
 		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true " : " ") +
-			((mostrarTasquesNomesGroup) ? "and ti.actorId is null " : " ") +
-			((mostrarTasquesNomesPersonals) ? "and ti.actorId is not null " : " ");
+			((!mostrarTasquesTots && mostrarTasquesNomesGroup) ? "and ti.actorId is null " : " ") +
+			((!mostrarTasquesTots && mostrarTasquesNomesPersonals) ? "and ti.actorId is not null " : " ");
 		
 		String hqlPersonal =
 		    "select  " + 

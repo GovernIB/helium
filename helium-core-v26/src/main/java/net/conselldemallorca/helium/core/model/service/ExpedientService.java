@@ -1228,6 +1228,7 @@ public class ExpedientService {
 		getServiceUtils().expedientIndexLuceneDelete(processInstanceId);
 	}
 	public void buidarLogExpedient(String processInstanceId) {
+		logger.debug("Buidant logs de l'expedient amb processInstance(id=" + processInstanceId + ")");
 		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
 	}
 	public void reprendreExpedient(String processInstanceId) throws Exception {

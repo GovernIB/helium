@@ -822,6 +822,12 @@ public interface ExpedientService {
 
 	public boolean isExtensioDocumentPermesa(String extensio);
 
+	public void buidarLogExpedient(String processInstanceId);
+
+	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor);
+	
+	public void deleteVariable(Long expedientId, String processInstanceId, String varName);
+
 	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi);
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);

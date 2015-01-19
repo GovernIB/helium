@@ -256,6 +256,7 @@ public class ExpedientController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "ambTasques", required = false) Boolean ambTasques,
+			@RequestParam(value = "ambOcults", required = false) Boolean ambOcults,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -276,6 +277,7 @@ public class ExpedientController extends BaseController {
 							"tasques",
 							expedientService.findTasquesPerInstanciaProces(id, true));
 				}
+				model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
 				adminService.mesuraCalcular("Expedient DADES", "expedient", expedient.getTipus().getNom());
 				return "expedient/dades";
 			} else {

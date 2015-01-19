@@ -128,8 +128,11 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
-	
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId) {
+		return findDadesPerInstanciaProces(processInstanceId, false);
+	}
+	
+	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId, boolean incloureVariablesBuides) {
 		String tipusExp = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
@@ -168,6 +171,15 @@ public class VariableHelper {
 							processInstanceId,
 							false);
 					resposta.add(dto);
+				} else if (incloureVariablesBuides) {
+					ExpedientDadaDto dto = getDadaPerVariableJbpm(
+							camp,
+							var,
+							null,
+							null,
+							processInstanceId,
+							false);
+					resposta.add(dto);
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
@@ -178,6 +190,12 @@ public class VariableHelper {
 	public ExpedientDadaDto getDadaPerInstanciaProces(
 			String processInstanceId,
 			String variableCodi) {
+		return getDadaPerInstanciaProces(processInstanceId, variableCodi, false);
+	}
+	public ExpedientDadaDto getDadaPerInstanciaProces(
+			String processInstanceId,
+			String variableCodi, 
+			boolean incloureVariablesBuides) {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		Camp camp = campRepository.findByDefinicioProcesAndCodi(
@@ -191,18 +209,25 @@ public class VariableHelper {
 			Object[] registreValors = (Object[])valor;
 			varAmbContingut = registreValors.length > 0;
 		}
+		ExpedientDadaDto dto = null;
 		if (varAmbContingut) {
-			ExpedientDadaDto dto = getDadaPerVariableJbpm(
+			dto = getDadaPerVariableJbpm(
 					camp,
 					variableCodi,
 					valor,
 					null,
 					processInstanceId,
 					false);
-			return dto;
-		} else {
-			return null;
+		} else if (incloureVariablesBuides) {
+			dto = getDadaPerVariableJbpm(
+					camp,
+					variableCodi,
+					null,
+					null,
+					processInstanceId,
+					false);
 		}
+		return dto;
 	}
 
 	public List<TascaDadaDto> findDadesPerInstanciaTascaDto(ExpedientTascaDto tasca) {		
@@ -669,7 +694,7 @@ public class VariableHelper {
 		}
 	}
 
-	private TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
+	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
 			ExpedientDadaDto expedientDadaDto,
 			CampTasca campTasca) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
@@ -708,6 +733,37 @@ public class VariableHelper {
 						getTascaDadaDtoFromExpedientDadaDto(
 								dto,
 								campTasca));
+			}
+			tascaDto.setRegistreDades(registreDades);
+		}
+		return tascaDto;
+	}
+	
+	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto expedientDadaDto) {
+		TascaDadaDto tascaDto = new TascaDadaDto();
+		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());
+		tascaDto.setVarValor(expedientDadaDto.getVarValor());
+		tascaDto.setCampId(expedientDadaDto.getCampId());
+		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
+		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
+		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
+		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		tascaDto.setText(expedientDadaDto.getText());
+		tascaDto.setError(expedientDadaDto.getError());
+		tascaDto.setObservacions(expedientDadaDto.getObservacions());
+		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setValidacions(expedientDadaDto.getValidacions());
+		if (expedientDadaDto.getMultipleDades() != null) {
+			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
+			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
+				multipleDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
+			}
+			tascaDto.setMultipleDades(multipleDades);
+		}
+		if (expedientDadaDto.getRegistreDades() != null) {
+			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
+			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
+				registreDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
 			}
 			tascaDto.setRegistreDades(registreDades);
 		}

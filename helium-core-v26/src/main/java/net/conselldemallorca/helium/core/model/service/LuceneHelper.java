@@ -693,8 +693,14 @@ public class LuceneHelper extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
 			return numberPerIndexar((BigDecimal) valor);
 		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-			Termini term = (Termini) valor;
-			return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+			if (valor instanceof Termini) {
+				Termini term = (Termini) valor;
+				return term.getAnys() + "/" + term.getMesos() + "/" + term.getDies();
+			} else if (valor instanceof String) { 
+				return (String) valor;
+			} else {
+				return valor.toString();
+			}
 		} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
 			return (String) valor;
 		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {

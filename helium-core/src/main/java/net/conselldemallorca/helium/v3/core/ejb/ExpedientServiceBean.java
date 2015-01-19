@@ -587,6 +587,23 @@ public class ExpedientServiceBean implements ExpedientService {
 	}
 
 	@Override
+	public void buidarLogExpedient(String processInstanceId) {
+		delegate.buidarLogExpedient(processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor) {
+		delegate.updateVariable(expedientId, processInstanceId, varName, varValor);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void deleteVariable(Long expedientId, String processInstanceId, String varName) {
+		delegate.deleteVariable(expedientId, processInstanceId, varName);
+	}
+
+	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi) {
 		return delegate.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);

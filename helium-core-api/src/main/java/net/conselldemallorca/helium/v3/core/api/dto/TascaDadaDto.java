@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,15 +31,14 @@ public class TascaDadaDto {
 	private String text;
 	private List<TascaDadaDto> multipleDades;
 	private List<TascaDadaDto> registreDades;
-
+	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
+	
 	private String error;
 
 	private boolean readOnly;
 	private boolean readFrom;
 	private boolean writeTo;
 	private boolean required;
-
-	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 
 
 
@@ -87,6 +87,12 @@ public class TascaDadaDto {
 	public void setCampMultiple(boolean campMultiple) {
 		this.campMultiple = campMultiple;
 	}
+	public boolean isCampOcult() {
+		return campOcult;
+	}
+	public void setCampOcult(boolean campOcult) {
+		this.campOcult = campOcult;
+	}
 	public String getJbpmAction() {
 		return jbpmAction;
 	}
@@ -128,12 +134,6 @@ public class TascaDadaDto {
 	}
 	public void setText(String text) {
 		this.text = text;
-	}
-	public boolean isCampOcult() {
-		return campOcult;
-	}
-	public void setCampOcult(boolean campOcult) {
-		this.campOcult = campOcult;
 	}
 	public List<TascaDadaDto> getMultipleDades() {
 		return multipleDades;
@@ -179,6 +179,7 @@ public class TascaDadaDto {
 		dada.setCampTipus(campTipus);
 		dada.setCampEtiqueta(campEtiqueta);
 		dada.setCampMultiple(campMultiple);
+		dada.setCampOcult(campOcult);
 		dada.setReadOnly(readOnly);
 		dada.setReadFrom(readFrom);
 		dada.setWriteTo(writeTo);
@@ -188,6 +189,19 @@ public class TascaDadaDto {
 		return resposta;
 	}
 
+	public String getTextMultiple() {
+		if (isCampMultiple()) {
+			String[] textos = new String[multipleDades.size()];
+			int i = 0;
+			for (TascaDadaDto dada: multipleDades)
+				textos[i++] = dada.getText();
+			return Arrays.toString(textos);
+			//return Arrays.toString(getMultipleValor());
+		} else {
+			return text;
+		}
+	}
+	
 	public  Class<?> getJavaClass() {
 		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
