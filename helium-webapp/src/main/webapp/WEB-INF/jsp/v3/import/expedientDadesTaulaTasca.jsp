@@ -19,13 +19,14 @@
 	<tr>
 		<td>
 			${tasca.titol}
-			<c:set var="ocultarOpciones" value="false"/>
+			<c:set var="ocultarAgafar" value="false"/>
 			<c:choose>
 				<c:when test="${not empty tasca.responsables && not tasca.agafada}">
 					<span class="fa fa-users"></span>
 					<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status">
+						${responsable.codi}
 						<c:if test="${responsable.codi != dadesPersona.codi}">
-							<c:set var="ocultarOpciones" value="true"/>
+							<c:set var="ocultarAgafar" value="true"/>
 						</c:if>
 					</c:forEach>
 				</c:when>
@@ -58,7 +59,7 @@
 		<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 		<td><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>		 
 		<td>
-			<div class="btn-group <c:if test="${ocultarOpciones}">hide</c:if>">
+			<div class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<c:if test="${tasca.oberta and not tasca.suspesa}">
@@ -69,7 +70,7 @@
 							</c:if>
 								<li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/delegar"/>" class="icon" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
 						</c:if>
-						<c:if test="${not empty tasca.responsables && not tasca.agafada}">
+						<c:if test="${not empty tasca.responsables && not tasca.agafada && not ocultarAgafar}">
 							<li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/tascaAgafar"/>"><span class="fa fa-chain"></span> Agafar</a></li>
 						</c:if>
 						<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>" data-rdt-link-modal="true"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
