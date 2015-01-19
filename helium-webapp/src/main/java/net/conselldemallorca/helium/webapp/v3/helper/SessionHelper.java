@@ -46,6 +46,8 @@ public class SessionHelper {
 	public static final String VARIABLE_SELECCIO_CONSULTA_GENERAL = "seleccioConsultaGeneral";
 	public static final String VARIABLE_SELECCIO_INFORME = "seleccioInforme";
 	public static final String VARIABLE_SELECCIO_TASCA = "seleccioTasca";
+	public static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
+	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
 
 	public static Object getAttribute(
 			HttpServletRequest request,

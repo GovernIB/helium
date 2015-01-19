@@ -20,7 +20,8 @@
 	<!--link href="<c:url value="/css/commonV3.css"/>" rel="stylesheet"/-->
 	<link rel="shortcut icon" href="<c:url value="/img/ico/favicon.png"/>">
 	<link rel="icon" type="image/png" href="<c:url value="/img/ico/favicon.png"/>">
-	<script src="<c:url value="/js/jquery.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script>
+	
 	<!-- Llibreria per a compatibilitat amb HTML5 -->
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -42,6 +43,16 @@
 		.cabecera_reducida .navbar-btn {margin-top: -4px;}
 		.cabecera_reducida .navbar-btn .btn {padding: 3px 12px;}
 		.cabecera_reducida-main {margin-top: -30px;}
+		.nav-consulta-tipus {    
+			color: black;
+		    list-style-type: circle;
+		    margin-left: 30px;
+		    text-align: left;
+			padding-right: 15px;
+		}
+		.nav-consulta-tipus a {
+			padding: 3px 0px !important;
+		}    
 	</style>
 	<decorator:head />
 </head>
@@ -126,12 +137,11 @@
 										<c:if test="${empty expedientTipusActual and not empty expedientTipusAccessiblesAmbConsultesActives}">
 											<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
 											<ul class="dropdown-menu">
-												<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}">
-													<!-- <li><a href="<c:url value="/v3/informe/${expedientTipus.id}"></c:url>">${expedientTipus.nom}</a></li>  -->
-													<c:if test="${fn:length(expedientTipusAccessiblesAmbConsultesActives) gt 1}"><li class="divider"></li></c:if>													
+												<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
+													<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>													
 													<li class="nav-header">${expedientTipus.nom}</li>
 													<c:forEach var="consulte" items="${expedientTipus.consultes}">
-														<li><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
+														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
 													</c:forEach>
 												</c:forEach>
 											</ul>

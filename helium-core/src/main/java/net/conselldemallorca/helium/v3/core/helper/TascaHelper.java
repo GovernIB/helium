@@ -323,6 +323,29 @@ public class TascaHelper {
 		return resposta;
 	}
 
+	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(Expedient expedient, String processInstanceId) {
+		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
+		List<ExpedientTascaDto> oberta = new ArrayList<ExpedientTascaDto>();
+		List<ExpedientTascaDto> nooberta = new ArrayList<ExpedientTascaDto>();
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
+//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		for (JbpmTask task: tasks) {
+			ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
+			if (task.isOpen())
+				oberta.add(tasca);
+			else
+				nooberta.add(tasca);
+//			if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
+				
+//				if (auth.getName().equals(tasca.getResponsableCodi()))
+//					resposta.add(tasca);
+//			}
+		}
+		resposta.addAll(oberta);
+		resposta.addAll(nooberta);
+		return resposta;
+	}
+
 	public ExpedientTascaDto toExpedientTascaCompleteDto(
 			JbpmTask task,
 			Expedient expedient) {

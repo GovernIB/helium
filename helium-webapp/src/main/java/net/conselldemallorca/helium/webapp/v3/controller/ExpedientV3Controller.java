@@ -195,8 +195,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
 		PersonaDto personaResponsable = pluginService.findPersonaAmbCodi(expedient.getResponsableCodi());
 		expedient.setResponsablePersona(personaResponsable);
-		expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
-		expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencer());
+		if (personaResponsable != null) {
+			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
+			expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencer());
+		}
 		return expedientEditarCommand;
 	}
 

@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
@@ -269,6 +270,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaGeneral();
 		if (filtreCommand == null) {
 			filtreCommand = new ExpedientConsultaCommand();
+			UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
+			boolean nomesPendents = false;
+			if (preferenciesUsuari != null)
+				nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
+			filtreCommand.setNomesPendents(nomesPendents);			
 			filtreCommand.setConsultaRealitzada(true);
 			SessionHelper.setAttribute(
 					request,

@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesIniciExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -180,6 +181,37 @@ public class DissenyServiceImpl implements DissenyService {
 			}
 		}
 		return dto;
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public DefinicioProcesIniciExpedientDto getDefinicioProcesIniciExpedient(Long expedientTipusId) {
+		DefinicioProcesIniciExpedientDto dto = new DefinicioProcesIniciExpedientDto();
+		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
+		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(),
+					expedientTipus.getJbpmProcessDefinitionKey());
+			if (definicioProces != null) {
+				JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());			
+				dto.setId(definicioProces.getId());
+				dto.setVersio(definicioProces.getVersio());
+				List<DefinicioProces> listDefProces = definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(definicioProces.getEntorn().getId(), definicioProces.getJbpmKey());
+				for (DefinicioProces defProces : listDefProces) {				
+					Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();			
+					dto.addIdAmbEtiquetaId(
+							defProces.getId(), 
+							jb.getName() + " v." + defProces.getVersio(), 
+							hasStartTask(definicioProces, hasStartTask), 
+							(expedientTipus.isTeNumero() && expedientTipus.isDemanaNumero()) || (expedientTipus.isTeTitol() && expedientTipus.isDemanaTitol()));
+					if (defProces.getVersio() == definicioProces.getVersio()) {
+						dto.setEtiqueta(jb.getName() + " v." + defProces.getVersio());
+					}
+				}
+				return dto;
+			}
+		}
+		return null;
 	}
 	
 	@Transactional(readOnly=true)
@@ -380,7 +412,13 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornDto) {
 		Entorn entorn = conversioTipusHelper.convertir(entornDto, Entorn.class);
-		return conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
+		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
+		permisosHelper.filterGrantedAny(tipus, new ObjectIdentifierExtractor<ExpedientTipusDto>() {
+			public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
+				return expedientTipus.getId();
+			}
+		}, ExpedientTipus.class, new Permission[] { ExtendedPermission.ADMINISTRATION, ExtendedPermission.CREATE });
+		return tipus;
 	}
 
 	@Transactional(readOnly=true)

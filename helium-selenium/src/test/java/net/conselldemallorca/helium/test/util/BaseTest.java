@@ -267,10 +267,6 @@ public abstract class BaseTest {
 	}
 	
 	protected boolean comprovaElement(String xpath, String screenShot, long waitTime, String msgNotFound, boolean existeix, boolean continuarTest) {
-//		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-//		boolean isPresent = driver.findElements(By.xpath(xpath)).size() > 0;
-//		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		
 		boolean isPresent = false;
 		try {
 			long temps_esperat = new Date().getTime();
@@ -1227,8 +1223,6 @@ public abstract class BaseTest {
 		}
 		
 		if (isAlertPresent()) { acceptarAlerta(); }
-		//Esperaremos para evitar errores de: No se inició el expediente		
-		try { Thread.sleep(3000); } catch (Exception ex) {}
 		
 		existeixElementAssert("//*[@id='infos']/p", "No se inició el expediente");
 		

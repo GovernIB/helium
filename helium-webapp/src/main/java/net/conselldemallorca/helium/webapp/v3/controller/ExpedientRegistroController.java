@@ -3,16 +3,20 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.Iterator;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 
 import org.jbpm.JbpmException;
 import org.slf4j.Logger;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -44,68 +49,56 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			Model model) {
-		model.addAttribute("id", expedientId);
-		model.addAttribute("tipus_retroces", tipus_retroces);		
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);			
-		model.addAttribute(
-				"expedient",
-				expedient);
-		model.addAttribute(
-				"isAdmin",
-				potAdministrarExpedient(expedient));
-		model.addAttribute(
-				"arbreProcessos",
-				expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId())));
-		List<ExpedientLogDto> logs = null;
-		if (tipus_retroces == null || tipus_retroces != 0) {
-			logs = expedientService.getLogsPerTascaOrdenatsPerData(expedient);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		Map<InstanciaProcesDto, List<ExpedientLogDto>> loggers = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
+		boolean detall = tipus_retroces == null || tipus_retroces != 0;
+		if (detall) {
+			loggers = expedientService.getLogsPerTascaOrdenatsPerData(expedient, detall);
 		} else {
-			logs = expedientService.getLogsOrdenatsPerData(expedient);
+			loggers = expedientService.getLogsOrdenatsPerData(expedient, detall);
 		}
-		if (logs == null || logs.isEmpty()) {
-			model.addAttribute(
-					"registre",
-					expedientService.getRegistrePerExpedient(expedientId));
-			return "v3/expedient/registre";
-		} else {
-			// Llevam els logs retrocedits
-			Iterator<ExpedientLogDto> itLogs = logs.iterator();
-			while (itLogs.hasNext()) {
-				ExpedientLogDto log = itLogs.next();
-				if ("RETROCEDIT".equals(log.getEstat()) || "RETROCEDIT_TASQUES".equals(log.getEstat()) || ("EXPEDIENT_MODIFICAR".equals(log.getAccioTipus()) && (tipus_retroces == null || tipus_retroces != 0)))
-					itLogs.remove();
+
+		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
+			@Override
+			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
+				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
+				if (e1.getKey().getId().equals(e2.getKey().getId())) {
+					return res;
+				} else {
+					return res != 0 ? res : 1;
+				}
 			}
-			model.addAttribute("logs", logs);
-			model.addAttribute(
-					"tasques",
-					expedientService.getTasquesPerLogExpedient(expedientId));
-			return "v3/expedient/log";
-		}
+		});
+		sortedEntries.addAll(loggers.entrySet());
+
+		model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("tipus_retroces", tipus_retroces);
+		model.addAttribute("expedient", expedient);
+		model.addAttribute("isAdmin", potAdministrarExpedient(expedient));
+		model.addAttribute("logs", sortedEntries);
+		return "v3/expedientLog";
 	}
 
 	@RequestMapping(value = "retrocedir")
-	public String retrocedir(
+	@ResponseBody
+	public boolean retrocedir(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long expedientId,
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			@RequestParam(value = "logId", required = true) Long logId,
 			@RequestParam(value = "retorn", required = true) String retorn,
 			Model model) {
-		if (!NodecoHelper.isNodeco(request)) {
-			mostrarInformacioExpedientPerPipella(request, expedientId, model, "registre", expedientService);
+		boolean response = false;
+		try {
+			expedientService.retrocedirFinsLog(logId, tipus_retroces == null || tipus_retroces != 0);
+			MissatgesHelper.info(request, getMessage(request, "expedient.registre.correcte"));
+			response = true;
+		} catch (JbpmException ex ) {
+			MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());
+			logger.error(" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar el retrocés", ex);
 		}
-		
-			try {
-				expedientService.retrocedirFinsLog(logId, (tipus_retroces == null || tipus_retroces != 0));
-			}catch (JbpmException ex ) {
-				MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());
-				logger.error(" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar el retrocés", ex);
-			}
-			
-			if("t".equals(retorn)){
-				return "redirect:/v3/expedient/tasques.html?id=" + expedientId;
-			}
-		return "redirect:/v3/expedient/" + expedientId;
+		return response;
 	}
 
 	@RequestMapping(value = "logRetrocedit")
@@ -115,14 +108,8 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "logId", required = true) Long logId,
 			Model mod,
 			ModelMap model) {
-		if (!NodecoHelper.isNodeco(request)) {
-			mostrarInformacioExpedientPerPipella(request, expedientId, mod, "registre", expedientService);
-		}
-		List<ExpedientLogDto> logs = expedientService.findLogsRetroceditsOrdenatsPerData(logId);
-		model.addAttribute("logs", logs);
-		model.addAttribute(
-				"tasques",
-				expedientService.getTasquesPerLogExpedient(expedientId));
+		model.addAttribute("logs", expedientService.findLogsRetroceditsOrdenatsPerData(logId));
+		model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
 	
@@ -132,12 +119,18 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "id", required = true) Long expedientId,
 			@RequestParam(value = "targetId", required = true) Long targetId,
 			ModelMap model) {
-		List<ExpedientLogDto> logs = expedientService.findLogsTascaOrdenatsPerData(targetId);
-		model.addAttribute("logs", logs);
-		model.addAttribute(
-				"tasques",
-				expedientService.getTasquesPerLogExpedient(expedientId));
+		model.addAttribute("logs", expedientService.findLogsTascaOrdenatsPerData(targetId));
+		model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
 		return "v3/expedient/logRetrocedit";
+	}
+	
+	@RequestMapping(value = "scriptForm/{logId}")
+	public String logScript(
+			HttpServletRequest request,
+			@PathVariable Long logId, 
+			ModelMap model) {
+		model.addAttribute("log", expedientService.findLogById(logId));
+		return "v3/expedient/logScript";
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientRegistroController.class);

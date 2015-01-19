@@ -191,7 +191,7 @@ public class ExecucioMassivaVariables extends BaseTest {
 			
 			if (isAlertPresent()) { acceptarAlerta(); }
 			
-			Thread.sleep(2000);
+//			Thread.sleep(2000);
 			
 			comprobarVariable(variableMod, false, false);
 			

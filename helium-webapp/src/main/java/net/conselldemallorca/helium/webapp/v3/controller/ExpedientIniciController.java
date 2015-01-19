@@ -17,10 +17,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesIniciExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -43,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -109,18 +106,13 @@ public class ExpedientIniciController extends BaseExpedientController {
 	public String iniciarGet(HttpServletRequest request, Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn);
-		permissionService.filterAllowed(tipus, new ObjectIdentifierExtractor<ExpedientTipusDto>() {
-			public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
-				return expedientTipus.getId();
-			}
-		}, ExpedientTipus.class, new Permission[] { ExtendedPermission.ADMINISTRATION, ExtendedPermission.CREATE });
-		Map<Long, DefinicioProcesDto> definicionsProces = new HashMap<Long, DefinicioProcesDto>();
+		Map<Long, DefinicioProcesIniciExpedientDto> definicionsProces = new HashMap<Long, DefinicioProcesIniciExpedientDto>();
 		Iterator<ExpedientTipusDto> it = tipus.iterator();
 		while (it.hasNext()) {
 			ExpedientTipusDto expedientTipus = it.next();
-			DefinicioProcesDto darrera = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
-			if (darrera != null)
-				definicionsProces.put(expedientTipus.getId(), darrera);
+			DefinicioProcesIniciExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesIniciExpedient(expedientTipus.getId());
+			if (definicioProcesIniciExpedientDto != null)
+				definicionsProces.put(expedientTipus.getId(), definicioProcesIniciExpedientDto);
 			else
 				it.remove();
 		}

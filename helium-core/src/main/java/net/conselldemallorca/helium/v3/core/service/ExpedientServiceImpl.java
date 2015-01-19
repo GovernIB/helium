@@ -511,6 +511,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				String.valueOf(expedientId));
 		return registreRepository.save(registre);
 	}	
+
 	private Registre crearRegistreTasca(
 			Long expedientId,
 			String tascaId,
@@ -819,7 +820,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		return expedientDto;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
@@ -1388,6 +1389,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		return tascaHelper.findTasquesPerExpedient(
 				expedient);
+	}
+
+	@Override
+	// No pot ser readOnly per mor de la cache de les tasques
+	@Transactional
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId) {
+		logger.debug("Consulta de tasques de l'expedient (" +
+				"expedientId=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false);
+		return tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId);
 	}
 
 	@Override
@@ -2209,16 +2224,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly=true)
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
+	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
-		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
 		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedient.getId());
-		String parentProcessInstanceId = null;
+		String parentProcessInstanceId = jbpmHelper.getRootProcessInstance(String.valueOf(expedient.getProcessInstanceId())).getId();
 		Map<String, String> processos = new HashMap<String, String>();
+		Map<Long, InstanciaProcesDto> jips = new HashMap<Long, InstanciaProcesDto>();
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens");
 		for (ExpedientLog log: logs) {
-			resposta.addAll(logsOrdenats(log, parentProcessInstanceId, processos));
+			if (!jips.containsKey(log.getProcessInstanceId())) {
+				jips.put(log.getProcessInstanceId(), getInstanciaProcesById(String.valueOf(log.getProcessInstanceId())));
+				resposta.put(jips.get(log.getProcessInstanceId()), new ArrayList<ExpedientLogDto>());
+			}
+			resposta.get(jips.get(log.getProcessInstanceId())).addAll(logsOrdenats(log, parentProcessInstanceId, processos, detall));
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens");
 		return resposta;
@@ -2226,21 +2246,25 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly=true)
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
+	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, boolean detall) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
-		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
 		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedient.getId());
 		List<String> taskIds = new ArrayList<String>();
-		String parentProcessInstanceId = null;
+		String parentProcessInstanceId = jbpmHelper.getRootProcessInstance(String.valueOf(expedient.getProcessInstanceId())).getId();
 		Map<String, String> processos = new HashMap<String, String>();
+		Map<Long, InstanciaProcesDto> jips = new HashMap<Long, InstanciaProcesDto>();
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		for (ExpedientLog log: logs) {
 			if (	!log.isTargetTasca() ||
 					!taskIds.contains(log.getTargetId())) {
 				taskIds.add(log.getTargetId());
-				// Obtenim el token de cada registre
-				resposta.addAll(logsOrdenats(log, parentProcessInstanceId, processos));
+				if (!jips.containsKey(log.getProcessInstanceId())) {
+					jips.put(log.getProcessInstanceId(), getInstanciaProcesById(String.valueOf(log.getProcessInstanceId())));
+					resposta.put(jips.get(log.getProcessInstanceId()), new ArrayList<ExpedientLogDto>());
+				}
+				resposta.get(jips.get(log.getProcessInstanceId())).addAll(logsOrdenats(log, parentProcessInstanceId, processos, detall));
 			}
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
@@ -2442,6 +2466,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long logId) {
 		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public ExpedientLogDto findLogById(Long logId) {
+		return conversioTipusHelper.convertir( expedientLogRepository.findById(logId), ExpedientLogDto.class);
 	}
 
 	@Override
@@ -2760,8 +2790,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 	}
-	
-	private List<ExpedientLogDto> logsOrdenats(ExpedientLog log, String parentProcessInstanceId, Map<String, String> processos) {
+
+	private List<ExpedientLogDto> logsOrdenats(ExpedientLog log, String parentProcessInstanceId, Map<String, String> processos, boolean detall) {
 		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
 		// Obtenim el token de cada registre
 		JbpmToken token = null;
@@ -2802,13 +2832,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 						dto.setTargetTasca(false);
 						dto.setTargetProces(false);
 						dto.setTargetExpedient(true);
-						resposta.add(dto);
+						if (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || ("EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()) && detall)))
+							resposta.add(dto);
 					}
 				}
-				tokenName = processos.get(processInstanceId) + tokenName;
+				if (processos.get(processInstanceId) != null)
+					tokenName = processos.get(processInstanceId) + tokenName;
 			}
 		}
-			
+		
 		ExpedientLogDto dto = new ExpedientLogDto();
 		dto.setId(log.getId());
 		dto.setData(log.getData());
@@ -2821,7 +2853,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		dto.setTargetTasca(log.isTargetTasca());
 		dto.setTargetProces(log.isTargetProces());
 		dto.setTargetExpedient(log.isTargetExpedient());
-		resposta.add(dto);
+		if (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || ("EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()) && detall)))
+			resposta.add(dto);
 		
 		return resposta;
 	}
@@ -2936,6 +2969,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 					PersonaDto.class);
 		}
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

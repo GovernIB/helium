@@ -455,12 +455,13 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public void setAgafada(boolean agafada) {
 		this.agafada = agafada;
 	}
-
+	
+	@Override
 	public int compareTo(ExpedientTascaDto aThat) {
 	    if (this == aThat) return 0;
     	return this.getCreateTime().compareTo(aThat.getCreateTime());
 	}
-
+	
 	public String getExpedientTipusNom() {
 		return expedientTipusNom;
 	}

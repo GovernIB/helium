@@ -698,9 +698,9 @@ public interface ExpedientService {
 
 	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
 
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient);
+	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, boolean detall);
 
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient);
+	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall);
 	
 	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId);
 	
@@ -835,4 +835,8 @@ public interface ExpedientService {
 	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception;
 
 	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception;
+
+	public ExpedientLogDto findLogById(Long logId);
+
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId);
 }

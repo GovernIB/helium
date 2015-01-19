@@ -402,14 +402,14 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient) {
-		return delegate.getLogsPerTascaOrdenatsPerData(expedient);
+	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, boolean detall) {
+		return delegate.getLogsPerTascaOrdenatsPerData(expedient, detall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> getLogsOrdenatsPerData(ExpedientDto expedient) {
-		return delegate.getLogsOrdenatsPerData(expedient);
+	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
+		return delegate.getLogsOrdenatsPerData(expedient, detall);
 	}
 
 	@Override
@@ -625,5 +625,17 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception {
 		delegate.deleteSignatura(expedientId, documentStoreId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientLogDto findLogById(Long logId) {
+		return delegate.findLogById(logId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId) {
+		return delegate.findTasquesPerInstanciaProces(expedientId, processInstanceId);
 	}
 }

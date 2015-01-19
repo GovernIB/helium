@@ -25,7 +25,6 @@ import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand.TerminiModificacioTipus;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 import org.slf4j.Logger;
@@ -81,9 +80,6 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("terminis",terminis);
 		model.addAttribute("iniciats",iniciats);
-		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "documents", expedientService);
-		}
 		
 		return "v3/expedientTermini";
 	}
@@ -108,22 +104,22 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiIniciar", method = RequestMethod.GET)
-	public String terminiIniciar(
+	@ResponseBody
+	public boolean terminiIniciar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long terminiId,
 			Model model) {
-		try {
-			if (!NodecoHelper.isNodeco(request)) {
-				mostrarInformacioExpedientPerPipella(request, expedientId, model, "terminis", expedientService);
-			}
+		boolean response = false; 
+		try {			
 			terminiService.iniciar(terminiId,expedientId,new Date(),true);
 			MissatgesHelper.info(request, getMessage(request, "info.termini.iniciat"));
+			response = true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.iniciar.termini"));
         	logger.error("No s'ha pogut iniciar el termini", ex);
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return response;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiPausar", method = RequestMethod.GET)

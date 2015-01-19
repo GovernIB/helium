@@ -3,15 +3,18 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,23 +45,18 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientPerPipella(
-					request,
-					expedientId,
-					model,
-					"tasques",
-					expedientService);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		
+		Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
+		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId()));
 		}
-		model.addAttribute(
-				"expedient",
-				expedientService.findAmbId(expedientId));
-		List<ExpedientTascaDto> tasques = expedientService.findTasques(
-				expedientId);
+		
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("tasques", tasques);
-		model.addAttribute(
-				"expedientLogIds",
-				expedientService.findLogIdTasquesById(tasques));
 		return "v3/expedientTasca";
 	}
 
@@ -68,10 +66,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute(
-				"tasques",
-				expedientService.findTasquesPendents(
-						expedientId));
+		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId));
 		return "v3/expedientTasquesPendents";
 	}
 
@@ -128,13 +123,8 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			ModelMap model) {
-		tascaService.delegacioCancelar(
-				tascaId);
-		MissatgesHelper.info(
-				request,
-				getMessage(
-						request,
-						"info.delegacio.cancelat"));
+		tascaService.delegacioCancelar(tascaId);
+		MissatgesHelper.info(request, getMessage(request, "info.delegacio.cancelat"));
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
@@ -143,10 +133,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-		ModelMap model) {		
-			tascaService.agafar(tascaId);
-			MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));
-			
+			ModelMap model) {		
+		tascaService.agafar(tascaId);
+		MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));			
 		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
 	}
 

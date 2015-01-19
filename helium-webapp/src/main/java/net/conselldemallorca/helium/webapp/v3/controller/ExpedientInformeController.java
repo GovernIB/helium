@@ -32,17 +32,18 @@ import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.report.FieldValue;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -86,9 +87,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/v3/informe")
 public class ExpedientInformeController extends BaseExpedientController {
-	private static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
-	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
-
 	// Variables exportació
 	private HSSFWorkbook wb;
 	private HSSFCellStyle headerStyle;
@@ -106,78 +104,46 @@ public class ExpedientInformeController extends BaseExpedientController {
 	@Autowired
 	private DissenyService dissenyService;
 	
-	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.GET)
-	public String get(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			Long consultaId,
-			Model model) {
-		Object filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
-		if (filtreCommand != null) {
-			try {
-				consultaId = (Long) PropertyUtils.getSimpleProperty(filtreCommand, "consultaId");
-				if (consultaId != null) {
-					ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-					if (consulta.getExpedientTipus().getId().equals(expedientTipusId)) {
-						model.addAttribute("consulta", consulta);
-						model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));	
-						model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
-						model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
-					} else {
-						SessionHelper.removeAttribute(request,VARIABLE_FILTRE_CONSULTA_TIPUS);
-					}
-				} else {
-					SessionHelper.removeAttribute(request,VARIABLE_FILTRE_CONSULTA_TIPUS);
-				}
-			} catch (Exception e) {} 
-		} 
-		if (consultaId == null) {
-			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			model.addAttribute("consultes", dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipusId));
-		}
-		
-		return "v3/expedientInforme";
-	}
-	
 	@ModelAttribute("expedientInformeCommand")
 	private Object getFiltreCommand(
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Long consultaId) {
-		Object filtreCommand = SessionHelper.getAttribute(request,VARIABLE_FILTRE_CONSULTA_TIPUS);
+		Object filtreCommand = SessionHelper.getAttribute(request,SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId);
 		if (filtreCommand != null) {
 			return filtreCommand;
-		}
+		} else if (consultaId == null) 
+			return null;
 		List<TascaDadaDto> campsFiltre = new ArrayList<TascaDadaDto>();
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		@SuppressWarnings("rawtypes")
 		Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-		campsAddicionals.put("consultaId", consultaId);			
+		
+		campsAddicionals.put("consultaId", consultaId);
+		UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
+		boolean nomesPendents = false;
+		if (preferenciesUsuari != null)
+			nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
+		campsAddicionals.put("nomesPendents", nomesPendents);
+		campsAddicionals.put("nomesAlertes", false);
+		campsAddicionals.put("mostrarAnulats", false);
+		campsAddicionalsClasses.put("nomesPendents", Boolean.class);
+		campsAddicionalsClasses.put("nomesAlertes", Boolean.class);
+		campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);			
 		campsAddicionalsClasses.put("consultaId", Long.class);
 		
-		if (consultaId != null) {
-			campsAddicionals.put("nomesPendents", false);
-			campsAddicionals.put("nomesAlertes", false);
-			campsAddicionals.put("mostrarAnulats", false);
-			campsAddicionals.put("mostrarAnulats", false);
-			campsAddicionals.put("tramitacioMassivaActivada", true);
-			campsAddicionalsClasses.put("nomesPendents", Boolean.class);
-			campsAddicionalsClasses.put("nomesAlertes", Boolean.class);
-			campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);
-			campsAddicionalsClasses.put("tramitacioMassivaActivada", Boolean.class);
-			
-			campsFiltre = expedientService.findConsultaFiltre(consultaId);
-		}
+		campsFiltre = expedientService.findConsultaFiltre(consultaId);
 		return TascaFormHelper.getCommandBuitForCamps(campsFiltre,campsAddicionals,campsAddicionalsClasses, true);
 	}
 	
 	@SuppressWarnings("rawtypes")
 	@ModelAttribute("expedientInformeParametrosCommand")
 	private Object getFiltreParameterCommand(
-			HttpServletRequest request) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		Object filtreCommand = SessionHelper.getAttribute(request, VARIABLE_FILTRE_CONSULTA_TIPUS);
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Long consultaId) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		Object filtreCommand = SessionHelper.getAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId);
 		if (filtreCommand != null) {
-			Long consultaId = (Long) PropertyUtils.getSimpleProperty(filtreCommand, "consultaId");
 			List<TascaDadaDto> campsFiltre = expedientService.findConsultaInformeParams(consultaId);
 			return TascaFormHelper.getCommandBuitForCamps(campsFiltre, new HashMap<String, Object>(), new HashMap<String, Class>(), false);
 		}
@@ -196,16 +162,18 @@ public class ExpedientInformeController extends BaseExpedientController {
 		model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));	
 		model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
 		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
-
+		Object filtreCommand = getFiltreCommand(request, consulta.getExpedientTipus().getId(), consultaId);
+		
 		SessionHelper.setAttribute(
 				request,
-				VARIABLE_FILTRE_CONSULTA_TIPUS,
-				getFiltreCommand(request, consulta.getExpedientTipus().getId(), consultaId));
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId,
+				filtreCommand);
 
-		return "redirect:/v3/informe/"+consulta.getExpedientTipus().getId();
+		model.addAttribute("expedientInformeCommand", filtreCommand);
+		return "v3/expedientInforme";
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/consulta/{expedientTipusId}", method = RequestMethod.POST)
 	public String post(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -213,11 +181,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@Valid @ModelAttribute("expedientInformeCommand") Object filtreCommand,			
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
-			Model model)  {
+			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		if ("netejar".equals(accio)) {
 			SessionHelper.removeAttribute(
 					request,
-					VARIABLE_FILTRE_CONSULTA_TIPUS);
+					SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId);
 			filtreCommand = getFiltreCommand(request, expedientTipusId, consultaId);
 		} else {
 			model.addAttribute("consulta", dissenyService.findConsulteById(consultaId));
@@ -228,9 +196,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 		
 		SessionHelper.setAttribute(
 				request,
-				VARIABLE_FILTRE_CONSULTA_TIPUS,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId,
 				filtreCommand);
-		
+		model.addAttribute("expedientInformeCommand", filtreCommand);
 		return "v3/expedientInforme";
 	}
 
@@ -244,7 +212,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
-				VARIABLE_FILTRE_CONSULTA_TIPUS);
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId);
 		
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
 		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
@@ -263,7 +231,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		
 		SessionHelper.setAttribute(
 				request,
-				VARIABLE_SESSIO_COMMAND_VALUES,
+				SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId,
 				valors);
 		
 		return PaginacioHelper.getPaginaPerDatatables(
@@ -271,7 +239,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				listaExpedients);
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/exportar_excel", method = RequestMethod.GET)
+	@RequestMapping(value = "/consulta/{expedientTipusId}/{consultaId}/exportar_excel", method = RequestMethod.GET)
 	public void exportarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -281,11 +249,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		
 		@SuppressWarnings("unchecked")
-		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
+		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
 		List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(consultaId);
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
-				VARIABLE_FILTRE_CONSULTA_TIPUS);
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId);
 		List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findConsultaDissenyPaginat(
 				consultaId,
 				valors,
@@ -297,21 +265,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		exportXLS(request, response, session, campsInforme, expedientsConsultaDissenyDto);
 	}
 	
-	@RequestMapping(value = "{expedientTipusId}/{consultaId}/canviar_consulta", method = RequestMethod.GET)
-	public  String  canviarConsulta(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long consultaId,
-			Model model) {
-
-		SessionHelper.removeAttribute(
-				request,
-				VARIABLE_FILTRE_CONSULTA_TIPUS);
-			
-		return "redirect:/v3/informe/"+expedientTipusId;
-	}
-	
-	@RequestMapping(value = "/modal/{expedientTipusId}/{consultaId}/mostrar_informe_params", method = RequestMethod.GET)
+	@RequestMapping(value = "/modal/consulta/{expedientTipusId}/{consultaId}/mostrar_informe_params", method = RequestMethod.GET)
 	public  String  mostrarInformeParams(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -323,7 +277,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return "v3/expedientInformeParams";
 	}
 	
-	@RequestMapping(value = "/modal/{expedientTipusId}/{consultaId}/mostrar_informe_params", method = RequestMethod.POST)
+	@RequestMapping(value = "/modal/consulta/{expedientTipusId}/{consultaId}/mostrar_informe_params", method = RequestMethod.POST)
 	public  String  mostrarInformeParams(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -344,7 +298,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return generarReport(session, consultaId, expedientTipusId, model, request);
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/{consultaId}/mostrar_informe", method = RequestMethod.GET)
+	@RequestMapping(value = "/consulta/{expedientTipusId}/{consultaId}/mostrar_informe", method = RequestMethod.GET)
 	public  String  descargar(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -357,12 +311,12 @@ public class ExpedientInformeController extends BaseExpedientController {
 	
 	private String generarReport(HttpSession session, Long consultaId, Long expedientTipusId, Model model, HttpServletRequest request) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		@SuppressWarnings("unchecked")
-		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(VARIABLE_SESSIO_COMMAND_VALUES);
+		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 		
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
-				VARIABLE_FILTRE_CONSULTA_TIPUS);
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS+consultaId);
 		List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto = expedientService.findConsultaDissenyPaginat(
 				consulta.getId(),
 				valors,
@@ -370,6 +324,12 @@ public class ExpedientInformeController extends BaseExpedientController {
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"));
+		
+		if (expedientsConsultaDissenyDto.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
+			getConsulta(request,consultaId,model);
+			return "redirect:/v3/informe/consulta/"+consultaId;
+		}
 		
 		model.addAttribute(
 				JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
@@ -380,7 +340,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		String nom = consulta.getInformeNom().substring(0,
 				consulta.getInformeNom().lastIndexOf("."));
 		
-		if ("zip".equals(extensio)) {
+		if ("zip".equalsIgnoreCase(extensio)) {
 			HashMap<String, byte[]> reports = unZipReports(consulta
 					.getInformeContingut());
 			model.addAttribute(
