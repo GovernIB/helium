@@ -199,8 +199,8 @@
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		return confirm("<fmt:message key='expedient.accio.buidarlog.confirmacio' />");
-// 		if (confirm("<fmt:message key='expedient.accio.buidarlog.confirmacio' />")) {
+		return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
+// 		if (confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />")) {
 // 			document.getElementById("buidarlogForm").submit();
 // 		}
 	}

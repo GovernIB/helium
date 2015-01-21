@@ -8,26 +8,26 @@
 <html>
 <head>
 	<title><spring:message code="tasca.llistat.titol"/></title>
-	<meta name="title" content="<spring:message code='tasca.llistat.titol'/>"/>
-	<meta name="title-icon-class" content="fa fa-tasks"/>
-	<meta name="capsaleraTipus" content="llistat"/>
+	<meta name="title" content="<spring:message code='tasca.llistat.titol'/>"/>	
+	<meta name="capsaleraTipus" content="llistat"/>	
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/moment.js"/>"></script>
-	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-	<script src="<c:url value="/js/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
+
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
+	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
-	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
-	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<script>
 		$(document).ready(function() {
 			$("#taulaDades").heliumDataTable({
@@ -256,6 +256,7 @@
 			</tr>
 		</thead>
 	</table>
+	
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div style="text-align:right">
 			<div id="btnTramitacio" class="btn-group">
@@ -265,15 +266,15 @@
 						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<a class="btn btn-default" data-rdt-link-modal="true" href="../v3/tasca/massivaReassignacioTasca?massiva=false"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
-					<c:otherwise>
+						<c:otherwise>
 						<a class="btn btn-default" href="../../../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="../../../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a id="btnReassignacioMassiva" class="btn btn-default" data-rdt-link-modal="true" href="../../../v3/tasca/massivaReassignacioTasca?massiva=true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
-						<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="../../../v3/expedient/massivaTramitacioTasca"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a id="btnReassignacioMassiva" class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="/v3/tasca/massivaReassignacioTasca?massiva=true"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="<c:url value="/v3/expedient/massivaTramitacioTasca"/>"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	
 			</div>
 		</div>
-	</script>						
+	</script>
 </body>
 </html>

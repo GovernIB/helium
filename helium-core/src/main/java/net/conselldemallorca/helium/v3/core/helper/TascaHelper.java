@@ -157,6 +157,39 @@ public class TascaHelper {
 		return task;
 	}
 
+	public boolean hasTasques(Expedient expedient) {
+		List<JbpmProcessInstance> pis = jbpmHelper.getProcessInstanceTree(
+				expedient.getProcessInstanceId());
+		List<Long> expedientIds = new ArrayList<Long>();
+		for (JbpmProcessInstance pi: pis) {
+			expedientIds.add(new Long(pi.getId()));
+		}
+		// Si l'usuari te permis de supervisio mostra totes les tasques de
+		// l'expedient de qualsevol usuari
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean isPermisSupervision = permisosHelper.isGrantedAny(
+				expedient.getTipus().getId(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		final LlistatIds ids = jbpmHelper.findListTasks(
+				(isPermisSupervision) ? null : auth.getName(), 
+				null,
+				expedientIds, 
+				null, 
+				null,
+				null, 
+				null, 
+				null, 
+				new PaginacioParamsDto(),
+				true,
+				true,
+				true);
+		return !ids.getIds().isEmpty();
+	}
+
 	public List<ExpedientTascaDto> findTasquesPerExpedient(
 			Expedient expedient) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
@@ -164,9 +197,9 @@ public class TascaHelper {
 				expedient.getProcessInstanceId());*/
 		List<JbpmProcessInstance> pis = jbpmHelper.getProcessInstanceTree(
 				expedient.getProcessInstanceId());
-		List<Long> expedientIds = new ArrayList<Long>();
+		List<Long> idsPIExpedients = new ArrayList<Long>();
 		for (JbpmProcessInstance pi: pis) {
-			expedientIds.add(new Long(pi.getId()));
+			idsPIExpedients.add(new Long(pi.getId()));
 		}
 		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 		paginacioParams.afegirOrdre(
@@ -187,7 +220,7 @@ public class TascaHelper {
 		final LlistatIds ids = jbpmHelper.findListTasks(
 				(isPermisSupervision) ? null : auth.getName(), 
 				null,
-				expedientIds, 
+				idsPIExpedients, 
 				null, 
 				null,
 				null, 
@@ -196,7 +229,7 @@ public class TascaHelper {
 				paginacioParams,
 				true,
 				true,
-				!isPermisSupervision);
+				false);
 		List<JbpmTask> tasks = jbpmHelper.findTasks(ids.getIds());
 		for (JbpmTask task: tasks) {
 			resposta.add(
@@ -313,7 +346,7 @@ public class TascaHelper {
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
-			// Sólo las pendientes
+			// Sólo las pendientes de tramitar
 			if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
 				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
 				if (auth.getName().equals(tasca.getResponsableCodi()))

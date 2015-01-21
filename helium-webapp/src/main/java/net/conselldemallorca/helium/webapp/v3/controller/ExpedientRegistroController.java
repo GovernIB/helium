@@ -75,7 +75,6 @@ public class ExpedientRegistroController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("tipus_retroces", tipus_retroces);
 		model.addAttribute("expedient", expedient);
-		model.addAttribute("isAdmin", potAdministrarExpedient(expedient));
 		model.addAttribute("logs", sortedEntries);
 		return "v3/expedientLog";
 	}

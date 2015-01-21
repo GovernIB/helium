@@ -18,7 +18,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesIniciExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -106,11 +106,11 @@ public class ExpedientIniciController extends BaseExpedientController {
 	public String iniciarGet(HttpServletRequest request, Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn);
-		Map<Long, DefinicioProcesIniciExpedientDto> definicionsProces = new HashMap<Long, DefinicioProcesIniciExpedientDto>();
+		Map<Long, DefinicioProcesExpedientDto> definicionsProces = new HashMap<Long, DefinicioProcesExpedientDto>();
 		Iterator<ExpedientTipusDto> it = tipus.iterator();
 		while (it.hasNext()) {
 			ExpedientTipusDto expedientTipus = it.next();
-			DefinicioProcesIniciExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesIniciExpedient(expedientTipus.getId());
+			DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
 			if (definicioProcesIniciExpedientDto != null)
 				definicionsProces.put(expedientTipus.getId(), definicioProcesIniciExpedientDto);
 			else

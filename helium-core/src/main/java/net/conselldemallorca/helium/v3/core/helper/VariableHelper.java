@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -776,8 +777,9 @@ public class VariableHelper {
 		if (TipusConsultaCamp.INFORME.equals(tipus) && camp.getDefinicioProces() != null) {
 			varCodi = camp.getDefinicioProces().getJbpmKey()+"/"+camp.getCodi();
 		} else {
-			varCodi = camp.getCodi().toLowerCase();
+			varCodi = camp.getCodi();
 		}
+		varCodi = varCodi.replace(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP);
 		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
 		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));

@@ -27,6 +27,7 @@ public class TascaDadaDto {
 	private boolean campOcult;
 	private String jbpmAction;
 	private String observacions;
+	private String definicioProcesKey;
 
 	private String text;
 	private List<TascaDadaDto> multipleDades;
@@ -231,6 +232,14 @@ public class TascaDadaDto {
 	}
 	public boolean isCampTipusRegistre() {
 		return CampTipusDto.REGISTRE.equals(campTipus);
+	}
+
+	public String getDefinicioProcesKey() {
+		return definicioProcesKey;
+	}
+
+	public void setDefinicioProcesKey(String definicioProcesKey) {
+		this.definicioProcesKey = definicioProcesKey;
 	}
 
 }

@@ -2762,11 +2762,13 @@ public class ExpedientService {
 					String valor = parella[1];
 					for (Camp camp: camps) {
 						if (camp.getCodi().equals(campCodi)) {
-							valors.put(
-									camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
-									Camp.getComObject(
-											camp.getTipus(),
-											valor));
+							if (camp.getDefinicioProces() != null) {
+								valors.put(
+										camp.getDefinicioProces().getJbpmKey() + "." + campCodi,
+										Camp.getComObject(
+												camp.getTipus(),
+												valor));
+							}
 							break;
 						}
 					}

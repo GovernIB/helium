@@ -15,7 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesIniciExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -190,13 +190,13 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto getByInstanciaProcesById(String processInstanceId) {
-		return delegate.getByInstanciaProcesById(processInstanceId);
+	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId) {
+		return delegate.getDefinicioProcesByTipusExpedientById(expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmId) {
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) {
 		return delegate.getSubprocessosByProces(jbpmId);
 	}
 
@@ -216,11 +216,5 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
 		return delegate.getByVersionsInstanciaProcesById(processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesIniciExpedientDto getDefinicioProcesIniciExpedient(Long expedientTipusId) {
-		return delegate.getDefinicioProcesIniciExpedient(expedientTipusId);
 	}
 }

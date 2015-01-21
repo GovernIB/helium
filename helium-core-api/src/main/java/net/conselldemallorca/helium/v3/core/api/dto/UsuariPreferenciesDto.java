@@ -57,8 +57,7 @@ public class UsuariPreferenciesDto {
 		this.consultaId = consultaId;
 	}
 	public boolean isFiltroTareasActivas() {
-		return false;
-//		return filtroTareasActivas;
+		return filtroTareasActivas;
 	}
 	public void setFiltroTareasActivas(boolean filtroTareasActivas) {
 		this.filtroTareasActivas = filtroTareasActivas;

@@ -88,20 +88,13 @@
 				<hel:inputSelect inline="true" name="${campPath}" placeholder="${campActual.campEtiqueta}" optionItems="${valorsBoolea}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</c:when>
 			<c:when test="${campActual.campTipus == 'SELECCIO'}">
+				<c:set var="EXPEDIENT_ESTAT" value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP%>"></c:set>
 				<c:choose>
-					<c:when test="${campPath == 'expedient$estat'}">
-						<div class="selEstat">
-							<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholder="${campActual.campEtiqueta}" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="nom"/>
-							<script>
-								$(".selEstat select").select2({
-								    width: 'resolve',
-								    allowClear: true
-								});
-							</script>
-						</div>
+					<c:when test="${campPath == EXPEDIENT_ESTAT}">
+						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholder="${campActual.campEtiqueta}" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="nom"/>
 					</c:when>
 					<c:otherwise>
-						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" optionItems="${campActual.varValor}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+						<hel:inputSelect inline="true" name="${campPath}" text="${campActual.campEtiqueta}" placeholder="${campActual.campEtiqueta}" optionItems="${campActual.varValor}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					</c:otherwise>
 				</c:choose>
 			</c:when>
@@ -126,7 +119,7 @@
 	 					</div>
 	 				</div>
 	 			</div>
- 				<script>
+ 				<script type="text/javascript">
 					$(document).ready(function() {
 						$("#${campPath}_anys").select2({
 						    width: 'resolve',

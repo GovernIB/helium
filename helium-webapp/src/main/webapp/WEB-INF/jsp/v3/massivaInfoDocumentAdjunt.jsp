@@ -24,16 +24,9 @@
 <style type="text/css">
 	.btn-file {position: relative; overflow: hidden;}
 	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.form-group {width: 100%;}
-	.fila_reducida {width: 100%;}		
-	.col-xs-4 {width: 20%;}		
-	.col-xs-8 {width: 77%;}
-	.col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
-	.col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
-	.col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
+	.col-xs-4 {width: 7%;}		
+	.col-xs-8 {width: 93%;}
 	#s2id_estatId {width: 100% !important;}
-	h4.titol-missatge i {padding-left: 5px;padding-right: 5px;}
-	.arxiu {margin-left: 20%;}
 </style>
 </head>
 <body>		
@@ -42,19 +35,19 @@
 			<input id="inici" name="inici" value="${inici}" type="hidden"/>
 			<input id="correu" name="correu" value="${correu}" type="hidden"/>
 			<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
-			<div class="form-group">
-				<div class="col-xs-8 arxiu">
+			<div id="amagarFile" class="form-group">
+				<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>
+		        <div class="col-xs-8 arxiu">					
 		            <div class="input-group">
+		                <form:input path="contingut" readonly="readonly" cssClass="form-control" />
 		                <span class="input-group-btn">
-		                    <span class="btn btn-primary btn-file">
-		                        <spring:message code='expedient.document.arxiu' />… <input type="file">
+		                    <span class="btn btn-default btn-file">
+		                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
 		                    </span>
 		                </span>
-		               <form:input path="contingut" readonly="readonly" cssClass="form-control" />
 		            </div>
 				</div>
-			</div>
-        
+        	</div>
 			<script type="text/javascript">
 				// <![CDATA[
 				$(document).on('change', '.btn-file :file', function() {
@@ -82,8 +75,8 @@
 			<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/yyyy"/>
 		</div>
 		<div id="modal-botons" class="well">
-			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
-			<button class="btn btn-primary right" type="submit" name="accio" value="document_adjuntar">
+			<button type="button" class="btn btn-default modal-tancar" style="float: none;" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+			<button class="btn btn-primary right" type="submit" style="float: none;" name="accio" value="document_adjuntar">
 				<spring:message code='comuns.adjuntar' />
 			</button>
 		</div>

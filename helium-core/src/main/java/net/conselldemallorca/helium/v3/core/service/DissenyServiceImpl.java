@@ -31,7 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesIniciExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -157,16 +157,6 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public DefinicioProcesDto getByInstanciaProcesById(String processInstanceId) {
-		InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(processInstanceId);;
-		if (instanciaProces.getDefinicioProces() != null) {	
-			return getById(instanciaProces.getDefinicioProces().getId());
-		}
-		return null;
-	}
-
-	@Transactional(readOnly=true)
-	@Override
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
@@ -185,30 +175,15 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public DefinicioProcesIniciExpedientDto getDefinicioProcesIniciExpedient(Long expedientTipusId) {
-		DefinicioProcesIniciExpedientDto dto = new DefinicioProcesIniciExpedientDto();
+	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId) {
 		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
 		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
-				JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());			
-				dto.setId(definicioProces.getId());
-				dto.setVersio(definicioProces.getVersio());
-				List<DefinicioProces> listDefProces = definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(definicioProces.getEntorn().getId(), definicioProces.getJbpmKey());
-				for (DefinicioProces defProces : listDefProces) {				
-					Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();			
-					dto.addIdAmbEtiquetaId(
-							defProces.getId(), 
-							jb.getName() + " v." + defProces.getVersio(), 
-							hasStartTask(definicioProces, hasStartTask), 
-							(expedientTipus.isTeNumero() && expedientTipus.isDemanaNumero()) || (expedientTipus.isTeTitol() && expedientTipus.isDemanaTitol()));
-					if (defProces.getVersio() == definicioProces.getVersio()) {
-						dto.setEtiqueta(jb.getName() + " v." + defProces.getVersio());
-					}
-				}
-				return dto;
+				JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+				return getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), expedientTipus);
 			}
 		}
 		return null;
@@ -223,15 +198,46 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	@Transactional(readOnly=true)
 	@Override
-	public List<DefinicioProcesDto> getSubprocessosByProces(String jbpmId) {
-		List<String> ids = new ArrayList<String>(); 
-		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(jbpmId), ids, false);
-
-		List<DefinicioProcesDto> subprocessos = new ArrayList<DefinicioProcesDto>();
-		for(String id: ids){
-			subprocessos.add(findDefinicioProcesAmbJbpmId(id));
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) {
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jbpmId);
+		List<String> jbpmIds = new ArrayList<String>(); 
+		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(jbpmId), jbpmIds, false);
+		List<DefinicioProcesExpedientDto> subprocessos = new ArrayList<DefinicioProcesExpedientDto>();
+		for(String id: jbpmIds){
+			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(id);
+			subprocessos.add(getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), null));
 		}
 		return subprocessos;
+	}
+
+	private DefinicioProcesExpedientDto getDefinicioProcesByEntornIdAmbJbpmId(Long entornId, String jbpmKey, ExpedientTipusDto expedientTipus) {
+		DefinicioProcesExpedientDto dto = new DefinicioProcesExpedientDto();
+		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(entornId, jbpmKey);
+		if (definicioProces != null) {
+			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());			
+			dto.setId(definicioProces.getId());
+			dto.setJbpmId(definicioProces.getJbpmId());
+			dto.setJbpmKey(definicioProces.getJbpmKey());
+			dto.setVersio(definicioProces.getVersio());
+			List<DefinicioProces> listDefProces = definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(definicioProces.getEntorn().getId(), definicioProces.getJbpmKey());
+			boolean demanaNumeroTitol = false;
+			if (expedientTipus != null)
+				demanaNumeroTitol = (expedientTipus.isTeNumero() && expedientTipus.isDemanaNumero()) || (expedientTipus.isTeTitol() && expedientTipus.isDemanaTitol());
+			for (DefinicioProces defProces : listDefProces) {				
+				Map<Long, Boolean> hasStartTask = new HashMap<Long, Boolean>();			
+				dto.addIdAmbEtiquetaId(
+						defProces.getId(), 
+						defProces.getJbpmId(),
+						jb.getName() + " v." + defProces.getVersio(), 
+						hasStartTask(definicioProces, hasStartTask), 
+						demanaNumeroTitol);
+				if (defProces.getVersio() == definicioProces.getVersio()) {
+					dto.setEtiqueta(jb.getName() + " v." + defProces.getVersio());
+				}
+			}
+			return dto;
+		}
+		return null;
 	}
 	
 	private void afegirJbpmIdProcesAmbSubprocessos(

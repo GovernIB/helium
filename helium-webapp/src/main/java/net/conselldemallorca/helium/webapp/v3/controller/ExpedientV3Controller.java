@@ -7,11 +7,13 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -71,10 +73,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			ModelMap model)  {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute("expedient", expedient);
-		model.addAttribute(
-				"estats",
-				dissenyService.findEstatByExpedientTipus(
-						expedient.getTipus().getId()));
+		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
+//		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
+//		estats.add(0, new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+		model.addAttribute("estats", estats);
 		model.addAttribute(getCommandModificar(expedient));
 		return "v3/expedient/modificarInformacio";
 	}

@@ -43,11 +43,11 @@ div.procesDocument:hover {
 			<div id="dataTable_documents_${proces.id}">
 				<div id="dataTables_new">
 					<div class="btnNouDocument">
-						<a 	class="btn btn-default" 
+						<a 	class="icon btn btn-default" 
 							href="../../v3/expedient/${expedientId}/nouDocument?processInstanceId=${proces.id}" 
 							data-rdt-link-modal="true" 
 							data-rdt-link-callback="recargarPanel(${proces.id});"
-							data-rdt-link-modal-min-height="170">
+							data-rdt-link-modal-min-height="180">
 							<span class="fa fa-plus"></span>
 							 <spring:message code="expedient.boto.nou_document"/>
 						</a>

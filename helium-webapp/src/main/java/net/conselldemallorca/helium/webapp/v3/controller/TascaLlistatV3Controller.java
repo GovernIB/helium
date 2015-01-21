@@ -67,6 +67,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			Model model) {
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
+		filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 		model.addAttribute(filtreCommand);
 		return "v3/tascaLlistat";
 	}

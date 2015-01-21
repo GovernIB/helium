@@ -24,7 +24,6 @@
 				<c:when test="${not empty tasca.responsables && not tasca.agafada}">
 					<span class="fa fa-users"></span>
 					<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status">
-						${responsable.codi}
 						<c:if test="${responsable.codi != dadesPersona.codi}">
 							<c:set var="ocultarAgafar" value="true"/>
 						</c:if>

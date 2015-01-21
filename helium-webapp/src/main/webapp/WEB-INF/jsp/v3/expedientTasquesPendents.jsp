@@ -54,13 +54,13 @@
 									<span class="fa fa-cog"></span>&nbsp;<spring:message code="tasca.llistat.accio.tramitar"/>&nbsp;<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
-									<li><a id="btnTramitacio" class="consultar-tasca" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></li>
-									<li><a class="consultar-tasca" data-rdt-link-modal="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></li>
+									<li><a href="../v3/expedient/${expedientId}/tasca/${tasca.id}" id="btnTramitacio" class="consultar-tasca" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></li>
+									<li><a href="../v3/tasca/${tasca.id}/massiva" class="consultar-tasca"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></li>
 								</ul>
 							</div>
 						</c:when>
 						<c:otherwise>
-							<a id="btnTramitacio" class="btn btn-primary" data-rdt-link-modal="true" href="../v3/expedient/${expedientId}/tasca/${tasca.id}"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/>
+							<a href="../v3/expedient/${expedientId}/tasca/${tasca.id}" id="btnTramitacio" class="btn btn-primary" data-rdt-link-modal="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/>
 						</c:otherwise>
 					</c:choose>	
 				</td>

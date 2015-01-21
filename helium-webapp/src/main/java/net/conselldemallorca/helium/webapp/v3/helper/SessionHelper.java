@@ -48,6 +48,7 @@ public class SessionHelper {
 	public static final String VARIABLE_SELECCIO_TASCA = "seleccioTasca";
 	public static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
+	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM = "filtreConsultaTipusParam";
 
 	public static Object getAttribute(
 			HttpServletRequest request,
@@ -267,15 +268,15 @@ public class SessionHelper {
 					seleccioConsultaTasca);
 		}
 		@SuppressWarnings("unchecked")
-		public Set<Long> getSeleccioInforme() {
+		public Set<Long> getSeleccioInforme(Long consultaId) {
 			return (Set<Long>)getAttribute(
 					request,
-					VARIABLE_SELECCIO_INFORME);
+					VARIABLE_SELECCIO_INFORME+consultaId);
 		}
-		public void setSeleccioInforme(Set<Long> seleccioInforme) {
+		public void setSeleccioInforme(Set<Long> seleccioInforme, Long consultaId) {
 			setAttribute(
 					request,
-					VARIABLE_SELECCIO_INFORME,
+					VARIABLE_SELECCIO_INFORME+consultaId,
 					seleccioInforme);
 		}
 		public UsuariPreferenciesDto getPreferenciesUsuari() {

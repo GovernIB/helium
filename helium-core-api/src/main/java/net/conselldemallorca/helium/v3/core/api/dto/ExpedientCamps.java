@@ -9,8 +9,11 @@ package net.conselldemallorca.helium.v3.core.api.dto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class ExpedientCamps {
-
-	public static final String EXPEDIENT_PREFIX = "expedient$";
+	public static final String EXPEDIENT_PREFIX_SEPARATOR = "$";
+	public static final String EXPEDIENT_PREFIX_JSP_SEPARATOR = "__exp__";
+	public static final String EXPEDIENT_PREFIX = "expedient"+EXPEDIENT_PREFIX_SEPARATOR;
+	public static final String EXPEDIENT_PREFIX_JSP = "expedient"+EXPEDIENT_PREFIX_JSP_SEPARATOR;
+	public static final String EXPEDIENT_CAMP_ESTAT_JSP = "expedient"+EXPEDIENT_PREFIX_JSP_SEPARATOR+"estat";
 	public static final String EXPEDIENT_CAMP_ENTORN = EXPEDIENT_PREFIX + "entorn";
 	public static final String EXPEDIENT_CAMP_ID = EXPEDIENT_PREFIX + "id";
 	public static final String EXPEDIENT_CAMP_NUMERO = EXPEDIENT_PREFIX + "numero";

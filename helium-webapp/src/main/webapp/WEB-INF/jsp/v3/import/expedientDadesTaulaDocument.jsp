@@ -11,12 +11,12 @@
 						<td class="left">
 							<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
 								<span class="fa fa-file fa-4x"></span>
-								<span class="extensionIcon">
-									${fn:toUpperCase(document.arxiuExtensio)}
-								</span>
 								<c:if test="${document.adjunt}">
 									<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 								</c:if>
+								<span class="extensionIcon">
+									${fn:toUpperCase(document.arxiuExtensio)}
+								</span>
 							</a>
 						</td>
 						<td class="right">

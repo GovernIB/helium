@@ -2337,42 +2337,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long consultaId,
 			Map<String, Object> valors,
 			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
-		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
-		List<TascaDadaDto> campsFiltreDto = serviceUtils.findCampsPerCampsConsulta(
+		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.FILTRE);
-		List<TascaDadaDto> campsInformeDto = serviceUtils.findCampsPerCampsConsulta(
+				TipusConsultaCamp.FILTRE));
+		
+		List<Camp> campsInforme = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.INFORME);
-		
-		List<Camp> campsFiltre = new ArrayList<Camp>();
-		for (TascaDadaDto tascaDadaDto : campsFiltreDto) {
-			Camp camp = campRepository.findById(tascaDadaDto.getCampId());
-			if (camp == null) {
-				camp = new Camp(
-//						consulta.getExpedientTipus().getDefinicionsProces(),
-						null,
-						tascaDadaDto.getVarCodi(),
-						TipusCamp.STRING,
-						tascaDadaDto.getVarCodi());
-			}
-			campsFiltre.add(camp);
-		}
-		
-		List<Camp> campsInforme = new ArrayList<Camp>();
-		for (TascaDadaDto tascaDadaDto : campsInformeDto) {
-			Camp camp = campRepository.findById(tascaDadaDto.getCampId());
-			if (camp == null) {
-				camp = new Camp(
-						null,
-						tascaDadaDto.getVarCodi(),
-						TipusCamp.STRING,
-						tascaDadaDto.getVarCodi());
-			}
-			campsInforme.add(camp);
-		}
+				TipusConsultaCamp.INFORME));
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		
@@ -2391,7 +2364,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (or.getCamp().contains("dadesExpedient")) {
 					sort = or.getCamp().replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
 				} else {
-					sort = or.getCamp().replace(".", "$");
+					sort = or.getCamp().replace(".", ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
 				}
 				break;
 			}
@@ -2410,6 +2383,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 				firstRow,
 				maxResults);
 		
+//		if (nomesPendents && !tascaHelper.hasTasques(expedient)) {
+			// No lo incluimos
+//		}
+//		if (nomesAlertes && (expedient.getErrorDesc() == null || expedient.getErrorDesc().isEmpty())) {
+//			// No lo incluimos
+//		} else if (mostrarAnulats && !expedient.isAnulat()) {
+//			// No lo incluimos
+//		} else 
+		
+		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
 			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
@@ -2434,31 +2417,29 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long consultaId,
 			Map<String, Object> valors,
 			Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
-		Consulta consulta = consultaHelper.findById(consultaId);		
+		Consulta consulta = consultaHelper.findById(consultaId);
 		
-		List<TascaDadaDto> campsFiltreDto = serviceUtils.findCampsPerCampsConsulta(
+		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
 				consulta,
-				TipusConsultaCamp.FILTRE);
-		
-		List<Camp> campsFiltre = new ArrayList<Camp>();
-		for (TascaDadaDto tascaDadaDto : campsFiltreDto) {
-			Camp camp = campRepository.findById(tascaDadaDto.getCampId());
-			if (camp == null) {
-				camp = new Camp(
-						null,
-						tascaDadaDto.getVarCodi(),
-						TipusCamp.STRING,
-						tascaDadaDto.getVarCodi());
-			}
-			campsFiltre.add(camp);
-		}
+				TipusConsultaCamp.FILTRE));
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
-		return luceneHelper.findNomesIds(
+		
+		List<Long> llistaIds = luceneHelper.findNomesIds(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors);
+		
+//		if (nomesPendents && !tascaHelper.hasTasques(expedient)) {
+			// No lo incluimos
+//		}
+//		if (nomesAlertes && (expedient.getErrorDesc() == null || expedient.getErrorDesc().isEmpty())) {
+//			it.remove();
+//		} else if (mostrarAnulats && !expedient.isAnulat()) {
+//			it.remove();
+//		}
+		return llistaIds;
 	}
 
 	@Override

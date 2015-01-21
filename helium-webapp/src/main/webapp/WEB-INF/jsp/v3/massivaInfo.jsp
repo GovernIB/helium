@@ -9,6 +9,7 @@
 <html>
 <head>
 	<title><spring:message code="expedient.massiva.titol"/></title>
+	<meta name="title" content="<spring:message code="expedient.massiva.titol"/>"/>	
 	
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
@@ -17,8 +18,7 @@
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
@@ -171,6 +171,8 @@
 		.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;}
 		#opciones .label-titol {padding-bottom: 0px;}
 		.form-group { margin-left: 15px;}
+		#s2id_definicioProcesId, #subDefinicionsProces .select2-container {margin-bottom:25px;}
+		#subDefinicionsProces {padding-bottom:0px;}
 		textarea {width: calc(100% - 15px) !important;}
 		.control-group {width: 100%;display: inline-block;}
 		.control-group-mid {width: 49%;}
@@ -334,22 +336,28 @@
 					<div class="ctrlHolder">
 						<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
 					</div>
-					<label class="control-label">${definicioProces.jbpmKey}</label>
-					<c:set var="definicionsProces" value="${definicioProces.jbpmIdsAmbDescripcio}" scope="request"/>
-					<hel:inputSelect inline="true" name="definicioProcesId" textKey="expedient.massiva.proces.principal" placeholderKey="expedient.massiva.proces.principal" optionItems="${definicionsProces}" optionValueAttribute="jbpmId" optionTextAttribute="descripcio"/>
-					
+					<label>${definicioProces.jbpmKey}</label>					
+					<select name="definicioProcesId" id="definicioProcesId">
+						<c:forEach var="df" items="${definicioProces.listIdAmbEtiqueta}" varStatus="status">
+							<option value="${df.jbpmId}">${df.etiqueta}</option>
+						</c:forEach>
+					</select>
+					<script>
+						$("#definicioProcesId").select2({
+						    width: '100%',
+						    allowClear: true
+						});
+					</script>
 					<c:if test="${not empty subDefinicioProces}">
 						<div class="ctrlHolder">
 							<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.subprocessos"/>:</h4>
 						</div>
 						<div id="subDefinicionsProces" class="form-group">
 							<c:forEach var="subProces" items="${subDefinicioProces}" varStatus="status">
-								<label class="control-label">${subProces.jbpmKey}</label>
-								<c:set var="subDefinicionsProces" value="${subProces.jbpmIdsAmbDescripcio}" scope="request"/>
-								
+								<label>${subProces.jbpmKey}</label>								
 								<select id="subprocesId[${status.index}]" name="subprocesId">
-									<c:forEach var="item" items="${subDefinicionsProces}">
-										<option value="${subProces.jbpmId}">${item.descripcio}</option>
+									<c:forEach var="item" items="${subProces.listIdAmbEtiqueta}">
+										<option value="${subProces.jbpmId}">${item.etiqueta}</option>
 									</c:forEach>
 								</select>
 								
@@ -463,7 +471,7 @@
 					<form:form cssClass="form-horizontal form-tasca" id="documentModificarMas" name="documentModificarMas" action="massiva/documentModificarMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
 						<hel:inputSelect inline="true" name="docId" textKey="expedient.massiva.documents" placeholderKey="expedient.consulta.select.document" optionItems="${documents}" optionValueAttribute="id" optionTextAttribute="documentNom"/>
 						
-						<a class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
+						<a data-rdt-link-modal-min-height="180" class="btn btn-primary right" name="document_modificar" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar' /></a>
 						
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_generar">
 							<spring:message code='tasca.doc.generar' />
@@ -471,7 +479,7 @@
 						<button class="btn btn-primary right" type="submit" name="accio" value="document_esborrar">
 							<spring:message code='comuns.esborrar' />
 						</button>
-						<a class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
+						<a data-rdt-link-modal-min-height="180" class="btn btn-primary right" name="document_adjuntar_massiu" href="../../v3/expedient/massiva/documentAdjunt" data-rdt-link-modal="true"><spring:message code='expedient.document.adjuntar_document_massiu' /></a>
 					</form:form>
 				</c:if>
 				<c:if test="${empty documents}">

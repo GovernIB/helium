@@ -81,10 +81,6 @@ div.procesTasca:hover {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
-.dataTable_tasca .dadesTaulaTascaTd.td-finalitzats {
-	padding-top: 0px !important;
-}
-
 .dataTable_tasca .dadesTaulaTascaTd > .panel.panel-default{
 	margin-bottom: 0px;
 }

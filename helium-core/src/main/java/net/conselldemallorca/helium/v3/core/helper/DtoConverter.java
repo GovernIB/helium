@@ -14,9 +14,9 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -33,6 +33,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
@@ -47,7 +48,8 @@ import org.springframework.stereotype.Service;
  */
 @Service("dtoConverterV3")
 public class DtoConverter {
-
+	@Resource
+	private CampRepository campRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -56,6 +58,8 @@ public class DtoConverter {
 	private TascaRepository tascaRepository;
 	@Resource
 	private VariableHelper variableHelper;
+	@Resource(name="serviceUtilsV3")
+	private ServiceUtils serviceUtils;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -326,7 +330,7 @@ public class DtoConverter {
 			if (camp != null && camp.getDefinicioProces() != null) {
 				dadaIndexadaClau = camp.getDefinicioProces().getJbpmKey() + "/" + camp.getCodi();
 				if (!dadesExpedient.containsKey(dadaIndexadaClau)) {
-					dadesExpedient.put(dadaIndexadaClau, new DadaIndexadaDto(camp.getCodi().toLowerCase(), camp.getEtiqueta()));
+					dadesExpedient.put(dadaIndexadaClau, new DadaIndexadaDto(camp.getCodi(), camp.getEtiqueta()));
 				}
 				DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
 				if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
@@ -338,15 +342,11 @@ public class DtoConverter {
 							expedient.getProcessInstanceId());	
 					dadaIndexada.setValorMostrar(text);
 				} 
-			} else if (camp.getCodi().equals(ExpedientCamps.EXPEDIENT_CAMP_ESTAT)) {
-				String text = null;
-				if (expedient.getEstat() != null)
-					text = expedient.getEstat().getNom();
-				else if (expedient.getDataFi() != null)
-					text = "Finalizat";
-				else
-					text = "Iniciat";
-				dadesExpedient.get(camp.getCodi()).setValorMostrar(text);
+			} else { 
+				if (!dadesExpedient.containsKey(camp.getCodi())) {
+					dadesExpedient.put(camp.getCodi(), new DadaIndexadaDto(camp.getCodi(), camp.getEtiqueta()));
+				}
+				dadesExpedient.get(camp.getCodi()).setValorMostrar(serviceUtils.getValueCampExpedient(expedient, camp.getCodi()));
 			}
 		}
 	}
@@ -405,6 +405,22 @@ public class DtoConverter {
 		dto.setDataFi(expedient.getDataFi());
 		
 		return dto;
+	}
+	
+	public List<Camp> toListCamp(List<TascaDadaDto> listTascaDadaDto) {
+		List<Camp> listCamp = new ArrayList<Camp>();
+		for (TascaDadaDto tascaDadaDto : listTascaDadaDto) {
+			Camp camp = campRepository.findById(tascaDadaDto.getCampId());
+			if (camp == null) {
+				camp = new Camp(
+						null,
+						tascaDadaDto.getVarCodi(),
+						conversioTipusHelper.convertir(tascaDadaDto.getCampTipus(), TipusCamp.class),
+						tascaDadaDto.getVarCodi());
+			}
+			listCamp.add(camp);
+		}
+		return listCamp;
 	}
 
 	/*public void filtrarVariablesTasca(Map<String, Object> variables) {

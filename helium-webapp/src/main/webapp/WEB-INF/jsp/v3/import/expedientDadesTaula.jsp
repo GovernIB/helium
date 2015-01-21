@@ -10,9 +10,9 @@
 	div.grup:hover {background-color: #e5e5e5 !important;border-color: #ccc !important;}
 	div.grup .panel-body-grup {padding-bottom: 0px !important;}
 	.panel-body-grup {margin: -1px;}
-	.extensionIcon {color: white;font-size: 10px;font-weight: bold;margin-left: -38px;}
-	.adjuntIcon {color: white !important; float: left; font-size: 20px; margin-left: 7px; margin-top: -51px; position: relative;}
-	.signature {margin-top: -5px;}
+	.tableDocuments .extensionIcon {color: white !important;float: left;font-size: 12px;font-weight: bold;margin-left: 12px;margin-top: -20px;position: relative;}
+	.tableDocuments .adjuntIcon {color: white !important; float: left; font-size: 20px; margin-left: 7px; margin-top: -51px; position: relative;}
+	.tableDocuments .signature {margin-top: -5px;}
 	.table.table-bordered {margin-bottom: 0px !important;}
 	.tableDocuments .left {padding-left: 10px;padding-right: 10px;}
 	.tableDocuments .right {padding-left: 3px;padding-right: 10px;width: 100%;}

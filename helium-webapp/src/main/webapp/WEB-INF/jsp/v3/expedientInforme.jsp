@@ -67,6 +67,7 @@
 		.form-group.registre {
 			padding-right: 1px;
 		}
+		.col-xs-9 {width: 82.5%}
 		.registre table .colEliminarFila {
 			width: 1px;
 		}
@@ -123,20 +124,9 @@
 		#canviar_consulta {margin-top: 5px;}
 	</style>
 <script>
-$(document).ready(function() {
-	<c:if test="${not empty campsInformeParams}">
-		$("#mostrar_informe").on(
-			"click",
-			function() {
-				$("#mostrar_informe").attr('data-rdt-link-modal','true');
-				$("#mostrar_informe").attr('href','${consulta.expedientTipus.id}/${consulta.id}/mostrar_informe_params');
-				return false;
-			}
-		);
-	</c:if>
-	
+$(document).ready(function() {	
 	$("#taulaDades").heliumDataTable({
-		ajaxSourceUrl: "<c:url value="/v3/informe/${consulta.expedientTipus.id}/${expedientInformeCommand.consultaId}/datatable"/>",
+		ajaxSourceUrl: "<c:url value="/v3/informe/consulta/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		rowClickCallback: function(row) {
@@ -187,15 +177,11 @@ $(document).ready(function() {
 });
 </script>
 </head>
-<body>
+<body>	
 	<input type="hidden" id="netejar" value="false"/>
+	
 	<form:form method="post" cssClass="well form-horizontal form-tasca" commandName="expedientInformeCommand">
 		<form:hidden path="consultaId"/>
-		<c:forEach var="expedientTipus" items="${expedientTipusAccessibles}">
-			<c:if test="${expedientTipus.id == expedientTipusId}">
-				<c:set var="titleHeader" value="${expedientTipus.nom}"/>
-			</c:if>
-		</c:forEach>
 		<div class="control-group fila_reducida">
 			<c:forEach var="camp" items="${campsFiltre}">
 				<c:set var="campActual" value="${camp}" scope="request"/>
@@ -223,17 +209,17 @@ $(document).ready(function() {
 			</div>
 		</div>
 	</form:form>
-
+				
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" data-rdt-filtre-form-id="expedientInformeCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr class="panel-heading clicable proces" data-toggle="collapse">
 				<th data-rdt-property="expedient.id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-							<div class="pull-left">
-								<span class="icona-collapse fa fa-chevron-down"></i>						
-							</div>
-						</script>
+						<div class="pull-left">
+							<span class="icona-collapse fa fa-chevron-down"></i>						
+						</div>
+					</script>
 				</th>
 				<th data-rdt-property="expedient.identificador" data-rdt-sorting="desc" data-visible=true><spring:message code="expedient.llistat.columna.expedient"/></th>
 				<c:forEach var="camp" items="${campsInforme}">
@@ -258,27 +244,35 @@ $(document).ready(function() {
 		</thead>
 	</table>
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
-			<div class="btn-group pull-right">
-				<a class="btn btn-default" href="../../informe/${consulta.expedientTipus.id}/${consulta.id}/seleccioTots" data-rdt-link-ajax="true" title="Seleccionar tots"><span class="fa fa-check-square-o"></span></a>
-				<a class="btn btn-default" href="<c:url value="../../informe/seleccioNetejar"/>" data-rdt-link-ajax="true" title="Netejar selecció"><span class="fa fa-square-o"></span></a>
-				<a class="btn btn-default" href="#">Tramitació massiva <span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
-			</div>
-			<div id="btn_exportar" class="btn-toolbar pull-right btn_under_taulaDades">
-				<a id="exportar_excel" href="${consulta.expedientTipus.id}/${consulta.id}/exportar_excel" class="btn btn-default">
+		<div class="btn-group pull-right">
+			<a class="btn btn-default" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/seleccioTots"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+			<a class="btn btn-default" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/seleccioNetejar"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+			<a class="btn btn-default" href="<c:url value="../../../v3/expedient/massiva?consultaId=${consulta.id}"/>"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+		</div>
+		<div id="btn_exportar" class="btn-toolbar pull-right btn_under_taulaDades">
+			<c:if test="${consulta.exportarActiu}">
+				<a id="exportar_excel" href="<c:url value="../../informe/consulta/${consulta.id}/exportar_excel"/>" class="btn btn-default">
 					<span class="icon-download-alt"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 				</a>
-				<c:if test="${not empty consulta.informeNom}">
-					<a id="mostrar_informe" href="${consulta.expedientTipus.id}/${consulta.id}/mostrar_informe" class="btn btn-default">
-						<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
-					</a>
-				</c:if>
-			</div>			
-		</script>
+			</c:if>
+			<c:if test="${not empty consulta.informeNom and not empty campsInformeParams}">
+				<a data-rdt-link-modal="true" id="mostrar_informe" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/mostrar_informe_params"/>" class="btn btn-default">
+					<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
+				</a>
+			</c:if>
+			<c:if test="${not empty consulta.informeNom and empty campsInformeParams}">
+				<a id="mostrar_informe" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/mostrar_informe"/>" class="btn btn-default">
+					<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
+				</a>
+			</c:if>
+		</div>			
+	</script>
 	
 	<script type="text/javascript">
-		$("#btn_exportar a").heliumEvalLink({
+		$("#tableButtonsTemplate a").heliumEvalLink({
 			refrescarAlertes: true,
-			refrescarPagina: false
+			refrescarPagina: false,
+			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		});
 	</script>
 </body>
