@@ -61,7 +61,7 @@
 				margin-bottom: 10px;
 				border-bottom: solid 1px #EAEAEA;
 			}
-			#tabnav .glyphicon {padding-right: 10px;}
+			/*#tabnav .glyphicon {padding-right: 10px;}*/
 		</style>
 	</head>
 	<body>		
@@ -93,7 +93,7 @@
 								<c:when test="${camp.campTipus == 'DATE'}">
 									<div class="input-group">
 										<form:input path="${camp.varCodi}" id="${camp.varCodi}" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="${camp.required}"/>
-										<span class="input-group-addon btn_date"><span class="glyphicon glyphicon-calendar"></span></span>
+										<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 									</div>
 								</c:when>
 								<%-- BOOLEAN ---------------------------------------------------------------------------------------%>

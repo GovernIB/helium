@@ -62,7 +62,7 @@
 				});
 				
 				$("#inici").on('focus', function() {
-					$('.glyphicon-calendar').click();
+					$('.fa-calendar').click();
 				});	
 				
 				$('#tipusExpressio').on('change', function() {
@@ -100,7 +100,7 @@
 					            <div class="form-group">
 					                <div class='input-group date' id='inici_timer'>
 					                    <input id="inici" name="inici" class="form-control" data-format="dd/MM/yyyy hh:mm" type="text" value="${inici}">
-					                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					                    <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
 					                </div>
 					            </div>
 					    	</div>

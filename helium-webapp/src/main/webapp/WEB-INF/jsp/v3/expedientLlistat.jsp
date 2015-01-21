@@ -9,29 +9,31 @@
 <head>
 	<title><spring:message code="expedient.llistat.titol"/></title>
 	<meta name="capsaleraTipus" content="llistat"/>
-	<meta name="title" content="<spring:message code='expedient.llistat.titol'/>"/>	
+	<meta name="title" content="<spring:message code='expedient.llistat.titol'/>"/>
+	<meta name="title-icon-class" content="fa fa-folder"/>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
+	<%--script src="<c:url value="/js/moment.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script--%>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
-
-	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
-	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
-	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
-	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	
-	<link href="<c:url value="/css/autocomplete.css"/>" rel="stylesheet" type="text/css" />
+	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
+	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
+	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<%--script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 	<style type="text/css">
 		#consultaTipo {padding-bottom: 20px;padding-right: 15px;}
 		.btn-mini {padding: 0 6px;}
-	</style>
+	</style--%>
 <script>
 $(document).ready(function() {
 	$("#taulaDades").heliumDataTable({
@@ -39,38 +41,67 @@ $(document).ready(function() {
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		drawCallback: function() {
-			var seleccionable = $('#expedientTipusId').val() != '';
-			$('#btnTramitacio').toggleClass("hide", !seleccionable);
-			var seleccioColumna = $("#taulaDades").data("rdt-seleccionable-columna");			
-			$("#taulaDades").find('tr').find("td:eq("+seleccioColumna+")").toggleClass("hide", !seleccionable);
-			$("th:eq(" + seleccioColumna + ")", $("#taulaDades")).toggleClass("hide", !seleccionable);
+			$('.show-modal-error').click(function(e) {
+				$('#modal-error .modal-title').html($(this).data('error-titol'));
+				$('#modal-error .modal-body').html(
+						'<p>' + $(this).data('error-missatge') + '</p>');
+				if ($(this).data('error-detall')) {
+					$('#modal-error .modal-body').append(
+							'<p>' + $(this).data('error-detall') + '</p>');
+				}
+				if ($(this).data('error-pid')) {
+					$('#modal-error .modal-body').append(
+							'<p>processInstanceId: ' + $(this).data('error-pid') + '</p>');
+				}
+				$('#modal-error').modal('show');
+				if (e.stopPropagation) e.stopPropagation();
+			});
 		},
-		rowClickCallback: function(row) {
- 			//$('a.consultar-expedient', $(row))[0].click(); 			
-//  			$(".desplegar").click(function() {
-				$.ajax({
-					"url": "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
-					"beforeSend": function( xhr ) {	
-						$('.fa-chevron-up').addClass('fa-chevron-down').removeClass('fa-chevron-up');
-						$(row).find('.icona-collapse').removeClass('fa-chevron-down').addClass('fa-circle-o-notch fa-spin');
-						$(".table-pendents").find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(400, function(){
-						  	$(this).parent().parent().remove();
-						});
-					},
-					"success": function (data) {
-						$(row).find('.icona-collapse').removeClass('fa-circle-o-notch fa-spin').addClass('fa-chevron-up');
+		rowClickCallback: function(row, event) {
+			var clickNomesDesplegar = true;
+			var numTds = $('td', $(event.target).closest('tr')).length;
+			var tdDesplegarIndex = numTds - 6;
+			var isTdDesplegar = $(event.target).closest('td').is(':nth-child(' + tdDesplegarIndex + ')');
+			if (!isTdDesplegar && !clickNomesDesplegar) {
+				$('a.consultar-expedient', $(row))[0].click();
+			} else {
+				var desplegat = $('.icona-tasques-pendents', row).hasClass('fa-chevron-up');
+				if (desplegat) {
+					$(row).next().remove();
+					$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
+					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
+				} else {
+					var jqxhr = $.ajax({
+						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
+						beforeSend: function(xhr) {
+							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
+						}
+					}).done(function(data) {
+						$(row).next(".tasques-pendents").remove();
 						$(row).after(data);
-						$(".table-pendents").find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(400, function(){
-							  var $set = $(this);
-							  $set.replaceWith($set.contents());
-						});
-					},
-				  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
-						$('.fa-chevron-up').removeClass('fa-chevron-down fa-circle-o-notch fa-spin fa-chevron-up');
-						$(".table-pendents").remove();
-					}
-				});
-//  			});
+						$('td:first', $(row).next(".tasques-pendents")).attr('colspan', numTds);
+						$(row).next(".tasques-pendents").slideDown(1000);
+						$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
+						$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
+					}).fail(function(jqXHR, exception) {
+						if (jqXHR.status === 0) {
+			                alert('Not connected.\n Verify network.');
+			            } else if (jqXHR.status == 404) {
+			                alert('Requested page not found [404].');
+			            } else if (jqXHR.status == 500) {
+			                alert('Internal server error [500].');
+			            } else if (exception === 'parsererror') {
+			                alert('Requested JSON parse failed.');
+			            } else if (exception === 'timeout') {
+			                alert('Timeout error.');
+			            } else if (exception === 'abort') {
+			                alert('Ajax request aborted.');
+			            } else {
+			                alert('Unknown error:\n' + jqXHR.responseText);
+			            }
+					});
+				}
+			}
 		},
 		seleccioCallback: function(seleccio) {
 			$('#tramitacioMassivaCount').html(seleccio.length);
@@ -129,23 +160,62 @@ $(document).ready(function() {
 
 	$('#expedientTipusId').trigger('change');
 });
+
+<%--$(function() {
+	$( "#dialog-error" ).dialog({
+		autoOpen: false,
+		height: 120,
+		width: 1000,
+		modal: true,
+		resizable: true,
+		eventType: 'click',
+		loader: 1,
+		loaderHeight: 50,
+		loaderWidth: 100,
+		eventType:'click', 
+		overlayOpacity: 10,							
+		windowPadding: 10,
+		draggable: 1
+	});
+});
+
+function alertaErrorUser(e, desc) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	
+	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
+	$("#dialog-error").html(text);
+	$("#dialog-error").data('title.dialog', desc); 
+	$("#dialog-error").dialog( "open" );
+	if (e.stopPropagation) e.stopPropagation();
+
+	return false;
+}
+function alertaErrorAdmin(e, id, desc, full) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+
+	var text = desc + "<br/><br/>Póngase en contacto con el responsable del expediente.";
+	$("#dialog-error").html(text+"<br/><br/>"+full);
+	$("#processInstanceId").val(id);
+	$("#dialog-error").data('title.dialog', desc); 
+	$("#dialog-error").dialog( "open" );
+	if (e.stopPropagation) e.stopPropagation();
+
+	return false;
+}--%>
 </script>
 </head>
 <body>
-	<input type="hidden" id="netejar" value="false"/>
-	
-	<div id="dialog-error" title="Error" style="display:none" class="ui-dialog-content ui-widget-content"></div>
-									
 	<form:form action="" method="post" cssClass="well" commandName="expedientConsultaCommand">
-		<div id="consultaTipo" class="row">
+		<%--div id="consultaTipo" class="row">
 			<div class="btn-group pull-right">
 				<a class="btn btn-default btn-mini dropdown-toggle" href="#" data-toggle="dropdown">
 					<spring:message code="expedient.llistat.consulta_avanzada"/> <span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu"></ul>
 			</div>
-		</div>
-
+		</div--%>
 		<div class="row">
 			<div class="col-md-2">
 				<hel:inputText name="numero" textKey="expedient.llistat.filtre.camp.numero" placeholderKey="expedient.llistat.filtre.camp.numero" inline="true"/>
@@ -230,9 +300,7 @@ $(document).ready(function() {
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-						<div class="desplegar pull-left">
-							<span class="icona-collapse fa fa-chevron-down"></i>						
-						</div>
+						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
 					</script>
 				</th>
 				<th data-rdt-property="identificador" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
@@ -249,21 +317,27 @@ $(document).ready(function() {
 					{{else}}
 						<spring:message code="comu.estat.iniciat"/>
 					{{/if}}
-
 					<div class="pull-right">
 						{{if errorsIntegracions}}
-							<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span></span>
+							<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span> </span>
 						{{/if}}
 						{{if aturat}}
 							<span class="label label-danger" title="<spring:message code="expedient.info.aturat"/>">AT</span>
 						{{else anulat}}
 							<span class="label label-warning" title="<spring:message code="expedient.info.anulat"/>">AN</span>
 						{{/if}}
+						<%--{{if errorDesc}}
+							{{if isAdmin}}
+								<span class="label label-warning" title="{{:errorDesc}}" onclick="return alertaErrorAdmin(event, {{:processInstanceId}}, '{{:errorDesc}}', '{{:errorFull}}')"><span class="fa fa-exclamation-circle"></span> </span>
+							{{else}}
+								<span class="label label-warning" title="{{:errorDesc}}" onclick="return alertaErrorUser(event, '{{:errorDesc}}')"><span class="fa fa-exclamation-circle"></span> </span>
+							{{/if}}						
+						{{/if}}--%>
 						{{if errorDesc}}
 							{{if isAdmin}}
-								<span class="label label-warning" title="{{:errorDesc}}"><span class="fa fa-exclamation-circle" onclick="return alertaErrorAdmin(event, {{:processInstanceId}}, '{{:errorDesc}}', '{{:errorFull}}')"></span></span>
+								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
 							{{else}}
-								<span class="label label-warning" title="{{:errorDesc}}"><span class="fa fa-exclamation-circle" onclick="return alertaErrorUser(event, '{{:errorDesc}}')"></span></span>
+								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
 							{{/if}}						
 						{{/if}}
 					</div>
@@ -278,19 +352,6 @@ $(document).ready(function() {
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
-<%--
-				<th data-rdt-property="id" data-rdt-template="cellPermisosTemplate" data-rdt-visible="true" data-rdt-sortable="false">
-					Permisos
-					<script id="cellPermisosTemplate" type="text/x-jsrender">
-						{{if permisCreate}}C{{/if}}
-						{{if permisRead}}R{{/if}}
-						{{if permisWrite}}W{{/if}}
-						{{if permisDelete}}D{{/if}}
-						{{if permisSupervision}}S{{/if}}
-						{{if permisReassignment}}G{{/if}}
-					</script>
-				</th>
---%>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">
@@ -317,6 +378,21 @@ $(document).ready(function() {
 			<a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="iniciar-modal" class="btn btn-default" href="<c:url value="../v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 		</div>
 	</script>
+	<div id="modal-error" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </body>
 </html>

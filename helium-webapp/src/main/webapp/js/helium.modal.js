@@ -38,7 +38,7 @@
 					'				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
 					'				<h4 class="modal-title"></h4>' +
 					'			</div>' +
-					'			<div class="modal-body">' +
+					'			<div class="modal-body" style="padding:0">' +
 					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="100%"></iframe>' +
 					'			</div>' +
 					'			<div class="modal-footer">' +
@@ -128,16 +128,17 @@
 						var modalobj = $(this).parent().parent().parent();
 						var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
 						var maxBodyHeight = $(window).height() - taraModal - 30;
-						if (contentHeight > maxBodyHeight) {
+						/*if (contentHeight > maxBodyHeight) {
 							// Si el contingut és més alt que la finestra
 							$(this).height(maxBodyHeight + 'px');
-							//$(this).height((contentHeight - 14) + 'px');
-							$('.modal-body', modalobj).css('height', (maxBodyHeight + 15) + 'px');
+							$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
 						} else {
 							// Si el contingut cap a dins la finestra
 							$(this).height(contentHeight + 'px');
-							$('.modal-body', modalobj).css('height', (contentHeight + 15) + 'px');
-						}
+							$('.modal-body', modalobj).css('height', contentHeight + 'px');
+						}*/
+						$(this).height(maxBodyHeight + 'px');
+						$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
 					}
 					if (settings.minHeight) {
 						modalAdjustHeight($('iframe', modalobj),settings.minHeight);

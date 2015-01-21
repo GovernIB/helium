@@ -70,7 +70,7 @@
 					<div class="col-xs-13">
 						<div class="input-group">
 							<form:input path="${campPath}[0]" id="${campPath}[0]" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="false"/>
-							<span class="input-group-addon btn_date"><span class="glyphicon glyphicon-calendar"></span></span>
+							<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 						</div>
 					</div>
 				</div>
@@ -79,7 +79,7 @@
 					<div class="col-xs-13">
 						<div class="input-group">
 							<form:input path="${campPath}[1]" id="${campPath}[1]" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="false"/>
-							<span class="input-group-addon btn_date"><span class="glyphicon glyphicon-calendar"></span></span>
+							<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 						</div>
 					</div>
 				</div>

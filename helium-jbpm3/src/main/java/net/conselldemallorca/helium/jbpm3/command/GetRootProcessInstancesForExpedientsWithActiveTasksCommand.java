@@ -121,11 +121,10 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		
 		List<Long> listadoTask = new ArrayList<Long>();
 		List<String> listadoExpedientes = new ArrayList<String>();
-
 		// Quitamos los expedientes sin tareas activas
     	for (String id: ids) {
 	    	for (Object[] fila : llistaActorId) {
-	    		if (id.equals(fila[0]) && !listadoTask.contains(fila[2])) {
+	    		if (new Long(id).equals(fila[0]) && !listadoTask.contains(fila[2])) {
 	    			listadoTask.add((Long)fila[2]);
 	    			listadoExpedientes.add(id);
 	    		}

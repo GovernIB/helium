@@ -26,17 +26,22 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<style>
-		.alert {margin-top: 20px;}
+		.alert {
+			margin-right: -15px;
+		}
 		input, select, textarea {
 			width: 100%;
 		}
 		label {
 			font-weight: normal;
 		}
+		.form-tasca {
+			/*padding-right: 15px;*/
+		}
 		.form-group {
-			padding-right: 	15px;
+			/*padding-right: 	15px;
 			margin-left: 	0px !important;
-			margin-bottom:	0px;
+			margin-bottom:	0px;*/
 		}
 		.controls {
 			padding-right: 0 !important;
@@ -76,10 +81,10 @@
 			clear: both;
 		}
 		.clearForm {
+			display: none;
 			clear: both;
-			margin-bottom: 10px;
-			margin-top: 15px;
-			border-bottom: solid 1px #DADADA;
+			border-bottom: solid 1px #ccc;
+			margin: 15px -15px 10px 15px;
 		}
 		.input-append {
 			width: calc(100% - 27px);
@@ -115,12 +120,12 @@
 			text-align: right;
 			margin-right: -15px;
 		}
-		#tabnav .glyphicon {
+		/*#tabnav .glyphicon {
 			padding-right: 10px;
-		}
+		}*/
 		div.tab-content {
 			width: calc(100% - 15px);
-			padding-bottom: 15px;
+			padding: 15px 0 0 0;
 		}
 		.multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {
 			float: left;
@@ -187,9 +192,9 @@
 		.has-error .form-control {
 			background-color: #ffefe !important;
 		}
-		#contingut-alertes, .tauladades {
+/*		#contingut-alertes, .tauladades {
 			padding-right: 15px;
-		}
+		}*/
 /* 		input, textarea, .select2-choice { */
 /* 			background-color: #FFFCF0 !important; */
 /* 		} */
@@ -240,7 +245,7 @@
 	<c:set var="pipellaIndex" value="${1}"/>
 	<ul id="tabnav" class="nav nav-tabs">
 		<c:if test="${not empty dades}">
-			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="glyphicon glyphicon-warning-sign"> </span></c:if>${pipellaIndex}. Dades</a></li>
+			<li class="active"><a href="#dades" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="fa fa-warning"> </span></c:if>${pipellaIndex}. Dades</a></li>
 			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 		</c:if>
 		<c:if test="${hasDocuments == true}">
@@ -304,83 +309,80 @@
 						</c:choose>
 					</div>
 				</c:if>
-				
-				<div class="well">					
-					<c:if test="${not empty tasca.formExtern}">	
-						<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
-						<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-						<script type="text/javascript">
-						// <![CDATA[
-							function clickFormExtern(form) {
-								formulariExternDwrService.dadesIniciFormulari(
-										form.id.value,
-										{
-											callback: function(retval) {
-												if (retval) {
-													$("#linkClickFormExtern").attr('href', '<c:url value='../../../../../v3/expedient/formExtern'/>?width='+retval[1]+'&height='+retval[2]+'&url='+retval[0]).click();
-												} else {
-													alert("<spring:message code='tasca.form.error_ini' />");
-												}
-											},
-											async: false
-										});
-								return false;
-							}
-						// ]]>
-						</script>
-						<div class="form-group">
-							<form id="formExtern" action="formExtern" class="form-horizontal form-tasca" onclick="return clickFormExtern(this)">
-								<input type="hidden" name="id" value="${tasca.id}"/>
-								<div id="modal-botons-form-extern" class="pull-right form_extern">
-									<button type="submit" id="btn_formextern" name="accio" value="formextern" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></button>
-								</div>								
-								<a 	id="linkClickFormExtern" data-rdt-link-modal="true" data-rdt-link-modal-min-height="400" data-rdt-link-callback="recargarPanel(this);" href="#" class="hide"></a>
-										
-								<script type="text/javascript">
-									// <![CDATA[
-										$('#linkClickFormExtern').heliumEvalLink({
-											refrescarAlertes: true,
-											refrescarPagina: false,
-											alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
-										});
-
-										function recargarPanel (tag, correcte) {
-											if (correcte) {
-												location.reload();
+				<c:if test="${not empty tasca.formExtern}">	
+					<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
+					<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
+					<script type="text/javascript">
+					// <![CDATA[
+						function clickFormExtern(form) {
+							formulariExternDwrService.dadesIniciFormulari(
+									form.id.value,
+									{
+										callback: function(retval) {
+											if (retval) {
+												$("#linkClickFormExtern").attr('href', '<c:url value='../../../../../v3/expedient/formExtern'/>?width='+retval[1]+'&height='+retval[2]+'&url='+retval[0]).click();
+											} else {
+												alert("<spring:message code='tasca.form.error_ini' />");
 											}
+										},
+										async: false
+									});
+							return false;
+						}
+					// ]]>
+					</script>
+					<div class="form-group">
+						<form id="formExtern" action="formExtern" class="form-horizontal form-tasca" onclick="return clickFormExtern(this)">
+							<input type="hidden" name="id" value="${tasca.id}"/>
+							<div id="modal-botons-form-extern" class="pull-right form_extern">
+								<button type="submit" id="btn_formextern" name="accio" value="formextern" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></button>
+							</div>								
+							<a 	id="linkClickFormExtern" data-rdt-link-modal="true" data-rdt-link-modal-min-height="400" data-rdt-link-callback="recargarPanel(this);" href="#" class="hide"></a>
+									
+							<script type="text/javascript">
+								// <![CDATA[
+									$('#linkClickFormExtern').heliumEvalLink({
+										refrescarAlertes: true,
+										refrescarPagina: false,
+										alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+									});
+
+									function recargarPanel (tag, correcte) {
+										if (correcte) {
+											location.reload();
 										}
-									//]]>
-								</script>
-							</form>
-						</div>
-					</c:if>
-					<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
-						<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
-						<form:hidden path="inici"/>
-						<form:hidden path="correu"/>
-						<form:hidden path="numTascaMassiva"/>					
-						
-						<input type="hidden" id="__transicio__" name="__transicio__" value=""/>
-						<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
-							<c:set var="inline" value="${false}"/>
-							<c:set var="isRegistre" value="${false}"/>
-							<c:set var="isMultiple" value="${false}"/>
-							<c:choose>
-								<c:when test="${dada.campTipus != 'REGISTRE'}">
-									<c:choose>
-										<c:when test="${dada.campMultiple}">
-											<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
-											<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
-												<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta}</label>
-												<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
-													<c:set var="inline" value="${true}"/>
-													<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
-													<c:set var="campNom" value="${dada.varCodi}"/>
-													<c:set var="campIndex" value="${varStatusCab.index}"/>
-													<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
-														<c:set var="isMultiple" value="${true}"/>
-														<%@ include file="campsTasca.jsp" %>
-														<c:set var="isMultiple" value="${false}"/>
+									}
+								//]]>
+							</script>
+						</form>
+					</div>
+				</c:if>
+				<form:form onsubmit="return confirmar(this)" action="" cssClass="form-horizontal form-tasca" method="post" commandName="command">
+					<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
+					<form:hidden path="inici"/>
+					<form:hidden path="correu"/>
+					<form:hidden path="numTascaMassiva"/>					
+					<input type="hidden" id="__transicio__" name="__transicio__" value=""/>
+					<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
+						<c:set var="inline" value="${false}"/>
+						<c:set var="isRegistre" value="${false}"/>
+						<c:set var="isMultiple" value="${false}"/>
+						<c:choose>
+							<c:when test="${dada.campTipus != 'REGISTRE'}">
+								<c:choose>
+									<c:when test="${dada.campMultiple}">
+										<c:set var="campErrorsMultiple"><form:errors path="${dada.varCodi}"/></c:set>
+										<div class="multiple<c:if test="${not empty campErrorsMultiple}"> has-error</c:if>">	
+											<label for="${dada.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dada.campEtiqueta}</label>
+											<c:forEach var="membre" items="${command[dada.varCodi]}" varStatus="varStatusCab">
+												<c:set var="inline" value="${true}"/>
+												<c:set var="campCodi" value="${dada.varCodi}[${varStatusCab.index}]"/>
+												<c:set var="campNom" value="${dada.varCodi}"/>
+												<c:set var="campIndex" value="${varStatusCab.index}"/>
+												<div class="col-xs-9 input-group-multiple <c:if test="${varStatusCab.index != 0}">pad-left-col-xs-3</c:if>">
+													<c:set var="isMultiple" value="${true}"/>
+													<%@ include file="campsTasca.jsp" %>
+													<c:set var="isMultiple" value="${false}"/>
 													</div>
 												</c:forEach>
 												<c:if test="${empty dada.multipleDades}">
@@ -424,7 +426,6 @@
 							<%@ include file="campsTascaBotons.jsp" %>
 						</div>
 					</form:form>
-				</div>
 			</div>
 		</c:if>
 		<c:if test="${hasDocuments == true}">
@@ -439,9 +440,9 @@
 				<%@ include file="expedientTascaTramitacioSignar.jsp" %>
 			</div>
 		</c:if>
-<!-- 		<div id="finalizarTarea"> -->
-<%-- 			<%@ include file="campsTascaTramitacioTasca.jsp" %> --%>
-<!-- 		</div> -->
+		<%--div id="finalizarTarea">
+		<%@ include file="campsTascaTramitacioTasca.jsp"%>
+		</div--%>
 	</div>
 </body>
 </html>

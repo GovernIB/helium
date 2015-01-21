@@ -367,8 +367,8 @@
 								$(this).mouseleave(function() {
 									$(this).css('cursor', 'auto');
 								});
-								$(this).click(function() {
-									settings.rowClickCallback($(this).closest('tr')[0]);
+								$(this).click(function(event) {
+									settings.rowClickCallback($(this).closest('tr')[0], event);
 								});
 							}
 						});

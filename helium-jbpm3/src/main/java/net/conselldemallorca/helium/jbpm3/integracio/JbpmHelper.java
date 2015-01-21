@@ -1492,8 +1492,7 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
 		return resultat;
 	}
-	
-	
+
 	/*public List<Long> findRootProcessInstanceIdsWithActiveTasksForActorId(String actorId,List<Long> idsExpedients) {
 		adminService.mesuraIniciar("jBPM findRootProcessInstanceIdsWithActiveTasksForActorId", "jbpmDao");
 		List<Long> resultat = new ArrayList<Long>();
@@ -1506,8 +1505,7 @@ public class JbpmHelper {
 		adminService.mesuraCalcular("jBPM findRootProcessInstanceIdsWithActiveTasksForActorId", "jbpmDao");
 		return resultat;
 	}*/
-	
-	
+
 	@SuppressWarnings("unchecked")
 	public List<String> findRootProcessInstancesWithActiveTasksCommand( // 3.0
 			String actorId,

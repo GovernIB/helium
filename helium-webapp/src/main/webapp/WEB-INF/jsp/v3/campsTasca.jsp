@@ -59,7 +59,7 @@
 							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/yyyy" data-required="${dada.required}" value="${formattedDate}"/></c:when>
 						<c:otherwise><form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="${dada.required}"/></c:otherwise>
 					</c:choose>
-					<span class="input-group-addon btn_date"><span class="glyphicon glyphicon-calendar"></span></span>
+					<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 				</div>
 			</c:if>
 			

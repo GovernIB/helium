@@ -85,7 +85,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 	@Autowired
 	private TascaService tascaService;
-	
+
 	@Autowired
 	ExecucioMassivaService execucioMassivaService;
 
@@ -156,7 +156,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
 	    }
 	}
-	
+
 	public class ComparadorDocument implements Comparator<DocumentDto> {
 	    public int compare(DocumentDto d1, DocumentDto d2) {
 	        return d1.getDocumentNom().compareToIgnoreCase(d2.getDocumentNom());
@@ -192,7 +192,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
 	}
-	
+
 	@RequestMapping(value="massivaExecutarAccio", method = RequestMethod.POST)
 	public String execucioAccioCommandPost(
 			HttpServletRequest request,
@@ -244,7 +244,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
-	
+
 	public String massivaPost(
 			HttpServletRequest request,
 			String inici,
@@ -470,7 +470,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		
 		return "redirect:/v3/expedient/massiva";
 	}
-	
+
 	@ModelAttribute("modificarVariablesCommand")
 	public Object populateCommand(
 			HttpServletRequest request,
@@ -506,7 +506,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		} catch (Exception ignored) {} 
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/{campId}/modificarVariables", method = RequestMethod.GET)
 	public String modificarVariablesGet(
 			HttpServletRequest request,
@@ -516,7 +516,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		model.addAttribute("modificarVariablesCommand", command);
 		return "v3/massivaInfoModificarVariables";
 	}
-	
+
 	@RequestMapping(value = "/documentAdjunt", method = RequestMethod.GET)
 	public String documentAdjuntGet(
 			HttpServletRequest request,
@@ -556,7 +556,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("contingut"), null);
 	}
-	
+
 	@RequestMapping(value = "/documentGenerarMas", method = RequestMethod.GET)
 	public String documentGenerarGet(
 			HttpServletRequest request,
@@ -585,7 +585,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		}
 		return "arxiuView";
 	}
-	
+
 	@RequestMapping(value = "/{docId}/documentModificar", method = RequestMethod.GET)
 	public String documentModificarGet(
 			HttpServletRequest request,
@@ -620,7 +620,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, campId);
 	}
-	
+
 	private class ExpedientScriptValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -630,7 +630,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "script", "not.blank");
 		}
 	}
-	
+
 	private class ExpedientAturarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -640,7 +640,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
 		}
 	}
-	
+
 	private class DocumentModificarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -650,7 +650,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
 		}
 	}
-	
+
 	private class DocumentAdjuntCrearValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -689,7 +689,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				valor,
 				new HashMap<String, Object>());
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

@@ -992,7 +992,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					(geoReferencia == null),
 					geoReferencia,
 					mostrarAnulats,
-					nomesAlertes);	
+					nomesAlertes);
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
 					auth.getName(),
 					idsInstanciesProces);
