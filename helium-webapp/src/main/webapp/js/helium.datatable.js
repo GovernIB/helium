@@ -184,6 +184,10 @@
 				"bServerSide": settings.ajaxSourceUrl !== null,
 				"bPaginate": paginacioActiva,
 				"oLanguage": {"sUrl": settings.localeUrl},
+				"fnPreDrawCallback": function() {
+					if (!$("tbody .datatable-dades-carregant", taula).length)
+						$("tbody", taula).append("<div class='datatable-dades-carregant'><span class='fa fa-circle-o-notch fa-spin fa-3x'></span></div>");
+				},
 				"fnDrawCallback": function(oSettings) {
 					$('.datatable-dades-carregant', this).hide();
 					$('.dataTables_info', this.parent()).removeClass('hidden');

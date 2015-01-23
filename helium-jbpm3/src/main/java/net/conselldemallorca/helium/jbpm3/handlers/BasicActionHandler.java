@@ -447,7 +447,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public RespostaRegistre registreNotificacio(
 			ExecutionContext executionContext,
 			DadesRegistreNotificacio dadesNotificacio,
-			List<DocumentInfo> documentsNotificacio) {
+			List<DocumentInfo> documentsNotificacio) throws JbpmException{
 		RegistreNotificacioDto notificacio = new RegistreNotificacioDto();
 		notificacio.setExpedientIdentificador(dadesNotificacio.getExpedientIdentificador());
 		notificacio.setExpedientClau(dadesNotificacio.getExpedientClau());
@@ -514,7 +514,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
 			return resposta;
 		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut enviar la notificació: " + ex.getLocalizedMessage(), ex);
+			throw new JbpmException("S'ha produït un error en enviar la notificació: " + ex.getLocalizedMessage(), ex);
 		}
 	}
 

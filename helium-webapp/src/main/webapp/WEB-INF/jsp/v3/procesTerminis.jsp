@@ -47,7 +47,7 @@ div.procesTermini:hover {
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_termini_${proces.id}">
 				<div class="panel panel-default">
-					<div id="${proces.id}-titol-termini" class="panel-heading clicable procesTermini" data-toggle="collapse" data-target="#panel_termini_${proces.id}" data-id="${proces.id}_termini" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
+					<div id="${proces.id}-titol-termini" class="panel-heading clicable procesTermini" data-processinstanceid="${proces.id}" data-toggle="collapse" data-target="#panel_termini_${proces.id}" data-id="${proces.id}_termini" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 						<c:choose>
 							<c:when test="${proces.id == inicialProcesInstanceId}">
 								<spring:message code='common.tabsexp.proc_princip'/>

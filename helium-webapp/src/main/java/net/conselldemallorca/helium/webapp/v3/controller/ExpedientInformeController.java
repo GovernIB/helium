@@ -652,7 +652,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				filtreCommand,
 				true);
 
-		List<Long> ids = expedientService.findIdsPerConsultaInformePaginat(
+		List<Long> ids = expedientService.findIdsPerConsultaInforme(
 			consultaId,
 			getValorsPerService(filtreCommand,campsFiltre, valors),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),

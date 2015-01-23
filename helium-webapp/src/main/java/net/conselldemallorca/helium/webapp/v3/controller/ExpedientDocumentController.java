@@ -75,7 +75,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		// Per a cada instància de procés ordenem les dades per agrupació  
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			List<ExpedientDocumentDto> dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
+			List<ExpedientDocumentDto> dadesInstancia = null;
+			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+				dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
+			}
 			documents.put(instanciaProces, dadesInstancia);
 		}
 

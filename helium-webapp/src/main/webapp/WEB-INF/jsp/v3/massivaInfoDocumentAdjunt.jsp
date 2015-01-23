@@ -8,7 +8,7 @@
 <head>
 	<title><spring:message code="expedient.document.adjuntar"/></title>
 	<hel:modalHead/>
-	<script type="text/javascript" src="<c:url value="/js//jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>

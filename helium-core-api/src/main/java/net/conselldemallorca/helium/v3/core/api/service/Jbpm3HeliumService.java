@@ -999,4 +999,5 @@ public interface Jbpm3HeliumService {
 
 	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo);
 
+	public boolean borrarNotificacioElectronica(String numero, String clave, Long codigo);
 }

@@ -125,3 +125,27 @@ p.help-block {
     padding: 6px 12px;
     text-align: center;
 }
+
+.datatable-dades-carregant {
+	background-color: #e8e8e8;
+    border: 1px solid #c2c2c2;
+    border-radius: 25px;
+    height: 192px;
+    left: 50%;
+    margin-left: -96px;
+    margin-top: -96px;
+    opacity: 0.85;
+    position: fixed;
+    top: 50%;
+    width: 192px;
+    z-index: 99999;
+}
+
+.datatable-dades-carregant span {
+    left: 50%;
+    margin-left: -20px;
+    margin-top: -25px;
+    opacity: 0.85;
+    position: fixed;
+    top: 50%;
+}

@@ -49,6 +49,7 @@ public class SessionHelper {
 	public static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM = "filtreConsultaTipusParam";
+	public static final String VARIABLE_SELECCIO_MASSIVES = "seleccioMassives";
 
 	public static Object getAttribute(
 			HttpServletRequest request,
@@ -300,6 +301,23 @@ public class SessionHelper {
 					request,
 					VARIABLE_TASCA_ERRROR,
 					errors);
+		}
+		@SuppressWarnings("unchecked")
+		public Set<Long> getSeleccioMassives() {
+			return (Set<Long>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_MASSIVES);
+		}
+		public void setSeleccioMassives(Set<Long> seleccio) {
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_MASSIVES,
+					seleccio);
+		}
+		public void removeSeleccioMassives() {
+			removeAttribute(
+					request,
+					VARIABLE_SELECCIO_MASSIVES);
 		}
 	}
 }

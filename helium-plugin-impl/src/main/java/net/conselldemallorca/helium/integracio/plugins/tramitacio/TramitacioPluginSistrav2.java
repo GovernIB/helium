@@ -6,9 +6,12 @@ package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -372,8 +375,8 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			}
 			if (registreNotificacio.getDadesExpedient() != null) {
 				DatosExpediente datosExpediente = new DatosExpediente();
-				datosExpediente.setUnidadAdministrativa(
-						Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
+				if (registreNotificacio.getDadesExpedient().getUnitatAdministrativa() != null)
+					datosExpediente.setUnidadAdministrativa(Long.parseLong(registreNotificacio.getDadesExpedient().getUnitatAdministrativa()));
 				datosExpediente.setIdentificadorExpediente(
 						registreNotificacio.getDadesExpedient().getIdentificador());
 				datosExpediente.setClaveExpediente(
@@ -489,7 +492,23 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			}
 			try {
 				crearZonaPers(registreNotificacio.getDadesInteressat().getNif(), registreNotificacio.getDadesInteressat().getNomAmbCognoms());
-				ResultadoRegistro resultado = getRegtelClient().registroSalida(datosRegistroSalida);
+				ResultadoRegistro resultado = null;
+//				if (false)
+					resultado = getRegtelClient().registroSalida(datosRegistroSalida);
+//				else {
+//					// -- Pruebas
+//					resultado = new ResultadoRegistro();
+//					resultado.setNumeroRegistro("123456789");
+//					es.caib.regtel.ws.v2.model.referenciards.ReferenciaRDS ref = new es.caib.regtel.ws.v2.model.referenciards.ReferenciaRDS();
+//					ref.setCodigo(789L);
+//					ref.setClave("456789");
+//					resultado.setReferenciaRDSJustificante(ref);	
+//					GregorianCalendar gregorianCalendar = new GregorianCalendar();
+//					gregorianCalendar.setTime(new Date(System.currentTimeMillis()));
+//					XMLGregorianCalendar xmlGrogerianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+//					resultado.setFechaRegistro(xmlGrogerianCalendar);
+//				}
+				
 				resposta.setErrorCodi(RespostaAnotacioRegistre.ERROR_CODI_OK);
 				resposta.setNumero(
 						resultado.getNumeroRegistro());

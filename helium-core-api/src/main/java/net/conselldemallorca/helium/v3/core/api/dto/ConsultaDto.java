@@ -12,7 +12,7 @@ import java.util.Set;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ConsultaDto implements Serializable {
+public class ConsultaDto implements Serializable, Comparable<ConsultaDto> {
 
 	private Long id;
 	private String codi;
@@ -126,7 +126,12 @@ public class ConsultaDto implements Serializable {
 	}
 	public void setFormatExport(String formatExport) {
 		this.formatExport = formatExport;
-	}	
+	}
+
+	@Override
+	public int compareTo(ConsultaDto o) {
+		return this.getNom().compareTo(o.getNom());
+	}
 	
 	private static final long serialVersionUID = 1L;
 }

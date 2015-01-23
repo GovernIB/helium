@@ -774,7 +774,7 @@ public interface ExpedientService {
 
 	public void changeProcessInstanceVersion(String id, int versio);
 */
-	public List<Long> findIdsPerConsultaInformePaginat(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
 
 	public void evaluateScript(Long expedientId, String script);
 
@@ -839,4 +839,6 @@ public interface ExpedientService {
 	public ExpedientLogDto findLogById(Long logId);
 
 	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId);
+
+	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 }

@@ -73,8 +73,12 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			terminis.put(instanciaProces, dissenyService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId()));
-			iniciats.put(instanciaProces.getId(), dissenyService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
+			List<TerminiDto> terminisInstanciaProces = null;
+			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+				terminisInstanciaProces = dissenyService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId());
+				iniciats.put(instanciaProces.getId(), dissenyService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
+			}
+			terminis.put(instanciaProces, terminisInstanciaProces);
 		}
 
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());

@@ -96,7 +96,7 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_reprendre_expedients' />");
 		}
-		$(document).ready(function(){			
+		$(document).ready(function(){
 			$('#inici_timer').datetimepicker({
 				language: '${idioma}',
 				minDate: new Date(),
@@ -156,11 +156,22 @@
 			$("button[value='document_esborrar']").prop('disabled', true);
 			$("button[value='document_generar']").prop('disabled', true);
 			$("a[name='document_modificar']").addClass('disabled');			
-			$("a[name='modificar_variable']").addClass('disabled');
+			$("a[name='modificar_variable']").addClass('disabled');		
+			
+			$('#grup-default-titol').click( function() {
+				var icona = $(this).find('.icona-collapse');
+				icona.toggleClass('fa-chevron-down');
+				icona.toggleClass('fa-chevron-up');
+				var panell = $('.tableExpedients .panel-body');
+				panell.load('<c:url value="/nodeco/v3/expedient/massiva/expedientsSeleccio"/>');
+			});
 		});
 		// ]]>
 	</script>
 	<style type="text/css">
+		.contingut-carregant {
+			text-align: center;
+		}
 		div.grup:hover {background-color: #e5e5e5 !important;border-color: #ccc !important;}
 		div.grup .panel-body-grup {padding-bottom: 0px !important;}
 		.panel-body-grup {margin: -1px;}
@@ -191,7 +202,7 @@
 	</style>
 </head>
 <body>
-	<div class="missatgesBlau">		
+	<div class="missatgesBlau">
 		<div class="panel-group">
 			<div class="panel panel-default">
 			    <div id="grup-default-titol" data-toggle="collapse" class="panel-heading clicable grup" >
@@ -199,30 +210,11 @@
 					<div class="pull-right">
 						<span class="icona-collapse fa fa-chevron-down"></span>
 					</div>
-					<span class="badge">${fn:length(expedients)}</span>
+					<span class="badge">${numExpedients}</span>
 			    </div>
-			    <div id="grup-default-dades" class="panel-collapse collapse">
+			    <div id="grup-default-dades" class="tableExpedients panel-collapse collapse">
 					<div class="panel-body">
-						<table class="table table-bordered" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0">
-							<thead>
-								<tr>
-									<th><spring:message code="expedient.llistat.columna.expedient"/></th>
-									<th><spring:message code="expedient.llistat.columna.tipus"/></th>
-									<th><spring:message code="expedient.llistat.columna.iniciat"/></th>
-									<th><spring:message code="expedient.llistat.columna.estat"/></th>
-								</tr>
-							</thead>
-							<c:forEach var="expedient" items="${expedients}">
-								<tbody>
-									<tr>
-										<td>${expedient.identificadorLimitat}</td>
-										<td>${expedient.tipus.nom}</td>
-										<td><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></td>
-										<td>${expedient.estatNom}</td>
-									</tr>
-								</tbody>
-							</c:forEach>				       		
-						</table>
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 			    </div>
 			</div>
@@ -457,7 +449,7 @@
 			<div class="form-group">
 				<form:form cssClass="form-horizontal form-tasca" id="modificarVariablesMasCommand" name="modificarVariablesMasCommand" action="massiva/modificarVariablesMasCommand" method="post" commandName="modificarVariablesCommand" onsubmit="return confirmarModificarVariables(event)">
 					<hel:inputSelect inline="true" name="var" textKey="expedient.eines.modificar_variables" placeholderKey="expedient.consulta.select.variable" optionItems="${variables}" optionValueAttribute="id" optionTextAttribute="codi"/>
-					<a class="btn btn-primary right" name="modificar_variable" href="#" data-rdt-link-modal="true"><spring:message code='comuns.modificar'/></a>
+					<a class="btn btn-primary right" name="modificar_variable" href="#" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true"><spring:message code='comuns.modificar'/></a>
 				</form:form>
 			</div>
 		</div>

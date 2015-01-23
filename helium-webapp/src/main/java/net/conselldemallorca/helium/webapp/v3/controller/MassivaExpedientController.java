@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -30,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
@@ -41,6 +44,7 @@ import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
@@ -87,21 +91,70 @@ public class MassivaExpedientController extends BaseExpedientController {
 	private TascaService tascaService;
 	
 	@Autowired
+	private VariableHelper variableHelper;
+	
+	@Autowired
 	ExecucioMassivaService execucioMassivaService;
-
+	
+	private Set<Long> guardarIdsAccionesMasivas(HttpServletRequest request, Long consultaId) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		sessionManager.removeSeleccioMassives();
+		Set<Long> ids = null;
+		if (consultaId == null) {
+			ids = sessionManager.getSeleccioConsultaGeneral();
+		} else {
+			ids = sessionManager.getSeleccioInforme(consultaId);
+		}
+		sessionManager.setSeleccioMassives(ids);
+		
+		return ids;
+	}
+	
+	private Set<Long> recuperarIdsAccionesMasivas(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		return sessionManager.getSeleccioMassives();
+	}
+	
+	@RequestMapping(value = "/expedientsSeleccio", method = RequestMethod.GET)
+	public String documentGenerarGet(
+			HttpServletRequest request,
+			Model model) {
+		List<ExpedientDto> expedients = null;
+		try {
+			Set<Long> ids = recuperarIdsAccionesMasivas(request);
+			expedients = expedientService.findAmbIds(ids);
+			model.addAttribute("expedients", expedientService.findAmbIds(ids));
+		} catch (Exception e) {
+			expedients = new ArrayList<ExpedientDto>();
+			MissatgesHelper.error(request, getMessage(request, "error.no.massiu.expedients"));
+			logger.error("Error en recuperar la llista dels expedients seleccionats", e);
+		}
+		model.addAttribute("expedients", expedients);
+		return "v3/massivaInfoExpedients";
+	}
+	
 	@RequestMapping(method = RequestMethod.GET)
 	public String getExpedient(
 			HttpServletRequest request,
+			@RequestParam(value = "consultaId", required = false) Long consultaId,
+			@RequestParam(value = "readIdsAccionesMasivas", required = false) Boolean readIdsAccionesMasivas,
 			Model model) {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		Set<Long> ids = null;
+		if (readIdsAccionesMasivas != null && readIdsAccionesMasivas.equals(true))
+			ids = recuperarIdsAccionesMasivas(request);
+		else
+			ids = guardarIdsAccionesMasivas(request, consultaId);
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
 			return "redirect:/v3";
+		} if (expedientService.isDiferentsTipusExpedients(ids)) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec.diferenttipus"));
+			return "redirect:/v3";
 		} else {
-			List<ExpedientDto> expedients = expedientService.findAmbIds(ids);
-			
-			model.addAttribute("expedients", expedients);
+			List<Long> listIds = new ArrayList<Long>(ids);			
+			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+			model.addAttribute("consultaId", consultaId);
+			model.addAttribute("numExpedients", ids.size());
 			model.addAttribute("inici", null);
 			model.addAttribute("correu", false);
 			model.addAttribute(new ExpedientEinesScriptCommand());
@@ -112,10 +165,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new DocumentExpedientCommand());
 			model.addAttribute(new ExpedientEinesReassignarCommand());
 			
-			model.addAttribute("accions",expedientService.findAccionsVisibles(expedients.get(0).getId()));
+			model.addAttribute("accions",expedientService.findAccionsVisibles(listIds.get(0)));
 			
 			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
-			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedients.get(0).getTipus().getId());
+			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			
 			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());			
 			model.addAttribute(canviVersioProcesCommand);
@@ -124,13 +177,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute("subDefinicioProces", dissenyService.getSubprocessosByProces(definicioProces.getJbpmId()));
 			
 			// Documents
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedients.get(0).getProcessInstanceId());
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(expedient.getProcessInstanceId());
 			model.addAttribute("instanciaProces", instanciaProces);
 			
 			// Variables
 			List<CampDto> variables = new ArrayList<CampDto>();
 			if (instanciaProces != null) {
-				for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedients.get(0).getProcessInstanceId())){
+				for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedient.getProcessInstanceId())){
 					if (!CampTipusDto.ACCIO.equals(camp.getTipus())) {
 						variables.add(camp);
 					}
@@ -141,8 +194,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			
 			List<DocumentDto> documents = expedientService.findListDocumentsPerDefinicioProces(
 					definicioProces.getId(),
-					expedients.get(0).getProcessInstanceId(),
-					expedients.get(0).getTipus().getNom());
+					expedient.getProcessInstanceId(),
+					expedient.getTipus().getNom());
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 			
@@ -255,9 +308,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model, 
 			String multipartName,
 			Long campId) {		
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		getExpedient(request,model);
-		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		getExpedient(request, null, true, model);
+		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.exp.selec"));
 			return "redirect:/v3";
@@ -440,26 +492,40 @@ public class MassivaExpedientController extends BaseExpedientController {
 				return modalUrlTancar();
 			} else if ("modificar_variable".equals(accio)) {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-//				((TascaFormValidator)validator).setTasca(tasca);
-//				validator.validate(command, result);
-				String var = null;
-				List<ExpedientDto> expedients = expedientService.findAmbIds(ids);
-				for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedients.get(0).getProcessInstanceId())){
+
+				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+				String varCodi = null;
+				String idPI = expedient.getProcessInstanceId();
+				for (CampDto camp : expedientService.getCampsInstanciaProcesById(idPI)){
 					if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
-						var = camp.getCodi();
+						varCodi = camp.getCodi();
 					}
 				}
+
+				List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
+				TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(idPI, varCodi, true));
+				tascaDadas.add(tascaDada);
+				
+				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(expedientService);
+				validator.setTasca(tascaDadas);
+				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
+						variableHelper.findDadesPerInstanciaProces(idPI),
+						variables); 
+						
+				validator.validate(commandPerValidacio, result);
 				if (result.hasErrors()) {
-					return modificarVariablesGet(request,campId,model);
+					model.addAttribute("modificarVariablesCommand", command);
+					return "v3/massivaInfoModificarVariables";
 		        }
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_VARIABLE);
-				dto.setParam1(var);
-				Object valors = PropertyUtils.getSimpleProperty(command, var);
+				dto.setParam1(varCodi);
+				Object valors = PropertyUtils.getSimpleProperty(command, varCodi);
 				Object[] params = new Object[] {entorn.getId(), null, valors};
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.dada.massiu.modificat", new Object[] {listIds.size()}));
+				MissatgesHelper.info(request, getMessage(request, "info.dada.massiu.modificat", new Object[] {varCodi, listIds.size()}));
 				return modalUrlTancar();
 			}
 		} catch (Exception e) {
@@ -467,7 +533,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			logger.error("Error al programar les accions massives", e);
 		}
 		
-		return "redirect:/v3/expedient/massiva";
+		return "redirect:/v3/expedient/massiva?readIdsAccionesMasivas=true";
 	}
 	
 	@ModelAttribute("modificarVariablesCommand")
@@ -479,12 +545,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			@SuppressWarnings("rawtypes")
 			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-			SessionManager sessionManager = SessionHelper.getSessionManager(request);
-			Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();		
 			
-			List<ExpedientDto> expedients = expedientService.findAmbIds(ids);
+			Set<Long> ids = recuperarIdsAccionesMasivas(request);
+			List<Long> listIds = new ArrayList<Long>(ids);			
+			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 			CampDto campo = null;
-			for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedients.get(0).getProcessInstanceId())){
+			for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedient.getProcessInstanceId())){
 				if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
 					campo = camp;
 				}
@@ -563,9 +629,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			Model model) {
-		
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		Set<Long> ids = recuperarIdsAccionesMasivas(request);
 		List<Long> listIds = new ArrayList<Long>(ids);
 		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 		try {
@@ -612,7 +676,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			@PathVariable Long campId,
-			@ModelAttribute("modificarVariablesCommand") Object command, 
+			@Valid @ModelAttribute("modificarVariablesCommand") Object command, 
 			@RequestParam(value = "accio", required = true) String accio,
 			BindingResult result, 
 			SessionStatus status,
@@ -687,6 +751,14 @@ public class MassivaExpedientController extends BaseExpedientController {
 				campId,
 				valor,
 				new HashMap<String, Object>());
+	}
+	
+	@ModelAttribute("listTerminis")
+	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (int i=0; i <= 12 ; i++)		
+			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+		return resposta;
 	}
 	
 	@InitBinder

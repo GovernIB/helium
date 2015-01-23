@@ -96,6 +96,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
@@ -128,7 +129,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1129,7 +1129,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"RDSClave=" + RDSClave + ", " +
 				"RDSCodigo=" + RDSCodigo + ")");
-//		expedientService.guardarNotificacioElectronica(expedientId, numero, data, RDSClave, RDSCodigo);
+		expedientService.guardarNotificacioElectronica(expedientId, numero, data, RDSClave, RDSCodigo);
+	}
+
+	@Override
+	public boolean borrarNotificacioElectronica(String numero, String clave, Long codigo) {
+		imprimirFuncio("borrarNotificacioElectronica");
+		logger.debug("Esborrar una notificació de l'expedient (" +
+				"numero=" + numero + ", " +
+				"RDSClave=" + clave + ", " +
+				"RDSCodigo=" + codigo + ")");
+		return expedientService.borrarNotificacioElectronica(numero, clave, codigo);
 	}
 
 	@Override

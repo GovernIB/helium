@@ -56,10 +56,12 @@
 			});
 			$("#mostrarTasquesPersonalsCheck").click(function() {
 				$("input[name=mostrarTasquesPersonals]").val(!$("#mostrarTasquesPersonalsCheck").hasClass('active'));
+				$(this).blur();
 				$('#tascaConsultaCommand').submit();
 			});
 			$("#mostrarTasquesGrupCheck").click(function() {
 				$("input[name=mostrarTasquesGrup]").val(!$("#mostrarTasquesGrupCheck").hasClass('active'));
+				$(this).blur();
 				$('#tascaConsultaCommand').submit();
 			});			
 			$('#inici_timer').datetimepicker({
@@ -73,6 +75,20 @@
 				maximize: true
 			});
 		});
+		function seleccionarMassivaTodos() {
+			var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
+			if ($('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
+				$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = false;
+			}
+			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
+		}
+		function deseleccionarMassivaTodos() {
+			var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
+			if (!$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
+				$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = true;
+			}
+			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
+		}
 	</script>
 	<style type="text/css">
 		#opciones .label-titol {padding-bottom: 0px;} 
@@ -267,10 +283,10 @@
 						<a class="btn btn-default" data-rdt-link-modal="true" href="../v3/tasca/massivaReassignacioTasca?massiva=false"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
 						<c:otherwise>
-						<a class="btn btn-default" href="../../../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-						<a class="btn btn-default" href="../../../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
 						<a id="btnReassignacioMassiva" class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="/v3/tasca/massivaReassignacioTasca?massiva=true"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
-						<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="<c:url value="/v3/expedient/massivaTramitacioTasca"/>"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="<c:url value="/v3/expedient/massivaTramitacioTasca"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	
 			</div>

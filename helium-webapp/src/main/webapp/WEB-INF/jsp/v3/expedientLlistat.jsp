@@ -109,14 +109,17 @@ $(document).ready(function() {
 	});
 	$("#nomesPendentsCheck").click(function() {
 		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
+		$(this).blur();
 		$('#expedientConsultaCommand').submit();
 	});
 	$("#nomesAlertesCheck").click(function() {
 		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
+		$(this).blur();
 		$('#expedientConsultaCommand').submit();
 	});
 	$("#mostrarAnulatsCheck").click(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
+		$(this).blur();
 		$('#expedientConsultaCommand').submit();
 	});
 	$('#expedientTipusId').on('change', function() {

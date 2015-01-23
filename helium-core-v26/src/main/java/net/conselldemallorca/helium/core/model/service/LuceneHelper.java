@@ -250,12 +250,90 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return resposta;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Long> findIdsAmbDadesExpedientPaginatV3(final String entornCodi, String tipusCodi, List<Camp> filtreCamps, List<Camp> campsInforme, Map<String, Object> filtreValors, String sort, boolean asc, final int firstRow, final int maxResults) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientPaginatV3", "lucene");
+		checkIndexOk();
+		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
+		Sort luceneSort = null;
+		if (sort != null && sort.length() > 0) {
+			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
+				sort = sort + "_no_analyzed";
+			} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) {
+				sort = sort + "_no_analyzed";
+			} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)) {
+				sort = sort + "_no_analyzed";
+			} else {
+				for (Camp camp : campsInforme) {
+					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
+						sort = sort + "_no_analyzed";
+						break;
+					}
+				}
+				String campOrdenacio = null;
+				if ("expedient$identificador".equals(sort)) {
+					campOrdenacio = ExpedientCamps.EXPEDIENT_CAMP_ID;
+				} else {
+					campOrdenacio = sort;
+				}
+				luceneSort = new Sort(new SortField(campOrdenacio, SortField.STRING, !asc));
+			}
+		} else
+			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));		
+		
+		final List<Long> resposta = searchTemplate.search(query, new HitExtractor() {
+			private int count = 0;
+			
+			public Long mapHit(int id, Document document, float score) {
+				Long valorsDocument = null;
+				boolean ignorar = false;
+				if (PEGAT_ENTORN_ACTIU) {
+					Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
+					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entornCodi);
+				}
+				if (!ignorar) {
+					if (maxResults == -1 || (count >= firstRow && count < firstRow + maxResults)) {
+						valorsDocument = new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
+						count++;
+					}
+				}
+				return valorsDocument;
+			}
+		}, luceneSort);
+		if (PEGAT_ENTORN_ACTIU) {
+			Iterator<Long> it = resposta.iterator();
+			while (it.hasNext()) {
+				Long valor = it.next();
+				if (valor == null)
+					it.remove();
+			}
+		}
+		
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedientPaginatV3", "lucene");
+		return resposta;
+	}
+
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedientV3(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
 		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedientV3", "lucene");
+		return resultat;
+	}
+
+	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedientPaginatV3(String entornCodi, List<Long> llistaExpedientIds, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults) {
+		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
+		checkIndexOk();
+
+		BooleanQuery bquery = new BooleanQuery();
+		for (Long id : llistaExpedientIds) {
+			bquery.add(new TermQuery(new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, id.toString())), BooleanClause.Occur.SHOULD);
+		}
+		Query query = (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
+
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
+		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedientV3", "lucene");
 		return resultat;
 	}
 

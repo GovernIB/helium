@@ -49,33 +49,36 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		Map<InstanciaProcesDto, List<ExpedientLogDto>> loggers = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
-		boolean detall = tipus_retroces == null || tipus_retroces != 0;
-		if (detall) {
-			loggers = expedientService.getLogsPerTascaOrdenatsPerData(expedient, detall);
-		} else {
-			loggers = expedientService.getLogsOrdenatsPerData(expedient, detall);
-		}
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
 
-		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
-			@Override
-			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
-				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
-				if (e1.getKey().getId().equals(e2.getKey().getId())) {
-					return res;
-				} else {
-					return res != 0 ? res : 1;
-				}
+		if (expedient.isPermisAdministration()  || expedient.isPermisSupervision()) {
+			Map<InstanciaProcesDto, List<ExpedientLogDto>> loggers = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
+			boolean detall = tipus_retroces == null || tipus_retroces != 0;
+			if (detall) {
+				loggers = expedientService.getLogsPerTascaOrdenatsPerData(expedient, detall);
+			} else {
+				loggers = expedientService.getLogsOrdenatsPerData(expedient, detall);
 			}
-		});
-		sortedEntries.addAll(loggers.entrySet());
 
-		model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
-		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-		model.addAttribute("tipus_retroces", tipus_retroces);
-		model.addAttribute("expedient", expedient);
-		model.addAttribute("logs", sortedEntries);
+			SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
+				@Override
+				public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
+					int res = e1.getKey().getId().compareTo(e2.getKey().getId());
+					if (e1.getKey().getId().equals(e2.getKey().getId())) {
+						return res;
+					} else {
+						return res != 0 ? res : 1;
+					}
+				}
+			});
+			sortedEntries.addAll(loggers.entrySet());
+
+			model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			model.addAttribute("tipus_retroces", tipus_retroces);
+			model.addAttribute("expedient", expedient);
+			model.addAttribute("logs", sortedEntries);
+		}		
 		return "v3/expedientLog";
 	}
 

@@ -492,8 +492,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsPerConsultaInformePaginat(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
-		return delegate.findIdsPerConsultaInformePaginat(consultaId, valors, nomesPendents, nomesAlertes, mostrarAnulats);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+		return delegate.findIdsPerConsultaInforme(consultaId, valors, nomesPendents, nomesAlertes, mostrarAnulats);
 	}
 
 	@Override
@@ -637,5 +637,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId) {
 		return delegate.findTasquesPerInstanciaProces(expedientId, processInstanceId);
+	}
+
+	@Override
+	public boolean isDiferentsTipusExpedients(Set<Long> ids) {
+		return delegate.isDiferentsTipusExpedients(ids);
 	}
 }

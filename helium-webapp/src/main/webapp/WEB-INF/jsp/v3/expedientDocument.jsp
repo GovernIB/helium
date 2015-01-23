@@ -43,9 +43,9 @@ $(document).ready(function() {
 		icona.toggleClass('fa-chevron-up');
 		if ($(this).data('carrega') == "ajax") {
 			$('#contingut-carregant').show();
-			var id = $(this).data('id');
-			var panell = $('#panel_document_' + id);
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/documents/"/>' + id);
+			var processInstanceId = $(this).data('processinstanceid');
+			$("#panel_document_"+processInstanceId).html('<div style="text-align:center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
+			recargarPanel (processInstanceId, true);
 		}
 	});
 });

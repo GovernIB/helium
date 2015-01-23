@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
 import net.conselldemallorca.helium.core.model.dao.ExpedientTipusDao;
 import net.conselldemallorca.helium.core.model.dao.LuceneDao;
+import net.conselldemallorca.helium.core.model.dao.NotifElectronicaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGisDao;
@@ -140,7 +141,7 @@ public class ExpedientService {
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
 	private AccioDao accioDao;
-//	private NotifElectronicaDao notifElectronicaDao;
+	private NotifElectronicaDao notifElectronicaDao;
 	private TerminiIniciatDao terminiIniciatDao;
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	private PluginPortasignaturesDao pluginPortasignaturesDao;
@@ -491,9 +492,13 @@ public class ExpedientService {
 		return numero;
 	}
 
-//	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
-//		notifElectronicaDao.create(expedientId, numero, data, RDSClave, RDSCodigo);
-//	}
+	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
+		notifElectronicaDao.create(expedientId, numero, data, RDSClave, RDSCodigo);
+	}
+
+	public boolean borrarNotificacioElectronica(String numero, String clave, Long codigo) {
+		return notifElectronicaDao.delete(numero, clave, codigo);
+	}
 
 	public void editar(
 			Long entornId,
@@ -2460,10 +2465,10 @@ public class ExpedientService {
 	public void setAccioDao(AccioDao accioDao) {
 		this.accioDao = accioDao;
 	}
-//	@Autowired
-//	public void setNotifElectronicaDao(NotifElectronicaDao notifElectronicaDao) {
-//		this.notifElectronicaDao = notifElectronicaDao;
-//	}	
+	@Autowired
+	public void setNotifElectronicaDao(NotifElectronicaDao notifElectronicaDao) {
+		this.notifElectronicaDao = notifElectronicaDao;
+	}	
 	@Autowired
 	public void setAlertaDao(
 			AlertaDao alertaDao) {

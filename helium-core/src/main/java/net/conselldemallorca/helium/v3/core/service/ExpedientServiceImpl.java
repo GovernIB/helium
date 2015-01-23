@@ -1265,6 +1265,48 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public boolean isDiferentsTipusExpedients(Set<Long> ids) {
+		Set<Long> ids1 = null;
+		Set<Long> ids2 = null;
+		Set<Long> ids3 = null;
+		Set<Long> ids4 = null;
+		Set<Long> ids5 = null;
+		int index = 0;
+		for (Long id: ids) {
+			if (index == 0)
+				ids1 = new HashSet<Long>();
+			if (index == 1000)
+				ids2 = new HashSet<Long>();
+			if (index == 2000)
+				ids3 = new HashSet<Long>();
+			if (index == 3000)
+				ids4 = new HashSet<Long>();
+			if (index == 4000)
+				ids5 = new HashSet<Long>();
+			if (index < 1000)
+				ids1.add(id);
+			else if (index < 2000)
+				ids2.add(id);
+			else if (index < 3000)
+				ids3.add(id);
+			else if (index < 4000)
+				ids4.add(id);
+			else
+				ids5.add(id);
+			index++;
+		}
+		
+		List<Long> idsTipusExpedients = expedientRepository.getIdsDiferentsTipusExpedients(
+				ids1,
+				ids2,
+				ids3,
+				ids4,
+				ids5);
+		return idsTipusExpedients.size() > 1;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public ArxiuDto arxiuDocumentPerMostrar(String token) {
 		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
 		DocumentStore document = documentStoreRepository.findById(documentStoreId);
@@ -1991,16 +2033,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 			consultaId,
 			valorsPerService,
 			paginacioParams,
-			nomesPendents, nomesAlertes, mostrarAnulats
+			nomesPendents, 
+			nomesAlertes, 
+			mostrarAnulats
 		);
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
 		
-		final int numExpedients= findIdsPerConsultaInformePaginat(
+		final int numExpedients= findIdsPerConsultaInforme(
 				consultaId,
 				valorsPerService, 
-				nomesPendents, nomesAlertes, mostrarAnulats
+				nomesPendents, 
+				nomesAlertes, 
+				mostrarAnulats
 			).size();
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
@@ -2336,7 +2382,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+			PaginacioParamsDto paginacioParams, 
+			Boolean nomesPendents, 
+			Boolean nomesAlertes, 
+			Boolean mostrarAnulats) {
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
 		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
@@ -2349,16 +2398,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		
-		String sort = null;
+		String sort = ExpedientCamps.EXPEDIENT_CAMP_ID;
 		boolean asc = false;
-		int firstRow;
-		int maxResults;
-		if (paginacioParams == null) {
-			sort = ExpedientCamps.EXPEDIENT_CAMP_ID;
-			asc = false;
-			firstRow = 0;
-			maxResults = -1;
-		} else {
+		int firstRow = 0;
+		int maxResults = -1;
+		
+		if (paginacioParams != null) {
 			for (OrdreDto or : paginacioParams.getOrdres()) {
 				asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 				if (or.getCamp().contains("dadesExpedient")) {
@@ -2372,25 +2417,34 @@ public class ExpedientServiceImpl implements ExpedientService {
 			maxResults = paginacioParams.getPaginaTamany();
 		}
 		
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
+		List<Long> llistaExpedientIds = luceneHelper.findIdsAmbDadesExpedientPaginatV3(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
-				valors,
 				campsInforme,
+				valors,
 				sort,
 				asc,
-				firstRow,
-				maxResults);
+				0,
+				-1);
 		
-//		if (nomesPendents && !tascaHelper.hasTasques(expedient)) {
-			// No lo incluimos
-//		}
-//		if (nomesAlertes && (expedient.getErrorDesc() == null || expedient.getErrorDesc().isEmpty())) {
-//			// No lo incluimos
-//		} else if (mostrarAnulats && !expedient.isAnulat()) {
-//			// No lo incluimos
-//		} else 
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = new ArrayList<Map<String,DadaIndexadaDto>>();
+		if (paginacioParams == null) {
+			dadesExpedients = luceneHelper.findAmbDadesExpedientV3(
+					consulta.getEntorn().getCodi(),
+					consulta.getExpedientTipus().getCodi(),
+					campsFiltre,
+					valors,
+					campsInforme,
+					sort,
+					asc,
+					firstRow,
+					maxResults);
+		} else {
+			filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats);
+			if (!llistaExpedientIds.isEmpty())
+				dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(consulta.getEntorn().getCodi(), llistaExpedientIds, campsInforme, sort, asc, firstRow, maxResults);
+		}
 		
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
@@ -2408,12 +2462,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
 		}
+
+		if (paginacioParams == null) {
+			Iterator<Map<String, DadaIndexadaDto>> it = dadesExpedients.iterator();
+			while (it.hasNext()) {
+				Map<String, DadaIndexadaDto> dadesExpedient = it.next();
+				DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+				if (!llistaExpedientIds.contains(Long.parseLong(dadaExpedientId.getValorIndex()))) {
+					it.remove();
+				}
+			}
+		}
 		return resposta;
 	}
-	
+
 	@Override
 	@Transactional(readOnly=true)
-	public List<Long> findIdsPerConsultaInformePaginat(
+	public List<Long> findIdsPerConsultaInforme(
 			Long consultaId,
 			Map<String, Object> valors,
 			Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
@@ -2425,21 +2490,113 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		
-		List<Long> llistaIds = luceneHelper.findNomesIds(
+		List<Long> llistaExpedientIds = luceneHelper.findNomesIds(
 				consulta.getEntorn().getCodi(),
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors);
 		
-//		if (nomesPendents && !tascaHelper.hasTasques(expedient)) {
-			// No lo incluimos
-//		}
-//		if (nomesAlertes && (expedient.getErrorDesc() == null || expedient.getErrorDesc().isEmpty())) {
-//			it.remove();
-//		} else if (mostrarAnulats && !expedient.isAnulat()) {
-//			it.remove();
-//		}
-		return llistaIds;
+		filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats);
+		
+		return llistaExpedientIds;
+	}
+	
+	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+		if (nomesPendents || nomesAlertes || mostrarAnulats) {				
+			Set<Long> ids1 = null;
+			Set<Long> ids2 = null;
+			Set<Long> ids3 = null;
+			Set<Long> ids4 = null;
+			Set<Long> ids5 = null;
+			int index = 0;
+			for (Long id: llistaExpedientIds) {
+				if (index == 0)
+					ids1 = new HashSet<Long>();
+				if (index == 1000)
+					ids2 = new HashSet<Long>();
+				if (index == 2000)
+					ids3 = new HashSet<Long>();
+				if (index == 3000)
+					ids4 = new HashSet<Long>();
+				if (index == 4000)
+					ids5 = new HashSet<Long>();
+				if (index < 1000)
+					ids1.add(id);
+				else if (index < 2000)
+					ids2.add(id);
+				else if (index < 3000)
+					ids3.add(id);
+				else if (index < 4000)
+					ids4.add(id);
+				else
+					ids5.add(id);
+				index++;
+			}
+			
+			List<String> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
+					ids1,
+					ids2,
+					ids3,
+					ids4,
+					ids5,
+					mostrarAnulats,
+					nomesAlertes);
+			
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			
+			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
+					auth.getName(),
+					idsInstanciesProces);
+			
+			Set<String> idsDiferents = new HashSet<String>();
+			for (String id: ids) 
+				idsDiferents.add(id);
+			
+			
+			Set<String> piIds1 = null;
+			Set<String> piIds2 = null;
+			Set<String> piIds3 = null;
+			Set<String> piIds4 = null;
+			Set<String> piIds5 = null;
+			index = 0;
+			for (String id: idsDiferents) {
+				if (index == 0)
+					piIds1 = new HashSet<String>();
+				if (index == 1000)
+					piIds2 = new HashSet<String>();
+				if (index == 2000)
+					piIds3 = new HashSet<String>();
+				if (index == 3000)
+					piIds4 = new HashSet<String>();
+				if (index == 4000)
+					piIds5 = new HashSet<String>();
+				if (index < 1000)
+					piIds1.add(id);
+				else if (index < 2000)
+					piIds2.add(id);
+				else if (index < 3000)
+					piIds3.add(id);
+				else if (index < 4000)
+					piIds4.add(id);
+				else
+					piIds5.add(id);
+				index++;
+			}
+			
+			List<Long> llistaIds = expedientRepository.findAmbProcessInstanceIdsByFiltreConsultesTipus(
+					piIds1,
+					piIds2,
+					piIds3,
+					piIds4,
+					piIds5);
+			Iterator<Long> it = llistaExpedientIds.iterator();
+			while (it.hasNext()) {
+				Long id = it.next();
+				if (!llistaIds.contains(id)) {
+					it.remove();
+				}
+			}
+		}
 	}
 
 	@Override

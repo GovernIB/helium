@@ -11,7 +11,7 @@
 <head>
 	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${tasca.nom}</title>
 	<meta name="capsaleraTipus" content="llistat"/>
-	<script type="text/javascript" src="<c:url value="/js//jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>

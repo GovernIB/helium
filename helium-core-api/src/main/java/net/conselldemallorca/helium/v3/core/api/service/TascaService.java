@@ -378,7 +378,7 @@ public interface TascaService {
 	
 	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids);
 
-	public List<Long> findIdsPerFiltre(Long entornId, String consultaTramitacioMassivaTascaId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup);
+	public List<Long> findIdsPerFiltre(Long entornId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup);
 
 	public TascaDocumentDto findDocument(String tascaId, Long docId);
 

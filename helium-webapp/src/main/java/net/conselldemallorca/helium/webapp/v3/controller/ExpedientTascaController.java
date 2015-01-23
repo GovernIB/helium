@@ -46,17 +46,16 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		
-		Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
-		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId()));
+		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			model.addAttribute("expedient", expedient);
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId()));
+			}
+			model.addAttribute("tasques", tasques);	
 		}
-		
-		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-		model.addAttribute("expedient", expedient);
-		model.addAttribute("tasques", tasques);
 		return "v3/expedientTasca";
 	}
 

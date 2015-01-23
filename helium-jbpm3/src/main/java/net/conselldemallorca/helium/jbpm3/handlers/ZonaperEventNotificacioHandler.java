@@ -30,6 +30,8 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 
 	private String representatNif;
 	private String varRepresentatNif;
+	private String representatNom;
+	private String varRepresentatNom;
 	private String oficina;
 	private String varOficina;
 	private String oficinaFisica;
@@ -64,6 +66,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varDocumentIdiomaDocument;
 	private String documentIdiomaExtracte;
 	private String varDocumentIdiomaExtracte;
+	private String document;
 	private String varDocument;
 	private String varNumeroRegistre;
 	private String varNumeroAnyRegistre;
@@ -112,11 +115,17 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				varUnitatAdministrativa);
 		if (ua != null)
 			anotacio.setExpedientUnitatAdministrativa(ua);
-		
+		else if (expedient.getUnitatAdministrativa() != null)
+			anotacio.setExpedientUnitatAdministrativa(String.valueOf(expedient.getUnitatAdministrativa()));
 		anotacio.setInteressatNif((String)getValorOVariable(
 				executionContext,
 				representatNif,
-				varRepresentatNif));		
+				varRepresentatNif));
+		anotacio.setInteressatNomAmbCognoms(
+				(String)getValorOVariable(
+						executionContext,
+						representatNom,
+						varRepresentatNom));
 		anotacio.setOrganCodi((String)getValorOVariable(
 				executionContext,
 				remitentCodiEntitat,
@@ -133,11 +142,6 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 						executionContext,
 						destinatariCodiEntitat,
 						varDestinatariCodiEntitat));
-		anotacio.setInteressatNomAmbCognoms(
-				(String)getValorOVariable(
-						executionContext,
-						destinatariNomEntitat,
-						varDestinatariNomEntitat));
 		anotacio.setInteressatMunicipiCodi(
 				(String)getValorOVariable(
 						executionContext,
@@ -162,8 +166,12 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		anotacio.setNotificacioJustificantRecepcio(true);
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos = new ArrayList<DocumentInfo>();
-		if (varDocument != null && !varDocument.isEmpty()) {
-			documentInfo = getDocumentInfo(executionContext, varDocument, true);
+		String doc = (String)getValorOVariable(
+				executionContext,
+				document,
+				varDocument);
+		if (doc != null && !doc.isEmpty()) {
+			documentInfo = getDocumentInfo(executionContext, doc, true);
 			if (documentInfo != null) {
 				anotacio.setAnotacioAssumpte(expedient.getIdentificador() + ": " + documentInfo.getTitol());
 				annexos.add(documentInfo);
@@ -217,40 +225,41 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		}
 		
 		RespostaRegistre resposta = registreNotificacio(executionContext,anotacio,annexos);
-		if (resposta != null) {
-			List<String> parametres = new ArrayList<String>();
-			DadesNotificacioElectronica dadesNotificacioElectronica = new DadesNotificacioElectronica();
-			dadesNotificacioElectronica.setAnotacio(anotacio);
-			dadesNotificacioElectronica.setAnnexos(annexos);			
-			parametres.add(toString(dadesNotificacioElectronica));
+		if (resposta != null) {			
+//			System.out.println("ZonaperEventNotificacioHandler->execute: Resposta de para : " + expedient.getId() + " -> " + resposta);
 			
-			guardarParametresPerRetrocedir(executionContext,parametres);
-			
-			System.out.println("ZonaperEventNotificacioHandler->retrocedir: Resposta para : " + expedient.getId() + " -> " + resposta);
 			Jbpm3HeliumBridge.getInstanceService().guardarNotificacioElectronica(
 					expedient.getId(),
 					resposta.getNumero(),
 					resposta.getData(),
 					resposta.getReferenciaRDSJustificante().getClave(),
 					resposta.getReferenciaRDSJustificante().getCodigo());
-		}
+			List<String> parametres = new ArrayList<String>();
+			
+			DadesNotificacioElectronica dadesNotificacioElectronica = new DadesNotificacioElectronica();
+			dadesNotificacioElectronica.setAnotacio(anotacio);
+			dadesNotificacioElectronica.setAnnexos(annexos);			
+			parametres.add(toString(dadesNotificacioElectronica));
+			
+			guardarParametresPerRetrocedir(executionContext,parametres);
 
-		if (varNumeroRegistre != null)
-			executionContext.setVariable(
-					varNumeroRegistre,
-					resposta.getNumero());
-		if (varDataRegistre != null)
-			executionContext.setVariable(
-					varDataRegistre,
-					resposta.getData());		
-		if (varReferenciaRDSJustificanteClave != null)
-			executionContext.setVariable(
-					varReferenciaRDSJustificanteClave,
-					resposta.getReferenciaRDSJustificante().getClave());
-		if (varReferenciaRDSJustificanteCodigo != null)
-			executionContext.setVariable(
-					varReferenciaRDSJustificanteCodigo,
-					resposta.getReferenciaRDSJustificante().getCodigo());
+			if (varNumeroRegistre != null)
+				executionContext.setVariable(
+						varNumeroRegistre,
+						resposta.getNumero());
+			if (varDataRegistre != null)
+				executionContext.setVariable(
+						varDataRegistre,
+						resposta.getData());		
+			if (varReferenciaRDSJustificanteClave != null)
+				executionContext.setVariable(
+						varReferenciaRDSJustificanteClave,
+						resposta.getReferenciaRDSJustificante().getClave());
+			if (varReferenciaRDSJustificanteCodigo != null)
+				executionContext.setVariable(
+						varReferenciaRDSJustificanteCodigo,
+						resposta.getReferenciaRDSJustificante().getCodigo());
+		}
 	}
 
 	@Override
@@ -259,8 +268,14 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 			DadesNotificacioElectronica dadesNotificacioElectronica = (DadesNotificacioElectronica) fromString(parametres.get(0));			
 			dadesNotificacioElectronica.getAnotacio().setNotificacioAvisText("La notificación que se realizó anteriormente no es correcta.");
 			RespostaRegistre resposta = registreNotificacio(executionContext,dadesNotificacioElectronica.getAnotacio(),dadesNotificacioElectronica.getAnnexos());
-			if (resposta != null) {			
-				System.out.println("ZonaperEventNotificacioHandler->execute: Resposta de para : " + dadesNotificacioElectronica.getAnotacio().getExpedientIdentificador() + " -> " + resposta);
+			if (resposta != null) {
+				boolean borrado = Jbpm3HeliumBridge.getInstanceService().borrarNotificacioElectronica(
+						resposta.getNumero(),
+						resposta.getReferenciaRDSJustificante().getClave(),
+						resposta.getReferenciaRDSJustificante().getCodigo());
+//				System.out.println("ZonaperEventNotificacioHandler->retrocedir: Resposta de para : " + dadesNotificacioElectronica.getAnotacio().getExpedientIdentificador() + " -> " + resposta);
+				if (!borrado)
+					throw new JbpmException("No se ha podido borrar la notificación electrónica del expediente");
 			}
 		} catch (Exception ex) {
 			throw new JbpmException("No se ha podido retroceder la notificación electrónica del expediente", ex);
@@ -328,8 +343,26 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	public void setVarAvisText(String varAvisText) {
 		this.varAvisText = varAvisText;
 	}
+	public String getDocument() {
+		return document;
+	}
+	public void setDocument(String document) {
+		this.document = document;
+	}
 	public void setVarRepresentatNif(String varRepresentatNif) {
 		this.varRepresentatNif = varRepresentatNif;
+	}
+	public String getRepresentatNom() {
+		return representatNom;
+	}
+	public void setRepresentatNom(String representatNom) {
+		this.representatNom = representatNom;
+	}
+	public String getVarRepresentatNom() {
+		return varRepresentatNom;
+	}
+	public void setVarRepresentatNom(String varRepresentatNom) {
+		this.varRepresentatNom = varRepresentatNom;
 	}
 	public void setOficina(String oficina) {
 		this.oficina = oficina;

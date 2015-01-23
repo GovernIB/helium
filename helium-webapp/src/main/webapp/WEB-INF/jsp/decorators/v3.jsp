@@ -128,7 +128,7 @@
 										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.informes"/> <span class="caret"></span></button>
 										<ul class="dropdown-menu">
 											<li class="nav-header">${expedientTipusActual.nom}</li>
-											<c:forEach var="consulte" items="${expedientTipusActual.consultes}">
+											<c:forEach var="consulte" items="${expedientTipusActual.consultesSort}">
 												<li><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
 											</c:forEach>
 										</ul>
@@ -140,7 +140,7 @@
 												<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
 													<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>													
 													<li class="nav-header">${expedientTipus.nom}</li>
-													<c:forEach var="consulte" items="${expedientTipus.consultes}">
+													<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
 														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
 													</c:forEach>
 												</c:forEach>

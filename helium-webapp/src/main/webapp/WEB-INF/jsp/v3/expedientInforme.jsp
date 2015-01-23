@@ -10,7 +10,7 @@
 	<title><spring:message code="consulta.form.informe" /></title>
 	<meta name="title" content="${consulta.expedientTipus.nom}"/>
 	<meta name="subtitle" content="${consulta.nom}"/>	
-	<script type="text/javascript" src="<c:url value="/js//jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
@@ -93,18 +93,19 @@
 		.eliminarFila {
 			padding: 4px 6px;
 		}
-		.tercpre {
-			padding-left: 0px !important;
-			padding-right: 8px !important;
-		}
-		.tercmig {
-			padding-left: 4px !important;
-			padding-right: 4px !important;
-		}
-		.tercpost {
-			padding-left: 8px !important;
-			padding-right: 0px !important;
-		}
+/* 		.tercpre { */
+/* 			padding-left: 0px !important; */
+/* 			padding-right: 8px !important; */
+/* 		} */
+/* 		.tercmig { */
+/* 			padding-left: 4px !important; */
+/* 			padding-right: 4px !important; */
+/* 		} */
+ 		.tercpost input{ 
+ 			
+/* 			padding-left: 8px !important; */
+/* 			padding-right: 0px !important; */
+ 		} 
 		thead {
 /* 			display: inline-table; */
 		}
@@ -129,30 +130,51 @@ $(document).ready(function() {
 		ajaxSourceUrl: "<c:url value="/v3/informe/consulta/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-		rowClickCallback: function(row) {
-// 			$('a.obrir-expedient', $(row))[0].click();
-			$.ajax({
-				"url": "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
-				"beforeSend": function( xhr ) {	
-					$('.fa-chevron-up').addClass('fa-chevron-down').removeClass('fa-chevron-up');
-					$(row).find('.icona-collapse').removeClass('fa-chevron-down').addClass('fa-circle-o-notch fa-spin');
-					$(".table-pendents").find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(400, function(){
-					  	$(this).parent().parent().remove();
+		rowClickCallback: function(row, event) {
+			var clickNomesDesplegar = true;
+			var numTds = $('td', $(event.target).closest('tr')).length;
+			var tdDesplegarIndex = numTds - 6;
+			var isTdDesplegar = $(event.target).closest('td').is(':nth-child(' + tdDesplegarIndex + ')');
+			if (!isTdDesplegar && !clickNomesDesplegar) {
+				$('a.consultar-expedient', $(row))[0].click();
+			} else {
+				var desplegat = $('.icona-tasques-pendents', row).hasClass('fa-chevron-up');
+				if (desplegat) {
+					$(row).next().remove();
+					$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
+					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
+				} else {
+					var jqxhr = $.ajax({
+						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
+						beforeSend: function(xhr) {
+							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
+						}
+					}).done(function(data) {
+						$(row).next(".tasques-pendents").remove();
+						$(row).after(data);
+						$('td:first', $(row).next(".tasques-pendents")).attr('colspan', numTds);
+						$(row).next(".tasques-pendents").slideDown(1000);
+						$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
+						$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
+					}).fail(function(jqXHR, exception) {
+						if (jqXHR.status === 0) {
+			                alert('Not connected.\n Verify network.');
+			            } else if (jqXHR.status == 404) {
+			                alert('Requested page not found [404].');
+			            } else if (jqXHR.status == 500) {
+			                alert('Internal server error [500].');
+			            } else if (exception === 'parsererror') {
+			                alert('Requested JSON parse failed.');
+			            } else if (exception === 'timeout') {
+			                alert('Timeout error.');
+			            } else if (exception === 'abort') {
+			                alert('Ajax request aborted.');
+			            } else {
+			                alert('Unknown error:\n' + jqXHR.responseText);
+			            }
 					});
-				},
-				"success": function (data) {
-					$(row).find('.icona-collapse').removeClass('fa-circle-o-notch fa-spin').addClass('fa-chevron-up');
-					$(row).after(data);
-					$(".table-pendents").find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(400, function(){
-						  var $set = $(this);
-						  $set.replaceWith($set.contents());
-					});
-				},
-			  	"error": function(XMLHttpRequest, textStatus, errorThrown) {
-					$('.fa-chevron-up').removeClass('fa-chevron-down fa-circle-o-notch fa-spin fa-chevron-up');
-					$(".table-pendents").remove();
 				}
-			});
+			}
 		},
 		seleccioCallback: function(seleccio) {
 			$('#tramitacioMassivaCount').html(seleccio.length);
@@ -164,14 +186,17 @@ $(document).ready(function() {
 	});
 	$("#nomesPendentsCheck").click(function() {
 		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
+		$(this).blur();
 		$('#expedientInformeCommand').submit();
 	});
 	$("#nomesAlertesCheck").click(function() {
 		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
+		$(this).blur();
 		$('#expedientInformeCommand').submit();
 	});
 	$("#mostrarAnulatsCheck").click(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
+		$(this).blur();
 		$('#expedientInformeCommand').submit();
 	});
 });
@@ -227,15 +252,19 @@ $(document).ready(function() {
 					${camp.campEtiqueta}
 				</th>
 				</c:forEach>
+				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>			
+				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									<li><a href="<c:url value="../../expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code='comuns.obrir'/></a></li>
-									<li><a href="<c:url value="../../expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>
-									<li><a href="<c:url value="../../expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>
-									<li><a href="<c:url value="../../expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>
+									{{if permisWrite}}<li><a href="<c:url value="../../expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
+									{{if permisWrite}}<li><a href="<c:url value="../../expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
+									{{if permisDelete}}<li><a href="<c:url value="../../expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
 								</ul>
 							</div>
 						</script>

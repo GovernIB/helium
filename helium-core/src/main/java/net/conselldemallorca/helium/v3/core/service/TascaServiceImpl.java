@@ -183,7 +183,6 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	public List<Long> findIdsPerFiltre(
 			Long entornId,
-			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
 			String responsable,
 			String tasca,
@@ -197,7 +196,6 @@ public class TascaServiceImpl implements TascaService {
 			boolean mostrarTasquesGrup) {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
-				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"responsable=" + responsable + ", " +
 				"tasca=" + tasca + ", " +
@@ -237,61 +235,42 @@ public class TascaServiceImpl implements TascaService {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION});
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
-		LlistatIds ids = new LlistatIds();
-		if (consultaTramitacioMassivaTascaId == null) {
-			// Calcula la data d'creacio fi pel filtre
-			if (dataCreacioFi != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dataCreacioFi);
-				cal.add(Calendar.DATE, 1);
-				dataCreacioFi.setTime(cal.getTime().getTime());
-			}
-			// Calcula la data limit fi pel filtre
-			if (dataLimitFi != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dataLimitFi);
-				cal.add(Calendar.DATE, 1);
-				dataLimitFi.setTime(cal.getTime().getTime());
-			}
-			List<Long> idsExpedients = expedientDao.findListExpedients(
-					entornId, 
-					responsable,
-					expedient, 
-					null,
-					expedientTipusId,
-					null,
-					false);
-		
-			ids = jbpmHelper.findListTasks(
-					responsable,
-					tasca,
-					idsExpedients,
-					dataCreacioInici,
-					dataCreacioFi,
-					prioritat,
-					dataLimitInici,
-					dataLimitFi,
-					new PaginacioParamsDto(),
-					mostrarTasquesPersonals,
-					mostrarTasquesGrup,
-					true);
-		} else {
-			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-					consultaTramitacioMassivaTascaId,
-					true,
-					true);
-			DadesCacheTasca dadesCache = dtoConverter.getDadesCacheTasca(task, null);
-			
-			// Filtra les tasques per mostrar només les del entorn seleccionat
-			ids.setIds(new ArrayList<Long>()); 
-			for (JbpmTask taska: jbpmHelper.findPersonalTasks(responsable)) {
-				DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(taska, null);
-//				comprobar tipo expediente
-				if (entornId.equals(dadesCache.getEntornId()) && task.getName().equals(taska.getName()) && dadesCache.getDefinicioProcesJbpmKey().equals(dadesCacheTasca.getDefinicioProcesJbpmKey())) {
-					ids.getIds().add(Long.parseLong(taska.getId()));
-				}
-			}
+		// Calcula la data d'creacio fi pel filtre
+		if (dataCreacioFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataCreacioFi);
+			cal.add(Calendar.DATE, 1);
+			dataCreacioFi.setTime(cal.getTime().getTime());
 		}
+		// Calcula la data limit fi pel filtre
+		if (dataLimitFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataLimitFi);
+			cal.add(Calendar.DATE, 1);
+			dataLimitFi.setTime(cal.getTime().getTime());
+		}
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				responsable,
+				expedient, 
+				null,
+				expedientTipusId,
+				null,
+				false);
+	
+		LlistatIds ids = jbpmHelper.findListTasks(
+				responsable,
+				tasca,
+				idsExpedients,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				new PaginacioParamsDto(),
+				mostrarTasquesPersonals,
+				mostrarTasquesGrup,
+				true);
 		return ids.getIds();
 	}
 
@@ -361,60 +340,59 @@ public class TascaServiceImpl implements TascaService {
 			sort = or.getCamp();
 			break;
 		}
-		LlistatIds ids = new LlistatIds();
-		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
-		if (consultaTramitacioMassivaTascaId == null) {
-			// Calcula la data d'creacio fi pel filtre
-			if (dataCreacioFi != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dataCreacioFi);
-				cal.add(Calendar.DATE, 1);
-				dataCreacioFi.setTime(cal.getTime().getTime());
-			}
-			// Calcula la data limit fi pel filtre
-			if (dataLimitFi != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(dataLimitFi);
-				cal.add(Calendar.DATE, 1);
-				dataLimitFi.setTime(cal.getTime().getTime());
-			}
-			List<Long> idsExpedients = expedientDao.findListExpedients(
-					entornId, 
-					responsable,
-					expedient, 
-					null,
-					expedientTipusId,
-					sort,
-					asc);
-		
-			ids = jbpmHelper.findListTasks(
-					responsable,
-					tasca,
-					idsExpedients,
-					dataCreacioInici,
-					dataCreacioFi,
-					prioritat,
-					dataLimitInici,
-					dataLimitFi,
-					paginacioParams,
-					mostrarTasquesPersonals,
-					mostrarTasquesGrup,
-					true);
-		} else {
+
+		List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				responsable,
+				expedient, 
+				null,
+				expedientTipusId,
+				sort,
+				asc);
+		if (consultaTramitacioMassivaTascaId != null) {
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 					consultaTramitacioMassivaTascaId,
 					true,
 					true);
-			DadesCacheTasca dadesCache = dtoConverter.getDadesCacheTasca(task, null);
-			
+			tasca = task.getName();
+		}
+		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
+		
+		// Calcula la data d'creacio fi pel filtre
+		if (dataCreacioFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataCreacioFi);
+			cal.add(Calendar.DATE, 1);
+			dataCreacioFi.setTime(cal.getTime().getTime());
+		}
+		// Calcula la data limit fi pel filtre
+		if (dataLimitFi != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataLimitFi);
+			cal.add(Calendar.DATE, 1);
+			dataLimitFi.setTime(cal.getTime().getTime());
+		}
+	
+		LlistatIds ids = jbpmHelper.findListTasks(
+				responsable,
+				tasca,
+				idsExpedients,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				paginacioParams,
+				mostrarTasquesPersonals,
+				mostrarTasquesGrup,
+				true);
+		
+		if (consultaTramitacioMassivaTascaId != null) {			
 			// Filtra les tasques per mostrar només les del entorn seleccionat
-			ids.setIds(new ArrayList<Long>()); 
 			for (JbpmTask taska: jbpmHelper.findPersonalTasks(responsable)) {
 				DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(taska, null);
-				if (entornId.equals(dadesCache.getEntornId()) && task.getName().equals(taska.getName()) && dadesCache.getDefinicioProcesJbpmKey().equals(dadesCacheTasca.getDefinicioProcesJbpmKey())) {
-					ids.getIds().add(Long.parseLong(taska.getId()));					
+				if (ids.getIds().contains(Long.parseLong(taska.getId())))			
 					expedientTasques.add(tascaHelper.getExpedientTascaCacheDto(taska, dadesCacheTasca, false));
-				}
 			}
 			
 			ids.setCount(expedientTasques.size());

@@ -153,7 +153,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		List<Long> ids = tascaService.findIdsPerFiltre(
 			entornActual.getId(),
-			filtreCommand.getConsultaTramitacioMassivaTascaId(),
 			filtreCommand.getExpedientTipusId(),
 			request.getUserPrincipal().getName(),
 			filtreCommand.getTasca(),
@@ -230,7 +229,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "/filtre/netejar", method = RequestMethod.GET)
 	public String filtreNetejar(HttpServletRequest request) {
 		SessionHelper.getSessionManager(request).removeFiltreConsultaTasca();
-		return "redirect:../../tasca";
+		return "redirect:/v3/tasca";
 	}
 
 	@InitBinder
@@ -257,5 +256,4 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		return filtreCommand;
 	}
-
 }

@@ -157,39 +157,6 @@ public class TascaHelper {
 		return task;
 	}
 
-	public boolean hasTasques(Expedient expedient) {
-		List<JbpmProcessInstance> pis = jbpmHelper.getProcessInstanceTree(
-				expedient.getProcessInstanceId());
-		List<Long> expedientIds = new ArrayList<Long>();
-		for (JbpmProcessInstance pi: pis) {
-			expedientIds.add(new Long(pi.getId()));
-		}
-		// Si l'usuari te permis de supervisio mostra totes les tasques de
-		// l'expedient de qualsevol usuari
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		boolean isPermisSupervision = permisosHelper.isGrantedAny(
-				expedient.getTipus().getId(),
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		final LlistatIds ids = jbpmHelper.findListTasks(
-				(isPermisSupervision) ? null : auth.getName(), 
-				null,
-				expedientIds, 
-				null, 
-				null,
-				null, 
-				null, 
-				null, 
-				new PaginacioParamsDto(),
-				true,
-				true,
-				true);
-		return !ids.getIds().isEmpty();
-	}
-
 	public List<ExpedientTascaDto> findTasquesPerExpedient(
 			Expedient expedient) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
@@ -605,9 +572,10 @@ public class TascaHelper {
 		dto.setExpedientTipusNom(expedient.getTipus().getNom());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
 		dto.setAgafada(task.isAgafada());
-		Tasca tasca = findTascaByJbpmTask((JbpmTask)task);
 		dto.setValidada(isTascaValidada(task));
-		dto.setFormExtern(tasca.getFormExtern());
+		Tasca tasca = findTascaByJbpmTask((JbpmTask)task);
+		if (tasca != null)
+			dto.setFormExtern(tasca.getFormExtern());
 		
 		return dto;
 	}

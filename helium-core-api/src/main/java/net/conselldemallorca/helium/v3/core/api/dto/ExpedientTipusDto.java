@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -235,10 +236,16 @@ public class ExpedientTipusDto implements Serializable {
 			consultes = new ArrayList<ConsultaDto>();
 		return consultes;
 	}
+
+	public List<ConsultaDto> getConsultesSort() {
+		if (consultes == null)
+			consultes = new ArrayList<ConsultaDto>();
+		Collections.sort(consultes);
+		return consultes;
+	}
 	public void setConsultes(List<ConsultaDto> consultes) {
 		this.consultes = consultes;
 	}
 
 	private static final long serialVersionUID = 4990928454645567913L;
-
 }
