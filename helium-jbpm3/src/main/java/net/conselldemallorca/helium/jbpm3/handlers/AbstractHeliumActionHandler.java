@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
@@ -15,7 +14,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.def.ActionHandler;
@@ -41,24 +39,14 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 		return expedient;
 	}
 
-	List<ExpedientDto> findExpedientAmbMateixTipusINumero(
+	ExpedientDto findExpedientAmbMateixTipusINumero(
 			ExecutionContext executionContext,
 			String numero) {
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		return Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+		return Jbpm3HeliumBridge.getInstanceService().findExpedientAmbMateixTipusINumero(
 				expedient.getEntorn().getId(),
-				null,
-				numero,
-				null,
-				null,
 				expedient.getTipus().getId(),
-				null,
-				false,
-				false,
-				null,
-				null,
-				null,
-				FiltreAnulat.ACTIUS);
+				numero);
 	}
 
 	DefinicioProcesDto getDefinicioProces(ExecutionContext executionContext) {

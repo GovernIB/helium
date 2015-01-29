@@ -22,8 +22,6 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 	private String numero;
 	private String varNumero;
 
-
-
 	public void execute(ExecutionContext executionContext) throws Exception {
 		logger.debug("Inici execució handler modificació número expedient");
 		String n = (String)getValorOVariable(
@@ -31,7 +29,8 @@ public class ExpedientNumeroModificarHandler extends AbstractHeliumActionHandler
 				numero,
 				varNumero);
 		ExpedientDto expedient = getExpedientActual(executionContext);
-		if (findExpedientAmbMateixTipusINumero(executionContext, n).size() > 0)
+		ExpedientDto expedientRepetit = findExpedientAmbMateixTipusINumero(executionContext, n);
+		if (expedientRepetit != null && expedientRepetit.getId().longValue() != expedient.getId().longValue())
 			throw new JbpmException("Ja existeix un altre expedient d'aquest tipus amb el mateix número (" + n + ")");
 		logger.debug("Modificant número de l'expedient (expedient=" + expedient.getIdentificacioPerLogs() + ", número=" + n + ")");
 		try {

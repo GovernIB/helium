@@ -894,6 +894,18 @@ public interface Jbpm3HeliumService {
 			String varCodi);
 
 	/**
+	 * Consulta els expedients amb el mateix tipus i número.
+	 * 
+	 * @param expedientTipusId
+	 * @param numero
+	 * @return
+	 */
+	public ExpedientDto findExpedientAmbMateixTipusINumero(
+			Long entornId,
+			Long expedientTipusId,
+			String numero);
+	
+	/**
 	 * Retorna el resultat d'una consulta d'expedients.
 	 * 
 	 * @param entornId

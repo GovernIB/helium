@@ -1613,6 +1613,24 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
+	public ExpedientDto findExpedientAmbMateixTipusINumero(
+			Long entornId,
+			Long expedientTipusId,
+			String numero) {
+		imprimirFuncio("findExpedientsAmbMateixTipusINumero");
+		
+		logger.debug("findExpedientsAmbMateixTipusINumero (" +
+				"entornId=" + entornId + ", " +
+				"numero=" + numero + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
+		
+		Expedient expedient = expedientDao.findAmbEntornTipusINumero(entornId, expedientTipusId, numero);
+		if (expedient == null)
+			return null;
+		return conversioTipusHelper.convertir(expedient, ExpedientDto.class);
+	}
+
+	@Override
 	public List<ExpedientDto> findExpedientsConsultaGeneral(
 			Long entornId,
 			String titol,
