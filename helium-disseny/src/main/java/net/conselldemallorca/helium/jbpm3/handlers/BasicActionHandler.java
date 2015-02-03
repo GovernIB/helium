@@ -183,6 +183,12 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return null;
 	}
 	
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		return false;
+	}
+
+	public void reprendreExpedient(String processInstanceId) throws Exception {}
+	
 	static final long serialVersionUID = 1L;
 
 }
