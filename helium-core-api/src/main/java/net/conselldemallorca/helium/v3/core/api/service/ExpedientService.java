@@ -824,6 +824,8 @@ public interface ExpedientService {
 
 	public void buidarLogExpedient(String processInstanceId);
 
+	public void createVariable(Long expedientId, String processInstanceId,	String varName, Object value);
+	
 	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor);
 	
 	public void deleteVariable(Long expedientId, String processInstanceId, String varName);

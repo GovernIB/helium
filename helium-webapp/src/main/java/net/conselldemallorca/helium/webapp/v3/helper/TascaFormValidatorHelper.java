@@ -174,7 +174,7 @@ public class TascaFormValidatorHelper implements Validator {
 						SessionHelper.VARIABLE_TASCA_ERRROR,
 						errors);
 			}
-			System.out.println(errors.toString());
+			logger.debug(errors.toString());
 		} catch (Exception ex) {
 			logger.error("Error en el validator", ex);
 			errors.reject("error.validator");

@@ -1390,7 +1390,7 @@ public abstract class BaseTest {
 		
 		try {
 
-			System.out.println("** --> " + getMD5Checksum(downloadedFile));
+//			logger.debug("** --> " + getMD5Checksum(downloadedFile));
 			
 			CheckFileHash fileToCheck = new CheckFileHash();
 			fileToCheck.fileToCheck(downloadedFile);
@@ -1459,7 +1459,6 @@ public abstract class BaseTest {
 			fail("No s'ha pogut descarregar l'arxiu. Error: " + e.getMessage());
 		}
 		
-		//System.out.println(downloader.getHTTPStatusOfLastDownloadAttempt());
 	
 		assertThat(downloader.getHTTPStatusOfLastDownloadAttempt(), is(equalTo(200)));
 		
@@ -1476,7 +1475,6 @@ public abstract class BaseTest {
 //	        for (int i = 0; i < array.length; ++i) {
 //	          sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
 //	       }
-//	        System.out.println("MD5: " + sb.toString());
 	        
 			CheckFileHash fileToCheck = new CheckFileHash();
 			fileToCheck.fileToCheck(downloadedFile);

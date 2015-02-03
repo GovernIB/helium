@@ -182,9 +182,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		validator.setValidarObligatoris(true);
 		validator.validate(command, result);
 		if (result.hasErrors()) {
-//			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 			MissatgesHelper.errorGlobal(request, result, getMessage(request, "error.validacio"));
-			System.out.println(result);
 		} 
 	}
 

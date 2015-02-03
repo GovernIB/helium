@@ -151,6 +151,13 @@ public class DissenyServiceBean implements DissenyService {
 	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi) {
 		return delegate.findCampAmbDefinicioProcesICodiSimple(definicioProcesId, campCodi);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(
+			Long definicioProcesId) {
+		return delegate.findCampsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

@@ -111,6 +111,8 @@ public interface DissenyService {
 	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException;
 
 	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi);
+	
+	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId);
 
 	public AccioDto findAccioAmbId(Long idAccio);
 

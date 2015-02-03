@@ -434,6 +434,13 @@ public class DissenyServiceImpl implements DissenyService {
 		return conversioTipusHelper.convertir(campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi), CampDto.class);
 	}
 	
+	@Transactional(readOnly=true)
+	@Override
+	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		return conversioTipusHelper.convertirList(campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), CampDto.class);
+	}
+	
 	@Transactional
 	@Override
 	public void executarAccio(AccioDto accio, ExpedientDto expedient) {

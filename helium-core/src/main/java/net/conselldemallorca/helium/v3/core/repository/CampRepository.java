@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 
@@ -20,6 +22,8 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	Camp findByDefinicioProcesAndCodi(
 			DefinicioProces definicioProces,
 			String codi);
+	
+	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 
 	Camp findById(Long registreEsborrarId);
 }

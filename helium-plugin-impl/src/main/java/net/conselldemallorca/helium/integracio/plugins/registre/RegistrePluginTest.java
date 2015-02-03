@@ -12,6 +12,8 @@ import java.util.List;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -62,7 +64,7 @@ public class RegistrePluginTest {
 		documents.add(doc);
 		registreEntrada.setDocuments(documents);
 		RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarEntrada(registreEntrada);
-		System.out.println(">>> num: " + resposta.getNumero());
+		logger.debug(">>> num: " + resposta.getNumero());
 	}
 
 	public void notificacio() throws Exception {
@@ -108,11 +110,11 @@ public class RegistrePluginTest {
 		documents.add(doc);
 		registreNotificacio.setDocuments(documents);
 		RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarNotificacio(registreNotificacio);
-		System.out.println(">>> num: " + resposta.getNumero());
+		logger.debug(">>> num: " + resposta.getNumero());
 	}
 
 	public void nomOficina() throws Exception {
-		System.out.println(">>> oficina: " + getRegistrePlugin().obtenirNomOficina("3-1"));
+		logger.debug(">>> oficina: " + getRegistrePlugin().obtenirNomOficina("3-1"));
 	}
 
 
@@ -144,4 +146,5 @@ public class RegistrePluginTest {
 		return buffer.toByteArray();
 	}
 
+	private static final Log logger = LogFactory.getLog(RegistrePluginTest.class);
 }

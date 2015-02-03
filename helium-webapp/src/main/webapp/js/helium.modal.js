@@ -324,7 +324,7 @@ function modalTancar(iframe, refrescar) {
 
 function modalAdjustHeight(iframe, height) {
 	$(iframe).parent().css('height', height + 15 + 'px');
-	$(iframe).css('height', height + 'px');
+	$(iframe).css('min-height', height + 'px');
 }
 
 function executeFunctionByName(functionName, context /*, args */) {

@@ -229,7 +229,7 @@ $(document).ready(function() {
 var desplegats;
 var panell;
 
-function updatePanell () {
+function updatePanell() {
 	if (desplegats != null) {
 		desplegats.each(function(){
 			$("#" + $(this).attr("id")).addClass("in");

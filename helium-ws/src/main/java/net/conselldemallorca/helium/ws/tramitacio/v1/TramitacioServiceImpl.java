@@ -1010,7 +1010,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 	private void printUsuari() {
 		if (PRINT_USUARI) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			System.out.println(">>> " + auth.getName());
+			logger.info(">>> " + auth.getName());
 		}
 	}
 

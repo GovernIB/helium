@@ -3,6 +3,8 @@ package net.conselldemallorca.helium.test.disseny;
 import static org.junit.Assert.assertTrue;
 import net.conselldemallorca.helium.test.util.BaseTest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -203,7 +205,7 @@ public class DefinicioProcesDocs extends BaseTest {
 				try {
 					byte[] arxiuContingut = downloadFile("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", "");
 					String hashFile = getMD5Checksum(arxiuContingut);
-					System.out.println("defproc.deploy.arxiu.contingut.hash" + hashFile);
+					logger.debug("defproc.deploy.arxiu.contingut.hash" + hashFile);
 					assertTrue("Hash de l'arxiu contingut no ha estat l´esperat: "+hashFile+" diferent de " + arxiuContingut_hash, arxiuContingut_hash.equals(hashFile));
 				}catch (Exception ex) {}
 			}
@@ -292,7 +294,7 @@ public class DefinicioProcesDocs extends BaseTest {
 		if (md5Plantilla != null) {
 			try {
 				byte[] arxiuContingut = downloadFile("//*[@id='iconsFileInput_arxiuContingut0']/a[1]", "");
-				System.out.println("defproc.deploy.arxiu.contingut.hash" + arxiuContingut_hash);
+				logger.debug("defproc.deploy.arxiu.contingut.hash" + arxiuContingut_hash);
 				assertTrue("Hash de l'arxiu contingut no ha estat l´esperat." , arxiuContingut_hash.equals(getMD5Checksum(arxiuContingut)));
 			}catch (Exception ex) {}
 		}
@@ -308,4 +310,6 @@ public class DefinicioProcesDocs extends BaseTest {
 		
 		driver.findElement(By.xpath("//button[@value='cancel']")).click();
 	}
+	
+	private static final Log logger = LogFactory.getLog(DefinicioProcesDocs.class);
 }

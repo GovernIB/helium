@@ -24,7 +24,6 @@ public class NodecoInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response,
 			Object handler) throws Exception {
 		boolean resposta = NodecoHelper.comprovarNodecoInterceptor(request, response);
-		//System.out.println(">>> NODECO: " + request.getRequestURI() + ", " + AjaxHelper.isAjax(request));
 		return resposta;
 	}
 

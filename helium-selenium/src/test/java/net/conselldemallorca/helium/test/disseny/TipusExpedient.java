@@ -342,33 +342,7 @@ public class TipusExpedient extends BaseTest {
 			
 			//driver.findElement(By.id("expressioNumero0")).sendKeys("CZ 10/"+anyActual);
 			driver.findElement(By.id("expressioNumero0")).sendKeys(expressioSeq);
-			
 			//TODO: WARN: per a la versio 2.11 del driver de chrome, l´expressió no s´envia bé
-			//A continuacio proves realitzades per intentar solvertar-ho enviant un char
-			
-				/*driver.findElement(By.id("expressioNumero0")).clear();
-				driver.findElement(By.id("expressioNumero0")).sendKeys("CZ $\\{seq}/$\\{any}");
-				driver.findElement(By.id("expressioNumero0")).clear();
-				driver.findElement(By.id("expressioNumero0")).sendKeys("CZ $\\\\{seq}/$\\\\{any}");
-				driver.findElement(By.id("expressioNumero0")).sendKeys("CZ #{seq}/#{any}");
-				String expressioReparada = driver.findElement(By.id("expressioNumero0")).getAttribute("value").replace("#", "${");
-				driver.findElement(By.id("expressioNumero0")).sendKeys(expressioReparada);*/
-				//char abrirLLave = Character.toChars(0x007B)[0];
-				
-				//driver.findElement(By.id("expressioNumero0")).sendKeys(Keys.getKeyFromUnicode('\u007B'));
-				
-				/*Keys[] caracteresRaros = Keys.values();
-				for (int k=0; k<caracteresRaros.length; k++) {
-					Keys kactual = caracteresRaros[k];
-					System.out.println("KEY " + k + " - " + kactual.name() + " = " + Keys.valueOf(kactual.name()));
-				}*/
-				
-				//String s = "\\u007B";
-			    //char c = (char)Integer.parseInt(s.substring(2), 16);
-			    //char uni = '\007';
-				
-				//driver.findElement(By.id("expressioNumero0")).sendKeys(Keys.getKeyFromUnicode('c'));
-			
 			driver.findElement(By.id("reiniciarCadaAny0")).click();
 			driver.findElement(By.xpath("//div[@id='seqMultiple']//button[@class='submitButton']")).click();
 			

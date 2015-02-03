@@ -70,7 +70,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 	}
 
 	public void establecerResultadoProceso(ReferenciaEntrada arg0, String arg1, String arg2) {
-		System.out.println(" El resultado del proceso de creación del tramite ha ido bien y así lo ha recibido el WS de la Bandeja Telematica.");
+		logger.debug(" El resultado del proceso de creación del tramite ha ido bien y así lo ha recibido el WS de la Bandeja Telematica.");
 	}
 
 	protected DadesVistaDocument getVistaDocumentTramit(long referenciaCodi, String referenciaClau, String plantillaTipus, String idioma) {

@@ -6,6 +6,9 @@ package net.conselldemallorca.helium.core.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Camps relatius als expedients indexats
  * 
@@ -38,7 +41,7 @@ public class MesurarTemps {
 		/*String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text + " ";
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");*/
+		logger.debug("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");*/
 	}
 	public static void diferenciaImprimirStdoutIReiniciar(String clau) {
 		diferenciaImprimirStdout(clau, null);
@@ -81,7 +84,7 @@ public class MesurarTemps {
 		String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text;
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + getMitjaValors().get(clau) + "ms (n=" + getMitjaContadors().get(clau) + ")");
+		logger.debug("---> [" + clau + "]" + perAfegir + ": " + getMitjaValors().get(clau) + "ms (n=" + getMitjaContadors().get(clau) + ")");
 	}
 
 
@@ -102,4 +105,5 @@ public class MesurarTemps {
 		return mitjaContadors;
 	}
 
+	private static final Log logger = LogFactory.getLog(MesurarTemps.class);
 }

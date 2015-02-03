@@ -382,9 +382,6 @@ public class DtoConverter {
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
 				campTasca.getCamp().getRegistreMembres().size();
-				/*for (CampRegistre membre: campTasca.getCamp().getRegistreMembres()) {
-					System.out.println(">>> " + campTasca.getCamp().getCodi() + ": " + membre.getMembre().getCodi());
-				}*/
 			}
 		}
 		dto.setCamps(campsTasca);

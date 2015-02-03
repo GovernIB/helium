@@ -58,7 +58,6 @@ public class MesuresTemporalsHelper {
 		mesuraIniciar(nom, familia, tipusExpedient, tasca, null);
 	}
 	public void mesuraIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-//		System.out.println(">>> MESURA INICI: " + nom + " - " + familia + " - " +  tipusExpedient + " - " + tasca + " - " + detall);
 		try {
 			if (actiu) {
 				Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
@@ -88,7 +87,6 @@ public class MesuresTemporalsHelper {
 		mesuraCalcular(nom, familia, tipusExpedient, tasca, null);
 	}
 	public void mesuraCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-//		System.out.println(">>> MESURA FINAL: " + nom + " - " + familia + " - " +  tipusExpedient + " - " + tasca + " - " + detall);
 		try {
 			if (actiu && intervalsEstadistiques.containsKey(familia)) {
 				Clau clau = new Clau(nom, tipusExpedient, tasca, detall);
@@ -142,7 +140,7 @@ public class MesuresTemporalsHelper {
 //		SortedSet<String> families = new TreeSet<String>(estadistiquesFamilia.keySet());
 //		for (String family: families) {
 		for (String family: estadistiquesFamilia.keySet()) {
-			System.out.print("[TEMPS] >>>>>>>>>>> Obtenció estadístiques de la família " + family + " ... ");
+			logger.debug("[TEMPS] >>>>>>>>>>> Obtenció estadístiques de la família " + family + " ... ");
 			Map<Clau, Estadistiques> estadistiques = estadistiquesFamilia.get(family);
 			if (estadistiques != null) {
 //				SortedSet<Clau> claus = new TreeSet<Clau>(estadistiques.keySet());
@@ -182,7 +180,7 @@ public class MesuresTemporalsHelper {
 					}
 				}
 			}
-			System.out.println("OK");
+			logger.debug("OK");
 		}
 		Collections.sort(resposta);
 		return resposta;

@@ -447,13 +447,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 							|| ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
 						String valorIndex = valorFiltre.toString();
 						if (valorIndex != null && valorIndex.length() > 0) {
-							// System.out.println(">>> TermQuery " + codiCamp + ": " + valorIndex);
 							return new TermQuery(new Term(codiCamp, valorIndex));
 						}
 					} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)) {
 						String valorIndex = ((String) valorFiltre).toLowerCase();
 						if (valorIndex != null && valorIndex.length() > 0) {
-							// System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
 							return queryPerStringAmbWildcards(codiCamp, valorIndex);
 						}
 					} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(codiCamp)) {
@@ -465,7 +463,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 							calFinal.set(Calendar.HOUR, 23);
 							calFinal.set(Calendar.MINUTE, 59);
 							calFinal.set(Calendar.SECOND, 99);
-							// System.out.println(">>> TermRangeQuery " + codiCamp + ": " + dataPerIndexar(valorInicial) + ", " + dataPerIndexar(calFinal.getTime()));
 							return new TermRangeQuery(codiCamp, dataPerIndexar(valorInicial), dataPerIndexar(calFinal.getTime()), true, true);
 						} else if (valorInicial != null) {
 							return new TermRangeQuery(codiCamp, dataPerIndexar(valorInicial), MAX_VALUE, true, true);
@@ -493,7 +490,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 								Object valorInicial = ((Object[]) valorFiltre)[0];
 								Object valorFinal = ((Object[]) valorFiltre)[1];
 								if (valorInicial != null && valorFinal != null) {
-									// System.out.println(">>> TermRangeQuery " + codiCamp + ": " + valorIndexPerCamp(camp, valorInicial) + ", " + valorIndexPerCamp(camp, valorFinal));
 									return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), valorIndexPerCamp(camp, valorFinal), true, true);
 								} else if (valorInicial != null) {
 									return new TermRangeQuery(codiCamp, valorIndexPerCamp(camp, valorInicial), MAX_VALUE, true, true);
@@ -503,13 +499,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 							} else if (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA)) {
 								String valorIndex = valorIndexPerCamp(camp, valorFiltre).toLowerCase();
 								if (valorIndex != null && valorIndex.length() > 0) {
-									// System.out.println(">>> WildcardQuery " + codiCamp + ": " + valorIndex);
 									return queryPerStringAmbWildcards(codiCamp, valorIndex);
 								}
 							} else {
 								String valorIndex = valorIndexPerCamp(camp, valorFiltre);
 								if (valorIndex != null && valorIndex.length() > 0) {
-									// System.out.println(">>> TermQuery " + codiCamp + ": " + valorIndexPerCamp(camp, valorFiltre));
 									return new TermQuery(new Term(codiCamp, valorIndexPerCamp(camp, valorFiltre)));
 								}
 							}
@@ -722,14 +716,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 	private void updateDocumentCamp(Document document, DefinicioProces definicioProces, Camp camp, Object valor, Map<String, String> textDominis, boolean checkMultiple, boolean isUpdate, Set<String> campsActualitzats) {
 		if (valor != null) {
 			if (checkMultiple && camp.isMultiple()) {
-				// System.out.println(">>> Multiple " + camp.getCodi());
 				Object[] valors = (Object[]) valor;
 				for (Object o : valors) {
 					updateDocumentCamp(document, definicioProces, camp, o, textDominis, false, isUpdate, campsActualitzats);
 				}
-				// System.out.println(">>> /Multiple " + camp.getCodi());
 			} else if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
-				// System.out.println(">>> Registre " + camp.getCodi());
 				Object[] valorsMembres = (Object[]) valor;
 				int index = 0;
 				for (CampRegistre campRegistre : camp.getRegistreMembres()) {
@@ -737,12 +728,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 					if (index < valorsMembres.length)
 						updateDocumentCamp(document, definicioProces, membre, valorsMembres[index++], textDominis, false, isUpdate, campsActualitzats);
 				}
-				// System.out.println(">>> /Registre " + camp.getCodi());
 			} else {
 				String clauIndex = definicioProces.getJbpmKey() + "." + camp.getCodi();
 				String valorIndex = valorIndexPerCamp(camp, valor);
 				boolean analyzed = camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA);
-				// System.out.println(">>>>>> " + clauIndex + ": " + valorIndex);
 				boolean update = isUpdate && !campsActualitzats.contains(clauIndex);
 				campsActualitzats.add(clauIndex);
 				createOrUpdateDocumentField(document, new Field(clauIndex, valorIndex, Field.Store.YES, (analyzed) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), update);
@@ -861,5 +850,5 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 	}
 
-	protected static Log logger = LogFactory.getLog(LuceneHelper.class);
+	protected static final Log logger = LogFactory.getLog(LuceneHelper.class);
 }

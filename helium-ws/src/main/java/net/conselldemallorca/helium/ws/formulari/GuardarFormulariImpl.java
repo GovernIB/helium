@@ -34,8 +34,7 @@ public class GuardarFormulariImpl implements GuardarFormulari {
 			for (ParellaCodiValor parella: valors) {
 				/*String tipus = null;
 				if (parella.getValor() != null)
-					tipus = parella.getValor().getClass().getName();
-				System.out.println(">>> Variable " + parella.getCodi() + ": " + tipus);*/
+					tipus = parella.getValor().getClass().getName();*/
 				if (parella.getValor() != null) {
 					if (parella.getValor() instanceof XMLGregorianCalendar) {
 						valorsTasca.put(

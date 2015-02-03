@@ -11,7 +11,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioD
 import net.conselldemallorca.helium.v3.core.api.dto.TipoAvisoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipoConfirmacionAvisoDto;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
+import org.jbpm.graph.def.GraphElement;
 import org.jbpm.graph.exe.ExecutionContext;
 
 /**
@@ -55,7 +58,7 @@ public class ZonaperEventNotificacioJustificantHandler extends BasicActionHandle
 		
 		if (detalle) {
 			RespostaJustificantDetallRecepcioDto resposta = obtenirJustificantDetallRecepcio(num);		
-			System.out.println("RespostaJustificantDetallRecepcioDto: " + resposta);
+			logger.debug("RespostaJustificantDetallRecepcioDto: " + resposta);
 			
 			if (varData != null)
 				executionContext.setVariable(
@@ -110,7 +113,7 @@ public class ZonaperEventNotificacioJustificantHandler extends BasicActionHandle
 			}			
 		} else {
 			RespostaJustificantRecepcioDto resposta = obtenirJustificantRecepcio(num);
-			System.out.println("RespostaJustificantRecepcioDto: " + resposta);
+			logger.debug("RespostaJustificantRecepcioDto: " + resposta);
 			
 			if (varData != null)
 				executionContext.setVariable(
@@ -164,4 +167,6 @@ public class ZonaperEventNotificacioJustificantHandler extends BasicActionHandle
 	public void setVarReferenciaRDSJustificanteCodigo(String varReferenciaRDSJustificanteCodigo) {
 		this.varReferenciaRDSJustificanteCodigo = varReferenciaRDSJustificanteCodigo;
 	}
+	
+	private static final Log logger = LogFactory.getLog(ZonaperEventNotificacioJustificantHandler.class);
 }

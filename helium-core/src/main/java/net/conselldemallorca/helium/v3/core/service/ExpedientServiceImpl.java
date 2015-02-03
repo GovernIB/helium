@@ -2838,6 +2838,31 @@ public class ExpedientServiceImpl implements ExpedientService {
 	
 	@Override
 	@Transactional
+	public void createVariable(Long expedientId, String processInstanceId, String varName, Object value) {
+		@SuppressWarnings("unused")
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
+				varName);
+		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, value);
+		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		Registre registre = crearRegistreInstanciaProces(
+				expedientId,
+				processInstanceId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				Registre.Accio.MODIFICAR);
+		registre.setMissatge("Crear variable '" + varName + "'");
+		if (value != null)
+			registre.setValorNou(value.toString());
+	}
+	
+	@Override
+	@Transactional
 	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValue) {
 		@SuppressWarnings("unused")
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(

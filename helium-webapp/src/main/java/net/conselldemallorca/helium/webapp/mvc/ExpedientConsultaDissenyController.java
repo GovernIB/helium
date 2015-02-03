@@ -412,8 +412,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							param.getCampCodi(),
 							paramValor);
 			}
-			/*for (String clau: valorsParams.keySet())
-				System.out.println(">>> PARAM " + clau + ": " + valorsParams.get(clau));*/
 			session.setAttribute(VARIABLE_SESSIO_PARAMS, valorsParams);
 		}
 		return "redirect:consultaDissenyInforme.html";
@@ -801,8 +799,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				String fileName = ze.getName();
 				byte[] fileContent;
 
-				// System.out.print("\n >>>> "+ fileName);
-
 				ByteArrayOutputStream fos = new ByteArrayOutputStream();
 
 				int len;
@@ -818,8 +814,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 
 			zis.closeEntry();
 			zis.close();
-
-			// System.out.println("\nDone");
 
 		} catch (IOException ex) {
 			ex.printStackTrace();

@@ -190,7 +190,6 @@ public class PluginService {
 					importancia,
 					dataLimit);
 			IncidentThrowsAdviceHelper.addDadesAdvicePortasignatures(doc);
-//			System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Okay - we're in the portasignatures handler... Document: " + doc);
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(doc);
@@ -210,7 +209,6 @@ public class PluginService {
 
 	public void deletePortasignatures(
 			List<Integer> documentsId) throws PluginException {
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Okay - we're in the portasignatures delete handler... Documents: " + documentsId);
 		pluginPortasignaturesDao.deleteDocuments(documentsId);
 	}
 			

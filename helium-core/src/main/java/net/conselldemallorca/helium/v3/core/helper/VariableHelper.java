@@ -129,6 +129,15 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
+	
+	public List<TascaDadaDto> findDadesTascaPerInstanciaProces(String processInstanceId) {
+		List<TascaDadaDto> dades = new ArrayList<TascaDadaDto>();
+		for (ExpedientDadaDto dada : findDadesPerInstanciaProces(processInstanceId)) {
+			dades.add(getTascaDadaDtoFromExpedientDadaDto(dada));
+		}
+		return dades;
+	}
+	
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId) {
 		return findDadesPerInstanciaProces(processInstanceId, false);
 	}

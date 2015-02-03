@@ -42,6 +42,8 @@ import net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.cliente.Up
 import net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.cliente.UploadResponse;
 import net.conselldemallorca.helium.wsintegraciones.portafirmasws.cws.cliente.UploadStep;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -102,9 +104,9 @@ public class Portasignatures extends BaseTest {
 			b_stub();
 			response = stub.listTypeDocuments(listTypeRequest);
 
-			System.out.println("Version: " + response.getVersion());
-			System.out.println("Resultado Codigo: " + response.getResult().getCode());
-			System.out.println("Resultado Mensaje: " + response.getResult().getMessage());
+			logger.debug("Version: " + response.getVersion());
+			logger.debug("Resultado Codigo: " + response.getResult().getCode());
+			logger.debug("Resultado Mensaje: " + response.getResult().getMessage());
 
 			resultado = response.getResult().getCode() == 0;
 
@@ -132,9 +134,9 @@ public class Portasignatures extends BaseTest {
 
 			UploadResponse response = stub.uploadDocument(request);
 
-			 System.out.println("Version: " + response.getVersion());
-			 System.out.println("Resultado Codigo: " + response.getResult().getCode());
-			 System.out.println("Resultado Mensaje: " + response.getResult().getMessage());
+			 logger.debug("Version: " + response.getVersion());
+			 logger.debug("Resultado Codigo: " + response.getResult().getCode());
+			 logger.debug("Resultado Mensaje: " + response.getResult().getMessage());
 
 			resultado = response.getDocument() != null && response.getResult().getCode() == 0;
 			assertTrue("Error al enviar el document al portasignatures: " + response.getResult().getMessage(), resultado);
@@ -365,4 +367,6 @@ public class Portasignatures extends BaseTest {
 	private String getPassword() {
 		return properties.getProperty("app.portasignatures.plugin.password");
 	}
+	
+	private static final Log logger = LogFactory.getLog(Portasignatures.class);
 }

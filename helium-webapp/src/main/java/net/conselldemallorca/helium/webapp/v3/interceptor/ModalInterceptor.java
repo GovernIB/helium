@@ -23,7 +23,6 @@ public class ModalInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response,
 			Object handler) throws Exception {
 		boolean resposta = ModalHelper.comprovarModalInterceptor(request, response);
-		// System.out.println(">>> MODAL: " + request.getRequestURI() + ", " + AjaxHelper.isAjax(request));
 		return resposta;
 	}
 

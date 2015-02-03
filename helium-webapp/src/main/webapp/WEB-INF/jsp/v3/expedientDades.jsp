@@ -34,7 +34,6 @@ div.proces:hover {
  	padding-bottom: 5px; 
 }
 .btnNovaDada {
-/* 	padding-right: 15px; */
 	padding-bottom: 10px;
 }
 #contingut-dades .left {
@@ -63,16 +62,18 @@ div.proces:hover {
 		<c:forEach items="${dades}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
+<%--
 			<div class="btnNovaDada right">
 				<a 	class="icon btn btn-default" 
-					href="../../v3/expedient/${expedientId}/novaDada?processInstanceId=${proces.id}" 
+					href="../../v3/expedient/${expedientId}/novaDada/${proces.id}" 
 					data-rdt-link-modal="true" 
 					data-rdt-link-callback="recargarPanel(${proces.id});"
-					data-rdt-link-modal-min-height="170">
+					data-rdt-link-modal-min-height="350">
 					<span class="fa fa-plus"></span>
 					<spring:message code="expedient.boto.nova_dada"/>
 				</a>
 			</div>
+--%>
 			<div class="clear"></div>
 			<div class="panel panel-default">
 				<div id="${proces.id}-titol" class="panel-heading clicable proces" data-toggle="collapse" data-target="#panel_${proces.id}" data-id="${proces.id}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
@@ -148,6 +149,8 @@ div.proces:hover {
 	</c:otherwise>
 </c:choose>
 <script>
+var panell;
+
 $(document).ready(function() {
 	$('.proces').click( function() {
 		var icona = $(this).find('.icona-collapse');
@@ -156,11 +159,11 @@ $(document).ready(function() {
 		if ($(this).data('carrega') == "ajax") {
 			$(this).data('carrega', "")
 			var id = $(this).data('id');
-			var panell = $('#panel_' + id);
+			panell = $('#panel_' + id);
 			var ambOcults = "";
 			if ($("#ambOcults").length)
 				ambOcults = $("#ambOcults").prop('checked');
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + id, {"ambOcults": ambOcults}, updateBadges);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + id, {"ambOcults": ambOcults}, updatePanell);
 		}
 	});
 
@@ -195,6 +198,27 @@ function updateBadges() {
 	$(".badge-nombre").each(function(){
 		var nombre = $(this).data("nombre");
 		$(this).closest(".panel-body").prev(".clicable").find(".badge.general").html(nombre);
+	});
+}
+
+function updatePanell() {
+	updateBadges();
+	
+	$('.var-delete', panell).heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false,
+		ajaxRefrescarAlertes: true,
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+	});
+	$('.var-edit', panell).heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false,
+		ajaxRefrescarAlertes: true,
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+	});
+	$('.icon', panell).heliumEvalLink({
+		refrescarAlertes: true,
+		refrescarPagina: false
 	});
 }
 </script>

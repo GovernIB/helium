@@ -230,7 +230,6 @@ public class EntornService {
 					carrec.getTractamentHome(),
 					carrec.getTractamentDona());
 			dto.setDescripcio(carrec.getDescripcio());
-			//System.out.println(">>> Area pel carrec " + carrec.getCodi() + ": " + carrec.getArea().getCodi());
 			dto.setAreaCodi(carrec.getArea().getCodi());
 			carrecsDto.add(dto);
 		}

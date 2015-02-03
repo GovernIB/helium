@@ -54,7 +54,6 @@ public abstract class BasicActionHandler implements ActionHandler {
 			boolean iniciat,
 			boolean finalitzat){
 
-		System.out.println("entro por aquí!!!");
 		return new ArrayList<ExpedientInfo>();
 	}
 

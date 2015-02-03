@@ -853,8 +853,6 @@ public class InformesExpedients extends BaseTest {
 		
 		screenshotHelper.saveScreenshot(prefixeScreenShot+"_resultats_filtre-Teorics_"+numResTeorics+".png");
 		
-		//System.out.println("texteResultats="+texteResultats+", compleix teorics: "+(texteResultats.indexOf(numResTeorics)!=-1));
-		
 		assertTrue("El número de expedientes encontrados no coincide con los que se han importado.", texteResultats.indexOf(numResTeorics)!=-1);
 	}
 

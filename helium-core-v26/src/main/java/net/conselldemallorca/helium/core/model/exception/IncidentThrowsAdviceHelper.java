@@ -41,10 +41,7 @@ public class IncidentThrowsAdviceHelper {
 	}
 	public static void clearDadesAdvice(Signature signature) {
 		DadesAdvice dadesAdvice = dadesAdviceThreadLocal.get();
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Signatura before: " + dadesAdvice.getSignature().toString());
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Signatura after: " + signature.toString());
 		if (dadesAdvice.getSignature().equals(signature)) 
-//			System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Signatures iguals ");
 			dadesAdviceThreadLocal.set(new DadesAdvice());
 	}
 	
@@ -57,8 +54,6 @@ public class IncidentThrowsAdviceHelper {
 	public void before(JoinPoint joinPoint) {
 
 		Signature signature = joinPoint.getSignature();
-//		String methodName = signature.getName();
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Okay - we're in the before handler...\nmethod: " + methodName); 
 		initDadesAdvice(signature);
 
 	}
@@ -74,9 +69,7 @@ public class IncidentThrowsAdviceHelper {
 	public void afterThrowing(JoinPoint joinPoint, Throwable e) {
 
 		Signature signature = joinPoint.getSignature();
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Okay - we're in the afterThrowing handler...");
 		if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
-//			System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Eliminam: " + getDadesAdvice().getIdsPortasignatures());
 			Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(getDadesAdvice().getIdsPortasignatures());
 		}
 		clearDadesAdvice(signature);
@@ -90,8 +83,6 @@ public class IncidentThrowsAdviceHelper {
 	public void after(JoinPoint joinPoint) {
 
 		Signature signature = joinPoint.getSignature();
-//		String methodName = signature.getName();
-//		System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Okay - we're in the after handler...\nmethod: " + methodName); 
 		clearDadesAdvice(signature);
 	}
 	

@@ -234,36 +234,36 @@ public class ExpedientLogHelper {
 					logsJbpm);
 			if (debugRetroces) {
 				for (LogObject logo: logObjects) {
-					System.out.print(">>> [RETPRN] ");
+					String logInfo =">>> [RETPRN] ";
 					switch (logo.getTipus()) {
 					case LogObject.LOG_OBJECT_PROCES:
-						System.out.print("PROCES ");
+						logInfo = logInfo + "PROCES ";
 						break;
 					case LogObject.LOG_OBJECT_TOKEN:
-						System.out.print("TOKEN ");
+						logInfo = logInfo + "TOKEN ";
 						break;
 					case LogObject.LOG_OBJECT_TASK:
-						System.out.print("TASCA ");
+						logInfo = logInfo + "TASCA ";
 						break;
 					case LogObject.LOG_OBJECT_VARTASCA:
-						System.out.print("VARTASCA ");
+						logInfo = logInfo + "VARTASCA ";
 						break;
 					case LogObject.LOG_OBJECT_VARPROCES:
-						System.out.print("VARPROCES ");
+						logInfo = logInfo + "VARPROCES ";
 						break;
 					case LogObject.LOG_OBJECT_ACTION:
-						System.out.print("ACTION ");
+						logInfo = logInfo + "ACTION ";
 						break;
 					case LogObject.LOG_OBJECT_INFO:
-						System.out.print("INFO ");
+						logInfo = logInfo + "INFO ";
 						break;
 					default:
-						System.out.print("??? ");
+						logInfo = logInfo + "??? ";
 					}
-					System.out.print("(" + logo.getName() + ") ");
+					logInfo = logInfo + "(" + logo.getName() + ") ";
 					for (String accio: logo.getAccions())
-						System.out.print(accio);
-					System.out.println();
+						logInfo = logInfo + accio;
+					logger.info(logInfo);
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", expedientLog.getExpedient().getTipus().getNom(), null, "getAccionsJbpmPerRetrocedir");
@@ -297,7 +297,7 @@ public class ExpedientLogHelper {
 							}
 						}
 						if (debugRetroces)
-							System.out.println(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
+							logger.info(">>> [LOGTASK] Retroces de la tasca actual (" + nodeDesti + ")!");
 						break;
 					}
 				}
@@ -317,40 +317,40 @@ public class ExpedientLogHelper {
 				case LogObject.LOG_OBJECT_PROCES:
 					if (started && !ended) {
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Cancel·lar/finalitzar procés (" + logo.getName() + ")");
+							logger.info(">>> [RETLOG] Cancel·lar/finalitzar procés (" + logo.getName() + ")");
 						jbpmDao.cancelProcessInstance(logo.getObjectId());
 					} else if (!started && ended) {
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Desfer finalitzar procés (" + logo.getName() + ")");
+							logger.info(">>> [RETLOG] Desfer finalitzar procés (" + logo.getName() + ")");
 						jbpmDao.revertProcessInstanceEnd(logo.getObjectId());
 						JbpmProcessInstance jpi = jbpmDao.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Desfer finalitzar token (" + jpi.getProcessInstance().getRootToken().getFullName() + ")");
+							logger.info(">>> [RETLOG] Desfer finalitzar token (" + jpi.getProcessInstance().getRootToken().getFullName() + ")");
 						jbpmDao.revertTokenEnd(jpi.getProcessInstance().getRootToken().getId());
 					}
 					break;
 				case LogObject.LOG_OBJECT_TOKEN:
 					if (debugRetroces) {
 						JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
-						System.out.println(">>> [LOGTOKEN] Inici Retroces token (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+						logger.info(">>> [LOGTOKEN] Inici Retroces token (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 					}
 					if (started && !ended) {
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Cancel·lar token (" + logo.getName() + ")");
+							logger.info(">>> [RETLOG] Cancel·lar token (" + logo.getName() + ")");
 						jbpmDao.cancelToken(logo.getObjectId());
 						
 						if (debugRetroces) {
 							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
-							System.out.println(">>> [LOGTOKEN] Retroces token cancelat (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+							logger.info(">>> [LOGTOKEN] Retroces token cancelat (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 						}
 					} else if (!started && ended) {
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Desfer finalitzar token (" + logo.getName() + ")");
+							logger.info(">>> [RETLOG] Desfer finalitzar token (" + logo.getName() + ")");
 						jbpmDao.revertTokenEnd(logo.getObjectId());
 						
 						if (debugRetroces) {
 							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
-							System.out.println(">>> [LOGTOKEN] Retroces revert token end (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+							logger.info(">>> [LOGTOKEN] Retroces revert token end (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 						}
 					}
 					if (!started) {
@@ -366,7 +366,7 @@ public class ExpedientLogHelper {
 						
 						if (debugRetroces) {
 							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
-							System.out.println(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+							logger.info(">>> [LOGTOKEN] Retroces abans token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 						}
 						
 //						boolean enterNode = (nodeRetrocedir == logo.getLogId());
@@ -383,7 +383,7 @@ public class ExpedientLogHelper {
 							nodeEnterTokenId = logo.getTokenId();
 						}
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", enter = " + enterNode + ", execute=" + executeNode + ")");
+							logger.info(">>> [RETLOG] Retornar token (name=" + logo.getName() + ") al node (name=" + desti + ", enter = " + enterNode + ", execute=" + executeNode + ")");
 						jbpmDao.tokenRedirect(
 								logo.getObjectId(),
 								desti,
@@ -393,7 +393,7 @@ public class ExpedientLogHelper {
 						
 						if (debugRetroces) {
 							JbpmToken jtok = jbpmDao.getTokenById(String.valueOf(logo.getObjectId()));
-							System.out.println(">>> [LOGTOKEN] Retroces després token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
+							logger.info(">>> [LOGTOKEN] Retroces després token redirect (" + logo.getName() + ") - End: " + jtok.getToken().getEnd());
 						}
 					}
 					break;
@@ -404,7 +404,7 @@ public class ExpedientLogHelper {
 						String valor = (String)logo.getValorInicial();
 						if (valor != null && !"".equals(valor)) {
 							if (debugRetroces)
-								System.out.println(">>> [RETLOG] Reassignar tasca (" + task.getId() + ") a " + valor);
+								logger.info(">>> [RETLOG] Reassignar tasca (" + task.getId() + ") a " + valor);
 							if (valor.startsWith("[") && valor.endsWith("]")) {
 								String[] actors = valor.substring(1, valor.length()-1).split(",");
 								jbpmDao.setTaskInstancePooledActors(
@@ -419,7 +419,7 @@ public class ExpedientLogHelper {
 					} else if (!tascaStarted && ended) {
 						JbpmTask task = jbpmDao.findEquivalentTaskInstance(logo.getTokenId(), logo.getObjectId());
 						if (debugRetroces)
-							System.out.println(">>> [RETLOG] Copiar variables de la tasca (id=" + logo.getObjectId() + ") a la tasca (id=" + task.getId() + ")");
+							logger.info(">>> [RETLOG] Copiar variables de la tasca (id=" + logo.getObjectId() + ") a la tasca (id=" + task.getId() + ")");
 						Map<String, Object> vars = jbpmDao.getTaskInstanceVariables(new Long(logo.getObjectId()).toString());
 						jbpmDao.setTaskInstanceVariables(task.getId(), vars, true);
 					}
@@ -429,7 +429,7 @@ public class ExpedientLogHelper {
 						String pid = new Long(logo.getProcessInstanceId()).toString();
 						if (created && !deleted) {
 							if (debugRetroces)
-								System.out.println(">>> [RETLOG] Esborrar variable " + logo.getName() + " del proces (" + pid + ")");
+								logger.info(">>> [RETLOG] Esborrar variable " + logo.getName() + " del proces (" + pid + ")");
 							jbpmDao.deleteProcessInstanceVariable(
 									pid,
 									logo.getName());
@@ -441,7 +441,7 @@ public class ExpedientLogHelper {
 							}
 						} else if (!created && deleted) {
 							if (debugRetroces)
-								System.out.println(">>> [RETLOG] Crear variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
+								logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
 							if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
 								Long documentStoreId = documentHelper.actualitzarDocument(
@@ -465,7 +465,7 @@ public class ExpedientLogHelper {
 							}
 						} else if (!created && !deleted) {
 							if (debugRetroces)
-								System.out.println(">>> [RETLOG] Actualitzar variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
+								logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
 							if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
 								Long documentStoreId = documentHelper.actualitzarDocument(
@@ -509,7 +509,7 @@ public class ExpedientLogHelper {
 								//String tid = new Long(logo.getTaskInstanceId()).toString();
 							if (created && !deleted) {
 								if (debugRetroces)
-									System.out.println(">>> [RETLOG] Esborrar variable " + logo.getName() + " de la tasca (" + task.getId() + ")");
+									logger.info(">>> [RETLOG] Esborrar variable " + logo.getName() + " de la tasca (" + task.getId() + ")");
 								jbpmDao.deleteTaskInstanceVariable(
 										task.getId(),
 										logo.getName());
@@ -535,7 +535,7 @@ public class ExpedientLogHelper {
 								}
 							} else if (!created && deleted) {
 								if (debugRetroces)
-									System.out.println(">>> [RETLOG] Crear variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
+									logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
 								if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
 									Long documentStoreId = documentHelper.actualitzarDocument(
@@ -559,7 +559,7 @@ public class ExpedientLogHelper {
 								}
 							} else if (!created && !deleted) {
 								if (debugRetroces)
-									System.out.println(">>> [RETLOG] Actualitzar variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
+									logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
 								if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
 									Long documentStoreId = documentHelper.actualitzarDocument(
@@ -587,7 +587,7 @@ public class ExpedientLogHelper {
 					break;
 				case LogObject.LOG_OBJECT_ACTION:
 					if (debugRetroces)
-						System.out.println(">>> [RETLOG] Executar accio inversa " + logo.getObjectId());
+						logger.info(">>> [RETLOG] Executar accio inversa " + logo.getObjectId());
 					String pid = new Long(logo.getProcessInstanceId()).toString();
 					List<String> params = null;
 					String paramsStr = paramsAccio.get(new Long(logo.getObjectId()));
@@ -673,7 +673,7 @@ public class ExpedientLogHelper {
 				nodeEnterTokenId = currentToken.getId();
 			}
 			if (debugRetroces)
-				System.out.println(">>> [RETLOG] Retornar token (name=" + currentToken.getName() + ") al node (name=" + nodeDesti.getName() + ", enter = " + enterNode + ", execute=" + executeNode + ")");
+				logger.info(">>> [RETLOG] Retornar token (name=" + currentToken.getName() + ") al node (name=" + nodeDesti.getName() + ", enter = " + enterNode + ", execute=" + executeNode + ")");
 			jbpmDao.tokenRedirect(
 					currentToken.getId(),
 					nodeDesti.getName(),
@@ -682,7 +682,7 @@ public class ExpedientLogHelper {
 					executeNode);
 			
 			if (debugRetroces) {
-				System.out.println(">>> [LOGTOKEN] Retroces després token redirect (" + currentToken.getName() + ") - End: " + currentToken.getEnd());
+				logger.info(">>> [LOGTOKEN] Retroces després token redirect (" + currentToken.getName() + ") - End: " + currentToken.getEnd());
 			}
 		}
 		if (retrocedirPerTasques && nodeEnterTokenId != null) {//nodeEnterObjectId > 0) {
@@ -692,7 +692,7 @@ public class ExpedientLogHelper {
 			for (CampTasca camp: getCampsPerTaskInstance(ti)) {
 				if (camp.isReadFrom()) {
 					if (debugRetroces)
-						System.out.println(">>> [RETVAR] Carregar variable del procés " + camp.getCamp().getCodi() + " a la tasca " + task.getName() + " (" + task.getId() + ")");
+						logger.info(">>> [RETVAR] Carregar variable del procés " + camp.getCamp().getCodi() + " a la tasca " + task.getName() + " (" + task.getId() + ")");
 					String codi = camp.getCamp().getCodi();
 					ti.setVariableLocally(
 							codi,
@@ -705,7 +705,7 @@ public class ExpedientLogHelper {
 					Object valor = ci.getVariable(DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
 					if (valor != null)
 						if (debugRetroces)
-							System.out.println(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getName() + " (" + task.getId() + ")");
+							logger.info(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getName() + " (" + task.getId() + ")");
 						ti.setVariableLocally(
 								codi,
 								ci.getVariable(codi));
@@ -810,7 +810,7 @@ public class ExpedientLogHelper {
 	public void printProcessInstanceLogs(String processInstanceId) {
 		Map<Token, List<ProcessLog>> logsPerToken = jbpmDao.getProcessInstanceLogs(processInstanceId);
 		for (Token token: logsPerToken.keySet()) {
-			System.out.println(">>> [PRILOG] " + token);
+			logger.info(">>> [PRILOG] " + token);
 			printLogs(logsPerToken.get(token));
 		}
 	}
@@ -1367,12 +1367,13 @@ public class ExpedientLogHelper {
 			ProcessLog log,
 			int indent) {
 		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		System.out.print("              ");
+		String logInfo = "              ";
 		for (int i = 0; i < indent; i++) {
-			System.out.print("║  ");
+			logInfo = logInfo + "║  ";
 		}
-		System.out.print("╠═>");
-		System.out.println("[" + df.format(log.getDate()) + "] [" + log.getId() + "] " + log + "(" + log.getClass().getName() + ")");
+		logInfo = logInfo + "╠═>";
+		logInfo = logInfo + "[" + df.format(log.getDate()) + "] [" + log.getId() + "] " + log + "(" + log.getClass().getName() + ")";
+		logger.info(logInfo);
 		for (ProcessLog l: logs) {
 			if (l.getParent() != null && l.getParent().getId() == log.getId()) {
 				printLogMessage(logs, l, indent + 1);

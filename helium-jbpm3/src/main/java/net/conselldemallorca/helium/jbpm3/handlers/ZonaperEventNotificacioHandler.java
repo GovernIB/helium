@@ -226,7 +226,6 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		
 		RespostaRegistre resposta = registreNotificacio(executionContext,anotacio,annexos);
 		if (resposta != null) {			
-//			System.out.println("ZonaperEventNotificacioHandler->execute: Resposta de para : " + expedient.getId() + " -> " + resposta);
 			
 			Jbpm3HeliumBridge.getInstanceService().guardarNotificacioElectronica(
 					expedient.getId(),
@@ -273,7 +272,6 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 						resposta.getNumero(),
 						resposta.getReferenciaRDSJustificante().getClave(),
 						resposta.getReferenciaRDSJustificante().getCodigo());
-//				System.out.println("ZonaperEventNotificacioHandler->retrocedir: Resposta de para : " + dadesNotificacioElectronica.getAnotacio().getExpedientIdentificador() + " -> " + resposta);
 				if (!borrado)
 					throw new JbpmException("No se ha podido borrar la notificación electrónica del expediente");
 			}

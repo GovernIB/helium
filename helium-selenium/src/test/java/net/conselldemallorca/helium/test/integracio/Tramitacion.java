@@ -120,7 +120,6 @@ public class Tramitacion extends BaseTest {
 			List<ParellaCodiValor> listParellaCodiValor = new ArrayList<ParellaCodiValor>();
 			List<CampTasca> campsTasca = getClientTramitacio().consultaFormulariTasca(entorn, usuari, tascaTramitacio.getId());
 			for (CampTasca camp : campsTasca) {
-//				System.out.println("Campo '" + camp.getCodi() + "' del tipo '" + camp.getTipus() + "'");
 				if ("BOOLEAN".equals(camp.getTipus())) {
 					listParellaCodiValor.add(new ParellaCodiValor(camp.getCodi(), Boolean.TRUE));
 				} else if ("DATE".equals(camp.getTipus())) {
@@ -167,12 +166,10 @@ public class Tramitacion extends BaseTest {
 			assertTrue("Error al tramitar la tarea", !tascaTramitacio.getCodi().isEmpty());
 		} catch (TramitacioException e) {
 			logger.error(e.getMessage(), e);
-			System.out.println("FIN KO");
 			e.printStackTrace();
 		} 
 		catch (IOException e) {
 			logger.error(e.getMessage(), e);
-			System.out.println("FIN KO");
 			e.printStackTrace();
 		}
 	}

@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
@@ -34,7 +36,7 @@ public class ClienteCustodiaCaibTest {
 	public void testHash() throws Exception {
 		byte[] resposta = getClienteCustodia().reservarDocumento("12345678");
 		String hash = new String(resposta);
-		System.out.println(">>> " + hash);
+		logger.info(">>> " + hash);
 	}
 	public void testAfegir() throws Exception {
 		byte[] xml = getClienteCustodia().custodiarPDFFirmado(
@@ -59,4 +61,5 @@ public class ClienteCustodiaCaibTest {
 		return clienteCustodia;
 	}
 
+	private static final Log logger = LogFactory.getLog(ClienteCustodiaCaibTest.class);
 }

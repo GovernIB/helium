@@ -224,14 +224,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public String getUsuariCodiActual() {
-		imprimirFuncio("getUsuariCodiActual");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		return auth.getName();
 	}
 
 	@Override
 	public EntornDto getEntornActual() {
-		imprimirFuncio("getEntornActual");
 		Long entornId = EntornActual.getEntornId();
 		logger.debug("Obtenint entorn actual (idEntornActual=" + entornId + ")");
 		if (entornId == null)
@@ -243,7 +241,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public ExpedientDto getExpedientIniciant() {
-		imprimirFuncio("getExpedientIniciant");
 		logger.debug("Obtenint expedient en fase d'inici");
 		return conversioTipusHelper.convertir(
 				ExpedientIniciantDto.getExpedient(),
@@ -255,7 +252,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long entornId,
 			String expedientTipusCodi,
 			String numero) throws EntornNotFoundException, ExpedientTipusNotFoundException {
-		imprimirFuncio("getExpedientAmbEntornITipusINumero");
 		logger.debug("Obtenint expedient donat entorn, tipus i número (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusCodi=" + expedientTipusCodi + ", " +
@@ -278,7 +274,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void luceneDeleteExpedient(String processInstanceId) {
-		imprimirFuncio("luceneDeleteExpedient");
 		logger.debug("Borra expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
 		expedientService.luceneDeleteExpedient(processInstanceId);
 	}
@@ -286,7 +281,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public ExpedientDto getExpedientArrelAmbProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
-		imprimirFuncio("getExpedientArrelAmbProcessInstanceId");
 		logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
 		return conversioTipusHelper.convertir(
 				getExpedientDonatProcessInstanceId(processInstanceId),
@@ -296,7 +290,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public EntornDto getEntornAmbProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
-		imprimirFuncio("getEntornAmbProcessInstanceId");
 		logger.debug("Obtenint expedient donada una instància de procés (processInstanceId=" + processInstanceId + ")");
 		return conversioTipusHelper.convertir(
 				getEntornDonatProcessInstanceId(processInstanceId),
@@ -307,7 +300,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public DefinicioProcesDto getDefinicioProcesAmbJbpmKeyIVersio(
 			String jbpmKey,
 			int version) {
-		imprimirFuncio("getDefinicioProcesAmbJbpmKeyIVersio");
 		logger.debug("Obtenint la definició de procés donat el codi jBPM i la versió (jbpmKey=" + jbpmKey + ", version=" + version +")");
 		return conversioTipusHelper.convertir(
 				definicioProcesDao.findAmbJbpmKeyIVersio(
@@ -320,7 +312,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
 			Long entornId,
 			String jbpmKey) throws EntornNotFoundException {
-		imprimirFuncio("getDarreraVersioAmbEntornIJbpmKey");
 		logger.debug("Obtenint la darrera versió de la definició de procés donat l'entorn i el codi jBPM (entornId=" + entornId + ", jbpmKey=" + jbpmKey + ")");
 		return conversioTipusHelper.convertir(
 				definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
@@ -332,7 +323,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public DefinicioProcesDto getDefinicioProcesPerProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
-		imprimirFuncio("getDefinicioProcesPerProcessInstanceId");
 		logger.debug("Obtenint la definició de procés donada la instància de procés (processInstanceId=" + processInstanceId + ")");
 		return conversioTipusHelper.convertir(
 				getDefinicioProcesDonatProcessInstanceId(processInstanceId),
@@ -341,7 +331,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public PersonaDto getPersonaAmbCodi(String codi) {
-		imprimirFuncio("getPersonaAmbCodi");
 		logger.debug("Obtenint persona (codi=" + codi + ")");
 		return conversioTipusHelper.convertir(
 				pluginPersonaDao.findAmbCodiPlugin(codi),
@@ -352,7 +341,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public AreaDto getAreaAmbEntornICodi(
 			Long entornId,
 			String codi) throws EntornNotFoundException {
-		imprimirFuncio("getAreaAmbEntornICodi");
 		logger.debug("Obtenint area donat l'entorn i el codi (" +
 				"entornId=" + entornId + ", " +
 				"codi=" + codi + ")");
@@ -369,7 +357,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long entornId,
 			String areaCodi,
 			String carrecCodi) throws EntornNotFoundException, AreaNotFoundException {
-		imprimirFuncio("getCarrecAmbEntornIAreaICodi");
 		logger.debug("Obtenint carrec donat l'entorn, l'àrea i el codi (" +
 				"entornId=" + entornId + ", " +
 				"areaCodi=" + areaCodi + ", " +
@@ -390,7 +377,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public List<FestiuDto> findFestiusAll() {
-		imprimirFuncio("findFestiusAll");
 		logger.debug("Obtenint la llista de tots els festius");
 		return conversioTipusHelper.convertirList(
 				festiuDao.findAll(),
@@ -400,7 +386,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
 			String usuariCodi) {
-		imprimirFuncio("findReassignacioActivaPerUsuariOrigen");
 		logger.debug("Obtenint reassignació activa per a l'usuari (usuariCodi=" + usuariCodi + ")");
 		return conversioTipusHelper.convertir(
 				reassignacioDao.findByUsuari(usuariCodi),
@@ -414,7 +399,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Date data,
 			String usuariCodi,
 			String text) throws EntornNotFoundException, ExpedientNotFoundException {
-		imprimirFuncio("alertaCrear");
 		logger.debug("Creant alerta (" +
 				"entornId=" + entornId + ", " +
 				"expedientId=" + expedientId + ", " +
@@ -438,7 +422,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId) {
-		imprimirFuncio("alertaEsborrarAmbTaskInstanceId");
 		logger.debug("Esborrant alertes amb taskInstance (taskInstanceId=" + taskInstanceId + ")");
 		Date ara = new Date();
 		List<TerminiIniciat> terminis = terminiIniciatDao.findAmbTaskInstanceId(taskInstanceId);
@@ -453,7 +436,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientModificarEstat(
 			String processInstanceId,
 			String estatCodi) throws ProcessInstanceNotFoundException, ExpedientNotFoundException, EstatNotFoundException {
-		imprimirFuncio("expedientModificarEstat");
 		logger.debug("Modificant estat de l'expedient (processInstanceId=" + processInstanceId + ", estatCodi=" + estatCodi + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		Estat estat = estatDao.findAmbExpedientTipusICodi(
@@ -480,7 +462,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientModificarComentari(
 			String processInstanceId,
 			String comentari) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientModificarComentari");
 		logger.debug("Modificant comentari de l'expedient (processInstanceId=" + processInstanceId + ", comentari=" + comentari + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.editar(
@@ -504,7 +485,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Double posx,
 			Double posy,
 			String referencia) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientModificarGeoref");
 		logger.debug("Modificant georeferència de l'expedient (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"posx=" + posx + ", " +
@@ -530,7 +510,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientModificarGrup(
 			String processInstanceId,
 			String grupCodi) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientModificarGrup");
 		logger.debug("Modificant grup de l'expedient (processInstanceId=" + processInstanceId + ", grupCodi=" + grupCodi + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.editar(
@@ -552,7 +531,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientModificarNumero(
 			String processInstanceId,
 			String numero) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientModificarNumero");
 		logger.debug("Modificant número de l'expedient (processInstanceId=" + processInstanceId + ", numero=" + numero + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.editar(
@@ -574,7 +552,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientModificarResponsable(
 			String processInstanceId,
 			String responsableCodi) throws ExpedientNotFoundException, PersonaNotFoundException {
-		imprimirFuncio("expedientModificarResponsable");
 		logger.debug("Modificant responsable de l'expedient (processInstanceId=" + processInstanceId + ", responsableCodi=" + responsableCodi + ")");
 		if (pluginPersonaDao.findAmbCodiPlugin(responsableCodi) == null)
 			throw new PersonaNotFoundException();
@@ -598,7 +575,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientModificarTitol(
 			String processInstanceId,
 			String titol) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientModificarTitol");
 		logger.debug("Modificant títol de l'expedient (processInstanceId=" + processInstanceId + ", titol=" + titol + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.editar(
@@ -620,7 +596,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientAturar(
 			String processInstanceId,
 			String motiu) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientAturar");
 		logger.debug("Aturant expedient (processInstanceId=" + processInstanceId + ", motiu=" + motiu + ")");
 		getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.aturar(
@@ -632,7 +607,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void expedientReprendre(
 			String processInstanceId) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientReprendre");
 		logger.debug("Reprenent expedient (processInstanceId=" + processInstanceId + ")");
 		getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.reprendre(processInstanceId, null);
@@ -641,7 +615,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void expedientReindexar(
 			String processInstanceId) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientReindexar");
 		logger.debug("Indexant expedient (processInstanceId=" + processInstanceId + ")");
 		getExpedientDonatProcessInstanceId(processInstanceId);
 		expedientService.luceneReindexarExpedient(processInstanceId);
@@ -650,7 +623,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void expedientBuidaLogs(
 			String processInstanceId) {
-		imprimirFuncio("expedientBuidaLogs");
 		logger.debug("Buidant logs expedient (processInstanceId=" + processInstanceId + ")");
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		jbpmHelper.deleteProcessInstanceTreeLogs(rootProcessInstance.getId());
@@ -663,7 +635,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String documentCodi,
 			Date dataDocument,
 			boolean forsarAdjuntarAuto) throws DefinicioProcesNotFoundException, DocumentNotFoundException, DocumentGenerarException {
-		imprimirFuncio("documentGenerarAmbPlantilla");
 		logger.debug("Generant document amb plantilla (" +
 				"taskInstanceId=" + taskInstanceId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -704,7 +675,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public TerminiDto getTerminiAmbProcessInstanceICodi(
 			String processInstanceId,
 			String terminiCodi) throws ProcessInstanceNotFoundException {
-		imprimirFuncio("getTerminiAmbDefinicioProcesICodi");
 		logger.debug("Obtenint termini donada la instància de procés i el codi (" +
 				"processInstanceId=" + processInstanceId + "," +
 				"terminiCodi=" + terminiCodi + ")");
@@ -724,7 +694,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			String terminiCodi)
 			throws TerminiNotFoundException {
-		imprimirFuncio("getTerminiIniciatAmbProcessInstanceITerminiCodi");
 		logger.debug("Obtenint termini iniciat donada la instància de procés i el codi (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"terminiCodi=" + terminiCodi + ")");
@@ -745,7 +714,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long terminiIniciatId,
 			String taskInstanceId,
 			Long timerId) throws TerminiIniciatNotFoundException {
-		imprimirFuncio("configurarTerminiIniciatAmbDadesJbpm");
 		logger.debug("Configurant termini iniciat (" +
 				"terminiIniciatId=" + terminiIniciatId + ", " +
 				"taskInstanceId=" + taskInstanceId + ", " +
@@ -763,7 +731,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			int mesos,
 			int dies,
 			boolean laborable) {
-		imprimirFuncio("terminiCalcularDataInici");
 		logger.debug("Calculant data d'inici de termini a partir d'una data de fi (" +
 				"fi=" + fi + ", " +
 				"anys=" + anys + ", " +
@@ -780,7 +747,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			int mesos,
 			int dies,
 			boolean laborable) {
-		imprimirFuncio("terminiCalcularDataFi");
 		logger.debug("Calculant data de fi de termini a partir d'una data d'inici (" +
 				"inici=" + inici + ", " +
 				"anys=" + anys + ", " +
@@ -799,7 +765,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			int mesos,
 			int dies,
 			boolean esDataFi) throws TerminiNotFoundException {
-		imprimirFuncio("terminiIniciar1");
 		logger.debug("Iniciant termini (" +
 				"terminiCodi=" + terminiCodi + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -831,7 +796,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			Date data,
 			boolean esDataFi) throws TerminiNotFoundException {
-		imprimirFuncio("terminiIniciar2");
 		logger.debug("Iniciant termini (" +
 				"terminiCodi=" + terminiCodi + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -854,7 +818,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void terminiCancelar(
 			Long terminiIniciatId,
 			Date data) throws TerminiIniciatNotFoundException {
-		imprimirFuncio("terminiCancelar");
 		logger.debug("Cancelant termini iniciat (" +
 				"terminiIniciatId=" + terminiIniciatId + ", " +
 				"data=" + data + ")");
@@ -868,7 +831,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void terminiPausar(
 			Long terminiIniciatId,
 			Date data) throws TerminiIniciatNotFoundException {
-		imprimirFuncio("terminiPausar");
 		logger.debug("Pausant termini iniciat (" +
 				"terminiIniciatId=" + terminiIniciatId + ", " +
 				"data=" + data + ")");
@@ -882,7 +844,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void terminiContinuar(
 			Long terminiIniciatId,
 			Date data) throws TerminiIniciatNotFoundException {
-		imprimirFuncio("terminiContinuar");
 		logger.debug("Continuant termini iniciat (" +
 				"terminiIniciatId=" + terminiIniciatId + ", " +
 				"data=" + data + ")");
@@ -898,7 +859,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String dominiCodi,
 			String dominiId,
 			Map<String, Object> parametres) throws ExpedientNotFoundException, DominiNotFoundException, DominiConsultaException {
-		imprimirFuncio("dominiConsultar");
 		logger.debug("Executant una consulta de domini (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"dominiCodi=" + dominiCodi + ", " +
@@ -937,7 +897,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public List<EnumeracioValorDto> enumeracioConsultar(
 			String processInstanceId,
 			String enumeracioCodi) throws ExpedientNotFoundException, EnumeracioNotFoundException {
-		imprimirFuncio("enumeracioConsultar");
 		logger.debug("Consultant els valors d'una enumeració (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"enumeracioCodi=" + enumeracioCodi + ")");
@@ -956,7 +915,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public List<CampTascaDto> findCampsPerTaskInstance(
 			long taskInstanceId) throws TaskInstanceNotFoundException, DefinicioProcesNotFoundException, TascaNotFoundException {
-		imprimirFuncio("findCampsPerTaskInstance");
 		logger.debug("Consultant els camps del formulari de la tasca (taskInstanceId=" + taskInstanceId + ")");
 		JbpmTask task = jbpmHelper.getTaskById(new Long(taskInstanceId).toString());
 		if (task == null)
@@ -978,7 +936,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
 			long taskInstanceId) throws TaskInstanceNotFoundException, DefinicioProcesNotFoundException, TascaNotFoundException {
-		imprimirFuncio("findDocumentsPerTaskInstance");
 		logger.debug("Consultant els documents de la tasca (taskInstanceId=" + taskInstanceId + ")");
 		JbpmTask task = jbpmHelper.getTaskById(new Long(taskInstanceId).toString());
 		if (task == null)
@@ -999,14 +956,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public String getCodiVariablePerDocumentCodi(String documentCodi) {
-		imprimirFuncio("getCodiVariablePerDocumentCodi");
 		logger.debug("Obtenint el codi de variable jBPM pel document (documentCodi=" + documentCodi + ")");
 		return documentHelper.getVarPerDocumentCodi(documentCodi, false);
 	}
 
 	@Override
 	public DocumentDto getDocumentInfo(Long documentStoreId) {
-		imprimirFuncio("getDocumentInfo");
 		logger.debug("Obtenint informació del document (documentStoreId=" + documentStoreId + ")");
 		return conversioTipusHelper.convertir(
 				documentService.documentInfo(documentStoreId),
@@ -1015,7 +970,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public ArxiuDto getArxiuPerMostrar(Long documentStoreId) {
-		imprimirFuncio("getArxiuPerMostrar");
 		logger.debug("Obtenint arxiu del document (documentStoreId=" + documentStoreId + ")");
 		try {
 			return conversioTipusHelper.convertir(
@@ -1034,7 +988,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut) {
-		imprimirFuncio("documentExpedientGuardar");
 		logger.debug("Guardant un document a dins l'expedient (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentCodi=" + documentCodi + ", " +
@@ -1081,7 +1034,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Date adjuntData,
 			String arxiuNom,
 			byte[] arxiuContingut) {
-		imprimirFuncio("documentExpedientAdjuntar");
 		logger.debug("Guardant un document adjunt a dins l'expedient (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"adjuntId=" + adjuntId + ", " +
@@ -1105,7 +1057,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
-		imprimirFuncio("documentExpedientEsborrar");
 		logger.debug("Esborrant un document de dins l'expedient (" +
 				"taskInstanceId=" + taskInstanceId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -1124,7 +1075,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String registreOficinaCodi,
 			String registreOficinaNom,
 			boolean registreEntrada) {
-		imprimirFuncio("documentExpedientGuardarDadesRegistre");
 		logger.debug("Esborrant un document de dins l'expedient (" +
 				"documentStoreId=" + documentStoreId + ", " +
 				"registreNumero=" + registreNumero + ", " +
@@ -1143,7 +1093,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo) {
-		imprimirFuncio("guardarNotificacioElectronica");
 		logger.debug("Guardant una notificació de l'expedient (" +
 				"expedientId=" + expedientId + ", " +
 				"numero=" + numero + ", " +
@@ -1155,7 +1104,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public boolean borrarNotificacioElectronica(String numero, String clave, Long codigo) {
-		imprimirFuncio("borrarNotificacioElectronica");
 		logger.debug("Esborrar una notificació de l'expedient (" +
 				"numero=" + numero + ", " +
 				"RDSClave=" + clave + ", " +
@@ -1172,7 +1120,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String subject,
 			String text,
 			List<ArxiuDto> attachments) throws PluginException {
-		imprimirFuncio("emailSend");
 		logger.debug("Enviant correu (" +
 				"fromAddress=" + fromAddress + ", " +
 				"recipients=" + recipients + ", " +
@@ -1198,7 +1145,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public boolean isRegistreActiu() {
-		imprimirFuncio("isRegistreActiu");
 		logger.debug("Comprovant si el registre està actiu");
 		return pluginRegistreDao.isRegistreActiu();
 	}
@@ -1206,7 +1152,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RegistreIdDto registreAnotacioEntrada(
 			RegistreAnotacioDto anotacio) throws PluginException {
-		imprimirFuncio("registreAnotacioEntrada");
 		RegistreEntrada registreEntrada = new RegistreEntrada();
 		DadesOficina dadesOficina = new DadesOficina();
 		dadesOficina.setOrganCodi(anotacio.getOrganCodi());
@@ -1259,7 +1204,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RegistreIdDto registreAnotacioSortida(RegistreAnotacioDto anotacio)
 			throws PluginException {
-		imprimirFuncio("registreAnotacioSortida");
 		RegistreSortida registreSortida = new RegistreSortida();
 		DadesOficina dadesOficina = new DadesOficina();
 		dadesOficina.setOrganCodi(anotacio.getOrganCodi());
@@ -1312,7 +1256,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public Date registreNotificacioComprovarRecepcio(
 			String registreNumero) throws PluginException {
-		imprimirFuncio("registreNotificacioComprovarRecepcio");
 		RespostaJustificantRecepcio resposta = pluginRegistreDao.obtenirJustificantRecepcio(registreNumero);
 		if (!resposta.isError()) {
 			return resposta.getData();
@@ -1324,7 +1267,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RegistreIdDto registreNotificacio(
 			RegistreNotificacioDto notificacio) throws PluginException {
-		imprimirFuncio("registreNotificacio");
 		RegistreNotificacio registreNotificacio = new RegistreNotificacio();
 		DadesOficina dadesOficina = new DadesOficina();
 		dadesOficina.setOrganCodi(notificacio.getOrganCodi());
@@ -1400,7 +1342,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(
 			String registreNumero) throws PluginException, TramitacioPluginException {
-		imprimirFuncio("obtenirJustificantRecepcio");
 		RespostaJustificantRecepcio resposta = pluginTramitacioDao.obtenirJustificantRecepcio(registreNumero);
 		if (!resposta.isError()) {
 			return conversioTipusHelper.convertir(resposta, RespostaJustificantRecepcioDto.class);
@@ -1412,7 +1353,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(
 			String registreNumero) throws PluginException, TramitacioPluginException {
-		imprimirFuncio("obtenirJustificantDetallRecepcio");
 		RespostaJustificantDetallRecepcio resposta = pluginTramitacioDao.obtenirJustificantDetallRecepcio(registreNumero);
 		
 		if (!resposta.isError()) {
@@ -1425,7 +1365,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public String getRegistreOficinaNom(String oficinaCodi)
 			throws PluginException {
-		imprimirFuncio("getRegistreOficinaNom");
 		return pluginRegistreDao.obtenirNomOficina(oficinaCodi);
 	}
 
@@ -1447,7 +1386,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) throws PluginException {
-		imprimirFuncio("portasignaturesEnviar");
 		pluginService.enviarPortasignatures(
 				documentId,
 				annexosId,
@@ -1470,7 +1408,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void portasignaturesEliminar(
 			List<Integer> documentsId) throws PluginException {
-		imprimirFuncio("portasignaturesEliminar");
 		pluginService.deletePortasignatures(documentsId);
 	}
 
@@ -1478,7 +1415,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void zonaperExpedientCrear(
 			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) throws PluginException {
-		imprimirFuncio("zonaperExpedientCrear");
 		try {
 			String identificador = expedient.getNumeroIdentificador();
 			String clau = new Long(System.currentTimeMillis()).toString();
@@ -1497,7 +1433,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void zonaperEventCrear(
 			String processInstanceId,
 			ZonaperEventDto dadesEvent) throws PluginException {
-		imprimirFuncio("zonaperEventCrear");
 		try {
 			Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 			pluginHelper.zonaperEventCrear(expedient, dadesEvent);
@@ -1511,7 +1446,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long entornId,
 			String expedientTipusCodi,
 			String estatCodi) throws EntornNotFoundException, ExpedientTipusNotFoundException {
-		imprimirFuncio("findEstatAmbEntornIExpedientTipusICodi");
 		logger.debug("Obtenint l'estat donat l'entorn, el tipus d'expedient i el codi (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusCodi=" + expedientTipusCodi + ", " +
@@ -1535,7 +1469,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public DocumentDissenyDto getDocumentDisseny(
 			Long definicioProcesId,
 			String documentCodi) throws DefinicioProcesNotFoundException {
-		imprimirFuncio("getDocumentDisseny");
 		logger.debug("Obtenint el document de disseny donada la definició de procés i el codi (" +
 				"definicioProcesId=" + definicioProcesId + ", " +
 				"documentCodi=" + documentCodi + ")");
@@ -1553,7 +1486,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void expedientRelacionar(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) throws ExpedientNotFoundException {
-		imprimirFuncio("expedientRelacionar");
 		logger.debug("Relacionant els expedients (" +
 				"expedientIdOrigen=" + expedientIdOrigen + ", " +
 				"expedientIdDesti=" + expedientIdDesti + ")");
@@ -1571,7 +1503,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			long tokenId,
 			String nodeName,
 			boolean cancelarTasques) {
-		imprimirFuncio("tokenRedirigir");
 		logger.debug("Redirigint el token (" +
 				"tokenId=" + tokenId + ", " +
 				"nodeName=" + nodeName + ", " +
@@ -1584,7 +1515,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public ArxiuDto getArxiuGestorDocumental(String id) {
-		imprimirFuncio("getArxiuGestorDocumental");
 		logger.debug("Obtenint arxiu de la gestió documental (id=" + id + ")");
 		ArxiuDto arxiu = new ArxiuDto();
 		arxiu.setContingut(
@@ -1594,7 +1524,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public TramitDto getTramit(String numero, String clau) {
-		imprimirFuncio("getTramit");
 		logger.debug("Obtenint dades del tràmit (numero=" + numero + ", clau=" + clau + ")");
 		ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
 		request.setNumero(numero);
@@ -1608,7 +1537,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
 			String varCodi) throws DefinicioProcesNotFoundException, CampNotFoundException {
-		imprimirFuncio("getDadaPerProcessInstance");
 		logger.debug("Obtenint la dada de l'instància de procés (processInstanceId=" + processInstanceId + ")");
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(
 				processInstanceId);
@@ -1638,7 +1566,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long entornId,
 			Long expedientTipusId,
 			String numero) {
-		imprimirFuncio("findExpedientsAmbMateixTipusINumero");
 		
 		logger.debug("findExpedientsAmbMateixTipusINumero (" +
 				"entornId=" + entornId + ", " +
@@ -1666,7 +1593,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Double geoPosY,
 			String geoReferencia,
 			FiltreAnulat mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
-		imprimirFuncio("findExpedientsConsultaGeneral");
 		logger.debug("Consultant expedients (" +
 				"entornId=" + entornId + ", " +
 				"titol=" + titol + ", " +
@@ -1714,7 +1640,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void initializeDefinicionsProces() {
-		imprimirFuncio("initializeDefinicionsProces");
 		expedientService.initializeDefinicionsProces();
 //		List<ExpedientTipus> llistat = expedientTipusDao.findAll();
 //		for (ExpedientTipus expedientTipus: llistat) {
@@ -1740,13 +1665,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			String errorDesc,
 			String errorFull) {
-		imprimirFuncio("updateExpedientError");
 		expedientService.updateExpedientError(processInstanceId, errorDesc, errorFull);
 	}
 
 	@Override
 	public String getHeliumProperty(String propertyName) {
-		imprimirFuncio("getHeliumProperty");
 		return GlobalProperties.getInstance().getProperty(propertyName);
 	}
 
@@ -1768,13 +1691,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e) {
-		imprimirFuncio("generaInformeError");
 		execucioMassivaService.generaInformeError(operacioMassiva, e);
 	}
 
 	@Override
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
-		imprimirFuncio("actualitzaUltimaOperacio");
 		execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
 	}
 
@@ -1829,10 +1750,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		} else {
 			return null;
 		}
-	}
-
-	private void imprimirFuncio(String nom) {
-		//System.out.println(">>> JBPM3_SERVICE METODE: " + nom);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumHelper.class);

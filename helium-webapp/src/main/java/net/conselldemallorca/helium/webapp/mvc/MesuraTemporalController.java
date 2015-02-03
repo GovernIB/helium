@@ -150,16 +150,16 @@ public class MesuraTemporalController extends BaseController {
 	@RequestMapping(value = "/mesura/mesuresTempsExport", method = RequestMethod.GET)
 	public void mesuresTempsExport(HttpServletRequest request, HttpServletResponse response) {
 		
-		System.out.println("[TEMPS] >>>>> Inici generació de document Excel amb els temps d'execució.");
+		logger.debug("[TEMPS] >>>>> Inici generació de document Excel amb els temps d'execució.");
 		
-		System.out.println("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... ");
+		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... ");
 		List<MesuraTemporalDto> mesures = adminService.findMesuresTemporals(null, true);
 		int numMesures = mesures.size();
-		System.out.println("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... " + numMesures + " mesures.");
+		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... " + numMesures + " mesures.");
 		
-		System.out.println("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate...");
+		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate...");
 		mesures.addAll(adminService.getHibernateStatistics("", true));
-		System.out.println("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate..." + (mesures.size() - numMesures) + " mesures.");
+		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate..." + (mesures.size() - numMesures) + " mesures.");
 
 		wb = new HSSFWorkbook();
 
@@ -195,7 +195,7 @@ public class MesuraTemporalController extends BaseController {
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
 
-		System.out.print("[TEMPS] >>>>>>>> Generant pestanya GENERAL ... ");
+		logger.debug("[TEMPS] >>>>>>>> Generant pestanya GENERAL ... ");
 		// GENERAL
 		HSSFSheet sheet = wb.createSheet("Mesures de temps");
 		sheet.setColumnWidth(0, 15000);
@@ -322,8 +322,8 @@ public class MesuraTemporalController extends BaseController {
 			}
 		}
 		
-		System.out.println("OK");
-		System.out.print("[TEMPS] >>>>>>>> Generant pestanya PER TIPUS EXPEDIENT ... ");
+		logger.debug("OK");
+		logger.debug("[TEMPS] >>>>>>>> Generant pestanya PER TIPUS EXPEDIENT ... ");
 
 		// PER TIPUS EXPEDIENT
 		List<MesuraTemporalDto> mesuresTipusExpedient = adminService.findMesuresTemporalsTipusExpedient();
@@ -391,8 +391,8 @@ public class MesuraTemporalController extends BaseController {
 			}
 		}
 
-		System.out.println("OK");
-		System.out.print("[TEMPS] >>>>>>>> Generant pestanya PER TASCA ... ");
+		logger.debug("OK");
+		logger.debug("[TEMPS] >>>>>>>> Generant pestanya PER TASCA ... ");
 		
 		// PER TASCA
 		List<MesuraTemporalDto> mesuresTasca = adminService.findMesuresTemporalsTasca();
@@ -460,8 +460,8 @@ public class MesuraTemporalController extends BaseController {
 			}
 		}
 		
-		System.out.println("OK");
-		System.out.println("[TEMPS] >>>>> Finalitzada generació de document Excel amb els temps d'execució.");
+		logger.debug("OK");
+		logger.debug("[TEMPS] >>>>> Finalitzada generació de document Excel amb els temps d'execució.");
 
 		try {   
 			response.setHeader("Content-disposition", "attachment; filename=mesuresTemps.xls");

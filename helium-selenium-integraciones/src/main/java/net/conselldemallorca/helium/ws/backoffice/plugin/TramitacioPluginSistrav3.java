@@ -125,10 +125,10 @@ public class TramitacioPluginSistrav3 implements TramitacioSeleniumPlugin {
 								eventosExpediente));
 			}
 
-			System.out.println("ZPers: TramitacioPluginSistrav2 expedient nom : " + expediente.getNombreRepresentado());
-			System.out.println("ZPers: TramitacioPluginSistrav2 expedient nif : " + expediente.getNifRepresentado());
+			logger.debug("ZPers: TramitacioPluginSistrav2 expedient nom : " + expediente.getNombreRepresentado());
+			logger.debug("ZPers: TramitacioPluginSistrav2 expedient nif : " + expediente.getNifRepresentado());
 
-			System.out.println("ZPers: TramitacioPluginSistrav2 request : " + request);
+			logger.debug("ZPers: TramitacioPluginSistrav2 request : " + request);
 			String nifZonaPersonal = request.getRepresentatNif() == null ? request.getRepresentantNif() : request.getRepresentatNif();
 			
 			if (!getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal.toUpperCase()) && !getZonaperClient().existeZonaPersonalUsuario(nifZonaPersonal)) {

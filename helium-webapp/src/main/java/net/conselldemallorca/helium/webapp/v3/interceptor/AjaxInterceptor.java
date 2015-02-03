@@ -23,7 +23,6 @@ public class AjaxInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response,
 			Object handler) throws Exception {
 		boolean resposta = AjaxHelper.comprovarAjaxInterceptor(request, response);
-		//System.out.println(">>> AJAX: " + request.getRequestURI() + ", " + AjaxHelper.isAjax(request));
 		return resposta;
 	}
 

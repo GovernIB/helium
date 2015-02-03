@@ -14,6 +14,8 @@ import net.conselldemallorca.helium.test.suites.TestSuite;
 import net.conselldemallorca.helium.test.suites.TipusExpedientSuite;
 import net.conselldemallorca.helium.test.suites.TramitacioSuite;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -23,89 +25,91 @@ public class TestRunner {
 		try {
 			Properties properties = new Properties();
 			properties.load(BaseTest.class.getResourceAsStream("test.properties"));
-			System.out.println("--- TestRunner");
+			logger.debug("--- TestRunner");
 			if ("true".equals(properties.getProperty("test.executar.suite.configuracio.entorn"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Configuració - Entorn");
 				Result result = JUnitCore.runClasses(ConfiguracioEntornSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.configuracio.defpro"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Configuració - Definició de procés");
 				Result result = JUnitCore.runClasses(ConfiguracioDefinicioProcesSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.configuracio.aplicacio"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Configuració - Aplicació");
 				Result result = JUnitCore.runClasses(ConfiguracioAplicacioSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.consulta.expedient"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Consulta expedient");
 				Result result = JUnitCore.runClasses(ConsultaExpedientSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.execucio.massiva"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Execució massiva");
 				Result result = JUnitCore.runClasses(ExecucioMassivaSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}	
 			if ("true".equals(properties.getProperty("test.executar.suite.informes"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Informes");
 				Result result = JUnitCore.runClasses(InformesSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.integracio"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Integració");
 				Result result = JUnitCore.runClasses(IntegracioSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.test"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Test");
 				Result result = JUnitCore.runClasses(TestSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.tipus.expedient"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Tipus expedient");
 				Result result = JUnitCore.runClasses(TipusExpedientSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}
 			if ("true".equals(properties.getProperty("test.executar.suite.tramitacio"))) {
-				System.out.println("--- TestSuit");
+				logger.debug("--- TestSuit Tramitació");
 				Result result = JUnitCore.runClasses(TramitacioSuite.class);
 				for (Failure failure : result.getFailures()) {
-					System.out.println(failure.toString());
+					logger.debug(failure.toString());
 				}
-				System.out.println(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
+				logger.debug(result.wasSuccessful() ? "Els tests s'han executat correctament" : "S'han produit errors en els tests.");
 			}			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(TestRunner.class);
 }

@@ -154,41 +154,6 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		return clienteCustodia;
 	}
 
-	/*private CustodiaResponseCaib parseResponse(byte[] response) throws DocumentException {
-		CustodiaResponseCaib resposta = new CustodiaResponseCaib();
-		Document document = DocumentHelper.parseText(new String(response));
-		Element resultMajorElement = null;
-		Element resultMinorElement = null;
-		Element resultMessageElement = null;
-		if ("CustodiaResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMessage");
-		} else if ("EliminacionResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
-		} else if ("ConsultaResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
-		} else if ("VerificacionResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
-		}
-		if (resultMajorElement == null)
-			throw new DocumentException("No s'ha trobat el ResultMajor");
-		boolean hasErrors = "RequesterError".equals(resultMajorElement.getText());
-		resposta.setError(hasErrors);
-		//System.out.println(">>> " + resultMajorElement.getText() + ":" + resultMinorElement.getText() + ":" + resultMessageElement.getText());
-		if (hasErrors) {
-			resposta.setErrorCodi(resultMinorElement.getText());
-			resposta.setErrorDescripcio(resultMessageElement.getText());
-		}
-		return resposta;
-	}*/
-
 	@SuppressWarnings("unchecked")
 	private List<RespostaValidacioSignatura> parseSignatures(byte[] response) throws DocumentException {
 		List<RespostaValidacioSignatura> resposta = new ArrayList<RespostaValidacioSignatura>();

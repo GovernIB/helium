@@ -20,6 +20,7 @@ import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -34,6 +35,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -266,66 +268,169 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return resposta;
 	}
 	
-//	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
-//	@ResponseBody
-//	public List<SeleccioOpcioDto> valorsSeleccio(
-//			HttpServletRequest request,
-//			@PathVariable Long campId,
-//			Model model) {
-//		return tascaService.findllistaValorsPerCampDesplegable(
-//				null,
-//				campId,
-//				null,
-//				new HashMap<String, Object>());
-//	}
-//
-//	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
-//	@ResponseBody
-//	public List<SeleccioOpcioDto> valorsSeleccio(
-//			HttpServletRequest request,
-//			@PathVariable Long campId,
-//			@PathVariable String valor,
-//			Model model) {
-//		return tascaService.findllistaValorsPerCampDesplegable(
-//				null,
-//				campId,
-//				valor,
-//				new HashMap<String, Object>());
-//	}
-//	
-//	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
-//	@ResponseBody
-//	public SeleccioOpcioDto valorsSeleccioInicial(
-//			HttpServletRequest request,
-//			@PathVariable String tascaId,
-//			@PathVariable Long campId,
-//			@PathVariable String valor,
-//			Model model) {
-//		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findllistaValorsPerCampDesplegable(
-//				null,
-//				campId,
-//				null,
-//				getMapDelsValors(valor));
-//		for (SeleccioOpcioDto sel : valorsSeleccio) {
-//			if (sel.getCodi().equals(valor)) {
-//				return sel;
+	@ModelAttribute("addVariableCommand")
+	@SuppressWarnings("rawtypes")
+	public Object populateAddCommand(
+			HttpServletRequest request,
+			String procesId,
+			String varCodi,
+			String codi,
+			String valor,
+			Model model) {
+		if (procesId != null && !"".equals(procesId)) {
+			try {
+				model.addAttribute("procesId", procesId);
+				model.addAttribute("varCodi", varCodi);
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				campsAddicionals.put("codi", codi);
+				campsAddicionals.put("valor", valor);
+				campsAddicionals.put("varCodi", varCodi);
+				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				campsAddicionalsClasses.put("codi", String.class);
+				campsAddicionalsClasses.put("valor", String.class);
+				campsAddicionalsClasses.put("varCodi", String.class);
+//				List<TascaDadaDto> llistTasca = variableHelper.findDadesTascaPerInstanciaProces(procesId);
+				List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
+				if (varCodi != null && !"".equals(varCodi)) {
+					TascaDadaDto tascaDada = variableHelper.getTascaDadaDtoFromExpedientDadaDto(
+							variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+					llistTasca.add(tascaDada);
+					model.addAttribute("dada", tascaDada);
+				}
+//				Map<String, Object> registres = new HashMap<String, Object>();
+//				return TascaFormHelper.getCommandModelForCamps(llistTasca, campsAddicionalsClasses, registres, false);
+//				return TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals, campsAddicionalsClasses, false);
+				return TascaFormHelper.getCommandBuitForCamps(llistTasca, campsAddicionals, campsAddicionalsClasses, false);
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, ex.getMessage());
+				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
+			} 
+			//catch (Exception ignored) {}
+		}
+		return null;
+	}
+	
+	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}", method = RequestMethod.GET)
+	public String novaDadaGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			Model model) {
+		model.addAttribute("camps", getCampsNoUtilitzats(procesId));
+		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, null, null, null, model));
+		return "v3/expedientDadaNova";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.GET)
+	public String novaDadaAmbCodiGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			Model model) {
+		model.addAttribute("camps", getCampsNoUtilitzats(procesId));
+		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, varCodi, null, null, model));
+		return "v3/procesDadaNova";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.POST)
+	public String novaDadaDesar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("addVariableCommand") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+		try {
+			boolean error = false;
+			
+			List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
+			
+			if ("Buit".equals(varCodi)) {
+				result.rejectValue("varCodi", "expedient.nova.data.camp.variable.buit");
+				error = true;
+			}
+			// Variable nova tipus String
+			else if ("String".equals(varCodi)) {
+				String codi = (String)PropertyUtils.getSimpleProperty(command, "codi");
+				String valor = (String)PropertyUtils.getSimpleProperty(command, "valor");
+				// Validam que el nom de la variable no comenci per majúscula seguida de minúscula
+				if (codi == null) {
+					result.rejectValue("codi", "error.camp.codi.buit");
+					error = true;
+				} else {
+					if (codi.matches("^[A-Z]{1}[a-z]{1}.*")) {
+						result.rejectValue("codi", "error.camp.codi.maymin");
+						error = true;
+					}
+					if (codi.contains(".")) {
+						result.rejectValue("codi", "error.camp.codi.char.nok");
+						error = true;
+					}
+					
+					if (!error) {
+						expedientService.createVariable(expedientId, procesId, codi, valor);
+					}
+				}
+			} 
+			// Variable de la definició de procés
+			else {
+				TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+				tascaDadas.add(tascaDada);
+				
+				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+				Object varValue = variables.get(varCodi);
+			
+				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(expedientService);
+				validator.setTasca(tascaDadas);
+			
+				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
+						variableHelper.findDadesPerInstanciaProces(procesId),
+						variables);
+				
+				validator.validate(commandPerValidacio, result);
+				
+				if (result.hasErrors()) {
+					error = true;
+				} else {
+					expedientService.createVariable(expedientId, procesId, varCodi, varValue);
+				}
+			}
+			if (error) {
+				model.addAttribute("camps", getCampsNoUtilitzats(procesId));
+				return "v3/expedientDadaNova";
+			}
+			
+			MissatgesHelper.info(request, getMessage(request, "info.dada.nova.proces.creada") );
+		} catch (NotAllowedException ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));
+			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
+		}
+		
+		return modalUrlTancar(false);
+	}
+	
+	private List<CampDto> getCampsNoUtilitzats(String procesId) {
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+			List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
+			List<CampDto> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
+			for(CampDto camp: camps) {
+				if (instanciaProces.getVariables() == null || !instanciaProces.getVariables().containsKey(camp.getCodi())) {
+					campsNoUtilitzats.add(camp);
+				}
+			}
+//			Iterator<CampDto> it = camps.iterator();
+//			while (it.hasNext()) {
+//				CampDto camp = it.next();
+//				if (instanciaProces.getVariables() != null && instanciaProces.getVariables().containsKey(camp.getCodi()))
+//					it.remove();
 //			}
-//		}
-//		return new SeleccioOpcioDto();
-//	}
-//	
-//	private Map<String, Object> getMapDelsValors(String valors) {
-//		if (valors == null)
-//			return null;
-//		Map<String, Object> resposta = new HashMap<String, Object>();
-//		String[] parelles = valors.split(",");
-//		for (int i = 0; i < parelles.length; i++) {
-//			String[] parts = parelles[i].split(":");
-//			if (parts.length == 2)
-//				resposta.put(parts[0], parts[1]);
-//		}
-//		return resposta;
-//	}
+			return campsNoUtilitzats;
+	}
 	
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(Long expedientId, String instaciaProcesId) {
 		
