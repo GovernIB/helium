@@ -96,7 +96,7 @@ public class TascaTramitacioController extends BaseController {
 	public String massivaTramitacio(
 			HttpServletRequest request,
 			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", required = false) Boolean correu,
+			@RequestParam(value = "correu", defaultValue="false", required = false) Boolean correu,
 			Model model) throws IOException, ServletException {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();

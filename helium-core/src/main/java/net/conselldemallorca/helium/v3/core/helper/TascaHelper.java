@@ -309,40 +309,19 @@ public class TascaHelper {
 	}*/
 
 	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient) {
-		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		for (JbpmTask task: tasks) {
-			// Sólo las pendientes de tramitar
-			if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
-				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-				if (auth.getName().equals(tasca.getResponsableCodi()))
-					resposta.add(tasca);
-			}
-		}
-		return resposta;
+		return findTasquesPerExpedientPerInstanciaProces(expedient, expedient.getProcessInstanceId());
 	}
 
 	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(Expedient expedient, String processInstanceId) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<ExpedientTascaDto> oberta = new ArrayList<ExpedientTascaDto>();
-		List<ExpedientTascaDto> nooberta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-			if (task.isOpen())
-				oberta.add(tasca);
-			else
-				nooberta.add(tasca);
-//			if (task.isOpen() && !task.isCancelled() && !task.isSuspended() && !task.isCompleted()) {
-				
-//				if (auth.getName().equals(tasca.getResponsableCodi()))
-//					resposta.add(tasca);
-//			}
+			if (tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+				resposta.add(tasca);
+			}
 		}
-		resposta.addAll(oberta);
-		resposta.addAll(nooberta);
 		return resposta;
 	}
 
@@ -356,7 +335,6 @@ public class TascaHelper {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getName(),
 				definicioProces);
-		
 		if (task.isCacheActiu()) {
 			dto.setNom(task.getFieldFromDescription("titol"));
 		} else {
@@ -381,7 +359,8 @@ public class TascaHelper {
 		dto.setExpedientTipusNom(expedient.getTipus().getNom());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
 		
-		dto.setFormExtern(tasca.getFormExtern());		
+		if(tasca != null)
+			dto.setFormExtern(tasca.getFormExtern());		
 		
 		dto.setDefinicioProces(conversioTipusHelper.convertir(tasca.getDefinicioProces(), DefinicioProcesDto.class));
 		
@@ -546,6 +525,9 @@ public class TascaHelper {
 						dtoConverter.getResponsableTasca(pooledActor));
 			dto.setResponsables(responsables);
 		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null)
+			dto.setAssignadaPersona(dto.isAssignadaPersonaAmbCodi(auth.getName()));
 		switch (task.getPriority()) {
 		case -2:
 			dto.setPrioritat(TascaPrioritatDto.MOLT_BAIXA);

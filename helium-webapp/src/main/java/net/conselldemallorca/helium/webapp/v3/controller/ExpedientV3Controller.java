@@ -174,7 +174,6 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				MissatgesHelper.info(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-				return "redirect:/expedient/consulta.html";
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.buidarlog.expedient") + ": " + ex.getLocalizedMessage());

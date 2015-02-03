@@ -10,6 +10,7 @@
 	<style type="text/css">
 		.col-xs-4 {width: 8.33333%;}
 		.col-xs-8 {width: 91.6667%;}
+		.obligatori{background-position: right 6px;}
 	</style>
 <script>
 	function confirmar(e) {

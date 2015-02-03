@@ -149,10 +149,10 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return TascaFormHelper.getCommandBuitForCamps(campsFiltre, new HashMap<String, Object>(), new HashMap<String, Class>(), false);
 	}
 	
-	@RequestMapping(value = "/consulta/{consultaId}", method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET)
 	public String getConsulta(
 			HttpServletRequest request,
-			@PathVariable Long consultaId,
+			@RequestParam(value = "consultaId", required = true) Long consultaId,
 			Model model)  {
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 		model.addAttribute("consulta", consulta);
@@ -175,10 +175,10 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return "v3/expedientInforme";
 	}
 	
-	@RequestMapping(value = "/consulta/{consultaId}", method = RequestMethod.POST)
+	@RequestMapping(method = RequestMethod.POST)
 	public String post(
 			HttpServletRequest request,
-			@PathVariable Long consultaId,
+			@RequestParam(value = "consultaId", required = true) Long consultaId,
 			@Valid @ModelAttribute("expedientInformeCommand") Object filtreCommand,			
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
@@ -207,7 +207,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return "v3/expedientInforme";
 	}
 
-	@RequestMapping(value = "/consulta/{consultaId}/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{consultaId}/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public  DatatablesPagina<ExpedientConsultaDissenyDto> datatable(
 			HttpServletRequest request,
@@ -243,7 +243,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				listaExpedients);
 	}
 
-	@RequestMapping(value = "/consulta/{consultaId}/exportar_excel", method = RequestMethod.GET)
+	@RequestMapping(value = "/{consultaId}/exportar_excel", method = RequestMethod.GET)
 	public void exportarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
@@ -268,7 +268,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		exportXLS(request, response, session, campsInforme, expedientsConsultaDissenyDto);
 	}
 	
-	@RequestMapping(value = "/consulta/{consultaId}/mostrar_informe_params", method = RequestMethod.GET)
+	@RequestMapping(value = "/{consultaId}/mostrar_informe_params", method = RequestMethod.GET)
 	public  String  mostrarInformeParams(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
@@ -282,7 +282,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return "v3/expedientInformeParams";
 	}
 	
-	@RequestMapping(value = "/consulta/{consultaId}/mostrar_informe_params", method = RequestMethod.POST)
+	@RequestMapping(value = "/{consultaId}/mostrar_informe_params", method = RequestMethod.POST)
 	public  String  mostrarInformeParams(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
@@ -300,7 +300,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return generarReport(session, consultaId, model, request);
 	}
 
-	@RequestMapping(value = "/consulta/{consultaId}/mostrar_informe", method = RequestMethod.GET)
+	@RequestMapping(value = "/{consultaId}/mostrar_informe", method = RequestMethod.GET)
 	public  String  descargar(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
@@ -328,7 +328,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		if (expedientsConsultaDissenyDto.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
 			getConsulta(request,consultaId,model);
-			return "redirect:/v3/informe/consulta/"+consultaId;
+			return "redirect:/v3/informe/"+consultaId;
 		}
 		
 		model.addAttribute(
@@ -610,7 +610,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		}
 	}
 
-	@RequestMapping(value = "/consulta/{consultaId}/selection", method = RequestMethod.POST)
+	@RequestMapping(value = "/{consultaId}/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public Set<Long> seleccio(
 			HttpServletRequest request,
@@ -638,7 +638,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return seleccio;
 	}
 
-	@RequestMapping(value = "/consulta/{consultaId}/seleccioTots")
+	@RequestMapping(value = "/{consultaId}/seleccioTots")
 	@ResponseBody
 	public Set<Long> seleccionarTots(
 			HttpServletRequest request,
@@ -686,7 +686,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		return seleccio;
 	}
 
-	@RequestMapping(value = "/consulta/{consultaId}/seleccioNetejar")
+	@RequestMapping(value = "/{consultaId}/seleccioNetejar")
 	@ResponseBody
 	public Set<Long> seleccioNetejar(
 			HttpServletRequest request,

@@ -46,7 +46,7 @@ public class IndexV3Controller {
 		if (preferencies != null) {
 			if (preferencies.getListado() == 2 && preferencies.getConsultaId() != null) {
 				// Informes
-				return "redirect:/v3/informe/consulta/"+preferencies.getConsultaId();
+				return "redirect:/v3/informe?consultaId="+preferencies.getConsultaId();
 			} else if (preferencies.getListado() == 1) {
 				// Tareas
 				return "redirect:/v3/tasca";

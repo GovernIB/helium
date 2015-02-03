@@ -23,12 +23,11 @@
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
-	<script>
+	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#taulaDades").heliumDataTable({
 				ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
@@ -69,11 +68,6 @@
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
 		    });
-			$('#btnTramitacio').heliumEvalLink({
-				refrescarAlertes: true,
-				refrescarPagina: false,
-				maximize: true
-			});
 		});
 		function seleccionarMassivaTodos() {
 			var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
@@ -193,34 +187,34 @@
 
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if> data-rdt-seleccionable-columna="0" data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="true" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
-			<tr>
+			<tr data-toggle="context" data-target="#context-menu">
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false" data-rdt-visible="true"></th>
 				<th data-rdt-property="titol" data-rdt-template="cellPersonalGroupTemplate" data-rdt-visible="true" >
 					<spring:message code="tasca.llistat.columna.titol"/>
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
 						{{:titol}}
-						{{if responsables != null && !agafada}}
+						{{if !agafada && responsables != null}}
 							<span class="fa fa-users"></span>
 						{{/if}}
 						<div class="pull-right">
-						{{if cancelada}}
-							<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
-						{{/if}}
-						{{if suspesa}}
-							<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
-						{{/if}}
-						{{if oberta}}
-							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>"></span>
-						{{/if}}
-						{{if completed}}
-							<span class="label label-success" title="<spring:message code="enum.tasca.etiqueta.FI"/>">FI</span>
-						{{/if}}
-						{{if agafada}}
-							<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
-						{{/if}}
- 						{{if tramitacioMassiva}}													
-							<a <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">onclick="return false;"</c:if> href="../v3/tasca/{{:id}}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a>
-						{{/if}}						
+							{{if cancelada}}
+								<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
+							{{/if}}
+							{{if suspesa}}
+								<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
+							{{/if}}
+							{{if oberta}}
+								<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>"></span>
+							{{/if}}
+							{{if completed}}
+								<span class="label label-success" title="<spring:message code="enum.tasca.etiqueta.FI"/>">FI</span>
+							{{/if}}
+							{{if agafada}}
+								<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
+							{{/if}}
+ 							{{if tramitacioMassiva}}													
+								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: window.location='../v3/tasca/{{:id}}/massiva'"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
+							{{/if}}						
 						</div>
 					</script>
 				</th>
@@ -229,22 +223,22 @@
 				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
 				<th data-rdt-property="dataLimit" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
 				<th data-rdt-property="prioritat" data-rdt-visible="false"><spring:message code="tasca.llistat.columna.prioritat"/></th>
-				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}"/>" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
+				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}"/>" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
  						<div class="dropdown navbar-right"> 
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
 							<ul class="dropdown-menu"> 
 								{{if !(responsables != null && !agafada && oberta && !suspesa)}}
-									<li><a class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+									<li><a class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 									{{if tramitacioMassiva}}
 										<li><a href="../v3/tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 									{{/if}}
 								{{/if}}
-								{{if oberta && !suspesa}}
- 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/delegar"/>" data-rdt-link-modal="true"><span class="fa fa-hand-o-right"></span> <spring:message code="tasca.llistat.accio.delegar"/></a></li>
-								{{/if}}
-								{{if responsables != null && !agafada && oberta && !suspesa}}
+								{{if !agafada && responsables != null && assignadaPersona}}
  									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" data-rdt-link-ajax="true"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
+								{{/if}}
+								{{if responsables != null && agafada && responsableCodi == usuariCodi && oberta}}
+									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
 								<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 								{{if oberta && !suspesa}}
@@ -255,14 +249,14 @@
 								{{/if}}
 								{{if !cancelada}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
-								{{/if}}
-						
+								{{/if}}						
  							</ul> 
  						</div>
 					</script> 
 				</th>
 				<th data-rdt-property="agafada" data-rdt-visible="false"></th>
 				<th data-rdt-property="cancelada" data-rdt-visible="false"></th>
+				<th data-rdt-property="assignadaPersona" data-rdt-visible="false"></th>
 				<th data-rdt-property="suspesa" data-rdt-visible="false"></th>
 				<th data-rdt-property="tramitacioMassiva" data-rdt-visible="false"></th>
 				<th data-rdt-property="oberta" data-rdt-visible="false"></th>
@@ -280,13 +274,13 @@
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a class="btn btn-default" data-rdt-link-modal="true" href="../v3/tasca/massivaReassignacioTasca?massiva=false"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="../v3/tasca/massivaReassignacioTasca?massiva=false"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
 						<c:otherwise>
 						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a id="btnReassignacioMassiva" class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="/v3/tasca/massivaReassignacioTasca?massiva=true"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
-						<a id="btnMassiva" class="btn btn-default" data-rdt-link-modal-maximize="true" data-rdt-link-modal="true" href="<c:url value="/v3/expedient/massivaTramitacioTasca"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca?massiva=true"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a class="btn btn-default" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../../../v3/expedient/massivaTramitacioTasca"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	
 			</div>

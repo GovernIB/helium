@@ -28,6 +28,7 @@
 		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
 	<![endif]-->
 	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<style>
 		body {
 			background-image:url(<c:url value="/img/background-pattern.jpg"/>);
@@ -54,6 +55,11 @@
 			padding: 3px 0px !important;
 		}    
 	</style>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$(".dropdown-menu").css("max-height", ($(window).height() - 75) +"px");
+		});
+	</script>
 	<decorator:head />
 </head>
 <body>
@@ -80,6 +86,31 @@
 				<div class="nav navbar-nav navbar-right">
 				
 					<ul class="list-inline pull-right">
+						<c:if test="${potAdministrarEntorn}">
+							<li class="dropdown" id="mesures">
+								<a href="#" data-toggle="dropdown">
+									<span class="fa fa-laptop"></span> <spring:message code='comuns.sistema' />
+									<b class="caret caret-white"></b>
+								</a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+									<c:if test="${globalProperties['app.mesura.temps.actiu']}">
+										<li><a data-rdt-link-modal="true" id="botoTemps" href="<c:url value="../v3/mesuresTemps"/>"><spring:message code='expedient.mesura.temps' /></a></li>
+									</c:if>
+									<c:if test="${globalProperties['app.expedient.monitor']}">
+										<li><a data-rdt-link-modal="true" id="botoMonitor" href="<c:url value="../v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
+									</c:if>
+									<li><a data-rdt-link-modal="true" href="<c:url value="../v3/tasca/pendentsCompletar"/>"><spring:message code='tasca.pendents.completar' /></a></li>
+									<!-- <li><a data-rdt-link-modal="true" href="<c:url value="../v3/execucionsMassives"/>"><spring:message code='comuns.massiu' /></a></li>  -->
+								</ul>
+							</li>
+							<script type="text/javascript">
+								$('#mesures a').heliumEvalLink({
+									alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+									refrescarAlertes: true,
+									refrescarPagina: false
+								});
+							</script>
+						</c:if>
 						<li class="dropdown">
 							<c:if test="${fn:length(entorns) gt 1}"><a href="#" data-toggle="dropdown"></c:if>
 							<span class="fa fa-cubes"></span> ${entornActual.nom}
@@ -129,7 +160,7 @@
 										<ul class="dropdown-menu">
 											<li class="nav-header">${expedientTipusActual.nom}</li>
 											<c:forEach var="consulte" items="${expedientTipusActual.consultesSort}">
-												<li><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
+												<li><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
 											</c:forEach>
 										</ul>
 									</c:when>
@@ -141,13 +172,26 @@
 													<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>													
 													<li class="nav-header">${expedientTipus.nom}</li>
 													<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
-														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe/consulta/${consulte.id}"></c:url>">${consulte.nom}</a></li>
+														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
 													</c:forEach>
 												</c:forEach>
 											</ul>
 										</c:if>
 									</c:otherwise>
 								</c:choose>
+							</div>
+						</c:if>
+						<c:if test="${potDissenyarExpedientTipus or potGestionarExpedientTipus}">
+							<div class="btn-group" >
+								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<c:if test="${potAdministrarEntorn}"><li class="image desplegar"><a target="_BLANK" href="<c:url value="/definicioProces/deploy.html"/>"><spring:message code='decorators.entorn.despl_arxiu' /></a></li></c:if>
+									<c:if test="${potAdministrarEntorn}"><li class="image defproc"><a target="_BLANK" href="<c:url value="/definicioProces/llistat.html"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li></c:if>
+									<li class="image tipexp"><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>"><spring:message code='comuns.tipus_exp' /></a></li>
+									<c:if test="${potAdministrarEntorn}"><li class="image enums"><a target="_BLANK" href="<c:url value="/enumeracio/llistat.html"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li></c:if>
+									<c:if test="${potAdministrarEntorn}"><li class="image fonts"><a target="_BLANK" href="<c:url value="/domini/llistat.html"/>"><spring:message code='decorators.entorn.dominis' /></a></li></c:if>
+									<c:if test="${potAdministrarEntorn}"><li class="image consulta"><a target="_BLANK" href="<c:url value="/consulta/llistat.html"/>"><spring:message code='decorators.entorn.consultes.tipus' /></a></li></c:if>
+								</ul>
 							</div>
 						</c:if>
 					</div>

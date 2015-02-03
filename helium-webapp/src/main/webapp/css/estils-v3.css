@@ -149,3 +149,7 @@ p.help-block {
     position: fixed;
     top: 50%;
 }
+
+.dropdown-menu {
+	overflow: auto;
+}

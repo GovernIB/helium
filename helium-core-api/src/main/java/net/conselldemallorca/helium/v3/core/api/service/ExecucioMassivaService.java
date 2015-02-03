@@ -18,4 +18,8 @@ public interface ExecucioMassivaService {
 	public Object deserialize(byte[] bytes) throws Exception;
 	
 	public byte[] serialize(Object obj) throws Exception;
+
+	public void cancelarExecucio(Long id) throws Exception;
+
+	public String getJsonExecucionsMassivesByUser(int numResults);
 }

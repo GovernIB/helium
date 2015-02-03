@@ -114,7 +114,7 @@
 	 				</div>
 	 				<div class="col-xs-4 tercpost">
 	 					<label class="control-label col-xs-4" for="${campPath}_dies"><spring:message code="common.camptasca.dies"/></label>
-	 					<div class="col-xs-9">
+	 					<div class="col-xs-8">
 	 						<hel:inputText inline="true" name="${campPath}.dies" textKey="common.camptasca.dies" placeholderKey="common.camptasca.dies"/>
 	 					</div>
 	 				</div>
@@ -136,8 +136,8 @@
 			</c:when>			
 			<c:when test="${campActual.campTipus == 'SUGGEST'}">
 				<div class="form-group">
-					<c:set var="urlConsultaInicial" value="../../domini/consulta/inicial/${campActual.campId}"/>
-					<c:set var="urlConsultaLlistat" value="../../domini/consulta/${campActual.campId}"/>
+					<c:set var="urlConsultaInicial" value="domini/consulta/inicial/${campActual.campId}"/>
+					<c:set var="urlConsultaLlistat" value="domini/consulta/${campActual.campId}"/>
 					<hel:inputSuggest inline="true" name="${campPath}" urlConsultaInicial="${urlConsultaInicial}" urlConsultaLlistat="${urlConsultaLlistat}" placeholder="${campActual.campEtiqueta}" text="${campActual.campEtiqueta}"/>
 				</div>
 			</c:when>

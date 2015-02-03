@@ -23,5 +23,11 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 			"where 	e.expedient.id = :expedientId ")
 	public List<ExecucioMassivaExpedient> getExecucioMassivaByExpedient(
 			@Param("expedientId") Long expedientId
-	);	
+	);
+	
+	@Query("select count(e) " +
+			"from	ExecucioMassivaExpedient e " +
+			"where 	e.expedient.id = :execucioMassivaId " +
+			" and e.dataFi is null")
+	public Long findProgresExecucioMassivaActiveById(@Param("execucioMassivaId") Long execucioMassivaId);	
 }

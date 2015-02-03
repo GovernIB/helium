@@ -149,7 +149,7 @@
 				if (!$(this).data('modal-cancel')) {
 					$(this).removeData('modal-cancel');
 					if (settings.modalCloseFunction) {
-						settings.modalCloseFunction();
+//						settings.modalCloseFunction();
 					} else {
 						if (settings.refrescarTaula && settings.dataTable) {
 							var taula = settings.dataTable;

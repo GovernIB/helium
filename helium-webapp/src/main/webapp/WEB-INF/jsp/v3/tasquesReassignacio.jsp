@@ -24,7 +24,6 @@
 		<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 		<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 		<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-		<script src="<c:url value="/js/helium.modal.js"/>"></script>
 		<script src="<c:url value="/js/select2.min.js"/>"></script>
 		<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 		<script src="<c:url value="/js/moment.js"/>"></script>

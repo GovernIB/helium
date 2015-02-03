@@ -64,7 +64,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("expedient", expedientService.findAmbId(expedientId));
 		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId));
 		return "v3/expedientTasquesPendents";
 	}
@@ -116,18 +116,18 @@ public class ExpedientTascaController extends BaseExpedientController {
 		return "redirect:/v3/expedient/"+expedientId;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/delegacioCancelar", method = RequestMethod.POST)
-	public String cancelar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			ModelMap model) {
-		tascaService.delegacioCancelar(tascaId);
-		MissatgesHelper.info(request, getMessage(request, "info.delegacio.cancelat"));
-		return "redirect:/v3/expedient/" + expedientId;
-	}
+//	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/delegacioCancelar", method = RequestMethod.POST)
+//	public String cancelar(
+//			HttpServletRequest request,
+//			@PathVariable Long expedientId,
+//			@PathVariable String tascaId,
+//			ModelMap model) {
+//		tascaService.delegacioCancelar(tascaId);
+//		MissatgesHelper.info(request, getMessage(request, "info.delegacio.cancelat"));
+//		return "redirect:/v3/expedient/" + expedientId;
+//	}
 	
-	@RequestMapping(value = "/{expedientId}/{tascaId}/tascaAgafar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/agafar", method = RequestMethod.GET)
 	public String agafar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -135,10 +135,10 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {		
 		tascaService.agafar(tascaId);
 		MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));			
-		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
-	@RequestMapping(value = "/{expedientId}/{tascaId}/tascaAlliberar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/alliberar", method = RequestMethod.GET)
 	public String alliberar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -146,7 +146,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {
 		tascaService.alliberar(tascaId);
 		MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
-		return "redirect:/v3/expedient/" + expedientId + "tasca/" + tascaId;
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);

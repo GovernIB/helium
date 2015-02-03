@@ -58,11 +58,11 @@ $(document).ready(function() {
 		<c:param name="tabActiu" value="dades"/>
 	</c:import>
 
-	<h3 class="titol-tab titol-dades-expedient" style="float:left;">
+	<h3 class="titol-tab titol-dades-expedient">
 		<fmt:message key='expedient.dada.dades_proces' />
 	</h3>
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16">
-		<div class="form-group right">
+		<div class="form-group" style="text-align: right; padding-bottom: 5px;">
 			<label class="control-label col-xs-4" for="ambOcults">
 				<fmt:message key="expedient.dada.ocults"/>
 				<input type="checkbox" <c:if test="${ambOcults}">checked="checked"</c:if> class="span12" id="ambOcults"/>

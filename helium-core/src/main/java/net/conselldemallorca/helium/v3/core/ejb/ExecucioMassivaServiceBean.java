@@ -42,4 +42,16 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	public byte[] serialize(Object obj) throws Exception {
 		return delegate.serialize(obj);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void cancelarExecucio(Long id) throws Exception {
+		delegate.cancelarExecucio(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String getJsonExecucionsMassivesByUser(int numResults) {
+		return delegate.getJsonExecucionsMassivesByUser(numResults);
+	}
 }

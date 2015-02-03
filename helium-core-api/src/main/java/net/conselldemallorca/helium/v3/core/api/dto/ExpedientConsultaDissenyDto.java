@@ -32,4 +32,35 @@ public class ExpedientConsultaDissenyDto {
 	public void setDadesExpedient(Map<String, DadaIndexadaDto> dadesExpedient) {
 		this.dadesExpedient = dadesExpedient;
 	}
+	
+	public boolean isPermisCreate() {
+		return expedient.permisCreate;
+	}
+	public boolean isPermisRead() {
+		return expedient.permisRead;
+	}
+	public boolean isPermisWrite() {
+		return expedient.permisWrite;
+	}
+	public boolean isPermisDelete() {
+		return expedient.permisDelete;
+	}
+	public boolean isPermisSupervision() {
+		return expedient.permisSupervision;
+	}
+	public boolean isPermisReassignment() {
+		return expedient.permisReassignment;
+	}
+	public boolean isPermisDesign() {
+		return expedient.permisDesign;
+	}
+	public boolean isPermisOrganization() {
+		return expedient.permisOrganization;
+	}
+	public boolean isPermisManage() {
+		return expedient.permisManage;
+	}
+	public boolean isPermisAdministration() {
+		return expedient.permisAdministration;
+	}
 }

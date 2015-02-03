@@ -21,7 +21,6 @@
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
@@ -93,25 +92,6 @@
 		.eliminarFila {
 			padding: 4px 6px;
 		}
-/* 		.tercpre { */
-/* 			padding-left: 0px !important; */
-/* 			padding-right: 8px !important; */
-/* 		} */
-/* 		.tercmig { */
-/* 			padding-left: 4px !important; */
-/* 			padding-right: 4px !important; */
-/* 		} */
- 		.tercpost input{ 
- 			
-/* 			padding-left: 8px !important; */
-/* 			padding-right: 0px !important; */
- 		} 
-		thead {
-/* 			display: inline-table; */
-		}
-		tbody {
-/* 			display: inline-table; */
-		}
 		.pagination {margin : 0px !important;}
 		#btn_exportar {padding-right : 10px;}
 		.row {padding-bottom: 5px;}
@@ -127,7 +107,7 @@
 <script>
 $(document).ready(function() {	
 	$("#taulaDades").heliumDataTable({
-		ajaxSourceUrl: "<c:url value="/v3/informe/consulta/${expedientInformeCommand.consultaId}/datatable"/>",
+		ajaxSourceUrl: "<c:url value="/v3/informe/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 		rowClickCallback: function(row, event) {
@@ -138,9 +118,10 @@ $(document).ready(function() {
 			if (!isTdDesplegar && !clickNomesDesplegar) {
 				$('a.consultar-expedient', $(row))[0].click();
 			} else {
-				var desplegat = $('.icona-tasques-pendents', row).hasClass('fa-chevron-up');
-				if (desplegat) {
-					$(row).next().remove();
+				if ($(row).next().hasClass('table-pendents') || $(row).next().hasClass('tasques-pendents')) {
+					while ($(row).next().hasClass('table-pendents') || $(row).next().hasClass('tasques-pendents')) {
+						$(row).next().remove();
+					}
 					$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
 					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
 				} else {
@@ -205,7 +186,7 @@ $(document).ready(function() {
 <body>	
 	<input type="hidden" id="netejar" value="false"/>
 	
-	<form:form method="post" cssClass="well form-horizontal form-tasca" commandName="expedientInformeCommand">
+	<form:form method="post" action="informe" cssClass="well form-horizontal form-tasca" commandName="expedientInformeCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
 			<c:forEach var="camp" items="${campsFiltre}">
@@ -238,12 +219,10 @@ $(document).ready(function() {
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" data-rdt-filtre-form-id="expedientInformeCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr class="panel-heading clicable proces" data-toggle="collapse">
-				<th data-rdt-property="expedient.id" width="4%" data-rdt-sortable="false"></th>
+				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-						<div class="pull-left">
-							<span class="icona-collapse fa fa-chevron-down"></i>						
-						</div>
+						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
 					</script>
 				</th>
 				<th data-rdt-property="expedient.identificador" data-rdt-sorting="desc" data-visible=true><spring:message code="expedient.llistat.columna.expedient"/></th>
@@ -256,15 +235,15 @@ $(document).ready(function() {
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
-				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
+				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<li><a href="<c:url value="../../expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code='comuns.obrir'/></a></li>
-									{{if permisWrite}}<li><a href="<c:url value="../../expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
-									{{if permisWrite}}<li><a href="<c:url value="../../expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
-									{{if permisDelete}}<li><a href="<c:url value="../../expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
+									<li><a onclick="javascript: window.location=this.href" href="<c:url value="../v3/expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
+									{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
+									{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
+									{{if permisDelete}}<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
 								</ul>
 							</div>
 						</script>
@@ -274,24 +253,24 @@ $(document).ready(function() {
 	</table>
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div class="btn-group pull-right">
-			<a class="btn btn-default" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/seleccioTots"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
-			<a class="btn btn-default" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/seleccioNetejar"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-			<a class="btn btn-default" href="<c:url value="../../../v3/expedient/massiva?consultaId=${consulta.id}"/>"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+			<a class="btn btn-default" href="<c:url value="../v3/informe/${consulta.id}/seleccioTots"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+			<a class="btn btn-default" href="<c:url value="../v3/informe/${consulta.id}/seleccioNetejar"/>" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+			<a class="btn btn-default" href="<c:url value="../v3/expedient/massiva?consultaId=${consulta.id}"/>"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 		</div>
 		<div id="btn_exportar" class="btn-toolbar pull-right btn_under_taulaDades">
 			<c:if test="${consulta.exportarActiu}">
-				<a id="exportar_excel" href="<c:url value="../../informe/consulta/${consulta.id}/exportar_excel"/>" class="btn btn-default">
-					<span class="icon-download-alt"></span>&nbsp;<spring:message code="comuns.descarregar"/>
+				<a id="exportar_excel" href="<c:url value="../v3/informe/${consulta.id}/exportar_excel"/>" class="btn btn-default">
+					<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 				</a>
 			</c:if>
 			<c:if test="${not empty consulta.informeNom and not empty campsInformeParams}">
-				<a data-rdt-link-modal="true" id="mostrar_informe" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/mostrar_informe_params"/>" class="btn btn-default">
-					<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
+				<a data-rdt-link-modal="true" id="mostrar_informe" href="<c:url value="../v3/informe/${consulta.id}/mostrar_informe_params"/>" class="btn btn-default">
+					<span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
 			<c:if test="${not empty consulta.informeNom and empty campsInformeParams}">
-				<a id="mostrar_informe" href="<c:url value="../../../v3/informe/consulta/${consulta.id}/mostrar_informe"/>" class="btn btn-default">
-					<span class="icon-download-alt"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
+				<a id="mostrar_informe" href="<c:url value="../v3/informe/${consulta.id}/mostrar_informe"/>" class="btn btn-default">
+					<span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
 		</div>			

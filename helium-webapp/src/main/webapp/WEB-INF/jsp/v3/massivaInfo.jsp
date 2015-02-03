@@ -24,7 +24,6 @@
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
@@ -106,8 +105,6 @@
 				$("form").each(function(){
 					if (!$(this).find('#inici').length)
 						$(this).append('<input type="hidden" id="inici" name="inici">');
-					if (!$(this).find('#correu').length)
-						$(this).append('<input type="hidden" id="correu" name="correu">');
 				});
 				$("input[type='hidden'][name='inici']").each(function(){ $(this).val($("input[name=inici]").val()); });
 				$('#var').trigger('change');
@@ -122,8 +119,6 @@
 			$("input[name=correu]").change(function(){
 				var correu = $(this).is(":checked") ? true : false;
 				$("form").each(function(){
-					if (!$(this).find('#inici').length)
-						$(this).append('<input type="hidden" id="inici" name="inici">');
 					if (!$(this).find('#correu').length)
 						$(this).append('<input type="hidden" id="correu" name="correu">');
 				});

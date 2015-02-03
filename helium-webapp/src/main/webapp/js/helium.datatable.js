@@ -1,5 +1,61 @@
 (function($) {
-	$.fn.heliumDataTable = function(options) {
+	$.fn.contextMenu = function (settings) {
+		
+        return this.each(function () {
+            $(this).on("contextmenu", function (e) {
+            	if($('.dropdown-menu').is(":visible") == false) {
+	                $(settings.menuSelector)
+	                    .data("invokedOn", $(e.target))
+	                    .show()
+	                    .css({
+	                        position: "absolute",
+	                        left: getLeftLocation(e),
+	                        top: getTopLocation(e)
+	                    })
+	                    .off('click')
+	                    .on('click', function (e) {
+	                        $(this).hide();
+	                
+	                        var $invokedOn = $(this).data("invokedOn");
+	                        var $selectedMenu = $(e.target);
+	                        
+	                        settings.menuSelected.call(this, $invokedOn, $selectedMenu);
+	                });
+            	}
+                return false;
+            });
+
+            $(document).click(function () {
+        		$(settings.menuSelector).hide();
+            });
+        });
+
+        function getLeftLocation(e) {
+            var mouseWidth = e.pageX;
+            var pageWidth = $(window).width();
+            var menuWidth = $(settings.menuSelector).width();
+
+            if (mouseWidth + menuWidth > pageWidth &&
+                menuWidth < mouseWidth) {
+                return mouseWidth - menuWidth;
+            } 
+            return mouseWidth;
+        }        
+        
+        function getTopLocation(e) {
+            var mouseHeight = e.pageY;
+            var pageHeight = $(window).height();
+            var menuHeight = $(settings.menuSelector).height();
+
+            if (mouseHeight + menuHeight > pageHeight &&
+                menuHeight < mouseHeight) {
+                return mouseHeight - menuHeight;
+            } 
+            return mouseHeight;
+        }
+
+    };
+	$.fn.heliumDataTable = function(options) {        
 		return this.filter("table").each(function() {
 			var settings = $.extend({
 				paginacio: true,
@@ -27,6 +83,10 @@
 					$(this).css("display", "none");
 				});
 			});
+            //make sure menu closes on any click
+            $(document).click(function () {
+                $(settings.menuSelector).hide();
+            });
 			var seleccioActiva = $(this).data("rdt-seleccionable");
 			var seleccioColumna = 0;
 			var seleccioUrl;
@@ -134,7 +194,13 @@
 							taula.parent().append('<div id="' + modalDivId + '"></div>');
 						$('#' + modalDivId).heliumModal({
 							modalUrl: $(this).attr("href"),
-							modalCloseFunction: modalCloseFunction
+							maximize: $(this).data("rdt-link-modal-maximize"),
+							minHeight:  $(this).data("rdt-link-modal-min-height"),
+							callback:  $(this).data("rdt-link-callback"),
+							modalCloseFunction: modalCloseFunction,
+							refrescarPagina: settings.refrescarPagina,
+							refrescarAlertes: settings.refrescarAlertes,
+							alertesRefreshUrl: settings.alertesRefreshUrl
 						});
 						return false;
 					} else {
@@ -317,6 +383,16 @@
 											return eval(expression);
 										}
 									}));
+						
+						if ($(this).data('rdt-context') && $("td:eq(" + index + ")", nRow).find('.dropdown-menu').length > 0) {
+							$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(nRow).data('id')+'" style="display:none">'+$("td:eq(" + index + ")", nRow).find('.dropdown-menu').html()+'</ul>');
+							$(nRow).contextMenu({
+							    menuSelector: "#dropdown-menu-context"+$(nRow).data('id'),
+							    menuSelected: function (invokedOn, selectedMenu) {
+							        // alert(selectedMenu.text() + " > " + invokedOn.text());
+							    }
+							});
+						}
 					});
 					$('th[data-rdt-type]', this).each(function() {
 						var index = $(this).index();
@@ -412,3 +488,27 @@
 		});
 	};
 }(jQuery));
+
+function getLeftLocation(e) {
+    var mouseWidth = e.pageX;
+    var pageWidth = $(window).width();
+    var menuWidth = $(settings.menuSelector).width();
+
+    if (mouseWidth + menuWidth > pageWidth &&
+        menuWidth < mouseWidth) {
+        return mouseWidth - menuWidth;
+    } 
+    return mouseWidth;
+}        
+
+function getTopLocation(e) {
+    var mouseHeight = e.pageY;
+    var pageHeight = $(window).height();
+    var menuHeight = $(settings.menuSelector).height();
+
+    if (mouseHeight + menuHeight > pageHeight &&
+        menuHeight < mouseHeight) {
+        return mouseHeight - menuHeight;
+    } 
+    return mouseHeight;
+}

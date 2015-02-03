@@ -15,7 +15,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -71,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -81,6 +81,8 @@ import org.apache.commons.collections.comparators.NullComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
@@ -100,9 +102,11 @@ public class TascaServiceImpl implements TascaService {
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
 	@Resource
+	private ExpedientHeliumRepository expedientHeliumRepository;
+	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;
 	@Resource
-	private ExpedientDao expedientDao;
+	private TascaRepository tascaRepository;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
@@ -115,8 +119,6 @@ public class TascaServiceImpl implements TascaService {
 	private CampTascaRepository campTascaRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
-	@Resource
-	private TascaRepository tascaRepository;
 	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
@@ -186,7 +188,7 @@ public class TascaServiceImpl implements TascaService {
 			Long expedientTipusId,
 			String responsable,
 			String tasca,
-			String expedient,
+			String titol,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Date dataLimitInici,
@@ -214,8 +216,9 @@ public class TascaServiceImpl implements TascaService {
 				false,
 				false);
 		// Comprova l'accés al tipus d'expedient
+		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
-			expedientTipusHelper.getExpedientTipusComprovantPermisos(
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					expedientTipusId,
 					true,
 					false,
@@ -249,14 +252,15 @@ public class TascaServiceImpl implements TascaService {
 			cal.add(Calendar.DATE, 1);
 			dataLimitFi.setTime(cal.getTime().getTime());
 		}
-		List<Long> idsExpedients = expedientDao.findListExpedients(
-				entornId, 
-				responsable,
-				expedient, 
-				null,
-				expedientTipusId,
-				null,
-				false);
+		
+		List<Long> idsExpedients = expedientHeliumRepository.findListExpedients(
+				entorn,
+				tipusPermesos,
+				(expedientTipus == null),
+				expedientTipus,
+				(titol == null),
+				titol,
+				null);
 	
 		LlistatIds ids = jbpmHelper.findListTasks(
 				responsable,
@@ -282,7 +286,7 @@ public class TascaServiceImpl implements TascaService {
 			Long expedientTipusId,
 			String responsable,
 			String tasca,
-			String expedient,
+			String titol,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Date dataLimitInici,
@@ -312,8 +316,9 @@ public class TascaServiceImpl implements TascaService {
 				false,
 				false);
 		// Comprova l'accés al tipus d'expedient
+		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
-			expedientTipusHelper.getExpedientTipusComprovantPermisos(
+			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					expedientTipusId,
 					true,
 					false,
@@ -333,22 +338,28 @@ public class TascaServiceImpl implements TascaService {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION});
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
-		String sort = null;
-		boolean asc = false;
-		for (OrdreDto or : paginacioParams.getOrdres()) {
-			asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
-			sort = or.getCamp();
-			break;
+		
+		Pageable paginacio = null;
+		if (!paginacioParams.getOrdres().isEmpty()) {
+			OrdreDto order = paginacioParams.getOrdres().get(0);
+			if ("expedientIdentificador".equals(order.getCamp()) || "expedientTipusNom".equals(order.getCamp())) {
+				if ("expedientIdentificador".equals(order.getCamp())) {
+					order.setCamp("titol");
+				} else {
+					order.setCamp("tipus.nom");
+				}
+				paginacio=new PageRequest(0,99999999, order.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, order.getCamp());
+			}
 		}
 
-		List<Long> idsExpedients = expedientDao.findListExpedients(
-				entornId, 
-				responsable,
-				expedient, 
-				null,
-				expedientTipusId,
-				sort,
-				asc);
+		List<Long> idsExpedients = expedientHeliumRepository.findListExpedients(
+				entorn,
+				tipusPermesos,
+				(expedientTipus == null),
+				expedientTipus,
+				(titol == null),
+				titol,
+				paginacio);
 		if (consultaTramitacioMassivaTascaId != null) {
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 					consultaTramitacioMassivaTascaId,
@@ -516,7 +527,18 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientTascaDto.class);
 		return resposta;
 	}
-
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<ParellaCodiValorDto> getTasquesExecucionsMassivesAmbDefinicioProcesId(Long definicioProcesId) {
+		List<Tasca> tasques = tascaRepository.findByDefinicioProcesIdOrderByNomAsc(definicioProcesId);
+		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
+		for (Tasca tasca : tasques) {
+			lista.add(new ParellaCodiValorDto(tasca.getId().toString(), tasca.getNom()));
+		}
+		return lista;
+	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<TascaDadaDto> findDades(
@@ -801,8 +823,7 @@ public class TascaServiceImpl implements TascaService {
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmHelper.getRootProcessInstance(task.getProcessInstanceId()).getId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (taskInstanceId != null) {
 			registreDao.crearRegistreEsborrarDocumentTasca(
 					expedient.getId(),
@@ -877,8 +898,7 @@ public class TascaServiceImpl implements TascaService {
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmHelper.getRootProcessInstance(task.getProcessInstanceId()).getId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
 					expedient.getId(),

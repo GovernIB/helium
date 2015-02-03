@@ -1053,6 +1053,27 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
+	public void reprendreExpedient(String processInstanceId) throws Exception{
+		imprimirFuncio("reprendreExpedient");
+		logger.debug("reprendreExpedient (" +
+				"processInstanceId=" + processInstanceId + ")");
+		jbpmHelper.reprendreExpedient(processInstanceId);
+	}
+	
+	@Override
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		imprimirFuncio("tokenActivar");
+		logger.debug("tokenActivar (" +
+				"tokenId=" + tokenId + ", " +
+				"activar=" + activar + ")");
+		try {
+			return jbpmHelper.tokenActivar(tokenId, activar);
+		} catch (Exception ex) {
+			return false;
+		} 
+	}
+
+	@Override
 	public Long documentExpedientAdjuntar(
 			String processInstanceId,
 			String adjuntId,

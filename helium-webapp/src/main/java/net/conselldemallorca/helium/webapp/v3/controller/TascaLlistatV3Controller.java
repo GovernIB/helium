@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -54,7 +55,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Controller
 @RequestMapping("/v3/tasca")
 public class TascaLlistatV3Controller extends BaseExpedientController {
-
+	
+	@Autowired
+	private AdminService adminService;
 	@Autowired
 	private TascaService tascaService;
 	@Autowired
@@ -69,6 +72,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 		model.addAttribute(filtreCommand);
+		model.addAttribute("usuariCodi", SessionHelper.getSessionManager(request).getPreferenciesUsuari().getCodi());
 		return "v3/tascaLlistat";
 	}
 
@@ -230,6 +234,13 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	public String filtreNetejar(HttpServletRequest request) {
 		SessionHelper.getSessionManager(request).removeFiltreConsultaTasca();
 		return "redirect:/v3/tasca";
+	}
+	
+	@RequestMapping(value = "/pendentsCompletar", method = RequestMethod.GET)
+	public String tasquesCompletar(HttpServletRequest request, 
+			Model model) {		
+		model.addAttribute("tasques", adminService.getTasquesCompletar());
+		return "v3/pendentsCompletar"; 
 	}
 
 	@InitBinder

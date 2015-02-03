@@ -4,7 +4,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
-<script src="<c:url value="/js/helium.modal.js"/>"></script>
 
 <c:if test="${document.signat}">
 	<a 	id="verificar${document.id}"

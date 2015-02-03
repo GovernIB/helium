@@ -1012,4 +1012,21 @@ public interface Jbpm3HeliumService {
 	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo);
 
 	public boolean borrarNotificacioElectronica(String numero, String clave, Long codigo);
+
+	/**
+	 * Activa o desactiva un token
+	 * 
+	 * @param tokenId
+	 * @param activar
+	 * @return
+	 */
+	public boolean tokenActivar(long tokenId, boolean activar);
+
+	/**
+	 * Reprendre un expedient
+	 * 
+	 * @param processInstanceId
+	 * @throws Exception
+	 */
+	public void reprendreExpedient(String processInstanceId) throws Exception;
 }

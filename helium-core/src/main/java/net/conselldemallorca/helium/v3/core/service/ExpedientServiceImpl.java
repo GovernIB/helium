@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientHelium;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
@@ -121,6 +122,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -153,6 +155,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private ExpedientHeliumRepository expedientHeliumRepository;
 	@Resource
 	private RegistreDao registreDao;
 	@Resource
@@ -965,7 +969,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
-		Page<Expedient> paginaResultats = null;
+		Page<ExpedientHelium> paginaResultats = null;
 		if (nomesAmbTasquesActives) {
 			// Fa la consulta
 			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
@@ -1025,7 +1029,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 		// Fa la consulta
-		paginaResultats = expedientRepository.findByFiltreGeneralPaginat(
+		paginaResultats = expedientHeliumRepository.findByFiltreGeneralPaginat(
 				entorn,
 				tipusPermesos,
 				(expedientTipus == null),
@@ -2452,7 +2456,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
 			Expedient expedient = expedientRepository.findOne(Long.parseLong(dadaExpedientId.getValorIndex()));
 			if (expedient != null) {
-				fila.setExpedient(dtoConverter.toExpedientDto(expedient));
+				ExpedientDto expedientDto = dtoConverter.toExpedientDto(expedient);
+				expedientHelper.omplirPermisosExpedient(expedientDto);
+				fila.setExpedient(expedientDto);
 				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
 						campsInforme,
@@ -2468,7 +2474,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			while (it.hasNext()) {
 				Map<String, DadaIndexadaDto> dadesExpedient = it.next();
 				DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
-				if (!llistaExpedientIds.contains(Long.parseLong(dadaExpedientId.getValorIndex()))) {
+				if (dadaExpedientId != null && !llistaExpedientIds.contains(Long.parseLong(dadaExpedientId.getValorIndex()))) {
 					it.remove();
 				}
 			}

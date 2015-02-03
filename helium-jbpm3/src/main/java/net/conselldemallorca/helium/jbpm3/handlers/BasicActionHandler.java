@@ -716,6 +716,27 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	}
 
 	/**
+	 * Activa o desactiva un token
+	 * 
+	 * @param tokenId
+	 * @param activar
+	 * @return
+	 */
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		return Jbpm3HeliumBridge.getInstanceService().tokenActivar(tokenId, activar);
+	}
+
+	/**
+	 * Reprendre un expedient
+	 * 
+	 * @param processInstanceId
+	 * @throws Exception
+	 */
+	public void reprendreExpedient(String processInstanceId) throws Exception {
+		Jbpm3HeliumBridge.getInstanceService().reprendreExpedient(processInstanceId);
+	}
+
+	/**
 	 * Obté el contingut de l'arxiu directament de la gestió documental.
 	 * 
 	 * @param id

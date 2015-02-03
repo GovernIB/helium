@@ -105,7 +105,7 @@
 										</tr>
 										<tr>
 											<td>
-												<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
+												<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy HH:mm"/>
 											</td>
 										</tr>
 									</thead>

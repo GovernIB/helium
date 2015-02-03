@@ -13,7 +13,6 @@
 	<title><spring:message code="expedient.info.titol"/></title>
 	<meta name="title" content="${expedient.identificador}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>

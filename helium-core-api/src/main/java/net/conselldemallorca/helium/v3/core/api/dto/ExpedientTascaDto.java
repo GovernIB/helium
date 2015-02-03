@@ -60,6 +60,7 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean completed;
 	private boolean cancelled;
 	private boolean suspended;
+	private boolean assignadaPersona;
 	private String recursForm;
 	private String formExtern;
 
@@ -473,6 +474,12 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	}
 	public void setTramitacioMassiva(boolean tramitacioMassiva) {
 		this.tramitacioMassiva = tramitacioMassiva;
+	}
+	public boolean isAssignadaPersona() {
+		return assignadaPersona;
+	}
+	public void setAssignadaPersona(boolean assignadaPersona) {
+		this.assignadaPersona = assignadaPersona;
 	}
 
 }
