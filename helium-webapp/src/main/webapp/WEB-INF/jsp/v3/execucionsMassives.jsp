@@ -49,10 +49,10 @@
 			margin-bottom: 10px;
 		}
 		.massiu-progres {
-			float: left; width: calc(100% - 130px - 50% - 45px);
+			float: left; width: calc(100% - 120px - 50% - 45px);
 		}
 		.massiu-data {
-			float: left; width: 130px;
+			float: left; width: 120px;
 		}
 		.massiu-accio {
 			float: left; width: 50%;padding-left: 10px;
@@ -78,7 +78,7 @@
 				var numFiles = $("#accordio_massiva .panel-heading").length;
 				carregaExecucionsMassives(numFiles + 10);
 			});
-			carregaExecucionsMassives(10);
+			carregaExecucionsMassives(numResults);
 		});
 	    
 		var changeTooltipPosition = function(event) {
@@ -133,14 +133,21 @@
 		    	  		'  <span><div class="value">'+success+'%</div></span>' +
 		    	  		'</div>';
 	    	}
+	    	if (pendent > 0) {
+		    	text += '<div class="progress-bar progress-bar-warning" role="progressbar"' +
+		    	  		'     aria-valuenow="'+pendent+'" aria-valuemin="0" aria-valuemax="100"' +
+		    	  		'     style="width: '+pendent+'%">' +
+		    	  		'  <span><div class="value">'+pendent+'%</div></span>' +
+		    	  		'</div>';
+	    	}
 	    	if (danger > 0) {
 		    	text += '<div class="progress-bar progress-bar-danger" role="progressbar"' +
 		    	  		'     aria-valuenow="'+danger+'" aria-valuemin="0" aria-valuemax="100"' +
 		    	  		'     style="width: '+danger+'%">' +
 		    	  		'  <span><div class="value">'+danger+'%</div></span>' +
 		    	  		'</div>';
-		    	 text += '</div>';
 	    	}
+	    	text += '</div>';
 	    	$("#"+id).html(text);
 	    }
 	    
@@ -312,6 +319,19 @@
 								content += '</div></div>';
 								$("#accordio_massiva").prepend(content);
 								createBar("pbar_" + execucio.id, execucio.success, execucio.pendent, execucio.danger);
+								
+							    $("#accordio_massiva .panel-heading").click(function() {
+							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
+							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
+						   		});
+							    
+							    $(document).ready(function(){					 
+									$(".msg-error").bind({
+									   mousemove : changeTooltipPosition,
+									   mouseenter : showTooltip,
+									   mouseleave: hideTooltip
+									});
+								});
 							} else if (exps > 0) {
 								// Actualitzam execucions existents
 								for (var j = 0; exps > 0 && j < exps; j++) {
@@ -320,19 +340,6 @@
 							}
 						}
 					}
-					
-				    $("#accordio_massiva .panel-heading").click(function() {
-				    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
-				    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
-			   		});
-				    
-				    $(document).ready(function(){					 
-						$(".msg-error").bind({
-						   mousemove : changeTooltipPosition,
-						   mouseenter : showTooltip,
-						   mouseleave: hideTooltip
-						});
-					});
 				}
 			})
 			.fail(function( jqxhr, textStatus, error ) {

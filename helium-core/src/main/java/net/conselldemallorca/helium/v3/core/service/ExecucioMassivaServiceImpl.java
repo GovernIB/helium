@@ -221,7 +221,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					if (error != null) {
 						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
 						danger++;
-					} else if (exp.getDataInici() == null){
+					} else if (expedient.getDataFi() == null && ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())){
 						pendent++;
 					} else {
 						success++;
@@ -234,7 +234,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			mjson.put("id", execucio.getId());
 			mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
 			mjson.put("success", getPercent(success, expedients.size()));
-			mjson.put("pendent", getPercent(danger, expedients.size()));
+			mjson.put("pendent", getPercent(pendent, expedients.size()));
 			mjson.put("danger", getPercent(danger, expedients.size()));
 			mjson.put("data", sdf.format(execucio.getDataInici()));
 			mjson.put("tasca", tasca);

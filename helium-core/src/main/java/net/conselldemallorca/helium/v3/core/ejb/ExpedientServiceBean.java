@@ -640,7 +640,14 @@ public class ExpedientServiceBean implements ExpedientService {
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isDiferentsTipusExpedients(Set<Long> ids) {
 		return delegate.isDiferentsTipusExpedients(ids);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void createVariable(Long expedientId, String processInstanceId, String varName, Object value) {
+		delegate.createVariable(expedientId, processInstanceId, varName, value);
 	}
 }
