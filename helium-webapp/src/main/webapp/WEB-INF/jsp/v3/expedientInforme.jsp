@@ -161,31 +161,25 @@ $(document).ready(function() {
 			$('#tramitacioMassivaCount').html(seleccio.length);
 		}
 	});
-	$("#expedientInformeCommand button[value='netejar']").click(function() {
-		$('#expedientInformeCommand')[0].reset();
-		$('#expedientInformeCommand').submit();
-	});
 	$("#nomesPendentsCheck").click(function() {
 		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
 		$(this).blur();
-		$('#expedientInformeCommand').submit();
+		$("button[value=filtrar]").click();
 	});
 	$("#nomesAlertesCheck").click(function() {
 		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
 		$(this).blur();
-		$('#expedientInformeCommand').submit();
+		$("button[value=filtrar]").click();
 	});
 	$("#mostrarAnulatsCheck").click(function() {
 		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
 		$(this).blur();
-		$('#expedientInformeCommand').submit();
+		$("button[value=filtrar]").click();
 	});
 });
 </script>
 </head>
-<body>	
-	<input type="hidden" id="netejar" value="false"/>
-	
+<body>		
 	<form:form method="post" action="informe" cssClass="well form-horizontal form-tasca" commandName="expedientInformeCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
@@ -202,7 +196,7 @@ $(document).ready(function() {
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="mostrarAnulats"/>
 				<div class="btn-group">
-					<a id="nomesPendentsCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-user"></span></a>
+					<a id="nomesPendentsCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></a>
 					<a id="nomesAlertesCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></a>
 					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.anulats"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
 				</div>

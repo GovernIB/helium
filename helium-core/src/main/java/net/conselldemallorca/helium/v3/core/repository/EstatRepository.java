@@ -19,7 +19,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface EstatRepository extends JpaRepository<Estat, Long> {
 
-	public List<Estat> findByExpedientTipus(
+	public List<Estat> findByExpedientTipusOrderByOrdreAsc(
 			ExpedientTipus expedientTipus);
 
 	public Estat findByExpedientTipusAndCodi(

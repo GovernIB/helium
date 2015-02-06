@@ -309,16 +309,27 @@ public class TascaHelper {
 	}*/
 
 	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient) {
-		return findTasquesPerExpedientPerInstanciaProces(expedient, expedient.getProcessInstanceId());
+		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		for (JbpmTask task: tasks) {
+			if (!task.isCompleted()) {
+				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
+				if (tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+					resposta.add(tasca);
+				}
+			}
+		}
+		return resposta;
 	}
 
-	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(Expedient expedient, String processInstanceId) {
+	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(Expedient expedient, String processInstanceId, boolean completed) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-			if (tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+			if ( (tasca.isCompleted() == completed) && tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
 				resposta.add(tasca);
 			}
 		}

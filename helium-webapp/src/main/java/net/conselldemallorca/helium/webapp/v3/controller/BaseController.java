@@ -24,6 +24,7 @@ import org.springframework.web.servlet.support.RequestContext;
  */
 public class BaseController implements MessageSourceAware {
 
+	private static final String ESQUEMA_PREFIX = "/helium";
 	MessageSource messageSource;
 
 	protected String modalUrlTancar(boolean refrescar) {
@@ -39,6 +40,11 @@ public class BaseController implements MessageSourceAware {
 	
 	protected String ajaxUrlOk() {
 		return "redirect:/nodeco/util/ajaxOk";
+	}
+	
+	protected String getPageURI(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		return uri.substring(uri.indexOf(ESQUEMA_PREFIX) + ESQUEMA_PREFIX.length());
 	}
 
 	protected String getAjaxControllerReturnValueSuccess(

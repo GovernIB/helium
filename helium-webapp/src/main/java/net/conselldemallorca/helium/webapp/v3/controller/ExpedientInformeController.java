@@ -162,7 +162,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		model.addAttribute("estats", expedientService.findConsultaFiltre(consultaId));	
 		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
 		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
-		estats.add(0, new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 		model.addAttribute("estats", estats);
 
 		SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -195,7 +195,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			model.addAttribute("estats", expedientService.findConsultaFiltre(consultaId));	
 			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
 			estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
-			estats.add(0, new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+			estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
 			model.addAttribute("estats", estats);
 		}
 		

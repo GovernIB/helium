@@ -25,6 +25,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -51,12 +52,31 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
-			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {				
 				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId()));
 			}
 			model.addAttribute("tasques", tasques);	
 		}
 		return "v3/expedientTasca";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/refrescarPanel/{procesId}", method = RequestMethod.GET)
+	public String refrescarTasca(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable String procesId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		List<ExpedientTascaDto> dadesInstancia = expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId());
+		Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
+		tasques.put(instanciaProces, dadesInstancia);
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("expedient", expedient);
+		// Ordenar tasques
+		model.addAttribute("tasques", tasques);	
+		return "v3/procesTasques";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasquesPendents", method = RequestMethod.GET)
@@ -69,6 +89,17 @@ public class ExpedientTascaController extends BaseExpedientController {
 		return "v3/expedientTasquesPendents";
 	}
 
+	@RequestMapping(value = "/{expedientId}/tascaPendent/{tascaId}", method = RequestMethod.GET)
+	public String tascaPendent(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		model.addAttribute("expedient", expedientService.findAmbId(expedientId));
+		model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
+		return "v3/expedientTascaPendent";
+	}
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/cancelar")
 	public String tascaCancelar(
 			HttpServletRequest request,
@@ -77,6 +108,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {
 		try {
 			expedientService.cancelarTasca(expedientId, tascaId);
+			MissatgesHelper.info(request, getMessage(request, "info.tasca.cancelar", new Object[] {String.valueOf(tascaId)}));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId)} ));
         	logger.error("No s'ha pogut cancel·lar la tasca " + String.valueOf(tascaId), ex);
@@ -92,6 +124,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {		
 		try {
 			expedientService.suspendreTasca(expedientId, tascaId);
+			MissatgesHelper.info(request, getMessage(request, "info.tasca.suspendre"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.suspendre.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut suspendre la tasca " + tascaId, ex);
@@ -108,45 +141,50 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {
 		try {
 			expedientService.reprendreTasca(expedientId, tascaId);
+			MissatgesHelper.info(request, getMessage(request, "info.tasca.reprendre"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reprendre.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut reprendre la tasca " + tascaId, ex);
-		}
-		
-		return "redirect:/v3/expedient/"+expedientId;
-	}
-
-//	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/delegacioCancelar", method = RequestMethod.POST)
-//	public String cancelar(
-//			HttpServletRequest request,
-//			@PathVariable Long expedientId,
-//			@PathVariable String tascaId,
-//			ModelMap model) {
-//		tascaService.delegacioCancelar(tascaId);
-//		MissatgesHelper.info(request, getMessage(request, "info.delegacio.cancelat"));
-//		return "redirect:/v3/expedient/" + expedientId;
-//	}
-	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/agafar", method = RequestMethod.GET)
-	public String agafar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			ModelMap model) {		
-		tascaService.agafar(tascaId);
-		MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));			
+		}		
 		return "redirect:/v3/expedient/" + expedientId;
 	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/alliberar", method = RequestMethod.GET)
-	public String alliberar(
+	
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/agafar", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean agafar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			ModelMap model) {
-		tascaService.alliberar(tascaId);
-		MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
-		return "redirect:/v3/expedient/" + expedientId;
+		boolean resultado = false;
+		try {
+			tascaService.agafar(tascaId);
+			resultado = true;
+			MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.agafar.tasca", new Object[] {tascaId} ));
+        	logger.error("No s'ha pogut agafar la tasca " + tascaId, ex);
+		}		
+		return resultado;
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/alliberar", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean alliberar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			ModelMap model) {
+		boolean resultado = false;
+		try {
+			tascaService.alliberar(tascaId);
+			resultado = true;
+			MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.alliberar.tasca", new Object[] {tascaId} ));
+        	logger.error("No s'ha pogut alliberar la tasca " + tascaId, ex);
+		}
+		return resultado;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);

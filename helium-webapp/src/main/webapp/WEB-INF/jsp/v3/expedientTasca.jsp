@@ -33,3 +33,26 @@ div.proces:hover {
 </style>
 
 <c:import url="procesTasques.jsp"/>
+
+<script type="text/javascript">
+// <![CDATA[
+
+function agafar(procesId, tascaId, correcte) {
+	if (correcte) {		
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/'+tascaId+'/refrescarPanel/"/>' + procesId;
+		var panell = $("#dataTable_tasca_"+procesId);
+		panell.load(url, function() {
+			$('#dropdown-menu-'+tascaId+' #tramitar-tasca-'+tascaId).click();
+		});
+	}
+}
+
+function alliberar(procesId, tascaId, correcte) {
+	if (correcte) {
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/'+tascaId+'/refrescarPanel/"/>' + procesId;
+		var panell = $("#dataTable_tasca_"+procesId);
+		panell.load(url);
+	}
+}
+//]]>
+</script>

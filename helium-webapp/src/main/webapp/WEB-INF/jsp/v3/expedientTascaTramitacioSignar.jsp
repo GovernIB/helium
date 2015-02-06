@@ -7,6 +7,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <style type="text/css">
+	#signatures .dades {margin-top: -20px;}
 	.signarTramitacio .btn-file {position: relative; overflow: hidden;}
 	.signarTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
 	.signarTramitacio .form-group {width: 100%;display: inline-flex;}

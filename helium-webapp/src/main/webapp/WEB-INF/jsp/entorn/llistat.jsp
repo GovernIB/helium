@@ -26,6 +26,12 @@ function confirmarReindexar(e) {
 }
 // ]]>
 </script>
+<style type="text/css">
+	form {
+		display: inline;
+		width: auto;
+	}
+</style>
 </head>
 <body>
 
@@ -52,10 +58,18 @@ function confirmarReindexar(e) {
 	    </display:column>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
-
-	<form action="form.html">
-		<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.nou' /></button>
-	</form>
+	
+	<div style="clear: both"></div>
+	
+	<div class="buttonHolder">
+		<form action="form.html">
+			<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.nou' /></button>
+		</form>
+	
+		<form action="../reassignar/llistat.html">
+			<button type="submit" class="submitButton"><fmt:message key='decorators.superior.reassignacions' /></button>
+		</form>
+	</div>
 
 </body>
 </html>

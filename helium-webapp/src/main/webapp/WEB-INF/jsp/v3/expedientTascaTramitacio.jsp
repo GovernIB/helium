@@ -23,10 +23,11 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<style>
 		.alert {
-			margin-right: -15px;
+/* 			margin-right: -15px; */
 		}
 		input, select, textarea {
 			width: 100%;
@@ -38,9 +39,14 @@
 			/*padding-right: 15px;*/
 		}
 		.form-group {
-			/*padding-right: 	15px;
+			padding-right: 	15px;
 			margin-left: 	0px !important;
-			margin-bottom:	0px;*/
+			/*margin-bottom:	0px;*/
+		}
+		td > .form-group {
+			padding-right: 	15px;
+			margin-left: 	0px !important;
+			/*margin-bottom:	0px;*/
 		}
 		.controls {
 			padding-right: 0 !important;
@@ -123,7 +129,7 @@
 			padding-right: 10px;
 		}*/
 		div.tab-content {
-			width: calc(100% - 15px);
+/* 			width: calc(100% - 15px); */
 			padding: 15px 0 0 0;
 		}
 		.multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {

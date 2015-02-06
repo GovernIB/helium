@@ -24,15 +24,7 @@
 		}
 		.table {
 			margin-top: 10px;
-		    table-layout:fixed;
-		    border-collapse: collapse;
 		 }
-		
-		.table td {
-		    text-overflow:ellipsis;
-		    overflow:hidden;
-		    white-space:nowrap;
-		}
 		.contingut-carregant {
 			text-align: center;
 			padding: 8px;
@@ -174,7 +166,7 @@
 	                   
 	                    length = data.clau.length;
 	                   
-	                    content +=  '<table id="mesures_temps" class="table table-striped table-bordered dataTable">' +
+	                    content +=  '<table id="mesures_temps" class="table table-striped table-bordered table-hover dataTable">' +
 	                                '<thead>' +
 	                                '<th class="first-element"></th>' +
 	                                '<th class="temps_col1"><spring:message code="temps.clau"/></th>' +

@@ -157,27 +157,20 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 								request,
 								SessionHelper.VARIABLE_EXPTIP_ACTUAL);
 					}
-				}
-				List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
-				for (ExpedientTipusDto expedientTipus: accessibles) {
-					if (!expedientTipus.getConsultes().isEmpty())
-						accessiblesConConsultasActivas.add(expedientTipus);
-				}
-				SessionHelper.setAttribute(
-						request,
-						SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES,
-						accessiblesConConsultasActivas);
+				}				
 				
-				ExpedientTipusDto expedientTipus = (ExpedientTipusDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACTUAL);
-				if (expedientTipus != null) {
-					SessionHelper.setAttribute(
-							request,
-							SessionHelper.VARIABLE_CONS_EXPTIP_ACTUAL,
-							dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornActual.getId(),expedientTipus.getId()));
-				} else {
-					SessionHelper.removeAttribute(
-							request,
-							SessionHelper.VARIABLE_EXPTIP_ACTUAL);
+				// Consultas por tipo
+				if (canviEntorn != null || canviExpedientTipus != null || SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES) == null) {
+					accessibles = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornActual.getId());
+					SessionHelper.setAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES, accessibles);
+					
+					List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
+					for (ExpedientTipusDto expedientTipus: accessibles) {
+						if (!expedientTipus.getConsultes().isEmpty()) {
+							accessiblesConConsultasActivas.add(expedientTipus);
+						}
+					}
+					SessionHelper.setAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES, accessiblesConConsultasActivas);
 				}
 			}
 		}

@@ -3,15 +3,22 @@
 		
         return this.each(function () {
             $(this).on("contextmenu", function (e) {
+            	$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(this).data('id')+'" style="display:none">'+$("td", this).find('.dropdown-menu').html()+'</ul>');
+            	$(this).contextMenu({
+				    menuSelector: "#dropdown-menu-context"+$(this).data('id'),
+				    menuSelected: function (invokedOn, selectedMenu) {
+				        // alert(selectedMenu.text() + " > " + invokedOn.text());
+				    }
+				});
+    			$('#dropdown-menu-context'+$(this).data('id')+' a').heliumEvalLink({
+    				refrescarAlertes: true,
+    				refrescarPagina: false
+    			});
             	if($('.dropdown-menu').is(":visible") == false) {
 	                $(settings.menuSelector)
 	                    .data("invokedOn", $(e.target))
 	                    .show()
-	                    .css({
-	                        position: "absolute",
-	                        left: getLeftLocation(e),
-	                        top: getTopLocation(e)
-	                    })
+	                    .offset({position: "absolute", left:getLeftLocation(e), top:getTopLocation(e)})
 	                    .off('click')
 	                    .on('click', function (e) {
 	                        $(this).hide();
@@ -31,7 +38,7 @@
         });
 
         function getLeftLocation(e) {
-            var mouseWidth = e.pageX;
+            var mouseWidth = e.pageX+5;
             var pageWidth = $(window).width();
             var menuWidth = $(settings.menuSelector).width();
 
@@ -43,7 +50,7 @@
         }        
         
         function getTopLocation(e) {
-            var mouseHeight = e.pageY;
+            var mouseHeight = e.pageY+5;
             var pageHeight = $(window).height();
             var menuHeight = $(settings.menuSelector).height();
 
@@ -128,8 +135,9 @@
 				if ($(this).data('rdt-link-confirm'))
 					confirmat = confirm($(this).data('rdt-link-confirm'));
 				var ajax = ($(this).data("rdt-link-ajax") !== undefined) ? $(this).data("rdt-link-ajax") === true : false;
+				var callback = ($(this).data("rdt-link-callback") != undefined) ? $(this).data("rdt-link-callback") : false;
 				var modal = ($(this).data("rdt-link-modal") !== undefined) ? $(this).data("rdt-link-modal") === true : false;
-				var refrescarTaulaFunction = function() {
+				var refrescarTaulaFunction = function(data, callback) {
 					if (taula !== null) {
 						var refrescat = false;
 						$('.dataTables_paginate li', taula.parent()).each(function() {
@@ -140,6 +148,9 @@
 						});
 						if (!refrescat)
 							taula.dataTable().fnDraw();
+						if (refrescat && callback) {
+							executeCallbackFunction(data);
+						}
 					}
 				};
 				var refrescarPaginaFunction = function() {
@@ -157,6 +168,16 @@
 						error: ajaxErrorFunction
 					});
 				};
+				var executeCallbackFunction = function(data) {
+					//alert('REF. CALLBACK');
+					var scb = callback;
+					var sep = scb.indexOf('(');
+					if ( sep != -1) {
+						callbackFunctionName = scb.substring(0, sep);
+						callbackFunctionParams = scb.substring(sep + 1, scb.lastIndexOf(')')).split(",");
+						executeFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
+					}
+				};
 				if (confirmat) {
 					if (ajax) {
 						var ajaxUrl = $(this).attr("href");
@@ -169,9 +190,9 @@
 							url: ajaxUrl,
 							async: false,
 							timeout: 20000,
-							success: function() {
+							success: function( data ) {
 								if (settings.ajaxRefrescarTaula)
-									refrescarTaulaFunction();
+									refrescarTaulaFunction(data, callback);
 								if (settings.ajaxRefrescarPagina)
 									refrescarPaginaFunction();
 								if (settings.ajaxRefrescarAlertes && settings.alertesRefreshUrl)
@@ -181,9 +202,9 @@
 						});
 						return false;
 					} else if (modal) {
-						var modalCloseFunction = function() {
+						var modalCloseFunction = function( data ) {
 							if (settings.modalRefrescarTaula)
-								refrescarTaulaFunction();
+								refrescarTaulaFunction(data, callback);
 							if (settings.modalRefrescarPagina)
 								refrescarPaginaFunction();
 							if (settings.modalRefrescarAlertes && settings.alertesRefreshUrl)
@@ -197,6 +218,7 @@
 							maximize: $(this).data("rdt-link-modal-maximize"),
 							minHeight:  $(this).data("rdt-link-modal-min-height"),
 							callback:  $(this).data("rdt-link-callback"),
+							ajax:  $(this).data("rdt-link-ajax"),
 							modalCloseFunction: modalCloseFunction,
 							refrescarPagina: settings.refrescarPagina,
 							refrescarAlertes: settings.refrescarAlertes,
@@ -223,12 +245,13 @@
 				$('#' + filtreFormId).on('submit', function() {
 					var accio = $('input[name=accio]', $('#' + filtreFormId)).val();
 					if (accio == 'netejar') {
-						$(':input', '#' + filtreFormId)
-						.not(':button, :submit, :reset, :hidden')
-						.val('')
-						.removeAttr('checked')
-						.removeAttr('selected');
-						$(':input.select2-offscreen', '#' + filtreFormId).select2("val", "", true);
+//						$(':input', '#' + filtreFormId)
+//						.not(':button, :submit, :reset, :hidden')
+//						.val('')
+//						.removeAttr('checked')
+//						.removeAttr('selected');
+//						$(':input.select2-offscreen', '#' + filtreFormId).select2("val", "", true);
+						$('#' + filtreFormId)[0].reset();
 					}
 					$.ajax({
 						type: "POST",
@@ -374,18 +397,19 @@
 						}
 						var templateData = new Array(dataObj);
 						$("td:eq(" + index + ")", nRow).html(
-								$("#" + $(this).data('rdt-template')).render(
-									templateData, {
-										alert: function(text) {
-											alert(text);
-										},
-										eval: function(expression) {
-											return eval(expression);
-										}
-									}));
-						
+							$("#" + $(this).data('rdt-template')).render(
+								templateData, {
+									alert: function(text) {
+										alert(text);
+									},
+									eval: function(expression) {
+										return eval(expression);
+									}
+								}
+							)
+						);						
 						if ($(this).data('rdt-context') && $("td:eq(" + index + ")", nRow).find('.dropdown-menu').length > 0) {
-							$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(nRow).data('id')+'" style="display:none">'+$("td:eq(" + index + ")", nRow).find('.dropdown-menu').html()+'</ul>');
+//							$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(nRow).data('id')+'" style="display:none">'+$("td:eq(" + index + ")", nRow).find('.dropdown-menu').html()+'</ul>');
 							$(nRow).contextMenu({
 							    menuSelector: "#dropdown-menu-context"+$(nRow).data('id'),
 							    menuSelected: function (invokedOn, selectedMenu) {
@@ -489,26 +513,18 @@
 	};
 }(jQuery));
 
-function getLeftLocation(e) {
-    var mouseWidth = e.pageX;
-    var pageWidth = $(window).width();
-    var menuWidth = $(settings.menuSelector).width();
-
-    if (mouseWidth + menuWidth > pageWidth &&
-        menuWidth < mouseWidth) {
-        return mouseWidth - menuWidth;
-    } 
-    return mouseWidth;
-}        
-
-function getTopLocation(e) {
-    var mouseHeight = e.pageY;
-    var pageHeight = $(window).height();
-    var menuHeight = $(settings.menuSelector).height();
-
-    if (mouseHeight + menuHeight > pageHeight &&
-        menuHeight < mouseHeight) {
-        return mouseHeight - menuHeight;
-    } 
-    return mouseHeight;
+function executeFunctionByName(functionName, context /*, args */) {
+	var argsarr = [].slice.call(arguments).splice(2);
+	var args = argsarr[0];
+	for (var i = 0; i < args.length; i++)
+		args[i] = args[i].trim();
+	args.push(argsarr[1]);
+	var namespaces = functionName.split(".");
+	var func = namespaces.pop();
+	for(var i = 0; i < namespaces.length; i++) {
+		context = context[namespaces[i]];
+	}
+	if (context[func] === undefined)
+		return false;
+	return context[func].apply(this, args);
 }

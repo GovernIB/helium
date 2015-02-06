@@ -48,11 +48,12 @@ public class ModalHelper {
 
 	private static boolean isRequestUriModal(
 			HttpServletRequest request) {
-		return request.getRequestURI().startsWith(URI_PREFIX_MODAL);
+		return request.getRequestURI().contains(URI_PREFIX_MODAL);
 	}
 	private static String getUriSensePrefix(
 			HttpServletRequest request) {
-		return request.getRequestURI().substring(URI_PREFIX_MODAL.length());
+		String uri = request.getRequestURI();
+		return uri.substring(uri.indexOf(URI_PREFIX_MODAL) + URI_PREFIX_MODAL.length());
 	}
 	private static Set<String> getUriMap(
 			HttpServletRequest request) {

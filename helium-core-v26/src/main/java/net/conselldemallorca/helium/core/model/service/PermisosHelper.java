@@ -225,6 +225,22 @@ public class PermisosHelper {
 		return result;
 	}
 	
+	public boolean isGrantedAny(
+			Long objectIdentifier,
+			Class<?> clazz,
+			Permission[] permissions,
+			Authentication auth) {
+		boolean[] granted = verificarPermisos(
+				objectIdentifier,
+				clazz,
+				permissions);
+		for (int i = 0; i < granted.length; i++) {
+			if (granted[i])
+				return true;
+		}
+		return false;
+	}
+	
 	public List<PermisDto> findPermisos(
 			Long objectIdentifier,
 			Class<?> objectClass) {

@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -183,7 +184,9 @@ public class ConsultaController extends BaseController {
 		        	}
 		        	missatgeInfo(request, getMessage("info.consulta.guardat") );
 		        	status.setComplete();
-		        } catch (Exception ex) {
+		        	
+					SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES);
+				} catch (Exception ex) {
 		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar la consulta", ex);
 		        	return "consulta/form";

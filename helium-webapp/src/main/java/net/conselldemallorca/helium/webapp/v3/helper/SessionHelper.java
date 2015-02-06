@@ -228,6 +228,11 @@ public class SessionHelper {
 					VARIABLE_FILTRE_CONSULTA_GENERAL,
 					filtreConsultaGeneral);
 		}
+		public void removeFiltreConsultaGeneral() {
+			removeAttribute(
+					request,
+					VARIABLE_FILTRE_CONSULTA_GENERAL);
+		}
 		public TascaConsultaCommand getFiltreConsultaTasca() {
 			return (TascaConsultaCommand)getAttribute(
 					request,

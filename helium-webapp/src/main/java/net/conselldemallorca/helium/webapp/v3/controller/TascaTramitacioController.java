@@ -102,7 +102,7 @@ public class TascaTramitacioController extends BaseController {
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null || seleccio.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
-			return "redirect:/v3/tasca";
+			return modalUrlTancar(false);
 		}
 		String tascaId = String.valueOf(seleccio.iterator().next());
 		SessionHelper.removeAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);

@@ -135,7 +135,7 @@ public class DissenyServiceImpl implements DissenyService {
 		if (expedientTipus == null)
 			throw new ExpedientTipusNotFoundException();
 		return conversioTipusHelper.convertirList(
-				estatRepository.findByExpedientTipus(expedientTipus),
+				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus),
 				EstatDto.class);
 	}
 	

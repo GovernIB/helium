@@ -46,7 +46,7 @@ public class ExpedientTipusHelper {
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (comprovarPermisRead) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					id,
 					ExpedientTipus.class,
 					new Permission[] {
@@ -61,7 +61,7 @@ public class ExpedientTipusHelper {
 			}
 		}
 		if (comprovarPermisWrite) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					id,
 					ExpedientTipus.class,
 					new Permission[] {
@@ -75,7 +75,7 @@ public class ExpedientTipusHelper {
 			}
 		}
 		if (comprovarPermisDelete) {
-			if (!permisosHelper.isGrantedAll(
+			if (!permisosHelper.isGrantedAny(
 					id,
 					ExpedientTipus.class,
 					new Permission[] {

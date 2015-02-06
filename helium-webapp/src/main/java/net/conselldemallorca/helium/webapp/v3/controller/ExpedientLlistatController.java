@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.text.SimpleDateFormat;
@@ -74,16 +71,10 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			@Valid ExpedientConsultaCommand filtreCommand,
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio) {
-		//filtre(request, filtreCommand, bindingResult, accio);
 		if ("netejar".equals(accio)) {
-			SessionHelper.removeAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
+			SessionHelper.getSessionManager(request).removeFiltreConsultaGeneral();
 		} else {
-			SessionHelper.setAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
-					filtreCommand);
+			SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		}
 		return "redirect:expedient";
 	}
@@ -94,10 +85,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
-				filtreCommand);
+		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		
 		DatatablesPagina<ExpedientDto> result = null;
 		try {
@@ -126,24 +114,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		return result;
 	}
-	/*@RequestMapping(value = "/filtre", method = RequestMethod.POST)
-	@ResponseStatus(value = HttpStatus.OK)
-	public void filtre(
-			HttpServletRequest request,
-			@Valid ExpedientConsultaCommand filtreCommand,
-			BindingResult bindingResult,
-			@RequestParam(value = "accio", required = false) String accio) {
-		if ("netejar".equals(accio)) {
-			SessionHelper.removeAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
-		} else {
-			SessionHelper.setAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
-					filtreCommand);
-		}
-	}*/
+	
 	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public Set<Long> seleccio(
@@ -274,16 +245,14 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			boolean nomesPendents = false;
 			if (preferenciesUsuari != null)
 				nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
-			filtreCommand.setNomesPendents(nomesPendents);			
+			filtreCommand.setNomesPendents(nomesPendents);	
 			filtreCommand.setConsultaRealitzada(true);
-			SessionHelper.setAttribute(
-					request,
-					SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL,
-					filtreCommand);
+			SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		}
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
-		if (expedientTipusActual != null)
+		if (expedientTipusActual != null) {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
+		}
 		return filtreCommand;
 	}
 

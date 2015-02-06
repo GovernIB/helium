@@ -17,7 +17,7 @@
 	.documentTramitacio .col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
 	.documentTramitacio .col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
 	.documentTramitacio .col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
-	.documentTramitacio .col-xs-11 {padding-left: 0px;}				
+	.documentTramitacio .col-xs-11 {padding-left: 0px;width: 100%;}				
 	.documentTramitacio #s2id_estatId {width: 100% !important;}
 	.documentTramitacio .arxiu {margin-left: 0%; margin-top: 10px;}
 	.documentTramitacio h4.titol-missatge {width: 100%;}
@@ -27,6 +27,8 @@
 	.documentTramitacio .comentari label {font-weight: bold;}
 	.documentTramitacio .modal-botons {padding-bottom: 30px;}
 	.documentTramitacio .form-horizontal .control-label {padding-top: 0px;}
+	.documentTramitacio .form-group {padding-right: 0px;}
+	.documentTramitacio .form-group .col-xs-11 {padding-right: 0px;}
 	.documentTramitacio .obligatori {background-position: right 8px;}
 </style>
 <c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"/>

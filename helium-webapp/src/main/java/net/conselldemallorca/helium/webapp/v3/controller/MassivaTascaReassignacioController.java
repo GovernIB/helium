@@ -78,7 +78,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null || seleccio.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
-			return modalUrlTancar();
+			return modalUrlTancar(false);
 		}
 
 		model.addAttribute("inici", inici);

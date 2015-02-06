@@ -72,7 +72,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 		model.addAttribute(filtreCommand);
-		model.addAttribute("usuariCodi", SessionHelper.getSessionManager(request).getPreferenciesUsuari().getCodi());
 		return "v3/tascaLlistat";
 	}
 

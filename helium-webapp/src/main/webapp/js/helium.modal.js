@@ -10,6 +10,7 @@
 				minHeight: false,
 				maximize: false,
 				callback: false,
+				ajax: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
@@ -199,11 +200,15 @@
 	$.fn.heliumEvalLink = function(options) {
 		return this.filter("a").each(function() {
 			var settings = $.extend({
+				refrescarTaula: false,
 				refrescarAlertes: true,
 				refrescarPagina: false,
 				adjustWidth: false,
 				adjustHeight: true,
 				minHeight: false,
+				maximize: false,
+				callback: false,
+				ajax: false,
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
@@ -298,6 +303,7 @@
 							maximize: $(this).data("rdt-link-modal-maximize"),
 							minHeight:  $(this).data("rdt-link-modal-min-height"),
 							callback:  $(this).data("rdt-link-callback"),
+							ajax:  $(this).data("rdt-link-ajax"),
 							modalCloseFunction: modalCloseFunction,
 							refrescarPagina: settings.refrescarPagina,
 							refrescarAlertes: settings.refrescarAlertes,

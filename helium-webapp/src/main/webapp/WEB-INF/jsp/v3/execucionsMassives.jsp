@@ -82,12 +82,11 @@
 		});
 	    
 		var changeTooltipPosition = function(event) {
-			var tooltipX = 20;
-		 	$('div.tooltip').css({left: tooltipX});
+		 	$('div.tooltip').css({left: 20});
 		};
 		
 		var showTooltip = function(event) {
-		  $('div.tooltip').remove();
+		  	$('div.tooltip').remove();
 		 	$("<div class='tooltip'>" + $(this).data("msg-error") + "</div>").css({
 	            position: "absolute",
 	            display: "none",
@@ -118,10 +117,8 @@
 		};
 	 
 		var hideTooltip = function(event) {
-			 var el = document.elementFromPoint(event.pageX, event.pageY);
-			 if(!$(el).hasClass("tooltip")) {
-		   		$('div.tooltip').remove();
-			 }
+			var el = document.elementFromPoint(event.pageX, event.pageY);
+	   		$('div.tooltip').remove();
 		};
 	    
 	    function createBar(id, success, pendent, danger) {
@@ -260,8 +257,7 @@
 				    $(document).ready(function(){					 
 						$(".msg-error").bind({
 						   mousemove : changeTooltipPosition,
-						   mouseenter : showTooltip,
-						   mouseleave: hideTooltip
+						   mouseenter : showTooltip
 						});
 					});
 				}
@@ -328,8 +324,7 @@
 							    $(document).ready(function(){					 
 									$(".msg-error").bind({
 									   mousemove : changeTooltipPosition,
-									   mouseenter : showTooltip,
-									   mouseleave: hideTooltip
+									   mouseenter : showTooltip
 									});
 								});
 							} else if (exps > 0) {

@@ -4,6 +4,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+
+<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 <c:set var="numColumnes" value="${3}"/>
 <style type="text/css">
 div.procesTasca {
@@ -149,6 +151,11 @@ div.procesTasca:hover {
 						refrescarPagina: false,
 						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 					});	
+					$('#dropdown-menu-context-${proces.id} a').heliumEvalLink({
+						refrescarAlertes: true,
+						refrescarPagina: false,
+						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+					});						
 					$(document).ready(function() {
 						$('#${proces.id}-titol-tasques').click( function() {
 							var icona = $(this).find('.icona-collapse');
