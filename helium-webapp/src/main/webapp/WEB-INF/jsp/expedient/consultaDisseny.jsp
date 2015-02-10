@@ -156,7 +156,7 @@
 
 	<c:if test="${not empty consulta}">
 
-		<form:form action="consultaDissenyResultat.html" commandName="commandFiltre" cssClass="uniForm">
+		<form:form action="consultaDissenyResultat" commandName="commandFiltre" cssClass="uniForm">
 			<input type="hidden" name="idsExp" id="idsExp" value="${sessionScope.consultaExpedientsIdsMassiusTE}">
 			<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${consulta.expedientTipus.id}">
 			<div class="inlineLabels col first">

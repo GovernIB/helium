@@ -61,7 +61,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 
 
 
@@ -166,9 +165,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 		}
 		session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND, command);
 		model.addAttribute("commandSeleccioConsulta", command);
-		
-//		ExpedientConsultaDissenyCommand commandSeleccioConsulta =
-//			(ExpedientConsultaDissenyCommand)session.getAttribute(VARIABLE_SESSIO_SELCON_COMMAND);
+
 		if (command != null && command.getConsultaId() != null) {
 			List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 					command.getConsultaId(),
@@ -221,7 +218,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	@RequestMapping(value = "/expedient/consultaDisseny")
 	public String consultaDisseny(
 			HttpServletRequest request,
-			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "page", required = false) String page,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "dir", required = false) String dir,
@@ -281,24 +277,17 @@ public class ExpedientConsultaDissenyController extends BaseController {
 	@RequestMapping(value = "/expedient/consultaDissenyResultat", method = RequestMethod.POST)
 	public String consultaDissenyResultat(
 			HttpServletRequest request,
-			HttpSession session,
-			@RequestParam(value = "idsExp", required = false) List<String> idsExp,
 			@RequestParam(value = "submit", required = false) String submit,
-			@RequestParam(value = "page", required = false) String page,
-			@RequestParam(value = "sort", required = false) String sort,
-			@RequestParam(value = "dir", required = false) String dir,
 			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			@ModelAttribute("commandFiltre") Object command,
+			HttpSession session,
 			BindingResult result,
-			SessionStatus status,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ExpedientConsultaDissenyCommand commandSeleccio =
-				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
+			ExpedientConsultaDissenyCommand commandSeleccio = (ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			if (commandSeleccio.getConsultaId() != null) {
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-//				commandSeleccio.setMassivaActiu(false);
 				if (permissionService.filterAllowed(
 						consulta.getExpedientTipus(),
 						ExpedientTipus.class,
@@ -334,7 +323,6 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				commandSeleccio.setMassivaActiu(false);
 			
 			} else if ("ejecucionMasivaTotsTipus".equals(submit)) {
-//				session.removeAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
 				return "redirect:/expedient/massivaInfoTE.html?massivaInfoTots=true&expedientTipusId="+commandSeleccio.getExpedientTipusId();
@@ -342,22 +330,10 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			
 			model.addAttribute("objectsPerPage", objectsPerPage);
 			
-			//***********************
-			
-//			if ("massiva".equals(submit)) {
-//				session.setAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE, commandSeleccio);
-//				commandSeleccio.setMassivaActiu(true);
-//				
-//			} else if ("nomassiva".equals(submit)) {
-//				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
-//				session.removeAttribute(VARIABLE_SESSIO_SELCON_COMMAND_TE);
-//			}
-//			else 
 			if ("clean".equals(submit)) {
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS_TE);
 			}
-			//***********************
 
 			return "redirect:/expedient/consultaDisseny.html";
 		} else {
