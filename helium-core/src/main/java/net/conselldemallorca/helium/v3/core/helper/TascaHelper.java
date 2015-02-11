@@ -686,7 +686,7 @@ public class TascaHelper {
 				if (campValor != null) {
 					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						String text = variableHelper.getTextVariableSimple(
+						String text = variableHelper.getTextPerCamp(
 								campTasca.getCamp(), 
 								campValor, null, 
 								task.getId(), 

@@ -732,9 +732,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long campId,
 			Model model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
+				null,
 				null,
 				campId,
+				null,
 				null,
 				new HashMap<String, Object>());
 	}
@@ -746,10 +748,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@PathVariable Long campId,
 			@PathVariable String valor,
 			Model model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
+				null,
 				null,
 				campId,
 				valor,
+				null,
 				new HashMap<String, Object>());
 	}
 	

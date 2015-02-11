@@ -25,211 +25,7 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	<style>
-		.alert {
-/* 			margin-right: -15px; */
-		}
-		input, select, textarea {
-			width: 100%;
-		}
-		label {
-			font-weight: normal;
-		}
-		.form-tasca {
-			/*padding-right: 15px;*/
-		}
-		.form-group {
-			padding-right: 	15px;
-			margin-left: 	0px !important;
-			/*margin-bottom:	0px;*/
-		}
-		td > .form-group {
-			padding-right: 	15px;
-			margin-left: 	0px !important;
-			/*margin-bottom:	0px;*/
-		}
-		.controls {
-			padding-right: 0 !important;
-		}
-		.form-group input, .form-group textarea {
-			width: 100%;
-		}
-		.input-group-multiple {
-			padding-left: 15px;
-			padding-right: 0px;}
-		.form-group li > .select2-container {
-			width: 100%;
-			padding-right: 20px;
-		}
-		.form-group .select2-container {
-			width: calc(100% + 14px);
-		}
-		.pad-left-col-xs-3 {left: 25%;}
-		.form-group.condensed {
-			margin-bottom: 0px;
-		}
-		.form-group.registre .btn_afegir{
- 			margin-top: 10px; 
-		}
-		.registre table .colEliminarFila {
-			width: 1px;
-		}
-		.registre table .opciones {
-			text-align: center;
-		}
-		p.help-block {
-			padding-top: 0;	
-			margin-top: 4px !important;
-			margin-bottom:	0px;
-		}
-		.clear {
-			clear: both;
-		}
-		.clearForm {
-			display: none;
-			clear: both;
-			border-bottom: solid 1px #ccc;
-			margin: 15px -15px 10px 15px;
-		}
-		.input-append {
-			width: calc(100% - 27px);
-		}
-		.eliminarFila {
-			background-color: #FFF;
-			border: solid 1px rgb(204, 204, 204);
-			border-radius: 4px;
-			padding: 9px 6px;
-/* 			margin-top: 3px; */
-		}
-		.eliminarFila:hover {
-			color: #333;
-			background-color: #e6e6e6;
-			border-color: #adadad;
-		}
-		.btn_eliminar {
-			background-color: #FFF;
-			border: solid 1px rgb(204, 204, 204);
-			border-radius: 4px;
-			padding: 9px 6px;
-/* 			margin-top: 3px; */
-		}
-		.table {
-			margin-bottom: 0px;
-		}
-		.col-xs-9 .checkbox {
-			width: auto;
-		}
-		.form_extern {
-			padding-bottom: 15px;
-			width: 100%;
-			text-align: right;
-			margin-right: -15px;
-		}
-		/*#tabnav .glyphicon {
-			padding-right: 10px;
-		}*/
-		div.tab-content {
-/* 			width: calc(100% - 15px); */
-			padding: 15px 0 0 0;
-		}
-		.multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {
-			float: left;
-			width: calc(100% - 29px);
-		}
-		.multiple_camp div.suggest, .multiple_camp div.seleccio {
-			float: left;
-			width: calc(100% - 29px) !important;
-		}
-		.registre .multiple input, .registre .multiple textarea, .registre .multiple_camp .input-group, .registre .multiple_camp .inputcheck {
-			float: left;
-			width: 100% !important;
-		}
-		.registre .multiple_camp div.suggest, .registre .multiple_camp div.seleccio {
-			float: left;
-			width: 100% !important;
-		}
-		.registre .multiple input.checkbox {
-			width: auto !important;
-		}
-		.multiple .termgrup {
-			float: left;
-			width: calc(100% - 14px);
-		}
-		.termgrup input, .termgrup select {
-			float: left;
- 			width: calc(100% - 65px); 
-		}
-		.tercpre {
-			float: left;
-			width: 32%;
- 			padding-left: 0px !important;
- 			padding-right: 8px !important;
-		}
-		.tercmig {
-			float: left;
-			width: 32%;
- 			padding-left: 4px !important; 
- 			padding-right: 4px !important; 
-		}
-		.tercpost {
-			float: left;
-			width: 36%;
-			padding-left: 8px !important; 
- 			padding-right: 0px !important; 
-		}
-		.label-term {
-			float: left;
-			width: 60px;
-			text-align: left !important;
-			margin-right: 5px;
-			font-weight: normal !important;
-		}
-		.multiple_camp .btn_eliminar {
-			float: left;
-			margin-left: 4px;
-		}
-		.form-group.multiple_camp {
-			margin-bottom: 6px;		
-		}
-		.btn_date {
-			cursor: pointer;
-		}
-		.has-error .form-control {
-			background-color: #ffefe !important;
-		}
-/*		#contingut-alertes, .tauladades {
-			padding-right: 15px;
-		}*/
-/* 		input, textarea, .select2-choice { */
-/* 			background-color: #FFFCF0 !important; */
-/* 		} */
-/* 		.select2-arrow { */
-/* 			background-color: #FFFFFF !important; */
-/* 		} */
-/* 		.registre table { */
-/* 			border: solid 0px; */
-			
-/* 		} */
-/* 		.registre tr td:last-child, .registre tr th:last-child { */
-/* 			border: solid 0px; */
-/* 			padding-right: 0px; */
-/* 		} */
-		.registre th {
-			border-bottom: solid 1px #CACACA !important;
-			background: rgba(221,221,221,1);
-			background: -moz-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
-			background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(221,221,221,1)), color-stop(100%, rgba(245,245,245,1)));
-			background: -webkit-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
-			background: -o-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
-			background: -ms-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
-			background: linear-gradient(to bottom, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
-			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#f5f5f5', GradientType=0 );
-		}
-		.contingut-carregant {
-			padding-top: 50px;
-	    	text-align: center;
-	    }
-	</style>
+	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
 </head>
 <body>
 	<c:if test="${not empty command.numTascaMassiva && command.numTascaMassiva > 0}">
@@ -388,49 +184,49 @@
 													<c:set var="isMultiple" value="${true}"/>
 													<%@ include file="campsTasca.jsp" %>
 													<c:set var="isMultiple" value="${false}"/>
+												</div>
+											</c:forEach>
+											<c:if test="${empty dada.multipleDades}">
+												Buit!!
+												<c:set var="inline" value="${true}"/>
+												<c:set var="campCodi" value="${dada.varCodi}[0]"/>
+												<c:set var="campNom" value="${dada.varCodi}"/>
+												<c:set var="campIndex" value="0"/>
+												<div class="col-xs-9 input-group-multiple">
+													<c:set var="isMultiple" value="${true}"/>
+													<%@ include file="campsTasca.jsp" %>
+													<c:set var="isMultiple" value="${false}"/>
+												</div>
+											</c:if>
+											<c:if test="${!dada.readOnly && !tasca.validada}">
+												<div class="form-group">
+													<div class="col-xs-9 pad-left-col-xs-3">
+														<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
+														<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
+														<div class="clear"></div>
+														<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
 													</div>
-												</c:forEach>
-												<c:if test="${empty dada.multipleDades}">
-													Buit!!
-													<c:set var="inline" value="${true}"/>
-													<c:set var="campCodi" value="${dada.varCodi}[0]"/>
-													<c:set var="campNom" value="${dada.varCodi}"/>
-													<c:set var="campIndex" value="0"/>
-													<div class="col-xs-9 input-group-multiple">
-														<c:set var="isMultiple" value="${true}"/>
-														<%@ include file="campsTasca.jsp" %>
-														<c:set var="isMultiple" value="${false}"/>
-													</div>
-												</c:if>
-												<c:if test="${!dada.readOnly && !tasca.validada}">
-													<div class="form-group">
-														<div class="col-xs-9 pad-left-col-xs-3">
-															<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
-															<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
-															<div class="clear"></div>
-															<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
-														</div>
-													</div>
-												</c:if>
-											</div>
-										</c:when>
-										<c:otherwise>
-											<c:set var="campCodi" value="${dada.varCodi}"/>
-											<c:set var="campNom" value="${dada.varCodi}"/>
-											<%@ include file="campsTasca.jsp" %>
-										</c:otherwise>
-									</c:choose>
-								</c:when>
-								<c:otherwise>
-									<%@ include file="campsTascaRegistre.jsp" %>
-								</c:otherwise>
-							</c:choose>
-							<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
-						</c:forEach>
-						<div id="guardarValidarTarea">
-							<%@ include file="campsTascaBotons.jsp" %>
-						</div>
-					</form:form>
+												</div>
+											</c:if>
+										</div>
+									</c:when>
+									<c:otherwise>
+										<c:set var="campCodi" value="${dada.varCodi}"/>
+										<c:set var="campNom" value="${dada.varCodi}"/>
+										<%@ include file="campsTasca.jsp" %>
+									</c:otherwise>
+								</c:choose>
+							</c:when>
+							<c:otherwise>
+								<%@ include file="campsTascaRegistre.jsp" %>
+							</c:otherwise>
+						</c:choose>
+						<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
+					</c:forEach>
+					<div id="guardarValidarTarea">
+						<%@ include file="campsTascaBotons.jsp" %>
+					</div>
+				</form:form>
 			</div>
 		</c:if>
 		<c:if test="${hasDocuments == true}">

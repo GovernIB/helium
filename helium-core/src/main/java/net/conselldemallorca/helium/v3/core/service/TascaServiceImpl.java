@@ -653,19 +653,24 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<SeleccioOpcioDto> findllistaValorsPerCampDesplegable(
+	public List<SeleccioOpcioDto> findValorsPerCampDesplegable(
 			String id,
+			String processInstanceId,
 			Long campId,
+			String codiFiltre,
 			String textFiltre,
 			Map<String, Object> valorsFormulari) {
 		logger.debug("Consultant llista de valors per camp selecció (" +
 				"id=" + id + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
 				"campId=" + campId + ", " +
+				"codiFiltre=" + codiFiltre + ", " +
 				"textFiltre=" + textFiltre + ", " +
 				"valorsFormulari=...)");
 		Camp camp = campRepository.findOne(campId);
-		JbpmTask task = null;
-		if (id != null) {
+		String pidCalculat = processInstanceId;
+		if (processInstanceId == null && id != null) {
+			JbpmTask task = null;
 			task = tascaHelper.getTascaComprovacionsTramitacio(
 					id,
 					true,
@@ -684,36 +689,45 @@ public class TascaServiceImpl implements TascaService {
 						camp.getId(),
 						Camp.class);
 			}
+			pidCalculat = task.getProcessInstanceId();
 		}
 		// Consulta els valors possibles
 		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
 		if (camp.getDominiId() != null) {
-			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getTextVariablesSimpleFontExterna(
+			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
 						null,
 						valorsFormulari,
 						id,
-						task==null ? null : task.getProcessInstanceId());
+						pidCalculat);
 			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
-				if (textFiltre == null || parella.getValor().toString().toUpperCase().contains(textFiltre.toUpperCase())) {
+				boolean afegir = 
+						(codiFiltre == null && textFiltre == null) ||
+						(codiFiltre != null && parella.getCodi().equals(codiFiltre)) ||
+						(textFiltre != null && parella.getValor().toString().toUpperCase().contains(textFiltre.toUpperCase()));
+				if (afegir) {
 					resposta.add(
 							new SeleccioOpcioDto(
 									parella.getCodi(),
-									(String) parella.getValor()));
+									(String)parella.getValor()));
 				}
 			}
 		} else if (camp.getEnumeracio() != null) {
 			List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(
 					camp.getEnumeracio().getId());
 			for (EnumeracioValors valor: valors) {
-				if (textFiltre == null || valor.getNom().toUpperCase().contains(textFiltre.toUpperCase())) {
+				boolean afegir = 
+						(codiFiltre == null && textFiltre == null) ||
+						(codiFiltre != null && valor.getCodi().equals(codiFiltre)) ||
+						(textFiltre != null && valor.getNom().toString().toUpperCase().contains(textFiltre.toUpperCase()));
+				if (afegir) {
 					resposta.add(
 							new SeleccioOpcioDto(
 									valor.getCodi(),
 									valor.getNom()));
 				}
 			}
-		} 
+		}
 		return resposta;
 	}
 

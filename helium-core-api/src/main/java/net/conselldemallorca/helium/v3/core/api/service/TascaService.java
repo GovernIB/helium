@@ -165,8 +165,14 @@ public interface TascaService {
 	 * 
 	 * @param id
 	 *            Atribut id de la tasca.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId de la tasca.
 	 * @param campId
 	 *            Atribut id del camp.
+	 * @param codiFiltre
+	 *            Codi per filtrar resultats.
+	 * @param textFiltre
+	 *            Text per filtrar resultats.
 	 * @param valorsFormulari
 	 *            Els valors dels camps del formulari.
 	 * @return la llista de valors
@@ -175,9 +181,11 @@ public interface TascaService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<SeleccioOpcioDto> findllistaValorsPerCampDesplegable(
+	public List<SeleccioOpcioDto> findValorsPerCampDesplegable(
 			String id,
+			String processInstanceId,
 			Long campId,
+			String codiFiltre,
 			String textFiltre,
 			Map<String, Object> valorsFormulari);
 

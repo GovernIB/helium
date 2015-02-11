@@ -488,7 +488,7 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		Camp camp = campRepository.findById(campDto.getId());
 		try {			
-			return variableHelper.getTextVariablesSimpleFontExterna(camp, textInicial, mapDelsValors, taskInstanceId, processInstanceId);
+			return variableHelper.getPossiblesValorsCamp(camp, textInicial, mapDelsValors, taskInstanceId, processInstanceId);
 		} catch (Exception e) {
 			return null;
 		}

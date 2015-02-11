@@ -884,14 +884,16 @@ public class TascaTramitacioController extends BaseController {
 			@PathVariable String tascaId,
 			@PathVariable Long campId,
 			Model model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
+				null,
 				campId,
+				null,
 				null,
 				new HashMap<String, Object>());
 	}
 	
-	@RequestMapping(value = {"/tasca//camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/tasca/camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
@@ -912,10 +914,12 @@ public class TascaTramitacioController extends BaseController {
 			@PathVariable Long campId,
 			@PathVariable String valor,
 			Model model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
+				null,
 				campId,
 				valor,
+				null,
 				new HashMap<String, Object>());
 	}
 	
@@ -927,9 +931,11 @@ public class TascaTramitacioController extends BaseController {
 			@PathVariable Long campId,
 			@PathVariable String valor,
 			Model model) {
-		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findllistaValorsPerCampDesplegable(
+		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findValorsPerCampDesplegable(
 				tascaId,
+				null,
 				campId,
+				null,
 				null,
 				getMapDelsValors(valor));
 		for (SeleccioOpcioDto sel : valorsSeleccio) {
@@ -940,7 +946,7 @@ public class TascaTramitacioController extends BaseController {
 		return new SeleccioOpcioDto();
 	}
 	
-	@RequestMapping(value = {"/tasca//camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/tasca/camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto valorsSeleccioInicial(
 			HttpServletRequest request,
@@ -955,15 +961,14 @@ public class TascaTramitacioController extends BaseController {
 				model);
 	}
 
-
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (int i=0; i <= 12 ; i++)		
 			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
 		return resposta;
-	}	
-	
+	}
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentAdjuntar", method = RequestMethod.POST)
 	@ResponseBody
 	public String documentAdjuntar(
@@ -998,7 +1003,7 @@ public class TascaTramitacioController extends BaseController {
 		}
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar", method = RequestMethod.GET)
 	@ResponseBody
 	public String documentGenerarGet(
@@ -1035,7 +1040,7 @@ public class TascaTramitacioController extends BaseController {
 		}
 		return generatId;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentEsborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentEsborrar(
@@ -1058,6 +1063,8 @@ public class TascaTramitacioController extends BaseController {
 		}
 		return response;
 	}
+
+
 
 	private Long accioDocumentAdjuntar(
 			HttpServletRequest request,

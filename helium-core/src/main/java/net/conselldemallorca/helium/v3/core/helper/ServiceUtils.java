@@ -412,7 +412,7 @@ public class ServiceUtils {
 		if (!(valor instanceof String) || ((String)valor).length() > 0) {
 			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
 				if (valor != null) {
-					String valorDomini = variableHelper.getTextVariableSimple(
+					String valorDomini = variableHelper.getTextPerCamp(
 							camp,
 							valor,
 							null,

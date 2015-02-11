@@ -110,14 +110,18 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<SeleccioOpcioDto> findllistaValorsPerCampDesplegable(
+	public List<SeleccioOpcioDto> findValorsPerCampDesplegable(
 			String id,
+			String processInstanceId,
 			Long campId,
+			String codiFiltre,
 			String textFiltre,
 			Map<String, Object> valorsFormulari) {
-		return delegate.findllistaValorsPerCampDesplegable(
+		return delegate.findValorsPerCampDesplegable(
 				id,
+				processInstanceId,
 				campId,
+				codiFiltre,
 				textFiltre,
 				valorsFormulari);
 	}

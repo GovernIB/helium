@@ -2837,7 +2837,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Buidant logs de l'expedient amb processInstance(id=" + processInstanceId + ")");
 		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
 	}
-	
+
 	@Override
 	@Transactional
 	public void createVariable(Long expedientId, String processInstanceId, String varName, Object value) {
@@ -2906,7 +2906,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (varValue != null) {
 				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
 						camp.getTipus().equals(TipusCamp.SUGGEST)) {
-					String text = variableHelper.getTextVariableSimple(
+					String text = variableHelper.getTextPerCamp(
 							camp, 
 							varValue, 
 							null, 

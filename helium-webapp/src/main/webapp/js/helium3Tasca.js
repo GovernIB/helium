@@ -87,7 +87,7 @@ $(function(){
 		    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
 		                dataType: "json"
 		            }).done(function(data) {
-		            	callback({id: data.codi, text: data.nom});
+		            	callback({id: data[0].codi, text: data[0].nom});
 		            });
 		    	}
 		    },
@@ -213,7 +213,7 @@ $(function(){
 			    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
 			                dataType: "json"
 			            }).done(function(data) {
-			            	callback({id: data.codi, text: data.nom});
+			            	callback({id: data[0].codi, text: data[0].nom});
 			            });
 			    	}
 			    },
@@ -547,7 +547,7 @@ function addField(idTable) {
 		    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
 		                dataType: "json"
 		            }).done(function(data) {
-		            	callback({id: data.codi, text: data.nom});
+		            	callback({id: data[0].codi, text: data[0].nom});
 		            });
 		    	}
 		    },

@@ -334,7 +334,7 @@ public class DtoConverter {
 				}
 				DadaIndexadaDto dadaIndexada = dadesExpedient.get(dadaIndexadaClau);
 				if (camp.getEnumeracio() != null && camp.getDefinicioProces() != null) {
-					String text = variableHelper.getTextVariableSimple(
+					String text = variableHelper.getTextPerCamp(
 							camp,
 							dadaIndexada.getValorIndex(),
 							null,

@@ -145,8 +145,16 @@
 			
 <%-- SELECCIO ------------------------------------------------------------------------------------%>					
 			<c:if test="${dada.campTipus == 'SELECCIO'}">
-				<c:set var="urlSelectInicial"><c:url value='/v3/expedient/tasca'/>/${tasca.id}/camp/${dada.campId}/valorSeleccioInicial</c:set>
-				<c:set var="urlSelectLlistat"><c:url value='/v3/expedient/tasca'/>/${tasca.id}/camp/${dada.campId}/valorsSeleccio</c:set>
+				<c:choose>
+					<c:when test="${not tasca.inicial}">
+						<c:set var="urlSelectInicial"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valor"/></c:set>
+						<c:set var="urlSelectLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="urlSelectInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
+						<c:set var="urlSelectLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+					</c:otherwise>
+				</c:choose>
 				<c:set var="placeholder"><spring:message code='js.helforms.selec_valor'/></c:set>
 				<c:choose>
 					<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${campCodi}" name="${campNom}" class="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" value="${command[campNom][campIndex]}" data-urlselectinicial="${urlSelectInicial}" data-urlselectllistat="${urlSelectLlistat}"/></c:when>

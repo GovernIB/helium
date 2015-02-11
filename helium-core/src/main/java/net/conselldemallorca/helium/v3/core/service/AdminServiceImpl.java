@@ -88,17 +88,17 @@ public class AdminServiceImpl implements AdminService {
 		logger.debug("Consultant el llistat de les mesures temporals");
 		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
 	}
-	
+
 	@Override
 	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient() {
 		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
 	}
-	
+
 	@Override
 	public List<MesuraTemporalDto> findMesuresTemporalsTasca() {
 		return mesuresTemporalsHelper.getEstadistiquesTasca();
 	}
-	
+
 	@Override
 	public Set<String> findFamiliesMesuresTemporals() {
 		return mesuresTemporalsHelper.getIntervalsFamilia();
@@ -108,42 +108,42 @@ public class AdminServiceImpl implements AdminService {
 	public MesuresTemporalsHelper getMesuresTemporalsHelper() {
 		return mesuresTemporalsHelper;
 	}
-	
+
 	@Override
 	public void mesuraIniciar(String clau, String familia) {
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia);
 	}
-	
+
 	@Override
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient) {
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient);
 	}
-	
+
 	@Override
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
 	}
-	
+
 	@Override
 	public void mesuraCalcular(String clau, String familia) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia);
 	}
-	
+
 	@Override
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient);
 	}
-	
+
 	@Override
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
 	}
-	
+
 	@Override
 	public boolean isStatisticActive() {
 		return sessionFactory.getStatistics().isStatisticsEnabled();
 	}
-	
+
 	@Override
 	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar) {
 		Map<String,MesuraTemporalDto> resposta = new HashMap<String, MesuraTemporalDto>();
@@ -236,12 +236,12 @@ public class AdminServiceImpl implements AdminService {
 		}
 		return ret;
 	}
-	
+
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletar() {
 		return mesuresTemporalsHelper.getTasquesCompletar();
 	}
-	
+
 	@Transactional
 	@Override
 	public void updatePerfil(UsuariPreferenciesDto preferencies) {
@@ -268,6 +268,7 @@ public class AdminServiceImpl implements AdminService {
 		persona.setSexe(personaDto.getSexe().equals(Sexe.SEXE_HOME) ? Persona.Sexe.SEXE_HOME : Persona.Sexe.SEXE_DONA);
 		personaRepository.save(persona);
 	}
-	
-	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);	
+
+	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+
 }

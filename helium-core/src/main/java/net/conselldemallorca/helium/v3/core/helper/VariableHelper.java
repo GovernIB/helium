@@ -411,7 +411,7 @@ public class VariableHelper {
 					} else {
 						try {
 							dto.setText(
-									getTextVariableSimple(
+									getTextPerCamp(
 											camp,
 											varValor,
 											null,
@@ -468,8 +468,8 @@ public class VariableHelper {
 		}
 		return dto;
 	}
-	
-	public String getTextVariableSimple(
+
+	public String getTextPerCamp(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
@@ -480,7 +480,7 @@ public class VariableHelper {
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
 			try {					
-				valorFontExterna = (String) getTextVariableSimpleFontExterna(
+				valorFontExterna = (String)getTextPerCampAmbValor(
 						camp,
 						valor,
 						null,
@@ -495,8 +495,8 @@ public class VariableHelper {
 				valor,
 				valorFontExterna);
 	}
-	
-	public ParellaCodiValorDto getTextVariableSimpleFontExterna(
+
+	public ParellaCodiValorDto getTextPerCampAmbValor(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
@@ -509,27 +509,24 @@ public class VariableHelper {
 					((DominiCodiDescripcio)valor).getCodi(),
 					((DominiCodiDescripcio)valor).getDescripcio());
 		}
-		
-		List<ParellaCodiValorDto> lista = getTextVariablesSimpleFontExterna(
+		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
 				camp,
 				valor,
 				valorsAddicionals,
 				taskInstanceId,
 				processInstanceId);
-		
 		if (!lista.isEmpty()) {
 			return lista.get(0);
 		}
 		return null;
 	}
-	
-	public List<ParellaCodiValorDto> getTextVariablesSimpleFontExterna(
+
+	public List<ParellaCodiValorDto> getPossiblesValorsCamp(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
 			String processInstanceId) {
-
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
@@ -540,7 +537,6 @@ public class VariableHelper {
 				} else {
 					domini = camp.getDomini();
 				}
-				
 				List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
 						domini,
 						camp.getDominiId(),
@@ -623,6 +619,7 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
+
 	public Domini getDominiIntern(Entorn entorn) {
 		Domini domini = new Domini();
 		domini.setId((long) 0);
@@ -800,7 +797,7 @@ public class VariableHelper {
 		
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
 			try {
-				tascaDto.setVarValor(getTextVariablesSimpleFontExterna(camp, null, null, null, null));
+				tascaDto.setVarValor(getPossiblesValorsCamp(camp, null, null, null, null));
 			} catch (Exception e) {
 				tascaDto.setVarValor(null);
 			}

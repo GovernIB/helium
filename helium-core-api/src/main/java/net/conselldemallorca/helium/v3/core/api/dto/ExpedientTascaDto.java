@@ -38,11 +38,9 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		FORM,
 		SIGNATURA
 	}
-	
-	public int getPrioritatOrdinal() {
-		return prioritat.ordinal();
-	}
-	
+
+	private static final String PREFIX_TASCA_INICIAL = "TIE_";
+
 	private String id;
 	private String nom;
 	private String missatgeInfo;
@@ -103,13 +101,15 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean transicioPerDefecte;
 	private boolean tramitacioMassiva;
 	private List<String> transicions;
-	
+
 	private Long expedientId;
 	private String expedientIdentificador;
 	private String expedientTipusNom;
 
 	private String processInstanceId;
-	
+
+
+
 	public String getTitol() {
 		return titol;
 	}
@@ -480,6 +480,14 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	}
 	public void setAssignadaPersona(boolean assignadaPersona) {
 		this.assignadaPersona = assignadaPersona;
+	}
+
+	public boolean isInicial() {
+		return id.startsWith(PREFIX_TASCA_INICIAL);
+	}
+
+	public int getPrioritatOrdinal() {
+		return prioritat.ordinal();
 	}
 
 }

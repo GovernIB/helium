@@ -1550,7 +1550,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId,
 				varCodi);
 		resposta.setText(
-				variableHelper.getTextVariableSimple(
+				variableHelper.getTextPerCamp(
 						camp, 
 						valor, 
 						null, 

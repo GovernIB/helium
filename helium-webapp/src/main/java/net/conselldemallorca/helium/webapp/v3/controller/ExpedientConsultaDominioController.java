@@ -23,7 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * Controlador per fer consultes als dominis de dins d'un expedient
+ * Controlador per fer consultes als dominis de dins d'un expedient.
+ * 
+ * Emprat pels camps de tipus suggest dels formularis de les tasques
+ * i dels filtres de consultes per tipus.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -45,9 +48,11 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@RequestParam(value = "q", required = false) String textInicial,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
 				taskId,
+				null,
 				campId,
+				null,
 				textInicial,
 				getMapDelsValors(valors));
 	}
@@ -64,7 +69,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 		}
 		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/consulta/inicial/{taskId}/{campId}/{codi}", method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto consultaCampInicial(
@@ -72,9 +77,11 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@PathVariable(value = "campId") Long campId,
 			@PathVariable(value = "codi") String codi,
 			ModelMap model) {
-		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+		List<SeleccioOpcioDto> opcions = tascaService.findValorsPerCampDesplegable(
 				taskId,
+				null,
 				campId,
+				null,
 				null,
 				null);
 		for (SeleccioOpcioDto sel : opcions) {
@@ -84,7 +91,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 		}
 		return new SeleccioOpcioDto();
 	}
-	
+
 	@RequestMapping(value = "/consulta/{taskId}/{campId}/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaCampValor(
@@ -92,22 +99,26 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@PathVariable (value = "campId") Long campId,
 			@PathVariable (value = "valor") String textInicial,
 			ModelMap model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
 				taskId,
+				null,
 				campId,
+				null,
 				textInicial,
 				null);
 	}
-	
+
 	@RequestMapping(value = "/consulta/inicial/{campId}/{codi}", method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto consultaCampInicial(
 			@PathVariable (value = "campId") Long campId,
 			@PathVariable (value = "codi") String codi,
 			ModelMap model) {
-		List<SeleccioOpcioDto> opcions = tascaService.findllistaValorsPerCampDesplegable(
+		List<SeleccioOpcioDto> opcions = tascaService.findValorsPerCampDesplegable(
+				null,
 				null,
 				campId,
+				codi,
 				null,
 				null);
 		for (SeleccioOpcioDto sel : opcions) {
@@ -117,17 +128,20 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 		}
 		return new SeleccioOpcioDto();
 	}
-	
+
 	@RequestMapping(value = "/consulta/{campId}/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaCampValor(
 			@PathVariable (value = "campId") Long campId,
-			@PathVariable (value = "valor") String textInicial,
+			@PathVariable (value = "valor") String valor,
 			ModelMap model) {
-		return tascaService.findllistaValorsPerCampDesplegable(
+		return tascaService.findValorsPerCampDesplegable(
+				null,
 				null,
 				campId,
-				textInicial,
+				null,
+				valor,
 				null);
 	}
+
 }
