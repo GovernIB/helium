@@ -58,8 +58,10 @@ public class TascaServiceBean implements TascaService {
 			Long entornId,
 			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
-			String responsable,
+			String usuari,
+			String titulo,
 			String tasca,
+			String responsable,
 			String expedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -69,21 +71,7 @@ public class TascaServiceBean implements TascaService {
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findPerFiltrePaginat(
-				entornId,
-				consultaTramitacioMassivaTascaId,
-				expedientTipusId,
-				responsable,
-				tasca,
-				expedient,
-				dataCreacioInici,
-				dataCreacioFi,
-				dataLimitInici,
-				dataLimitFi,
-				prioritat,
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup,
-				paginacioParams);
+		return delegate.findPerFiltrePaginat(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup, paginacioParams);
 	}
 
 	@Override
@@ -247,8 +235,22 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsPerFiltre(Long entornId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
-		return delegate.findIdsPerFiltre(entornId, expedientTipusId, responsable, tasca, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup);
+	public List<Long> findIdsPerFiltre(
+			Long entornId,
+			Long expedientTipusId,
+			String usuari,
+			String titulo,
+			String tasca,
+			String responsable,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			Integer prioritat,
+			boolean mostrarTasquesPersonals,
+			boolean mostrarTasquesGrup) {
+		return delegate.findIdsPerFiltre(entornId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup);
 	}
 
 	@Override
@@ -301,7 +303,7 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ParellaCodiValorDto> getTasquesExecucionsMassivesAmbDefinicioProcesId(Long definicioProcesId) {
-		return delegate.getTasquesExecucionsMassivesAmbDefinicioProcesId(definicioProcesId);
+	public List<ParellaCodiValorDto> getTasquesAmbDefinicioProcesId(Long definicioProcesId) {
+		return delegate.getTasquesAmbDefinicioProcesId(definicioProcesId);
 	}
 }

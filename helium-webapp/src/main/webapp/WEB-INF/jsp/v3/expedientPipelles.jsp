@@ -17,87 +17,112 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-<style>
-#expedient-info h3 {
-	font-weight: bold;
-	margin-top: 0;
-	border-bottom: 1px solid #e3e3e3;
-	padding-bottom: .2em;
-}
-#expedient-info h4 {
-	font-weight: bold;
-	margin-top: 0;
-	border-bottom: 1px solid #e3e3e3;
-	padding-bottom: .2em;
-	margin-bottom: 0.4em;
-}
-#expedient-info dt {
-	color: #999;
-	font-size: small;
-	font-style: italic;
-	font-weight: normal;
-}
-#expedient-info dd {
-	font-size: medium;
-	font-weight: bold;
-	margin-bottom: 0.4em;
-}
-#expedient-info-participants, #expedient-info-relacionats {
-	padding-bottom: .2em !important;
-	margin-bottom: .6em !important;
-}
-#expedient-info ul.interessats {
-	padding-left: 1em !important;
-}
-#expedient-info-accio {
-	margin-top: 1em;
-}
-#expedient-pipelles .tab-pane {
-	margin-top: .6em;
-}
-.contingut-carregant {
-	margin-top: 4em;
-	text-align: center;
-}
-.edita {
-	color: #428bca
-}
-.edita:hover {
-	color: #3071a9
-}
-.formRelacioDelete {float: right;}
-</style>
-<script>
-	$(document).ready(function() {
-		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-			e.target // activated tab
-			e.relatedTarget // previous tab
-			var targetHref = $(e.target).attr('href');
-			var loaded = $(targetHref).data('loaded')
-			var pdades = e.target.href.indexOf("#contingut-dades") != -1;
-			if (!loaded) {
-				if (pdades) {
-					var ambOcults = "";
-					if ($("#ambOcults").length)
-						ambOcults = $("#ambOcults").prop('checked');
-					$(targetHref).load(
+	<style>
+		#expedient-info h3 {
+			font-weight: bold;
+			margin-top: 0;
+			border-bottom: 1px solid #e3e3e3;
+			padding-bottom: .2em;
+		}
+		#expedient-info h4 {
+			font-weight: bold;
+			margin-top: 0;
+			border-bottom: 1px solid #e3e3e3;
+			padding-bottom: .2em;
+			margin-bottom: 0.4em;
+		}
+		#expedient-info dt {
+			color: #999;
+			font-size: small;
+			font-style: italic;
+			font-weight: normal;
+		}
+		#expedient-info dd {
+			font-size: medium;
+			font-weight: bold;
+			margin-bottom: 0.4em;
+		}
+		#expedient-info-participants, #expedient-info-relacionats {
+			padding-bottom: .2em !important;
+			margin-bottom: .6em !important;
+		}
+		#expedient-info ul.interessats {
+			padding-left: 1em !important;
+		}
+		#expedient-info-accio {
+			margin-top: 1em;
+		}
+		#expedient-pipelles .tab-pane {
+			margin-top: .6em;
+		}
+		.contingut-carregant {
+			margin-top: 4em;
+			text-align: center;
+		}
+		.edita {
+			color: #428bca
+		}
+		.edita:hover {
+			color: #3071a9
+		}
+		.formRelacioDelete {float: right;}
+	</style>
+	<script>
+		$(document).ready(function() {		
+			$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+				e.target // activated tab
+				e.relatedTarget // previous tab
+				var targetHref = $(e.target).attr('href');
+				var loaded = $(targetHref).data('loaded')
+				var pdades = e.target.href.indexOf("#contingut-dades") != -1;
+				if (!loaded) {
+					if (pdades) {
+						var ambOcults = "";
+						if ($("#ambOcults").length)
+							ambOcults = $("#ambOcults").prop('checked');
+						$(targetHref).load(
+								$(targetHref).data('href'),
+								{"ambOcults": ambOcults},
+								function (responseText, textStatus, jqXHR) {
+									if (textStatus == 'error') {
+										alertaError(jqXHR);
+										if (jqXHR.status === 0) {
+							                alert('Not connected.\n Verify network.');
+							            } else if (jqXHR.status == 404) {
+							                alert('Requested page not found [404].');
+							            } else if (jqXHR.status == 500) {
+							                alert('Internal server error [500].');
+	// 						            } else if (exception === 'parsererror') {
+	// 						                alert('Requested JSON parse failed.');
+	// 						            } else if (exception === 'timeout') {
+	// 						                alert('Timeout error.');
+	// 						            } else if (exception === 'abort') {
+	// 						                alert('Ajax request aborted.');
+							            } else {
+							                alert('Unknown error:\n' + jqXHR.responseText);
+							            }
+									} else {
+										$(this).data('loaded', 'true');
+									}
+								}
+							);
+					} else {
+						$(targetHref).load(
 							$(targetHref).data('href'),
-							{"ambOcults": ambOcults},
 							function (responseText, textStatus, jqXHR) {
 								if (textStatus == 'error') {
-									alertaError(jqXHR);
 									if (jqXHR.status === 0) {
 						                alert('Not connected.\n Verify network.');
 						            } else if (jqXHR.status == 404) {
 						                alert('Requested page not found [404].');
 						            } else if (jqXHR.status == 500) {
 						                alert('Internal server error [500].');
-// 						            } else if (exception === 'parsererror') {
-// 						                alert('Requested JSON parse failed.');
-// 						            } else if (exception === 'timeout') {
-// 						                alert('Timeout error.');
-// 						            } else if (exception === 'abort') {
-// 						                alert('Ajax request aborted.');
+						            } else if (exception === 'parsererror') {
+						                alert('Requested JSON parse failed.');
+						            } else if (exception === 'timeout') {
+						                alert('Timeout error.');
+						            } else if (exception === 'abort') {
+						                alert('Ajax request aborted.');
 						            } else {
 						                alert('Unknown error:\n' + jqXHR.responseText);
 						            }
@@ -106,104 +131,79 @@
 								}
 							}
 						);
-				} else {
-					$(targetHref).load(
-						$(targetHref).data('href'),
-						function (responseText, textStatus, jqXHR) {
-							if (textStatus == 'error') {
-								if (jqXHR.status === 0) {
-					                alert('Not connected.\n Verify network.');
-					            } else if (jqXHR.status == 404) {
-					                alert('Requested page not found [404].');
-					            } else if (jqXHR.status == 500) {
-					                alert('Internal server error [500].');
-					            } else if (exception === 'parsererror') {
-					                alert('Requested JSON parse failed.');
-					            } else if (exception === 'timeout') {
-					                alert('Timeout error.');
-					            } else if (exception === 'abort') {
-					                alert('Ajax request aborted.');
-					            } else {
-					                alert('Unknown error:\n' + jqXHR.responseText);
-					            }
-							} else {
-								$(this).data('loaded', 'true');
-							}
-						}
-					);
-				}
-			}
-		})
-		<c:choose>
-			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
-			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
-		</c:choose>
-
-		$('#definicioProcesVersio').on('change', function () {
-			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
-				$.ajax({
-				    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
-				    type:'GET',
-				    dataType: 'json',
-				    success: function(data) {
-				        $("#canviDefinicioProcesJbpm").toggleClass('hide');
-				        $.ajax({
-							url: '<c:url value="/nodeco/v3/missatges"/>',
-							async: false,
-							timeout: 20000,
-							success: function (data) {
-								$("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
-								$('#contingut-alertes *').remove();
-								$('#contingut-alertes').append(data);
-							}
-					    });
-				    },
-				  	error: function(XMLHttpRequest, textStatus, errorThrown) {
 					}
-				});
-			}
+				}
+			})
+			<c:choose>
+				<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
+				<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
+			</c:choose>
+	
+			$('#definicioProcesVersio').on('change', function () {
+				if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
+					$.ajax({
+					    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
+					    type:'GET',
+					    dataType: 'json',
+					    success: function(data) {
+					        $("#canviDefinicioProcesJbpm").toggleClass('hide');
+					        $.ajax({
+								url: '<c:url value="/nodeco/v3/missatges"/>',
+								async: false,
+								timeout: 20000,
+								success: function (data) {
+									$("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
+									$('#contingut-alertes *').remove();
+									$('#contingut-alertes').append(data);
+								}
+						    });
+					    },
+					  	error: function(XMLHttpRequest, textStatus, errorThrown) {
+						}
+					});
+				}
+			});
+	
 		});
-
-	});
-
-	function alertaError(textStatus, jqXHR) {
-		if (textStatus == 'error') {
-			if (jqXHR.status === 0) {
-                alert('Not connected.\n Verify network.');
-            } else if (jqXHR.status == 404) {
-                alert('Requested page not found [404].');
-            } else if (jqXHR.status == 500) {
-                alert('Internal server error [500].');
-            } else if (exception === 'parsererror') {
-                alert('Requested JSON parse failed.');
-            } else if (exception === 'timeout') {
-                alert('Timeout error.');
-            } else if (exception === 'abort') {
-                alert('Ajax request aborted.');
-            } else {
-                alert('Unknown error:\n' + jqXHR.responseText);
-            }
+	
+		function alertaError(textStatus, jqXHR) {
+			if (textStatus == 'error') {
+				if (jqXHR.status === 0) {
+	                alert('Not connected.\n Verify network.');
+	            } else if (jqXHR.status == 404) {
+	                alert('Requested page not found [404].');
+	            } else if (jqXHR.status == 500) {
+	                alert('Internal server error [500].');
+	            } else if (exception === 'parsererror') {
+	                alert('Requested JSON parse failed.');
+	            } else if (exception === 'timeout') {
+	                alert('Timeout error.');
+	            } else if (exception === 'abort') {
+	                alert('Ajax request aborted.');
+	            } else {
+	                alert('Unknown error:\n' + jqXHR.responseText);
+	            }
+			}
 		}
-	}
-		
-	function confirmarEsborrarRelacio(e, idExpedient) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
-			$('#' + idExpedient + '_formRelacioDelete').submit();
+			
+		function confirmarEsborrarRelacio(e, idExpedient) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
+				$('#' + idExpedient + '_formRelacioDelete').submit();
+			}
 		}
-	}
-	function confirmarBuidarLogExpedient(e) {
-		var e = e || window.event;
-		e.cancelBubble = true;
-		if (e.stopPropagation) e.stopPropagation();
-		return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
-// 		if (confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />")) {
-// 			document.getElementById("buidarlogForm").submit();
-// 		}
-	}
-</script>
+		function confirmarBuidarLogExpedient(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
+	// 		if (confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />")) {
+	// 			document.getElementById("buidarlogForm").submit();
+	// 		}
+		}
+	</script>
 </head>
 <body>
 	<div class="row">
@@ -250,22 +250,6 @@
 						<hel:inputSelect inline="true" name="definicioProcesVersio" optionItems="${definicioProces.listVersioAmbEtiqueta}" optionValueAttribute="versio" optionTextAttribute="etiqueta"/>
 					</div>
 				</dl>
-				<%--div class="buttonList">
-					<button class="btn btn-primary span12" type="button">Modificar informació</button>
-					<button class="btn btn-primary span12" type="button">Descarregar expedient</button>
-					<button class="btn btn-primary span12" type="button">Aturar tramitació de l’expedient</button>
-				</div>
-				<h5>Tasques actives</h5>
-				<dl class="dl-horizontal tasc-description">
-					<dt><i class=" icon-tasks"></i></dt>
-					<dd>
-						<a href="#">Cel·lebració de la sessió de la Junta de Govern</a><br>
-						<small>Data límit: 12/08/2011</small> 
-						<div class="progress progress-danger progress-striped marTop6">
-							<div class="bar" style="width: 80%">Queden 3 dies de termini</div>
-						</div>
-					</dd>
-				</dl--%>
 				<c:if test="${not empty relacionats}">
 					<h4 id="expedient-info-relacionats"><spring:message code="expedient.info.relacionats"/></h4>
 					<ul class="list-unstyled">
@@ -273,13 +257,11 @@
 							<li>
 								<span class="fa fa-folder"></span>&nbsp;
 								<a href="${expedientRelacionat.id}">${expedientRelacionat.identificador}</a>
-<%-- 								<security:accesscontrollist domainObject="${expedientRelacionat.tipus}" hasPermission="16,8"> --%>
-									<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
-										<input type="hidden" id="expedientIdOrigen" name="expedientIdOrigen" value="${expedientId}"/>
-										<input type="hidden" id="expedientIdDesti" name="expedientIdDesti" value="${expedientRelacionat.id}"/>
-										<c:if test="${expedient.permisWrite}"><span class="fa fa-trash-o edita" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span></c:if>
-									</form>
-<%-- 								</security:accesscontrollist> --%>
+								<form method="POST" class="formRelacioDelete" id="${expedientId}_formRelacioDelete" action="${expedientId}/relacioDelete" >
+									<input type="hidden" id="expedientIdOrigen" name="expedientIdOrigen" value="${expedientId}"/>
+									<input type="hidden" id="expedientIdDesti" name="expedientIdDesti" value="${expedientRelacionat.id}"/>
+									<c:if test="${expedient.permisWrite}"><span class="fa fa-trash-o edita" style="cursor: pointer" onclick="return confirmarEsborrarRelacio(event, '${expedientId}')"></span></c:if>
+								</form>
 							</li>
 						</c:forEach>
 					</ul>
@@ -293,25 +275,25 @@
 					</ul>
 				</c:if>
 				<c:if test="${expedient.permisWrite}">
-				<div id="expedient-info-accio" class="dropdown">
-					<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></a>
-					<ul class="dropdown-menu">
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
-						<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
-						<c:if test="${expedient.permisAdministration}">
-							<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
-						</c:if>
-						<c:if test="${not empty accions}">
-							<li class="divider"></li>
-							<c:forEach var="accio" items="${accions}">
-								<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
-							</c:forEach>
-						</c:if>
-					</ul>
-				</div>
+					<div id="expedient-info-accio" class="dropdown">
+						<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedient/${expedientId}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
+							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
+							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
+							<c:if test="${expedient.permisAdministration}">
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
+							</c:if>
+							<c:if test="${not empty accions}">
+								<li class="divider"></li>
+								<c:forEach var="accio" items="${accions}">
+									<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
+								</c:forEach>
+							</c:if>
+						</ul>
+					</div>
 				</c:if>
 			</div>
 		</div>

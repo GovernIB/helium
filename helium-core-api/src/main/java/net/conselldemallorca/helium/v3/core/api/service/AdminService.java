@@ -3,12 +3,14 @@
  */
 package net.conselldemallorca.helium.v3.core.api.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 
@@ -58,4 +60,14 @@ public interface AdminService {
 	public List<TascaCompleteDto> getTasquesCompletar();
 	public void updatePerfil(UsuariPreferenciesDto preferencies);
 	public void updatePersona(PersonaDto persona);
+
+	public abstract List<ReassignacioDto> llistaReassignacions();
+
+	public abstract void createReassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId);
+
+	public abstract void updateReassignacio(Long id, String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi, Date dataCancelacio, Long tipusExpedientId);
+
+	public abstract void deleteReassignacio(Long id);
+
+	public abstract ReassignacioDto findReassignacioById(Long id);
 }

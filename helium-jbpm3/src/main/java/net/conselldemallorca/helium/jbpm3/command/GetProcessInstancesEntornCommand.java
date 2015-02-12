@@ -1,13 +1,11 @@
 package net.conselldemallorca.helium.jbpm3.command;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
-import org.jbpm.command.GetProcessInstancesCommand;
 import org.jbpm.graph.exe.ProcessInstance;
 
 /**
@@ -45,8 +43,8 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
     return retrieveProcessInstanceDetails(query.list());
   }
 
-  public List retrieveProcessInstanceDetails(List processInstanceList) {
-	  Iterator it = processInstanceList.iterator();
+  public List<?> retrieveProcessInstanceDetails(List<?> processInstanceList) {
+	  Iterator<?> it = processInstanceList.iterator();
 	  while (it.hasNext()) {
 		  retrieveProcessInstance((ProcessInstance)it.next());
 	  }

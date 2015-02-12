@@ -4,6 +4,8 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,19 +15,23 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -59,6 +65,10 @@ public class AdminServiceImpl implements AdminService {
 	private PersonaRepository personaRepository;
 	@Resource
 	private SessionFactory sessionFactory;
+	@Resource
+	private ReassignacioRepository reassignacioRepository;
+	@Resource(name="dtoConverterV3")
+	private DtoConverter dtoConverter;
 
 	@Override
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {
@@ -88,17 +98,17 @@ public class AdminServiceImpl implements AdminService {
 		logger.debug("Consultant el llistat de les mesures temporals");
 		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
 	}
-
+	
 	@Override
 	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient() {
 		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
 	}
-
+	
 	@Override
 	public List<MesuraTemporalDto> findMesuresTemporalsTasca() {
 		return mesuresTemporalsHelper.getEstadistiquesTasca();
 	}
-
+	
 	@Override
 	public Set<String> findFamiliesMesuresTemporals() {
 		return mesuresTemporalsHelper.getIntervalsFamilia();
@@ -108,42 +118,42 @@ public class AdminServiceImpl implements AdminService {
 	public MesuresTemporalsHelper getMesuresTemporalsHelper() {
 		return mesuresTemporalsHelper;
 	}
-
+	
 	@Override
 	public void mesuraIniciar(String clau, String familia) {
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia);
 	}
-
+	
 	@Override
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient) {
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient);
 	}
-
+	
 	@Override
 	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
 	}
-
+	
 	@Override
 	public void mesuraCalcular(String clau, String familia) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia);
 	}
-
+	
 	@Override
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient);
 	}
-
+	
 	@Override
 	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
 	}
-
+	
 	@Override
 	public boolean isStatisticActive() {
 		return sessionFactory.getStatistics().isStatisticsEnabled();
 	}
-
+	
 	@Override
 	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar) {
 		Map<String,MesuraTemporalDto> resposta = new HashMap<String, MesuraTemporalDto>();
@@ -236,12 +246,12 @@ public class AdminServiceImpl implements AdminService {
 		}
 		return ret;
 	}
-
+	
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletar() {
 		return mesuresTemporalsHelper.getTasquesCompletar();
 	}
-
+	
 	@Transactional
 	@Override
 	public void updatePerfil(UsuariPreferenciesDto preferencies) {
@@ -268,7 +278,67 @@ public class AdminServiceImpl implements AdminService {
 		persona.setSexe(personaDto.getSexe().equals(Sexe.SEXE_HOME) ? Persona.Sexe.SEXE_HOME : Persona.Sexe.SEXE_DONA);
 		personaRepository.save(persona);
 	}
+	
+	@Transactional(readOnly = true)
+	@Override
+	public List<ReassignacioDto> llistaReassignacions() {
+		return conversioTipusHelper.convertirList(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
+	}
+	
+	@Transactional
+	@Override
+	public void createReassignacio(
+			String usuariOrigen,
+			String usuariDesti,
+			Date dataInici,
+			Date dataFi,
+			Date dataCancelacio,
+			Long tipusExpedientId) {
+		Reassignacio reassignacio = new Reassignacio();
+		reassignacio.setUsuariOrigen(usuariOrigen);
+		reassignacio.setUsuariDesti(usuariDesti);
+		reassignacio.setDataInici(dataInici);
+		reassignacio.setDataFi(dataFi);
+		reassignacio.setDataCancelacio(dataCancelacio);
+		reassignacio.setTipusExpedientId(tipusExpedientId);
+		reassignacioRepository.save(reassignacio);
+	}
 
-	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+	@Transactional
+	@Override
+	public void updateReassignacio(
+			Long id,
+			String usuariOrigen,
+			String usuariDesti,
+			Date dataInici,
+			Date dataFi,
+			Date dataCancelacio,
+			Long tipusExpedientId) {
+		Reassignacio reassignacio = reassignacioRepository.findOne(id);
+		reassignacio.setUsuariOrigen(usuariOrigen);
+		reassignacio.setUsuariDesti(usuariDesti);
+		reassignacio.setDataInici(dataInici);
+		reassignacio.setDataFi(dataFi);
+		reassignacio.setDataCancelacio(dataCancelacio);
+		reassignacio.setTipusExpedientId(tipusExpedientId);
+		reassignacioRepository.save(reassignacio);
+	}
 
+	@Transactional
+	@Override
+	public void deleteReassignacio(Long id) {
+		Reassignacio reassignacio = reassignacioRepository.findOne(id);
+		if (reassignacio != null) {
+			reassignacio.setDataCancelacio(Calendar.getInstance().getTime());
+			reassignacioRepository.save(reassignacio);
+		}
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public ReassignacioDto findReassignacioById(Long id) {
+		return conversioTipusHelper.convertir(reassignacioRepository.findOne(id), ReassignacioDto.class);
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);	
 }

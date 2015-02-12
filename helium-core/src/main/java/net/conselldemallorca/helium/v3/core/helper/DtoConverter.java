@@ -293,9 +293,11 @@ public class DtoConverter {
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
 		dto.setId(processInstanceId);
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);		
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (pi.getProcessInstance() == null)
+			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
-		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));		
+		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
 		return dto;
 	}
 
@@ -416,29 +418,12 @@ public class DtoConverter {
 						null,
 						tascaDadaDto.getVarCodi(),
 						conversioTipusHelper.convertir(tascaDadaDto.getCampTipus(), TipusCamp.class),
-						tascaDadaDto.getVarCodi());
+						tascaDadaDto.getCampEtiqueta()  == null ? tascaDadaDto.getVarCodi() : tascaDadaDto.getCampEtiqueta());
 			}
 			listCamp.add(camp);
 		}
 		return listCamp;
 	}
-
-	/*public void filtrarVariablesTasca(Map<String, Object> variables) {
-		if (variables != null) {
-			variables.remove(TascaService.VAR_TASCA_VALIDADA);
-			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
-			List<String> codisEsborrar = new ArrayList<String>();
-			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT) ||
-						codi.startsWith(DocumentHelper.PREFIX_SIGNATURA) ||
-						codi.startsWith(DocumentHelper.PREFIX_ADJUNT) ||
-						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
-					codisEsborrar.add(codi);
-			}
-			for (String codi: codisEsborrar)
-				variables.remove(codi);
-		}
-	}*/
 	
 	private static final Log logger = LogFactory.getLog(DtoConverter.class);
 }

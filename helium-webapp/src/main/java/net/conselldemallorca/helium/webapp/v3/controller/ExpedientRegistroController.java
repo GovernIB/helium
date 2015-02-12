@@ -63,6 +63,8 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
 				@Override
 				public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
+					if (e1.getKey() == null || e2.getKey() == null)
+						return 0;
 					int res = e1.getKey().getId().compareTo(e2.getKey().getId());
 					if (e1.getKey().getId().equals(e2.getKey().getId())) {
 						return res;

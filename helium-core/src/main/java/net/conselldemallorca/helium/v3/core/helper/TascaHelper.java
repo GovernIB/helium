@@ -187,6 +187,7 @@ public class TascaHelper {
 		final LlistatIds ids = jbpmHelper.findListTasks(
 				(isPermisSupervision) ? null : auth.getName(), 
 				null,
+				null,
 				idsPIExpedients, 
 				null, 
 				null,
@@ -196,6 +197,7 @@ public class TascaHelper {
 				paginacioParams,
 				true,
 				true,
+				false,
 				false);
 		List<JbpmTask> tasks = jbpmHelper.findTasks(ids.getIds());
 		for (JbpmTask task: tasks) {
@@ -254,35 +256,6 @@ public class TascaHelper {
 				task.getDescriptionWithFields());
 	}
 
-	/*public ExpedientTascaDto getTascaPerExpedient(
-			Expedient expedient,
-			String taskId,
-			boolean comprovarExpedient,
-			boolean comprovarUsuari) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		if (task != null) {
-			if (comprovarExpedient) {
-				JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(
-						task.getProcessInstanceId());
-				if (!processInstance.getId().equals(expedient.getProcessInstanceId())) {
-					logger.debug("La tasca no pertany a l'expedient (expedientId=" + expedient.getId() + ", taskId=" + taskId + ")");
-					throw new TaskInstanceNotFoundException();
-				}
-			}
-			if (comprovarUsuari) {
-				if (!auth.getName().equals(task.getAssignee())) {
-					logger.debug("L'usuari no te la tasca assignada (expedientId=" + expedient.getId() + ", taskId=" + taskId + ", usuariAcces=" + auth.getName() + ", usuariTasca=" + task.getAssignee() + ")");
-					throw new TaskInstanceNotFoundException();
-				}
-			}
-			return toExpedientTascaCompleteDto(task, expedient);
-		} else {
-			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", taskId=" + taskId + ", usuariAcces=" + auth.getName() + ")");
-			return null;
-		}
-	}*/
-
 	public Tasca findTascaByJbpmTask(
 			JbpmTask task) {
 		return tascaRepository.findAmbActivityNameIProcessDefinitionId(
@@ -290,32 +263,14 @@ public class TascaHelper {
 				task.getProcessDefinitionId());
 	}
 
-	/*public Tasca findAmbActivityNameIProcessDefinitionId(
-			String name,
-			String processDefinitionId) {
-		return tascaRepository.findAmbActivityNameIProcessDefinitionId(name, processDefinitionId);
-	}
-
-	public ExpedientTascaDto getTascaPerExpedientId(Long expedientId, String tascaId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		JbpmTask task = jbpmHelper.getTaskById(tascaId);
-		Expedient expedient = expedientRepository.findById(expedientId);
-		if (task != null) {
-			return dtoConverter.toExpedientTascaDto(task, expedient);
-		} else {
-			logger.debug("No s'ha trobat la tasca (expedientId=" + expedient.getId() + ", tascaId=" + tascaId + ", usuariAcces=" + auth.getName() + ")");
-			return null;
-		}
-	}*/
-
-	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient) {
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient, boolean mostrarDeOtrosUsuarios) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
 				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-				if (tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+				if (mostrarDeOtrosUsuarios || tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
 					resposta.add(tasca);
 				}
 			}
@@ -323,13 +278,13 @@ public class TascaHelper {
 		return resposta;
 	}
 
-	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(Expedient expedient, String processInstanceId, boolean completed) {
+	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(Expedient expedient, String processInstanceId, boolean completed, boolean mostrarDeOtrosUsuarios) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-			if ( (tasca.isCompleted() == completed) && tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+			if ( (tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaPersonaAmbCodi(auth.getName()))) {
 				resposta.add(tasca);
 			}
 		}

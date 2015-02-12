@@ -93,7 +93,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundExcep
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PermissionService;
 import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
@@ -105,7 +104,6 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
 import net.conselldemallorca.helium.v3.core.helper.PlantillaHelper;
 import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
@@ -114,7 +112,6 @@ import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -196,8 +193,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
-	private PersonaHelper personaHelper;
-	@Resource
 	private VariableHelper variableHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
@@ -223,10 +218,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource(name="serviceUtilsV3")
 	private ServiceUtils serviceUtils;
-	@Resource
-	private ConsultaCampRepository consultaCampRepository;
-	@Resource(name="permissionServiceV3")
-	private PermissionService permissionService;
 	@Resource
 	private PluginCustodiaDao pluginCustodiaDao;
 	@Resource(name = "pluginServiceV3")
@@ -292,6 +283,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
+		
+		// Obté la llista de tipus d'expedient permesos
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.CREATE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
 		
 		textBloqueigIniciExpedient = auth.getName() + " (" +
 				"entornCodi=" + entornId + ", " +
@@ -886,6 +892,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
+			boolean mostrarTasquesPersonals, 
+			boolean mostrarTasquesUsuari, 
 			PaginacioParamsDto paginacioParams) throws Exception {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
@@ -906,7 +914,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoReferencia=" + geoReferencia + ", " +
 				"nomesAmbTasquesActives=" + nomesAmbTasquesActives + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
-				"mostrarAnulats=" + mostrarAnulats + ")");
+				"mostrarAnulats=" + mostrarAnulats + 
+				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
+				"mostrarTasquesUsuari=" + mostrarTasquesUsuari + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -962,15 +972,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Per evitar la limitació d'Oracle que impedeix més de 1000
 		// elements com a paràmetres de l'operador IN cream varis
 		// conjunts d'ids.
-		Set<String> rootProcessInstanceIdsAmbTasquesActives1 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives2 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives3 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives4 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques1 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques2 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques3 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques4 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques5 = null;
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
 		Page<ExpedientHelium> paginaResultats = null;
-		if (nomesAmbTasquesActives) {
+		boolean filtreTasques = nomesAmbTasquesActives || mostrarTasquesPersonals || mostrarTasquesUsuari;
+		if (filtreTasques) {
 			// Fa la consulta
 			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
 					entorn,
@@ -997,34 +1008,37 @@ public class ExpedientServiceImpl implements ExpedientService {
 					geoReferencia,
 					mostrarAnulats,
 					nomesAlertes);
-			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
+			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 					auth.getName(),
-					idsInstanciesProces);
+					idsInstanciesProces,
+					nomesAmbTasquesActives,
+					mostrarTasquesPersonals,
+					mostrarTasquesUsuari);
 			Set<String> idsDiferents = new HashSet<String>();
 			for (String id: ids) 
 				idsDiferents.add(id);
 			int index = 0;
 			for (String id: idsDiferents) {
 				if (index == 0)
-					rootProcessInstanceIdsAmbTasquesActives1 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques1 = new HashSet<String>();
 				if (index == 1000)
-					rootProcessInstanceIdsAmbTasquesActives2 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques2 = new HashSet<String>();
 				if (index == 2000)
-					rootProcessInstanceIdsAmbTasquesActives3 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques3 = new HashSet<String>();
 				if (index == 3000)
-					rootProcessInstanceIdsAmbTasquesActives4 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques4 = new HashSet<String>();
 				if (index == 4000)
-					rootProcessInstanceIdsAmbTasquesActives5 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques5 = new HashSet<String>();
 				if (index < 1000)
-					rootProcessInstanceIdsAmbTasquesActives1.add(id);
+					rootProcessInstanceIdsAmbTasques1.add(id);
 				else if (index < 2000)
-					rootProcessInstanceIdsAmbTasquesActives2.add(id);
+					rootProcessInstanceIdsAmbTasques2.add(id);
 				else if (index < 3000)
-					rootProcessInstanceIdsAmbTasquesActives3.add(id);
+					rootProcessInstanceIdsAmbTasques3.add(id);
 				else if (index < 4000)
-					rootProcessInstanceIdsAmbTasquesActives4.add(id);
+					rootProcessInstanceIdsAmbTasques4.add(id);
 				else
-					rootProcessInstanceIdsAmbTasquesActives5.add(id);
+					rootProcessInstanceIdsAmbTasques5.add(id);
 				index++;
 			}
 		}
@@ -1052,12 +1066,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				geoPosY,
 				(geoReferencia == null),
 				geoReferencia,
-				nomesAmbTasquesActives,
-				rootProcessInstanceIdsAmbTasquesActives1,
-				rootProcessInstanceIdsAmbTasquesActives2,
-				rootProcessInstanceIdsAmbTasquesActives3,
-				rootProcessInstanceIdsAmbTasquesActives4,
-				rootProcessInstanceIdsAmbTasquesActives5,
+				filtreTasques,
+				rootProcessInstanceIdsAmbTasques1,
+				rootProcessInstanceIdsAmbTasques2,
+				rootProcessInstanceIdsAmbTasques3,
+				rootProcessInstanceIdsAmbTasques4,
+				rootProcessInstanceIdsAmbTasques5,
 				mostrarAnulats,
 				nomesAlertes,
 				paginacioHelper.toSpringDataPageable(paginacioParams));			
@@ -1090,7 +1104,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String geoReferencia,
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
-			boolean mostrarAnulats) {
+			boolean mostrarAnulats,
+			boolean mostrarTasquesPersonals, 
+			boolean mostrarTasquesUsuari) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -1110,7 +1126,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoReferencia=" + geoReferencia + ", " +
 				"nomesAmbTasquesActives=" + nomesAmbTasquesActives + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
-				"mostrarAnulats=" + mostrarAnulats + ")");
+				"mostrarAnulats=" + mostrarAnulats + ", " +
+				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
+				"mostrarTasquesUsuari=" + mostrarTasquesUsuari + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -1166,14 +1184,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Per evitar la limitació d'Oracle que impedeix més de 1000
 		// elements com a paràmetres de l'operador IN cream varis
 		// conjunts d'ids.
-		Set<String> rootProcessInstanceIdsAmbTasquesActives1 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives2 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives3 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives4 = null;
-		Set<String> rootProcessInstanceIdsAmbTasquesActives5 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques1 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques2 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques3 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques4 = null;
+		Set<String> rootProcessInstanceIdsAmbTasques5 = null;
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
-		if (nomesAmbTasquesActives) {
+		boolean filtreTasques = nomesAmbTasquesActives || mostrarTasquesPersonals || mostrarTasquesUsuari;
+		if (filtreTasques) {
 			// Fa la consulta
 			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
 					entorn,
@@ -1199,35 +1218,38 @@ public class ExpedientServiceImpl implements ExpedientService {
 					(geoReferencia == null),
 					geoReferencia,
 					mostrarAnulats,
-					nomesAlertes);	
-			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
+					nomesAlertes);
+			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 					auth.getName(),
-					idsInstanciesProces);
+					idsInstanciesProces,
+					nomesAmbTasquesActives,
+					mostrarTasquesPersonals,
+					mostrarTasquesUsuari);
 			Set<String> idsDiferents = new HashSet<String>();
 			for (String id: ids) 
 				idsDiferents.add(id);
 			int index = 0;
 			for (String id: idsDiferents) {
 				if (index == 0)
-					rootProcessInstanceIdsAmbTasquesActives1 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques1 = new HashSet<String>();
 				if (index == 1000)
-					rootProcessInstanceIdsAmbTasquesActives2 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques2 = new HashSet<String>();
 				if (index == 2000)
-					rootProcessInstanceIdsAmbTasquesActives3 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques3 = new HashSet<String>();
 				if (index == 3000)
-					rootProcessInstanceIdsAmbTasquesActives4 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques4 = new HashSet<String>();
 				if (index == 4000)
-					rootProcessInstanceIdsAmbTasquesActives5 = new HashSet<String>();
+					rootProcessInstanceIdsAmbTasques5 = new HashSet<String>();
 				if (index < 1000)
-					rootProcessInstanceIdsAmbTasquesActives1.add(id);
+					rootProcessInstanceIdsAmbTasques1.add(id);
 				else if (index < 2000)
-					rootProcessInstanceIdsAmbTasquesActives2.add(id);
+					rootProcessInstanceIdsAmbTasques2.add(id);
 				else if (index < 3000)
-					rootProcessInstanceIdsAmbTasquesActives3.add(id);
+					rootProcessInstanceIdsAmbTasques3.add(id);
 				else if (index < 4000)
-					rootProcessInstanceIdsAmbTasquesActives4.add(id);
+					rootProcessInstanceIdsAmbTasques4.add(id);
 				else
-					rootProcessInstanceIdsAmbTasquesActives5.add(id);
+					rootProcessInstanceIdsAmbTasques5.add(id);
 				index++;
 			}
 		}
@@ -1255,12 +1277,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				geoPosY,
 				(geoReferencia == null),
 				geoReferencia,
-				nomesAmbTasquesActives,
-				rootProcessInstanceIdsAmbTasquesActives1,
-				rootProcessInstanceIdsAmbTasquesActives2,
-				rootProcessInstanceIdsAmbTasquesActives3,
-				rootProcessInstanceIdsAmbTasquesActives4,
-				rootProcessInstanceIdsAmbTasquesActives5,
+				filtreTasques,
+				rootProcessInstanceIdsAmbTasques1,
+				rootProcessInstanceIdsAmbTasques2,
+				rootProcessInstanceIdsAmbTasques3,
+				rootProcessInstanceIdsAmbTasques4,
+				rootProcessInstanceIdsAmbTasques5,
 				mostrarAnulats);
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
@@ -1440,7 +1462,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId) {
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) {
 		logger.debug("Consulta de tasques de l'expedient (" +
 				"expedientId=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1448,15 +1470,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, false);
-		tasques.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, true));
+		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, false, mostrarDeOtrosUsuarios);
+		tasques.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, true, mostrarDeOtrosUsuarios));
 		return tasques;
 	}
 
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPendents(Long id) {
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarDeOtrosUsuarios) {
 		logger.debug("Consulta de tasques pendents de l'expedient (" +
 				"id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1464,8 +1486,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		return tascaHelper.findTasquesPendentsPerExpedient(
-				expedient);
+		return tascaHelper.findTasquesPendentsPerExpedient(expedient, mostrarDeOtrosUsuarios);
 	}
 
 	@Override
@@ -1996,42 +2017,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return resposta;
 	}
-
-	/*@Override
-	@Transactional(readOnly = true)
-	public ExpedientDto findAmbEntornITipusINumero(
-			Long entornId,
-			String expedientTipusCodi,
-			String numero) throws EntornNotFoundException, ExpedientTipusNotFoundException {
-		logger.debug("Consulta d'expedient (entornId=" + entornId + ", expedientTipusCodi=" + expedientTipusCodi + ", numero=" + numero + ")");
-		Entorn entorn = entornRepository.findOne(entornId);
-		if (entorn == null)
-			throw new EntornNotFoundException();
-		ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(
-				entorn,
-				expedientTipusCodi);
-		if (expedientTipus == null)
-			throw new ExpedientTipusNotFoundException();
-		Expedient expedient = expedientRepository.findByTipusAndNumero(
-				expedientTipus,
-				numero);
-		return conversioTipusHelper.convertir(
-				expedient,
-				ExpedientDto.class);
-	}
-
-	@Transactional(readOnly = true)
-	public ExpedientDto findAmbProcessInstanceId(String processInstanceId) {
-		logger.debug("Consulta de l'expedient (processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		return conversioTipusHelper.convertir(
-				expedient,
-				ExpedientDto.class);
-	}
-*/
+	
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(final Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(final Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
@@ -2041,7 +2030,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			paginacioParams,
 			nomesPendents, 
 			nomesAlertes, 
-			mostrarAnulats
+			mostrarAnulats,
+			mostrarTasquesPersonals,
+			mostrarTasquesUsuari
 		);
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
@@ -2052,7 +2043,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				valorsPerService, 
 				nomesPendents, 
 				nomesAlertes, 
-				mostrarAnulats
+				mostrarAnulats,
+				mostrarTasquesPersonals,
+				mostrarTasquesUsuari
 			).size();
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
@@ -2391,7 +2384,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			PaginacioParamsDto paginacioParams, 
 			Boolean nomesPendents, 
 			Boolean nomesAlertes, 
-			Boolean mostrarAnulats) {
+			Boolean mostrarAnulats, 
+			Boolean mostrarTasquesPersonals, 
+			Boolean mostrarTasquesUsuari) {
 		Consulta consulta = consultaHelper.findById(consultaId);		
 		
 		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
@@ -2447,7 +2442,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					firstRow,
 					maxResults);
 		} else {
-			filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats);
+			filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari);
 			if (!llistaExpedientIds.isEmpty())
 				dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(consulta.getEntorn().getCodi(), llistaExpedientIds, campsInforme, sort, asc, firstRow, maxResults);
 		}
@@ -2489,7 +2484,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<Long> findIdsPerConsultaInforme(
 			Long consultaId,
 			Map<String, Object> valors,
-			Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+			Boolean nomesPendents, 
+			Boolean nomesAlertes, 
+			Boolean mostrarAnulats,
+			Boolean mostrarTasquesPersonals,
+			Boolean mostrarTasquesUsuari) {
 		Consulta consulta = consultaHelper.findById(consultaId);
 		
 		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
@@ -2504,12 +2503,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				campsFiltre,
 				valors);
 		
-		filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats);
+		filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari);
 		
 		return llistaExpedientIds;
 	}
 	
-	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
+	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari) {
 		if (nomesPendents || nomesAlertes || mostrarAnulats) {				
 			Set<Long> ids1 = null;
 			Set<Long> ids2 = null;
@@ -2551,10 +2550,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 					nomesAlertes);
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			
-			List<String> ids = jbpmHelper.findRootProcessInstancesWithActiveTasksCommand(
-					auth.getName(),
-					idsInstanciesProces);
+
+			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
+							auth.getName(),
+							idsInstanciesProces,
+							nomesPendents,
+							mostrarTasquesPersonals,
+							mostrarTasquesUsuari);
 			
 			Set<String> idsDiferents = new HashSet<String>();
 			for (String id: ids) 
@@ -3061,7 +3063,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return registreRepository.save(registre);
 	}
 	
-	private boolean isUserInRole(
+	public boolean isUserInRole(
 			Authentication auth,
 			String role) {
 		for (GrantedAuthority ga: auth.getAuthorities()) {

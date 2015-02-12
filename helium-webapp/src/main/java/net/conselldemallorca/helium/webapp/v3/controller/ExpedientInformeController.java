@@ -126,10 +126,14 @@ public class ExpedientInformeController extends BaseExpedientController {
 		campsAddicionals.put("nomesPendents", nomesPendents);
 		campsAddicionals.put("nomesAlertes", false);
 		campsAddicionals.put("mostrarAnulats", false);
+		campsAddicionals.put("mostrarTasquesPersonals", false);
+		campsAddicionals.put("mostrarTasquesUsuari", false);
 		campsAddicionalsClasses.put("nomesPendents", Boolean.class);
 		campsAddicionalsClasses.put("nomesAlertes", Boolean.class);
 		campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);			
 		campsAddicionalsClasses.put("consultaId", Long.class);
+		campsAddicionalsClasses.put("mostrarTasquesPersonals", Boolean.class);
+		campsAddicionalsClasses.put("mostrarTasquesUsuari", Boolean.class);
 		
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
 		return TascaFormHelper.getCommandBuitForCamps(campsFiltre,campsAddicionals,campsAddicionalsClasses, true);
@@ -159,7 +163,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 		model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));	
 		model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
 		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
-		model.addAttribute("estats", expedientService.findConsultaFiltre(consultaId));	
 		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
 		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
@@ -189,10 +192,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 		} else {
 			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 			model.addAttribute("consulta", consulta);
-			model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));	
+			model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));
 			model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
 			model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
-			model.addAttribute("estats", expedientService.findConsultaFiltre(consultaId));	
 			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(consulta.getExpedientTipus().getId());
 			estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
 			estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
@@ -230,6 +232,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesUsuari"),
 			PaginacioHelper.getPaginacioDtoFromDatatable(request)
 		);
 		
@@ -253,7 +257,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 		
 		@SuppressWarnings("unchecked")
 		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
-		List<TascaDadaDto> campsInforme = expedientService.findConsultaInforme(consultaId);
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -263,9 +266,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 				null,
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"));
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesUsuari"));
 		
-		exportXLS(request, response, session, campsInforme, expedientsConsultaDissenyDto);
+		exportXLS(request, response, session, expedientsConsultaDissenyDto);
 	}
 	
 	@RequestMapping(value = "/{consultaId}/mostrar_informe_params", method = RequestMethod.GET)
@@ -323,7 +328,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 				null,
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"));
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesUsuari"));
 		
 		if (expedientsConsultaDissenyDto.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
@@ -499,7 +506,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				new ObjectTypeEditorHelper());
 	}
 	
-	private void createHeader(HSSFSheet sheet, List<TascaDadaDto> campsInforme) {
+	private void createHeader(HSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
 		int rowNum = 0;
 		int colNum = 0;
 
@@ -512,15 +519,17 @@ public class ExpedientInformeController extends BaseExpedientController {
 		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
 		
-		for (TascaDadaDto campInforme : campsInforme) {
+		Iterator<Entry<String, DadaIndexadaDto>> it = expedientsConsultaDissenyDto.get(0).getDadesExpedient().entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(campInforme.getCampEtiqueta())));
+			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}
 	
-	private void exportXLS(HttpServletRequest request, HttpServletResponse response, HttpSession session, List<TascaDadaDto> campsInforme, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+	private void exportXLS(HttpServletRequest request, HttpServletResponse response, HttpSession session, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
 		wb = new HSSFWorkbook();
 	
 		bold = wb.createFont();
@@ -556,7 +565,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 		// GENERAL
 		HSSFSheet sheet = wb.createSheet("Hoja 1");
 	
-		createHeader(sheet, campsInforme);
+		createHeader(sheet, expedientsConsultaDissenyDto);
 	
 		int rowNum = 1;
 		
@@ -657,8 +666,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 			getValorsPerService(filtreCommand,campsFiltre, valors),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats")
-		);
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesUsuari"));
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioInforme(consultaId);
 		if (seleccio == null) {

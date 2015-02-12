@@ -62,9 +62,9 @@ div.proces:hover {
 		<c:forEach items="${dades}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
-<%--
+<!-- 
 			<div class="btnNovaDada right">
-				<a 	class="icon btn btn-default" 
+				<a 	class="btn btn-default" 
 					href="../../v3/expedient/${expedientId}/novaDada/${proces.id}" 
 					data-rdt-link-modal="true" 
 					data-rdt-link-callback="recargarPanel(${proces.id});"
@@ -73,7 +73,7 @@ div.proces:hover {
 					<spring:message code="expedient.boto.nova_dada"/>
 				</a>
 			</div>
---%>
+ -->
 			<div class="clear"></div>
 			<div class="panel panel-default">
 				<div id="${proces.id}-titol" class="panel-heading clicable proces" data-toggle="collapse" data-target="#panel_${proces.id}" data-id="${proces.id}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
@@ -188,7 +188,7 @@ $(document).ready(function() {
 		ajaxRefrescarAlertes: true,
 		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
 	});
-	$('.icon').heliumEvalLink({
+	$('.btnNovaDada a').heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false
 	});

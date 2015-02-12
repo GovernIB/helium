@@ -35,7 +35,8 @@
 				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 				rowClickCallback: function(row) {
 					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
-						$('a.consultar-tasca', $(row))[0].click();
+						if ($('a.consultar-tasca', $(row)).length > 0)
+							$('a.consultar-tasca', $(row))[0].click();
 					</c:if>
 				},
 				seleccioCallback: function(seleccio) {
@@ -54,20 +55,41 @@
 				$("a[id='btnReassignacioMassiva']").attr("href","../../../v3/tasca/massivaReassignacioTasca?massiva=true&inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 			});
 			$("#mostrarTasquesPersonalsCheck").click(function() {
-				$("input[name=mostrarTasquesPersonals]").val(!$("#mostrarTasquesPersonalsCheck").hasClass('active'));
+				$("input[name=mostrarTasquesPersonals]").val(!$(this).hasClass('active'));
 				$(this).blur();
 				$("button[value=consultar]").click();
 			});
 			$("#mostrarTasquesGrupCheck").click(function() {
-				$("input[name=mostrarTasquesGrup]").val(!$("#mostrarTasquesGrupCheck").hasClass('active'));
+				$("input[name=mostrarTasquesGrup]").val(!$(this).hasClass('active'));
 				$(this).blur();
 				$("button[value=consultar]").click();
-			});			
+			});
 			$('#inici_timer').datetimepicker({
 				language: '${idioma}',
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
 		    });
+			
+			$('#expedientTipusId').on('change', function() {
+				var tipus = $(this).val();
+				$('#tasca').select2('val', '', true);
+				$('#tasca option[value!=""]').remove();
+				
+				var value = -1;
+				if ($(this).val())
+					value = $(this).val();
+				$.get('tasca/tasques/${entornId}/' + value)				
+				.done(function(data) {
+					for (var i = 0; i < data.length; i++) {
+						$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+					}
+				})
+				.fail(function() {
+					alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
+				});
+			});
+
+			$('#expedientTipusId').trigger('change');
 		});
 		function agafar(tascaId, correcte) {
 			if (correcte) {
@@ -141,19 +163,25 @@
 			<c:otherwise>
 				<div id="filtresCollapsable" class="collapse<c:if test="${true or tascaConsultaCommand.filtreDesplegat}"> in</c:if>">
 					<div class="row">
+						<div class="col-md-5">
+							<hel:inputText name="titol" textKey="tasca.llistat.filtre.camp.titol" placeholderKey="tasca.llistat.filtre.camp.titol" inline="true"/>
+						</div>
 						<div class="col-md-4">
-							<hel:inputText name="tasca" textKey="tasca.llistat.filtre.camp.titol" placeholderKey="tasca.llistat.filtre.camp.titol" inline="true"/>
+							<hel:inputText name="expedient" textKey="tasca.llistat.filtre.camp.expedient" placeholderKey="tasca.llistat.filtre.camp.expedient" inline="true"/>
+						</div>
+						<div class="col-md-3 <c:if test="${!potDissenyarEntorn and !potAdministrarEntorn}">hide</c:if>">
+							<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 						</div>
 						<div class="col-md-5">
-							<hel:inputText name="expedient" textKey="tasca.llistat.filtre.camp.expedient" placeholderKey="tasca.llistat.filtre.camp.expedient" inline="true"/>
+							<hel:inputSelect name="expedientTipusId" textKey="tasca.llistat.filtre.camp.tipexp" placeholderKey="tasca.llistat.filtre.camp.tipexp" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
+						</div>
+						<div class="col-md-5">
+							<hel:inputSelect inline="true" name="tasca" textKey="tasca.llistat.filtre.camp.tasca" placeholderKey="tasca.llistat.filtre.camp.tasca"/>
 						</div>
 						<!-- <div class="col-md-3">
 							<hel:inputSelect name="prioritat" textKey="tasca.llistat.filtre.camp.prioritat" placeholderKey="tasca.llistat.filtre.camp.prioritat" optionItems="${prioritats}" optionValueAttribute="valor" optionTextAttribute="codi" inline="true"/>
 						</div>
 						 -->
-						<div class="col-md-3">
-							<hel:inputSelect name="expedientTipusId" textKey="tasca.llistat.filtre.camp.tipexp" placeholderKey="tasca.llistat.filtre.camp.tipexp" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
-						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-4">
@@ -180,20 +208,22 @@
 						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-md-6">
+				<div class="row">						
+					<div class="col-md-12">
 						<form:hidden path="mostrarTasquesPersonals"/>
 						<form:hidden path="mostrarTasquesGrup"/>
-						<div class="btn-group">
-							<button id="mostrarTasquesPersonalsCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.usuari"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-							<button id="mostrarTasquesGrupCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="pull-right">
-							<input type="hidden" name="consultaRealitzada" value="true"/>
-							<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-							<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+						<div class="row">
+							<div class="col-md-6 btn-group">
+								<button id="mostrarTasquesPersonalsCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.usuari"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+								<button id="mostrarTasquesGrupCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+							</div>
+							<div class="col-md-6">
+							<div class="pull-right">
+								<input type="hidden" name="consultaRealitzada" value="true"/>
+								<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+								<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+							</div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -210,7 +240,7 @@
 					<script id="cellPersonalGroupTemplate" type="text/x-jsrender">
 						{{:titol}}
 						{{if !agafada && responsables != null}}
-							<span class="fa fa-users"></span>
+							<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
 						{{/if}}
 						<div class="pull-right">
 							{{if cancelada}}
@@ -235,6 +265,7 @@
 					</script>
 				</th>
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.expedient"/></th>
+				<th data-rdt-property="responsableString" data-rdt-visible="true"><spring:message code="expedient.tasca.columna.asignada_a"/></th>
 				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.tipexp"/></th>
 				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
 				<th data-rdt-property="dataLimit" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>

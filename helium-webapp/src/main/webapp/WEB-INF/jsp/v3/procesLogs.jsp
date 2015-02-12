@@ -48,7 +48,7 @@ div.procesLog:hover {
 		<c:set var="procesFirst" value="${true}"/>
 		<div id="dataTables_new">
 			<div class="btnLogDetall">
-				<button type="button" onclick='recargarRegistro()' class="icon btn btn-default">
+				<button type="button" onclick='recargarRegistro()' class="btn btn-default">
 					<c:choose>
 						<c:when test="${param.tipus_retroces == 0}">
 							<input type="hidden" id="tipus_retroces" name="tipus_retroces" value="1"/>

@@ -21,7 +21,6 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<style type="text/css">
 		.form-group {width: 100%;}
 		.fila_reducida {width: 100%;}		
@@ -49,7 +48,7 @@
 			<hel:inputDate name="dataInici" textKey="expedient.consulta.datainici" placeholderKey="expedient.consulta.datainici" placeholder="dd/MM/yyyy"/>
 		</div>
 		<div class="control-group fila_reducida">
-			<hel:inputSuggest name="responsableCodi" urlConsultaInicial="persona/suggestInici" urlConsultaLlistat="persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+			<hel:inputSuggest inline="false" name="responsableCodi" urlConsultaInicial="../../tasca/persona/suggestInici" urlConsultaLlistat="../../tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 		</div>
 		<div class="control-group fila_reducida">
 			<hel:inputTextarea name="comentari" textKey="expedient.editar.comentari" placeholderKey="expedient.editar.comentari"/>
@@ -93,7 +92,6 @@
 				<span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.accio.modificar.boto.modificar"/>
 			</button>
 		</div>
-	</form:form>
- 		
+	</form:form> 		
 </body>
 </html>

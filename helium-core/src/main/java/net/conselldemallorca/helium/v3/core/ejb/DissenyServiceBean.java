@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -223,5 +224,11 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
 		return delegate.getByVersionsInstanciaProcesById(processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ParellaCodiValorDto> findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(Long entornId, Long expedientTipusId) {
+		return delegate.findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(entornId, expedientTipusId);
 	}
 }

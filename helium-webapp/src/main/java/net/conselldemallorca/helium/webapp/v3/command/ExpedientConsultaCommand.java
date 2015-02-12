@@ -34,6 +34,9 @@ public class ExpedientConsultaCommand {
 	private boolean nomesPendents;
 	private boolean nomesAlertes;
 	private boolean mostrarAnulats;
+	
+	private boolean mostrarTasquesPersonals = false;
+	private boolean mostrarTasquesUsuari = false;
 
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
@@ -96,6 +99,13 @@ public class ExpedientConsultaCommand {
 	public void setDataFiFinal(Date dataFiFinal) {
 		this.dataFiFinal = dataFiFinal;
 	}
+	public boolean isMostrarTasquesUsuari() {
+		return mostrarTasquesUsuari;
+	}
+
+	public void setMostrarTasquesUsuari(boolean mostrarTasquesUsuari) {
+		this.mostrarTasquesUsuari = mostrarTasquesUsuari;
+	}
 	public Double getGeoPosX() {
 		return geoPosX;
 	}
@@ -150,6 +160,12 @@ public class ExpedientConsultaCommand {
 	public void setConsultaRealitzada(boolean consultaRealitzada) {
 		this.consultaRealitzada = consultaRealitzada;
 	}
+	public boolean isMostrarTasquesPersonals() {
+		return mostrarTasquesPersonals;
+	}
+	public void setMostrarTasquesPersonals(boolean mostrarTasquesPersonals) {
+		this.mostrarTasquesPersonals = mostrarTasquesPersonals;
+	}
 
 	public String getEstatText() {
 		if (EstatTipusDto.CUSTOM.equals(estatTipus))
@@ -183,12 +199,6 @@ public class ExpedientConsultaCommand {
 			return true;
 		return dataFiFinal.compareTo(dataFiInicial) >= 0;
 	}
-
-//	public static ExpedientConsultaDto asDto(ExpedientConsultaCommand command) {
-//		return ConversioHelper.convertir(
-//				command,
-//				ExpedientConsultaDto.class);
-//	}
 
 	@Override
 	public String toString() {

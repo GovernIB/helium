@@ -141,8 +141,7 @@
 				if( log )
 					alert(log);
 			}
-		});		
-		
+		});	
 	});
 	
 	function documentGuardar(docId) {

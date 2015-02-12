@@ -29,8 +29,6 @@ public class PersonaDto implements Serializable {
 	private String relleu;
 	private String contrasenya;
 
-
-
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
 		this.setNomSencer(nomSencer);
@@ -52,7 +50,7 @@ public class PersonaDto implements Serializable {
 		this.codi = codi;
 	}
 	public String getNom() {
-		return nom;
+		return nom == null ? "" : nom;
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
@@ -99,6 +97,11 @@ public class PersonaDto implements Serializable {
 			nomSencer.append(getLlinatge2());
 		}
 		return nomSencer.toString();
+	}
+	
+	@Override
+	public String toString() {
+		return getNomSencer();
 	}
 	public void setNomSencer(String nomSencer) {
 		if (nomSencer != null) {
@@ -150,8 +153,6 @@ public class PersonaDto implements Serializable {
 		return sb.toString();
 	}
 
-
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -175,9 +176,6 @@ public class PersonaDto implements Serializable {
 			return false;
 		return true;
 	}
-
-
-
+	
 	private static final long serialVersionUID = 1L;
-
 }

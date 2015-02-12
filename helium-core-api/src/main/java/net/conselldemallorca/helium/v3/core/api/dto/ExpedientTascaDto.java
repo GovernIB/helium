@@ -101,15 +101,13 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean transicioPerDefecte;
 	private boolean tramitacioMassiva;
 	private List<String> transicions;
-
+	
 	private Long expedientId;
 	private String expedientIdentificador;
 	private String expedientTipusNom;
 
 	private String processInstanceId;
-
-
-
+	
 	public String getTitol() {
 		return titol;
 	}
@@ -151,6 +149,11 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	}
 	public void setDataFi(Date dataFi) {
 		this.dataFi = dataFi;
+	}
+	public String getResponsableString() {
+		if (responsables == null || responsables.isEmpty())
+			return responsable == null ? "" : responsable.toString();
+		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
 	}
 	public PersonaDto getResponsable() {
 		return responsable;
@@ -480,14 +483,6 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	}
 	public void setAssignadaPersona(boolean assignadaPersona) {
 		this.assignadaPersona = assignadaPersona;
-	}
-
-	public boolean isInicial() {
-		return id.startsWith(PREFIX_TASCA_INICIAL);
-	}
-
-	public int getPrioritatOrdinal() {
-		return prioritat.ordinal();
 	}
 
 }

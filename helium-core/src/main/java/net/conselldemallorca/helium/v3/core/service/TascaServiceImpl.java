@@ -60,13 +60,11 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
@@ -116,8 +114,6 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private CampRepository campRepository;
 	@Resource
-	private CampTascaRepository campTascaRepository;
-	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
 	private RegistreRepository registreRepository;
@@ -151,8 +147,6 @@ public class TascaServiceImpl implements TascaService {
 	private AlertaRepository alertaRepository;
 	@Resource
 	private RegistreDao registreDao;
-	@Resource
-	private PluginHelper pluginHelper;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -186,9 +180,11 @@ public class TascaServiceImpl implements TascaService {
 	public List<Long> findIdsPerFiltre(
 			Long entornId,
 			Long expedientTipusId,
-			String responsable,
-			String tasca,
+			String usuari,
 			String titol,
+			String tasca,
+			String responsable,
+			String expedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Date dataLimitInici,
@@ -199,8 +195,9 @@ public class TascaServiceImpl implements TascaService {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
+				"usuari=" + usuari + ", " +
 				"responsable=" + responsable + ", " +
-				"tasca=" + tasca + ", " +
+				"titol=" + titol + ", " +
 				"tasca=" + tasca + ", " +
 				"dataCreacioInici=" + dataCreacioInici + ", " +
 				"dataCreacioFi=" + dataCreacioFi + ", " +
@@ -258,12 +255,13 @@ public class TascaServiceImpl implements TascaService {
 				tipusPermesos,
 				(expedientTipus == null),
 				expedientTipus,
-				(titol == null),
-				titol,
+				(expedient == null),
+				expedient,
 				null);
-	
+		
 		LlistatIds ids = jbpmHelper.findListTasks(
 				responsable,
+				titol,
 				tasca,
 				idsExpedients,
 				dataCreacioInici,
@@ -274,6 +272,7 @@ public class TascaServiceImpl implements TascaService {
 				new PaginacioParamsDto(),
 				mostrarTasquesPersonals,
 				mostrarTasquesGrup,
+				responsable != usuari,
 				true);
 		return ids.getIds();
 	}
@@ -284,9 +283,11 @@ public class TascaServiceImpl implements TascaService {
 			Long entornId,
 			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
-			String responsable,
-			String tasca,
+			String usuari,
 			String titol,
+			String tasca,
+			String responsable,
+			String expedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Date dataLimitInici,
@@ -299,8 +300,9 @@ public class TascaServiceImpl implements TascaService {
 				"entornId=" + entornId + ", " +
 				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
 				"expedientTipusId=" + expedientTipusId + ", " +
+				"usuari=" + usuari + ", " +
 				"responsable=" + responsable + ", " +
-				"tasca=" + tasca + ", " +
+				"titol=" + titol + ", " +
 				"tasca=" + tasca + ", " +
 				"dataCreacioInici=" + dataCreacioInici + ", " +
 				"dataCreacioFi=" + dataCreacioFi + ", " +
@@ -357,8 +359,8 @@ public class TascaServiceImpl implements TascaService {
 				tipusPermesos,
 				(expedientTipus == null),
 				expedientTipus,
-				(titol == null),
-				titol,
+				(expedient == null),
+				expedient,
 				paginacio);
 		if (consultaTramitacioMassivaTascaId != null) {
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -383,9 +385,10 @@ public class TascaServiceImpl implements TascaService {
 			cal.add(Calendar.DATE, 1);
 			dataLimitFi.setTime(cal.getTime().getTime());
 		}
-	
+		
 		LlistatIds ids = jbpmHelper.findListTasks(
 				responsable,
+				titol,
 				tasca,
 				idsExpedients,
 				dataCreacioInici,
@@ -396,6 +399,7 @@ public class TascaServiceImpl implements TascaService {
 				paginacioParams,
 				mostrarTasquesPersonals,
 				mostrarTasquesGrup,
+				responsable != usuari,
 				true);
 		
 		if (consultaTramitacioMassivaTascaId != null) {			
@@ -530,7 +534,7 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<ParellaCodiValorDto> getTasquesExecucionsMassivesAmbDefinicioProcesId(Long definicioProcesId) {
+	public List<ParellaCodiValorDto> getTasquesAmbDefinicioProcesId(Long definicioProcesId) {
 		List<Tasca> tasques = tascaRepository.findByDefinicioProcesIdOrderByNomAsc(definicioProcesId);
 		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
 		for (Tasca tasca : tasques) {

@@ -1269,6 +1269,7 @@ public class JbpmHelper {
 	
 	public LlistatIds findListTasks( // 3.0
 			String responsable,
+			String tasca,
 			String tascaSel,
 			List<Long> idsPIExpedients,
 			Date dataCreacioInici,
@@ -1279,11 +1280,12 @@ public class JbpmHelper {
 			PaginacioParamsDto paginacioParams,
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup,
-			boolean mostrarNomesTasquesActives) {
+			boolean mostrarNomesTasquesActives,
+			boolean tasquesUsuari) {
 		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");		
 		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
 				responsable,
-				null,
+				tasca,
 				tascaSel,
 				idsPIExpedients,
 				dataCreacioInici,
@@ -1293,7 +1295,8 @@ public class JbpmHelper {
 				dataLimitFi,
 				paginacioParams.getOrdres(),
 				mostrarTasquesPersonals,
-				mostrarTasquesGrup);
+				mostrarTasquesGrup,
+				tasquesUsuari);
 		command.setFirstRow(
 				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany());
 		command.setMaxResults(
@@ -1457,7 +1460,6 @@ public class JbpmHelper {
 		return resultat;
 	}
 	
-	
 	public LlistatIds findListIdsPersonalTasks( // 2.6
 			String actorId,
 			List<Long> idsPIExpedients) {
@@ -1493,34 +1495,30 @@ public class JbpmHelper {
 		return resultat;
 	}
 
-	/*public List<Long> findRootProcessInstanceIdsWithActiveTasksForActorId(String actorId,List<Long> idsExpedients) {
-		adminService.mesuraIniciar("jBPM findRootProcessInstanceIdsWithActiveTasksForActorId", "jbpmDao");
-		List<Long> resultat = new ArrayList<Long>();
-		GetRootProcessInstancesForActiveTasksCommand commandPersonal = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients, false);
-		LlistatIds resultadoPersonal = (LlistatIds)commandService.execute(commandPersonal);
-		resultat.addAll(resultadoPersonal.getIds());
-		GetRootProcessInstancesForActiveTasksCommand commandGroup = new GetRootProcessInstancesForActiveTasksCommand(actorId, idsExpedients, true);
-		LlistatIds resultadoGroup = (LlistatIds)commandService.execute(commandGroup);
-		resultat.addAll(resultadoGroup.getIds());
-		adminService.mesuraCalcular("jBPM findRootProcessInstanceIdsWithActiveTasksForActorId", "jbpmDao");
-		return resultat;
-	}*/
-
 	@SuppressWarnings("unchecked")
-	public List<String> findRootProcessInstancesWithActiveTasksCommand( // 3.0
+	public List<String> findRootProcessInstancesWithTasksCommand( // 3.0
 			String actorId,
-			List<String> processInstanceIds) {
+			List<String> processInstanceIds,
+			boolean tasksActives,
+			boolean tasquesPersonals,
+			boolean tasquesUsuari) {
 		adminService.mesuraIniciar("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		List<String> resultat = new ArrayList<String>();
 		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
 				actorId,
 				processInstanceIds,
-				false);
+				false,
+				tasksActives,
+				tasquesPersonals,
+				tasquesUsuari);
 		resultat.addAll((List<String>)commandService.execute(commandPersonal));
 		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
 				actorId,
 				processInstanceIds,
-				true);
+				true,
+				tasksActives,
+				tasquesPersonals,
+				tasquesUsuari);
 		resultat.addAll((List<String>)commandService.execute(commandGroup));
 		adminService.mesuraCalcular("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		return resultat;

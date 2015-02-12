@@ -1,7 +1,6 @@
 package net.conselldemallorca.helium.jbpm3.command;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,27 +21,26 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 	private String actorId;
 	private List<String> ids;
 	private boolean pooled;
+	private boolean tasquesActives; 
+	private boolean tasquesPersonals; 
+	private boolean tasquesUsuari;
 
 	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand() {}
 
 	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
 			String actorId,
 			List<String> ids,
-			boolean pooled) {
+			boolean pooled, 
+			boolean tasquesActives, 
+			boolean tasquesPersonals, 
+			boolean tasquesUsuari) {
 		super();
 		this.actorId = actorId;
 		this.ids = ids;
 		this.pooled = pooled;
-	}
-
-	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
-			String actorId, String tasca, 
-			List<String> ids,
-			Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, boolean pooled) {
-		super();
-		this.actorId = actorId;
-		this.ids = ids;
-		this.pooled = pooled;
+		this.tasquesActives = tasquesActives; 
+		this.tasquesPersonals = tasquesPersonals; 
+		this.tasquesUsuari = tasquesUsuari;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -57,11 +55,11 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		    "    ti.id " +
 		    "from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-		    "where " +
-		    "    ti.actorId = :actorId " + 
-		    "and ti.isSuspended = false " +
-		    "and ti.isOpen = true";
-		  
+		    "where 1=1 " +
+		    ((tasquesPersonals) ? " and ti.actorId = :actorId " : " ") +  
+		    ((tasquesUsuari) ? " and ti.actorId is not null " : " ") +  
+		    ((tasquesActives) ? " and ti.isSuspended = false and ti.isOpen = true " : " ");
+	
 		String hqlPooled =  
 		    "select  " + 
 		    "    ti.processInstance.id, " +
@@ -70,16 +68,15 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		    "from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "    join ti.pooledActors pooledActor " +
-		    "where " +
-		    "    pooledActor.actorId = :actorId " +
-		    "and ti.actorId is null " + 
-		    "and ti.isSuspended = false " +
-		    "and ti.isOpen = true";
+		    "where ti.actorId is null " +
+		    ((tasquesPersonals) ? " and pooledActor.actorId = :actorId " : " ") +  
+		    ((tasquesUsuari) ? " and pooledActor.actorId is not null " : " ") +  
+		    ((tasquesActives) ? " and ti.isSuspended = false and ti.isOpen = true " : " ");
 		  
 		String hql = pooled ? hqlPooled : hqlPersonal;
 		
 		Query query = jbpmContext.getSession().createQuery(hql);
-		query.setString("actorId", actorId);
+		if (tasquesPersonals) query.setString("actorId", actorId);
 		
 		List<Object[]> llistaActorId = query.list();
 		
@@ -144,7 +141,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 
 	@Override
 	public String toString() {
-		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", ids=" + ids + ", pooled=" + pooled + "]";
+		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", ids=" + ids + ", pooled=" + pooled + ", tasquesActives=" + tasquesActives + ", tasquesPersonals=" + tasquesPersonals + ", tasquesUsuari=" + tasquesUsuari + "]";
 	}
 
 	@Override

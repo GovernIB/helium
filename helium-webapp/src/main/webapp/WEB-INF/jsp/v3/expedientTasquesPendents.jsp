@@ -10,6 +10,7 @@
 			<td class="first nodata"></td>
 			<td class="nodata"></td>
 			<td class="maxcols"><spring:message code="expedient.tasca.columna.tasca.activa"/></td>
+			<td class="datacol"><spring:message code="expedient.tasca.columna.asignada_a"/></td>			
 			<td class="datacol"><spring:message code="expedient.tasca.columna.datcre"/></td>
 			<td class="datacol"><spring:message code="expedient.tasca.columna.datlim"/></td>
 			<td class="options"></td>
@@ -24,7 +25,7 @@
 		<tr class="table-pendents fin-table-pendents">
 			<td id="td_nohiha" colspan="2"></td>
 			<td colspan="100%" class="no-datacol">
-				<div class="well-small"><spring:message code="expedient.tasca.nohiha"/></div>
+				<div class="well-small"><spring:message code="expedient.tasca.activa.nohiha"/></div>
 			</td>
 		</tr>
 	</c:otherwise>
@@ -64,5 +65,9 @@
 				panell.load(url, function() {});
 			}
 		}
+
+		$(document).ready(function() {
+			$('[title]').tooltip({container: 'body'});
+		});
 	//]]>
 </script>

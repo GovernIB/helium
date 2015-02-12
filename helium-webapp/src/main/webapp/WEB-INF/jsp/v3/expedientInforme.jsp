@@ -8,8 +8,8 @@
 <html>
 <head>
 	<title><spring:message code="consulta.form.informe" /></title>
-	<meta name="title" content="${consulta.expedientTipus.nom}"/>
-	<meta name="subtitle" content="${consulta.nom}"/>	
+	<meta name="title" content="${consulta.nom}"/>
+	<meta name="subtitle" content="${consulta.expedientTipus.nom}"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
@@ -126,7 +126,7 @@ $(document).ready(function() {
 					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
 				} else {
 					var jqxhr = $.ajax({
-						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents",
+						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#mostrarTasquesUsuari').val(),
 						beforeSend: function(xhr) {
 							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
 						}
@@ -162,20 +162,30 @@ $(document).ready(function() {
 		}
 	});
 	$("#nomesPendentsCheck").click(function() {
-		$("input[name=nomesPendents]").val(!$("#nomesPendentsCheck").hasClass('active'));
+		$("input[name=nomesPendents]").val(!$(this).hasClass('active'));
 		$(this).blur();
 		$("button[value=filtrar]").click();
 	});
 	$("#nomesAlertesCheck").click(function() {
-		$("input[name=nomesAlertes]").val(!$("#nomesAlertesCheck").hasClass('active'));
+		$("input[name=nomesAlertes]").val(!$(this).hasClass('active'));
 		$(this).blur();
 		$("button[value=filtrar]").click();
 	});
 	$("#mostrarAnulatsCheck").click(function() {
-		$("input[name=mostrarAnulats]").val(!$("#mostrarAnulatsCheck").hasClass('active'));
+		$("input[name=mostrarAnulats]").val(!$(this).hasClass('active'));
 		$(this).blur();
 		$("button[value=filtrar]").click();
 	});
+	$("#mostrarTasquesPersonalsCheck").click(function() {
+		$("input[name=mostrarTasquesPersonals]").val(!$(this).hasClass('active'));
+		$(this).blur();
+		$("button[value=filtrar]").click();
+	});
+	$("#mostrarTasquesUsuariCheck").click(function() {
+		$("input[name=mostrarTasquesUsuari]").val(!$(this).hasClass('active'));
+		$(this).blur();
+		$("button[value=filtrar]").click();
+	});	
 });
 </script>
 </head>
@@ -194,11 +204,15 @@ $(document).ready(function() {
 			<div class="col-md-6">
 				<form:hidden path="nomesPendents"/>
 				<form:hidden path="nomesAlertes"/>
-				<form:hidden path="mostrarAnulats"/>
+				<form:hidden path="mostrarAnulats"/>				
+				<form:hidden path="mostrarTasquesPersonals"/>
+				<form:hidden path="mostrarTasquesUsuari"/>
 				<div class="btn-group">
-					<a id="nomesPendentsCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></a>
-					<a id="nomesAlertesCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-warning"></span></a>
-					<a id="mostrarAnulatsCheck" href="javascript:void(0)" title="<spring:message code="expedient.llistat.filtre.camp.anulats"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></a>
+					<button id="nomesPendentsCheck" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></button>
+					<button id="nomesAlertesCheck" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-exclamation-triangle"></span></button>
+					<button id="mostrarAnulatsCheck" title="<spring:message code="expedient.llistat.filtre.camp.anulats"/>" class="btn btn-default<c:if test="${expedientInformeCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></button>
+					<button id="mostrarTasquesPersonalsCheck" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientInformeCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+					<button id="mostrarTasquesUsuariCheck" title="<spring:message code="expedient.llistat.filtre.camp.usuari"/>" class="btn btn-default<c:if test="${expedientInformeCommand.mostrarTasquesUsuari}"> active</c:if> <c:if test="${!potDissenyarEntorn and !potAdministrarEntorn}">hide</c:if>" data-toggle="button"><span class="fa fa-user-md"></span></button>
 				</div>
 			</div>
 			<div class="col-md-6">
@@ -231,16 +245,16 @@ $(document).ready(function() {
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-							<div class="dropdown">
-								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-								<ul class="dropdown-menu">
-									<li><a onclick="javascript: window.location=this.href" href="<c:url value="../v3/expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-									{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
-									{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
-									{{if permisDelete}}<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
-								</ul>
-							</div>
-						</script>
+						<div class="dropdown">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a onclick="javascript: window.location=this.href" href="<c:url value="../v3/expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
+								{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
+								{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
+								{{if permisDelete}}<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
+							</ul>
+						</div>
+					</script>
 				</th>
 			</tr>
 		</thead>

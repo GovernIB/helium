@@ -37,7 +37,7 @@
 	 		.control-group-mid {width: 48%;} 
 	  		.control-group.left {float: left; margin-right:1%;} 
 	  		.ctrlHolder {padding-top: 10px;}
-	  		.select2-drop {left: 0px !important;}
+	  		.select2-drop {left: 15px !important;right: 15px !important;}
 	  		#div_timer label {float:left;} 
 			.label-titol {background-color: #fefefe; border: 1px solid #e3e3e3; border-radius: 4px; box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset; margin-bottom: 20px; min-height: 20px; padding: 19px;}			
 			.label-titol .control-label {padding-bottom: 20px;}		

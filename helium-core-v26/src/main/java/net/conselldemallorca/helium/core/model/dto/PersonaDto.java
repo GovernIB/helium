@@ -24,9 +24,8 @@ public class PersonaDto implements Serializable {
 	private String email;
 	private Sexe sexe;
 	private String relleu;
-	private String contrasenya;
-
-
+	private String contrasenya;	
+	private boolean admin;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -137,6 +136,13 @@ public class PersonaDto implements Serializable {
 		this.contrasenya = contrasenya;
 	}
 
+	public boolean isAdmin() {
+		return admin;
+	}
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
+
 	public String getInicials() {
 		String[] parts = getNomSencer().split(" ");
 		StringBuilder sb = new StringBuilder();
@@ -146,8 +152,6 @@ public class PersonaDto implements Serializable {
 		}
 		return sb.toString();
 	}
-
-
 
 	@Override
 	public int hashCode() {
@@ -173,8 +177,5 @@ public class PersonaDto implements Serializable {
 		return true;
 	}
 
-
-
 	private static final long serialVersionUID = 1L;
-
 }

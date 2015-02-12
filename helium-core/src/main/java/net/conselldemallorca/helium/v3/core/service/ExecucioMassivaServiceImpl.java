@@ -58,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("execucioMassivaServiceV3")
 @Transactional(noRollbackForClassName = "java.lang.Exception")
 public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
-
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource

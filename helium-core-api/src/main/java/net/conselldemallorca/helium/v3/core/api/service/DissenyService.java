@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -106,7 +107,9 @@ public interface DissenyService {
 
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId);
 
-	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornId);
+	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entorn);
+
+	public List<ParellaCodiValorDto> findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(Long entornId, Long expedientTipusId);
 
 	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException;
 

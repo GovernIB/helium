@@ -56,7 +56,34 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			Entorn entorn,
 			String jbpmKey);
 
+	@Query(	"select dp.id  from " +
+			"    DefinicioProces dp " +
+			"where " +
+			"    dp.entorn.id=:entornId " +
+			"and dp.jbpmKey = :jbpmKey " +
+			"and dp.versio = (" +
+			"    select " +
+			"        max(dps.versio) " +
+			"    from " +
+			"        DefinicioProces dps " +
+			"    where " +
+			"        dps.entorn.id=:entornId " +
+			"    and dps.jbpmKey=dp.jbpmKey)")
+	List<Long> findIdsDarreraVersioAmbEntornIJbpmKey(@Param("entornId") Long entornId, @Param("jbpmKey") String jbpmKey);
 
+	@Query(	"select dp.id  from " +
+			"    DefinicioProces dp " +
+			"where " +
+			"    dp.entorn.id=:entornId " +
+			"and dp.versio = (" +
+			"    select " +
+			"        max(dps.versio) " +
+			"    from " +
+			"        DefinicioProces dps " +
+			"    where " +
+			"        dps.entorn.id=:entornId " +
+			"    and dps.jbpmKey=dp.jbpmKey)")
+	List<Long> findIdsDarreraVersioAmbEntornId(@Param("entornId") Long entornId);
 
 	@Query(	"from " +
 				"    DefinicioProces dp " +

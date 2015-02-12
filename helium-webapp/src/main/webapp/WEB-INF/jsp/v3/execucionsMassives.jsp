@@ -41,7 +41,7 @@
 			padding: 8px;
 		}
 		.panel-default > .panel-heading {
-			display: table-caption;
+			display: table;
 			width: 100%;
 			padding-bottom: 0px;
 		}

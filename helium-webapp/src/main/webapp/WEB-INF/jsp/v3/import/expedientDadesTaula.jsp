@@ -217,6 +217,8 @@ $(document).ready(function() {
 	//$('.panel.panel-default').find('a').attr('target', 'BLANK');
 	$('#${grupId}-dades address').find('a').attr('target', 'BLANK');
 
+	$('[title]').tooltip({container: 'body'});
+	
 	$("table tr:last").each(function(){
 		var cols = $(this).find("td").size();
 		if (cols == 0)

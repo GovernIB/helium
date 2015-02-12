@@ -6,9 +6,7 @@
             	$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(this).data('id')+'" style="display:none">'+$("td", this).find('.dropdown-menu').html()+'</ul>');
             	$(this).contextMenu({
 				    menuSelector: "#dropdown-menu-context"+$(this).data('id'),
-				    menuSelected: function (invokedOn, selectedMenu) {
-				        // alert(selectedMenu.text() + " > " + invokedOn.text());
-				    }
+				    menuSelected: function (invokedOn, selectedMenu) {}
 				});
     			$('#dropdown-menu-context'+$(this).data('id')+' a').heliumEvalLink({
     				refrescarAlertes: true,
@@ -375,6 +373,8 @@
 					}
 					if (settings.drawCallback)
 						settings.drawCallback(oSettings);
+					
+					$('[title]').tooltip({container: 'body'});
 				},
 				"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
 					$('th', this).each(function() {
@@ -409,12 +409,9 @@
 							)
 						);						
 						if ($(this).data('rdt-context') && $("td:eq(" + index + ")", nRow).find('.dropdown-menu').length > 0) {
-//							$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(nRow).data('id')+'" style="display:none">'+$("td:eq(" + index + ")", nRow).find('.dropdown-menu').html()+'</ul>');
 							$(nRow).contextMenu({
 							    menuSelector: "#dropdown-menu-context"+$(nRow).data('id'),
-							    menuSelected: function (invokedOn, selectedMenu) {
-							        // alert(selectedMenu.text() + " > " + invokedOn.text());
-							    }
+							    menuSelected: function (invokedOn, selectedMenu) {}
 							});
 						}
 					});

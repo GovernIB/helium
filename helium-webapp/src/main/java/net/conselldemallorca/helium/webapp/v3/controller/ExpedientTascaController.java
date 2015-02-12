@@ -52,8 +52,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
-			for (InstanciaProcesDto instanciaProces: arbreProcessos) {				
-				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId()));
+			boolean mostrarDeOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), mostrarDeOtrosUsuarios));
 			}
 			model.addAttribute("tasques", tasques);	
 		}
@@ -68,24 +69,30 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		boolean mostrarDeOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		List<ExpedientTascaDto> dadesInstancia = expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId());
+		List<ExpedientTascaDto> dadesInstancia = expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), mostrarDeOtrosUsuarios);
 		Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 		tasques.put(instanciaProces, dadesInstancia);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
-		// Ordenar tasques
 		model.addAttribute("tasques", tasques);	
 		return "v3/procesTasques";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasquesPendents", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasquesPendents/{mostrarDeOtrosUsuarios}", method = RequestMethod.GET)
 	public String tasquesPendents(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable boolean mostrarDeOtrosUsuarios,
 			Model model) {
-		model.addAttribute("expedient", expedientService.findAmbId(expedientId));
-		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId));
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		if (mostrarDeOtrosUsuarios) {
+			// Comprobamos que el usuario tenga suficientes permisos, 
+			mostrarDeOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+		}
+		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, mostrarDeOtrosUsuarios));
+		model.addAttribute("expedient", expedient);	
 		return "v3/expedientTasquesPendents";
 	}
 

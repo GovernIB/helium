@@ -36,6 +36,7 @@ public class PersonaInterceptor extends HandlerInterceptorAdapter {
 			PersonaDto persona = (PersonaDto)session.getAttribute(VARIABLE_SESSIO_PERSONA);
 			if (persona == null) {
 				persona = pluginService.findPersonaAmbCodi(usuariCodi);
+				persona.setAdmin(request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN"));
 				session.setAttribute(VARIABLE_SESSIO_PERSONA, persona);
 			}
 		}

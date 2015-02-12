@@ -101,8 +101,10 @@ public interface TascaService {
 			Long entornId,
 			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
-			String responsable,
+			String usuari,
+			String titulo,
 			String tasca,
+			String responsable,
 			String expedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -387,7 +389,21 @@ public interface TascaService {
 	
 	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids);
 
-	public List<Long> findIdsPerFiltre(Long entornId, Long expedientTipusId, String responsable, String tasca, String expedient, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi, Integer prioritat, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup);
+	public List<Long> findIdsPerFiltre(
+			Long entornId,
+			Long expedientTipusId,
+			String usuari,
+			String titulo,
+			String tasca,
+			String responsable,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			Integer prioritat,
+			boolean mostrarTasquesPersonals,
+			boolean mostrarTasquesGrup);
 
 	public TascaDocumentDto findDocument(String tascaId, Long docId);
 
@@ -405,5 +421,5 @@ public interface TascaService {
 
 	public boolean hasDocumentsSignar(String tascaId);
 
-	public List<ParellaCodiValorDto> getTasquesExecucionsMassivesAmbDefinicioProcesId(Long definicioProcesId);
+	public List<ParellaCodiValorDto> getTasquesAmbDefinicioProcesId(Long definicioProcesId);
 }

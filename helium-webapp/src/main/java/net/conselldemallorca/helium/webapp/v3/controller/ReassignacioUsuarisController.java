@@ -7,7 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.service.ReassignacioUsuarisService;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ReassignacioUsuarisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -21,7 +21,6 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,19 +41,17 @@ import org.springframework.web.bind.support.SessionStatus;
 public class ReassignacioUsuarisController extends BaseExpedientController {
 	
 	@Autowired
-	private ReassignacioUsuarisService reassignacioUsuarisService;
+	private AdminService adminService;
 	
 	@Autowired
 	private TascaService tascaService;
-	
-	private Validator additionalValidator;
 	
 	@ModelAttribute("command")
 	public ReassignacioUsuarisCommand populateCommand(
 			@RequestParam(value = "id", required = false) Long id) {
 		ReassignacioUsuarisCommand command = new ReassignacioUsuarisCommand();
 		if (id != null) {
-			ReassignacioDto reassignacio = reassignacioUsuarisService.findReassignacioById(id);
+			ReassignacioDto reassignacio = adminService.findReassignacioById(id);
 			command.setId(reassignacio.getId());
 			command.setUsuariOrigen(reassignacio.getUsuariOrigen());
 			command.setUsuariDesti(reassignacio.getUsuariDesti());
@@ -71,11 +68,8 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 	public String formGet(HttpServletRequest request, 
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId, 
-			Model model) {
-		// TODO
-		//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-		
-		List<ReassignacioDto> reassignacions = reassignacioUsuarisService.llistaReassignacions();
+			Model model) {		
+		List<ReassignacioDto> reassignacions = adminService.llistaReassignacions();
 		model.addAttribute("llistat", reassignacions);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(
@@ -94,53 +88,47 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 			@ModelAttribute("command") ReassignacioUsuarisCommand command,
 			Model model,
 			BindingResult result,
-			SessionStatus status) {
+			SessionStatus status) {		
+		(new ReassignacioUsuarisValidatorHelper()).validate(command, result);
+        if (result.hasErrors()) {
+        	return "v3/expedient/tasca/reassignarUsuaris";
+        }
 		
-			// TODO
-			//NoDecorarHelper.marcarNoCapsaleraNiPeu(request);
-			
-			additionalValidator = new ReassignacioUsuarisValidatorHelper();
-			
-			additionalValidator.validate(command, result);
-	        if (result.hasErrors()) {
-	        	return "v3/expedient/tasca/reassignarUsuaris";
-	        }
-			
-	        try {
-	        	if (command.getId() == null) {
-	        		reassignacioUsuarisService.createReassignacio(
-	        				command.getUsuariOrigen(),
-	        				command.getUsuariDesti(),
-	        				command.getDataInici(),
-	        				command.getDataFi(),
-	        				command.getDataCancelacio(),
-	        				command.getTipusExpedientId());
-	        	} else {
-	        		reassignacioUsuarisService.updateReassignacio(
-	        				command.getId(),
-	        				command.getUsuariOrigen(),
-	        				command.getUsuariDesti(),
-	        				command.getDataInici(),
-	        				command.getDataFi(),
-	        				command.getDataCancelacio(),
-	        				command.getTipusExpedientId());
-	        	}
-	        	MissatgesHelper.info(request, getMessage(request, "info.reassignacio.produit") );
-	        	status.setComplete();
-	        } catch (Exception ex) {
-	        	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
-	        	logger.error("No s'ha pogut guardar el registre", ex);
-	        	return "v3/expedient/tasca/reassignarUsuaris";
-	        }
-	        
-	        return "redirect:/v3/expedient/"+expedientId;
+        try {
+        	if (command.getId() == null) {
+        		adminService.createReassignacio(
+        				command.getUsuariOrigen(),
+        				command.getUsuariDesti(),
+        				command.getDataInici(),
+        				command.getDataFi(),
+        				command.getDataCancelacio(),
+        				command.getTipusExpedientId());
+        	} else {
+        		adminService.updateReassignacio(
+        				command.getId(),
+        				command.getUsuariOrigen(),
+        				command.getUsuariDesti(),
+        				command.getDataInici(),
+        				command.getDataFi(),
+        				command.getDataCancelacio(),
+        				command.getTipusExpedientId());
+        	}
+        	MissatgesHelper.info(request, getMessage(request, "info.reassignacio.produit") );
+        	status.setComplete();
+        } catch (Exception ex) {
+        	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
+        	logger.error("No s'ha pogut guardar el registre", ex);
+        	return "v3/expedient/tasca/reassignarUsuaris";
+        }
+        
+        return "redirect:/v3/expedient/"+expedientId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignarCancelar", method = RequestMethod.POST)
 	public String deleteAction(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {		
-		reassignacioUsuarisService.deleteReassignacio(id);
+		adminService.deleteReassignacio(id);
 		MissatgesHelper.info(request, getMessage(request, "info.reassignacio.cancelat") );
 		return "v3/expedient/tasca/reassignarUsuaris";
 	}

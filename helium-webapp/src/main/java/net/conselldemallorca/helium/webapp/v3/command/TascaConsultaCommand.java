@@ -17,6 +17,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class TascaConsultaCommand {
 
+	private String titol;
 	private String tasca;
 	private String expedient;
 	private Long expedientTipusId;
@@ -121,6 +122,12 @@ public class TascaConsultaCommand {
 	}
 	public void setDataLimitFinal(Date dataLimitFinal) {
 		this.dataLimitFinal = dataLimitFinal;
+	}
+	public String getTitol() {
+		return titol;
+	}
+	public void setTitol(String titol) {
+		this.titol = titol;
 	}
 	public String getConsultaTramitacioMassivaTascaId() {
 		return consultaTramitacioMassivaTascaId;

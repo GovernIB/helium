@@ -68,6 +68,9 @@
 								alert(log);
 						}
 					});
+					$('#nomArxiu').on('click', function() {
+						$('input[name=arxiu]').click();
+					});
 				}); 
 				// ]]>
 			</script>

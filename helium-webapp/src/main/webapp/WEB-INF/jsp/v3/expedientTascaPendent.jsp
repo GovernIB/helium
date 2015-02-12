@@ -9,7 +9,7 @@
 <td class="maxcols">
 	${tasca.titol}
 	<c:if test="${not tasca.agafada && not empty tasca.responsables}">
-		<span class="fa fa-users"></span>
+		<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
 	</c:if>
 	<div class="pull-right">
 		<c:if test="${tasca.cancelada}">
@@ -28,10 +28,14 @@
 			<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 		</c:if>
 		<c:if test="${not tasca.completed and tasca.tramitacioMassiva}">
-			<a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a>
+			<c:choose>
+				<c:when test="${tasca.assignadaPersona}"><a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
+				<c:otherwise><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></c:otherwise>
+			</c:choose>			
 		</c:if>
 	</div> 
 </td>
+<td class="datacol">${tasca.responsableString}</td>
 <td class="datacol"><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 <td class="datacol"><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>
 <td class="options">
@@ -95,7 +99,7 @@
 			});
 		});
 		
-		var maxcol = $("#taulaDades thead th").length - 5;
+		var maxcol = $("#taulaDades thead th").length - 6;
 		if($("#taulaDades thead th ").find('input[type="checkbox"]').is(':hidden')) {
 			$(".first").hide();
 			$("#td_nohiha").attr('colspan', 1);

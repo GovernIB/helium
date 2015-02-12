@@ -21,6 +21,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 
 	List<ExpedientTipus> findByEntorn(Entorn entorn);
 	
+	List<Long> findIdByEntornId(Long entornId);
+	
 	List<ExpedientTipus> findByEntornOrderByNomAsc(Entorn entorn);
 	
 	List<ExpedientTipus> findByEntornOrderByCodiAsc(Entorn entorn);

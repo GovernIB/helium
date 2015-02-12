@@ -52,7 +52,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
- * Controlador per a la pàgina d'informació de l'expedient.
+ * Controlador per a la pàgina d'documents de l'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

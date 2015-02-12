@@ -7,19 +7,13 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -31,10 +25,6 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,62 +45,12 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	@Autowired
 	private ExpedientService expedientService;
 
-	@Autowired
-	private PluginService pluginService;
-
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
 	public String info(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model) {
 		return mostrarInformacioExpedientPerPipella(request, expedientId, model, null, expedientService);
-	}
-
-	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
-	public String get(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			ModelMap model)  {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		model.addAttribute("expedient", expedient);
-		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(expedient.getTipus().getId());
-//		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
-//		estats.add(0, new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
-		model.addAttribute("estats", estats);
-		model.addAttribute(getCommandModificar(expedient));
-		return "v3/expedient/modificarInformacio";
-	}
-
-	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.POST)
-	public String modificar(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			@Valid ExpedientEditarCommand command,
-			BindingResult bindingResult,
-			Model model) {
-		new ExpedientEditarValidator().validate(command, bindingResult);
-		if (bindingResult.hasErrors()) {
-			return "v3/expedient/modificar";
-		}
-		expedientService.update(
-				command.getExpedientId(),
-				command.getNumero(),
-				command.getTitol(),
-				command.getResponsableCodi(),
-				command.getDataInici(),
-				command.getComentari(),
-				command.getEstatId(),
-				command.getGeoPosX(),
-				command.getGeoPosY(),
-				command.getGeoReferencia(),
-				command.getGrupCodi(),
-				false);
-		MissatgesHelper.info(
-				request,
-				getMessage(
-						request,
-						"info.informacio.modificat"));
-		return modalUrlTancar();
 	}
 
 	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
@@ -169,7 +109,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
-			if (potAdministrarExpedient(expedient)) {
+			if (expedient.isPermisAdministration()) {
 				expedientService.buidarLogExpedient(expedient.getProcessInstanceId());
 				MissatgesHelper.info(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {
@@ -180,45 +120,6 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
-
-	private ExpedientEditarCommand getCommandModificar(ExpedientDto expedient) {		
-		ExpedientEditarCommand expedientEditarCommand = new ExpedientEditarCommand();
-		expedientEditarCommand.setNumero(expedient.getNumero());
-		expedientEditarCommand.setTitol(expedient.getTitol());
-		expedientEditarCommand.setComentari(expedient.getComentari());
-		expedientEditarCommand.setDataInici(expedient.getDataInici());
-		expedientEditarCommand.setEstatId(expedient.getEstat() != null ? expedient.getEstat().getId() : null);
-		expedientEditarCommand.setExpedientId(expedient.getId());
-		expedientEditarCommand.setGeoPosX(expedient.getGeoPosX());
-		expedientEditarCommand.setGeoPosY(expedient.getGeoPosY());
-		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
-		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
-		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
-		PersonaDto personaResponsable = pluginService.findPersonaAmbCodi(expedient.getResponsableCodi());
-		expedient.setResponsablePersona(personaResponsable);
-		if (personaResponsable != null) {
-			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());
-			expedientEditarCommand.setResponsableNomSencer(personaResponsable.getNomSencer());
-		}
-		return expedientEditarCommand;
-	}
-
-	private class ExpedientEditarValidator implements Validator {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(ExpedientEditarCommand.class);
-		}
-
-		public void validate(Object target, Errors errors) {
-			ExpedientEditarCommand command = (ExpedientEditarCommand) target;
-			ExpedientDto expedient = expedientService.findAmbId(command.getExpedientId());
-			if (expedient.getTipus().isTeTitol())
-				ValidationUtils.rejectIfEmpty(errors, "titol", "not.blank");
-			if (expedient.getTipus().isTeNumero())
-				ValidationUtils.rejectIfEmpty(errors, "numero", "not.blank");
-			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
-		}
-	}	
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

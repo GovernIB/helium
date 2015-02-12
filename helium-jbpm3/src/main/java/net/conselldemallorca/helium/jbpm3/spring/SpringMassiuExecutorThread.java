@@ -52,11 +52,11 @@ public class SpringMassiuExecutorThread extends Thread {
 				if (operacioMassiva != null) {
 					try {
 						Jbpm3HeliumBridge.getInstanceService().executarExecucioMassiva(operacioMassiva);
-						log.info("El thread de execucions massives '" + getName() + "' ha acabat d'executar la acció " + operacioMassiva.getId());
+//						log.info("El thread de execucions massives '" + getName() + "' ha acabat d'executar la acció " + operacioMassiva.getId());
 					}
 					catch (Exception e) {
 						// si s'ha produit una excepció, deseram l'error a la operació
-						log.info("El thread de execucions massives '" + getName() + "' ha detectat un error en la execució de la acció " + operacioMassiva.getId() + ". Anem a generar l'error.");
+						log.error("El thread de execucions massives '" + getName() + "' ha detectat un error en la execució de la acció " + operacioMassiva.getId() + ". Anem a generar l'error.");
 						Jbpm3HeliumBridge.getInstanceService().generaInformeError(operacioMassiva, e);
 					}
 					ultimaExecucioMassiva = operacioMassiva.getExecucioMassivaId();
@@ -73,7 +73,7 @@ public class SpringMassiuExecutorThread extends Thread {
 				currentIdleInterval = idleInterval;
 				currentWaitInterval = timeBetweenExecutions;
 			} catch (InterruptedException e) {
-				log.info("El thread " + (isActive ? "actiu" : "inactiu") + " de execucions massives '" + getName() + "' ha estat interromput");
+				log.error("El thread " + (isActive ? "actiu" : "inactiu") + " de execucions massives '" + getName() + "' ha estat interromput");
 			} catch (Exception e) {
 				log.error("Excepcio en el thread executor d'accions massives. Esperam " + currentIdleInterval + " milisegons", e);
 				try {

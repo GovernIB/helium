@@ -20,8 +20,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
@@ -60,10 +58,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 	private AdminService adminService;
 	@Autowired
 	private TascaService tascaService;
-	@Autowired
-	private DissenyService dissenyService;
-	@Autowired
-	private PluginService pluginService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -72,6 +66,8 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 		model.addAttribute(filtreCommand);
+		EntornDto entornSessio = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
+		model.addAttribute("entornId", entornSessio.getId());
 		return "v3/tascaLlistat";
 	}
 
@@ -137,7 +133,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 						filtreCommand.getConsultaTramitacioMassivaTascaId(),
 						filtreCommand.getExpedientTipusId(),
 						request.getUserPrincipal().getName(),
+						filtreCommand.getTitol(),
 						filtreCommand.getTasca(),
+						filtreCommand.getResponsable(),
 						filtreCommand.getExpedient(),
 						filtreCommand.getDataCreacioInicial(),
 						filtreCommand.getDataCreacioFinal(),
@@ -149,6 +147,15 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 	}
 
+	@RequestMapping(value = "/tasques/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> definicioProcesByTipusExpedient(
+			@PathVariable Long entornId,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		return dissenyService.findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(entornId, expedientTipusId);
+	}
+
 	@RequestMapping(value = "/seleccioTots")
 	@ResponseBody
 	public Set<Long> seleccioTots(HttpServletRequest request) {
@@ -158,7 +165,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			entornActual.getId(),
 			filtreCommand.getExpedientTipusId(),
 			request.getUserPrincipal().getName(),
+			filtreCommand.getTitol(),
 			filtreCommand.getTasca(),
+			filtreCommand.getResponsable(),
 			filtreCommand.getExpedient(),
 			filtreCommand.getDataCreacioInicial(),
 			filtreCommand.getDataCreacioFinal(),

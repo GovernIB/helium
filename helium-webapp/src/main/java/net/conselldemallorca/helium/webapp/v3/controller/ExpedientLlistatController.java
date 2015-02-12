@@ -59,7 +59,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			HttpServletRequest request,
 			Model model) {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
-		model.addAttribute(filtreCommand);
+		model.addAttribute(filtreCommand);		
 		if (filtreCommand.isConsultaRealitzada()) {
 			omplirModelGet(request, model);
 		}
@@ -108,6 +108,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							filtreCommand.isNomesPendents(),
 							filtreCommand.isNomesAlertes(),
 							filtreCommand.isMostrarAnulats(),
+							filtreCommand.isMostrarTasquesPersonals(),
+							filtreCommand.isMostrarTasquesUsuari(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
 			logger.error("No se pudo obtener la lista de expedientes", e);
@@ -163,7 +165,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.getGeoReferencia(),
 						filtreCommand.isNomesPendents(),
 						filtreCommand.isNomesAlertes(),
-						filtreCommand.isMostrarAnulats());		
+						filtreCommand.isMostrarAnulats(),
+						filtreCommand.isMostrarTasquesPersonals(),
+						filtreCommand.isMostrarTasquesUsuari());		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
 		if (seleccio == null) {

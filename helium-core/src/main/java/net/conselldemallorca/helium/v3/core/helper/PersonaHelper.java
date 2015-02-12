@@ -3,13 +3,18 @@
  */
 package net.conselldemallorca.helium.v3.core.helper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
+import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 
@@ -36,6 +41,25 @@ public class PersonaHelper {
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 
+	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
+		try {
+			if (getPersonesPlugin() == null || isSyncActiu()) {
+				List<Persona> persones = personaRepository.findLikeNomSencer(text);
+				List<PersonaDto> resposta = new ArrayList<PersonaDto>();
+				if (persones != null) {
+					for (Persona persona: persones) {
+						resposta.add(toPersonaPlugin(persona));
+					}
+				}
+				return resposta;
+			} else {
+				List<DadesPersona> persones = personesPlugin.findLikeNomSencer(text);
+				return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+			}
+		} catch (PersonesPluginException ex) {
+			throw new PluginException("Error al cercar les persones amb el nom sencer", ex);
+		}
+	}
 	public PersonaDto findByCodi(String codi) throws Exception {
 		PersonaDto resposta;
 		if (pluginHelper == null || !pluginHelper.isPersonesPluginActiu() || pluginHelper.isPersonesSyncActiu()) {

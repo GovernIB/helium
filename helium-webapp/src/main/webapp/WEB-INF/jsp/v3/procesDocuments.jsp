@@ -29,7 +29,7 @@ div.procesDocument:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
-.btnNouDocument {
+.nou_document {
 	text-align:right;
 }
 #dataTables_new {padding-top: 5px;padding-bottom: 10px;}
@@ -42,8 +42,8 @@ div.procesDocument:hover {
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_documents_${proces.id}">
 				<div id="dataTables_new">
-					<div class="btnNouDocument">
-						<a 	class="icon btn btn-default" 
+					<div id="nou_document_${proces.id}" class="nou_document">
+						<a 	class="btn btn-default" 
 							href="../../v3/expedient/${expedientId}/nouDocument?processInstanceId=${proces.id}" 
 							data-rdt-link-modal="true" 
 							data-rdt-link-callback="recargarPanel(${proces.id});"
@@ -95,7 +95,12 @@ div.procesDocument:hover {
 					refrescarAlertes: true,
 					refrescarPagina: false,
 					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
-				});	
+				});
+				$('#nou_document_${proces.id} a').heliumEvalLink({
+					refrescarAlertes: true,
+					refrescarPagina: false,
+					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
+				});
 			</script>
 		</c:forEach>
 	</c:when>

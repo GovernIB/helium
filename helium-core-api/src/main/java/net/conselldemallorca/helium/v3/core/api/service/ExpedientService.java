@@ -268,6 +268,8 @@ public interface ExpedientService {
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
+			boolean mostrarTasquesPersonals, 
+			boolean mostrarTasquesUsuari, 
 			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
@@ -329,7 +331,9 @@ public interface ExpedientService {
 			String geoReferencia,
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
-			boolean mostrarAnulats);
+			boolean mostrarAnulats,
+			boolean mostrarTasquesPersonals, 
+			boolean mostrarTasquesUsuari);
 
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.
@@ -400,7 +404,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientTascaDto> findTasquesPendents(Long id);
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarDeOtrosUsuarios);
 
 	/**
 	 * Retorna la llista de dades d'una instància de procés de
@@ -746,35 +750,9 @@ public interface ExpedientService {
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
-	/*
-	public List<ExpedientDadaDto> findDadesPerProcessInstance(String processInstanceId);
-
-	public List<ExpedientDto> getExpedientsRelacionats(Long expedientId);
-
-	public List<Long> findIdsPerConsultaGeneral(
-			Long entornId,
-			Long expedientTipusId,
-			String titol,
-			String numero,
-			Date dataInici1,
-			Date dataInici2,
-			Date dataFi1,
-			Date dataFi2,
-			EstatTipusDto estatTipus,
-			Long estatId,
-			Double geoPosX,
-			Double geoPosY,
-			String geoReferencia,
-			boolean nomesAmbTasquesActives,
-			boolean nomesAlertes,
-			boolean mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
-
+			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari);
 	
-
-	public void changeProcessInstanceVersion(String id, int versio);
-*/
-	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari);
 
 	public void evaluateScript(Long expedientId, String script);
 
@@ -796,7 +774,7 @@ public interface ExpedientService {
 		}
 	}
 
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 
@@ -840,7 +818,7 @@ public interface ExpedientService {
 
 	public ExpedientLogDto findLogById(Long logId);
 
-	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId);
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios);
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 }

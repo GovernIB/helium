@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -56,7 +57,6 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -95,8 +95,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
 	@Resource
 	private EstatRepository estatRepository;
 	@Resource
@@ -177,7 +175,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId) {
 		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
-		if (expedientTipus.getJbpmProcessDefinitionKey() != null) {
+		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
@@ -418,6 +416,42 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornDto) {
 		Entorn entorn = conversioTipusHelper.convertir(entornDto, Entorn.class);
+		return getExpedientTipusAmbEntorn(entorn);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<ParellaCodiValorDto> findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(Long entornId, Long expedientTipusId) {
+		List<Long> ids = new ArrayList<Long>();
+		List<Object[]> tasques = new ArrayList<Object[]>();
+		
+		if (expedientTipusId.equals(-1L)) {
+			List<ExpedientTipusDto> tipusExpedient = findExpedientTipusAmbPermisReadUsuariActual(entornId);
+			for (ExpedientTipusDto tipus : tipusExpedient) {
+				ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIJbpmKey(
+						tipus.getEntorn().getId(),
+						tipus.getJbpmProcessDefinitionKey()));
+			}
+			tasques.addAll(tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
+		}
+				
+		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
+		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
+			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(),
+					expedientTipus.getJbpmProcessDefinitionKey()));
+			tasques.addAll(tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
+		}
+		
+		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
+		for (Object[] tasca : tasques) {
+			lista.add(new ParellaCodiValorDto(tasca[0].toString(), tasca[1]));
+		}
+		return lista;
+	}
+
+	@Transactional(readOnly=true)
+	private List<ExpedientTipusDto> getExpedientTipusAmbEntorn(Entorn entorn) {
 		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
 		permisosHelper.filterGrantedAny(tipus, new ObjectIdentifierExtractor<ExpedientTipusDto>() {
 			public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {

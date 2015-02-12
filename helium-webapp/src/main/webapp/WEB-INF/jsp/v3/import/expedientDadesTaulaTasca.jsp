@@ -26,7 +26,7 @@
 		<td>
 			${tasca.titol}
 			<c:if test="${not tasca.agafada && not empty tasca.responsables}">
-				<span class="fa fa-users"></span>
+				<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
 			</c:if>
 			<div class="pull-right">
 				<c:if test="${tasca.cancelada}">
@@ -49,7 +49,7 @@
 				</c:if>
 			</div>
 		</td>
-		<td><c:if test="${not empty tasca.responsable}">${tasca.responsable.nomSencer}</c:if></td>
+		<td>${tasca.responsableString}</td>
 		<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
 		<td><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>		 
 		<td>

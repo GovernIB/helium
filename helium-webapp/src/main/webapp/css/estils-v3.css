@@ -153,3 +153,28 @@ p.help-block {
 .dropdown-menu {
 	overflow: auto;
 }
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default {
+	background-color: #d3d3d3 !important;
+	color: #000;
+	box-shadow: 0 3px 5px rgba(0, 0, 0, 0.125) inset;
+    outline: 0 none;
+}
+
+.btn:active, .btn.active {
+/*     box-shadow: none; */
+}
+.tooltip-inner {
+/* 	background-color: #428bca !important; */
+}
+.tooltip-arrow {
+/* 	display: none; */
+}
+
+.tooltip-inner {  
+  background-color: #fff;
+	color: #333 !important;
+	border-color: #333;
+	border-width: 1px;
+	border-style: solid;
+}

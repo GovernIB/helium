@@ -179,6 +179,8 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
+			boolean mostrarTasquesPersonals, 
+			boolean mostrarTasquesUsuari, 
 			PaginacioParamsDto paginacioParams) throws Exception {
 		return delegate.findAmbFiltrePaginat(
 				entornId,
@@ -197,6 +199,8 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesAmbTasquesActives,
 				nomesAlertes,
 				mostrarAnulats,
+				mostrarTasquesPersonals, 
+				mostrarTasquesUsuari, 
 				paginacioParams);
 	}
 
@@ -218,7 +222,9 @@ public class ExpedientServiceBean implements ExpedientService {
 			String geoReferencia,
 			boolean nomesAmbTasquesActives,
 			boolean nomesAlertes,
-			boolean mostrarAnulats) {
+			boolean mostrarAnulats,
+			boolean mostrarTasquesPersonals, 
+			boolean mostrarTasquesUsuari) {
 		return delegate.findIdsAmbFiltre(
 				entornId,
 				expedientTipusId,
@@ -235,7 +241,9 @@ public class ExpedientServiceBean implements ExpedientService {
 				geoReferencia,
 				nomesAmbTasquesActives,
 				nomesAlertes,
-				mostrarAnulats);
+				mostrarAnulats,
+				mostrarTasquesPersonals,
+				mostrarTasquesUsuari);
 	}
 
 	@Override
@@ -268,8 +276,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findTasquesPendents(Long id) {
-		return delegate.findTasquesPendents(id);
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarDeOtrosUsuarios) {
+		return delegate.findTasquesPendents(id, mostrarDeOtrosUsuarios);
 	}
 
 	@Override
@@ -486,20 +494,20 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
-		return delegate.findConsultaDissenyPaginat(consultaId, valors, paginacioParams, nomesPendents, nomesAlertes, mostrarAnulats);
+	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari) {
+		return delegate.findConsultaDissenyPaginat(consultaId, valors, paginacioParams, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats) {
-		return delegate.findIdsPerConsultaInforme(consultaId, valors, nomesPendents, nomesAlertes, mostrarAnulats);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari) {
+		return delegate.findIdsPerConsultaInforme(consultaId, valors, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
-		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesPendents, nomesAlertes, mostrarAnulats, paginacioParams);
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari, paginacioParams);
 	}
 
 	@Override
@@ -635,8 +643,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId) {
-		return delegate.findTasquesPerInstanciaProces(expedientId, processInstanceId);
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) {
+		return delegate.findTasquesPerInstanciaProces(expedientId, processInstanceId, mostrarDeOtrosUsuarios);
 	}
 
 	@Override

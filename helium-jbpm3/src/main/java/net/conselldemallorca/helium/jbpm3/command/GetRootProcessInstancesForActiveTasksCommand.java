@@ -29,8 +29,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private String actorId;
+	private boolean tasquesUsuari = false;
 	private List<Long> idsPIExpedients;
-	private String tasca; 
 	private String tascaSel; 
 	private String titol;
 	private Date dataCreacioInici; 
@@ -38,7 +38,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private Integer prioritat;
 	private Date dataLimitInici;
 	private Date dataLimitFi;
-	private Boolean pooled;
 	private boolean mostrarTasquesTots = false;
 	private Boolean mostrarTasquesNomesGroup = false;
 	private Boolean mostrarTasquesNomesPersonals = false;
@@ -48,30 +47,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	private boolean asc;
 	private boolean nomesActives = true;
 
-	public int getFirstRow() {
-		return firstRow;
-	}
-
-	public void setFirstRow(int firstRow) {
-		this.firstRow = firstRow;
-	}
-
-	public int getMaxResults() {
-		return maxResults;
-	}
-
-	public void setMaxResults(int maxResults) {
-		this.maxResults = maxResults;
-	}
-
-	public boolean isNomesActives() {
-		return nomesActives;
-	}
-
-	public void setNomesActives(boolean nomesActives) {
-		this.nomesActives = nomesActives;
-	}
-
 	public GetRootProcessInstancesForActiveTasksCommand() {}
 	
 	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients) {
@@ -80,34 +55,36 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.idsPIExpedients = idsPIExpedients;
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, Boolean pooled) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, List<Long> idsPIExpedients, Boolean mostrarTasquesNomesGroup) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
-		this.pooled = pooled;
+		this.mostrarTasquesNomesPersonals = !mostrarTasquesNomesGroup;
+		this.mostrarTasquesNomesGroup = mostrarTasquesNomesGroup;
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc,Boolean pooled) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String titol, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc,Boolean mostrarTasquesNomesGroup) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
-		this.tasca = tasca; 
+		this.titol = titol; 
 		this.tascaSel = tascaSel; 
 		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
 		this.prioritat = prioritat;
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
-		this.pooled = pooled;
+		this.mostrarTasquesNomesPersonals = !mostrarTasquesNomesGroup;
+		this.mostrarTasquesNomesGroup = mostrarTasquesNomesGroup;
 		this.sort = sort;
 		this.asc = asc;
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String tasca, String tascaSel, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
+	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String titol, String tascaSel, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup, boolean tasquesUsuari) {
 		super();
 		this.actorId = responsable;
 		this.idsPIExpedients = idsExpedients;
-		this.tasca = tasca == null ? null : tasca.trim(); 
+		this.titol = titol == null ? null : titol.trim(); 
 		this.tascaSel = tascaSel; 
 		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
@@ -115,8 +92,8 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitInici = dataLimitInici;
 		this.dataLimitFi = dataLimitFi;
 		this.mostrarTasquesNomesPersonals = mostrarTasquesPersonals;
-		this.pooled = this.mostrarTasquesNomesGroup = mostrarTasquesGrup;
-		this.mostrarTasquesTots = (mostrarTasquesPersonals && mostrarTasquesGrup);
+		this.mostrarTasquesNomesGroup = mostrarTasquesGrup;
+		this.mostrarTasquesTots = (mostrarTasquesPersonals && mostrarTasquesGrup) || (tasquesUsuari && !mostrarTasquesPersonals && !mostrarTasquesGrup);
 		for (OrdreDto or : ordres) {
 			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 			this.sort = or.getCamp();
@@ -124,11 +101,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		}
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String tasca, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, MostrarTasquesDto mostrarTasques) {
+	public GetRootProcessInstancesForActiveTasksCommand(String actorId, String titol, String tascaSel, List<Long> idsPIExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, String sort, boolean asc, MostrarTasquesDto mostrarTasques) {
 		super();
 		this.actorId = actorId;
 		this.idsPIExpedients = idsPIExpedients;
-		this.tasca = tasca; 
+		this.titol = titol; 
 		this.tascaSel = tascaSel; 
 		this.dataCreacioInici = dataCreacioInici; 
 		this.dataCreacioFi = dataCreacioFi;
@@ -146,19 +123,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		
 		setJbpmContext(jbpmContext);
-		  
-		String hqlNoUser =
-		    "select  " + 
-		    "    ti.processInstance.id, " +
-		    "    ti.processInstance.superProcessToken.id, " +
-		    "    ti.id," +
-		    " 	 ti.name" +
-		    "  from " +
-		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-		    "  where " +
-		    "  ti.isSuspended = false and ti.isOpen = true " +
-		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true " : " ") +
-		    ((pooled != null && pooled == false) ? "and ti.actorId is not null " : " ");
 		
 		String hqlNoUserLlistatTasques =
 		    "select  " + 
@@ -222,10 +186,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			hql += " and ti.priority = :prioritat";
 		}
 
-		if (tasca != null && !"".equals(tasca)) {
-			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:tasca||'%@#@ENTORNID@#@%') ";
-		}
-
 		if (tascaSel != null && !"".equals(tascaSel)) {
 			hql += " and ti.task.name = :tascaSel";
 		}
@@ -247,11 +207,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		List<Object[]> llistaActorId = new ArrayList<Object[]>();
 		
 		if (actorId == null || "".equals(actorId)) {
-			Query query = null;
-			if (mostrarTasquesTots || mostrarTasquesNomesGroup || mostrarTasquesNomesPersonals)
-				query = jbpmContext.getSession().createQuery(hqlNoUserLlistatTasques + hql);
-			else
-				query = jbpmContext.getSession().createQuery(hqlNoUser + hql);
+			Query query = jbpmContext.getSession().createQuery(hqlNoUserLlistatTasques + hql);
 			
 			if (dataCreacioInici != null) 
 				query.setDate("dataCreacioInici", dataCreacioInici);
@@ -267,9 +223,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
-
-			if (tasca != null && !"".equals(tasca))
-				query.setString("tasca", tasca.toUpperCase());
 			
 			if (tascaSel != null && !"".equals(tascaSel))
 				query.setString("tascaSel", tascaSel);
@@ -277,7 +230,9 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			if (titol != null && !"".equals(titol))
 				query.setString("titol", titol.toUpperCase());
 			
-			llistaActorId.addAll(query.list());			
+			if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup) {
+				llistaActorId.addAll(query.list());		
+			}
 		} else {
 			Query queryPersonal = jbpmContext.getSession().createQuery(hqlPersonal + hql);
 			queryPersonal.setString("actorId", actorId);
@@ -310,11 +265,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				queryPooled.setInteger("prioritat",3-prioritat);
 			}
 
-			if (tasca != null && !"".equals(tasca)) {
-				queryPersonal.setString("tasca", tasca.toUpperCase());
-				queryPooled.setString("tasca", tasca.toUpperCase());
-			}
-
 			if (tascaSel != null && !"".equals(tascaSel)) {
 				queryPersonal.setString("tascaSel", tascaSel);
 				queryPooled.setString("tascaSel", tascaSel);
@@ -325,11 +275,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				queryPooled.setString("titol", titol.toUpperCase());
 			}
 			
-			if (mostrarTasquesTots || !(pooled != null ? pooled : false)) {
+			if (mostrarTasquesTots || mostrarTasquesNomesPersonals) {
 				llistaActorId.addAll(queryPersonal.list());
 			}
 			
-			if (mostrarTasquesTots || (pooled == null || pooled == true)) {
+			if (mostrarTasquesTots || mostrarTasquesNomesGroup) {
 				llistaActorId.addAll(queryPooled.list());
 			}
 		}
@@ -416,9 +366,29 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	public void setTitol(String titol) {
 		this.titol = titol;
 	}
-	
-	public String getParametersToString() {
-		return "GetRootProcessInstancesForActiveTasksCommand [actorId=" + actorId + ", idsPIExpedients=" + idsPIExpedients + ", tasca=" + tasca + ", tascaSel=" + tascaSel + ", titol=" + titol + ", dataCreacioInici=" + dataCreacioInici + ", dataCreacioFi=" + dataCreacioFi + ", prioritat=" + prioritat + ", dataLimitInici=" + dataLimitInici + ", dataLimitFi=" + dataLimitFi + ", pooled=" + pooled + ", firstRow=" + firstRow + ", maxResults=" + maxResults + ", sort=" + sort + ", asc=" + asc + ", nomesActives=" + nomesActives + "]";
+	public int getFirstRow() {
+		return firstRow;
+	}
+	public void setFirstRow(int firstRow) {
+		this.firstRow = firstRow;
+	}
+	public boolean isTasquesUsuari() {
+		return tasquesUsuari;
+	}
+	public void setTasquesUsuari(boolean tasquesUsuari) {
+		this.tasquesUsuari = tasquesUsuari;
+	}
+	public int getMaxResults() {
+		return maxResults;
+	}
+	public void setMaxResults(int maxResults) {
+		this.maxResults = maxResults;
+	}
+	public boolean isNomesActives() {
+		return nomesActives;
+	}
+	public void setNomesActives(boolean nomesActives) {
+		this.nomesActives = nomesActives;
 	}
 
 	@Override

@@ -117,7 +117,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		}
 		if (permesa) {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
-			if (accio.isPublica() || potModificarExpedient(expedient)) {
+			if (accio.isPublica() || expedient.isPermisWrite()) {
 				try {
 					dissenyService.executarAccio(accio, expedient);
 					MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
