@@ -10,7 +10,7 @@
 
 <html>
 <head>
-	<title><spring:message code='expedient.massiva.proces' /></title>
+	<title><spring:message code='comuns.massiu' /></title>
 	<hel:modalHead/>
 	
 	<style type="text/css">	

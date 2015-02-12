@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title><spring:message code='tasca.pendents.completar' /></title>
+	<title><spring:message code='decorator.menu.administracio.tasques.execucio' /></title>
 	<hel:modalHead/>
 </head>
 <body>

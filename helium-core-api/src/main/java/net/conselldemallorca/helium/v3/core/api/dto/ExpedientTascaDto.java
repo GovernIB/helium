@@ -485,4 +485,12 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		this.assignadaPersona = assignadaPersona;
 	}
 
+	public boolean isInicial() {
+		return id.startsWith(PREFIX_TASCA_INICIAL);
+	}
+
+	public int getPrioritatOrdinal() {
+		return prioritat.ordinal();
+	}
+
 }
