@@ -64,6 +64,7 @@
 		.btn_date {cursor:pointer;}
 		.has-error .form-control {background-color:#ffefe !important;}
 		#contingut-alertes, .tauladades {padding-right:15px;}
+		.registre_taula {overflow: auto;}
 		.registre th {
 			border-bottom:solid 1px #CACACA !important;
 			background:rgba(221,221,221,1);
@@ -74,7 +75,9 @@
 			background:-ms-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
 			background:linear-gradient(to bottom, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
 			filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#f5f5f5', GradientType=0 );
+			min-width: 160px;
 		}
+		.registre th.colEliminarFila{min-width: 1px;}
 	</style>
 </head>
 <body>		

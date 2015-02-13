@@ -23,21 +23,27 @@
 		<style>
 		body {margin-top:15px;}
 		form {width:calc(100% - 15px);}
-		.alert {margin-top:20px;}
 		input, select, textarea {width:100%;}
 		label {font-weight:normal;}
+		div.tab-content {width:calc(100% - 15px);padding-bottom:15px;}
+		p.help-block {padding-top:0;margin-top:4px !important;margin-bottom:0px;}
+		#tabnav .glyphicon {padding-right:10px;}
+		#contingut-alertes, .tauladades {padding-right:15px;}
+		.alert {margin-top:20px;}
 		.form-group {padding-right:15px;margin-left:0px !important;margin-bottom:10px;}
-		.controls {padding-right:5px !important;}
 		.form-group input, .form-group textarea {width:100%;}
-		.input-group-multiple {padding-left:15px;padding-right:0px;}
 		.form-group li > .select2-container {width:100%;padding-right:20px;}
 		.form-group .select2-container {width:calc(100% + 14px);}
-		.pad-left-col-xs-3 {left:25%;}
 		.form-group.condensed {margin-bottom:0px;}
 		.form-group.registre .btn_afegir{margin-top:10px;}
-		.registre table .colEliminarFila {width:1px;}
-		.registre table .opciones {text-align:center;}
-		p.help-block {padding-top:0;margin-top:4px !important;margin-bottom:0px;}
+		.form-group.multiple_camp {margin-bottom:6px;}
+		.controls {padding-right:5px !important;}
+		.input-group-multiple {padding-left:15px;padding-right:0px;}
+		.multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {float:left;width:calc(100% - 29px);}
+		.multiple_camp div.suggest, .multiple_camp div.seleccio {float:left;width:calc(100% - 29px) !important;}
+		.multiple_camp .btn_eliminar {float:left;margin-left:4px;}
+		.multiple .termgrup {float:left;width:calc(100% - 14px);}
+		.pad-left-col-xs-3 {left:25%;}
 		.clear {clear:both;}
 		.clearForm {clear:both;margin-bottom:10px;margin-top:15px;border-bottom:solid 1px #DADADA;}
 		.input-append {width:calc(100% - 27px);}
@@ -46,26 +52,21 @@
 		.btn_eliminar {background-color:#FFF;border:solid 1px rgb(204, 204, 204);border-radius:4px;padding:9px 6px;}
 		.table {margin-bottom:0px;}
 		.col-xs-9 .checkbox {width:auto;}
-		#tabnav .glyphicon {padding-right:10px;}
-		div.tab-content {width:calc(100% - 15px);padding-bottom:15px;}
-		.multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {float:left;width:calc(100% - 29px);}
-		.multiple_camp div.suggest, .multiple_camp div.seleccio {float:left;width:calc(100% - 29px) !important;}
-		.registre .multiple input, .registre .multiple textarea, .registre .multiple_camp .input-group, .registre .multiple_camp .inputcheck {float:left;width:100% !important;}
-		.registre .multiple_camp div.suggest, .registre .multiple_camp div.seleccio {float:left;width:100% !important;}
-		.registre .multiple input.checkbox {width:auto !important;}
-		.multiple .termgrup {float:left;width:calc(100% - 14px);}
 		.termgrup input, .termgrup select {float:left;width:calc(100% - 65px);}
 		.tercpre {float:left;width:32%;padding-left:0px !important;padding-right:8px !important;}
 		.tercmig {float:left;width:32%;padding-left:4px !important;padding-right:4px !important;}
 		.tercpost {float:left;width:36%;padding-left:8px !important;padding-right:0px !important;}
 		.label-term {float:left;width:60px;text-align:left !important;margin-right:5px;font-weight:normal !important;}
-		.multiple_camp .btn_eliminar {float:left;margin-left:4px;}
-		.form-group.multiple_camp {margin-bottom:6px;}
 		.btn_date {cursor:pointer;}
 		.has-error .form-control {background-color:#ffefe !important;}
-		#contingut-alertes, .tauladades {padding-right:15px;}
 		.hide {display: none;}
 		.carregant {margin: 1em 0 2em 0;text-align: center;}
+		.registre_taula {overflow: auto;}
+		.registre table .colEliminarFila {width:1px;}
+		.registre table .opciones {text-align:center;}
+		.registre .multiple input, .registre .multiple textarea, .registre .multiple_camp .input-group, .registre .multiple_camp .inputcheck {float:left;width:100% !important;}
+		.registre .multiple_camp div.suggest, .registre .multiple_camp div.seleccio {float:left;width:100% !important;}
+		.registre .multiple input.checkbox {width:auto !important;}
 		.registre th {
 			border-bottom:solid 1px #CACACA !important;
 			background:rgba(221,221,221,1);
@@ -76,7 +77,9 @@
 			background:-ms-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
 			background:linear-gradient(to bottom, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
 			filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#dddddd', endColorstr='#f5f5f5', GradientType=0 );
+			min-width: 160px;
 		}
+		.registre th.colEliminarFila{min-width: 1px;}
 	</style>
 </head>
 <body>		

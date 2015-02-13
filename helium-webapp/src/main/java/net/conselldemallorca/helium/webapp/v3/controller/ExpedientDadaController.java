@@ -316,7 +316,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			Model model) {
-		model.addAttribute("camps", getCampsNoUtilitzats(procesId));
+		model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, null, null, null, model));
 		return "v3/expedientDadaNova";
 	}
@@ -328,7 +328,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
 			Model model) {
-		model.addAttribute("camps", getCampsNoUtilitzats(procesId));
+		model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, varCodi, null, null, model));
 		return "v3/procesDadaNova";
 	}
@@ -399,7 +399,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				}
 			}
 			if (error) {
-				model.addAttribute("camps", getCampsNoUtilitzats(procesId));
+				model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 				return "v3/expedientDadaNova";
 			}
 			
@@ -414,22 +414,34 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 	
-	private List<CampDto> getCampsNoUtilitzats(String procesId) {
+	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesId) {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 			List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
 			List<CampDto> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
-			for(CampDto camp: camps) {
-				if (instanciaProces.getVariables() == null || !instanciaProces.getVariables().containsKey(camp.getCodi())) {
-					campsNoUtilitzats.add(camp);
+			List<ExpedientDadaDto> dadesInstancia = expedientService.findDadesPerInstanciaProces(expedientId, procesId);
+			if (dadesInstancia != null) {
+				Collections.sort(
+					dadesInstancia, 
+					new Comparator<ExpedientDadaDto>() {
+						public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+							return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
+						}
+					}
+				);
+				int i = 0;
+				for(CampDto camp: camps) {
+					while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
+						i++;
+					if (!camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
+						campsNoUtilitzats.add(camp);
+					} else if (i < (dadesInstancia.size() - 1)){
+						i++;
+					}
 				}
+				return campsNoUtilitzats;
+			} else {
+				return camps;
 			}
-//			Iterator<CampDto> it = camps.iterator();
-//			while (it.hasNext()) {
-//				CampDto camp = it.next();
-//				if (instanciaProces.getVariables() != null && instanciaProces.getVariables().containsKey(camp.getCodi()))
-//					it.remove();
-//			}
-			return campsNoUtilitzats;
 	}
 	
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(Long expedientId, String instaciaProcesId) {

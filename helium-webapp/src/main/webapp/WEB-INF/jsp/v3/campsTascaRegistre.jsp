@@ -14,7 +14,6 @@
 	<label for="${dadaActual.varCodi}" class="control-label col-xs-3<c:if test="${dada.required}"> obligatori</c:if>">${dadaActual.campEtiqueta}</label>
 	<div class="controls col-xs-9 registre">	
 		<c:set var="nomReg" value="command.${dadaActual.varCodi}" />
-		
 		<%-- Primer registre, que utilitzam per a definir la capçalera de la taula --%>
 		<c:choose>
 			<c:when test="${dadaActual.campMultiple}">
@@ -26,6 +25,7 @@
 		</c:choose>
 	
 		<%-- CAPÇALERA TAULA ------------------------------------------------------------------------------------------%>
+		<div class="registre_taula">
 		<table id="table_mult_${varStatusMain.index}" class="table table-bordered table-condensed">
 			<thead>
 			<tr>
@@ -115,7 +115,7 @@
 			</c:if>				
 		<%-- PEU DE TAULA ------------------------------------------------------------------------------------%>
 		</table>	
-					
+		</div>					
 		<c:if test="${not empty dadaActual.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dadaActual.observacions}</p></c:if>
 		<c:if test="${not empty campErrorsReg}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dadaActual.varCodi}"/></p></c:if>
 		<c:if test="${!dadaActual.readOnly && !tasca.validada}">

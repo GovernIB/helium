@@ -312,71 +312,73 @@ public class TascaFormValidatorHelper implements Validator {
 	private Validator getValidatorExpresions(List<TascaDadaDto> tascaDadas, Object command) {
 		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
 		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
-		for (TascaDadaDto camp: tascaDadas) {			
-			for (ValidacioDto validacio: camp.getValidacions()) {
-				if (camp.isCampMultiple()) {
-					try {
-						Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valors != null) {
-							String expressio = validacio.getExpressio();
-							if (expressio.indexOf("sum(" + camp.getVarCodi() + ")") != -1) {
-								if (camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
-									Long suma = 0L;
-									for (Long valor: (Long[])valors) {
-										suma += (valor == null ? 0L : valor); 
+		for (TascaDadaDto camp: tascaDadas) {
+			if (camp.getValidacions() != null) {
+				for (ValidacioDto validacio: camp.getValidacions()) {
+					if (camp.isCampMultiple()) {
+						try {
+							Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+							if (valors != null) {
+								String expressio = validacio.getExpressio();
+								if (expressio.indexOf("sum(" + camp.getVarCodi() + ")") != -1) {
+									if (camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
+										Long suma = 0L;
+										for (Long valor: (Long[])valors) {
+											suma += (valor == null ? 0L : valor); 
+										}
+										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
+									} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
+										Double suma = 0.0;
+										for (Double valor: (Double[])valors) {
+											suma += (valor == null ? 0.0 : valor); 
+										}
+										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
+									} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+										BigDecimal suma = new BigDecimal(0);
+										for (BigDecimal valor: (BigDecimal[])valors) {
+											if (valor == null) valor = new BigDecimal(0);
+											suma = suma.add(valor);
+										}
+										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
 									}
-									expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
-								} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
-									Double suma = 0.0;
-									for (Double valor: (Double[])valors) {
-										suma += (valor == null ? 0.0 : valor); 
-									}
-									expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
-								} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
-									BigDecimal suma = new BigDecimal(0);
-									for (BigDecimal valor: (BigDecimal[])valors) {
-										if (valor == null) valor = new BigDecimal(0);
-										suma = suma.add(valor);
-									}
-									expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
-								}
-								ExpressionValidationRule validationRule = new ExpressionValidationRule(
-										new ValangConditionExpressionParser(),
-										expressio);
-								String codiError = "error.camp." + camp.getVarCodi();
-								validationRule.setErrorCode(codiError);
-								validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
-								beanValidationConfiguration.addPropertyRule(
-										camp.getVarCodi(),
-										validationRule);
-							} else {
-								for (int i = 0; i < Array.getLength(valors); i++) {
-									String expressio_fill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
 									ExpressionValidationRule validationRule = new ExpressionValidationRule(
 											new ValangConditionExpressionParser(),
-											expressio_fill);
+											expressio);
 									String codiError = "error.camp." + camp.getVarCodi();
 									validationRule.setErrorCode(codiError);
 									validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
 									beanValidationConfiguration.addPropertyRule(
-											camp.getVarCodi() + "[" + i + "]",
+											camp.getVarCodi(),
 											validationRule);
+								} else {
+									for (int i = 0; i < Array.getLength(valors); i++) {
+										String expressio_fill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
+										ExpressionValidationRule validationRule = new ExpressionValidationRule(
+												new ValangConditionExpressionParser(),
+												expressio_fill);
+										String codiError = "error.camp." + camp.getVarCodi();
+										validationRule.setErrorCode(codiError);
+										validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
+										beanValidationConfiguration.addPropertyRule(
+												camp.getVarCodi() + "[" + i + "]",
+												validationRule);
+									}
 								}
 							}
+						} catch (Exception ex) {
+							logger.error("No s'ha pogut generar la validació de l'expressió definida per a la variable '" + camp.getVarCodi() + "' amb campId " + camp.getCampId());
 						}
-					} catch (Exception ex) {
-						logger.error("No s'ha pogut generar la validació de l'expressió definida per a la variable '" + camp.getVarCodi() + "' amb campId " + camp.getCampId());
+					} else {
+						ExpressionValidationRule validationRule = new ExpressionValidationRule(
+								new ValangConditionExpressionParser(),
+								validacio.getExpressio());
+						String codiError = "error.camp." + camp.getVarCodi();
+						validationRule.setErrorCode(codiError);
+						validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
+						beanValidationConfiguration.addPropertyRule(
+								camp.getVarCodi(),
+								validationRule);
 					}
-				} else {
-					ExpressionValidationRule validationRule = new ExpressionValidationRule(
-							new ValangConditionExpressionParser(),
-							validacio.getExpressio());
-					String codiError = "error.camp." + camp.getVarCodi();
-					validationRule.setErrorCode(codiError);
-					validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
-					beanValidationConfiguration.addPropertyRule(
-							camp.getVarCodi(),
-							validationRule);
 				}
 			}
 		}

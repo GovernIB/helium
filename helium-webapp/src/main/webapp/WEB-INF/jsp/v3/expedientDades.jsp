@@ -6,45 +6,20 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
 <style>
-div.proces {
-	color: white !important;
-	background-color: #428bca !important;
-	border-color: #357ebd !important;
-	font-weight: bold;
-}
-div.proces:hover {
-	background-color: #3071a9 !important;
-	border-color: #285e8e !important;
-}
-.panel-body {
-	padding-bottom: 0px !important;
-}
-.panel-body > table {
-	overflow: hidden;
-}
-.panel-body table:last-child {
-	margin-bottom: 0px;
-}
-.contingut-carregant-proces {
-	margin: 1em 0 2em 0;
-	text-align: center;
-}
-.ocults {
-	margin-top: 10px;
- 	padding-bottom: 5px; 
-}
-.btnNovaDada {
-	padding-bottom: 10px;
-}
-#contingut-dades .left {
-	float: left;
-}
-#contingut-dades .right {
-	float: right;
-}
-#contingut-dades .clear{
-	clear: both;
-}
+div.proces {color: white !important;background-color: #428bca !important;border-color: #357ebd !important;font-weight: bold;}
+div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !important;}
+.panel-body {padding-bottom: 0px !important;}
+.panel-body > table {overflow: hidden;}
+.panel-body table:last-child {margin-bottom: 0px;}
+.contingut-carregant-proces {margin: 1em 0 2em 0;text-align: center;}
+.ocults {margin-top: 10px;padding-bottom: 5px;}
+.btnNovaDada {padding-bottom: 10px;}
+#contingut-dades .left {float: left;}
+#contingut-dades .right {float: right;}
+#contingut-dades .clear{clear: both;}
+.registre th{min-width: 160px;}
+.registre th.colEliminarFila{min-width: 1px;}
+.registre_taula{overflow: auto;}
 </style>
 
 <c:set var="numColumnes" value="${3}"/>
@@ -62,18 +37,17 @@ div.proces:hover {
 		<c:forEach items="${dades}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
-<!-- 
 			<div class="btnNovaDada right">
-				<a 	class="btn btn-default" 
+				<a id=""
+					class="btn btn-default" 
 					href="../../v3/expedient/${expedientId}/novaDada/${proces.id}" 
 					data-rdt-link-modal="true" 
-					data-rdt-link-callback="recargarPanel(${proces.id});"
+					data-rdt-link-callback="reestructura(${proces.id});"
 					data-rdt-link-modal-min-height="350">
 					<span class="fa fa-plus"></span>
 					<spring:message code="expedient.boto.nova_dada"/>
 				</a>
 			</div>
- -->
 			<div class="clear"></div>
 			<div class="panel panel-default">
 				<div id="${proces.id}-titol" class="panel-heading clicable proces" data-toggle="collapse" data-target="#panel_${proces.id}" data-id="${proces.id}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
@@ -190,7 +164,9 @@ $(document).ready(function() {
 	});
 	$('.btnNovaDada a').heliumEvalLink({
 		refrescarAlertes: true,
-		refrescarPagina: false
+		refrescarPagina: false,
+		ajaxRefrescarAlertes: true,
+		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
 	});
 });
 
@@ -216,6 +192,12 @@ function updatePanell() {
 		ajaxRefrescarAlertes: true,
 		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
 	});
+// 	$('.btnNovaDada a').heliumEvalLink({
+// 		refrescarAlertes: true,
+// 		refrescarPagina: false,
+// 		ajaxRefrescarAlertes: true,
+// 		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
+// 	});
 	$('.icon', panell).heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false

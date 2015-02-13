@@ -9,6 +9,7 @@
 	<form:form id="command" commandName="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 		<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 
+		<c:set var="command" value="${addVariableCommand}"/>
 <%-- 		<hel:inputSelect name="varCodi" --%>
 <%-- 			emptyOption="true" --%>
 <%-- 			placeholder="Selecciona una variable" --%>
@@ -143,7 +144,7 @@
 			$("#varCodi").on("change", function(e) {
 				var ruta = document.URL; 
 				ruta = ruta.substring(0, ruta.indexOf("novaDada") + 8) + "/" + procesId + "/" + e.val;
-				alert(ruta);
+// 				alert(ruta);
 				$("#command").attr('action', ruta);
 				if (e.val == "") {
 					$("#nova").addClass("hide");
