@@ -70,7 +70,7 @@ public class TascaServiceBean implements TascaService {
 			Integer prioritat,
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup,
-			PaginacioParamsDto paginacioParams) {
+			PaginacioParamsDto paginacioParams) throws Exception {
 		return delegate.findPerFiltrePaginat(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup, paginacioParams);
 	}
 

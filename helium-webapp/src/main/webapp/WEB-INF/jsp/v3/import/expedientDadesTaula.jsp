@@ -174,6 +174,9 @@
 										</c:if>
 									</td>
 								</c:when>
+								<c:when test="${fn:endsWith(dada.class.name, 'TascaDocumentDto')}">
+									<!-- %@ include file="expedientDadesTaulaTascaDocument.jsp" % -->
+								</c:when>
 								<c:when test="${fn:endsWith(dada.class.name, 'DocumentDto')}">
 									<%@ include file="expedientDadesTaulaDocument.jsp" %>
 								</c:when>

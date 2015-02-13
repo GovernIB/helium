@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
@@ -109,10 +110,12 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							filtreCommand.isNomesAlertes(),
 							filtreCommand.isMostrarAnulats(),
 							filtreCommand.isMostrarTasquesPersonals(),
-							filtreCommand.isMostrarTasquesUsuari(),
+							filtreCommand.isMostrarTasquesGrup(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
 			logger.error("No se pudo obtener la lista de expedientes", e);
+			result = new DatatablesPagina<ExpedientDto>();
 		}
 		return result;
 	}
@@ -167,7 +170,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.isNomesAlertes(),
 						filtreCommand.isMostrarAnulats(),
 						filtreCommand.isMostrarTasquesPersonals(),
-						filtreCommand.isMostrarTasquesUsuari());		
+						filtreCommand.isMostrarTasquesGrup());		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
 		if (seleccio == null) {

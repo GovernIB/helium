@@ -90,6 +90,7 @@ public interface TascaService {
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat de tasques.
+	 * @throws Exception 
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
@@ -113,7 +114,7 @@ public interface TascaService {
 			Integer prioritat,
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup,
-			PaginacioParamsDto paginacioParams);
+			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
 	 * Retorna els camps i les dades de la tasca per a la construcció

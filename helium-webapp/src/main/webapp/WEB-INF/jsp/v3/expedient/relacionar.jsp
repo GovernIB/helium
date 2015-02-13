@@ -18,7 +18,7 @@
 			body {background-image: none; padding-top: 0px;}
 			.col-xs-4 {width: auto;}
 			.col-xs-8 {width: 100%;padding-bottom: 100px;}
-			#select2-drop{left: 15px !important;}
+			#select2-drop{left: 30px !important;}
 		</style>
 	</head>
 	<body>		

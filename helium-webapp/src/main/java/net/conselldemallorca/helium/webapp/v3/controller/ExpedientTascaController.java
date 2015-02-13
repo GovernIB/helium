@@ -80,18 +80,14 @@ public class ExpedientTascaController extends BaseExpedientController {
 		return "v3/procesTasques";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasquesPendents/{mostrarDeOtrosUsuarios}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasquesPendents/{mostrarTasquesGrup}", method = RequestMethod.GET)
 	public String tasquesPendents(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable boolean mostrarDeOtrosUsuarios,
+			@PathVariable boolean mostrarTasquesGrup,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		if (mostrarDeOtrosUsuarios) {
-			// Comprobamos que el usuario tenga suficientes permisos, 
-			mostrarDeOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
-		}
-		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, mostrarDeOtrosUsuarios));
+		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, mostrarTasquesGrup));
 		model.addAttribute("expedient", expedient);	
 		return "v3/expedientTasquesPendents";
 	}

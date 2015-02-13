@@ -295,7 +295,7 @@ public class TascaServiceImpl implements TascaService {
 			Integer prioritat,
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup,
-			final PaginacioParamsDto paginacioParams) {
+			final PaginacioParamsDto paginacioParams) throws Exception {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
 				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
@@ -339,6 +339,9 @@ public class TascaServiceImpl implements TascaService {
 				new Permission[] {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION});
+		if (tipusPermesos.isEmpty())
+			throw new Exception(serviceUtils.getMessage("error.expedientService.noExisteix.tipus"));
+		
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
 		
 		Pageable paginacio = null;

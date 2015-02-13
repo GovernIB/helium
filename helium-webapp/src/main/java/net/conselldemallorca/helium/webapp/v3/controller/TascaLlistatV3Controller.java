@@ -23,11 +23,14 @@ import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -126,25 +129,33 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
-		return PaginacioHelper.getPaginaPerDatatables(
-				request,
-				tascaService.findPerFiltrePaginat(
-						entornActual.getId(),
-						filtreCommand.getConsultaTramitacioMassivaTascaId(),
-						filtreCommand.getExpedientTipusId(),
-						request.getUserPrincipal().getName(),
-						filtreCommand.getTitol(),
-						filtreCommand.getTasca(),
-						filtreCommand.getResponsable(),
-						filtreCommand.getExpedient(),
-						filtreCommand.getDataCreacioInicial(),
-						filtreCommand.getDataCreacioFinal(),
-						filtreCommand.getDataLimitInicial(),
-						filtreCommand.getDataLimitFinal(),
-						filtreCommand.getPrioritat(),
-						filtreCommand.isMostrarTasquesPersonals(),
-						filtreCommand.isMostrarTasquesGrup(),
-						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+		DatatablesPagina<ExpedientTascaDto> result = null;
+		try {
+			result = PaginacioHelper.getPaginaPerDatatables(
+					request,
+					tascaService.findPerFiltrePaginat(
+							entornActual.getId(),
+							filtreCommand.getConsultaTramitacioMassivaTascaId(),
+							filtreCommand.getExpedientTipusId(),
+							request.getUserPrincipal().getName(),
+							filtreCommand.getTitol(),
+							filtreCommand.getTasca(),
+							filtreCommand.getResponsable(),
+							filtreCommand.getExpedient(),
+							filtreCommand.getDataCreacioInicial(),
+							filtreCommand.getDataCreacioFinal(),
+							filtreCommand.getDataLimitInicial(),
+							filtreCommand.getDataLimitFinal(),
+							filtreCommand.getPrioritat(),
+							filtreCommand.isMostrarTasquesPersonals(),
+							filtreCommand.isMostrarTasquesGrup(),
+							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+		} catch (Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
+			logger.error("No se pudo obtener la lista de tareas", e);
+			result = new DatatablesPagina<ExpedientTascaDto>();
+		}
+		return result;
 	}
 
 	@RequestMapping(value = "/tasques/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
@@ -275,4 +286,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		return filtreCommand;
 	}
+	
+	protected static final Log logger = LogFactory.getLog(TascaLlistatV3Controller.class);
 }

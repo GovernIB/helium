@@ -36,7 +36,7 @@ public class ExpedientConsultaCommand {
 	private boolean mostrarAnulats;
 	
 	private boolean mostrarTasquesPersonals = false;
-	private boolean mostrarTasquesUsuari = false;
+	private boolean isMostrarTasquesGrup = false;
 
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
@@ -98,13 +98,6 @@ public class ExpedientConsultaCommand {
 	}
 	public void setDataFiFinal(Date dataFiFinal) {
 		this.dataFiFinal = dataFiFinal;
-	}
-	public boolean isMostrarTasquesUsuari() {
-		return mostrarTasquesUsuari;
-	}
-
-	public void setMostrarTasquesUsuari(boolean mostrarTasquesUsuari) {
-		this.mostrarTasquesUsuari = mostrarTasquesUsuari;
 	}
 	public Double getGeoPosX() {
 		return geoPosX;
@@ -173,6 +166,14 @@ public class ExpedientConsultaCommand {
 		else
 			return (estatTipus != null) ? estatTipus.toString() : null;
 	}
+
+	public boolean isMostrarTasquesGrup() {
+		return isMostrarTasquesGrup;
+	}
+
+	public void setMostrarTasquesGrup(boolean isMostrarTasquesGrup) {
+		this.isMostrarTasquesGrup = isMostrarTasquesGrup;
+	}
 	public void setEstatText(String estatText) {
 		if (estatText == null || estatText.length() == 0) {
 			estatTipus = null;
@@ -204,5 +205,4 @@ public class ExpedientConsultaCommand {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-
 }

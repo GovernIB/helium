@@ -263,15 +263,20 @@ public class TascaHelper {
 				task.getProcessDefinitionId());
 	}
 
-	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient, boolean mostrarDeOtrosUsuarios) {
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient, boolean mostrarTasquesGrup) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
 				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-				if (mostrarDeOtrosUsuarios || tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
-					resposta.add(tasca);
+				if (tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+					boolean esTareaGrupo = !tasca.isAgafada() && tasca.getResponsables() != null && !tasca.getResponsables().isEmpty();
+					if (mostrarTasquesGrup && esTareaGrupo) {						
+						resposta.add(tasca);
+					} else if (!mostrarTasquesGrup && !esTareaGrupo) {
+						resposta.add(tasca);
+					}
 				}
 			}
 		}

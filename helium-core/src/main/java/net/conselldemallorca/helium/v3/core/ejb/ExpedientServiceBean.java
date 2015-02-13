@@ -180,7 +180,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesUsuari, 
+			boolean mostrarTasquesGrup, 
 			PaginacioParamsDto paginacioParams) throws Exception {
 		return delegate.findAmbFiltrePaginat(
 				entornId,
@@ -200,7 +200,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesAlertes,
 				mostrarAnulats,
 				mostrarTasquesPersonals, 
-				mostrarTasquesUsuari, 
+				mostrarTasquesGrup, 
 				paginacioParams);
 	}
 
@@ -224,7 +224,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesUsuari) {
+			boolean mostrarTasquesGrup) {
 		return delegate.findIdsAmbFiltre(
 				entornId,
 				expedientTipusId,
@@ -243,7 +243,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesAlertes,
 				mostrarAnulats,
 				mostrarTasquesPersonals,
-				mostrarTasquesUsuari);
+				mostrarTasquesGrup);
 	}
 
 	@Override
@@ -494,20 +494,20 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari) {
-		return delegate.findConsultaDissenyPaginat(consultaId, valors, paginacioParams, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari);
+	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(Long consultaId, Map<String, Object> valors, PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup) {
+		return delegate.findConsultaDissenyPaginat(consultaId, valors, paginacioParams, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesGrup);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari) {
-		return delegate.findIdsPerConsultaInforme(consultaId, valors, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup) {
+		return delegate.findIdsPerConsultaInforme(consultaId, valors, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesGrup);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
-		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesUsuari, paginacioParams);
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesGrup, paginacioParams);
 	}
 
 	@Override

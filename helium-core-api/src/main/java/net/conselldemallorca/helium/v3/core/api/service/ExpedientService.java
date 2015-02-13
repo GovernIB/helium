@@ -269,7 +269,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesUsuari, 
+			boolean mostrarTasquesGrup, 
 			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
@@ -333,7 +333,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesUsuari);
+			boolean mostrarTasquesGrup);
 
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.
@@ -750,9 +750,9 @@ public interface ExpedientService {
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari);
+			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup);
 	
-	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup);
 
 	public void evaluateScript(Long expedientId, String script);
 
@@ -774,7 +774,7 @@ public interface ExpedientService {
 		}
 	}
 
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesUsuari, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 

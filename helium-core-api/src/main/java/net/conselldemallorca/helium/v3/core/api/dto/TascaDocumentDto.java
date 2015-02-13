@@ -12,7 +12,7 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class TascaDocumentDto {
-
+	
 	private Long id;
 	private Long documentStoreId;
 	private String varCodi;

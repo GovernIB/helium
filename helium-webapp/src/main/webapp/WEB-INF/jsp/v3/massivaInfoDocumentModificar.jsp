@@ -40,15 +40,15 @@
 			<h4 class="titol-missatge">
 				${documentExpedientCommand.nom}
 	 			<c:if test="${document.plantilla}"> 
-	 				<a href="<c:url value="../../../../v3/expedient/massiva/documentGenerarMas"><c:param name="docId" value="${documentExpedientCommand.docId}"/><c:param name="inici" value="${inici}"/><c:param name="correu" value="${correu}"/></c:url>">
+	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="../../../../v3/expedient/massiva/documentGenerarMas"><c:param name="docId" value="${documentExpedientCommand.docId}"/><c:param name="inici" value="${inici}"/><c:param name="correu" value="${correu}"/></c:url>">
 	 					<i class="fa fa-file-text-o"></i>
 	 				</a>
 	 			</c:if> 
- 				<c:if test="${downloadUrl != ''}">
-					<a id="downloadUrl" href="${downloadUrl}">
+ 				<c:if test="${not empty document.tokenSignatura}">
+					<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
 						<i class="fa fa-download"></i>
 					</a>
-					<a id="removeUrl" href="#" onclick="return mostrarAmagarFile()">
+					<a title="<spring:message code='expedient.massiva.tasca.doc.borrar' />" id="removeUrl" href="#" onclick="return mostrarAmagarFile()">
 						<i class="fa fa-times"></i>
 					</a>
 				</c:if>

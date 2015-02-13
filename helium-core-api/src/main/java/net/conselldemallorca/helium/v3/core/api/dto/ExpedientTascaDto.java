@@ -151,7 +151,7 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		this.dataFi = dataFi;
 	}
 	public String getResponsableString() {
-		if (responsables == null || responsables.isEmpty())
+		if ((responsables == null || responsables.isEmpty()) || agafada)
 			return responsable == null ? "" : responsable.toString();
 		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
 	}

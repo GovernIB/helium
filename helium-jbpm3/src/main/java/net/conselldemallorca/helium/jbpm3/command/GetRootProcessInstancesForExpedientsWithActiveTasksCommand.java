@@ -22,7 +22,6 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 	private List<String> ids;
 	private boolean pooled;
 	private boolean tasquesActives; 
-	private boolean tasquesPersonals; 
 	private boolean tasquesUsuari;
 
 	public GetRootProcessInstancesForExpedientsWithActiveTasksCommand() {}
@@ -32,14 +31,12 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 			List<String> ids,
 			boolean pooled, 
 			boolean tasquesActives, 
-			boolean tasquesPersonals, 
 			boolean tasquesUsuari) {
 		super();
 		this.actorId = actorId;
 		this.ids = ids;
 		this.pooled = pooled;
-		this.tasquesActives = tasquesActives; 
-		this.tasquesPersonals = tasquesPersonals; 
+		this.tasquesActives = tasquesActives;  
 		this.tasquesUsuari = tasquesUsuari;
 	}
 
@@ -56,8 +53,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		    "from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "where 1=1 " +
-		    ((tasquesPersonals) ? " and ti.actorId = :actorId " : " ") +  
-		    ((tasquesUsuari) ? " and ti.actorId is not null " : " ") +  
+		    ((tasquesUsuari) ? " and ti.actorId = :actorId " : " and ti.actorId is not null ") +
 		    ((tasquesActives) ? " and ti.isSuspended = false and ti.isOpen = true " : " ");
 	
 		String hqlPooled =  
@@ -69,14 +65,13 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
 		    "    join ti.pooledActors pooledActor " +
 		    "where ti.actorId is null " +
-		    ((tasquesPersonals) ? " and pooledActor.actorId = :actorId " : " ") +  
-		    ((tasquesUsuari) ? " and pooledActor.actorId is not null " : " ") +  
+		    ((tasquesUsuari) ? " and pooledActor.actorId = :actorId " : " and pooledActor.actorId is not null ") +  
 		    ((tasquesActives) ? " and ti.isSuspended = false and ti.isOpen = true " : " ");
 		  
 		String hql = pooled ? hqlPooled : hqlPersonal;
 		
 		Query query = jbpmContext.getSession().createQuery(hql);
-		if (tasquesPersonals) query.setString("actorId", actorId);
+		if (tasquesUsuari) query.setString("actorId", actorId);
 		
 		List<Object[]> llistaActorId = query.list();
 		
@@ -131,7 +126,6 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 	    return listadoExpedientes;
 	}
 
-
 	public String getActorId() {
 		return actorId;
 	}
@@ -141,7 +135,7 @@ public class GetRootProcessInstancesForExpedientsWithActiveTasksCommand extends 
 
 	@Override
 	public String toString() {
-		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", ids=" + ids + ", pooled=" + pooled + ", tasquesActives=" + tasquesActives + ", tasquesPersonals=" + tasquesPersonals + ", tasquesUsuari=" + tasquesUsuari + "]";
+		return "GetRootProcessInstancesForExpedientsWithActiveTasksCommand [actorId=" + actorId + ", ids=" + ids + ", pooled=" + pooled + ", tasquesActives=" + tasquesActives + ", tasquesUsuari=" + tasquesUsuari + "]";
 	}
 
 	@Override

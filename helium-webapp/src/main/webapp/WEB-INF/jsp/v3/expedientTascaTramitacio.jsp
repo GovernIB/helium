@@ -33,12 +33,12 @@
 			<c:param name="count" value="${command.numTascaMassiva}"/>
 		</c:import>
 	</c:if>	
-	<c:if test="${not empty dadesNomesLectura}">
+	<c:if test="${not empty nomesLectura}">
 		<c:import url="import/expedientDadesTaula.jsp">
-			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
+			<c:param name="dadesAttribute" value="nomesLectura"/>
 			<c:param name="titol" value="Dades de referència"/>
 			<c:param name="numColumnes" value="${numColumnes}"/>
-			<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
+			<c:param name="count" value="${fn:length(nomesLectura)}"/>
 			<c:param name="desplegat" value="${false}"/>
 			<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
 		</c:import>

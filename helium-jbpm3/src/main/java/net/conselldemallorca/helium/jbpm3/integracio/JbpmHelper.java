@@ -1501,25 +1501,24 @@ public class JbpmHelper {
 			List<String> processInstanceIds,
 			boolean tasksActives,
 			boolean tasquesPersonals,
-			boolean tasquesUsuari) {
+			boolean mostrarTasquesGrup) {
 		adminService.mesuraIniciar("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		List<String> resultat = new ArrayList<String>();
-		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
-				actorId,
-				processInstanceIds,
-				false,
-				tasksActives,
-				tasquesPersonals,
-				tasquesUsuari);
-		resultat.addAll((List<String>)commandService.execute(commandPersonal));
-		GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(
-				actorId,
-				processInstanceIds,
-				true,
-				tasksActives,
-				tasquesPersonals,
-				tasquesUsuari);
-		resultat.addAll((List<String>)commandService.execute(commandGroup));
+		boolean tasquesUsuari = true; // Mostrar sólo las tareas personales
+		if (tasquesPersonals) {
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, tasksActives, tasquesUsuari);
+			resultat.addAll((List<String>)commandService.execute(commandPersonal));
+		}
+		if (mostrarTasquesGrup) {
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, tasksActives, tasquesUsuari);
+			resultat.addAll((List<String>)commandService.execute(commandGroup));
+		}
+		if (tasksActives && !tasquesPersonals && !mostrarTasquesGrup) {
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, tasksActives, tasquesUsuari);
+			resultat.addAll((List<String>)commandService.execute(commandPersonal));
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, tasksActives, tasquesUsuari);
+			resultat.addAll((List<String>)commandService.execute(commandGroup));
+		}
 		adminService.mesuraCalcular("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
 		return resultat;
 	}

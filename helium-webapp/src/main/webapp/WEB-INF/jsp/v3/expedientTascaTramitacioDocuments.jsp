@@ -46,12 +46,13 @@
 							href="<c:url value='../../../../../../v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar'><c:param name='docId' value='${document.id}'/></c:url>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
 							data-rdt-link-ajax=true
+							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
 							data-rdt-link-callback="documentGenerar(${document.id},${document.arxiuNom});">
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
 	 				
-					<a class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/expedient/${expedientId}/document/${document.documentStoreId}/descarregar'/>">
+					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/expedient/${expedientId}/document/${document.documentStoreId}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
 					<a 	class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" 
@@ -59,6 +60,7 @@
 						href="<c:url value="../../../../../../v3/expedient/${expedientId}/tasca/${tascaId}/documentEsborrar"><c:param name="docId" value="${document.id}"/></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						data-rdt-link-ajax=true
+						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />" 
 						data-rdt-link-callback="amagarFile(${document.id});">
 						<i class="fa fa-times"></i>
 					</a>

@@ -420,17 +420,30 @@ public class TascaTramitacioController extends BaseController {
 		}
 		model.addAttribute("tasca", tasca);
 		
-		List<TascaDadaDto> dadesNomesLectura = new ArrayList<TascaDadaDto>();
+		List<Object> nomesLectura = new ArrayList<Object>();
+		
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
 			if (dada.isReadOnly()) {
-				dadesNomesLectura.add(dada);
+				nomesLectura.add(dada);
 				itDades.remove();
 			}
 		}
-		model.addAttribute("dadesNomesLectura", dadesNomesLectura);
+		
+		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
+		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
+		while (itDocuments.hasNext()) {
+			TascaDocumentDto document = itDocuments.next();
+			if (document.isReadOnly()) {
+				if (document.getId() != null)
+					nomesLectura.add(document);
+			}
+		}
+		
+		model.addAttribute("nomesLectura", nomesLectura);
+		
 		model.addAttribute("dades", dades);
 		model.addAttribute("hasDocuments", tascaService.hasDocuments(tascaId));
 		model.addAttribute("hasSignatures", tascaService.hasDocumentsSignar(tascaId));
@@ -446,17 +459,14 @@ public class TascaTramitacioController extends BaseController {
 			Model model) {
 		// Omple els documents per adjuntar i els de només lectura
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
-		List<TascaDocumentDto> documentsNomesLectura = new ArrayList<TascaDocumentDto>();
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
 			TascaDocumentDto document = itDocuments.next();
 			if (document.isReadOnly()) {
-				if (document.getId() != null)
-					documentsNomesLectura.add(document);
 				itDocuments.remove();
 			}
 		}
-		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
+
 		model.addAttribute("documents", documents);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("tascaId", tascaId);
