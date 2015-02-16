@@ -12,11 +12,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -79,14 +78,6 @@ public class TascaServiceBean implements TascaService {
 	public List<TascaDadaDto> findDades(
 			String id) {
 		return delegate.findDades(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TascaDadaDto findDada(
-			String id,
-			String variableCodi) {
-		return delegate.findDada(id, variableCodi);
 	}
 
 	@Override
@@ -166,59 +157,12 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void delegacioCrear(
-			String id,
-			String usuariDesti,
-			String comentari,
-			boolean supervisada) {
-		delegate.delegacioCrear(
-				id,
-				usuariDesti,
-				comentari,
-				supervisada);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void delegacioCancelar(
-			String id) {
-		delegate.delegacioCancelar(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void executarAccio(
 			String id,
 			String accio) {
 		delegate.executarAccio(
 				id,
 				accio);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void guardarFilaRegistre(
-			String id,
-			String campCodi,
-			int index,
-			Object[] valors) {
-		delegate.guardarFilaRegistre(
-				id,
-				campCodi,
-				index,
-				valors);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void esborrarFilaRegistre(
-			String id,
-			String campCodi,
-			int index) {
-		delegate.esborrarFilaRegistre(
-				id,
-				campCodi,
-				index);
 	}
 
 	@Override
@@ -273,12 +217,6 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception {
-		return delegate.verificarSignatura(tascaId, docId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String tascaId, String token, byte[] signatura) throws Exception {
 		return delegate.signarDocumentTascaAmbToken(expedientId, docId, tascaId, token, signatura);
 	}
@@ -303,7 +241,7 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ParellaCodiValorDto> getTasquesAmbDefinicioProcesId(Long definicioProcesId) {
-		return delegate.getTasquesAmbDefinicioProcesId(definicioProcesId);
+	public ArxiuDto getArxiuPerDocumentIdCodi(String tascaId, Long documentId, String documentCodi) {
+		return delegate.getArxiuPerDocumentIdCodi(tascaId, documentId, documentCodi);
 	}
 }

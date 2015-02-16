@@ -40,18 +40,17 @@
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-		 			<c:if test="${document.plantilla and not empty document.arxiuNom}">
+		 			<c:if test="${document.plantilla}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
 							href="<c:url value='../../../../../../v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar'><c:param name='docId' value='${document.id}'/></c:url>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
 							data-rdt-link-ajax=true
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
-							data-rdt-link-callback="documentGenerar(${document.id},${document.arxiuNom});">
+							data-rdt-link-callback="documentGenerar(${document.id},${document.arxiuNom},${document.documentCodi}, ${document.adjuntarAuto});">
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
-	 				
 					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/expedient/${expedientId}/document/${document.documentStoreId}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
@@ -186,13 +185,13 @@
         });
 	}
 	
-	function documentGenerar(docId, nom, data) {
-		if (data == "arxiuView") {
-			window.location.href = $("#downloadUrl"+docId).attr('href');
-		} else if (data != "") {
+	function documentGenerar(docId, nom, codi, adjuntarAuto, correcte) {		
+		if (adjuntarAuto == 'false') {
+			window.location.href = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
+		} else {
        		$("#amagarFile"+docId).addClass("hide");
    			$("#modal-botons"+docId).addClass("hide");
-   			$("#downloadUrl"+docId).attr('href', "<c:url value='/v3/expedient/${expedientId}/document/'/>"+data+"/descarregar");
+   			$("#downloadUrl"+docId).attr('href', "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar");
    			$("#downloadUrl"+docId).removeClass("hide");
    			$("#hideData"+docId).removeClass("hide");
    			$("#removeUrl"+docId).removeClass("hide");

@@ -19,7 +19,6 @@ import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
@@ -44,8 +43,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -66,13 +65,11 @@ import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.apache.commons.collections.comparators.NullComparator;
@@ -104,8 +101,6 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;
 	@Resource
-	private TascaRepository tascaRepository;
-	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
@@ -127,8 +122,6 @@ public class TascaServiceImpl implements TascaService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private EntornRepository entornRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -407,10 +400,10 @@ public class TascaServiceImpl implements TascaService {
 		
 		if (consultaTramitacioMassivaTascaId != null) {			
 			// Filtra les tasques per mostrar només les del entorn seleccionat
-			for (JbpmTask taska: jbpmHelper.findPersonalTasks(responsable)) {
+			for (JbpmTask taska: jbpmHelper.findPersonalTasks(usuari)) {
 				DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(taska, null);
 				if (ids.getIds().contains(Long.parseLong(taska.getId())))			
-					expedientTasques.add(tascaHelper.getExpedientTascaCacheDto(taska, dadesCacheTasca, false));
+					expedientTasques.add(tascaHelper.getExpedientTascaCacheDto(taska, dadesCacheTasca));
 			}
 			
 			ids.setCount(expedientTasques.size());
@@ -537,17 +530,6 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<ParellaCodiValorDto> getTasquesAmbDefinicioProcesId(Long definicioProcesId) {
-		List<Tasca> tasques = tascaRepository.findByDefinicioProcesIdOrderByNomAsc(definicioProcesId);
-		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
-		for (Tasca tasca : tasques) {
-			lista.add(new ParellaCodiValorDto(tasca.getId().toString(), tasca.getNom()));
-		}
-		return lista;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
 	public List<TascaDadaDto> findDades(
 			String id) {
 		logger.debug("Consultant dades de la tasca (" +
@@ -577,23 +559,6 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca) {
 		return variableHelper.findDadesPerInstanciaTascaDto(tasca);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public TascaDadaDto findDada(
-			String id,
-			String variableCodi) {
-		logger.debug("Consultant dada de la tasca (" +
-				"id=" + id + ", " +
-				"variableCodi=" + variableCodi + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		return variableHelper.findDadaPerInstanciaTasca(
-				task,
-				variableCodi);
 	}
 
 	@Override
@@ -630,6 +595,31 @@ public class TascaServiceImpl implements TascaService {
 				true,
 				true);
 		return documentHelper.hasDocumentsPerInstanciaTasca(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto getArxiuPerDocumentIdCodi(
+			String tascaId,
+			Long documentId,
+			String documentCodi) {
+		logger.debug("btenint contingut de l'arxiu per l'tasca (" +
+				"tascaId=" + tascaId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"documentId=" + documentId + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
+		if (documentStore != null) {
+			return documentHelper.getArxiuPerDocumentStoreId(
+					documentStore.getId(),
+					false,
+					false,
+					false);
+		}
+		return null;
 	}
 
 	@Override
@@ -777,12 +767,6 @@ public class TascaServiceImpl implements TascaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				"Agafar tasca \"" + tasca.getTitol() + "\"");
 		return tasca;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception {
-		return documentHelper.verificarSignatura(tascaId, docId);
 	}
 
 	@Override
@@ -1110,62 +1094,6 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional
-	public void delegacioCrear(
-			String id,
-			String usuariDesti,
-			String comentari,
-			boolean supervisada) {
-		logger.debug("Creant nova delegació de la tasca (" +
-				"id=" + id + ", " +
-				"usuariDesti=" + usuariDesti + ", " +
-				"comentari=" + comentari + ", " +
-				"supervisada=" + supervisada + ")");
-		JbpmTask taskOriginal = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		JbpmTask taskDelegada = jbpmHelper.cloneTaskInstance(
-				id,
-				usuariDesti,
-				jbpmHelper.getTaskInstanceVariables(
-						taskOriginal.getId()));
-		tascaHelper.createDelegationInfo(
-				taskOriginal,
-				taskOriginal,
-				taskDelegada,
-				comentari,
-				supervisada);
-		tascaHelper.createDelegationInfo(
-				taskDelegada,
-				taskOriginal,
-				taskDelegada,
-				comentari,
-				supervisada);
-	}
-
-	@Override
-	@Transactional
-	public void delegacioCancelar(
-			String id) {
-		logger.debug("Creant nova delegació de la tasca (" +
-				"id=" + id + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
-		if (delegationInfo == null || !id.equals(delegationInfo.getSourceTaskId())) {
-			throw new IllegalStateException(
-					id,
-					JbpmTask.class,
-					"delegada");
-		}
-		jbpmHelper.cancelTaskInstance(delegationInfo.getTargetTaskId());
-		tascaHelper.deleteDelegationInfo(task);
-	}
-
-	@Override
-	@Transactional
 	public void executarAccio(
 			String id,
 			String accio) {
@@ -1186,101 +1114,6 @@ public class TascaServiceImpl implements TascaService {
 		jbpmHelper.executeActionInstanciaTasca(id, accio);
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 	}
-
-	@Override
-	@Transactional
-	public void guardarFilaRegistre(
-			String id,
-			String campCodi,
-			int index,
-			Object[] valors) {
-		logger.debug("Afegint una fila d'un camp de tipus registre de la tasca (" +
-				"id=" + id + ", " +
-				"campCodi=" + campCodi + ", " +
-				"index=" + index + ", " +
-				"valors=...)");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
-				task.getProcessDefinitionId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
-				definicioProces,
-				campCodi);
-		if (camp.isMultiple()) {
-			Object valor = jbpmHelper.getTaskInstanceVariable(id, campCodi);
-			if (valor == null) {
-				tascaHelper.guardarVariable(
-						task,
-						campCodi,
-						new Object[]{valors});
-			} else {
-				Object[] valorMultiple = (Object[])valor;
-				if (index != -1) {
-					valorMultiple[index] = valors;
-					tascaHelper.guardarVariable(
-							task,
-							campCodi,
-							valor);
-				} else {
-					Object[] valorNou = new Object[valorMultiple.length + 1];
-					for (int i = 0; i < valorMultiple.length; i++)
-						valorNou[i] = valorMultiple[i];
-					valorNou[valorMultiple.length] = valors;
-					tascaHelper.guardarVariable(
-							task,
-							campCodi,
-							valorNou);
-				}
-			}
-		} else {
-			tascaHelper.guardarVariable(
-					task,
-					campCodi,
-					valors);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void esborrarFilaRegistre(
-			String id,
-			String campCodi,
-			int index) {
-		logger.debug("Esborrant una fila d'un camp de tipus registre de la tasca (" +
-				"id=" + id + ", " +
-				"campCodi=" + campCodi + ", " +
-				"index=" + index + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi);
-		if (camp.isMultiple()) {
-			Object valor = jbpmHelper.getTaskInstanceVariable(id, campCodi);
-			if (valor != null) {
-				Object[] valorMultiple = (Object[])valor;
-				if (valorMultiple.length > 0) {
-					Object[] valorNou = new Object[valorMultiple.length - 1];
-					for (int i = 0; i < valorNou.length; i++)
-						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-					tascaHelper.guardarVariable(
-							task,
-							campCodi,
-							valorNou);
-				}
-			}
-		} else {
-			tascaHelper.guardarVariable(
-					task,
-					campCodi,
-					null);
-		}
-	}
-
-
 
 	private void verificarFinalitzacioExpedient(
 			Expedient expedient,

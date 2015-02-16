@@ -1513,14 +1513,19 @@ public class JbpmHelper {
 			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, tasksActives, tasquesUsuari);
 			resultat.addAll((List<String>)commandService.execute(commandGroup));
 		}
-		if (tasksActives && !tasquesPersonals && !mostrarTasquesGrup) {
+		if (!tasquesPersonals && !mostrarTasquesGrup) {
 			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, tasksActives, tasquesUsuari);
 			resultat.addAll((List<String>)commandService.execute(commandPersonal));
 			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, tasksActives, tasquesUsuari);
 			resultat.addAll((List<String>)commandService.execute(commandGroup));
 		}
+
+		List<String> idsDiferents = new ArrayList<String>();
+		for (String id: resultat) 
+			idsDiferents.add(id);
+		
 		adminService.mesuraCalcular("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
-		return resultat;
+		return idsDiferents;
 	}
 
 	@SuppressWarnings("unchecked")

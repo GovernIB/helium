@@ -362,6 +362,7 @@ public class DtoConverter {
 		dto.setNumeroDefault(expedient.getNumeroDefault());
 		dto.setComentari(expedient.getComentari());
 		dto.setInfoAturat(expedient.getInfoAturat());
+		dto.setComentariAnulat(expedient.getComentariAnulat());
 		dto.setAnulat(expedient.isAnulat());
 		dto.setDataInici(expedient.getDataInici());
 		dto.setIniciadorCodi(expedient.getIniciadorCodi());

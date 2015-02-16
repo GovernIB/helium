@@ -854,6 +854,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			resposta.setDataInici(expedient.getDataInici());
 			resposta.setDataFi(expedient.getDataFi());
 			resposta.setComentari(expedient.getComentari());
+			resposta.setComentariAnulat(expedient.getComentariAnulat());
 			resposta.setInfoAturat(expedient.getInfoAturat());
 			if (expedient.getIniciadorTipus().equals(IniciadorTipusDto.INTERN))
 				resposta.setIniciadorTipus(IniciadorTipus.INTERN);

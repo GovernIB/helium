@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -104,7 +103,7 @@ public class DissenyServiceBean implements DissenyService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(Long entornId) throws EntornNotFoundException {
-		return delegate.findExpedientTipusAmbPermisReadUsuariActual(entornId);
+		return delegate.findExpedientTipusAmbPermisCrearUsuariActual(entornId);
 	}
 
 	@Override
@@ -146,12 +145,6 @@ public class DissenyServiceBean implements DissenyService {
 	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException {
 		return delegate.findConsulteById(id);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi) {
-		return delegate.findCampAmbDefinicioProcesICodiSimple(definicioProcesId, campCodi);
-	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -170,12 +163,6 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void executarAccio(AccioDto accio, ExpedientDto expedient) {
 		delegate.executarAccio(accio, expedient);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto camp, String textInicial, Map<String, Object> mapDelsValors) {
-		return delegate.getResultatConsultaCamp(taskId, processInstanceId, camp, textInicial, mapDelsValors);
 	}
 
 	@Override
@@ -206,12 +193,6 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) {
 		return delegate.getSubprocessosByProces(jbpmId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
-		return delegate.findDefinicioProcesAmbJbpmId(jbpmId);
 	}
 
 	@Override

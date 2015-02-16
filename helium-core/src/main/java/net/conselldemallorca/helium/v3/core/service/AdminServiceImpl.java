@@ -22,13 +22,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
@@ -67,8 +66,6 @@ public class AdminServiceImpl implements AdminService {
 	private SessionFactory sessionFactory;
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
 
 	@Override
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {

@@ -17,8 +17,27 @@ public class ExpedientConsultaDissenyDto {
 	private ExpedientDto expedient;
 	private Map<String, DadaIndexadaDto> dadesExpedient;
 
+	public String getEstat() {
+		return dadesExpedient.get(ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP).getValorMostrar();
+	}
+
+	public String getComentariAnulat() {
+		return expedient.getComentariAnulat();
+	}
+	public String getErrorDesc() {
+		return expedient.getErrorDesc();
+	}
+	public String getErrorFull() {
+		return expedient.getErrorFull();
+	}	
+	public String getProcessInstanceId() {
+		return expedient.getProcessInstanceId();
+	}
 	public Long getId() {
 		return expedient.getId();
+	}
+	public boolean isErrorsIntegracions() {
+		return expedient.isErrorsIntegracions();
 	}
 	public ExpedientDto getExpedient() {
 		return expedient;
@@ -31,8 +50,16 @@ public class ExpedientConsultaDissenyDto {
 	}
 	public void setDadesExpedient(Map<String, DadaIndexadaDto> dadesExpedient) {
 		this.dadesExpedient = dadesExpedient;
+	}	
+	public boolean isAnulat() {
+		return expedient.isAnulat();
+	}	
+	public boolean isAturat() {
+		return expedient.isAturat();
 	}
-	
+	public String getInfoAturat() {
+		return expedient.getInfoAturat();
+	}
 	public boolean isPermisCreate() {
 		return expedient.permisCreate;
 	}

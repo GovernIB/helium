@@ -11,6 +11,8 @@ import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesCancelCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -45,6 +48,25 @@ public class ExpedientCancelController extends BaseExpedientController {
 		ExpedientEinesCancelCommand cancelExpedient = new ExpedientEinesCancelCommand();
 		model.addAttribute(cancelExpedient);
 		return "v3/expedient/cancel";
+	}	
+
+	@RequestMapping(value = "/{expedientId}/reprendre", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean reprendre(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			Model model) {
+		boolean result = false;
+		try {
+			expedientService.reprendre(expedientId);
+			MissatgesHelper.info(request, getMessage(request, "info.expedient.repres") );
+			result = true;
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"));
+			logger.error(getMessage(request, "error.activar.expedient"), ex);
+		}
+		
+		return result;
 	}
 
 	@RequestMapping(value = "/{expedientId}/cancelExpedient", method = RequestMethod.POST)
@@ -70,7 +92,7 @@ public class ExpedientCancelController extends BaseExpedientController {
 				MissatgesHelper.info(request, getMessage(request, "info.expedient.cancelat") );
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
-				ex.getLocalizedMessage();
+				logger.error(getMessage(request, "error.cancelar.expedient"), ex);
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.anulat"));
@@ -89,4 +111,6 @@ public class ExpedientCancelController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientCancelController.class);
 }

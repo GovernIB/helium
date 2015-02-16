@@ -243,13 +243,12 @@
 				$('#' + filtreFormId).on('submit', function() {
 					var accio = $('input[name=accio]', $('#' + filtreFormId)).val();
 					if (accio == 'netejar') {
-//						$(':input', '#' + filtreFormId)
-//						.not(':button, :submit, :reset, :hidden')
-//						.val('')
-//						.removeAttr('checked')
-//						.removeAttr('selected');
-//						$(':input.select2-offscreen', '#' + filtreFormId).select2("val", "", true);
-						$('#' + filtreFormId)[0].reset();
+						$(':input', '#' + filtreFormId)
+						.not(':button, :submit, :reset, :hidden')
+						.val('')
+						.removeAttr('checked')
+						.removeAttr('selected');
+						$(':input.select2-offscreen', '#' + filtreFormId).not(':disabled').select2("val", "", true);
 					}
 					$.ajax({
 						type: "POST",

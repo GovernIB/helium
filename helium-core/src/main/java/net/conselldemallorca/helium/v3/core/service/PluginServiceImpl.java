@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -23,11 +21,6 @@ public class PluginServiceImpl implements PluginService{
 
 	@Resource
 	private PluginPersonaHelper pluginPersonaHelper;
-	
-	@Override
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return pluginPersonaHelper.findLikeNomSencerPlugin(text);
-	}
 	
 	@Override
 	public PersonaDto findPersonaAmbCodi(String codi) {

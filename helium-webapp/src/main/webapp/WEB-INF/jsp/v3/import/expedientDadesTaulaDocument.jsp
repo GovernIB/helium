@@ -9,8 +9,8 @@
 				<thead>
 					<tr>
 						<td class="left">
-							<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>" title="Descarregar document">
-								<span class="fa fa-file fa-4x"></span>
+							<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>">
+								<span class="fa fa-file fa-4x" title="Descarregar document"></span>
 								<c:if test="${document.adjunt}">
 									<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 								</c:if>

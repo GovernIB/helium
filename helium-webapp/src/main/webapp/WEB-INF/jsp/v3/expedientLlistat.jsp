@@ -37,7 +37,7 @@ $(document).ready(function() {
 						'<p>' + $(this).data('error-missatge') + '</p>');
 				if ($(this).data('error-detall')) {
 					$('#modal-error .modal-body').append(
-							'<p>' + $(this).data('error-detall') + '</p>');
+							'<p style="word-wrap: break-word;">' + $(this).data('error-detall') + '</p>');
 				}
 				if ($(this).data('error-pid')) {
 					$('#modal-error .modal-body').append(
@@ -150,6 +150,23 @@ $(document).ready(function() {
 	$('#expedientTipusId').trigger('change');
 });
 
+function recarregarTaula(tableId, correcte) {
+	if (correcte) {
+		refrescarAlertas($("#"+tableId));
+		$("#"+tableId).dataTable().fnDraw();
+	}
+}
+
+function refrescarAlertas(e) {
+	$.ajax({
+		url: "<c:url value="/nodeco/v3/missatges"/>",
+		async: false,
+		timeout: 20000,
+		success: function (data) {
+			$('#contingut-alertes').html(data);
+		}
+	});
+}
 </script>
 </head>
 <body>
@@ -259,11 +276,12 @@ $(document).ready(function() {
 						{{/if}}
 						{{if aturat}}
 							<span class="label label-danger" title="{{:infoAturat}}">AT</span>
-						{{else anulat}}
+						{{/if}}
+						{{if anulat}}
 							<span class="label label-warning" title="{{:comentariAnulat}}">AN</span>
 						{{/if}}
 						{{if errorDesc}}
-							{{if isAdmin}}
+							{{if permisAdministration}}
 								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
 							{{else}}
 								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
@@ -277,11 +295,13 @@ $(document).ready(function() {
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
 				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>			
+				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>		
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
+				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
@@ -289,9 +309,10 @@ $(document).ready(function() {
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-								{{if !aturat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/suspend" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/>...</a></li>{{/if}}
-								{{if !aturat && !anulat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/>...</a></li>{{/if}}
-								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
+								{{if !aturat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/suspend" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
+								{{if !anulat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
+								{{if anulat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/reprendre" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.tasca.accio.reprendre"/></a></li>{{/if}}
+								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>

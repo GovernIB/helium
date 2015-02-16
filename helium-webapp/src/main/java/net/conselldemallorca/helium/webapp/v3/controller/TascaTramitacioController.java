@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -449,6 +450,27 @@ public class TascaTramitacioController extends BaseController {
 		model.addAttribute("hasSignatures", tascaService.hasDocumentsSignar(tascaId));
 		
 		signatures(null, tasca.getExpedientId(), tascaId, model);
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)
+	public String documentDescarregar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable Long documentId,
+			@PathVariable String documentCodi,
+			Model model) {
+		ArxiuDto arxiu = tascaService.getArxiuPerDocumentIdCodi(
+			tascaId,
+			documentId,
+			documentCodi);
+		model.addAttribute(
+				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+				arxiu.getNom());
+		model.addAttribute(
+				ArxiuView.MODEL_ATTRIBUTE_DATA,
+				arxiu.getContingut());
+		return "arxiuView";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documents", method = RequestMethod.GET)
@@ -1042,7 +1064,7 @@ public class TascaTramitacioController extends BaseController {
 						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
 						return "arxiuView";
 					}
-				}
+				} 
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());

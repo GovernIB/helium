@@ -315,12 +315,6 @@ public class DocumentHelperV3 {
 	}
 
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(JbpmTask task) {
-//		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
-//		for (FirmaTasca firmaTasca: tascaHelper.findTascaByJbpmTask(task).getFirmes()) {
-//			resposta.add(toTascaDocumentDto(
-//					task,
-//					firmaTasca.getDocument(), firmaTasca.isRequired(), false));
-//		}
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 		for (FirmaTasca firmaTasca: firmaTascaRepository.findAmbTascaOrdenats(task.getName(), task.getProcessDefinitionId())) {
 			resposta.add(toTascaDocumentDto(
@@ -542,6 +536,7 @@ public class DocumentHelperV3 {
 		dto.setRequired(required);
 		dto.setReadOnly(readonly);
 		dto.setPlantilla(document.isPlantilla());
+		dto.setAdjuntarAuto(document.isAdjuntarAuto());
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
 		if (documentStoreId != null) {
 			dto.setDocumentPendent(false);
@@ -549,7 +544,6 @@ public class DocumentHelperV3 {
 			if (documentStore != null) {
 				dto.setDocumentStoreId(documentStoreId);
 				dto.setArxiuNom(documentStore.getArxiuNom());
-//				dto.setArxiuContingut(documentStore.getArxiuContingut());
 				dto.setDataCreacio(documentStore.getDataCreacio());
 				dto.setDataModificacio(documentStore.getDataModificacio());
 				dto.setDataDocument(documentStore.getDataDocument());
@@ -803,7 +797,7 @@ public class DocumentHelperV3 {
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
 							jpd.getVersion());
-					Document doc = documentStoreRepository.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
+					Document doc = documentRepository.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
 						dto.setCustodiaCodi(doc.getCustodiaCodi());
@@ -1162,31 +1156,21 @@ public class DocumentHelperV3 {
 		}
 	}
 
-	public Document findAmbDefinicioProcesICodi(Long definicioProcesId, String codi) {
-		List<Document> documents = documentRepository.findAmbDefinicioProcesICodi(definicioProcesId, codi);
-		if (!documents.isEmpty())
-			return documents.get(0);
-		return null;
-	}
-
 	private Document getDocumentDisseny(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
+		DefinicioProces definicioProces = null;
 		if (taskInstanceId != null) {
 			JbpmTask taskInstance = jbpmHelper.getTaskById(taskInstanceId);
-			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
-			return findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
-					documentCodi);
+			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
 		} else {
 			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
-			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
-			return findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
-					documentCodi);
+			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
 		}
+		return documentRepository.findAmbDefinicioProcesICodi(definicioProces.getId(), documentCodi);
 	}
+	
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,
 			String processInstanceId,

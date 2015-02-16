@@ -386,7 +386,7 @@ public class TascaHelper {
 		return dto;
 	}
 	
-	public ExpedientTascaDto getExpedientTascaCacheDto(JbpmTask task, DadesCacheTasca dadesCacheTasca, boolean complete) {
+	public ExpedientTascaDto getExpedientTascaCacheDto(JbpmTask task, DadesCacheTasca dadesCacheTasca) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		dto.setId(task.getId());
 		dto.setTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
@@ -406,22 +406,21 @@ public class TascaHelper {
 		dto.setDataCreacio(task.getCreateTime());
 		dto.setDataInici(task.getStartTime());
 		dto.setDataFi(task.getEndTime());
-		
-		if (complete) {
-			if (task.getAssignee() != null) {
-				dto.setResponsable(
-						dtoConverter.getResponsableTasca(task.getAssignee()));
-				dto.setResponsableCodi(task.getAssignee());
-			}
-			Set<String> pooledActors = task.getPooledActors();
-			if (pooledActors != null && pooledActors.size() > 0) {
-				List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-				for (String pooledActor: pooledActors)
-					responsables.add(
-							dtoConverter.getResponsableTasca(pooledActor));
-				dto.setResponsables(responsables);
-			}
+
+		if (task.getAssignee() != null) {
+			dto.setResponsable(
+					dtoConverter.getResponsableTasca(task.getAssignee()));
+			dto.setResponsableCodi(task.getAssignee());
 		}
+		Set<String> pooledActors = task.getPooledActors();
+		if (pooledActors != null && pooledActors.size() > 0) {
+			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+			for (String pooledActor: pooledActors)
+				responsables.add(
+						dtoConverter.getResponsableTasca(pooledActor));
+			dto.setResponsables(responsables);
+		}
+
 		switch (task.getPriority()) {
 		case -2:
 			dto.setPrioritat(TascaPrioritatDto.MOLT_BAIXA);

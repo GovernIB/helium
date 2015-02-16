@@ -43,6 +43,7 @@ public class TascaDocumentDto {
 	private String registreOficinaCodi;
 	private String registreOficinaNom;
 	private boolean registreEntrada = true;
+	private boolean adjuntarAuto;
 	
 	private boolean plantilla;
 	
@@ -54,7 +55,13 @@ public class TascaDocumentDto {
 
 	public TascaDocumentDto() {
 	}
-
+	
+	public boolean isAdjuntarAuto() {
+		return adjuntarAuto;
+	}
+	public void setAdjuntarAuto(boolean adjuntarAuto) {
+		this.adjuntarAuto = adjuntarAuto;
+	}
 	public Long getId() {
 		return id;
 	}

@@ -76,7 +76,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -84,7 +83,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -220,8 +218,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ServiceUtils serviceUtils;
 	@Resource
 	private PluginCustodiaDao pluginCustodiaDao;
-	@Resource(name = "pluginServiceV3")
-	private PluginServiceImpl pluginService;
 	@Resource
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	@Resource
@@ -1017,11 +1013,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					nomesAmbTasquesActives,
 					mostrarTasquesPersonals,
 					mostrarTasquesGrup);
-			Set<String> idsDiferents = new HashSet<String>();
-			for (String id: ids) 
-				idsDiferents.add(id);
 			int index = 0;
-			for (String id: idsDiferents) {
+			for (String id: ids) {
 				if (index == 0)
 					rootProcessInstanceIdsAmbTasques1 = new HashSet<String>();
 				if (index == 1000)
@@ -1228,11 +1221,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					nomesAmbTasquesActives,
 					mostrarTasquesPersonals,
 					mostrarTasquesGrup);
-			Set<String> idsDiferents = new HashSet<String>();
-			for (String id: ids) 
-				idsDiferents.add(id);
 			int index = 0;
-			for (String id: idsDiferents) {
+			for (String id: ids) {
 				if (index == 0)
 					rootProcessInstanceIdsAmbTasques1 = new HashSet<String>();
 				if (index == 1000)
@@ -1445,21 +1435,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return conversioTipusHelper.convertirList(
 				accions,
 				AccioDto.class);
-	}
-
-	@Override
-	// No pot ser readOnly per mor de la cache de les tasques
-	@Transactional
-	public List<ExpedientTascaDto> findTasques(Long id) {
-		logger.debug("Consulta de tasques de l'expedient (" +
-				"id=" + id + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false);
-		return tascaHelper.findTasquesPerExpedient(
-				expedient);
 	}
 
 	@Override
@@ -1743,6 +1718,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (JbpmProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
 		jbpmHelper.resumeProcessInstances(ids);
+		expedient.setAnulat(false);
 	}
 
 	@Override
@@ -1909,64 +1885,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 					"versio=" + versio + ")", ex);
 		}
 		return defprocNova.getEtiqueta();
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<ExpedientTerminiDto> findTerminis(
-			Long id,
-			String processInstanceId) {
-		logger.debug("Consulta de terminis per l'expedient (" +
-				"id=" + id + ", " +
-				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false);
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
-		List<Termini> terminis = terminiRepository.findByDefinicioProcesId(definicioProces.getId());
-		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
-		List<ExpedientTerminiDto> dtos = conversioTipusHelper.convertirList(
-				terminis,
-				ExpedientTerminiDto.class);
-		for (Termini termini: terminis) {
-			for (TerminiIniciat iniciat: terminisIniciats) {
-				if (iniciat.getTermini().equals(termini)) {
-					for (ExpedientTerminiDto dto: dtos) {
-						if (termini.getId().equals(dto.getId())) {
-							dto.setIniciat(true);
-							dto.setIniciatDataInici(
-									iniciat.getDataInici());
-							dto.setIniciatDataFi(
-									iniciat.getDataFi());
-							dto.setIniciatDataAturada(
-									iniciat.getDataAturada());
-							dto.setIniciatDataCancelacio(
-									iniciat.getDataCancelacio());
-							dto.setIniciatDataFiProrroga(
-									iniciat.getDataFiProrroga());
-							dto.setIniciatDataCompletat(
-									iniciat.getDataCompletat());
-							dto.setIniciatDiesAturat(
-									iniciat.getDiesAturat());
-							dto.setIniciatAnys(
-									iniciat.getAnys());
-							dto.setIniciatMesos(
-									iniciat.getMesos());
-							dto.setIniciatDies(
-									iniciat.getDies());
-							break;
-						}
-					}
-					break;
-				}
-			}
-		}
-		return dtos;
 	}
 
 	@Override
@@ -2259,19 +2177,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly=true)
-	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi) {
-		return dtoConverter.toCampInstanciaProcesDtoVarCodi(processInstanceId, varCodi);
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public List<RegistreDto> getRegistrePerExpedient(Long expedientId) {
-		List<Registre> registre = registreRepository.findByExpedientId(expedientId);
-		return conversioTipusHelper.convertirList(registre, RegistreDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly=true)
 	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
@@ -2512,102 +2417,66 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 	
 	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup) {
-		if (nomesPendents || nomesAlertes || mostrarAnulats || mostrarTasquesPersonals || mostrarTasquesGrup) {				
-			Set<Long> ids1 = null;
-			Set<Long> ids2 = null;
-			Set<Long> ids3 = null;
-			Set<Long> ids4 = null;
-			Set<Long> ids5 = null;
-			int index = 0;
-			for (Long id: llistaExpedientIds) {
-				if (index == 0)
-					ids1 = new HashSet<Long>();
-				if (index == 1000)
-					ids2 = new HashSet<Long>();
-				if (index == 2000)
-					ids3 = new HashSet<Long>();
-				if (index == 3000)
-					ids4 = new HashSet<Long>();
-				if (index == 4000)
-					ids5 = new HashSet<Long>();
-				if (index < 1000)
-					ids1.add(id);
-				else if (index < 2000)
-					ids2.add(id);
-				else if (index < 3000)
-					ids3.add(id);
-				else if (index < 4000)
-					ids4.add(id);
-				else
-					ids5.add(id);
-				index++;
-			}
-			
-			List<String> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
-					ids1,
-					ids2,
-					ids3,
-					ids4,
-					ids5,
-					mostrarAnulats,
-					nomesAlertes);
-			
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Set<Long> ids1 = null;
+		Set<Long> ids2 = null;
+		Set<Long> ids3 = null;
+		Set<Long> ids4 = null;
+		Set<Long> ids5 = null;
+		int index = 0;
+		for (Long id: llistaExpedientIds) {
+			if (index == 0)
+				ids1 = new HashSet<Long>();
+			if (index == 1000)
+				ids2 = new HashSet<Long>();
+			if (index == 2000)
+				ids3 = new HashSet<Long>();
+			if (index == 3000)
+				ids4 = new HashSet<Long>();
+			if (index == 4000)
+				ids5 = new HashSet<Long>();
+			if (index < 1000)
+				ids1.add(id);
+			else if (index < 2000)
+				ids2.add(id);
+			else if (index < 3000)
+				ids3.add(id);
+			else if (index < 4000)
+				ids4.add(id);
+			else
+				ids5.add(id);
+			index++;
+		}
+		
+		List<Object[]> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
+				ids1,
+				ids2,
+				ids3,
+				ids4,
+				ids5,
+				mostrarAnulats,
+				nomesAlertes);
+		
+		List<String> idsPI = new ArrayList<String>();
+		List<Long> idsExp = new ArrayList<Long>();
+		for (Object[] id : idsInstanciesProces) {
+			idsExp.add((Long) id[0]);
+			idsPI.add((String) id[1]);
+		}
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
-							auth.getName(),
-							idsInstanciesProces,
-							nomesPendents,
-							mostrarTasquesPersonals,
-							mostrarTasquesGrup);
-			
-			Set<String> idsDiferents = new HashSet<String>();
-			for (String id: ids) 
-				idsDiferents.add(id);
-			
-			
-			Set<String> piIds1 = null;
-			Set<String> piIds2 = null;
-			Set<String> piIds3 = null;
-			Set<String> piIds4 = null;
-			Set<String> piIds5 = null;
-			index = 0;
-			for (String id: idsDiferents) {
-				if (index == 0)
-					piIds1 = new HashSet<String>();
-				if (index == 1000)
-					piIds2 = new HashSet<String>();
-				if (index == 2000)
-					piIds3 = new HashSet<String>();
-				if (index == 3000)
-					piIds4 = new HashSet<String>();
-				if (index == 4000)
-					piIds5 = new HashSet<String>();
-				if (index < 1000)
-					piIds1.add(id);
-				else if (index < 2000)
-					piIds2.add(id);
-				else if (index < 3000)
-					piIds3.add(id);
-				else if (index < 4000)
-					piIds4.add(id);
-				else
-					piIds5.add(id);
-				index++;
-			}
-			
-			List<Long> llistaIds = expedientRepository.findAmbProcessInstanceIdsByFiltreConsultesTipus(
-					piIds1,
-					piIds2,
-					piIds3,
-					piIds4,
-					piIds5);
-			Iterator<Long> it = llistaExpedientIds.iterator();
-			while (it.hasNext()) {
-				Long id = it.next();
-				if (!llistaIds.contains(id)) {
-					it.remove();
-				}
+		List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
+						auth.getName(),
+						idsPI,
+						nomesPendents,
+						mostrarTasquesPersonals,
+						mostrarTasquesGrup);
+
+		Iterator<Long> itExps = llistaExpedientIds.iterator();
+		while (itExps.hasNext()) {
+			int pos = idsExp.indexOf(itExps.next());
+			if (pos == -1 || !ids.contains(idsPI.get(pos))) {
+				itExps.remove();
 			}
 		}
 	}
@@ -2820,20 +2689,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				taskId,
 				usuari,
 				expression);
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques) {
-		if (!tasques.isEmpty()) {
-			List<String> tasquesIds = new ArrayList<String>();
-			for (ExpedientTascaDto tasca : tasques) {
-				tasquesIds.add(tasca.getId());
-			}
-			return expedientLoggerHelper.findLogIdTasquesById(tasquesIds);
-		} else {
-			return new ArrayList<Object>();
-		}
 	}
 	
 	@Override

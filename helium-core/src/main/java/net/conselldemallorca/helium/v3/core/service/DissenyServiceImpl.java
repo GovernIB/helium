@@ -11,7 +11,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -185,13 +184,6 @@ public class DissenyServiceImpl implements DissenyService {
 			}
 		}
 		return null;
-	}
-	
-	@Transactional(readOnly=true)
-	@Override
-	public DefinicioProcesDto findDefinicioProcesAmbJbpmId(String jbpmId) {
-		String processDefinitionId = jbpmHelper.getProcessDefinition(jbpmId).getId();
-		return getById((definicioProcesRepository.findByJbpmId(processDefinitionId).getId()));
 	}
 	
 	@Transactional(readOnly=true)
@@ -460,13 +452,6 @@ public class DissenyServiceImpl implements DissenyService {
 		}, ExpedientTipus.class, new Permission[] { ExtendedPermission.ADMINISTRATION, ExtendedPermission.CREATE });
 		return tipus;
 	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public CampDto findCampAmbDefinicioProcesICodiSimple(Long definicioProcesId, String campCodi) {
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
-		return conversioTipusHelper.convertir(campRepository.findByDefinicioProcesAndCodi(definicioProces, campCodi), CampDto.class);
-	}
 	
 	@Transactional(readOnly=true)
 	@Override
@@ -510,21 +495,6 @@ public class DissenyServiceImpl implements DissenyService {
 								new Date(Long.MAX_VALUE));
 				}
 			}
-		}
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public List<?> getResultatConsultaCamp(String taskId, String processInstanceId, CampDto campDto, String textInicial, Map<String, Object> mapDelsValors) {
-		String taskInstanceId = null;
-		if (taskId != null) {
-			taskInstanceId = String.valueOf(jbpmHelper.getTaskById(taskId).getTask().getId());
-		}
-		Camp camp = campRepository.findById(campDto.getId());
-		try {			
-			return variableHelper.getPossiblesValorsCamp(camp, textInicial, mapDelsValors, taskInstanceId, processInstanceId);
-		} catch (Exception e) {
-			return null;
 		}
 	}
 

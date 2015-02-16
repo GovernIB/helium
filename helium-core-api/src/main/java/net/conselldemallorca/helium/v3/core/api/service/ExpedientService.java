@@ -22,12 +22,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -381,19 +379,6 @@ public interface ExpedientService {
 	public List<AccioDto> findAccionsVisibles(Long id);
 
 	/**
-	 * Retorna la llista de tasques de l'expedient.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @return La llista de tasques.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<ExpedientTascaDto> findTasques(Long id);
-
-	/**
 	 * Retorna la llista de tasques pendents de l'expedient.
 	 * 
 	 * @param id
@@ -470,6 +455,7 @@ public interface ExpedientService {
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param documentStoreId
 	 *            Atribut id del document que es vol descarregar.
+	 * @param documentNom 
 	 * @return L'arxiu del document.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
@@ -495,18 +481,6 @@ public interface ExpedientService {
 	public void aturar(
 			Long id,
 			String motiu);
-
-	/**
-	 * Reprén la tramitació d'un expedient que prèviament ha estat aturat.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol reprendre.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public void reprendre(Long id);
 
 	/**
 	 * Anula un expedient.
@@ -588,21 +562,6 @@ public interface ExpedientService {
 	public String canviVersioDefinicioProces(
 			Long id,
 			int versio);
-
-	/**
-	 * Consulta els terminis d'un procés de l'expedient
-	 * 
-	 * @param id
-	 * @param processInstanceId
-	 * @return Una llista amb els terminis del procés
-	 * @throws NotFoundException
-	 *             Si no es troba l'expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<ExpedientTerminiDto> findTerminis(
-			Long id,
-			String processInstanceId);
 
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
 
@@ -700,8 +659,6 @@ public interface ExpedientService {
 */
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
 
-	public List<RegistreDto> getRegistrePerExpedient(Long expedientId);
-
 	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, boolean detall);
 
 	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall);
@@ -738,8 +695,6 @@ public interface ExpedientService {
 	public void suspendreTasca(Long expedientId, Long taskId);
 
 	public void reprendreTasca(Long expedientId, Long taskId);
-	
-	public List<Object> findLogIdTasquesById(List<ExpedientTascaDto> tasques);
 
 	public void reassignarTasca(String taskId, String expression);
 
@@ -785,8 +740,6 @@ public interface ExpedientService {
 	public List<DocumentDto> findListDocumentsPerDefinicioProces(Long definicioProcesId, String processInstanceId, String expedientTipusNom);
 
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId);
-	
-	public CampDto getCampsInstanciaProcesByIdAmdVarcodi(String processInstanceId, String varCodi);
 
 	public DocumentDto findDocumentsPerId(Long id);
 
@@ -821,4 +774,6 @@ public interface ExpedientService {
 	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios);
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
+
+	public void reprendre(Long id);
 }

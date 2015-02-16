@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -130,23 +129,6 @@ public interface TascaService {
 	 */
 	public List<TascaDadaDto> findDades(
 			String id);
-
-	/**
-	 * Retorna un camp del formulari de la tasca.
-	 * 
-	 * @param id
-	 *            Atribut id de la tasca que es vol consultar.
-	 * @param variableCodi
-	 *            Codi de la variable que es vol consultar.
-	 * @return La dada de la tasca.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public TascaDadaDto findDada(
-			String id,
-			String variableCodi);
 
 	/**
 	 * Retorna els documents de la tasca.
@@ -289,43 +271,7 @@ public interface TascaService {
 			String id,
 			String outcome);
 
-	/**
-	 * Delega la tramitació d'una tasca a un altre usuari.
-	 * 
-	 * @param id
-	 *            Atribut id de la tasca.
-	 * @param usuariDesti
-	 *            L'usuari destinatari de la delegació.
-	 * @param comentari
-	 *            El comentari de la delegació.
-	 * @param supervisada
-	 *            Indica si la delegació ha de ser supervisada o no.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public void delegacioCrear(
-			String id,
-			String usuariDesti,
-			String comentari,
-			boolean supervisada);
-
-	/**
-	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
-	 * l'usuari que ha creat la delegació.
-	 * 
-	 * @param id
-	 *            Atribut id de la tasca.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 * @throws IllegalStateException
-	 *             Si la tasca no ha estat delegada.
-	 */
-	public void delegacioCancelar(
-			String id);
+	
 
 	/**
 	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
@@ -344,47 +290,7 @@ public interface TascaService {
 			String id,
 			String accio);
 
-	/**
-	 * Guarda una fila d'una variable de tipus registre
-	 * 
-	 * @param id
-	 *            Atribut id de la tasca.
-	 * @param campCodi
-	 *            Codi de la variable de tipus registre.
-	 * @param index
-	 *            Posició a on insertar la fila del registre. Si s'especifica
-	 *            en valor -1 s'inserta al final.
-	 * @param valors
-	 *            Valors de la fila del registre.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public void guardarFilaRegistre(
-			String id,
-			String campCodi,
-			int index,
-			Object[] valors);
-
-	/**
-	 * Esborra una fila d'una variable de tipus registre
-	 * 
-	 * @param id
-	 *            Atribut id de la tasca.
-	 * @param campCodi
-	 *            Codi de la variable de tipus registre.
-	 * @param index
-	 *            Posició a on esborrar la fila del registre.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat la tasca amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public void esborrarFilaRegistre(
-			String id,
-			String campCodi,
-			int index);
+	
 
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 	
@@ -406,13 +312,31 @@ public interface TascaService {
 			boolean mostrarTasquesPersonals,
 			boolean mostrarTasquesGrup);
 
+
+
+	/**
+	 * Retorna l'arxiu del document.
+	 * @param tascaId
+	 *            Atribut id de l'tasca que es vol consultar.
+	 * @param documentId
+	 *            Atribut id del document que es vol descarregar.
+	 * @param documentCodi
+	 * @return L'arxiu del document.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ArxiuDto getArxiuPerDocumentIdCodi(
+			String tascaId,
+			Long documentId, 
+			String documentCodi);
+	
 	public TascaDocumentDto findDocument(String tascaId, Long docId);
 
 	public Long guardarDocumentTasca(Long entornId, String taskInstanceId, String documentCodi, Date documentData, String arxiuNom, byte[] arxiuContingut, String user);
 
 	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
-
-	public List<RespostaValidacioSignaturaDto> verificarSignatura(String tascaId, Long docId) throws Exception;
 
 	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String token, String tascaId, byte[] signatura) throws Exception;
 
@@ -421,6 +345,4 @@ public interface TascaService {
 	public boolean hasDocuments(String tascaId);
 
 	public boolean hasDocumentsSignar(String tascaId);
-
-	public List<ParellaCodiValorDto> getTasquesAmbDefinicioProcesId(Long definicioProcesId);
 }

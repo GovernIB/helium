@@ -1,7 +1,5 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
-import java.util.List;
-
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
@@ -22,11 +20,5 @@ public class PluginServiceBean implements PluginService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PersonaDto findPersonaAmbCodi(String responsableDefecteCodi) {
 		return delegate.findPersonaAmbCodi(responsableDefecteCodi);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return delegate.findPersonaLikeNomSencer(text);
 	}
 }

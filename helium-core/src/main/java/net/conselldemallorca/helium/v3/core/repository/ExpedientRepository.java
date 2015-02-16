@@ -208,15 +208,15 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("mostrarAnulats") boolean mostrarAnulats,
 			@Param("nomesAlertes") boolean nomesAlertes);
 
-	@Query("select e.processInstanceId from Expedient e where " +
-			"        e.id in (:ids1) " +
+	@Query("select e.id, e.processInstanceId from Expedient e where " +
+			"       ( e.id in (:ids1) " +
 			"        or e.id in (:ids2) " +
 			"        or e.id in (:ids3) " +
 			"        or e.id in (:ids4) " +
-			"        or e.id in (:ids5) " +
-			"	and (:mostrarAnulats = true or e.anulat = false) " +
-			"	and (:nomesAlertes = false or e.errorDesc is not null)")
-	List<String> findAmbIdsByFiltreConsultesTipus(
+			"        or e.id in (:ids5) )" +
+			"and (:mostrarAnulats = true or e.anulat = false) " +
+			"and (:nomesAlertes = false or e.errorDesc is not null)")
+	List<Object[]> findAmbIdsByFiltreConsultesTipus(
 			@Param("ids1") Collection<Long> ids1,
 			@Param("ids2") Collection<Long> ids2,
 			@Param("ids3") Collection<Long> ids3,
@@ -224,19 +224,6 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("ids5") Collection<Long> ids5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
 			@Param("nomesAlertes") boolean nomesAlertes);
-
-	@Query("select e.id from Expedient e where " +
-			"        e.processInstanceId in (:ids1) " +
-			"        or e.processInstanceId in (:ids2) " +
-			"        or e.processInstanceId in (:ids3) " +
-			"        or e.processInstanceId in (:ids4) " +
-			"        or e.processInstanceId in (:ids5) ")
-	List<Long> findAmbProcessInstanceIdsByFiltreConsultesTipus(
-			@Param("ids1") Collection<String> ids1,
-			@Param("ids2") Collection<String> ids2,
-			@Param("ids3") Collection<String> ids3,
-			@Param("ids4") Collection<String> ids4,
-			@Param("ids5") Collection<String> ids5);
 
 	@Query("select e from Expedient e where entorn.id = :entornId AND (titol like '%'||:text||'%' or numero like '%'||:text||'%') order by numero, titol")
 	List<Expedient> findAmbEntornLikeIdentificador(

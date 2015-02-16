@@ -679,6 +679,7 @@ public class ExpedientHelium {
 		return infoAturat != null;
 	}
 
+	@Column(name="comentariAnulat", length=1024, nullable=true)
 	public String getComentariAnulat() {
 		return comentariAnulat;
 	}

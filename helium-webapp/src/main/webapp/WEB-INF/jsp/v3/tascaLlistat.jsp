@@ -258,8 +258,11 @@
 							{{if agafada}}
 								<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 							{{/if}}
- 							{{if tramitacioMassiva}}													
+ 							{{if !completed && tramitacioMassiva && assignadaPersona}}													
 								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: window.location='../v3/tasca/{{:id}}/massiva'"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
+							{{/if}}					
+ 							{{if !completed && tramitacioMassiva && !assignadaPersona}}													
+								<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
 							{{/if}}						
 						</div>
 					</script>

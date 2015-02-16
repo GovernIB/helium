@@ -32,66 +32,22 @@
 		input, select, textarea {width: 100%;}
 		form .fila_reducida {padding-top: 0px;margin-bottom: 5px;}
 		#expedientInformeCommand .row {margin-bottom: -5px;}
-		#taulaDades {
-			display: block;
-			overflow-x: auto;
-			border-left: 0 none;
-			border-right: 0 none;
-			border-bottom: 0 none;
-		}
-		.col-xs-13 {
-    		margin-left: -5px;
-    		margin-right: -15px;
-    	}
-		.form-group {
-			padding-right: 	15px;
-			margin-left: 	10px !important;
-			margin-bottom:	15px;
-		}
-		.form-group input, .form-group textarea {
-			width: 100%;
-		}
-		
-		.form-group li > .select2-container {
-			width: 100%;
-			padding-right: 20px;
-		}
-		
-		.form-group .select2-container {
-			width: calc(100% + 14px);
-		}
-		.condensed {
-			margin-bottom: 0px;
-		}
-		.form-group.registre {
-			padding-right: 1px;
-		}
+		#taulaDades {display: block;overflow-x: auto;border-left: 0 none;border-right: 0 none;border-bottom: 0 none;}
+		.col-xs-13 {margin-left: -5px;margin-right: -15px;}
+		.form-group {padding-right: 	15px;margin-left: 	10px !important;margin-bottom:	15px;}
+		.form-group input, .form-group textarea {width: 100%;}		
+		.form-group li > .select2-container {width: 100%;padding-right: 20px;}		
+		.form-group .select2-container {width: calc(100% + 14px);}
+		.condensed {margin-bottom: 0px;}
+		.form-group.registre {padding-right: 1px;}
 		.col-xs-9 {width: 82.5%}
-		.registre table .colEliminarFila {
-			width: 1px;
-		}
-		.registre table .opciones {
-			text-align: center;
-			padding: 4px;
-		}
-		p.help-block {
-			padding-top: 0;	
-			margin-top: 4px !important;
-		}
-		.clear {
-			clear: both;
-		}
-		.clearForm {
-			clear: both;
-			margin-bottom: 10px;
-			border-bottom: solid 1px #EAEAEA;
-		}
-		.input-append {
-			width: calc(100% - 27px);
-		}
-		.eliminarFila {
-			padding: 4px 6px;
-		}
+		.registre table .colEliminarFila {width: 1px;}
+		.registre table .opciones {text-align: center;padding: 4px;}
+		p.help-block {padding-top: 0;margin-top: 4px !important;}
+		.clear {clear: both;}
+		.clearForm {clear: both;margin-bottom: 10px;border-bottom: solid 1px #EAEAEA;}
+		.input-append {width: calc(100% - 27px);}
+		.eliminarFila {padding: 4px 6px;}
 		.pagination {margin : 0px !important;}
 		#btn_exportar {padding-right : 10px;}
 		.row {padding-bottom: 5px;}
@@ -110,6 +66,23 @@ $(document).ready(function() {
 		ajaxSourceUrl: "<c:url value="/v3/informe/${expedientInformeCommand.consultaId}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+		drawCallback: function() {
+			$('.show-modal-error').click(function(e) {
+				$('#modal-error .modal-title').html($(this).data('error-titol'));
+				$('#modal-error .modal-body').html(
+						'<p>' + $(this).data('error-missatge') + '</p>');
+				if ($(this).data('error-detall')) {
+					$('#modal-error .modal-body').append(
+							'<p>' + $(this).data('error-detall') + '</p>');
+				}
+				if ($(this).data('error-pid')) {
+					$('#modal-error .modal-body').append(
+							'<p>processInstanceId: ' + $(this).data('error-pid') + '</p>');
+				}
+				$('#modal-error').modal('show');
+				if (e.stopPropagation) e.stopPropagation();
+			});
+		},
 		rowClickCallback: function(row, event) {
 			var clickNomesDesplegar = true;
 			var numTds = $('td', $(event.target).closest('tr')).length;
@@ -235,23 +208,57 @@ $(document).ready(function() {
 				</th>
 				<th data-rdt-property="expedient.identificador" data-rdt-sorting="desc" data-visible=true><spring:message code="expedient.llistat.columna.expedient"/></th>
 				<c:forEach var="camp" items="${campsInforme}">
-					<th data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
+					<th <c:if test="${camp.varCodi == 'expedient__exp__estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
 					${camp.campEtiqueta}
+					<c:if test="${camp.varCodi == 'expedient__exp__estat'}">
+						<script id="cellEstatTemplate" type="text/x-jsrender">
+							{{:estat}}
+							<div class="pull-right">
+								{{if errorsIntegracions}}
+									<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span> </span>
+								{{/if}}
+								{{if aturat}}
+									<span class="label label-danger" title="{{:infoAturat}}">AT</span>
+								{{/if}}
+								{{if anulat}}
+									<span class="label label-warning" title="{{:comentariAnulat}}">AN</span>
+								{{/if}}
+								{{if errorDesc}}
+									{{if permisAdministration}}
+										<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
+									{{else}}
+										<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
+									{{/if}}						
+								{{/if}}
+							</div>
+						</script>
+					</c:if>
 				</th>
 				</c:forEach>
-				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>			
+				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
+				<th data-rdt-property="estat" data-rdt-visible="false"></th>
+				<th data-rdt-property="comentariAnulat" data-rdt-visible="false"></th>
+				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
+				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
+				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>		
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
+				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>		
+				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
+				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>			
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a onclick="javascript: window.location=this.href" href="<c:url value="../v3/expedient/{{:id}}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-								{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
-								{{if permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
-								{{if permisDelete}}<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
+								{{if !aturat && permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/suspend"/>" data-rdt-link-modal="true"><span class="fa fa-stop"></span>&nbsp;<spring:message code='comuns.aturar'/></a></li>{{/if}}
+								{{if !anulat && permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/cancel"/>" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code='comuns.anular'/></a></li>{{/if}}
+								{{if anulat && permisWrite}}<li><a href="<c:url value="../v3/expedient/{{:id}}/reprendre"/>" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>">&nbsp;<span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.tasca.accio.reprendre"/></a></li>{{/if}}
+								{{if permisDelete}}<li><a href="<c:url value="../v3/expedient/{{:id}}/delete"/>" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code='expedient.consulta.confirm.esborrar'/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code='comuns.esborrar'/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>
@@ -285,6 +292,24 @@ $(document).ready(function() {
 	</script>
 	
 	<script type="text/javascript">
+		function recarregarTaula(tableId, correcte) {
+			if (correcte) {
+				refrescarAlertas($("#"+tableId));
+				$("#"+tableId).dataTable().fnDraw();
+			}
+		}
+	
+		function refrescarAlertas(e) {
+			$.ajax({
+				url: "<c:url value="/nodeco/v3/missatges"/>",
+				async: false,
+				timeout: 20000,
+				success: function (data) {
+					$('#contingut-alertes').html(data);
+				}
+			});
+		}
+		
 		$("#tableButtonsTemplate a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
