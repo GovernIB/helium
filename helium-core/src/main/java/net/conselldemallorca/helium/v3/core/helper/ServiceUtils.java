@@ -29,7 +29,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -110,21 +109,6 @@ public class ServiceUtils {
 				isExpedientFinalitzat(expedient),
 				false);
 	}
-	public List<Map<String, DadaIndexadaDto>> expedientIndexLucenGetDades(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
-		List<Camp> informeCamps = new ArrayList<Camp>();
-		Map<String, Set<Camp>> camps = getMapCamps(rootProcessInstance.getId());
-		for (String clau: camps.keySet()) {
-			for (Camp camp: camps.get(clau))
-				informeCamps.add(camp);
-		}
-		informeCamps.addAll(findAllCampsExpedientConsulta());
-		return luceneHelper.getDadesExpedientV3(
-				expedient.getEntorn().getCodi(),
-				expedient,
-				informeCamps);
-	}
 
 	/*
 	 * Mètodes per a obtenir els camps de les consultes per tipus
@@ -187,19 +171,6 @@ public class ServiceUtils {
 		return tascaDadaDto;
 	}
 	
-	private List<Camp> findAllCampsExpedientConsulta() {
-		List<Camp> resposta = new ArrayList<Camp>();
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ID));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_NUMERO));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_TITOL));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_INICIADOR));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI));
-		resposta.add(getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ESTAT));
-		return resposta;
-	}
-	
 	public String getValueCampExpedient(Expedient expedient, String campCodi) {		
 		String text = null;
 		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
@@ -207,7 +178,7 @@ public class ServiceUtils {
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
 			text = expedient.getNumeroIdentificador();
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
-			text = expedient.getIdentificadorLimitat();
+			text = expedient.getTitol();
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
 			text = expedient.getComentari();
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {

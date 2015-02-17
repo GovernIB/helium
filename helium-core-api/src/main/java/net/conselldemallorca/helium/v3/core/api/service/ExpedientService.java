@@ -568,98 +568,7 @@ public interface ExpedientService {
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			Long processInstanceId);
 	
-	/*public ExpedientTascaDto getTascaPerExpedient(
-			Long expedientId,
-			String tascaId);
-
-	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
-			String instanciaProcesId);
-
-	
-
-	public ExpedientDto findAmbEntornITipusINumero(
-			Long entornId,
-			String expedientTipusCodi,
-			String numero) throws EntornNotFoundException, ExpedientTipusNotFoundException;
-
-	public ExpedientDto findAmbProcessInstanceId(
-			String processInstanceId);
-
-	public void createRelacioExpedient(
-			Long expedientOrigenId,
-			Long expedientDestiId);
-	
-	public void processInstanceTokenRedirect(
-			long tokenId,
-			String nodeName,
-			boolean cancelarTasques);
-
-	public void alertaCrear(
-			Long entornId,
-			Long expedientId,
-			Date data,
-			String usuariCodi,
-			String text) throws EntornNotFoundException, ExpedientNotFoundException;
-
-	public void alertaEsborrarAmbTaskInstanceId(
-			long taskInstanceId) throws TaskInstanceNotFoundException;
-
-	public List<ExpedientDadaDto> findDadesPerExpedient(Long expedientId);
-
-	public ExpedientDadaDto getDadaPerProcessInstance(
-			String processInstanceId,
-			String variableCodi);
-
-	public List<ExpedientDocumentDto> findDocumentsPerExpedient(Long expedientId);
-
-	public ArxiuDto getArxiuExpedient(
-			Long expedientId,
-			Long documentStoreId);
-	
-	public List<CampAgrupacioDto> findAgrupacionsDadesExpedient(Long expedientId);
-
-	
-
-	public List<EnumeracioValorDto> enumeracioConsultar(
-			String processInstanceId,
-			String enumeracioCodi) throws EnumeracioNotFoundException;
-
-	public ExpedientDto getExpedientIniciant();
-
-	public void editar(
-			Long entornId,
-			Long id,
-			String numero,
-			String titol,
-			String responsableCodi,
-			Date dataInici,
-			String comentari,
-			Long estatId,
-			Double geoPosX,
-			Double geoPosY,
-			String geoReferencia,
-			String grupCodi);
-	
-	public void editar(
-			Long entornId,
-			Long id,
-			String numero,
-			String titol,
-			String responsableCodi,
-			Date dataInici,
-			String comentari,
-			Long estatId,
-			Double geoPosX,
-			Double geoPosY,
-			String geoReferencia,
-			String grupCodi,
-			boolean executatEnHandler);
-
-	
-*/
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
-
-	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsPerTascaOrdenatsPerData(ExpedientDto expedient, boolean detall);
 
 	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall);
 	
@@ -670,24 +579,7 @@ public interface ExpedientService {
 	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId);	
 
 	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId);
-	
-	/*
-	public void deleteConsulta(Long expedientId);
 
-	
-
-
-	public void deleteRelacioExpedient(Long expedientIdOrigen, Long expedientIdDesti);
-	
-	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
-
-	public ExpedientDto iniciar(Long entornId, String usuari, Long expedientTipusId, Long definicioProcesId, Integer any, String numero, String titol, String registreNumero, Date registreData, Long unitatAdministrativa, String idioma, boolean autenticat, String tramitadorNif, String tramitadorNom, String interessatNif, String interessatNom, String representantNif, String representantNom, boolean avisosHabilitats, String avisosEmail, String avisosMobil, boolean notificacioTelematicaHabilitada, Map<String, Object> variables, String transitionName, IniciadorTipusDto iniciadorTipus, String iniciadorCodi, String responsableCodi, Map<String, DadesDocumentDto> documents, List<DadesDocumentDto> adjunts);
-
-	public String getNumeroExpedientActual(Long id, ExpedientTipusDto expedientTipus, Integer any);
-
-	
-	public void anular(Long id, Long expedientId, String motiu);
-*/
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 
 	public void cancelarTasca(Long expedientId, Long taskId);

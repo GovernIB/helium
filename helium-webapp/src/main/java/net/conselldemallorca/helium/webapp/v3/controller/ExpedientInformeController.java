@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManage
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -535,12 +536,15 @@ public class ExpedientInformeController extends BaseExpedientController {
 		bold = wb.createFont();
 		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
 		bold.setColor(HSSFColor.WHITE.index);
+		
 		greyFont = wb.createFont();
 		greyFont.setColor(HSSFColor.GREY_25_PERCENT.index);
-	
+		greyFont.setCharSet(HSSFFont.ANSI_CHARSET);
+		
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		cellStyle.setWrapText(true);
+		
 		cellGreyStyle = wb.createCellStyle();
 		cellGreyStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		cellGreyStyle.setWrapText(true);
@@ -565,7 +569,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 		// GENERAL
 		HSSFSheet sheet = wb.createSheet("Hoja 1");
 	
-		createHeader(sheet, expedientsConsultaDissenyDto);
+		if (!expedientsConsultaDissenyDto.isEmpty())
+			createHeader(sheet, expedientsConsultaDissenyDto);
 	
 		int rowNum = 1;
 		
@@ -598,7 +603,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 					sheet.autoSizeColumn(colNum);
 					cell = xlsRow.createCell(colNum++);
 					DadaIndexadaDto val = e.getValue();
-					cell.setCellValue(val.getValorMostrar());
+					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
 					cell.setCellStyle(dStyle);
 				}
 			} catch (Exception e) {

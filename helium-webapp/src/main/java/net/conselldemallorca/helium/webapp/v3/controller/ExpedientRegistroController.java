@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -52,14 +51,9 @@ public class ExpedientRegistroController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
 
 		if (expedient.isPermisAdministration()  || expedient.isPermisSupervision()) {
-			Map<InstanciaProcesDto, List<ExpedientLogDto>> loggers = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
-			boolean detall = tipus_retroces == null || tipus_retroces != 0;
-			if (detall) {
-				loggers = expedientService.getLogsPerTascaOrdenatsPerData(expedient, detall);
-			} else {
-				loggers = expedientService.getLogsOrdenatsPerData(expedient, detall);
-			}
-
+			boolean detall = tipus_retroces != null && tipus_retroces == 0;
+			Map<InstanciaProcesDto, List<ExpedientLogDto>> loggers  = expedientService.getLogsOrdenatsPerData(expedient, detall);
+			
 			SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
 				@Override
 				public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {

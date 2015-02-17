@@ -313,15 +313,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return resposta;
 	}
 
-	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedientV3(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
-		checkIndexOk();
-		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
-		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedientV3", "lucene");
-		return resultat;
-	}
-
 	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedientPaginatV3(String entornCodi, List<Long> llistaExpedientIds, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
 		checkIndexOk();
@@ -337,21 +328,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return resultat;
 	}
 
-	public List<Map<String, DadaIndexadaDto>> getDadesExpedientV3(String entornCodi, Expedient expedient, List<Camp> informeCamps) {
-		mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
-		checkIndexOk();
-		Query query = queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ID, expedient.getId().toString(), null);
-		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, false, ExpedientCamps.EXPEDIENT_CAMP_ID, true, 0, -1);
-		mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
-		return resultat;
-	}
-
 	@Autowired
 	public void setSearchTemplate(LuceneSearchTemplate searchTemplate) {
 		this.searchTemplate = searchTemplate;
 	}
-
-
 
 	private Document updateDocumentFromExpedient(Document docLucene, Expedient expedient, Map<String, DefinicioProces> definicionsProces, Map<String, Set<Camp>> camps, Map<String, Map<String, Object>> valors, Map<String, Map<String, String>> textDominis, boolean finalitzat) {
 		boolean isUpdate = (docLucene != null);
