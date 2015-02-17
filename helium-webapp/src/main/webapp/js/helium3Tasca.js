@@ -1,8 +1,7 @@
 /**
  * Funcions a executar al montar un formulari de tasca a la versió 3
  */
-$(function(){
-	
+$(function() {
 	if (typeof String.prototype.endsWith !== 'function') {
 	    String.prototype.endsWith = function(suffix) {
 	        return this.indexOf(suffix, this.length - suffix.length) !== -1;
@@ -10,8 +9,8 @@ $(function(){
 	}
 	var action = $("#command").attr('action');
 	$("#command").attr('action', cleanAction($("#command").attr('action')));
-	
-	// Formats
+
+	// Ajustaments per a cada tipus de camp
 	$(".price").priceFormat({
 		prefix: '',
 		centsSeparator: ',',
@@ -93,8 +92,7 @@ $(function(){
 		    },
 		})
 	});
-	
-	// Afegir múltiple
+	// Camp múltiple: afegir
 	$("#command").on("click", ".btn_multiple", function(){
 		var previousInput = $(this).closest('.form-group').prev();
 		var newInput = previousInput.clone();
@@ -223,8 +221,7 @@ $(function(){
 	$(".validada").each(function(index){
 		validado(true);
 	});
-	
-	// Eliminar múltiple
+	// Camp múltiple: eliminar
 	$("#command").on("click", ".btn_eliminar", function(){
 		var multiple = $(this).closest('.multiple');
 		var inputgroupmultiple = $(this).closest('.input-group-multiple');
@@ -249,13 +246,6 @@ $(function(){
 							input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
 						}
 					}
-//					if (input.attr("name") != null) {
-//						var name = input.attr("name");
-//						var name_pre = name.substr(0, name.lastIndexOf("["));
-//						input.attr({ 
-//							"id" : name_pre + "[" + index + "]", 
-//							"name" : name_pre + "[" + index + "]"});
-//					}
 					if (index == 0 && input.closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
 						input.closest('.input-group-multiple').removeClass('pad-left-col-xs-3');
 					}
@@ -310,12 +300,6 @@ $(function(){
 		}
 	});
 	
-	// Executar accions
-//	$("#command").on("click", ".btn_accio", function(){
-//		var accio = $(this).data(action);
-//		accioCampExecutar(this, accio);
-//	});
-	
 	// Funcionalitats concretes
 	$("#command").on("click", ".btn_date", function(){
 		$(this).closest(".date").focus();
@@ -330,19 +314,6 @@ $(function(){
 			$(this).prev().val(false);
 		}
 	})
-	$("#btn_save").click(function(){
-		$("#command").attr('action', $("#command").attr('action') + "/guardar");
-	});
-	$("#btn_validate").click(function(){
-		$("#command").attr('action', $("#command").attr('action') + "/validar");
-	});
-	$(".btn_completar").click(function(){
-		$("#command").attr('action', $("#command").attr('action') + "/completar");
-		$("#__transicio__").val($(this).val());
-	});
-	$("#btn_restore").click(function(){
-		$("#command").attr('action', $("#command").attr('action') + "/restaurar");
-	});
 	$(".btn_accio").click(function(){
 		if (confirm($(this).data("confirmacio"))) {
 			$("#command").attr('action', $("#command").attr('action') + "/accio/" + $(this).data("action"));
@@ -350,9 +321,6 @@ $(function(){
 		}
 		return false;
 	});
-//	$("#command").on("change", ".termini", function(){
-//		canviTermini(this);
-//	});
 });
 
 function validado(validar) {
@@ -387,17 +355,6 @@ function cleanAction(action) {
 		var pos = action.lastIndexOf("/form")
 		if (pos != -1)
 			return action.substring(0, action.lastIndexOf("/form") + 5);
-//		if (action.endsWith("/guardar")) {
-//			return action.substring(0, action.length - 8);
-//		} else if (action.endsWith("/validar")) {
-//			return action.substring(0, action.length - 8);
-//		} else if (action.endsWith("/completar")) {
-//			return action.substring(0, action.length - 10);
-//		} else if (action.endsWith("/restaurar")) {
-//			return action.substring(0, action.length - 10);
-//		} else if (action.indexOf("/action/") != -1) {
-//			return action.substring(0, action.lastIndexOf("/action/"));
-//		}
 	}
 	return action;
 }

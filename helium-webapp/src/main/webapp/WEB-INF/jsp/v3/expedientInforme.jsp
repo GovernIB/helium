@@ -9,6 +9,7 @@
 <head>
 	<title><spring:message code="consulta.form.informe" /></title>
 	<meta name="title" content="${consulta.nom}"/>
+	<meta name="title-icon-class" content="fa fa-search"/>
 	<meta name="subtitle" content="${consulta.expedientTipus.nom}"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>

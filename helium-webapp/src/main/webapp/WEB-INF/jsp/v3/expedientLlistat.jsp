@@ -22,6 +22,7 @@
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 <script>
@@ -63,7 +64,7 @@ $(document).ready(function() {
 					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
 				} else {
 					var jqxhr = $.ajax({
-						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#mostrarTasquesGrup').val(),
+						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/" + $('#mostrarTasquesGrup').val(),
 						beforeSend: function(xhr) {
 							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
 						}
@@ -75,21 +76,7 @@ $(document).ready(function() {
 						$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
 						$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
 					}).fail(function(jqXHR, exception) {
-						if (jqXHR.status === 0) {
-			                alert('Not connected.\n Verify network.');
-			            } else if (jqXHR.status == 404) {
-			                alert('Requested page not found [404].');
-			            } else if (jqXHR.status == 500) {
-			                alert('Internal server error [500].');
-			            } else if (exception === 'parsererror') {
-			                alert('Requested JSON parse failed.');
-			            } else if (exception === 'timeout') {
-			                alert('Timeout error.');
-			            } else if (exception === 'abort') {
-			                alert('Ajax request aborted.');
-			            } else {
-			                alert('Unknown error:\n' + jqXHR.responseText);
-			            }
+						modalAjaxErrorFunction(jqXHR, exception);
 					});
 				}
 			}
@@ -128,7 +115,6 @@ $(document).ready(function() {
 		$('#estatText').select2('val', '', true);
 		$('#estatText option[value!=""]').remove();
 		$('#consultaTipo').hide();
-		
 		if ($(this).val()) {
 			$.get('expedient/estatsPerTipus/' + $(this).val())
 			.done(function(data) {
@@ -146,17 +132,14 @@ $(document).ready(function() {
 			$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
 		}
 	});
-
 	$('#expedientTipusId').trigger('change');
 });
-
 function recarregarTaula(tableId, correcte) {
 	if (correcte) {
 		refrescarAlertas($("#"+tableId));
 		$("#"+tableId).dataTable().fnDraw();
 	}
 }
-
 function refrescarAlertas(e) {
 	$.ajax({
 		url: "<c:url value="/nodeco/v3/missatges"/>",
@@ -344,6 +327,5 @@ function refrescarAlertas(e) {
 			</div>
 		</div>
 	</div>
-
 </body>
 </html>

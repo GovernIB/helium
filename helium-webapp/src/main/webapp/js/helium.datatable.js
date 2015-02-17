@@ -1,6 +1,5 @@
 (function($) {
 	$.fn.contextMenu = function (settings) {
-		
         return this.each(function () {
             $(this).on("contextmenu", function (e) {
             	$(this).append('<ul class="dropdown-menu" id="dropdown-menu-context'+$(this).data('id')+'" style="display:none">'+$("td", this).find('.dropdown-menu').html()+'</ul>');
@@ -29,12 +28,10 @@
             	}
                 return false;
             });
-
             $(document).click(function () {
         		$(settings.menuSelector).hide();
             });
         });
-
         function getLeftLocation(e) {
             var mouseWidth = e.pageX+5;
             var pageWidth = $(window).width();
@@ -46,7 +43,6 @@
             } 
             return mouseWidth;
         }        
-        
         function getTopLocation(e) {
             var mouseHeight = e.pageY+5;
             var pageHeight = $(window).height();
@@ -58,7 +54,6 @@
             } 
             return mouseHeight;
         }
-
     };
 	$.fn.heliumDataTable = function(options) {        
 		return this.filter("table").each(function() {

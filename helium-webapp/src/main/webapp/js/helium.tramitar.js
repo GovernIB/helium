@@ -1,4 +1,4 @@
-function infoRegistre(docId) {
+/*function infoRegistre(docId) {
 	var amplada = 600;
 	var alcada = 200;
 	$('<div>' + $("#registre_" + docId).html() + '</div>').dialog({
@@ -24,9 +24,9 @@ function esborrarRegistre(e, campId, index) {
 					+ '"/>');
 	refresh();
 	return false;
-}
+}*/
 
-function refresh() {
+/*function refresh() {
 	$('form#command :button[name="submit"]').attr("name", "sbmt");
 	$('form#command').submit();
 }
@@ -45,23 +45,10 @@ function canviTermini(input) {
 	} else {
 		$(campId).val("");
 	}
-}
+}*/
 
-$(document).ready(function() {
-	$("i.agrupacio-desplegador").parent().parent().click(function() {
-		var taula = $(this).parent().parent().parent();
-		var tbody = $('tbody', taula).first();
-		var i = $(this).find("i").first();
-		tbody.toggleClass('hide');
-		i.removeClass('icon-chevron-up');
-		i.removeClass('icon-chevron-down');
-		if (tbody.hasClass('hide'))
-			i.addClass('icon-chevron-down');
-		else
-			i.addClass('icon-chevron-up');
-	});
-});
-var submitAction;
+
+/*var submitAction;
 function saveAction(element, action) {
 	submitAction = action;
 	if ($.browser.msie && $.browser.version.substr(0, 1) <= 7) {
@@ -89,4 +76,4 @@ function saveAction(element, action, url) {
 		$(element).get(0).closest("form").attr('action', url);
 		alert($(element).get(0).closest("form").attr('action'));
 	}
-}
+}*/
