@@ -1,14 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
-<%-- SENSE US --%>
-
-<%@page import="net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="numColumnes" value="${3}"/>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<html>
+<head>
+	<title>${tasca.titol}</title>
+	<hel:modalHead/>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <style type="text/css">
 	.documentTramitacio .btn-file {position: relative; overflow: hidden;}
 	.documentTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
@@ -34,7 +49,9 @@
 	.documentTramitacio .form-group .col-xs-11 {padding-right: 0px;}
 	.documentTramitacio .obligatori {background-position: right 8px;}
 </style>
-<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"/>
+</head>
+<body>
+	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"/>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
 		<form id="form${document.id}" class="form-horizontal form-tasca" action="documentAdjuntar" enctype="multipart/form-data" method="post" onsubmit="return false;">
@@ -120,9 +137,7 @@
 		</form>
 	</div>
 </c:forEach>
-	        
 <script type="text/javascript">
-	// <![CDATA[
 	$(document).on('change', '.btn-file :file', function() {
 		var input = $(this),
 		numFiles = input.get(0).files ? input.get(0).files.length : 1,
@@ -147,7 +162,6 @@
 			}
 		});	
 	});
-	
 	function documentGuardar(docId) {
 		$.ajax({
             type: 'POST',
@@ -187,7 +201,6 @@
             }
         });
 	}
-	
 	function documentGenerar(docId, nom, codi, adjuntarAuto, correcte) {		
 		if (adjuntarAuto == 'false') {
 			window.location.href = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
@@ -208,7 +221,6 @@
    				$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
    		}
 	}
-	
 	function amagarFile(docId, correcte) {
 		if (correcte) {
 			$("#amagarFile"+docId).removeClass("hide");
@@ -220,5 +232,6 @@
 			$("#form"+docId).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
 		}
 	}
-	// ]]>
 </script>
+</body>
+</html>

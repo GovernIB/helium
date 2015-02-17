@@ -138,7 +138,6 @@
 				<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 				<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
 			</c:choose>
-	
 			$('#definicioProcesVersio').on('change', function () {
 				if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
 					$.ajax({
@@ -165,7 +164,6 @@
 			});
 	
 		});
-	
 		function alertaError(textStatus, jqXHR) {
 			if (textStatus == 'error') {
 				if (jqXHR.status === 0) {
@@ -328,7 +326,6 @@
 			</div>
 		</div>
 	</div>
-	
 	<script type="text/javascript">
 	// <![CDATA[
 		$("#expedient-info-accio a").heliumEvalLink({

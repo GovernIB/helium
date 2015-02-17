@@ -342,7 +342,9 @@ public interface TascaService {
 
 	public List<TascaDocumentDto> findDocumentsSignar(String id);
 
+	public boolean hasFormulari(String tascaId);
+
 	public boolean hasDocuments(String tascaId);
 
-	public boolean hasDocumentsSignar(String tascaId);
+	public boolean hasSignatures(String tascaId);
 }

@@ -173,7 +173,7 @@
 					if ( sep != -1) {
 						callbackFunctionName = scb.substring(0, sep);
 						callbackFunctionParams = scb.substring(sep + 1, scb.lastIndexOf(')')).split(",");
-						executeFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
+						datatableExecuteFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
 					}
 				};
 				if (confirmat) {
@@ -509,7 +509,7 @@
 	};
 }(jQuery));
 
-function executeFunctionByName(functionName, context /*, args */) {
+function datatableExecuteFunctionByName(functionName, context /*, args */) {
 	var argsarr = [].slice.call(arguments).splice(2);
 	var args = argsarr[0];
 	for (var i = 0; i < args.length; i++)

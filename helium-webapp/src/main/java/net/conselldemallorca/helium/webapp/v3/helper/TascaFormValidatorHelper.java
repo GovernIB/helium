@@ -171,7 +171,7 @@ public class TascaFormValidatorHelper implements Validator {
 			if (request != null) {
 				SessionHelper.setAttribute(
 						request,
-						SessionHelper.VARIABLE_TASCA_ERRROR,
+						SessionHelper.VARIABLE_TASCA_ERROR,
 						errors);
 			}
 			logger.debug(errors.toString());

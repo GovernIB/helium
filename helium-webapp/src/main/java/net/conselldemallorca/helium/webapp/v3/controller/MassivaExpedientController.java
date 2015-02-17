@@ -543,9 +543,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			@SuppressWarnings("rawtypes")
-			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-			
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Set<Long> ids = recuperarIdsAccionesMasivas(request);
 			List<Long> listIds = new ArrayList<Long>(ids);			
 			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
@@ -564,7 +562,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			listTasca.add(tascaDada);
 			model.addAttribute("campId", campId);			
 			model.addAttribute("dada", tascaDada);
-			return TascaFormHelper.getCommandForCamps(listTasca, null, campsAddicionals, campsAddicionalsClasses, false);
+			return TascaFormHelper.getCommandForCamps(
+					listTasca,
+					null,
+					campsAddicionals,
+					campsAddicionalsClasses, false);
 		} catch (TascaNotFoundException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);

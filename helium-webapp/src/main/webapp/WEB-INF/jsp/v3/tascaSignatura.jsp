@@ -1,13 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
-<%-- SENSE US --%>
-
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<c:set var="numColumnes" value="${3}"/>
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<html>
+<head>
+	<title>${tasca.titol}</title>
+	<hel:modalHead/>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
+	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <style type="text/css">
 	#signatures .dades {margin-top: -20px;}
 	.signarTramitacio .btn-file {position: relative; overflow: hidden;}
@@ -39,7 +55,6 @@
 <script src="https://www.java.com/js/deployJava.js"></script>
 <c:set var="sourceUrl" value="${globalProperties['app.base.url']}/document/arxiuPerSignar.html"/>
 <script type="text/javascript">
-//<![CDATA[
 cargarApplet();
 function cargarApplet() {
 	try {
@@ -61,7 +76,6 @@ function cargarApplet() {
 		alert(e);
 	}
 } 
-
 function obtenirCertificats() {
 	try {
 		if (typeof(signaturaApplet) != "undefined") {
@@ -100,7 +114,6 @@ function obtenirCertificats() {
 		setTimeout("obtenirCertificats()", 1000);
 	}
 }
-
 function signarCaib(token, form, contentType) {
 	var cert = form.certs.value;
 	if (cert == null || cert.length == 0) {
@@ -169,63 +182,66 @@ function signarCaib(token, form, contentType) {
 		});
 	}
 }
-// ]]>
 </script>
-<div class="dades">
+</head>
+<body>
 	<script type="text/javascript">
 	// <![CDATA[
 		obtenirCertificats();
 	//]]>
 	</script>
-	<c:forEach var="document" items="${signatures}">
-		<div class="signarTramitacio well well-small">
-			<div class="form-horizontal form-tasca">
-				<div class="inlineLabels">
-					<h4 class="titol-missatge">
-						<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-						<c:choose>
-							<c:when test="${not empty document.tokenSignatura}"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
-								<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
-									<i class="fa fa-download"></i>
-								</a>
-								<div id="iconos${document.id}" class="iconos"></div>
-								<div id="firmar${document.id}">
-									<c:if test="${not document.signat}">						
-										<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
-											<input type="hidden" id="docId" name="docId" value="${document.id}"/>
-											<input type="hidden" id="taskId" name="taskId" value="${tascaId}"/>
-											<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
-											<div class="inlineLabels col first">
-												<div class="ctrlHolder">
-													<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-													<select style="display: none" id="certs${document.id}" name="certs"></select>
+	<div class="dades">
+		<c:forEach var="document" items="${signatures}">
+			<div class="signarTramitacio well well-small">
+				<div class="form-horizontal form-tasca">
+					<div class="inlineLabels">
+						<h4 class="titol-missatge">
+							<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
+							<c:choose>
+								<c:when test="${not empty document.tokenSignatura}"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
+									<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
+										<i class="fa fa-download"></i>
+									</a>
+									<div id="iconos${document.id}" class="iconos"></div>
+									<div id="firmar${document.id}">
+										<c:if test="${not document.signat}">						
+											<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+												<input type="hidden" id="docId" name="docId" value="${document.id}"/>
+												<input type="hidden" id="taskId" name="taskId" value="${tascaId}"/>
+												<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
+												<div class="inlineLabels col first">
+													<div class="ctrlHolder">
+														<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
+														<select style="display: none" id="certs${document.id}" name="certs"></select>
+													</div>
+													<div class="ctrlHolder">
+														<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
+														<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+													</div>
 												</div>
-												<div class="ctrlHolder">
-													<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
-													<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+												<div id="modal-botons${document.id}" class="modal-botons">
+													<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
 												</div>
-											</div>
-											<div id="modal-botons${document.id}" class="modal-botons">
-												<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
-											</div>
-										</form:form>
-									</c:if>
-								</div>
-								<script type="text/javascript">
-								// <![CDATA[
-									$(document).ready( function() {
-										$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/${document.id}"/>');
-									});
-								//]]>
-								</script>
-							</c:when>
-							<c:otherwise>
-								<div class="no-disponible"><spring:message code="expedient.document.no_disponible"/></div>
-							</c:otherwise>
-						</c:choose>
-					</h4>
+											</form:form>
+										</c:if>
+									</div>
+									<script type="text/javascript">
+									// <![CDATA[
+										$(document).ready( function() {
+											$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/${document.id}"/>');
+										});
+									//]]>
+									</script>
+								</c:when>
+								<c:otherwise>
+									<div class="no-disponible"><spring:message code="expedient.document.no_disponible"/></div>
+								</c:otherwise>
+							</c:choose>
+						</h4>
+					</div>
 				</div>
 			</div>
-		</div>
-	</c:forEach>
-</div>
+		</c:forEach>
+	</div>
+</body>
+</html>

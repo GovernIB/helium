@@ -3,12 +3,17 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -18,33 +23,62 @@ import org.springframework.ui.Model;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class BaseExpedientController extends BaseController {
+public class BaseTascaController extends BaseController {
 
 	@Autowired
-	protected ExpedientService expedientService;
+	protected TascaService tascaService;
 	@Autowired
 	protected DissenyService dissenyService;
 
-	protected String mostrarInformacioExpedientPerPipella(
+	protected String mostrarInformacioTascaPerPipelles(
 			HttpServletRequest request,
-			Long expedientId,
+			String tascaId,
 			Model model,
 			String pipellaActiva) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		model.addAttribute("expedient", expedient);
-		model.addAttribute("participants", expedientService.findParticipants(expedientId));		
-		model.addAttribute("accions", expedientService.findAccionsVisibles(expedientId));
-		model.addAttribute("relacionats", expedientService.findRelacionats(expedientId));
-		DefinicioProcesVersioDto versions = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
-		model.addAttribute("definicioProces", versions);
-		model.addAttribute("definicioProcesVersio",versions.getVersio());
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		model.addAttribute("tasca", tasca);
+		List<TascaDadaDto> dadesNomesLectura = new ArrayList<TascaDadaDto>();
+		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
+		Iterator<TascaDadaDto> itDades = dades.iterator();
+		while (itDades.hasNext()) {
+			TascaDadaDto dada = itDades.next();
+			if (dada.isReadOnly()) {
+				dadesNomesLectura.add(dada);
+				itDades.remove();
+			}
+		}
+		model.addAttribute("dadesNomesLectura", dadesNomesLectura);
+		model.addAttribute(
+				"hasFormulari",
+				tascaService.hasFormulari(tascaId));
+		model.addAttribute(
+				"hasDocuments",
+				tascaService.hasDocuments(tascaId));
+		model.addAttribute(
+				"hasSignatures",
+				tascaService.hasSignatures(tascaId));
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
-			model.addAttribute("pipellaActiva", "tasques");
-		return "v3/expedientPipelles";
+			model.addAttribute("pipellaActiva", "form");
+		model.addAttribute(
+				"isModal",
+				ModalHelper.isModal(request));
+		return "v3/tascaPipelles";
+	}
+
+	protected String getReturnUrl(
+			HttpServletRequest request,
+			Long expedientId,
+			String tascaId,
+			String sufix) {
+		String suf = (sufix != null) ? "/" + sufix : "";
+		if (ModalHelper.isModal(request))
+			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
+		else
+			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
 	}
 
 	/*protected boolean potModificarExpedient(ExpedientDto expedient) {

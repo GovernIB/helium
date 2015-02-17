@@ -21,16 +21,15 @@ import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -38,6 +37,7 @@ import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
@@ -78,7 +78,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class TascaTramitacioController extends BaseController {
+public class TascaTramitacioController extends BaseTascaController {
 
 	protected String TAG_PARAM_REGEXP = "<!--helium:param-(.+?)-->";
 	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
@@ -93,138 +93,48 @@ public class TascaTramitacioController extends BaseController {
 	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
 
-	@RequestMapping(value = "/massivaTramitacioTasca", method = RequestMethod.GET)
-	public String massivaTramitacio(
-			HttpServletRequest request,
-			@RequestParam(value = "inici", required = false) String inici,
-			@RequestParam(value = "correu", defaultValue="false", required = false) Boolean correu,
-			Model model) throws IOException, ServletException {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
-		if (seleccio == null || seleccio.isEmpty()) {
-			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
-			return modalUrlTancar(false);
-		}
-		String tascaId = String.valueOf(seleccio.iterator().next());
-		SessionHelper.removeAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
-		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		getModelTramitacio(tascaId, model);
-		model.addAttribute("command", populateCommand(request, tascaId, inici, correu, seleccio.size(), model));
-		
-		return getReturnUrl(request, tasca.getExpedientId(), tascaId);
-	}
 
-	@RequestMapping(value = "/massivaTramitacioTasca/taula", method = RequestMethod.GET)
-	public String massivaTramitacioTaula(
-			HttpServletRequest request,
-			Model model) {
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();		
-		model.addAttribute("tasques", tascaService.findDadesPerIds(seleccio));
-		
-		return "v3/import/tasquesMassivaTaula";
-	}
 
-	@SuppressWarnings("rawtypes")
 	@ModelAttribute("command")
-	public Object initializeCommand(
-			HttpServletRequest request, 
-			String tascaId, 
-			String inici, 
-			Boolean correu, 
-			Integer numTascaMassiva,
-			Model model) {		
-		if (tascaId != null && !tascaId.isEmpty()) {
-			try {
-				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-				campsAddicionals.put("inici", inici);
-				campsAddicionals.put("correu", correu);
-				campsAddicionals.put("numTascaMassiva", numTascaMassiva);
-				campsAddicionalsClasses.put("inici", String.class);
-				campsAddicionalsClasses.put("correu", Boolean.class);
-				campsAddicionalsClasses.put("numTascaMassiva", Integer.class);
-				return TascaFormHelper.getCommandBuitForCamps(
-						tascaService.findDades(tascaId),	// tascaDadas
-						campsAddicionals,					// campsAddicionals
-						campsAddicionalsClasses, 			// campsAddicionalsClasses
-						false);								// perFiltre
-			} catch (TascaNotFoundException ex) {
-				MissatgesHelper.error(request, ex.getMessage());
-				logger.error("No s'ha pogut trobar la tasca: " + ex.getMessage(), ex);
-			} catch (Exception ignored) {} 
-		}
-		return null;
-	}
-
-	@RequestMapping(value = "/formExtern", method = RequestMethod.GET)
-	public String formExtern(
+	public Object modelAttributeCommand(
 			HttpServletRequest request,
-			@RequestParam(value = "width", required = false) final String width,
-			@RequestParam(value = "height", required = false) final String height,
-			@RequestParam(value = "url", required = true) final String url,
-			ModelMap model) throws ServletException {
-		try {
-			model.addAttribute("tittle", getMessage(request, "tasca.form.dades_form"));
-			model.addAttribute("url", url);
-			model.addAttribute("height", height);
-			return "v3/utils/modalIframe";
-		} catch(Exception ex) {
-			logger.error("Error al comprobar el formulario externo", ex);
-			throw new ServletException(ex);
-	    }
-	}
-
-	private Object populateCommand(HttpServletRequest request, String tascaId, String inici, boolean correu, int numTascaMassiva, Model model) {
-		Object filtreCommand = SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
-		if (filtreCommand != null) {
-			return SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
-		} else if (tascaId != null && !tascaId.isEmpty()) {
-			try {				
-				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				@SuppressWarnings("rawtypes")
-				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-				campsAddicionals.put("inici", inici);
-				campsAddicionals.put("correu", correu);
-				campsAddicionals.put("numTascaMassiva", numTascaMassiva);
-				campsAddicionalsClasses.put("inici", String.class);
-				campsAddicionalsClasses.put("correu", Boolean.class);
-				campsAddicionalsClasses.put("numTascaMassiva", Integer.class);
-				
-				Object command = TascaFormHelper.getCommandForCamps(
-						tascaService.findDades(tascaId),	// tascaDadas
-						new HashMap<String, Object>(),		// valors
-						campsAddicionals,					// campsAddicionals
-						campsAddicionalsClasses, 			// campsAddicionalsClasses
-						false);								// perFiltre
-				SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
-				return command;
-			} catch (TascaNotFoundException ex) {
-				MissatgesHelper.error(request, ex.getMessage());
-				logger.error("No s'ha pogut trobar la tasca: " + ex.getMessage(), ex);
-			} catch (Exception ignored) {} 
+			String tascaId,
+			String inici,
+			Boolean correu,
+			Integer numTascaMassiva,
+			Model model) {
+		// S'ha de inicialitzar el command abans de processar el RequestMapping
+		// del POSTs amb les modificacions al formulari de la tasca
+		if (tascaId != null && !tascaId.isEmpty()) {
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			campsAddicionals.put("inici", inici);
+			campsAddicionals.put("correu", correu);
+			campsAddicionals.put("numTascaMassiva", numTascaMassiva);
+			campsAddicionalsClasses.put("inici", String.class);
+			campsAddicionalsClasses.put("correu", Boolean.class);
+			campsAddicionalsClasses.put("numTascaMassiva", Integer.class);
+			return TascaFormHelper.getCommandBuitForCamps(
+					tascaService.findDades(tascaId),
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
 		}
 		return null;
 	}
 
-	public Object populateCommand(
-			HttpServletRequest request, 
-			String tascaId,
-			Model model) {
-		return populateCommand(
-				request, 
-				tascaId, null, false, 0,
-				model);		
-	}
-	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}", method = RequestMethod.GET)
 	public String tramitar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
-		SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_TASCA_ERRROR);
-		return getReturnUrl(request, expedientId, tascaId);
+		SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_TASCA_ERROR);
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				tascaId,
+				model,
+				"form");
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.GET)
@@ -233,21 +143,28 @@ public class TascaTramitacioController extends BaseController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
-		// Omple les dades del formulari i les de només lectura
-		getModelTramitacio(tascaId, model);
-		model.addAttribute("command", populateCommand(request, tascaId, model));
-		return "v3/expedientTascaTramitacio";
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioTascaPerPipelles(
+					request,
+					tascaId,
+					model,
+					"form");
+		}
+		emplenarModelFormulari(
+				request,
+				tascaId,
+				model);
+		return "v3/tascaForm";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/guardar", method = RequestMethod.POST)
 	public String formGuardar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@Valid @ModelAttribute("command") Object command,
-			BindingResult result, 
+			BindingResult result,
 			SessionStatus status,
-			@RequestParam(value = "accio", required = false) String accio,
 			ModelMap model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entorn != null) {
@@ -257,14 +174,16 @@ public class TascaTramitacioController extends BaseController {
 			validator.setTasca(tascaDadas);
 			guardarForm(validator, variables, command, result, request, tascaId);
 			status.setComplete();
-			getModelTramitacio(tascaId, (Model)model);
-			TascaFormHelper.ompleMultiplesBuits(command, tascaDadas, false);
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
 		}
-		return "v3/expedientTascaTramitacio";
+		return getReturnUrl(
+				request,
+				expedientId,
+				tascaId,
+				null);
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/validar", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
@@ -284,15 +203,69 @@ public class TascaTramitacioController extends BaseController {
 			guardarForm(validator, variables, command, result, request, tascaId);
 			validarForm(validator, variables, command, result, request, tascaId);
 			status.setComplete();
-			getModelTramitacio(tascaId, (Model)model);
-			TascaFormHelper.ompleMultiplesBuits(command, tascaDadas, false);
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
 		}
-		return "v3/expedientTascaTramitacio";
+		return getReturnUrl(
+				request,
+				expedientId,
+				tascaId,
+				null);
 	}
-	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/completar", method = RequestMethod.POST)
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/restaurar", method = RequestMethod.POST)
+	public String formRestaurar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@ModelAttribute("command") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			ModelMap model) {
+		try {
+			List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
+			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+			accioRestaurarForm(request, tascaId, variables, command); 	
+        } catch (Exception ex) {
+        	MissatgesHelper.error(request, ex.getMessage());
+        	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
+        }
+		return getReturnUrl(
+				request,
+				expedientId,
+				tascaId,
+				null);
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/accio/{accioCamp}", method = RequestMethod.POST)
+	public String formAccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable String accioCamp,
+			@ModelAttribute("command") Object command, 
+			BindingResult result, 
+			SessionStatus status, 
+			ModelMap model) {
+		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
+		validator.setTasca(tascaDadas);
+		validator.setRequest(request);
+		validator.validate(command, result);
+		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables, command)) {
+			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
+		} else if (accioExecutarAccio(request, tascaId, accioCamp, command)) {
+			model.addAttribute("campFocus", accioCamp);
+		}
+		return getReturnUrl(
+				request,
+				expedientId,
+				tascaId,
+				null);
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
 	public String formCompletar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -313,60 +286,414 @@ public class TascaTramitacioController extends BaseController {
 			validarForm(validator, variables, command, result, request, tascaId);
 			completarForm(request, tascaId, transicio, command);
 			status.setComplete();
-			getModelTramitacio(tascaId, (Model)model);
+			emplenarModelFormulari(
+					request,
+					tascaId,
+					(Model)model);
 			TascaFormHelper.ompleMultiplesBuits(command, tascaDadas, false);
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "error.no.entorn.selec"));			
 		}
 		return "v3/expedientTascaTramitacio";
 	}
-	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/restaurar", method = RequestMethod.POST)
-	public String formRestaurar(
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document", method = RequestMethod.GET)
+	public String document(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@ModelAttribute("command") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
-			ModelMap model) {		
-		try {
-			List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-			accioRestaurarForm(request, tascaId, variables, command); 	
-        } catch (Exception ex) {
-        	MissatgesHelper.error(request, ex.getMessage());
-        	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
-        }
-		
-		return getReturnUrl(request, expedientId, tascaId);
-	}
-	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form/accio/{accioCamp}", method = RequestMethod.POST)
-	public String formAccio(
-	HttpServletRequest request,
-	@PathVariable Long expedientId,
-	@PathVariable String tascaId,
-	@PathVariable String accioCamp,
-	@ModelAttribute("command") Object command, 
-	BindingResult result, 
-	SessionStatus status, 
-	ModelMap model) {
-		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-		validator.setTasca(tascaDadas);
-		validator.setRequest(request);
-		validator.validate(command, result);
-		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables, command)) {
-			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
-		} else if (accioExecutarAccio(request, tascaId, accioCamp, command)) {
-			model.addAttribute("campFocus", accioCamp);
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioTascaPerPipelles(
+					request,
+					tascaId,
+					model,
+					"document");
 		}
+		// Omple els documents per adjuntar i els de només lectura
+		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
+		List<TascaDocumentDto> documentsNomesLectura = new ArrayList<TascaDocumentDto>();
+		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
+		while (itDocuments.hasNext()) {
+			TascaDocumentDto document = itDocuments.next();
+			if (document.isReadOnly()) {
+				if (document.getId() != null)
+					documentsNomesLectura.add(document);
+				itDocuments.remove();
+			}
+		}
+		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
+		model.addAttribute("documents", documents);
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("tascaId", tascaId);
+		return "v3/tascaDocument";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentAdjuntar", method = RequestMethod.POST)
+	@ResponseBody
+	public String documentAdjuntar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@RequestParam(value = "docId", required = false) Long docId,
+			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
+			@RequestParam(value = "data", required = false) Date data,
+			Model model) {
+		String resposta = "";
+		try {
+			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
+			String nomArxiu = arxiu.getOriginalFilename();
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			if (!tasca.isValidada()) {
+				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
+			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
+				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
+			} else {
+				resposta = accioDocumentAdjuntar(
+						request,
+						tascaId,
+						docId,
+						nomArxiu,
+						contingutArxiu,
+						data).toString();
+			}
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
+			logger.error("Error al adjuntar el document " + docId, ex);
+		}
+		return resposta;
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar", method = RequestMethod.GET)
+	@ResponseBody
+	public String documentGenerarGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@RequestParam(value = "docId", required = true) Long docId,		
+			@RequestParam(value = "data", required = false) Date data,
+			Model model) {
+		String generatId = "";
+		try {
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			if (!tasca.isValidada()) {
+				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
+			} else {
+				DocumentDto generat = accioDocumentGenerar(
+						request,
+						tascaId, 
+						docId, 
+						expedientId,
+						data);
+				if (generat != null) {
+					generatId = String.valueOf(generat.getId());
+					if (!generat.isAdjuntarAuto()) {
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
+						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
+						return "arxiuView";
+					}
+				}
+			}
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
+			logger.error("Error generant el document " + docId, ex);
+		}
+		return generatId;
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)
+	public String documentDescarregar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable Long documentId,
+			@PathVariable String documentCodi,
+			Model model) {
+		ArxiuDto arxiu = tascaService.getArxiuPerDocumentIdCodi(
+			tascaId,
+			documentId,
+			documentCodi);
+		model.addAttribute(
+				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+				arxiu.getNom());
+		model.addAttribute(
+				ArxiuView.MODEL_ATTRIBUTE_DATA,
+				arxiu.getContingut());
+		return "arxiuView";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentEsborrar", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean documentEsborrar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@RequestParam(value = "docId", required = true) Long docId,		
+			@RequestParam(value = "data", required = false) Date data,
+			Model model) {
+		boolean response = false;
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		if (!tasca.isValidada()) {
+			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
+		} else {
+			response = accioDocumentEsborrar(
+					request,
+					tascaId,
+					docId,
+					data);
+		}
+		return response;
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signatura", method = RequestMethod.GET)
+	public String signatura(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioTascaPerPipelles(
+					request,
+					tascaId,
+					model,
+					"signatura");
+		}
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("tascaId", tascaId);
+		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
+		return "v3/tascaSignatura";
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signarAmbToken", method = RequestMethod.POST)
+	@ResponseBody
+	public boolean signarAmbToken(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@RequestParam(value="taskId", required = true) String taskId,
+			@RequestParam(value="docId", required = true) Long docId,			
+			@RequestParam(value="token", required = true) String token,
+			@RequestParam(value="data", required = true) String[] data,
+			Model model) {
+		boolean signat = false;
+		try {
+			StringBuffer aData = new StringBuffer();
+			for (String dat : data) {
+				aData.append(dat);
+			}			
+			signat = tascaService.signarDocumentTascaAmbToken(
+					expedientId,
+					docId,
+					taskId,
+					token,
+					Base64.decodeBase64(aData.toString().getBytes()));
+			if (signat) {
+				logger.info("Signatura del document amb el token " + token + " processada correctament");
+				MissatgesHelper.info(
+	        			request,
+	        			getMessage(request, "info.signatura.doc.processat") );
+			} else {
+				logger.error("Signatura del document amb el token " + token + " processada amb error de custòdia");
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validar.signatura") );
+			}
+		} catch(Exception ex) {
+			logger.error("Error rebent la signatura del document", ex);
+			MissatgesHelper.error(
+        			request,
+        			getMessage(request, "error.rebre.signatura") );
+	    }
+		return signat;
+	}
+
+	@RequestMapping(value = "/formExtern", method = RequestMethod.GET)
+	public String formExtern(
+			HttpServletRequest request,
+			@RequestParam(value = "width", required = false) final String width,
+			@RequestParam(value = "height", required = false) final String height,
+			@RequestParam(value = "url", required = true) final String url,
+			ModelMap model) throws ServletException {
+		try {
+			model.addAttribute("tittle", getMessage(request, "tasca.form.dades_form"));
+			model.addAttribute("url", url);
+			model.addAttribute("height", height);
+			return "v3/utils/modalIframe";
+		} catch(Exception ex) {
+			logger.error("Error al comprobar el formulario externo", ex);
+			throw new ServletException(ex);
+	    }
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/icones/{docId}", method = RequestMethod.GET)
+	public String icones(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable Long docId,
+			Model model) {
+		model.addAttribute("document", tascaService.findDocument(tascaId, docId));
+		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
+		return "v3/expedientTascaTramitacioSignarIcones";
+	}
+
+	@RequestMapping(value = "/massivaTramitacioTasca", method = RequestMethod.GET)
+	public String massivaTramitacio(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", defaultValue="false", required = false) Boolean correu,
+			Model model) throws IOException, ServletException {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		if (seleccio == null || seleccio.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
+			return modalUrlTancar(false);
+		}
+		String tascaId = String.valueOf(seleccio.iterator().next());
+		SessionHelper.removeAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		emplenarModelFormulari(
+				request,
+				tascaId,
+				model);
+		model.addAttribute(
+				"command",
+				inicialitzarTascaFormCommand(
+						request,
+						tascaId,
+						inici,
+						correu,
+						seleccio.size(),
+						model));
+		return getReturnUrl(request, tasca.getExpedientId(), tascaId, "form");
+	}
+
+	@RequestMapping(value = "/massivaTramitacioTasca/taula", method = RequestMethod.GET)
+	public String massivaTramitacioTaula(
+			HttpServletRequest request,
+			Model model) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();		
+		model.addAttribute("tasques", tascaService.findDadesPerIds(seleccio));
 		
-		return getReturnUrl(request, expedientId, tascaId);
+		return "v3/import/tasquesMassivaTaula";
+	}
+
+	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> valorsSeleccio(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long campId,
+			Model model) {
+		return tascaService.findValorsPerCampDesplegable(
+				tascaId,
+				null,
+				campId,
+				null,
+				null,
+				new HashMap<String, Object>());
 	}
 	
+	@RequestMapping(value = {"/tasca/camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> valorsSeleccio(
+			HttpServletRequest request,
+			@PathVariable Long campId,
+			Model model) {
+		return valorsSeleccio(
+				request,
+				null,
+				campId,
+				model);
+	}
+	
+	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> valorsSeleccio(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long campId,
+			@PathVariable String valor,
+			Model model) {
+		return tascaService.findValorsPerCampDesplegable(
+				tascaId,
+				null,
+				campId,
+				valor,
+				null,
+				new HashMap<String, Object>());
+	}
+	
+	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public SeleccioOpcioDto valorsSeleccioInicial(
+			HttpServletRequest request,
+			@PathVariable String tascaId,
+			@PathVariable Long campId,
+			@PathVariable String valor,
+			Model model) {
+		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findValorsPerCampDesplegable(
+				tascaId,
+				null,
+				campId,
+				null,
+				null,
+				getMapDelsValors(valor));
+		for (SeleccioOpcioDto sel : valorsSeleccio) {
+			if (sel.getCodi().equals(valor)) {
+				return sel;
+			}
+		}
+		return new SeleccioOpcioDto();
+	}
+	
+	@RequestMapping(value = {"/tasca/camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
+	@ResponseBody
+	public SeleccioOpcioDto valorsSeleccioInicial(
+			HttpServletRequest request,
+			@PathVariable Long campId,
+			@PathVariable String valor,
+			Model model) {		
+		return valorsSeleccioInicial(
+				request,
+				null,
+				campId,
+				valor,
+				model);
+	}
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,##0.00"),
+						true));
+		binder.registerCustomEditor(
+				Boolean.class,
+//				new CustomBooleanEditor(false));
+				new CustomBooleanEditor(true));
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+//		binder.registerCustomEditor(
+//				TerminiDto.class,
+//				new TerminiTypeEditorHelper());
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
+	}
+
+
+
 	private void guardarForm(
 			TascaFormValidatorHelper validator, 
 			Map<String, Object> variables, 
@@ -408,19 +735,10 @@ public class TascaTramitacioController extends BaseController {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 		}
 	}
-	
-	private void getModelTramitacio(String tascaId, Model model) {		
+
+	/*private ExpedientTascaDto emplenarModelComu(String tascaId, Model model) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
-			try {
-				byte[] contingut = dissenyService.getDeploymentResource(tasca.getDefinicioProces().getId(), tasca.getRecursForm());
-				model.addAttribute("formRecursParams", getFormRecursParams(new String(contingut, "UTF-8")));
-			} catch (Exception ex) {
-				logger.error("No s'han pogut extreure els parametres del recurs", ex);
-			}
-		}
 		model.addAttribute("tasca", tasca);
-		
 		List<Object> nomesLectura = new ArrayList<Object>();
 		
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
@@ -446,67 +764,66 @@ public class TascaTramitacioController extends BaseController {
 		model.addAttribute("nomesLectura", nomesLectura);
 		
 		model.addAttribute("dades", dades);
-		model.addAttribute("hasDocuments", tascaService.hasDocuments(tascaId));
-		model.addAttribute("hasSignatures", tascaService.hasDocumentsSignar(tascaId));
-		
-		signatures(null, tasca.getExpedientId(), tascaId, model);
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)
-	public String documentDescarregar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@PathVariable Long documentId,
-			@PathVariable String documentCodi,
-			Model model) {
-		ArxiuDto arxiu = tascaService.getArxiuPerDocumentIdCodi(
-			tascaId,
-			documentId,
-			documentCodi);
 		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
-				arxiu.getNom());
+				"hasFormulari",
+				tascaService.hasFormulari(tascaId));
 		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_DATA,
-				arxiu.getContingut());
-		return "arxiuView";
-	}
+				"hasDocuments",
+				tascaService.hasDocuments(tascaId));
+		model.addAttribute(
+				"hasSignatures",
+				tascaService.hasSignatures(tascaId));
+		return tasca;
+	}*/
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documents", method = RequestMethod.GET)
-	public String documents(
+	private void emplenarModelFormulari(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			Model model) {
-		// Omple els documents per adjuntar i els de només lectura
-		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
-		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
-		while (itDocuments.hasNext()) {
-			TascaDocumentDto document = itDocuments.next();
-			if (document.isReadOnly()) {
-				itDocuments.remove();
+			String tascaId,
+			Model model) {		
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		model.addAttribute("tasca", tasca);
+		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
+		Iterator<TascaDadaDto> itDades = dades.iterator();
+		while (itDades.hasNext()) {
+			TascaDadaDto dada = itDades.next();
+			if (dada.isReadOnly()) {
+				itDades.remove();
 			}
 		}
-
-		model.addAttribute("documents", documents);
-		model.addAttribute("expedientId", expedientId);
-		model.addAttribute("tascaId", tascaId);
-		return "v3/expedientTascaTramitacioDocuments";
+		model.addAttribute("dades", dades);
+		if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
+			try {
+				byte[] contingut = dissenyService.getDeploymentResource(tasca.getDefinicioProces().getId(), tasca.getRecursForm());
+				model.addAttribute("formRecursParams", getFormRecursParams(new String(contingut, "UTF-8")));
+			} catch (Exception ex) {
+				logger.error("No s'han pogut extreure els parametres del recurs", ex);
+			}
+		}
+		List<ParellaCodiValorDto> listTerminis = new ArrayList<ParellaCodiValorDto>();
+		for (int i = 0; i <= 12 ; i++)		
+			listTerminis.add(new ParellaCodiValorDto(String.valueOf(i), i));
+		model.addAttribute(
+				"listTerminis",
+				listTerminis);
+		Object tascaFormCommand = inicialitzarTascaFormCommand(
+				request,
+				tascaId,
+				null,
+				false,
+				0,
+				model);
+		TascaFormHelper.ompleMultiplesBuits(
+				tascaFormCommand,
+				dades, 
+				false);
+		model.addAttribute(
+				"command",
+				tascaFormCommand);
+		model.addAttribute(
+				"isModal",
+				ModalHelper.isModal(request));
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signatures", method = RequestMethod.GET)
-	public String signatures(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			Model model) {
-		model.addAttribute("expedientId", expedientId);
-		model.addAttribute("tascaId", tascaId);
-		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
-		return "v3/expedientTascaTramitacioSignar";
-	}
-	
 	private boolean accioRestaurarForm(
 			HttpServletRequest request, 
 			String tascaId, 
@@ -909,194 +1226,68 @@ public class TascaTramitacioController extends BaseController {
 		return resposta;
 	}
 
-	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
-	@ResponseBody
-	public List<SeleccioOpcioDto> valorsSeleccio(
+	private Object inicialitzarTascaFormCommand(
 			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable Long campId,
+			String tascaId,
+			String inici,
+			boolean correu,
+			int numTascaMassiva,
 			Model model) {
-		return tascaService.findValorsPerCampDesplegable(
+		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+		campsAddicionals.put("inici", inici);
+		campsAddicionals.put("correu", correu);
+		campsAddicionals.put("numTascaMassiva", numTascaMassiva);
+		campsAddicionalsClasses.put("inici", String.class);
+		campsAddicionalsClasses.put("correu", Boolean.class);
+		campsAddicionalsClasses.put("numTascaMassiva", Integer.class);
+		return TascaFormHelper.getCommandForCamps(
+				tascaService.findDades(tascaId),
+				null,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false);
+		/*Object filtreCommand = SessionHelper.getAttribute(request, VARIABLE_COMMAND_TRAMITACIO + tascaId);
+		if (filtreCommand != null) {
+			return SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
+		} else if (tascaId != null && !tascaId.isEmpty()) {
+			try {
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				@SuppressWarnings("rawtypes")
+				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				campsAddicionals.put("inici", inici);
+				campsAddicionals.put("correu", correu);
+				campsAddicionals.put("numTascaMassiva", numTascaMassiva);
+				campsAddicionalsClasses.put("inici", String.class);
+				campsAddicionalsClasses.put("correu", Boolean.class);
+				campsAddicionalsClasses.put("numTascaMassiva", Integer.class);
+				Object command = TascaFormHelper.getCommandForCamps(
+						tascaService.findDades(tascaId),	// tascaDadas
+						new HashMap<String, Object>(),		// valors
+						campsAddicionals,					// campsAddicionals
+						campsAddicionalsClasses, 			// campsAddicionalsClasses
+						false);								// perFiltre
+				//SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
+				return command;
+			} catch (TascaNotFoundException ex) {
+				MissatgesHelper.error(request, ex.getMessage());
+				logger.error("No s'ha pogut trobar la tasca: " + ex.getMessage(), ex);
+			} catch (Exception ignored) {} 
+		}
+		return null;*/
+	}
+	/*public Object populateCommand(
+			HttpServletRequest request, 
+			String tascaId,
+			Model model) {
+		return populateCommand(
+				request, 
 				tascaId,
 				null,
-				campId,
-				null,
-				null,
-				new HashMap<String, Object>());
-	}
-	
-	@RequestMapping(value = {"/tasca/camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
-	@ResponseBody
-	public List<SeleccioOpcioDto> valorsSeleccio(
-			HttpServletRequest request,
-			@PathVariable Long campId,
-			Model model) {
-		return valorsSeleccio(
-				request,
-				null,
-				campId,
-				model);
-	}
-	
-	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
-	@ResponseBody
-	public List<SeleccioOpcioDto> valorsSeleccio(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable Long campId,
-			@PathVariable String valor,
-			Model model) {
-		return tascaService.findValorsPerCampDesplegable(
-				tascaId,
-				null,
-				campId,
-				valor,
-				null,
-				new HashMap<String, Object>());
-	}
-	
-	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
-	@ResponseBody
-	public SeleccioOpcioDto valorsSeleccioInicial(
-			HttpServletRequest request,
-			@PathVariable String tascaId,
-			@PathVariable Long campId,
-			@PathVariable String valor,
-			Model model) {
-		List<SeleccioOpcioDto> valorsSeleccio = tascaService.findValorsPerCampDesplegable(
-				tascaId,
-				null,
-				campId,
-				null,
-				null,
-				getMapDelsValors(valor));
-		for (SeleccioOpcioDto sel : valorsSeleccio) {
-			if (sel.getCodi().equals(valor)) {
-				return sel;
-			}
-		}
-		return new SeleccioOpcioDto();
-	}
-	
-	@RequestMapping(value = {"/tasca/camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
-	@ResponseBody
-	public SeleccioOpcioDto valorsSeleccioInicial(
-			HttpServletRequest request,
-			@PathVariable Long campId,
-			@PathVariable String valor,
-			Model model) {		
-		return valorsSeleccioInicial(
-				request,
-				null,
-				campId,
-				valor,
-				model);
-	}
-
-	@ModelAttribute("listTerminis")
-	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
-		return resposta;
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentAdjuntar", method = RequestMethod.POST)
-	@ResponseBody
-	public String documentAdjuntar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = false) Long docId,
-			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
-			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
-		String resposta = "";
-		try {
-			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
-			String nomArxiu = arxiu.getOriginalFilename();
-			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-			if (!tasca.isValidada()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
-				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
-			} else {
-				resposta = accioDocumentAdjuntar(
-						request,
-						tascaId,
-						docId,
-						nomArxiu,
-						contingutArxiu,
-						data).toString();
-			}
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
-			logger.error("Error al adjuntar el document " + docId, ex);
-		}
-		return resposta;
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar", method = RequestMethod.GET)
-	@ResponseBody
-	public String documentGenerarGet(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = true) Long docId,		
-			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
-		String generatId = "";
-		try {
-			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-			if (!tasca.isValidada()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else {
-				DocumentDto generat = accioDocumentGenerar(
-						request,
-						tascaId, 
-						docId, 
-						expedientId,
-						data);
-				if (generat != null) {
-					generatId = String.valueOf(generat.getId());
-					if (!generat.isAdjuntarAuto()) {
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
-						return "arxiuView";
-					}
-				} 
-			}
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
-			logger.error("Error generant el document " + docId, ex);
-		}
-		return generatId;
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentEsborrar", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean documentEsborrar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = true) Long docId,		
-			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
-		boolean response = false;
-		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		if (!tasca.isValidada()) {
-			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-		} else {
-			response = accioDocumentEsborrar(
-					request,
-					tascaId,
-					docId,
-					data);
-		}
-		return response;
-	}
-
-
+				false,
+				0,
+				model);		
+	}*/
 
 	private Long accioDocumentAdjuntar(
 			HttpServletRequest request,
@@ -1114,7 +1305,13 @@ public class TascaTramitacioController extends BaseController {
 		
 		if (seleccio != null && !seleccio.isEmpty()) {
 			try {
-				Object command = populateCommand(request, tascaId, null,false,0,null);
+				Object command = inicialitzarTascaFormCommand(
+						request,
+						tascaId,
+						null,
+						false,
+						0,
+						null);
 				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
 				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
 				
@@ -1211,7 +1408,13 @@ public class TascaTramitacioController extends BaseController {
 		if (seleccio != null && !seleccio.isEmpty()) {
 			try {				
 				Date dInici = (data == null) ? new Date() : data;
-				Object command = populateCommand(request, tascaId, null,false,0,null);
+				Object command = inicialitzarTascaFormCommand(
+						request,
+						tascaId,
+						null,
+						false,
+						0,
+						null);
 				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
 				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
 				if (inici != null) {
@@ -1280,60 +1483,6 @@ public class TascaTramitacioController extends BaseController {
 		return resposta;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/icones/{docId}", method = RequestMethod.GET)
-	public String documentEsborrar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@PathVariable Long docId,
-			Model model) {
-		model.addAttribute("document", tascaService.findDocument(tascaId, docId));
-		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
-		return "v3/expedientTascaTramitacioSignarIcones";
-	}
-
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signarAmbToken", method = RequestMethod.POST)
-	@ResponseBody
-	public boolean signarAmbToken(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@RequestParam(value="taskId", required = true) String taskId,
-			@RequestParam(value="docId", required = true) Long docId,			
-			@RequestParam(value="token", required = true) String token,
-			@RequestParam(value="data", required = true) String[] data,
-			Model model) {
-		boolean signat = false;
-		try {
-			StringBuffer aData = new StringBuffer();
-			for (String dat : data) {
-				aData.append(dat);
-			}			
-			signat = tascaService.signarDocumentTascaAmbToken(
-					expedientId,
-					docId,
-					taskId,
-					token,
-					Base64.decodeBase64(aData.toString().getBytes()));
-			if (signat) {
-				logger.info("Signatura del document amb el token " + token + " processada correctament");
-				MissatgesHelper.info(
-	        			request,
-	        			getMessage(request, "info.signatura.doc.processat") );
-			} else {
-				logger.error("Signatura del document amb el token " + token + " processada amb error de custòdia");
-				MissatgesHelper.error(
-	        			request,
-	        			getMessage(request, "error.validar.signatura") );
-			}
-		} catch(Exception ex) {
-			logger.error("Error rebent la signatura del document", ex);
-			MissatgesHelper.error(
-        			request,
-        			getMessage(request, "error.rebre.signatura") );
-	    }
-		return signat;
-	}
 	private DocumentDto accioDocumentGenerar(
 			HttpServletRequest request,
 			String tascaId,
@@ -1346,7 +1495,13 @@ public class TascaTramitacioController extends BaseController {
 		
 		if (seleccio != null && !seleccio.isEmpty()) {
 			try {
-				Object command = populateCommand(request, tascaId, null,false,0,null);
+				Object command = inicialitzarTascaFormCommand(
+						request,
+						tascaId,
+						null,
+						false,
+						0,
+						null);
 				String inici = (String) PropertyUtils.getSimpleProperty(command, "inici");
 				boolean correu = (Boolean) PropertyUtils.getSimpleProperty(command, "correu");
 				Date dInici = (data == null) ? new Date() : data;
@@ -1415,13 +1570,6 @@ public class TascaTramitacioController extends BaseController {
 		return generat;
 	}
 
-	private String getReturnUrl(HttpServletRequest request, Long expedientId, String tascaId) {
-		if (ModalHelper.isModal(request))
-			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
-		else
-			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/form";
-	
-	}
 	private Map<String, Object> getMapDelsValors(String valors) {
 		if (valors == null)
 			return null;
@@ -1434,7 +1582,7 @@ public class TascaTramitacioController extends BaseController {
 		}
 		return resposta;
 	}
-	
+
 	private Map<String, String> getFormRecursParams(String text) {
 		Map<String, String> params = new HashMap<String, String>();
 		Pattern pattern = Pattern.compile(TAG_PARAM_REGEXP);
@@ -1446,35 +1594,6 @@ public class TascaTramitacioController extends BaseController {
 			}
 		}
 		return params;
-	}
-
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(
-				Long.class,
-				new CustomNumberEditor(Long.class, true));
-		binder.registerCustomEditor(
-				Double.class,
-				new CustomNumberEditor(Double.class, true));
-		binder.registerCustomEditor(
-				BigDecimal.class,
-				new CustomNumberEditor(
-						BigDecimal.class,
-						new DecimalFormat("#,##0.00"),
-						true));
-		binder.registerCustomEditor(
-				Boolean.class,
-//				new CustomBooleanEditor(false));
-				new CustomBooleanEditor(true));
-		binder.registerCustomEditor(
-				Date.class,
-				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-//		binder.registerCustomEditor(
-//				TerminiDto.class,
-//				new TerminiTypeEditorHelper());
-		binder.registerCustomEditor(
-				Object.class,
-				new ObjectTypeEditorHelper());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaTramitacioController.class);

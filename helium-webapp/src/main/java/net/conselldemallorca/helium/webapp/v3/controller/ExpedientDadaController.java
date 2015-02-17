@@ -68,10 +68,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private TascaService tascaService;
-	
+
 	@Autowired
 	private VariableHelper variableHelper;
-	
+
 	@RequestMapping(value = "/{expedientId}/dada") //, method = RequestMethod.GET)
 	public String dades(
 			HttpServletRequest request,
@@ -83,8 +83,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					request,
 					expedientId,
 					model,
-					"dades",
-					expedientService);
+					"dades");
 		}
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute(
@@ -123,7 +122,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
 		return "v3/expedientDades";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/dades/{procesId}") //, method = RequestMethod.GET)
 	public String dadesProces(
 			HttpServletRequest request,
@@ -140,7 +139,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("dades", getDadesInstanciaProces(expedientId, procesId));
 		return "v3/procesDades";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/dades/{procesId}/delete/{varCodi}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean dadaBorrar(
@@ -162,9 +161,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 		
 		return false;
 	}
-	
+
 	@ModelAttribute("modificarVariableCommand")
-	@SuppressWarnings("rawtypes")
 	public Object populateCommand(
 			HttpServletRequest request,
 			String procesId,
@@ -173,7 +171,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		if (procesId != null && !"".equals(procesId) && varCodi != null && !"".equals(varCodi)) {
 			try {
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 				
 //				CampDto camp = null;
 //				for (CampDto c : expedientService.getCampsInstanciaProcesById(procesId)){
@@ -188,7 +186,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model.addAttribute("procesId", procesId);
 				model.addAttribute("varCodi", varCodi);
 				model.addAttribute("dada", tascaDada);
-				return TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals, campsAddicionalsClasses, false);
+				return TascaFormHelper.getCommandForCamps(
+						llistTasca,
+						null,
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, ex.getMessage());
 				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
@@ -197,7 +200,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/{varCodi}", method = RequestMethod.GET)
 	public String modificarVariablesGet(
 			HttpServletRequest request,
@@ -209,7 +212,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("modificarVariableCommand", command);
 		return "v3/expedientDadaModificar";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/{varCodi}", method = RequestMethod.POST)
 	public String dadaEditar(
 			HttpServletRequest request,
@@ -259,7 +262,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		
 		return modalUrlTancar(false);
 	}
-	
+
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -267,9 +270,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
 		return resposta;
 	}
-	
+
 	@ModelAttribute("addVariableCommand")
-	@SuppressWarnings("rawtypes")
 	public Object populateAddCommand(
 			HttpServletRequest request,
 			String procesId,
@@ -285,7 +287,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				campsAddicionals.put("codi", codi);
 				campsAddicionals.put("valor", valor);
 				campsAddicionals.put("varCodi", varCodi);
-				Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 				campsAddicionalsClasses.put("codi", String.class);
 				campsAddicionalsClasses.put("valor", String.class);
 				campsAddicionalsClasses.put("varCodi", String.class);
@@ -300,7 +302,11 @@ public class ExpedientDadaController extends BaseExpedientController {
 //				Map<String, Object> registres = new HashMap<String, Object>();
 //				return TascaFormHelper.getCommandModelForCamps(llistTasca, campsAddicionalsClasses, registres, false);
 //				return TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals, campsAddicionalsClasses, false);
-				return TascaFormHelper.getCommandBuitForCamps(llistTasca, campsAddicionals, campsAddicionalsClasses, false);
+				return TascaFormHelper.getCommandBuitForCamps(
+						llistTasca,
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, ex.getMessage());
 				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
@@ -309,7 +315,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}", method = RequestMethod.GET)
 	public String novaDadaGet(
 			HttpServletRequest request,
@@ -320,7 +326,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, null, null, null, model));
 		return "v3/expedientDadaNova";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.GET)
 	public String novaDadaAmbCodiGet(
 			HttpServletRequest request,
@@ -332,7 +338,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, varCodi, null, null, model));
 		return "v3/procesDadaNova";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.POST)
 	public String novaDadaDesar(
 			HttpServletRequest request,
@@ -413,7 +419,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		
 		return modalUrlTancar(false);
 	}
-	
+
 	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesId) {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 			List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
@@ -443,7 +449,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				return camps;
 			}
 	}
-	
+
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(Long expedientId, String instaciaProcesId) {
 		
 		// definirem un mapa. La clau serà el nom de l'agrupació, i el valor el llistat de variables de l'agrupació
@@ -497,7 +503,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
 		return dadesProces;
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -526,7 +532,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				Object.class,
 				new ObjectTypeEditorHelper());
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);
-	
+
 }

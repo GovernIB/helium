@@ -55,13 +55,14 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientInicioPasFormController extends BaseExpedientController {	
+public class ExpedientInicioPasFormController extends BaseExpedientController {
+
 	@Autowired
 	protected TascaService tascaService;
 
 	@Autowired
 	protected ExpedientService expedientService;
-	
+
 	@ModelAttribute("command")
 	protected Object populateCommand(
 			HttpServletRequest request, 
@@ -70,8 +71,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			Model model) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			@SuppressWarnings("rawtypes")
-			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 			campsAddicionals.put("id", tasca.getId());
@@ -82,8 +82,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			campsAddicionalsClasses.put("entornId", Long.class);
 			campsAddicionalsClasses.put("expedientTipusId", Long.class);
 			campsAddicionalsClasses.put("definicioProcesId", Long.class);
-			
-			return TascaFormHelper.getCommandForCamps(tascaService.findDadesPerTascaDto(tasca), null, campsAddicionals, campsAddicionalsClasses, false);
+			return TascaFormHelper.getCommandForCamps(
+					tascaService.findDadesPerTascaDto(tasca),
+					null,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
 		} catch (TascaNotFoundException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
@@ -136,7 +140,6 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 
 				return "v3/expedient/iniciarPasForm";
 			}
-
 			// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
 			if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
 				ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand = new ExpedientInicioPasTitolCommand();
@@ -163,10 +166,9 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				}
 			}
 		}
-
 		return modalUrlTancar();
 	}
-	
+
 	private void validarForm(
 			TascaFormValidatorHelper validator, 
 			Map<String, Object> variables, 

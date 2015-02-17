@@ -50,7 +50,11 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model) {
-		return mostrarInformacioExpedientPerPipella(request, expedientId, model, null, expedientService);
+		return mostrarInformacioExpedientPerPipella(
+				request,
+				expedientId,
+				model,
+				null);
 	}
 
 	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)

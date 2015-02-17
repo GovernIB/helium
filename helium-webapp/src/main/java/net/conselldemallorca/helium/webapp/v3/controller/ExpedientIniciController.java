@@ -81,8 +81,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 			Model model) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			@SuppressWarnings("rawtypes")
-			Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 			campsAddicionals.put("id", tasca.getId());
@@ -93,8 +92,12 @@ public class ExpedientIniciController extends BaseExpedientController {
 			campsAddicionalsClasses.put("entornId", Long.class);
 			campsAddicionalsClasses.put("expedientTipusId", Long.class);
 			campsAddicionalsClasses.put("definicioProcesId", Long.class);
-			
-			return TascaFormHelper.getCommandForCamps(tascaService.findDadesPerTascaDto(tasca), null, campsAddicionals, campsAddicionalsClasses, false);
+			return TascaFormHelper.getCommandForCamps(
+					tascaService.findDadesPerTascaDto(tasca),
+					null,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
 		} catch (TascaNotFoundException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);

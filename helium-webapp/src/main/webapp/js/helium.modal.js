@@ -14,23 +14,6 @@
 				buttonContainerId: "modal-botons",
 				buttonCloseClass: "modal-tancar"
 			}, options);
-			var ajaxErrorFunction = function (jqXHR, exception) {
-				if (jqXHR.status === 0) {
-	                alert('Not connected.\n Verify network.');
-	            } else if (jqXHR.status == 404) {
-	                alert('Requested page not found [404].');
-	            } else if (jqXHR.status == 500) {
-	                alert('Internal server error [500].');
-	            } else if (exception === 'parsererror') {
-	                alert('Requested JSON parse failed.');
-	            } else if (exception === 'timeout') {
-	                alert('Timeout error.');
-	            } else if (exception === 'abort') {
-	                alert('Ajax request aborted.');
-	            } else {
-	                alert('Unknown error:\n' + jqXHR.responseText);
-	            }
-			};
 			$(this).html(
 					'<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
 					'	<div class="modal-dialog ' + ((settings.maximize) ? ' modal-maximize' : '') + ' modal-lg">' +
@@ -65,7 +48,7 @@
 					var titol = $(this).contents().find("title").html();
 					$('.modal-header h4', $(this).parent().parent()).html(titol);
 					// Copiar botons
-					$('.modal-footer *', $(this).parent().parent()).remove();
+					/*$('.modal-footer *', $(this).parent().parent()).remove();
 					var iframe = this;
 					$('#' + settings.buttonContainerId + ' .btn', $(this).contents()).each(function(index) {
 						var element = $(this);
@@ -85,8 +68,12 @@
 							}
 							$('.modal-footer', $(iframe).parent().parent()).append(clon);
 						}
-					});
-					$('#' + settings.buttonContainerId + ' .outcomes', $(this).contents()).each(function(index) {
+					});*/
+					modalRefrescarElements(
+							this,
+							settings);
+					
+					/*$('#' + settings.buttonContainerId + ' .outcomes', $(this).contents()).each(function(index) {
 						var outcomes = $(this);
 						var dropup = $("<div>", {
 							"class": "btn-group dropup outcomes"
@@ -112,10 +99,9 @@
 							dropup_ul.append(dropup_li);
 						});
 						$('.modal-footer', $(iframe).parent().parent()).append(dropup);
-					});
-					$('#' + settings.buttonContainerId, $(this).contents()).hide();
+					});*/
 					// Ajustar tamany
-					if (settings.adjustHeight) {
+					/*if (settings.adjustHeight) {
 						var contentHeight = $(this).contents().find("html").outerHeight();
 						$(this).height(contentHeight + 'px');
 					}
@@ -129,21 +115,12 @@
 						var modalobj = $(this).parent().parent().parent();
 						var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
 						var maxBodyHeight = $(window).height() - taraModal - 30;
-						/*if (contentHeight > maxBodyHeight) {
-							// Si el contingut és més alt que la finestra
-							$(this).height(maxBodyHeight + 'px');
-							$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
-						} else {
-							// Si el contingut cap a dins la finestra
-							$(this).height(contentHeight + 'px');
-							$('.modal-body', modalobj).css('height', contentHeight + 'px');
-						}*/
 						$(this).height(maxBodyHeight + 'px');
 						$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
 					}
 					if (settings.minHeight) {
-						modalAdjustHeight($('iframe', modalobj),settings.minHeight);
-					}
+						modalAdjustHeight($('iframe', modalobj), settings.minHeight);
+					}*/
 				});
 			});
 			modalobj.on('hide.bs.modal', function () {
@@ -180,7 +157,7 @@
 							$('#contingut-alertes *').remove();
 							$('#contingut-alertes').append(data);
 						},
-						error: ajaxErrorFunction
+						error: modalAjaxErrorFunction
 				    });
 				}
 				if (settings.callback) {
@@ -189,7 +166,7 @@
 					if ( sep != -1) {
 						callbackFunctionName = scb.substring(0, sep);
 						callbackFunctionParams = scb.substring(sep + 1, scb.lastIndexOf(')')).split(",");
-						executeFunctionByName(callbackFunctionName, window, callbackFunctionParams, true);
+						modalExecuteFunctionByName(callbackFunctionName, window, callbackFunctionParams, true);
 					}
 				}
 			});
@@ -213,23 +190,6 @@
 				buttonCloseClass: "modal-tancar"
 			}, options);
 			$(this).on('click', function() {
-				var ajaxErrorFunction = function (jqXHR, exception) {
-					if (jqXHR.status === 0) {
-		                alert('Not connected.\n Verify network.');
-		            } else if (jqXHR.status == 404) {
-		                alert('Requested page not found [404].');
-		            } else if (jqXHR.status == 500) {
-		                alert('Internal server error [500].');
-		            } else if (exception === 'parsererror') {
-		                alert('Requested JSON parse failed.');
-		            } else if (exception === 'timeout') {
-		                alert('Timeout error.');
-		            } else if (exception === 'abort') {
-		                alert('Ajax request aborted.');
-		            } else {
-		                alert('Unknown error:\n' + jqXHR.responseText);
-		            }
-				};
 				var confirmat = true;
 				if ($(this).data('rdt-link-confirm'))
 					confirmat = confirm($(this).data('rdt-link-confirm'));
@@ -250,7 +210,7 @@
 							$('#contingut-alertes *').remove();
 							$('#contingut-alertes').append(data);
 						},
-						error: ajaxErrorFunction
+						error: modalAjaxErrorFunction
 				    });
 				};
 				var executeCallbackFunction = function(data) {
@@ -260,7 +220,7 @@
 					if ( sep != -1) {
 						callbackFunctionName = scb.substring(0, sep);
 						callbackFunctionParams = scb.substring(sep + 1, scb.lastIndexOf(')')).split(",");
-						executeFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
+						modalExecuteFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
 					}
 				};
 				if (confirmat) {
@@ -283,7 +243,7 @@
 								if (callback)
 									executeCallbackFunction(data);
 							},
-							error: ajaxErrorFunction
+							error: modalAjaxErrorFunction
 					    });
 						return false;
 					} else if (modal) {
@@ -333,7 +293,83 @@ function modalAdjustHeight(iframe, height) {
 	$(iframe).css('min-height', height + 'px');
 }
 
-function executeFunctionByName(functionName, context /*, args */) {
+function modalRefrescarElements(
+		iframe,
+		settings) {
+	// Refrescar titol
+	var titol = $(iframe).contents().find("title").html();
+	$('.modal-header h4', $(iframe).parent().parent()).html(titol);
+	// Refrescar botons
+	$('.modal-footer *', $(iframe).parent().parent()).remove();
+	$('#' + settings.buttonContainerId + ' .btn', $(iframe).contents()).each(function(index) {
+		var element = $(this);
+		var clon = element.clone();
+		if (clon.hasClass(settings.buttonCloseClass)) {
+			clon.on('click', function () {
+				$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
+				$(iframe).parent().parent().parent().parent().modal('hide');
+				return false;
+			});
+		} else {
+			clon.on('click', function () {
+				element.click();
+				return false;
+			});
+		}
+		$('.modal-footer', $(iframe).parent().parent()).append(clon);
+	});
+	$('#' + settings.buttonContainerId, $(iframe).contents()).hide();
+	// Ajustar tamany
+	if (settings.adjustHeight) {
+		var contentHeight = $(iframe).contents().find("html").outerHeight();
+		$(iframe).height(contentHeight + 'px');
+	}
+	if (settings.adjustWidth) {
+		var contentWidth = $(iframe).contents().find("html").outerWidth();
+		var modalobj = $(iframe).parent().parent().parent();
+		modalobj.css('width', contentWidth + 'px');
+	}
+	if (settings.maximize) {
+		var contentHeight = $(iframe).contents().find("html").outerHeight();
+		var modalobj = $(iframe).parent().parent().parent();
+		var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
+		var maxBodyHeight = $(window.top).height() - taraModal - 30;
+		/*if (contentHeight > maxBodyHeight) {
+			// Si el contingut és més alt que la finestra
+			$(this).height(maxBodyHeight + 'px');
+			$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+		} else {
+			// Si el contingut cap a dins la finestra
+			$(this).height(contentHeight + 'px');
+			$('.modal-body', modalobj).css('height', contentHeight + 'px');
+		}*/
+		$(iframe).height(maxBodyHeight + 'px');
+		$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+	}
+	if (settings.minHeight) {
+		modalAdjustHeight($(iframe), settings.minHeight);
+	}
+}
+
+function modalAjaxErrorFunction(jqXHR, exception) {
+	if (jqXHR.status === 0) {
+        alert('Not connected.\n Verify network.');
+    } else if (jqXHR.status == 404) {
+        alert('Requested page not found [404].');
+    } else if (jqXHR.status == 500) {
+        alert('Internal server error [500].');
+    } else if (exception === 'parsererror') {
+        alert('Requested JSON parse failed.');
+    } else if (exception === 'timeout') {
+        alert('Timeout error.');
+    } else if (exception === 'abort') {
+        alert('Ajax request aborted.');
+    } else {
+        alert('Unknown error:\n' + jqXHR.responseText);
+    }
+}
+
+function modalExecuteFunctionByName(functionName, context /*, args */) {
 	var argsarr = [].slice.call(arguments).splice(2);
 	var args = argsarr[0];
 	for (var i = 0; i < args.length; i++)

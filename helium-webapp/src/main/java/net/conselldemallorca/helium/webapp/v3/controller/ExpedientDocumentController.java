@@ -66,7 +66,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		// Per a cada instància de procés ordenem les dades per agrupació  
@@ -78,11 +77,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 			documents.put(instanciaProces, dadesInstancia);
 		}
-
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientPerPipella(request, expedientId, model, "documents", expedientService);
+			return mostrarInformacioExpedientPerPipella(
+					request,
+					expedientId,
+					model,
+					"documents");
 		}
 		return "v3/expedientDocument";
 	}

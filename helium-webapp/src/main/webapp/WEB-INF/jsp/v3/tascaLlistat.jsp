@@ -8,14 +8,14 @@
 <html>
 <head>
 	<title><spring:message code="tasca.llistat.titol"/></title>
-	<meta name="title" content="<spring:message code='tasca.llistat.titol'/>"/>	
-	<meta name="capsaleraTipus" content="llistat"/>	
+	<meta name="capsaleraTipus" content="llistat"/>
+	<meta name="title" content="<spring:message code='tasca.llistat.titol'/>"/>
+	<meta name="title-icon-class" content="fa fa-clipboard"/>
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
-
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
     <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>

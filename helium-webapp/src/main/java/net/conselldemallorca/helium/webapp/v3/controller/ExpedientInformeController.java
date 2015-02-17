@@ -116,9 +116,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			return filtreCommand;
 		}
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-		@SuppressWarnings("rawtypes")
-		Map<String, Class> campsAddicionalsClasses = new HashMap<String, Class>();
-		
+		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 		UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
 		boolean nomesPendents = false;
 		if (preferenciesUsuari != null)
@@ -135,12 +133,14 @@ public class ExpedientInformeController extends BaseExpedientController {
 		campsAddicionalsClasses.put("consultaId", Long.class);
 		campsAddicionalsClasses.put("mostrarTasquesPersonals", Boolean.class);
 		campsAddicionalsClasses.put("mostrarTasquesGrup", Boolean.class);
-		
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
-		return TascaFormHelper.getCommandBuitForCamps(campsFiltre,campsAddicionals,campsAddicionalsClasses, true);
+		return TascaFormHelper.getCommandBuitForCamps(
+				campsFiltre,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				true);
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@ModelAttribute("expedientInformeParametrosCommand")
 	public Object getFiltreParameterCommand(
 			HttpServletRequest request,
@@ -151,7 +151,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 		if (consultaId == null) 
 			return null;
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaInformeParams(consultaId);		
-		return TascaFormHelper.getCommandBuitForCamps(campsFiltre, new HashMap<String, Object>(), new HashMap<String, Class>(), false);
+		return TascaFormHelper.getCommandBuitForCamps(
+				campsFiltre,
+				new HashMap<String, Object>(),
+				new HashMap<String, Class<?>>(),
+				false);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET)

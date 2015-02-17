@@ -64,6 +64,7 @@ import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
@@ -108,6 +109,8 @@ public class TascaServiceImpl implements TascaService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private CampRepository campRepository;
+	@Resource
+	private CampTascaRepository campTascaRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
@@ -586,9 +589,24 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public boolean hasFormulari(
+			String id) {
+		logger.debug("Consultant si la tasca disposa de formulari (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		return campTascaRepository.countAmbTasca(
+				tasca.getId()) > 0;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public boolean hasDocuments(
 			String id) {
-		logger.debug("Consultant has documents de la tasca (" +
+		logger.debug("Consultant si la tasca disposa de documents (" +
 				"id=" + id + ")");
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				id,
@@ -597,8 +615,6 @@ public class TascaServiceImpl implements TascaService {
 		return documentHelper.hasDocumentsPerInstanciaTasca(task);
 	}
 
-	@Override
-	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuPerDocumentIdCodi(
 			String tascaId,
 			Long documentId,
@@ -624,6 +640,19 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public boolean hasSignatures(
+			String id) {
+		logger.debug("Consultant si la tasca disposa de signatures (" +
+				"id=" + id + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		return documentHelper.hasDocumentsPerInstanciaTascaSignar(task);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<TascaDocumentDto> findDocumentsSignar(
 			String id) {
 		logger.debug("Consultant documents per signar de la tasca (" +
@@ -633,19 +662,6 @@ public class TascaServiceImpl implements TascaService {
 				true,
 				true);
 		return documentHelper.findDocumentsPerInstanciaTascaSignar(task);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public boolean hasDocumentsSignar(
-			String id) {
-		logger.debug("Consultant has documents per signar de la tasca (" +
-				"id=" + id + ")");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
-		return documentHelper.hasDocumentsPerInstanciaTascaSignar(task);
 	}
 
 	@Override

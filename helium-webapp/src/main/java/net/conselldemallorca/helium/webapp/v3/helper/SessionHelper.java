@@ -38,7 +38,7 @@ public class SessionHelper {
 	public static final String VARIABLE_PERMIS_ENTORN_ORGANIZATION = "potOrganitzarEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_ADMINISTRATION = "potAdministrarEntorn";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
-	public static final String VARIABLE_TASCA_ERRROR = "tascaError";
+	public static final String VARIABLE_TASCA_ERROR = "tascaError";
 	
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
 	public static final String VARIABLE_FILTRE_CONSULTA_TASCA = "filtreConsultaTasca";
@@ -299,12 +299,12 @@ public class SessionHelper {
 		public Errors getTascaError() {
 			return (Errors)getAttribute(
 					request,
-					VARIABLE_TASCA_ERRROR);
+					VARIABLE_TASCA_ERROR);
 		}
 		public void setTascaError(Errors errors) {
 			setAttribute(
 					request,
-					VARIABLE_TASCA_ERRROR,
+					VARIABLE_TASCA_ERROR,
 					errors);
 		}
 		@SuppressWarnings("unchecked")

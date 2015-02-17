@@ -39,13 +39,12 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ReassignacioUsuarisController extends BaseExpedientController {
-	
+
 	@Autowired
 	private AdminService adminService;
-	
 	@Autowired
 	private TascaService tascaService;
-	
+
 	@ModelAttribute("command")
 	public ReassignacioUsuarisCommand populateCommand(
 			@RequestParam(value = "id", required = false) Long id) {

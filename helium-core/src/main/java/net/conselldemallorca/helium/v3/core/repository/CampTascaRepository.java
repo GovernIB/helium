@@ -53,4 +53,13 @@ public interface CampTascaRepository extends JpaRepository<CampTasca, Long> {
 			"    ct.tasca.id=:tascaId " +
 			"and ct.camp.codi=:campCodi")
 	public CampTasca findAmbTascaCodi(@Param("tascaId") Long tascaId, @Param("campCodi") String campCodi);
+
+	@Query(	"select count(ct)" +
+			"from " +
+			"    CampTasca ct " +
+			"where " +
+			"    ct.tasca.id = :tascaId")
+	public long countAmbTasca(
+			@Param("tascaId") Long tascaId);
+
 }
