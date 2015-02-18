@@ -226,12 +226,12 @@
 						maximize: true
 					});
 					$(".tramitar_massivament").click(function() {
-						$("#table-pendents-${tasca.id}").unbind("click");
+						$("#table-pendents-${tasca.id} td").unbind("click");
 						window.location='../v3/tasca/${tasca.id}/massiva';
 					});	
-					$("#table-pendents-${tasca.id}").click(function() {
-						if ($('#tramitar-tasca-${tasca.id}', $(this)).length > 0)
-							$('#tramitar-tasca-${tasca.id}', $(this)).click();
+					$("#table-pendents-${tasca.id} td").click(function() {
+						if ($('#tramitar-tasca-${tasca.id}').length > 0 && !$(this).hasClass('options'))
+							$('#tramitar-tasca-${tasca.id}').click();
 					});			
 				});
 				
