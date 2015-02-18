@@ -215,8 +215,8 @@
 						<form:hidden path="mostrarTasquesGrup"/>
 						<div class="row">
 							<div class="col-md-6 btn-group">
-								<button id="mostrarTasquesPersonalsCheck" data-path="mostrarTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.usuari"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-								<button id="mostrarTasquesGrupCheck" data-path="mostrarTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+								<button id="mostrarTasquesPersonalsCheck" data-path="mostrarTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+								<button id="mostrarTasquesGrupCheck" data-path="mostrarTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 							</div>
 							<div class="col-md-6">
 							<div class="pull-right">

@@ -79,7 +79,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		return "v3/tasquesReassignacio";
 	}
 
-	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET)
+	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String suggestAction(
 			@PathVariable String text,
@@ -94,7 +94,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		return json;
 	}
 
-	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET)
+	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String suggestIniciAction(
 			@PathVariable String text,

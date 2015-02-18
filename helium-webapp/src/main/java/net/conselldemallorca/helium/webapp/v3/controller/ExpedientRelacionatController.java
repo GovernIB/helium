@@ -97,7 +97,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/expedient/suggest/{text}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/expedient/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String suggestAction(
 			HttpServletRequest request,

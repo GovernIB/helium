@@ -70,7 +70,7 @@ public class MesuresTempsController extends BaseController {
 	}
 		
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@RequestMapping(value = "/all", method = RequestMethod.GET)
+	@RequestMapping(value = "/all", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String mesuresTemps(HttpServletRequest request, String familia) {
 		DecimalFormat df = new DecimalFormat( "####0.00" );

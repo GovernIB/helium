@@ -163,31 +163,31 @@
 						</div>
 						 -->
 						<div class="control-group">
-							<hel:inputSelect name="listado" text="Listado inicial" placeholder="Listado inicial" optionItems="${pantallas}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
+							<hel:inputSelect name="listado" textKey="perfil.usuari.llistat.inicial" placeholderKey="perfil.usuari.llistat.inicial" optionItems="${pantallas}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.pantalla"/>
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="cabeceraReducida" text="Capcalera" placeholder="Capcalera" optionItems="${cabeceras}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
+							<hel:inputSelect name="cabeceraReducida" textKey="perfil.usuari.cabecera" placeholderKey="perfil.usuari.cabecera" optionItems="${cabeceras}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.cabecera"/>
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="entornCodi" text="Entorno" placeholder="Entorno" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" inline="false"/>
+							<hel:inputSelect name="entornCodi" textKey="perfil.usuari.entorn" placeholderKey="perfil.usuari.entorn" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.entorn"/>
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="numElementosPagina" text="Elementos por página" placeholder="Elementos por página" optionItems="${numElementsPagina}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
+							<hel:inputSelect name="numElementosPagina" textKey="perfil.usuari.elements.page" placeholderKey="perfil.usuari.elements.page" optionItems="${numElementsPagina}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.numelements"/>
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="expedientTipusDefecteId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
+							<hel:inputSelect name="expedientTipusDefecteId" textKey="perfil.usuari.tipus.expedient" placeholderKey="perfil.usuari.tipus.expedient" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.tipusexpedientdefecte"/>
 							</p>
@@ -197,8 +197,8 @@
 						<div class="control-group">
 							<div class="label-titol">
 								<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.consulta"/></label>
-								<hel:inputSelect name="expedientTipusId" text="Tipo de expediente" placeholder="Tipo de expediente" optionItems="${expedientTipusConConsultas}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
-								<hel:inputSelect name="consultaId" text="Consulta por tipo" placeholder="Consulta por tipo" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
+								<hel:inputSelect name="expedientTipusId" textKey="perfil.usuari.tipus.expedient" placeholderKey="perfil.usuari.tipus.expedient" optionItems="${expedientTipusConConsultas}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
+								<hel:inputSelect name="consultaId" textKey="perfil.usuari.consulta.tipus" placeholderKey="perfil.usuari.consulta.tipus" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
 								<p class="help-block">
 									<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.consulta"/>
 								</p>
@@ -209,13 +209,13 @@
 						<label class="control-label"><spring:message code="perfil.usuari.nota.filtres"/></label>
 						<div class="form-group">
 							<div class="help-block">
-								<hel:inputCheckbox name="filtroExpedientesActivos" text="Llistat d'expedients filtra per defecte o no expedients amb tasques actives per part de l'usuari." inline="true"/>
+								<hel:inputCheckbox name="filtroExpedientesActivos" textKey="perfil.usuari.nota.filtre.defecte" inline="true"/>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="pull-right">
-					<input class="btn btn-primary" type="submit" id="guardar" name="accio" value="Guardar" />
+					<input class="btn btn-primary" type="submit" id="guardar" name="accio" value="<spring:message code="tasca.tramitacio.boto.guardar"/>" />
 				</div>
 			</form:form>
 		</div>
