@@ -38,8 +38,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
@@ -102,9 +100,6 @@ public class ExpedientInformeController extends BaseExpedientController {
 	@Autowired
 	private ExpedientService expedientService;
 	
-	@Autowired
-	private DissenyService dissenyService;
-	
 	@ModelAttribute("expedientInformeCommand")
 	public Object getFiltreCommand(
 			HttpServletRequest request,
@@ -117,22 +112,22 @@ public class ExpedientInformeController extends BaseExpedientController {
 		}
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-		UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
-		boolean nomesPendents = false;
-		if (preferenciesUsuari != null)
-			nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
-		campsAddicionals.put("consultaId", consultaId);
-		campsAddicionals.put("nomesPendents", nomesPendents);
+//		UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
+//		boolean nomesPendents = false;
+//		if (preferenciesUsuari != null)
+//			nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
+		campsAddicionals.put("consultaId", consultaId);		
+		campsAddicionals.put("nomesMeves", false);
 		campsAddicionals.put("nomesAlertes", false);
 		campsAddicionals.put("mostrarAnulats", false);
-		campsAddicionals.put("mostrarTasquesPersonals", false);
-		campsAddicionals.put("mostrarTasquesGrup", false);
-		campsAddicionalsClasses.put("nomesPendents", Boolean.class);
+		campsAddicionals.put("nomesTasquesPersonals", false);
+		campsAddicionals.put("nomesTasquesGrup", false);
+		campsAddicionalsClasses.put("nomesMeves", Boolean.class);
 		campsAddicionalsClasses.put("nomesAlertes", Boolean.class);
 		campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);			
 		campsAddicionalsClasses.put("consultaId", Long.class);
-		campsAddicionalsClasses.put("mostrarTasquesPersonals", Boolean.class);
-		campsAddicionalsClasses.put("mostrarTasquesGrup", Boolean.class);
+		campsAddicionalsClasses.put("nomesTasquesPersonals", Boolean.class);
+		campsAddicionalsClasses.put("nomesTasquesGrup", Boolean.class);
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
 		return TascaFormHelper.getCommandBuitForCamps(
 				campsFiltre,
@@ -234,11 +229,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 		PaginaDto<ExpedientConsultaDissenyDto> listaExpedients = expedientService.findConsultaInformePaginat(
 			consultaId,
 			getValorsPerService(filtreCommand,campsFiltre, valors),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesGrup"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
 			PaginacioHelper.getPaginacioDtoFromDatatable(request)
 		);
 		
@@ -269,11 +264,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 				consultaId,
 				valors,
 				null,
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesGrup"));
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"));
 		
 		exportXLS(request, response, session, expedientsConsultaDissenyDto);
 	}
@@ -331,11 +326,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 				consultaId,
 				valors,
 				null,
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesGrup"));
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"));
 		
 		if (expedientsConsultaDissenyDto.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
@@ -673,11 +668,11 @@ public class ExpedientInformeController extends BaseExpedientController {
 		List<Long> ids = expedientService.findIdsPerConsultaInforme(
 			consultaId,
 			getValorsPerService(filtreCommand,campsFiltre, valors),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesPendents"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesPersonals"),
-			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarTasquesGrup"));
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
+			(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"));
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioInforme(consultaId);
 		if (seleccio == null) {

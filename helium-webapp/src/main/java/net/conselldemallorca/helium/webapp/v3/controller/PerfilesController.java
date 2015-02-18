@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
@@ -19,8 +16,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.PersonaUsuariCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -46,15 +41,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/v3/perfil")
 public class PerfilesController extends BaseController {
-
-	@Autowired
-	private PluginService pluginService;
 	
 	@Autowired
 	private AdminService adminService;
-	
-	@Autowired
-	private ExpedientService expedientService;
 	
 	@Autowired
 	private DissenyService dissenyService;
@@ -247,7 +236,7 @@ public class PerfilesController extends BaseController {
 	private PersonaDto getPersonaActual(
 			HttpServletRequest request) {
 		String usuariCodi = request.getUserPrincipal().getName();
-		return pluginService.findPersonaAmbCodi(usuariCodi);
+		return adminService.findPersonaAmbCodi(usuariCodi);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(PerfilesController.class);

@@ -185,4 +185,16 @@ public class AdminServiceBean implements AdminService {
 	public ReassignacioDto findReassignacioById(Long id) {
 		return delegate.findReassignacioById(id);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PersonaDto findPersonaAmbCodi(String codi) {
+		return delegate.findPersonaAmbCodi(codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
+		return delegate.findPersonaLikeNomSencer(text);
+	}
 }

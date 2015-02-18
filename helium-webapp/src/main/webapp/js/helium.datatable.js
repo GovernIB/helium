@@ -278,6 +278,7 @@
 						$('.dataTables_info', this.parent()).addClass('hidden');
 					$("a", this.parent()).on('click', dataTableLinkClick);
 					if (seleccioActiva) {
+						$(".tooltip").hide();
 						$("th:eq(" + seleccioColumna + ")", taula).html('<input type="checkbox"/>');
 						var canviSeleccio = function(ids) {
 							var seleccio = [];

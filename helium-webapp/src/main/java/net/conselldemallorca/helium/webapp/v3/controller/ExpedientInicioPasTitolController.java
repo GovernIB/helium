@@ -22,7 +22,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -59,9 +58,6 @@ import org.springframework.web.bind.support.SessionStatus;
 public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	@Autowired
 	protected ExpedientService expedientService;
-
-	@Autowired
-	protected TascaService tascaService;
 
 	@RequestMapping(value = "form", method = RequestMethod.POST)
 	public String iniciarPasTitolPost(

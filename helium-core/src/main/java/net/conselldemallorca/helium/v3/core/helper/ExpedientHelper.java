@@ -62,24 +62,6 @@ public class ExpedientHelper {
 	@Resource
 	private MessageHelper messageHelper;
 
-	/*public Expedient getExpedientComprovantPermisosAny(
-			Long expedientId,
-			Permission[] permisos) {
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		if (expedient == null) {
-			logger.debug("No s'ha trobat l'expedient (id=" + expedientId + ")");
-			throw new ExpedientNotFoundException();
-		}
-		boolean ambPermis = permisosHelper.isGrantedAny(
-				expedient.getTipus().getId(),
-				ExpedientTipus.class,
-				permisos);
-		if (!ambPermis) {
-			logger.debug("No es tenen permisos per accedir a l'expedient (id=" + expedientId + ")");
-			throw new ExpedientNotFoundException();
-		}
-		return expedient;
-	}*/
 	public Expedient getExpedientComprovantPermisos(
 			Long id,
 			boolean comprovarPermisRead,

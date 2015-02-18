@@ -276,19 +276,6 @@ public class DtoConverter {
 		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
-
-	public CampDto toCampInstanciaProcesDtoVarCodi(String processInstanceId, String varCodi) {
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
-		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
-		
-		for (Camp camp : camps) {
-			if (camp.getCodi().equals(varCodi)) {
-				return conversioTipusHelper.convertir(camp, CampDto.class);
-			}
-		}
-		return null;
-	}
 	
 	public InstanciaProcesDto toInstanciaProcesDto(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
@@ -371,9 +358,9 @@ public class DtoConverter {
 		dto.setGrupCodi(expedient.getGrupCodi());
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
 			if (expedient.getIniciadorCodi() != null)
-				dto.setIniciadorPersona(personaHelper.findAmbCodiPlugin(expedient.getIniciadorCodi()));
+				dto.setIniciadorPersona(personaHelper.findAmbCodi(expedient.getIniciadorCodi()));
 			if (expedient.getResponsableCodi() != null)
-				dto.setResponsablePersona(personaHelper.findAmbCodiPlugin(expedient.getResponsableCodi()));
+				dto.setResponsablePersona(personaHelper.findAmbCodi(expedient.getResponsableCodi()));
 		}
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
 			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());

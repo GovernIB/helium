@@ -30,8 +30,8 @@ public class TascaConsultaCommand {
 	private Date dataLimitInicial;
 	private Date dataLimitFinal;
 	
-	private boolean mostrarTasquesPersonals = true;
-	private boolean mostrarTasquesGrup = true;
+	private boolean mostrarTasquesPersonals = false;
+	private boolean mostrarTasquesGrup = false;
 	
 	private boolean filtreDesplegat = false;
 	private boolean consultaRealitzada = false;

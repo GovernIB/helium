@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
@@ -80,54 +77,4 @@ public class BaseTascaController extends BaseController {
 		else
 			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
 	}
-
-	/*protected boolean potModificarExpedient(ExpedientDto expedient) {
-		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE});
-	}
-
-	protected boolean potAdministrarExpedient(ExpedientDto expedient) {
-		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
-					ExtendedPermission.ADMINISTRATION});
-	}
-
-	protected boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
-		List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(expedient.getEntorn());
-		return permissionService.filterAllowed(
-				tipus,
-				new ObjectIdentifierExtractor<ExpedientTipusDto>() {
-					public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE,
-					ExtendedPermission.REASSIGNMENT});
-	}
-
-	protected boolean potConsultarExpedient(ExpedientDto expedient) {
-		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
-			ExtendedPermission.ADMINISTRATION,
-			ExtendedPermission.SUPERVISION,
-			ExtendedPermission.READ});
-	}
-
-	protected boolean potIniciarExpedientTipus(ExpedientTipusDto expedientTipus) {
-		return permissionService.isGrantedAny(
-				expedientTipus.getId(),
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.CREATE});
-	}
-	
-	protected boolean potEsborrarExpedient(ExpedientDto expedient) {
-		return permissionService.isGrantedAny(expedient.getTipus().getId(), ExpedientTipus.class, new Permission[] {
-			ExtendedPermission.ADMINISTRATION,
-			ExtendedPermission.DELETE});
-	}*/
-
 }

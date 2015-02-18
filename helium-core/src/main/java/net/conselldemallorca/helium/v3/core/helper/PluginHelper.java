@@ -11,6 +11,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
@@ -19,6 +20,7 @@ import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
+import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
@@ -95,7 +97,15 @@ public class PluginHelper {
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
 
-
+	public List<PersonaDto> findLikeNomSencer(String text) {
+		try {
+			List<DadesPersona> persones = personesPlugin.findLikeNomSencer(text);
+			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+		} catch (PersonesPluginException ex) {
+			logger.error("Error al cercar les persones amb el nom sencer", ex);
+			throw new PluginException("Error al cercar les persones amb el nom sencer", ex);
+		}
+	}
 
 	public PersonaDto findPersonaAmbCodi(String codi) throws Exception {
 		DadesPersona dadesPersona = getPersonesPlugin().findAmbCodi(codi);
@@ -103,6 +113,7 @@ public class PluginHelper {
 				dadesPersona,
 				PersonaDto.class);
 	}
+	
 	public boolean isPersonesPluginActiu() {
 		try {
 			return getPersonesPlugin() != null;
@@ -111,6 +122,7 @@ public class PluginHelper {
 			return false;
 		}
 	}
+	
 	public boolean isPersonesSyncActiu() {
 		String syncActiu = GlobalProperties.getInstance().getProperty("app.persones.plugin.sync.actiu");
 		return "true".equalsIgnoreCase(syncActiu);

@@ -8,9 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -43,12 +41,6 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-	
-	@Autowired
-	private DissenyService dissenyService;
-	
-	@Autowired
-	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/execucions", method = RequestMethod.GET)
 	public String execucions(HttpServletRequest request, @PathVariable Long expedientId, Model model) {

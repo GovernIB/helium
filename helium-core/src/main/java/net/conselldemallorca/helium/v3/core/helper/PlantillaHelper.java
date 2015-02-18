@@ -180,7 +180,7 @@ public class PlantillaHelper {
 			Date dataDocument,
 			Map<String, Object> model) {
 		Map<String, Object> context = new HashMap<String, Object>();
-		context.put("responsable", personaHelper.findAmbCodiPlugin(responsableCodi));
+		context.put("responsable", personaHelper.findAmbCodi(responsableCodi));
 		context.put("expedient", expedient);
 		context.put("tasca", tasca);
 		context.put("dataActual", new Date());
@@ -236,7 +236,7 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if (arg0 != null && arg0 instanceof String) {
 								String codi = (String)arg0;
-								PersonaDto persona = personaHelper.findAmbCodiPlugin(codi);
+								PersonaDto persona = personaHelper.findAmbCodi(codi);
 								if (persona == null)
 									return new BeanModel(
 											new PersonaDto("???", "???", "???", Sexe.SEXE_HOME),
@@ -332,7 +332,7 @@ public class PlantillaHelper {
 											codiCarrec);
 									if (carrec != null) {
 										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = personaHelper.findAmbCodiPlugin(carrec.getPersonaCodi());
+											PersonaDto persona = personaHelper.findAmbCodi(carrec.getPersonaCodi());
 											return new BeanModel(
 													persona,
 													new DefaultObjectWrapper());
@@ -343,7 +343,7 @@ public class PlantillaHelper {
 											codiArea,
 											codiCarrec);
 									if (personaCodi != null) {
-										PersonaDto persona = personaHelper.findAmbCodiPlugin(personaCodi);
+										PersonaDto persona = personaHelper.findAmbCodi(personaCodi);
 										if (persona != null)
 											return new BeanModel(
 													persona,
@@ -426,7 +426,7 @@ public class PlantillaHelper {
 									Carrec carrec = carrecRepository.findByEntornAndCodi(entorn, codi);
 									if (carrec != null) {
 										if (carrec.getPersonaCodi() != null) {
-											PersonaDto persona = personaHelper.findAmbCodiPlugin(carrec.getPersonaCodi());
+											PersonaDto persona = personaHelper.findAmbCodi(carrec.getPersonaCodi());
 											return new BeanModel(
 													persona,
 													new DefaultObjectWrapper());
@@ -437,7 +437,7 @@ public class PlantillaHelper {
 									if (carrec != null) {
 										List<String> persones = carrecJbpmIdDao.findPersonesAmbCarrecCodi(codi);
 										if (persones != null && persones.size() > 0) {
-											PersonaDto persona = personaHelper.findAmbCodiPlugin(persones.get(0));
+											PersonaDto persona = personaHelper.findAmbCodi(persones.get(0));
 											if (persona == null)
 												persona = new PersonaDto("???", "???", "???", Sexe.SEXE_HOME);
 											return new BeanModel(

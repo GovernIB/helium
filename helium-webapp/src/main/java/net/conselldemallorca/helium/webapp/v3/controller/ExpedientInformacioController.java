@@ -12,8 +12,8 @@ import javax.validation.Valid;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -43,10 +43,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientInformacioController extends BaseExpedientController {
-	@Autowired
-	private PluginService pluginService;
+
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private AdminService adminService;
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
 	public String get(
@@ -125,7 +126,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
-		PersonaDto personaResponsable = pluginService.findPersonaAmbCodi(expedient.getResponsableCodi());
+		PersonaDto personaResponsable = adminService.findPersonaAmbCodi(expedient.getResponsableCodi());
 		expedient.setResponsablePersona(personaResponsable);
 		if (personaResponsable != null) {
 			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());

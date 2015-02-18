@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,8 +16,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
@@ -35,6 +36,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,8 +54,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-	@Autowired
-	private DissenyService dissenyService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -106,16 +106,22 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							filtreCommand.getGeoPosX(),
 							filtreCommand.getGeoPosY(),
 							filtreCommand.getGeoReferencia(),
-							filtreCommand.isNomesPendents(),
+							filtreCommand.isNomesMeves(),
 							filtreCommand.isNomesAlertes(),
 							filtreCommand.isMostrarAnulats(),
-							filtreCommand.isMostrarTasquesPersonals(),
-							filtreCommand.isMostrarTasquesGrup(),
+							filtreCommand.isNomesTasquesPersonals(),
+							filtreCommand.isNomesTasquesGrup(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
-			MissatgesHelper.error(request, e.getMessage());
-			logger.error("No se pudo obtener la lista de expedientes", e);
-			result = new DatatablesPagina<ExpedientDto>();
+			if (entornActual == null)
+				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
+			else {
+				MissatgesHelper.error(request, e.getMessage());
+				logger.error("No se pudo obtener la lista de expedientes", e);
+			}
+			result = PaginacioHelper.getPaginaPerDatatables(
+					request,
+					new PaginaDto<ExpedientDto>());
 		}
 		return result;
 	}
@@ -166,11 +172,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.getGeoPosX(),
 						filtreCommand.getGeoPosY(),
 						filtreCommand.getGeoReferencia(),
-						filtreCommand.isNomesPendents(),
+						filtreCommand.isNomesMeves(),
 						filtreCommand.isNomesAlertes(),
 						filtreCommand.isMostrarAnulats(),
-						filtreCommand.isMostrarTasquesPersonals(),
-						filtreCommand.isMostrarTasquesGrup());		
+						filtreCommand.isNomesTasquesPersonals(),
+						filtreCommand.isNomesTasquesGrup());		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
 		if (seleccio == null) {
@@ -197,6 +203,14 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		return seleccio;
 	}
 
+	@ModelAttribute("anulats")
+	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), false));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), true));
+		return resposta;
+	}
+	
 	@RequestMapping(value = "/consultas/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<ConsultaDto> consultasTipus(
@@ -248,11 +262,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaGeneral();
 		if (filtreCommand == null) {
 			filtreCommand = new ExpedientConsultaCommand();
-			UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
-			boolean nomesPendents = false;
-			if (preferenciesUsuari != null)
-				nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
-			filtreCommand.setNomesPendents(nomesPendents);	
+//			UsuariPreferenciesDto preferenciesUsuari = SessionHelper.getSessionManager(request).getPreferenciesUsuari();
+//			boolean nomesPendents = false;
+//			if (preferenciesUsuari != null)
+//				nomesPendents = preferenciesUsuari.isFiltroTareasActivas();
+//			filtreCommand.setNomesPendents(nomesPendents);	
 			filtreCommand.setConsultaRealitzada(true);
 			SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		}

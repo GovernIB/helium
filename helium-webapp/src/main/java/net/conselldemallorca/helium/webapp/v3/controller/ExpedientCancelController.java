@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesCancelCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -38,9 +37,6 @@ public class ExpedientCancelController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-	
-	@Autowired
-	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/cancel", method = RequestMethod.GET)
 	public String cancelForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {

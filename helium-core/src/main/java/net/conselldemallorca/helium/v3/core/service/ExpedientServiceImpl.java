@@ -91,7 +91,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundExcep
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
@@ -200,8 +199,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private ConsultaHelper consultaHelper;
 	@Resource(name="dtoConverterV3")
 	private DtoConverter dtoConverter;
 	@Resource
@@ -885,11 +882,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesAmbTasquesActives,
+			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesGrup, 
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup, 
 			PaginacioParamsDto paginacioParams) throws Exception {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
@@ -908,11 +905,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
-				"nomesAmbTasquesActives=" + nomesAmbTasquesActives + ", " +
+				"nomesMeves=" + nomesMeves + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
-				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
-				"mostrarTasquesGrup=" + mostrarTasquesGrup + ")");
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -979,7 +976,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
 		Page<ExpedientHelium> paginaResultats = null;
-		boolean filtreTasques = nomesAmbTasquesActives || mostrarTasquesPersonals || mostrarTasquesGrup;
+		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
 		if (filtreTasques) {
 			// Fa la consulta
 			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
@@ -1010,9 +1007,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 					auth.getName(),
 					idsInstanciesProces,
-					nomesAmbTasquesActives,
-					mostrarTasquesPersonals,
-					mostrarTasquesGrup);
+					nomesMeves,
+					nomesTasquesPersonals,
+					nomesTasquesGrup);
 			int index = 0;
 			for (String id: ids) {
 				if (index == 0)
@@ -1098,11 +1095,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesAmbTasquesActives,
+			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesGrup) {
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -1120,11 +1117,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
-				"nomesAmbTasquesActives=" + nomesAmbTasquesActives + ", " +
+				"nomesMeves=" + nomesMeves + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
-				"mostrarAnulats=" + mostrarAnulats + ", " +
-				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
-				"mostrarTasquesGrup=" + mostrarTasquesGrup + ")");
+				"mostrarAnulats=" + mostrarAnulats + 
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -1187,7 +1184,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Set<String> rootProcessInstanceIdsAmbTasques5 = null;
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
-		boolean filtreTasques = nomesAmbTasquesActives || mostrarTasquesPersonals || mostrarTasquesGrup;
+		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
 		if (filtreTasques) {
 			// Fa la consulta
 			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
@@ -1218,9 +1215,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 					auth.getName(),
 					idsInstanciesProces,
-					nomesAmbTasquesActives,
-					mostrarTasquesPersonals,
-					mostrarTasquesGrup);
+					nomesMeves,
+					nomesTasquesPersonals,
+					nomesTasquesGrup);
 			int index = 0;
 			for (String id: ids) {
 				if (index == 0)
@@ -1456,7 +1453,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarTasquesGrup) {
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarDeOtrosUsuarios, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
 		logger.debug("Consulta de tasques pendents de l'expedient (" +
 				"id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1464,7 +1461,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		return tascaHelper.findTasquesPendentsPerExpedient(expedient, mostrarTasquesGrup);
+		return tascaHelper.findTasquesPendentsPerExpedient(expedient, mostrarDeOtrosUsuarios, nomesTasquesPersonals, nomesTasquesGrup);
 	}
 
 	@Override
@@ -1941,7 +1938,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(final Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup, final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(
+			final Long consultaId, 
+			Map<String, Object> valorsPerService,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			 final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
@@ -1949,11 +1954,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			consultaId,
 			valorsPerService,
 			paginacioParams,
-			nomesPendents, 
+			nomesMeves, 
 			nomesAlertes, 
 			mostrarAnulats,
-			mostrarTasquesPersonals,
-			mostrarTasquesGrup
+			nomesTasquesPersonals,
+			nomesTasquesGrup
 		);
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
@@ -1962,11 +1967,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		final int numExpedients= findIdsPerConsultaInforme(
 				consultaId,
 				valorsPerService, 
-				nomesPendents, 
+				nomesMeves, 
 				nomesAlertes, 
 				mostrarAnulats,
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup
+				nomesTasquesPersonals,
+				nomesTasquesGrup
 			).size();
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "1");
@@ -2294,7 +2299,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
-		Consulta consulta = consultaHelper.findById(consultaId);		
+		Consulta consulta = consultaRepository.findById(consultaId);		
 		
 		List<TascaDadaDto> listTascaDada = serviceUtils.findCampsPerCampsConsulta(
 				consulta,
@@ -2314,7 +2319,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId) {
-		Consulta consulta = consultaHelper.findById(consultaId);
+		Consulta consulta = consultaRepository.findById(consultaId);
 		return serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.INFORME);
@@ -2323,7 +2328,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
-		Consulta consulta = consultaHelper.findById(consultaId);
+		Consulta consulta = consultaRepository.findById(consultaId);
 		return serviceUtils.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.PARAM);
@@ -2334,13 +2339,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams, 
-			Boolean nomesPendents, 
-			Boolean nomesAlertes, 
-			Boolean mostrarAnulats, 
-			Boolean mostrarTasquesPersonals, 
-			Boolean mostrarTasquesGrup) {
-		Consulta consulta = consultaHelper.findById(consultaId);		
+			PaginacioParamsDto paginacioParams,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
+		Consulta consulta = consultaRepository.findById(consultaId);		
 		
 		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
 				consulta,
@@ -2383,7 +2388,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				0,
 				-1);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = new ArrayList<Map<String,DadaIndexadaDto>>();
-		filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesGrup);
+		filtrarDadesExpedients(llistaExpedientIds, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup);
 		if (!llistaExpedientIds.isEmpty())
 			dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(consulta.getEntorn().getCodi(), llistaExpedientIds, campsInforme, sort, asc, firstRow, maxResults);
 		
@@ -2424,12 +2429,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<Long> findIdsPerConsultaInforme(
 			Long consultaId,
 			Map<String, Object> valors,
-			Boolean nomesPendents, 
-			Boolean nomesAlertes, 
-			Boolean mostrarAnulats,
-			Boolean mostrarTasquesPersonals,
-			Boolean mostrarTasquesGrup) {
-		Consulta consulta = consultaHelper.findById(consultaId);
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
+		Consulta consulta = consultaRepository.findById(consultaId);
 		
 		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
 				consulta,
@@ -2443,12 +2448,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 				campsFiltre,
 				valors);
 		
-		filtrarDadesExpedients(llistaExpedientIds, nomesPendents, nomesAlertes, mostrarAnulats, mostrarTasquesPersonals, mostrarTasquesGrup);
+		filtrarDadesExpedients(llistaExpedientIds, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup);
 		
 		return llistaExpedientIds;
 	}
 	
-	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup) {
+	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, 
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
 		Set<Long> ids1 = null;
 		Set<Long> ids2 = null;
 		Set<Long> ids3 = null;
@@ -2500,10 +2510,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 						auth.getName(),
 						idsPI,
-						nomesPendents,
-						mostrarTasquesPersonals,
-						mostrarTasquesGrup);
-		
+						nomesMeves,
+						nomesTasquesPersonals,
+						nomesTasquesGrup);		
 		
 		Iterator<Long> itExps = llistaExpedientIds.iterator();
 		ArrayList<Long> removeList = new ArrayList<Long>();

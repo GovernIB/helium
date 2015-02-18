@@ -70,4 +70,8 @@ public interface AdminService {
 	public abstract void deleteReassignacio(Long id);
 
 	public abstract ReassignacioDto findReassignacioById(Long id);
+
+	public PersonaDto findPersonaAmbCodi(String codi);
+
+	public List<PersonaDto> findPersonaLikeNomSencer(String text);
 }

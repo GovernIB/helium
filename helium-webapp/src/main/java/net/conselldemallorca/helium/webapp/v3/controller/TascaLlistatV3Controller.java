@@ -1,8 +1,4 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.controller;
-
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +14,7 @@ import javax.validation.Valid;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -69,8 +66,12 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 		model.addAttribute(filtreCommand);
-		EntornDto entornSessio = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
-		model.addAttribute("entornId", entornSessio.getId());
+		EntornDto entornActual = (EntornDto) SessionHelper.getAttribute(request, SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
+		if (entornActual == null) {
+			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
+		} else {
+			model.addAttribute("entornId", entornActual.getId());
+		}
 		return "v3/tascaLlistat";
 	}
 
@@ -151,9 +152,15 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 							filtreCommand.isMostrarTasquesGrup(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
-			MissatgesHelper.error(request, e.getMessage());
-			logger.error("No se pudo obtener la lista de tareas", e);
-			result = new DatatablesPagina<ExpedientTascaDto>();
+			if (entornActual == null)
+				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
+			else {
+				MissatgesHelper.error(request, e.getMessage());
+				logger.error("No se pudo obtener la lista de tareas", e);
+			}
+			result = PaginacioHelper.getPaginaPerDatatables(
+					request,
+					new PaginaDto<ExpedientTascaDto>());
 		}
 		return result;
 	}

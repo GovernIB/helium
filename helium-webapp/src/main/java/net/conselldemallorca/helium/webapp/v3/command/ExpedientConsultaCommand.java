@@ -31,16 +31,17 @@ public class ExpedientConsultaCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
-	private boolean nomesPendents;
-	private boolean nomesAlertes;
-	private boolean mostrarAnulats;
-	
-	private boolean mostrarTasquesPersonals = false;
-	private boolean isMostrarTasquesGrup = false;
 
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
 	private boolean consultaRealitzada = false;
+	
+	private boolean nomesMeves;
+	private boolean nomesAlertes;
+	private boolean mostrarAnulats;
+	
+	private boolean nomesTasquesPersonals = false;
+	private boolean nomesTasquesGrup = false;
 
 	public ExpedientConsultaCommand() {
 	}
@@ -111,17 +112,29 @@ public class ExpedientConsultaCommand {
 	public void setGeoPosY(Double geoPosY) {
 		this.geoPosY = geoPosY;
 	}
+	public boolean isNomesMeves() {
+		return nomesMeves;
+	}
+	public void setNomesMeves(boolean nomesMeves) {
+		this.nomesMeves = nomesMeves;
+	}
+	public boolean isNomesTasquesPersonals() {
+		return nomesTasquesPersonals;
+	}
+	public void setNomesTasquesPersonals(boolean nomesTasquesPersonals) {
+		this.nomesTasquesPersonals = nomesTasquesPersonals;
+	}
+	public boolean isNomesTasquesGrup() {
+		return nomesTasquesGrup;
+	}
+	public void setNomesTasquesGrup(boolean nomesTasquesGrup) {
+		this.nomesTasquesGrup = nomesTasquesGrup;
+	}
 	public String getGeoReferencia() {
 		return geoReferencia;
 	}
 	public void setGeoReferencia(String geoReferencia) {
 		this.geoReferencia = geoReferencia;
-	}
-	public boolean isNomesPendents() {
-		return nomesPendents;
-	}
-	public void setNomesPendents(boolean nomesPendents) {
-		this.nomesPendents = nomesPendents;
 	}
 	public boolean isNomesAlertes() {
 		return nomesAlertes;
@@ -153,12 +166,6 @@ public class ExpedientConsultaCommand {
 	public void setConsultaRealitzada(boolean consultaRealitzada) {
 		this.consultaRealitzada = consultaRealitzada;
 	}
-	public boolean isMostrarTasquesPersonals() {
-		return mostrarTasquesPersonals;
-	}
-	public void setMostrarTasquesPersonals(boolean mostrarTasquesPersonals) {
-		this.mostrarTasquesPersonals = mostrarTasquesPersonals;
-	}
 
 	public String getEstatText() {
 		if (EstatTipusDto.CUSTOM.equals(estatTipus))
@@ -166,14 +173,7 @@ public class ExpedientConsultaCommand {
 		else
 			return (estatTipus != null) ? estatTipus.toString() : null;
 	}
-
-	public boolean isMostrarTasquesGrup() {
-		return isMostrarTasquesGrup;
-	}
-
-	public void setMostrarTasquesGrup(boolean isMostrarTasquesGrup) {
-		this.isMostrarTasquesGrup = isMostrarTasquesGrup;
-	}
+	
 	public void setEstatText(String estatText) {
 		if (estatText == null || estatText.length() == 0) {
 			estatTipus = null;

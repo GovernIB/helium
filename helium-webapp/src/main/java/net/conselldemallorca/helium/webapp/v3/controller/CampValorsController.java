@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +33,6 @@ public class CampValorsController extends BaseExpedientController {
 
 	@Autowired
 	private TascaService tascaService;
-	@Autowired
-	private DissenyService dissenyService;
-
-
 
 	@RequestMapping(value = "/{campId}/context/{processInstanceId}/{tascaId}/valors", method = RequestMethod.GET)
 	@ResponseBody
@@ -57,6 +52,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
+	
 	@RequestMapping(value = "/{campId}/proces/{processInstanceId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaAmbProces(
@@ -74,6 +70,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
+	
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaAmbTasca(
@@ -91,6 +88,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
+	
 	@RequestMapping(value = "/{campId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consulta(
@@ -127,6 +125,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
+	
 	@RequestMapping(value = "/{campId}/proces/{processInstanceId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValorProces(
@@ -145,6 +144,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
+	
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValorTasca(
@@ -163,6 +163,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
+	
 	@RequestMapping(value = "/{campId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValor(
@@ -181,7 +182,6 @@ public class CampValorsController extends BaseExpedientController {
 				getMapDelsValors(valors));
 	}
 
-
 	private Map<String, Object> getMapDelsValors(String valors) {
 		if (valors == null)
 			return null;
@@ -194,5 +194,4 @@ public class CampValorsController extends BaseExpedientController {
 		}
 		return resposta;
 	}
-
 }

@@ -24,7 +24,7 @@ import org.springframework.web.servlet.support.RequestContext;
  */
 public class BaseController implements MessageSourceAware {
 
-	private static final String ESQUEMA_PREFIX = "/helium";
+	public static final String ESQUEMA_PREFIX = "/helium";
 	MessageSource messageSource;
 
 	protected String modalUrlTancar(boolean refrescar) {

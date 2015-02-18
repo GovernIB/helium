@@ -52,9 +52,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
-			boolean mostrarDeOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+			boolean permisosVerOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
 			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), mostrarDeOtrosUsuarios));
+				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios));
 			}
 			model.addAttribute("tasques", tasques);	
 		}
@@ -80,15 +80,18 @@ public class ExpedientTascaController extends BaseExpedientController {
 		return "v3/procesTasques";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasquesPendents/{mostrarTasquesGrup}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesMeves}/{nomesTasquesPersonals}/{nomesTasquesGrup}", method = RequestMethod.GET)
 	public String tasquesPendents(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable boolean mostrarTasquesGrup,
+			@PathVariable boolean nomesMeves,
+			@PathVariable boolean nomesTasquesPersonals,
+			@PathVariable boolean nomesTasquesGrup,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, mostrarTasquesGrup));
-		model.addAttribute("expedient", expedient);	
+		boolean permisosVerOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, permisosVerOtrosUsuarios && !nomesMeves, nomesTasquesPersonals, nomesTasquesGrup));
+		model.addAttribute("expedient", expedientService.findAmbId(expedientId));	
 		return "v3/expedientTasquesPendents";
 	}
 

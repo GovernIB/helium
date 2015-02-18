@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +34,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ExpedientConsultaDominioController extends BaseExpedientController {
 	@Autowired
 	private TascaService tascaService;
-	@Autowired
-	private DissenyService dissenyService;
 
 	@RequestMapping(value = "/consulta", method = RequestMethod.GET)
 	@ResponseBody

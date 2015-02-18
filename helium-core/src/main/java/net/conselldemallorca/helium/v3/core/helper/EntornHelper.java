@@ -30,8 +30,6 @@ public class EntornHelper {
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 
-
-
 	public Entorn getEntornComprovantPermisos(
 			Long id,
 			boolean comprovarPermisRead,
@@ -88,5 +86,4 @@ public class EntornHelper {
 		}
 		return entorn;
 	}
-
 }

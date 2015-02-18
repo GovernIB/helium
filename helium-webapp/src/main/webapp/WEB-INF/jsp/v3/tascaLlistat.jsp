@@ -54,13 +54,8 @@
 				$("a[id='btnMassiva']").attr("href","../../../v3/expedient/massivaTramitacioTasca?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 				$("a[id='btnReassignacioMassiva']").attr("href","../../../v3/tasca/massivaReassignacioTasca?massiva=true&inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
 			});
-			$("#mostrarTasquesPersonalsCheck").click(function() {
-				$("input[name=mostrarTasquesPersonals]").val(!$(this).hasClass('active'));
-				$(this).blur();
-				$("button[value=consultar]").click();
-			});
-			$("#mostrarTasquesGrupCheck").click(function() {
-				$("input[name=mostrarTasquesGrup]").val(!$(this).hasClass('active'));
+			$("button[data-toggle=button]").click(function() {
+				$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
 				$(this).blur();
 				$("button[value=consultar]").click();
 			});
@@ -69,27 +64,31 @@
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
 		    });
-			
-			$('#expedientTipusId').on('change', function() {
-				var tipus = $(this).val();
-				$('#tasca').select2('val', '', true);
-				$('#tasca option[value!=""]').remove();
-				
-				var value = -1;
-				if ($(this).val())
-					value = $(this).val();
-				$.get('tasca/tasques/${entornId}/' + value)				
-				.done(function(data) {
-					for (var i = 0; i < data.length; i++) {
-						$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
-					}
-				})
-				.fail(function() {
-					alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
+						
+			<c:if test="${entornId != null}">
+				$('#expedientTipusId').on('change', function() {
+					var tipus = $(this).val();
+					$('#tasca').select2('val', '', true);
+					$('#tasca option[value!=""]').remove();
+					
+					var value = -1;
+					var entornId = ${entornId};
+					if ($(this).val())
+						value = $(this).val();
+					
+					$.get('tasca/tasques/${entornId}/' + value)				
+					.done(function(data) {
+						for (var i = 0; i < data.length; i++) {
+							$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+						}
+					})
+					.fail(function() {
+						alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
+					});
 				});
-			});
-
-			$('#expedientTipusId').trigger('change');
+	
+				$('#expedientTipusId').trigger('change');
+			</c:if>
 		});
 		function agafar(tascaId, correcte) {
 			if (correcte) {
@@ -169,9 +168,11 @@
 						<div class="col-md-4">
 							<hel:inputText name="expedient" textKey="tasca.llistat.filtre.camp.expedient" placeholderKey="tasca.llistat.filtre.camp.expedient" inline="true"/>
 						</div>
-						<div class="col-md-3 <c:if test="${!potDissenyarEntorn and !potAdministrarEntorn}">hide</c:if>">
-							<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
-						</div>
+						<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+							<div class="col-md-3">
+								<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+							</div>
+						</c:if>
 						<div class="col-md-5">
 							<hel:inputSelect name="expedientTipusId" textKey="tasca.llistat.filtre.camp.tipexp" placeholderKey="tasca.llistat.filtre.camp.tipexp" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
 						</div>
@@ -214,8 +215,8 @@
 						<form:hidden path="mostrarTasquesGrup"/>
 						<div class="row">
 							<div class="col-md-6 btn-group">
-								<button id="mostrarTasquesPersonalsCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.usuari"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-								<button id="mostrarTasquesGrupCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+								<button id="mostrarTasquesPersonalsCheck" data-path="mostrarTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.usuari"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+								<button id="mostrarTasquesGrupCheck" data-path="mostrarTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 							</div>
 							<div class="col-md-6">
 							<div class="pull-right">

@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.webapp.v3.controller.BaseController;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +96,9 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 									break;
 								}
 							}
+						} else if (request.getRequestURI().startsWith(BaseController.ESQUEMA_PREFIX+"/v3") && !entorns.isEmpty()) {
+							entornActual = entorns.get(0);
+							setEntornActual(request, entornActual);
 						}
 						if (prefs.getExpedientTipusDefecteId() != null) {
 							for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {

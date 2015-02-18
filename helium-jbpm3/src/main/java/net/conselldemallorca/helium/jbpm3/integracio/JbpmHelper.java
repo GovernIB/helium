@@ -1278,10 +1278,9 @@ public class JbpmHelper {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			PaginacioParamsDto paginacioParams,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup,
-			boolean mostrarNomesTasquesActives,
-			boolean tasquesUsuari) {
+			boolean nomesAmbTasquesPersonals,
+			boolean nomesAmbTasquesGrup,
+			boolean nomesAmbPendents) {
 		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");		
 		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
 				responsable,
@@ -1294,14 +1293,13 @@ public class JbpmHelper {
 				dataLimitInici,
 				dataLimitFi,
 				paginacioParams.getOrdres(),
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup,
-				tasquesUsuari);
+				nomesAmbTasquesPersonals,
+				nomesAmbTasquesGrup);
 		command.setFirstRow(
 				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany());
 		command.setMaxResults(
 				paginacioParams.getPaginaTamany());
-		command.setNomesActives(mostrarNomesTasquesActives);
+		command.setNomesActives(nomesAmbPendents);
 		LlistatIds llistat = (LlistatIds)commandService.execute(command);
 		adminService.mesuraCalcular("jBPM findListTasks", "jbpmDao");
 		return llistat;
@@ -1499,24 +1497,26 @@ public class JbpmHelper {
 	public List<String> findRootProcessInstancesWithTasksCommand( // 3.0
 			String actorId,
 			List<String> processInstanceIds,
-			boolean tasksActives,
-			boolean tasquesPersonals,
-			boolean mostrarTasquesGrup) {
+			boolean nomesMeves,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
 		adminService.mesuraIniciar("jBPM findRootProcessInstancesForExpedientsWithActiveTasksCommand", "jbpmDao");
+		boolean nomesAmbPendents = true; // Mostrar sólo las pendientes
+		boolean personals = nomesTasquesPersonals && !nomesTasquesGrup;
+		boolean grup = !nomesTasquesPersonals && nomesTasquesGrup;
+		boolean tots = !nomesTasquesPersonals && !nomesTasquesGrup;
+		
 		List<String> resultat = new ArrayList<String>();
-		boolean tasquesUsuari = true; // Mostrar sólo las tareas personales
-		if (tasquesPersonals) {
-			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, tasksActives, tasquesUsuari);
+		if (personals) {
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandPersonal));
-		}
-		if (mostrarTasquesGrup) {
-			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, tasksActives, tasquesUsuari);
+		} else if (grup) {
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandGroup));
-		}
-		if (!tasquesPersonals && !mostrarTasquesGrup) {
-			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, tasksActives, tasquesUsuari);
+		} else if (tots) {
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandPersonal));
-			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, tasksActives, tasquesUsuari);
+			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandGroup));
 		}
 

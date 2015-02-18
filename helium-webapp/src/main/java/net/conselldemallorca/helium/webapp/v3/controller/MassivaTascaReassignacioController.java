@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.text.ParseException;
@@ -12,14 +9,12 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.webapp.v3.command.ReassignacioTasquesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -54,18 +49,13 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 @RequestMapping("/v3/tasca")
-public class MassivaTascaReassignacioController extends BaseExpedientController {	
-	@Autowired
-	private TascaService tascaService;
+public class MassivaTascaReassignacioController extends BaseExpedientController {
 	
 	@Autowired
-	private PluginService pluginService;
+	private AdminService adminService;
 	
 	@Autowired
-	private DissenyService dissenyService;
-	
-	@Autowired
-	ExecucioMassivaService execucioMassivaService;
+	private ExecucioMassivaService execucioMassivaService;
 	
 	@RequestMapping(value = "/massivaReassignacioTasca", method = RequestMethod.GET)
 	public String massivaTramitacio(
@@ -94,7 +84,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	public String suggestAction(
 			@PathVariable String text,
 			Model model) {
-		List<PersonaDto> lista = pluginService.findPersonaLikeNomSencer(text);
+		List<PersonaDto> lista = adminService.findPersonaLikeNomSencer(text);
 		String json = "[";
 		for (PersonaDto persona: lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
@@ -109,7 +99,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	public String suggestIniciAction(
 			@PathVariable String text,
 			Model model) {
-		PersonaDto persona = pluginService.findPersonaAmbCodi(text);
+		PersonaDto persona = adminService.findPersonaAmbCodi(text);
 		if (persona != null) {
 			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
 		}

@@ -268,7 +268,6 @@ public class TascaServiceImpl implements TascaService {
 				new PaginacioParamsDto(),
 				mostrarTasquesPersonals,
 				mostrarTasquesGrup,
-				responsable != usuari,
 				true);
 		return ids.getIds();
 	}
@@ -398,7 +397,6 @@ public class TascaServiceImpl implements TascaService {
 				paginacioParams,
 				mostrarTasquesPersonals,
 				mostrarTasquesGrup,
-				responsable != usuari,
 				true);
 		
 		if (consultaTramitacioMassivaTascaId != null) {			

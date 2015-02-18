@@ -232,12 +232,6 @@ public interface ExpedientService {
 	 *            Posició Y de la georeferència.
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
-	 * @param nomesAmbTasquesActives
-	 *            Check de mostrar només tasques actives.
-	 * @param nomesAlertes
-	 *            Check de mostrar només alertes.
-	 * @param mostrarAnulats
-	 *            Check de mostrar només anulats.
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat d'expedients.
@@ -263,11 +257,11 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesAmbTasquesActives,
+			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesGrup, 
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
 			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
@@ -299,13 +293,8 @@ public interface ExpedientService {
 	 *            Posició Y de la georeferència.
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
-	 * @param nomesAmbTasquesActives
-	 *            Check de mostrar només tasques actives.
-	 * @param nomesAlertes
-	 *            Check de mostrar només alertes.
-	 * @param mostrarAnulats
-	 *            Check de mostrar només anulats.
 	 * @return La pàgina del llistat d'expedients.
+	 * @throws Exception 
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
@@ -327,11 +316,11 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesAmbTasquesActives,
+			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
-			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesGrup);
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup);
 
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.
@@ -389,7 +378,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarDeOtrosUsuarios);
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
 
 	/**
 	 * Retorna la llista de dades d'una instància de procés de
@@ -597,9 +586,19 @@ public interface ExpedientService {
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
-			PaginacioParamsDto paginacioParams, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup);
+			PaginacioParamsDto paginacioParams, 
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup);
 	
-	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup);
+	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, 
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup);
 
 	public void evaluateScript(Long expedientId, String script);
 
@@ -621,7 +620,12 @@ public interface ExpedientService {
 		}
 	}
 
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, Boolean nomesPendents, Boolean nomesAlertes, Boolean mostrarAnulats, Boolean mostrarTasquesPersonals, Boolean mostrarTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, 
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 

@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
 import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
@@ -63,9 +64,23 @@ public class AdminServiceImpl implements AdminService {
 	@Resource
 	private PersonaRepository personaRepository;
 	@Resource
+	private PersonaHelper personaHelper;
+	@Resource
 	private SessionFactory sessionFactory;
 	@Resource
 	private ReassignacioRepository reassignacioRepository;
+	
+	@Transactional(readOnly = true)
+	@Override
+	public PersonaDto findPersonaAmbCodi(String codi) {
+		return personaHelper.findAmbCodi(codi);
+	}
+	
+	@Transactional(readOnly = true)
+	@Override
+	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
+		return personaHelper.findLikeNomSencer(text);
+	}
 
 	@Override
 	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {

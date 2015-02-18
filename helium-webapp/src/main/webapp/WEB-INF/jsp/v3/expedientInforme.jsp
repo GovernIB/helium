@@ -22,6 +22,7 @@
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
@@ -60,6 +61,8 @@
 		body .container .panel.panel-default {}
 		body .container .panel.panel-default .panel-body .panel.panel-default {padding: 0px;margin-bottom: 0px;}
 		#canviar_consulta {margin-top: 5px;}
+		.col-md-1.btn-group {width: 4.333%;}
+		.col-md-6.btn-group {width: 53.5%;}
 	</style>
 <script>
 $(document).ready(function() {	
@@ -100,7 +103,7 @@ $(document).ready(function() {
 					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
 				} else {
 					var jqxhr = $.ajax({
-						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#mostrarTasquesGrup').val(),
+						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#nomesMeves').val()+"/"+$('#nomesTasquesPersonals').val()+"/"+$('#nomesTasquesGrup').val(),
 						beforeSend: function(xhr) {
 							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
 						}
@@ -112,21 +115,7 @@ $(document).ready(function() {
 						$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
 						$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
 					}).fail(function(jqXHR, exception) {
-						if (jqXHR.status === 0) {
-			                alert('Not connected.\n Verify network.');
-			            } else if (jqXHR.status == 404) {
-			                alert('Requested page not found [404].');
-			            } else if (jqXHR.status == 500) {
-			                alert('Internal server error [500].');
-			            } else if (exception === 'parsererror') {
-			                alert('Requested JSON parse failed.');
-			            } else if (exception === 'timeout') {
-			                alert('Timeout error.');
-			            } else if (exception === 'abort') {
-			                alert('Ajax request aborted.');
-			            } else {
-			                alert('Unknown error:\n' + jqXHR.responseText);
-			            }
+						modalAjaxErrorFunction(jqXHR, exception);
 					});
 				}
 			}
@@ -135,28 +124,8 @@ $(document).ready(function() {
 			$('#tramitacioMassivaCount').html(seleccio.length);
 		}
 	});
-	$("#nomesPendentsCheck").click(function() {
-		$("input[name=nomesPendents]").val(!$(this).hasClass('active'));
-		$(this).blur();
-		$("button[value=filtrar]").click();
-	});
-	$("#nomesAlertesCheck").click(function() {
-		$("input[name=nomesAlertes]").val(!$(this).hasClass('active'));
-		$(this).blur();
-		$("button[value=filtrar]").click();
-	});
-	$("#mostrarAnulatsCheck").click(function() {
-		$("input[name=mostrarAnulats]").val(!$(this).hasClass('active'));
-		$(this).blur();
-		$("button[value=filtrar]").click();
-	});
-	$("#mostrarTasquesPersonalsCheck").click(function() {
-		$("input[name=mostrarTasquesPersonals]").val(!$(this).hasClass('active'));
-		$(this).blur();
-		$("button[value=filtrar]").click();
-	});
-	$("#mostrarTasquesGrupCheck").click(function() {
-		$("input[name=mostrarTasquesGrup]").val(!$(this).hasClass('active'));
+	$("button[data-toggle=button]").click(function() {
+		$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
 		$(this).blur();
 		$("button[value=filtrar]").click();
 	});
@@ -173,26 +142,31 @@ $(document).ready(function() {
 				<c:set var="required" value="${false}" scope="request"/>
 				<c:import url="campsFiltre.jsp"/>
 			</c:forEach>
-		</div>
+		</div>		
 		<div class="row">
-			<div class="col-md-6">
-				<form:hidden path="nomesPendents"/>
+			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
-				<form:hidden path="mostrarAnulats"/>				
-				<form:hidden path="mostrarTasquesPersonals"/>
-				<form:hidden path="mostrarTasquesGrup"/>
-				<div class="btn-group">
-					<button id="nomesPendentsCheck" title="<spring:message code="expedient.llistat.filtre.camp.tasques"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesPendents || preferenciesUsuari.filtroTareasActivas}"> active</c:if>" data-toggle="buttons"><span class="fa fa-clock-o"></span></button>
-					<button id="nomesAlertesCheck" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesAlertes}"> active</c:if>" data-toggle="buttons"><span class="fa fa-exclamation-triangle"></span></button>
-					<button id="mostrarAnulatsCheck" title="<spring:message code="expedient.llistat.filtre.camp.anulats"/>" class="btn btn-default<c:if test="${expedientInformeCommand.mostrarAnulats}"> active</c:if>" data-toggle="buttons"><span class="fa fa-times"></span></button>
-					<button id="mostrarTasquesPersonalsCheck" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientInformeCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-					<button id="mostrarTasquesGrupCheck" title="<spring:message code="tasca.llistat.filtre.camp.mostrar.grup"/>" class="btn btn-default<c:if test="${expedientInformeCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
-				</div>
-			</div>
-			<div class="col-md-6">
-				<div class="pull-right">
-					<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-					<button type="submit" name="accio" value="filtrar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+				<form:hidden path="nomesTasquesPersonals"/>
+				<form:hidden path="nomesTasquesGrup"/>
+				<form:hidden path="nomesMeves"/>
+				<div class="row">
+					<div class="col-md-1 btn-group">
+						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
+					</div>
+					<div class="col-md-5 btn-group">
+						<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+							<button id="nomesMevesCheck" data-path="nomesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-male"></span></button>
+						</c:if>
+						<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+						<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+					</div>
+					<div class="col-md-6 btn-group">
+						<div class="pull-right">
+							<input type="hidden" name="consultaRealitzada" value="true"/>
+							<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+							<button type="submit" name="accio" value="filtrar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -201,8 +175,8 @@ $(document).ready(function() {
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" data-rdt-filtre-form-id="expedientInformeCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr class="panel-heading clicable proces" data-toggle="collapse">
-				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
-				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
+				<th data-rdt-property="expedient.id" width="4%" data-rdt-sortable="false"></th>
+				<th data-rdt-property="expedient.id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
 						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
 					</script>

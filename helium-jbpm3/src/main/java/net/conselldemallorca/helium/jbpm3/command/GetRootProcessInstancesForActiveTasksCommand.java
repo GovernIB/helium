@@ -29,7 +29,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private String actorId;
-	private boolean tasquesUsuari = false;
 	private List<Long> idsPIExpedients;
 	private String tascaSel; 
 	private String titol;
@@ -80,7 +79,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.asc = asc;
 	}
 
-	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String titol, String tascaSel, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup, boolean tasquesUsuari) {
+	public GetRootProcessInstancesForActiveTasksCommand(String responsable, String titol, String tascaSel, List<Long> idsExpedients, Date dataCreacioInici, Date dataCreacioFi, Integer prioritat, Date dataLimitInici, Date dataLimitFi, List<OrdreDto> ordres, boolean mostrarTasquesPersonals, boolean mostrarTasquesGrup) {
 		super();
 		this.actorId = responsable;
 		this.idsPIExpedients = idsExpedients;
@@ -93,7 +92,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		this.dataLimitFi = dataLimitFi;
 		this.mostrarTasquesNomesPersonals = mostrarTasquesPersonals;
 		this.mostrarTasquesNomesGroup = mostrarTasquesGrup;
-		this.mostrarTasquesTots = (mostrarTasquesPersonals && mostrarTasquesGrup) || (tasquesUsuari && !mostrarTasquesPersonals && !mostrarTasquesGrup);
+		this.mostrarTasquesTots = !mostrarTasquesPersonals && !mostrarTasquesGrup;
 		for (OrdreDto or : ordres) {
 			this.asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
 			this.sort = or.getCamp();
@@ -371,12 +370,6 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 	}
 	public void setFirstRow(int firstRow) {
 		this.firstRow = firstRow;
-	}
-	public boolean isTasquesUsuari() {
-		return tasquesUsuari;
-	}
-	public void setTasquesUsuari(boolean tasquesUsuari) {
-		this.tasquesUsuari = tasquesUsuari;
 	}
 	public int getMaxResults() {
 		return maxResults;

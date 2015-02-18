@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.PluginService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -35,9 +34,6 @@ public class ExpedientAturarController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-	
-	@Autowired
-	private PluginService pluginService;
 
 	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.GET)
 	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {

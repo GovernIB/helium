@@ -40,7 +40,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDire
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter.DadesCacheTasca;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -62,19 +61,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TascaHelper {
 
-	//private static final String VAR_PREFIX = "H3l1um#";
-
 	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
 	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
 
-	//private static final String DEFAULT_SECRET_KEY = "H3l1umKy";
-	//private static final String DEFAULT_ENCRYPTION_SCHEME = "DES/ECB/PKCS5Padding";
-	//private static final String DEFAULT_KEY_ALGORITHM = "DES";
-
 	@Resource
 	TascaRepository tascaRepository;
-	@Resource(name="tascaServiceV3")
-	private TascaService tascaService;
 	@Resource
 	DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -97,8 +88,6 @@ public class TascaHelper {
 	private DtoConverter dtoConverter;
 	@Resource
 	private PluginPersonaDao pluginPersonaDao;
-
-
 
 	public JbpmTask getTascaComprovacionsTramitacio(
 			String id,
@@ -197,7 +186,6 @@ public class TascaHelper {
 				paginacioParams,
 				true,
 				true,
-				false,
 				false);
 		List<JbpmTask> tasks = jbpmHelper.findTasks(ids.getIds());
 		for (JbpmTask task: tasks) {
@@ -263,18 +251,18 @@ public class TascaHelper {
 				task.getProcessDefinitionId());
 	}
 
-	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient, boolean mostrarTasquesGrup) {
+	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(Expedient expedient, boolean mostrarDeOtrosUsuarios, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
 				ExpedientTascaDto tasca = toExpedientTascaCompleteDto(task, expedient);
-				if (tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+				if (mostrarDeOtrosUsuarios || tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
 					boolean esTareaGrupo = !tasca.isAgafada() && tasca.getResponsables() != null && !tasca.getResponsables().isEmpty();
-					if (mostrarTasquesGrup && esTareaGrupo) {						
+					if (nomesTasquesGrup && esTareaGrupo) {						
 						resposta.add(tasca);
-					} else if (!mostrarTasquesGrup && !esTareaGrupo) {
+					} else if (nomesTasquesPersonals && !esTareaGrupo) {
 						resposta.add(tasca);
 					}
 				}

@@ -63,8 +63,8 @@
 		$(document).ready(function(){
 			$(".dropdown-menu").css("max-height", ($(window).height() - 75) +"px");
 
-			if($(".nav-consulta-tipus").length > 0) {
-				$("#btnConsultes").removeClass("hide");	
+			if($(".nav-consulta-tipus").length == 0) {
+				$("#btnConsultes").remove();
 			}
 			
 			$('[title]').tooltip({container: 'body'});
@@ -146,22 +146,21 @@
 								<li><a href="<c:url value="/v3/index"><c:param name="expedientTipusCanviarAmbId" value=""/></c:url>"><spring:message code="comuns.tots.tipus"/></a></li>
 							</ul>
 						</li>
-						<!-- <li>
-							<span class="fa fa-bookmark"></span>
-							<spring:message code="decorator.rol.usuari"/>
-						</li> -->
-						<li>
-							<a href="<c:url value="/v3/perfil"/>">
-								<span class="fa fa-user"></span>
-								${dadesPersona.codi}
+						<li class="dropdown">
+							<a href="#" data-toggle="dropdown">
+								<span class="fa fa-user"></span> ${dadesPersona.codi}
+								<b class="caret caret-white"></b>
 							</a>
+							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+								<li><a href="<c:url value="/v3/perfil"/>"><spring:message code='perfil.info.meu_perfil' /></a></li>
+			    			</ul>
 						</li>
 					</ul>
 					<div class="clearfix"></div>
 					<div class="btn-group navbar-btn navbar-right">		
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						<div id="btnConsultes" class="btn-group hide" >
+						<div id="btnConsultes" class="btn-group" >
 							<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
 							<ul class="dropdown-menu">									
 								<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
