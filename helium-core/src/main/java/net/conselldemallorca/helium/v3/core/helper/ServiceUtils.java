@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.helper;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,27 +14,15 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -49,21 +35,13 @@ public class ServiceUtils {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private PluginPersonaHelper pluginPersonaHelper;
-	@Resource
 	private VariableHelper variableHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
-	private CampRepository campRepository;
-	@Resource
-	private ConsultaCampRepository consultaCampRepository;
-	@Resource
 	private LuceneHelper luceneHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
-	@Resource
-	private MessageSource messageSource;
 	
 	/**
 	 * Mètodes per a la reindexació d'expedients
@@ -94,173 +72,7 @@ public class ServiceUtils {
 				getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient));
 	}
-	public void expedientIndexLuceneRecrear(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
-		luceneHelper.deleteExpedient(expedient);
-		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
-		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneHelper.createExpedient(
-				expedient,
-				getMapDefinicionsProces(rootProcessInstance.getId()),
-				mapCamps,
-				mapValors,
-				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient),
-				false);
-	}
-
-	/*
-	 * Mètodes per a obtenir els camps de les consultes per tipus
-	 */
-	public List<TascaDadaDto> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
-		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
-		List<ConsultaCamp> camps = null;
-		
-		if (tipus != null)
-			camps = consultaCampRepository.findCampsConsulta(consulta.getId(), tipus);
-		else
-			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
-		for (ConsultaCamp camp: camps) {
-			TascaDadaDto tascaDadaDto = null;
-			DefinicioProces definicioProces = null;
-			Camp campRes = null;
-			if (camp.getCampCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-				campRes = getCampExpedient(camp.getCampCodi());
-			} else {
-				definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
-						camp.getDefprocJbpmKey(),
-						camp.getDefprocVersio());
-				if (definicioProces != null) {
-					campRes = campRepository.findByDefinicioProcesAndCodi(
-							definicioProces,
-							camp.getCampCodi());
-				}
-			}
-			if (campRes != null) {
-				tascaDadaDto = variableHelper.getTascaDadaDtoParaConsultaDisseny(campRes,tipus);
-			} else {
-				tascaDadaDto = getTascaDadaPerCampsConsulta(camp);
-			}
-			if (definicioProces != null) {
-				tascaDadaDto.setDefinicioProcesKey(definicioProces.getJbpmKey());
-			}
-			resposta.add(tascaDadaDto);
-		}
-		return resposta;
-	}
 	
-	private TascaDadaDto getTascaDadaPerCampsConsulta(ConsultaCamp camp) {
-		TascaDadaDto tascaDadaDto = null;
-		if (TipusConsultaCamp.PARAM.equals(camp.getTipus())) {
-			if (TipusParamConsultaCamp.SENCER.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.INTEGER, camp.getCampCodi()));
-			} else if (TipusParamConsultaCamp.FLOTANT.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.FLOAT, camp.getCampCodi()));
-			} else if (TipusParamConsultaCamp.DATA.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.DATE, camp.getCampCodi()));
-			} else if (TipusParamConsultaCamp.BOOLEAN.equals(camp.getParamTipus())) {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.BOOLEAN, camp.getCampCodi()));
-			} else {
-				tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, camp.getCampCodi()));
-			}
-		} else {
-			String description = camp.getCampDescripcio() == null ? camp.getCampCodi() : camp.getCampDescripcio();
-			tascaDadaDto = (new TascaDadaDto(camp.getCampCodi(), CampTipusDto.STRING, description));
-		}
-		return tascaDadaDto;
-	}
-	
-	public String getValueCampExpedient(Expedient expedient, String campCodi) {		
-		String text = null;
-		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
-			text = expedient.getId().toString();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
-			text = expedient.getNumeroIdentificador();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
-			text = expedient.getTitol();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
-			text = expedient.getComentari();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
-			Persona persona = pluginPersonaHelper.findByCodi(expedient.getIniciadorCodi());
-			if (persona != null)
-				text = persona.getNomSencer();
-			else
-				text = expedient.getIniciadorCodi();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
-			Persona persona = pluginPersonaHelper.findByCodi(expedient.getResponsableCodi());
-			if (persona != null)
-				text = persona.getNomSencer();
-			else 
-				text = expedient.getResponsableCodi();
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
-			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-			text = df.format(expedient.getDataInici());
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(campCodi)) {
-			if (expedient.getEstat() != null)
-				text = expedient.getEstat().getNom();
-			else if (expedient.getDataFi() != null)
-				text = getMessage("expedient.consulta.finalitzat");
-			else
-				text = getMessage("expedient.consulta.iniciat");	
-		}
-		return text;
-	}
-	
-	private Camp getCampExpedient(String campCodi) {
-		Camp campExpedient = new Camp();
-		if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.id"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.numero"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.titol"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.STRING);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.comentari"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.SUGGEST);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.iniciador"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.SUGGEST);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.responsable"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.DATE);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.data_ini"));
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
-			campExpedient.setCodi(campCodi);
-			campExpedient.setTipus(TipusCamp.SELECCIO);
-			campExpedient.setEtiqueta(getMessage("etiqueta.exp.estat"));
-		}
-		return campExpedient;
-	}
-
-	/*
-	 * Mètodes pel multiidioma
-	 */
-	public String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
-		}
-	}
-	public String getMessage(String key) {
-		return getMessage(key, null);
-	}
 	public Object getVariableJbpmProcesValor(
 			String processInstanceId,
 			String varCodi) {
@@ -271,7 +83,8 @@ public class ServiceUtils {
 			return valor;
 		}
 	}
-	public Map<String, Object> getVariablesJbpmProcesValor(
+	
+	private Map<String, Object> getVariablesJbpmProcesValor(
 			String processInstanceId) {
 		Map<String, Object> valors = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
@@ -287,7 +100,7 @@ public class ServiceUtils {
 	/*
 	 * Varis
 	 */
-	public boolean isExpedientFinalitzat(Expedient expedient) {
+	private boolean isExpedientFinalitzat(Expedient expedient) {
 		if (expedient.getProcessInstanceId() != null) {
 			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(expedient.getProcessInstanceId());
 			return processInstance.getEnd() != null;

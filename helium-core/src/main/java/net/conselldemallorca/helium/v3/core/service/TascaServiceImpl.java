@@ -52,11 +52,11 @@ import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
@@ -94,8 +94,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("tascaServiceV3")
 public class TascaServiceImpl implements TascaService {
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
 	@Resource
 	private ExpedientHeliumRepository expedientHeliumRepository;
 	@Resource
@@ -124,6 +122,8 @@ public class TascaServiceImpl implements TascaService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
+	private MessageHelper messageHelper;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -340,7 +340,7 @@ public class TascaServiceImpl implements TascaService {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION});
 		if (tipusPermesos.isEmpty())
-			throw new Exception(serviceUtils.getMessage("error.expedientService.noExisteix.tipus"));
+			throw new Exception(messageHelper.getMessage("error.expedientService.noExisteix.tipus"));
 		
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
 		

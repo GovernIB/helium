@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
@@ -15,18 +16,18 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +44,8 @@ public class TerminiServiceImpl implements TerminiService {
 	@Resource
 	private FestiuRepository festiuRepository;	
 	@Resource
+	private MessageHelper messageHelper;
+	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private RegistreRepository registreRepository;
@@ -52,8 +55,33 @@ public class TerminiServiceImpl implements TerminiService {
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private DefinicioProcesRepository definicioProcesRepository;
 
-	private MessageSource messageSource;
+	@Transactional(readOnly=true)
+	@Override
+	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String processInstanceId) {
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (pi.getProcessInstance() == null)
+			return null;
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		return conversioTipusHelper.convertirList(
+				terminiRepository.findByDefinicioProcesId(definicioProces.getId()),
+				TerminiDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
+		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(instanciaProcesId);
+		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public TerminiIniciatDto findIniciatAmbId(Long id) {
+		return conversioTipusHelper.convertir(terminiIniciatRepository.findById(id), TerminiIniciatDto.class);
+	}
 	
 	private Date getDataFiTermini(
 			Date inici,
@@ -276,7 +304,7 @@ public class TerminiServiceImpl implements TerminiService {
 	public void pausar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
-			throw new IllegalStateException( getMessage("error.terminiService.noIniciat") );
+			throw new IllegalStateException( messageHelper.getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
@@ -295,7 +323,7 @@ public class TerminiServiceImpl implements TerminiService {
 	public void continuar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataAturada() == null)
-			throw new IllegalStateException( getMessage("error.terminiService.noPausat") );
+			throw new IllegalStateException( messageHelper.getMessage("error.terminiService.noPausat") );
 		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
 		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
 		terminiIniciat.setDataAturada(null);
@@ -316,7 +344,7 @@ public class TerminiServiceImpl implements TerminiService {
 	public void cancelar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
-			throw new IllegalStateException( getMessage("error.terminiService.noIniciat") );
+			throw new IllegalStateException( messageHelper.getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
@@ -374,11 +402,6 @@ public class TerminiServiceImpl implements TerminiService {
 				equals);		
 	}
 	
-	@Autowired
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
-	}
-	
 	private int[] getDiesNoLaborables() {
 		String nolabs = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
 		if (nolabs != null) {
@@ -424,20 +447,5 @@ public class TerminiServiceImpl implements TerminiService {
 				expedientId.toString());
 		registre.setProcessInstanceId(processInstanceId);
 		return registreRepository.save(registre);
-	}
-		
-	protected String getMessage(String key, Object[] vars) {
-		try {
-			return messageSource.getMessage(
-					key,
-					vars,
-					null);
-		} catch (NoSuchMessageException ex) {
-			return "???" + key + "???";
-		}
-	}
-
-	protected String getMessage(String key) {
-		return getMessage(key, null);
 	}
 }

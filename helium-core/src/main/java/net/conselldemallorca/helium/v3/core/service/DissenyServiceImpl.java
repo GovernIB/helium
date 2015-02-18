@@ -36,18 +36,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
-import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -59,7 +54,6 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
@@ -76,16 +70,12 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Resource
 	private EntornRepository entornRepository;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private JbpmHelper jbpmHelper;
-	@Resource
-	private VariableHelper variableHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -110,8 +100,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private CampTascaRepository campTascaRepository;
 	@Resource
 	private AccioRepository accioRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
 	@Resource
 	private AreaRepository areaRepository;
 
@@ -496,27 +484,5 @@ public class DissenyServiceImpl implements DissenyService {
 				}
 			}
 		}
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		InstanciaProcesDto instanciaProces = dtoConverter.toInstanciaProcesDto(instanciaProcesId);
-		return conversioTipusHelper.convertirList(
-				terminiRepository.findByDefinicioProcesId(instanciaProces.getDefinicioProces().getId()),
-				TerminiDto.class);
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(instanciaProcesId);
-		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public TerminiIniciatDto findIniciatAmbId(Long id) {
-		return conversioTipusHelper.convertir(terminiIniciatRepository.findById(id), TerminiIniciatDto.class);
 	}
 }

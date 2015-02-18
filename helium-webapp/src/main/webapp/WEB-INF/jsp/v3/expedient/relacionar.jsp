@@ -25,7 +25,7 @@
 		<form:form id="relacionarExpediente" name="relacionarExpedient" action="relacionarExpediente" method="post" commandName="relacionarCommand" cssClass="uniForm">
 			<hel:inputSuggest name="expedientIdDesti" urlConsultaLlistat="expedient/suggest" urlConsultaInicial="expedient/suggest" textKey="expedient.info.relacionar.amb" placeholderKey="expedient.info.relacionar.amb"/>
 			<div id="modal-botons">
-				<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 					<spring:message code='comuns.cancelar' />
 				</button>
 				<button type="submit" class="btn btn-primary"><spring:message code="expedient.info.relacionar"/></button>

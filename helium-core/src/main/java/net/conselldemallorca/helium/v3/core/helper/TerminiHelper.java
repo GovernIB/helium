@@ -37,15 +37,12 @@ public class TerminiHelper {
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
 	private FestiuRepository festiuRepository;
-
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MessageHelper messageHelper;
-
-
 
 	public TerminiIniciatDto iniciar(
 			Long terminiId,
@@ -341,5 +338,4 @@ public class TerminiHelper {
 					timerIds[i],
 					terminiIniciat.getDataFi());
 	}
-
 }

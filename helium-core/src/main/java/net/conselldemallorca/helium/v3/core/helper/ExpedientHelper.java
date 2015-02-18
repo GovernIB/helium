@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -26,8 +27,12 @@ import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -60,7 +65,68 @@ public class ExpedientHelper {
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
+	private PersonaHelper personaHelper;	
+	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
+	
+	public ExpedientDto toExpedientDto(Expedient expedient) {
+		ExpedientDto dto = new ExpedientDto();
+		dto.setId(expedient.getId());
+		dto.setProcessInstanceId(expedient.getProcessInstanceId());
+		dto.setTitol(expedient.getTitol());
+		dto.setNumero(expedient.getNumero());
+		dto.setNumeroDefault(expedient.getNumeroDefault());
+		dto.setComentari(expedient.getComentari());
+		dto.setInfoAturat(expedient.getInfoAturat());
+		dto.setComentariAnulat(expedient.getComentariAnulat());
+		dto.setAnulat(expedient.isAnulat());
+		dto.setDataInici(expedient.getDataInici());
+		dto.setIniciadorCodi(expedient.getIniciadorCodi());
+		dto.setIniciadorTipus(conversioTipusHelper.convertir(expedient.getIniciadorTipus(), IniciadorTipusDto.class));
+		dto.setResponsableCodi(expedient.getResponsableCodi());
+		dto.setGrupCodi(expedient.getGrupCodi());
+		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
+			if (expedient.getIniciadorCodi() != null)
+				dto.setIniciadorPersona(personaHelper.findAmbCodi(expedient.getIniciadorCodi()));
+			if (expedient.getResponsableCodi() != null)
+				dto.setResponsablePersona(personaHelper.findAmbCodi(expedient.getResponsableCodi()));
+		}
+		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
+			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());
+		dto.setTipus(conversioTipusHelper.convertir(expedient.getTipus(), ExpedientTipusDto.class));
+		dto.setEntorn(conversioTipusHelper.convertir(expedient.getEntorn(), EntornDto.class));
+		if (expedient.getEstat() != null)
+			dto.setEstat(conversioTipusHelper.convertir(expedient.getEstat(), EstatDto.class));
+		dto.setGeoPosX(expedient.getGeoPosX());
+		dto.setGeoPosY(expedient.getGeoPosY());
+		dto.setGeoReferencia(expedient.getGeoReferencia());
+		dto.setRegistreNumero(expedient.getRegistreNumero());
+		dto.setRegistreData(expedient.getRegistreData());
+		dto.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
+		dto.setIdioma(expedient.getIdioma());
+		dto.setAutenticat(expedient.isAutenticat());
+		dto.setTramitadorNif(expedient.getTramitadorNif());
+		dto.setTramitadorNom(expedient.getTramitadorNom());
+		dto.setInteressatNif(expedient.getInteressatNif());
+		dto.setInteressatNom(expedient.getInteressatNom());
+		dto.setRepresentantNif(expedient.getRepresentantNif());
+		dto.setRepresentantNom(expedient.getRepresentantNom());
+		dto.setAvisosHabilitats(expedient.isAvisosHabilitats());
+		dto.setAvisosEmail(expedient.getAvisosEmail());
+		dto.setAvisosMobil(expedient.getAvisosMobil());
+		dto.setErrorDesc(expedient.getErrorDesc());
+		dto.setErrorFull(expedient.getErrorFull());
+		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
+		dto.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
+		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
+		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
+		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());		
+		dto.setDataFi(expedient.getDataFi());
+		
+		return dto;
+	}
 
 	public Expedient getExpedientComprovantPermisos(
 			Long id,

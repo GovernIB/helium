@@ -109,8 +109,6 @@ public class PlantillaHelper {
 	private CarrecJbpmIdDao carrecJbpmIdDao;
 	@Resource
 	private DominiDao dominiDao;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -138,7 +136,7 @@ public class PlantillaHelper {
 			if (taskInstanceId != null) {
 				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-				expedientDto = dtoConverter.toExpedientDto(expedient);
+				expedientDto = expedientHelper.toExpedientDto(expedient);
 				tasca = tascaHelper.getExpedientTascaDto(
 						task,
 						expedient,
@@ -147,7 +145,7 @@ public class PlantillaHelper {
 				responsableCodi = task.getAssignee();
 			} else {
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-				expedientDto = dtoConverter.toExpedientDto(expedient);
+				expedientDto = expedientHelper.toExpedientDto(expedient);
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				responsableCodi = auth.getName();
 			}

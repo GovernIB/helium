@@ -17,8 +17,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 
@@ -117,12 +115,6 @@ public interface DissenyService {
 	public AccioDto findAccioAmbId(Long idAccio);
 
 	public void executarAccio(AccioDto accio, ExpedientDto expedient);
-
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId);
-
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId);
-
-	public TerminiIniciatDto findIniciatAmbId(Long id);
 
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId);
 

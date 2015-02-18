@@ -75,8 +75,8 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<TerminiDto> terminisInstanciaProces = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				terminisInstanciaProces = dissenyService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId());
-				iniciats.put(instanciaProces.getId(), dissenyService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
+				terminisInstanciaProces = terminiService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId());
+				iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
 			}
 			terminis.put(instanciaProces, terminisInstanciaProces);
 		}
@@ -99,8 +99,8 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
-		terminis.put(instanciaProces, dissenyService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId()));
-		iniciats.put(instanciaProces.getId(), dissenyService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
+		terminis.put(instanciaProces, terminiService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId()));
+		iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("terminis",terminis);
 		model.addAttribute("iniciats",iniciats);
@@ -189,7 +189,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long terminiId,
 			Model model) {
-		TerminiIniciatDto terminiIniciat = dissenyService.findIniciatAmbId(terminiId);
+		TerminiIniciatDto terminiIniciat = terminiService.findIniciatAmbId(terminiId);
 		ExpedientTerminiModificarCommand expedientTerminiModificarCommand = new ExpedientTerminiModificarCommand();
 		expedientTerminiModificarCommand.setTerminiId(terminiId);
 		expedientTerminiModificarCommand.setNom(terminiIniciat.getTermini().getNom());
@@ -231,7 +231,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		try {
 			Date inicio = null;
 			if (TerminiModificacioTipus.DURADA.name().equals(expedientTerminiModificarCommand.getTipus())) {
-				TerminiIniciatDto terminiIniciat = dissenyService.findIniciatAmbId(terminiId);
+				TerminiIniciatDto terminiIniciat = terminiService.findIniciatAmbId(terminiId);
 				inicio = terminiIniciat.getDataInici();
 			} else if (TerminiModificacioTipus.DATA_INICI.name().equals(expedientTerminiModificarCommand.getTipus())) {
 				inicio = expedientTerminiModificarCommand.getDataInici();

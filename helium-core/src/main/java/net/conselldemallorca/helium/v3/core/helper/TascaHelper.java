@@ -8,10 +8,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.PluginPersonaDao;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -30,13 +31,15 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter.DadesCacheTasca;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
@@ -61,9 +64,11 @@ public class TascaHelper {
 	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
 
 	@Resource
-	TascaRepository tascaRepository;
+	private TascaRepository tascaRepository;
 	@Resource
-	DefinicioProcesRepository definicioProcesRepository;
+	private AdminService adminService;
+	@Resource
+	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	RegistreRepository registreRepository;
 	@Resource
@@ -80,10 +85,6 @@ public class TascaHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
-	@Resource
-	private PluginPersonaDao pluginPersonaDao;
 
 	public JbpmTask getTascaComprovacionsTramitacio(
 			String id,
@@ -118,6 +119,136 @@ public class TascaHelper {
 			}
 		}
 		return task;
+	}
+	
+	public DadesCacheTasca getDadesCacheTasca(
+			JbpmTask task,
+			Expedient expedient) {
+		DadesCacheTasca dadesCache = null;
+		if (!task.isCacheActiu()) {
+			if (expedient == null)
+				expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+					task.getProcessDefinitionId());
+			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+					task.getName(),
+					definicioProces);
+			String titol = tasca.getNom();
+			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
+				titol = getTitolPerTasca(task, tasca);
+			task.setFieldFromDescription(
+					"entornId",
+					expedient.getEntorn().getId().toString());
+			task.setFieldFromDescription(
+					"titol",
+					titol);
+			task.setFieldFromDescription(
+					"identificador",
+					expedient.getIdentificador());
+			task.setFieldFromDescription(
+					"identificadorOrdenacio",
+					expedient.getIdentificadorOrdenacio());
+			task.setFieldFromDescription(
+					"numeroIdentificador",
+					expedient.getNumeroIdentificador());
+			task.setFieldFromDescription(
+					"expedientTipusId",
+					expedient.getTipus().getId().toString());
+			task.setFieldFromDescription(
+					"expedientTipusNom",
+					expedient.getTipus().getNom());
+			task.setFieldFromDescription(
+					"processInstanceId",
+					expedient.getProcessInstanceId());
+			task.setFieldFromDescription(
+					"tramitacioMassiva",
+					new Boolean(tasca.isTramitacioMassiva()).toString());
+			task.setFieldFromDescription(
+					"definicioProcesJbpmKey",
+					tasca.getDefinicioProces().getJbpmKey());
+			task.setCacheActiu();
+			jbpmHelper.describeTaskInstance(
+					task.getId(),
+					titol,
+					task.getDescriptionWithFields());
+		}
+		dadesCache = new DadesCacheTasca(
+				new Long(task.getFieldFromDescription("entornId")),
+				task.getFieldFromDescription("titol"),
+				task.getFieldFromDescription("identificador"),
+				task.getFieldFromDescription("identificadorOrdenacio"),
+				task.getFieldFromDescription("numeroIdentificador"),
+				new Long(task.getFieldFromDescription("expedientTipusId")),
+				task.getFieldFromDescription("expedientTipusNom"),
+				task.getFieldFromDescription("processInstanceId"),
+				new Boolean(task.getFieldFromDescription("tramitacioMassiva")).booleanValue(),
+				task.getFieldFromDescription("definicioProcesJbpmKey"));
+		return dadesCache;
+	}
+
+	public class DadesCacheTasca {
+		private Long entornId;
+		private String titol;
+		private String identificador;
+		private String identificadorOrdenacio;
+		private String numeroIdentificador;
+		private Long expedientTipusId;
+		private String expedientTipusNom;
+		private String processInstanceId;
+		private boolean tramitacioMassiva;
+		private String definicioProcesJbpmKey;
+		public DadesCacheTasca(
+				Long entornId,
+				String titol,
+				String identificador,
+				String identificadorOrdenacio,
+				String numeroIdentificador,
+				Long expedientTipusId,
+				String expedientTipusNom,
+				String processInstanceId,
+				boolean tramitacioMassiva,
+				String definicioProcesJbpmKey) {
+			this.entornId = entornId;
+			this.titol = titol;
+			this.identificador = identificador;
+			this.identificadorOrdenacio = identificadorOrdenacio;
+			this.numeroIdentificador = numeroIdentificador;
+			this.expedientTipusId = expedientTipusId;
+			this.expedientTipusNom = expedientTipusNom;
+			this.processInstanceId = processInstanceId;
+			this.tramitacioMassiva = tramitacioMassiva;
+			this.definicioProcesJbpmKey = definicioProcesJbpmKey;
+		}
+		public Long getEntornId() {
+			return entornId;
+		}
+		public String getTitol() {
+			return titol;
+		}
+		public String getIdentificador() {
+			return identificador;
+		}
+		public String getIdentificadorOrdenacio() {
+			return identificadorOrdenacio;
+		}
+		public String getNumeroIdentificador() {
+			return numeroIdentificador;
+		}
+		public Long getExpedientTipusId() {
+			return expedientTipusId;
+		}
+		public String getExpedientTipusNom() {
+			return expedientTipusNom;
+		}
+		public String getProcessInstanceId() {
+			return processInstanceId;
+		}
+		public boolean isTramitacioMassiva() {
+			return tramitacioMassiva;
+		}
+		public String getDefinicioProcesJbpmKey() {
+			return definicioProcesJbpmKey;
+		}
 	}
 
 	public JbpmTask getTascaComprovacionsExpedient(
@@ -194,6 +325,89 @@ public class TascaHelper {
 		return resposta;
 	}
 
+	private List<String> getCampsExpressioTitol(String expressio) {
+		List<String> resposta = new ArrayList<String>();
+		String[] parts = expressio.split("\\$\\{");
+		for (String part: parts) {
+			int index = part.indexOf("}");
+			if (index != -1)
+				resposta.add(part.substring(0, index));
+		}
+		return resposta;
+	}
+
+	public ExpedientTascaDto toTascaInicialDto(
+			String startTaskName,
+			String jbpmId,
+			Map<String, Object> valors) {
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+				startTaskName,
+				jbpmId);
+		ExpedientTascaDto dto = new ExpedientTascaDto();
+		dto.setTitol(tasca.getNom());
+		dto.setTascaTipus(
+				conversioTipusHelper.convertir(
+						tasca.getTipus(),
+						ExpedientTascaDto.TascaTipusDto.class));
+		dto.setJbpmName(tasca.getJbpmName());
+		dto.setValidada(false);
+		dto.setDocumentsComplet(false);
+		dto.setTascaId(tasca.getId());
+		dto.setSignaturesComplet(false);
+		/*dto.setDefinicioProces(
+				conversioTipusHelper.convertir(
+						tasca.getDefinicioProces(), DefinicioProcesDto.class));*/
+		dto.setOutcomes(jbpmHelper.findStartTaskOutcomes(jbpmId, startTaskName));
+		dto.setTascaFormExternCodi(tasca.getFormExtern());
+		return dto;
+	}
+
+	public String getTitolPerTasca(
+			JbpmTask task,
+			Tasca tasca) {
+		String titol = null;
+		if (tasca != null) {
+			Map<String, Object> textPerCamps = new HashMap<String, Object>();
+			titol = tasca.getNom();
+			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
+				List<String> campsExpressio = getCampsExpressioTitol(tasca.getNomScript());
+				Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(task.getId());
+				valors.putAll(jbpmHelper.getProcessInstanceVariables(task.getProcessInstanceId()));
+				for (String campCodi: campsExpressio) {
+					Set<Camp> campsDefinicioProces = tasca.getDefinicioProces().getCamps();
+					for (Camp camp: campsDefinicioProces) {
+						if (camp.getCodi().equals(campCodi)) {
+							TascaDadaDto tascaDada = variableHelper.findDadaPerInstanciaTasca(
+									task,
+									campCodi);
+							if (tascaDada != null && tascaDada.getText() != null) {
+								textPerCamps.put(
+										campCodi,
+										tascaDada.getText());
+							} else if (tascaDada == null) {
+								ExpedientDadaDto valor = variableHelper.getDadaPerInstanciaProces(task.getProcessInstanceId(), campCodi);
+								textPerCamps.put(campCodi,(valor == null) ? null : valor.getText());
+							}
+							break;
+						}
+					}
+				}
+				try {
+					titol = (String)jbpmHelper.evaluateExpression(
+							task.getId(),
+							task.getProcessInstanceId(),
+							tasca.getNomScript(),
+							textPerCamps);
+				} catch (Exception ex) {
+					logger.error("No s'ha pogut evaluar l'script per canviar el titol de la tasca", ex);
+				}
+			}
+		} else {
+			titol = task.getName();
+		}
+		return titol;
+	}
+
 	public void createDadesTasca(Long taskId) {
 		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
 		Expedient expedientPerTasca = expedientHelper.findExpedientByProcessInstanceId(
@@ -203,7 +417,7 @@ public class TascaHelper {
 				task.getProcessDefinitionId());
 		String titol = tasca.getNom();
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-			titol = dtoConverter.getTitolPerTasca(task, tasca);
+			titol = getTitolPerTasca(task, tasca);
 		task.setFieldFromDescription(
 				"entornId",
 				expedientPerTasca.getEntorn().getId().toString());
@@ -419,7 +633,7 @@ public class TascaHelper {
 			boolean perTramitacio) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		dto.setId(task.getId());
-		DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(
+		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
 				task,
 				expedient);
 		dto.setTitol(dadesCacheTasca.getTitol());
@@ -472,11 +686,7 @@ public class TascaHelper {
 				} else {
 					tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
 				}			
-				dto.setDelegacioPersona(
-						conversioTipusHelper.convertir(
-								pluginPersonaDao.findAmbCodiPlugin(
-										tascaDelegacio.getAssignee()),
-										PersonaDto.class));
+				dto.setDelegacioPersona(adminService.findPersonaAmbCodi(tascaDelegacio.getAssignee()));
 			}
 			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
 			if (definicioProces != null) {
@@ -495,21 +705,24 @@ public class TascaHelper {
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
 		if (task.getAssignee() != null) {
 			dto.setResponsable(
-					dtoConverter.getResponsableTasca(task.getAssignee()));
-		}
-		if (task.getPooledActors() != null && task.getPooledActors().size() > 0) {
-			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-			for (String pooledActor: task.getPooledActors())
-				responsables.add(
-						dtoConverter.getResponsableTasca(pooledActor));
-			dto.setResponsables(responsables);
+					adminService.findPersonaAmbCodi(task.getAssignee()));
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null && task.getAssignee() != null) {
-			dto.setAssignadaUsuariActual(task.getAssignee().equals(auth.getName()));
-		} else {
-			dto.setAssignadaUsuariActual(false);
+		if (task.getPooledActors() != null && task.getPooledActors().size() > 0) {
+			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+			for (String pooledActor: task.getPooledActors()) {
+				PersonaDto persona = adminService.findPersonaAmbCodi(pooledActor);
+				if (persona != null) {
+					if (auth.getName().equals(pooledActor))
+						dto.setAssignadaUsuariActual(true);
+					responsables.add(persona);
+				}
+			}
+			dto.setResponsables(responsables);
 		}
+		if (auth != null && task.getPooledActors().size() > 0 && task.getAssignee() != null) {
+			dto.setAssignadaUsuariActual(task.getAssignee().equals(auth.getName()));
+		} 
 		return dto;
 	}
 

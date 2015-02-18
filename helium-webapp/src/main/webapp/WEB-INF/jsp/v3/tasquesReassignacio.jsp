@@ -135,7 +135,7 @@
 			</div>				
 					
 			<div id="modal-botons">
-				<button type="button" class="modal-tancar btn" name="submit" value="cancel">
+				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 					<spring:message code='comuns.cancelar' />
 				</button>
 				<button type="submit" class="btn btn-primary"><spring:message code="comuns.reassignar"/></button>

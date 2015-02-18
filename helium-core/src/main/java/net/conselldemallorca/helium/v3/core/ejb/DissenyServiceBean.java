@@ -21,8 +21,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -163,24 +161,6 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void executarAccio(AccioDto accio, ExpedientDto expedient) {
 		delegate.executarAccio(accio, expedient);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TerminiIniciatDto findIniciatAmbId(Long id) {
-		return delegate.findIniciatAmbId(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		return delegate.findIniciatsAmbExpedientId(expedientId, instanciaProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		return delegate.findTerminisAmbExpedientId(expedientId, instanciaProcesId);
 	}
 
 	@Override

@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
@@ -95,13 +96,14 @@ import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundExcep
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
 import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -180,6 +182,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
+	private ConsultaHelper consultaHelper;
+	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
@@ -187,6 +191,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private AccioRepository accioRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private MessageHelper messageHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -203,8 +209,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name="dtoConverterV3")
-	private DtoConverter dtoConverter;
+	@Resource(name="serviceUtilsV3")
+	private ServiceUtils serviceUtils;
 	@Resource
 	private LuceneHelper luceneHelper;
 	@Resource(name="permisosHelperV3")
@@ -215,8 +221,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
 	@Resource
 	private PluginCustodiaDao pluginCustodiaDao;
 	@Resource
@@ -358,7 +362,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedientTipus.getId(),
 					expedient.getNumero()) != null)) {
 				throw new ExpedientRepetitException(
-						serviceUtils.getMessage(
+						messageHelper.getMessage(
 								"error.expedientService.jaExisteix",
 								new Object[]{expedient.getNumero()}) );
 			}
@@ -963,7 +967,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExtendedPermission.ADMINISTRATION},
 				auth);
 		if (tipusPermesos.isEmpty())
-			throw new Exception(serviceUtils.getMessage("error.expedientService.noExisteix.tipus"));
+			throw new Exception(messageHelper.getMessage("error.expedientService.noExisteix.tipus"));
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
@@ -2175,13 +2179,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
-		return dtoConverter.toInstanciaProcesDto(processInstanceId);
+		InstanciaProcesDto dto = new InstanciaProcesDto();
+		dto.setId(processInstanceId);
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (pi.getProcessInstance() == null)
+			return null;
+		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
+		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
+		return dto;
 	}
 	
 	@Override
 	@Transactional(readOnly=true)
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
-		return dtoConverter.toCampInstanciaProcesDto(processInstanceId);
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
+		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
 
 	@Override
@@ -2325,7 +2339,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
 		Consulta consulta = consultaRepository.findById(consultaId);		
 		
-		List<TascaDadaDto> listTascaDada = serviceUtils.findCampsPerCampsConsulta(
+		List<TascaDadaDto> listTascaDada = consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.FILTRE);
 		
@@ -2344,7 +2358,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId) {
 		Consulta consulta = consultaRepository.findById(consultaId);
-		return serviceUtils.findCampsPerCampsConsulta(
+		return consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.INFORME);
 	}
@@ -2353,7 +2367,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
 		Consulta consulta = consultaRepository.findById(consultaId);
-		return serviceUtils.findCampsPerCampsConsulta(
+		return consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.PARAM);
 	}
@@ -2371,11 +2385,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesTasquesGrup) {
 		Consulta consulta = consultaRepository.findById(consultaId);		
 		
-		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
+		List<Camp> campsFiltre = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.FILTRE));
 		
-		List<Camp> campsInforme = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
+		List<Camp> campsInforme = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.INFORME));
 		
@@ -2422,10 +2436,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
 			Expedient expedient = expedientRepository.findOne(Long.parseLong(dadaExpedientId.getValorIndex()));
 			if (expedient != null) {
-				ExpedientDto expedientDto = dtoConverter.toExpedientDto(expedient);
+				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
 				expedientHelper.omplirPermisosExpedient(expedientDto);
 				fila.setExpedient(expedientDto);
-				dtoConverter.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
 						dadesExpedient,
 						campsInforme,
 						expedient);
@@ -2460,7 +2474,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesTasquesGrup) {
 		Consulta consulta = consultaRepository.findById(consultaId);
 		
-		List<Camp> campsFiltre = dtoConverter.toListCamp(serviceUtils.findCampsPerCampsConsulta(
+		List<Camp> campsFiltre = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
 				consulta,
 				TipusConsultaCamp.FILTRE));
 		
@@ -2682,7 +2696,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		String startTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
 		if (startTaskName != null) {
-			return dtoConverter.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);
+			return tascaHelper.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);
 		}
 		return null;
 	}

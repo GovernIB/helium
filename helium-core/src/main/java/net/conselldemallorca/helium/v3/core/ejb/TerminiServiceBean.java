@@ -7,6 +7,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 
@@ -54,5 +55,23 @@ public class TerminiServiceBean implements TerminiService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void modificar(Long terminiId, Long expedientId, Date inicio, int anys, int mesos, int dies, boolean equals) {
 		delegate.modificar(terminiId, expedientId, inicio, anys, mesos, dies, equals);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiIniciatDto findIniciatAmbId(Long id) {
+		return delegate.findIniciatAmbId(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
+		return delegate.findIniciatsAmbExpedientId(expedientId, instanciaProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId) {
+		return delegate.findTerminisAmbExpedientId(expedientId, instanciaProcesId);
 	}
 }
