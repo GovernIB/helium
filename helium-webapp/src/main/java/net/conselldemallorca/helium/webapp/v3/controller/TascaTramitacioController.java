@@ -713,9 +713,11 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		}
 		model.addAttribute("dades", dades);
-		if (tasca.getRecursForm() != null && tasca.getRecursForm().length() > 0) {
+		if (tasca.getTascaRecursForm() != null && tasca.getTascaRecursForm().length() > 0) {
 			try {
-				byte[] contingut = dissenyService.getDeploymentResource(tasca.getDefinicioProces().getId(), tasca.getRecursForm());
+				byte[] contingut = dissenyService.getDeploymentResource(
+						tasca.getDefinicioProcesId(),
+						tasca.getTascaRecursForm());
 				model.addAttribute("formRecursParams", getFormRecursParams(new String(contingut, "UTF-8")));
 			} catch (Exception ex) {
 				logger.error("No s'han pogut extreure els parametres del recurs", ex);

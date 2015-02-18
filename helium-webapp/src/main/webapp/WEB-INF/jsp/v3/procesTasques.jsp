@@ -118,8 +118,8 @@ div.procesTasca:hover {
 									<c:set var="hiHaPendents" value="0"/>
 									<c:set var="hiHaNoPendents" value="0"/>
 									<c:forEach var="tasca" items="${dadesProces.value}">
-										<c:if test="${tasca.oberta}"><c:set var="hiHaPendents" value="${hiHaPendents + 1}"/></c:if>
-										<c:if test="${not tasca.oberta}"><c:set var="hiHaNoPendents" value="${hiHaNoPendents + 1}"/></c:if>
+										<c:if test="${tasca.open}"><c:set var="hiHaPendents" value="${hiHaPendents + 1}"/></c:if>
+										<c:if test="${not tasca.open}"><c:set var="hiHaNoPendents" value="${hiHaNoPendents + 1}"/></c:if>
 									</c:forEach>
 									<c:set var="hiHaPendents" value="${hiHaPendents}" scope="request"/>
 									<c:set var="hiHaNoPendents" value="${hiHaNoPendents}" scope="request"/>

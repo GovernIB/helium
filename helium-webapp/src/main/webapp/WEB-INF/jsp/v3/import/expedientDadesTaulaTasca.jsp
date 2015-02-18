@@ -6,7 +6,7 @@
 
 <c:set var="tasca" value="${dada}"/>
 
-<c:if test="${hiHaPendents gt 0 and tasca.oberta}">
+<c:if test="${hiHaPendents gt 0 and tasca.open}">
 	<c:if test="${contHiHaPendents == 0}">
 	<td class="dadesTaulaTasca"><tr class="dadesTaulaTascaTr"><td class="dadesTaulaTascaTd" colspan="3">
 	<table id="tasques-pendents-meves" class="dataTable table table-bordered table-hover">
@@ -29,13 +29,13 @@
 				<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
 			</c:if>
 			<div class="pull-right">
-				<c:if test="${tasca.cancelada}">
+				<c:if test="${tasca.cancelled}">
 					<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
 				</c:if>
-				<c:if test="${tasca.suspesa}">
+				<c:if test="${tasca.suspended}">
 					<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 				</c:if>
-				<c:if test="${tasca.oberta}">
+				<c:if test="${tasca.open}">
 					<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>">PD</span>
 				</c:if>
 				<c:if test="${tasca.completed}">
@@ -44,40 +44,40 @@
 				<c:if test="${tasca.agafada}">
 					<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 				</c:if>
-				<c:if test="${not tasca.completed and tasca.tramitacioMassiva}">
+				<c:if test="${not tasca.completed and tasca.tascaTramitacioMassiva}">
 					<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
 				</c:if>
 			</div>
 		</td>
 		<td>${tasca.responsableString}</td>
-		<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
-		<td><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>		 
+		<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
+		<td><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>		 
 		<td>
 			<div class="btn-group">
 				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
 				<ul id="dropdown-menu-${tasca.id}" class="dropdown-menu">
-					<c:if test="${tasca.oberta and not tasca.suspesa}">
-						<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+					<c:if test="${tasca.open and not tasca.suspended}">
+						<c:if test="${tasca.assignee == dadesPersona.codi}">
 							<li><a id="tramitar-tasca-${tasca.id}" href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
-							<c:if test="${tasca.tramitacioMassiva}">
+							<c:if test="${tasca.tascaTramitacioMassiva}">
 								<li><a href="../../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 							</c:if>
 						</c:if>
-						<c:if test="${not tasca.agafada and not empty tasca.responsables and tasca.assignadaPersona}">
+						<c:if test="${not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
 							<li><a data-rdt-link-callback="agafar(${procesId},${tasca.id});" data-rdt-link-ajax=true class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 						</c:if>
 						<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
 					</c:if>
-					<c:if test="${tasca.oberta}">
+					<c:if test="${tasca.open}">
 						<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
 					</c:if>
-					<c:if test="${tasca.suspesa}">
+					<c:if test="${tasca.suspended}">
 						<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li></c:if>
 					</c:if>
-					<c:if test="${not tasca.completed and not tasca.cancelada}">
+					<c:if test="${not tasca.completed and not tasca.cancelled}">
 						<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li></c:if>
 					</c:if>
-					<c:if test="${not empty tasca.responsables and tasca.responsableCodi == dadesPersona.codi and tasca.oberta}">
+					<c:if test="${not empty tasca.responsables and tasca.responsableCodi == dadesPersona.codi and tasca.open}">
 						<c:if test="${expedient.permisSupervision}"><li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar(${procesId},${tasca.id});" href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li></c:if>
 					</c:if>
 				</ul>
@@ -115,7 +115,7 @@
 	</c:if>
 </c:if>
 
-<c:if test="${hiHaNoPendents gt 0 and not tasca.oberta}">
+<c:if test="${hiHaNoPendents gt 0 and not tasca.open}">
 	<c:if test="${contHiHaNoPendents == 0}">
 	<td class="dadesTaulaTasca" colspan="5"><tr class="dadesTaulaTascaTr"><td class="dadesTaulaTascaTd td-finalitzats" colspan="5">
 	<div class="panel panel-default">
@@ -150,8 +150,8 @@
 				<c:otherwise></c:otherwise>
 			</c:choose>
 		</td>
-		<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></td>
-		<td><fmt:formatDate value="${tasca.dataFi}" pattern="dd/MM/yyyy HH:mm"/></td>
+		<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
+		<td><fmt:formatDate value="${tasca.endTime}" pattern="dd/MM/yyyy HH:mm"/></td>
 	</tr>
 	<c:if test="${contHiHaNoPendents == hiHaNoPendents}">
 		</tbody>
@@ -175,7 +175,7 @@
 	</c:if>
 </c:if>
 
-<c:if test="${not (hiHaPendents gt 0 and tasca.oberta) and contHiHaPendents == 0}">
+<c:if test="${not (hiHaPendents gt 0 and tasca.open) and contHiHaPendents == 0}">
 	<script type="text/javascript">
 	// <![CDATA[			
 	$(document).ready(function() {

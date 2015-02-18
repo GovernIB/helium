@@ -38,12 +38,12 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -53,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.v3.core.helper.DtoConverter;
-import net.conselldemallorca.helium.v3.core.helper.DtoConverter.DadesCacheTasca;
 import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
@@ -155,7 +154,10 @@ public class TascaServiceImpl implements TascaService {
 		JbpmTask task = tascaHelper.getTascaComprovacionsExpedient(
 				id,
 				expedient);
-		return tascaHelper.getExpedientTascaDto(task);
+		return tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				true);
 	}
 
 	@Override
@@ -168,7 +170,10 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				true,
 				true);
-		return tascaHelper.getExpedientTascaCompleteDto(task);
+		return tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				true);
 	}
 
 	@Override
@@ -398,15 +403,17 @@ public class TascaServiceImpl implements TascaService {
 				mostrarTasquesPersonals,
 				mostrarTasquesGrup,
 				true);
-		
 		if (consultaTramitacioMassivaTascaId != null) {			
 			// Filtra les tasques per mostrar només les del entorn seleccionat
-			for (JbpmTask taska: jbpmHelper.findPersonalTasks(usuari)) {
-				DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(taska, null);
-				if (ids.getIds().contains(Long.parseLong(taska.getId())))			
-					expedientTasques.add(tascaHelper.getExpedientTascaCacheDto(taska, dadesCacheTasca));
+			for (JbpmTask task: jbpmHelper.findPersonalTasks(usuari)) {
+				//DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(task, null);
+				if (ids.getIds().contains(Long.parseLong(task.getId())))			
+					expedientTasques.add(
+							tascaHelper.getExpedientTascaDto(
+									task,
+									null,
+									false));
 			}
-			
 			ids.setCount(expedientTasques.size());
 		}
 		return getPaginaExpedientTascaDto(ids, expedientTasques, paginacioParams);
@@ -471,7 +478,11 @@ public class TascaServiceImpl implements TascaService {
 				List<ExpedientTascaDto> tasques = expedientTasques;
 				if (tasques.isEmpty()) {
 					for (JbpmTask tasca : jbpmHelper.findTasks(ids.getIds())) {
-						tasques.add(tascaHelper.getExpedientTascaDto(tasca));
+						tasques.add(
+								tascaHelper.getExpedientTascaDto(
+										tasca,
+										null,
+										false));
 					}
 				}
 				Collections.sort(tasques, comparador);
@@ -505,9 +516,9 @@ public class TascaServiceImpl implements TascaService {
 							result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
 					} else if ("dataCreacio".equals(finalSort)) {
 						if (finalAsc)
-							result = nullComparator.compare(t1.getDataCreacio(), t2.getDataCreacio());
+							result = nullComparator.compare(t1.getCreateTime(), t2.getCreateTime());
 						else
-							result = nullComparator.compare(t2.getDataCreacio(), t1.getDataCreacio());
+							result = nullComparator.compare(t2.getCreateTime(), t1.getCreateTime());
 					} else if ("prioritat".equals(finalSort)) {
 						if (finalAsc)
 							result = t1.getPriority() - t2.getPriority();
@@ -515,9 +526,9 @@ public class TascaServiceImpl implements TascaService {
 							result = t2.getPriority() - t1.getPriority();
 					} else if ("dataLimit".equals(finalSort)) {
 						if (finalAsc)
-							result = nullComparator.compare(t1.getDataLimit(), t2.getDataLimit());
+							result = nullComparator.compare(t1.getDueDate(), t2.getDueDate());
 						else
-							result = nullComparator.compare(t2.getDataLimit(), t1.getDataLimit());
+							result = nullComparator.compare(t2.getDueDate(), t1.getDueDate());
 					}
 					return result;
 				}
@@ -551,7 +562,10 @@ public class TascaServiceImpl implements TascaService {
 		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
 		for (Long id : ids) {
 			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(id));
-			expedientTasques.add(tascaHelper.getExpedientTascaDto(task));
+			expedientTasques.add(tascaHelper.getExpedientTascaDto(
+					task,
+					null,
+					false));
 		}
 		return expedientTasques;
 	}
@@ -752,7 +766,7 @@ public class TascaServiceImpl implements TascaService {
 				false,
 				true);
 		// TODO contemplar el cas que no faci falta que l'usuari
-		// estigui als pooleActors
+		// estigui als pooledActors
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> pooledActors = task.getPooledActors();
 		if (!pooledActors.contains(auth.getName())) {
@@ -774,7 +788,10 @@ public class TascaServiceImpl implements TascaService {
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				false);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
 				id,
@@ -805,7 +822,10 @@ public class TascaServiceImpl implements TascaService {
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				false);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
 				id,
@@ -978,7 +998,10 @@ public class TascaServiceImpl implements TascaService {
 		jbpmHelper.startTaskInstance(id);
 		jbpmHelper.setTaskInstanceVariables(id, variables, false);
 		tascaHelper.validarTasca(id);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				false);
 		Registre registre = new Registre(
 				new Date(),
 				tasca.getExpedientId(),
@@ -1016,7 +1039,10 @@ public class TascaServiceImpl implements TascaService {
 					"validada");
 		}
 		tascaHelper.restaurarTasca(id);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				false);
 		Registre registre = new Registre(
 				new Date(),
 				tasca.getExpedientId(),
@@ -1094,7 +1120,10 @@ public class TascaServiceImpl implements TascaService {
 			verificarFinalitzacioExpedient(expedient, pi);
 		}
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(task);
+		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+				task,
+				null,
+				false);
 		Registre registre = new Registre(
 				new Date(),
 				tasca.getExpedientId(),

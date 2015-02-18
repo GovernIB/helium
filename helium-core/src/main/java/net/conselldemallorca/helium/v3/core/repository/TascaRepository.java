@@ -28,25 +28,28 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 			"where " +
 			" t.definicioProces.id in (:ids)" +
 			" order by t.nom asc")
-	public List<Object[]> findIdNomByDefinicioProcesIdsOrderByNomAsc(@Param("ids") List<Long> ids);
+	public List<Object[]> findIdNomByDefinicioProcesIdsOrderByNomAsc(
+			@Param("ids") List<Long> ids);
 	
 	@Query(	"select t.nom, '[' || t.definicioProces.expedientTipus.nom || ' ] ' || t.nom from " +
 			"    Tasca t " +
 			"where " +
 			" t.definicioProces.id in (:ids)" +
 			" order by t.definicioProces.expedientTipus.nom asc, t.nom asc")
-	public List<Object[]> findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(@Param("ids") List<Long> ids);
+	public List<Object[]> findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(
+			@Param("ids") List<Long> ids);
 	
 	Tasca findByJbpmNameAndDefinicioProces(
 			String jbpmName,
 			DefinicioProces definicioProces);
 
-	@Query(	"select t from " +
-						"    Tasca t " +
-						"where " +
-						"    t.jbpmName=:jbpmName " +
-						"and t.definicioProces.jbpmId=:jbpmId")
-	Tasca findAmbActivityNameIProcessDefinitionId(
+	@Query(	"from " +
+			"    Tasca t " +
+			"where " +
+			"    t.jbpmName = :jbpmName " +
+			"and t.definicioProces.jbpmId = :jbpmId")
+	Tasca findByJbpmNameAndDefinicioProcesJbpmId(
 			@Param("jbpmName") String name,
 			@Param("jbpmId") String jbpmId);
+
 }

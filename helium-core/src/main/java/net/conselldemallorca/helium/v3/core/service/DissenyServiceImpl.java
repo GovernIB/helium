@@ -285,7 +285,7 @@ public class DissenyServiceImpl implements DissenyService {
 			String startTaskName = jbpmHelper.getStartTaskName(
 					definicioProces.getJbpmId());
 			if (startTaskName != null) {
-				Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+				Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 						startTaskName,
 						definicioProces.getJbpmId());
 				if (tasca != null) {

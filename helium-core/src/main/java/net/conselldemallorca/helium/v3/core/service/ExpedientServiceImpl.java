@@ -1395,9 +1395,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Set<String> codisPersona = new HashSet<String>();
 		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
 		for (ExpedientTascaDto tasca: tasques) {
-			if (tasca.getResponsableCodi() != null && !codisPersona.contains(tasca.getResponsableCodi())) {
+			if (tasca.getAssignee() != null && !codisPersona.contains(tasca.getAssignee())) {
 				resposta.add(tasca.getResponsable());
-				codisPersona.add(tasca.getResponsableCodi());
+				codisPersona.add(tasca.getAssignee());
 			}
 		}
 		return resposta;
@@ -2308,7 +2308,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 			if (log.isTargetTasca()) {
 				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
 				if (task != null) {
-					tasquesPerLogs.put(log.getTargetId(),tascaHelper.toExpedientTascaCompleteDto(task,expedient));
+					tasquesPerLogs.put(
+							log.getTargetId(),
+							tascaHelper.getExpedientTascaDto(
+									task,
+									expedient,
+									true));
 				}
 			}
 		}

@@ -292,21 +292,25 @@ public class DtoConverter {
 			String startTaskName,
 			String jbpmId,
 			Map<String, Object> valors) {
-		Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 				startTaskName,
 				jbpmId);
 		ExpedientTascaDto dto = new ExpedientTascaDto();
-		dto.setNom(tasca.getNom());
-		dto.setTipus(conversioTipusHelper.convertir(tasca.getTipus(), ExpedientTascaDto.TipusTasca.class));
+		dto.setTitol(tasca.getNom());
+		dto.setTascaTipus(
+				conversioTipusHelper.convertir(
+						tasca.getTipus(),
+						ExpedientTascaDto.TascaTipusDto.class));
 		dto.setJbpmName(tasca.getJbpmName());
 		dto.setValidada(false);
 		dto.setDocumentsComplet(false);
 		dto.setTascaId(tasca.getId());
 		dto.setSignaturesComplet(false);
-		dto.setDefinicioProces(conversioTipusHelper.convertir(tasca.getDefinicioProces(), DefinicioProcesDto.class));
+		/*dto.setDefinicioProces(
+				conversioTipusHelper.convertir(
+						tasca.getDefinicioProces(), DefinicioProcesDto.class));*/
 		dto.setOutcomes(jbpmHelper.findStartTaskOutcomes(jbpmId, startTaskName));
-		dto.setFormExtern(tasca.getFormExtern());
-		
+		dto.setTascaFormExternCodi(tasca.getFormExtern());
 		return dto;
 	}
 

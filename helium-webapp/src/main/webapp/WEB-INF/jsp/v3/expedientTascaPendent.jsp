@@ -29,7 +29,7 @@
 		</c:if>
 		<c:if test="${not tasca.completed and tasca.tramitacioMassiva}">
 			<c:choose>
-				<c:when test="${tasca.assignadaPersona}"><a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
+				<c:when test="${tasca.assignadaUsuariActual}"><a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
 				<c:otherwise><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></c:otherwise>
 			</c:choose>			
 		</c:if>
@@ -50,7 +50,7 @@
 							<li><a href="../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 						</c:if>
 					</c:if>
-					<c:if test="${not tasca.agafada and not empty tasca.responsables and tasca.assignadaPersona}">
+					<c:if test="${not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
 						<li><a data-rdt-link-ajax=true data-rdt-link-callback="agafar(${tasca.id});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 					</c:if>
 					<c:if test="${expedient.permisSupervision}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>

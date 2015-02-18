@@ -955,7 +955,7 @@ public class ExpedientLoggerHelper {
 										task.getId(),
 										logo.getName());
 								// Si la variable ha estat creada mitjançant el DefaultControllerHandler fa un setVariableLocally
-								Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+								Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 										task.getName(),
 										task.getProcessDefinitionId());
 								CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
@@ -1173,7 +1173,7 @@ public class ExpedientLoggerHelper {
 	
 	private List<DocumentTasca> getDocumentsPerTaskInstance(TaskInstance taskInstance) {
 		long processDefinitionId = taskInstance.getProcessInstance().getProcessDefinition().getId();
-		Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 				taskInstance.getTask().getName(),
 				new Long(processDefinitionId).toString());
 		return tasca.getDocuments();
@@ -1262,7 +1262,7 @@ public class ExpedientLoggerHelper {
 	
 	private List<CampTasca> getCampsPerTaskInstance(TaskInstance taskInstance) {
 		long processDefinitionId = taskInstance.getProcessInstance().getProcessDefinition().getId();
-		Tasca tasca = tascaRepository.findAmbActivityNameIProcessDefinitionId(
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 				taskInstance.getTask().getName(),
 				new Long(processDefinitionId).toString());
 		return tasca.getCamps();

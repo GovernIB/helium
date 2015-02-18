@@ -32,7 +32,7 @@
 		<div class="alert alert-warning">
 			<button class="close" data-dismiss="alert">×</button>
 			<c:choose>
-				<c:when test="${empty tasca.formExtern}">
+				<c:when test="${empty tasca.tascaFormExternCodi}">
 					<p><spring:message code='tasca.form.no_validades' /></p>
 				</c:when>
 				<c:otherwise>
@@ -41,7 +41,7 @@
 			</c:choose>
 		</div>
 	</c:if>
-	<c:if test="${not empty tasca.formExtern}">	
+	<c:if test="${not empty tasca.tascaFormExternCodi}">	
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 		<script type="text/javascript">

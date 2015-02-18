@@ -248,7 +248,6 @@
 			</c:otherwise>
 		</c:choose>
 	</form:form>
-
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}"> data-rdt-paginable="false"</c:if> data-rdt-seleccionable-columna="0" data-rdt-filtre-form-id="tascaConsultaCommand" data-rdt-seleccionable="true" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr data-toggle="context" data-target="#context-menu">
@@ -261,13 +260,13 @@
 							<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
 						{{/if}}
 						<div class="pull-right">
-							{{if cancelada}}
+							{{if cancelled}}
 								<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
 							{{/if}}
-							{{if suspesa}}
+							{{if suspended}}
 								<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 							{{/if}}
-							{{if oberta}}
+							{{if open}}
 								<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>"></span>
 							{{/if}}
 							{{if completed}}
@@ -276,10 +275,10 @@
 							{{if agafada}}
 								<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 							{{/if}}
- 							{{if !completed && tramitacioMassiva && assignadaPersona}}													
+ 							{{if !completed && tascaTramitacioMassiva && assignadaUsuariActual}}													
 								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../v3/tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
 							{{/if}}					
- 							{{if !completed && tramitacioMassiva && !assignadaPersona}}													
+ 							{{if !completed && tascaTramitacioMassiva && !assignadaUsuariActual}}													
 								<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
 							{{/if}}						
 						</div>
@@ -288,57 +287,56 @@
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.expedient"/></th>
 				<th data-rdt-property="responsableString" data-rdt-visible="true"><spring:message code="expedient.tasca.columna.asignada_a"/></th>
 				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.tipexp"/></th>
-				<th data-rdt-property="dataCreacio" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
-				<th data-rdt-property="dataLimit" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
+				<th data-rdt-property="createTime" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
+				<th data-rdt-property="dueDate" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
 				<th data-rdt-property="prioritat" data-rdt-visible="false"><spring:message code="tasca.llistat.columna.prioritat"/></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}"/>" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
  						<div id="dropdown-menu-{{:id}}" class="dropdown navbar-right"> 
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
-							<ul class="dropdown-menu"> 
-								{{if oberta and !suspesa}}
-									{{if responsableCodi == "${dadesPersona.codi}" && assignadaPersona}}
+							<ul class="dropdown-menu">
+								{{if open and !suspended}}
+									{{if assignee == "${dadesPersona.codi}" && assignadaUsuariActual}}
 										<li><a id="tramitar-tasca-{{:id}}" class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
-										{{if tramitacioMassiva}}
+										{{if tascaTramitacioMassiva}}
 											<li><a href="../v3/tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 										{{/if}}
 									{{/if}}
-									{{if !agafada && responsables != null && assignadaPersona}}
+									{{if !agafada && responsables != null && assignadaUsuariActual}}
  										<li><a data-rdt-link-ajax=true data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" data-rdt-link-ajax="true"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
 								<li><a href="../v3/expedient/{{:expedientId}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
-								{{if oberta}}
+								{{if open}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 								{{/if}}
-								{{if suspesa}}
+								{{if suspended}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 								{{/if}}
-								{{if !cancelada}}
+								{{if !cancelled}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
-								{{/if}}	
-								{{if responsables != null && agafada && responsableCodi == "${dadesPersona.codi}" && oberta}}
-									<li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar({{:id}});" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
-								{{/if}}					
- 							</ul> 
+								{{/if}}
+								{{if responsables != null && agafada && responsableCodi == "${dadesPersona.codi}" && open}}
+									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-callback="alliberar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
+								{{/if}}
+ 							</ul>
  						</div>
 					</script> 
 				</th>
 				<th data-rdt-property="agafada" data-rdt-visible="false"></th>
-				<th data-rdt-property="cancelada" data-rdt-visible="false"></th>
-				<th data-rdt-property="responsableCodi" data-rdt-visible="false"></th>
-				<th data-rdt-property="assignadaPersona" data-rdt-visible="false"></th>
-				<th data-rdt-property="suspesa" data-rdt-visible="false"></th>
-				<th data-rdt-property="tramitacioMassiva" data-rdt-visible="false"></th>
-				<th data-rdt-property="oberta" data-rdt-visible="false"></th>
+				<th data-rdt-property="cancelled" data-rdt-visible="false"></th>
+				<th data-rdt-property="assignee" data-rdt-visible="false"></th>
+				<th data-rdt-property="assignadaUsuariActual" data-rdt-visible="false"></th>
+				<th data-rdt-property="suspended" data-rdt-visible="false"></th>
+				<th data-rdt-property="tascaTramitacioMassiva" data-rdt-visible="false"></th>
+				<th data-rdt-property="open" data-rdt-visible="false"></th>
 				<th data-rdt-property="completed" data-rdt-visible="false"></th>				
 				<th data-rdt-property="expedientId" data-rdt-visible="false"></th>
 				<th data-rdt-property="responsables" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>
-	
 	<script id="tableButtonsTemplate" type="text/x-jsrender">
 		<div style="text-align:right">
 			<div id="btnTramitacio" class="btn-group">

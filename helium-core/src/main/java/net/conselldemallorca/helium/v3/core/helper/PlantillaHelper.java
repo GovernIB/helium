@@ -132,7 +132,6 @@ public class PlantillaHelper {
 		if (document.isPlantilla()) {
 			// Obtenir tasca, expedient, responsable i omplir el model						
 			ExpedientDto expedientDto;
-			
 			ExpedientTascaDto tasca = null;
 			String responsableCodi;
 			Map<String, Object> model = variableHelper.findVarsDadesPerInstanciaProces(processInstanceId);
@@ -140,9 +139,10 @@ public class PlantillaHelper {
 				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 				expedientDto = dtoConverter.toExpedientDto(expedient);
-				tasca = tascaHelper.toExpedientTascaCompleteDto(
+				tasca = tascaHelper.getExpedientTascaDto(
 						task,
-						expedient);
+						expedient,
+						true);
 				model.putAll(variableHelper.getVariablesJbpmTascaValor(task.getId()));
 				responsableCodi = task.getAssignee();
 			} else {

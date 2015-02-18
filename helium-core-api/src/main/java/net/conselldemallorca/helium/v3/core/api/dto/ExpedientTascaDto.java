@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -16,6 +15,11 @@ import java.util.Set;
  */
 public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 
+	public enum TascaTipusDto {
+		ESTAT,
+		FORM,
+		SIGNATURA
+	}
 	public enum TascaEstatDto {
 		PENDENT,
 		PDT_DADES,
@@ -25,7 +29,6 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		CANCELADA,
 		SUSPESA
 	}
-
 	public enum TascaPrioritatDto {
 		MOLT_ALTA,
 		ALTA,
@@ -33,19 +36,9 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		BAIXA,
 		MOLT_BAIXA
 	}
-	public enum TipusTasca {
-		ESTAT,
-		FORM,
-		SIGNATURA
-	}
-
-	private static final String PREFIX_TASCA_INICIAL = "TIE_";
 
 	private String id;
-	private String nom;
-	private String missatgeInfo;
-	private String missatgeWarn;
-	private TipusTasca tipus;
+	private String titol;
 	private String jbpmName;
 	private String description;
 	private String assignee;
@@ -55,14 +48,27 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private Date endTime;
 	private Date dueDate;
 	private int priority;
+	private boolean open;
 	private boolean completed;
 	private boolean cancelled;
 	private boolean suspended;
-	private boolean assignadaPersona;
-	private String recursForm;
-	private String formExtern;
+	private List<String> outcomes;
 
-	private boolean delegable;
+	private Long tascaId;
+	private String tascaNom;
+	private TascaTipusDto tascaTipus;
+	private String tascaMissatgeInfo;
+	private String tascaMissatgeWarn;
+	private String tascaRecursForm;
+	private String tascaFormExternCodi;
+	private boolean tascaDelegable;
+	private boolean tascaTramitacioMassiva;
+
+	private boolean validada;
+	private boolean documentsComplet;
+	private boolean signaturesComplet;
+	private boolean agafada;
+
 	private boolean delegada;
 	private boolean delegacioOriginal;
 	private Date delegacioData;
@@ -70,206 +76,30 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	private boolean delegacioSupervisada;
 	private PersonaDto delegacioPersona;
 
-	private boolean validada;
-	private boolean documentsComplet;
-	private boolean signaturesComplet;
-
-	private DefinicioProcesDto definicioProces;
-
-	private Map<String, PersonaDto> personesMap;
-
-	private List<String> outcomes;
-
-	private Long tascaId;
-	private boolean agafada;
-	
-	private String titol;
-	private String descripcio;
-	private TascaEstatDto estat;
-	private Date dataLimit;
-	private Date dataCreacio;
-	private Date dataInici;
-	private Date dataFi;
-	private PersonaDto responsable;
-	private String responsableCodi;
-	private List<PersonaDto> responsables;
-	private TascaPrioritatDto prioritat;
-
-	private boolean oberta;
-	private boolean cancelada;
-	private boolean suspesa;
-	private boolean transicioPerDefecte;
-	private boolean tramitacioMassiva;
-	private List<String> transicions;
-	
 	private Long expedientId;
 	private String expedientIdentificador;
-	private String expedientTipusNom;
-
 	private String processInstanceId;
-	
-	public String getTitol() {
-		return titol;
-	}
-	public void setTitol(String titol) {
-		this.titol = titol;
-	}
-	public String getDescripcio() {
-		return descripcio;
-	}
-	public void setDescripcio(String descripcio) {
-		this.descripcio = descripcio;
-	}
-	public TascaEstatDto getEstat() {
-		return estat;
-	}
-	public void setEstat(TascaEstatDto estat) {
-		this.estat = estat;
-	}
-	public Date getDataLimit() {
-		return dataLimit;
-	}
-	public void setDataLimit(Date dataLimit) {
-		this.dataLimit = dataLimit;
-	}
-	public Date getDataCreacio() {
-		return dataCreacio;
-	}
-	public void setDataCreacio(Date dataCreacio) {
-		this.dataCreacio = dataCreacio;
-	}
-	public Date getDataInici() {
-		return dataInici;
-	}
-	public void setDataInici(Date dataInici) {
-		this.dataInici = dataInici;
-	}
-	public Date getDataFi() {
-		return dataFi;
-	}
-	public void setDataFi(Date dataFi) {
-		this.dataFi = dataFi;
-	}
-	public String getResponsableString() {
-		if ((responsables == null || responsables.isEmpty()) || agafada)
-			return responsable == null ? "" : responsable.toString();
-		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
-	}
-	public PersonaDto getResponsable() {
-		return responsable;
-	}
-	public void setResponsable(PersonaDto responsable) {
-		this.responsable = responsable;
-	}
-	public String getResponsableCodi() {
-		return responsableCodi;
-	}
-	public void setResponsableCodi(String responsableCodi) {
-		this.responsableCodi = responsableCodi;
-	}
-	public List<PersonaDto> getResponsables() {
-		return responsables;
-	}
-	public void setResponsables(List<PersonaDto> responsables) {
-		this.responsables = responsables;
-	}
-	public TascaPrioritatDto getPrioritat() {
-		return prioritat;
-	}
-	public void setPrioritat(TascaPrioritatDto prioritat) {
-		this.prioritat = prioritat;
-	}
-	public boolean isOberta() {
-		return oberta;
-	}
-	public void setOberta(boolean oberta) {
-		this.oberta = oberta;
-	}
-	public boolean isCancelada() {
-		return cancelada;
-	}
-	public void setCancelada(boolean cancelada) {
-		this.cancelada = cancelada;
-	}
-	public boolean isSuspesa() {
-		return suspesa;
-	}
-	public void setSuspesa(boolean suspesa) {
-		this.suspesa = suspesa;
-	}
-	public boolean isTransicioPerDefecte() {
-		return transicioPerDefecte;
-	}
-	public void setTransicioPerDefecte(boolean transicioPerDefecte) {
-		this.transicioPerDefecte = transicioPerDefecte;
-	}
-	public List<String> getTransicions() {
-		return transicions;
-	}
-	public void setTransicions(List<String> transicions) {
-		this.transicions = transicions;
-	}
-	public Long getExpedientId() {
-		return expedientId;
-	}
-	public void setExpedientId(Long expedientId) {
-		this.expedientId = expedientId;
-	}
-	public String getExpedientIdentificador() {
-		return expedientIdentificador;
-	}
-	public void setExpedientIdentificador(String expedientIdentificador) {
-		this.expedientIdentificador = expedientIdentificador;
-	}
+	private String expedientTipusNom;
+	private Long definicioProcesId;
 
-	public boolean isCompletada() {
-		return !cancelada && dataFi != null;
-	}
+	private PersonaDto responsable;
+	private List<PersonaDto> responsables;
 
-	public boolean isAssignadaPersonaAmbCodi(String personaCodi) {
-		boolean trobada = false;
-		if (getResponsable() != null)
-			trobada = personaCodi.equals(getResponsable().getCodi());
-		if (!trobada && getResponsables() != null) {
-			for (PersonaDto resp: getResponsables()) {
-				if (personaCodi.equals(resp.getCodi())) {
-					trobada = true;
-					break;
-				}
-			}
-		}
-		return trobada;
-	}
-	
+	private boolean assignadaUsuariActual;
+
+
+
 	public String getId() {
 		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
 	}
-	public String getNom() {
-		return nom;
+	public String getTitol() {
+		return titol;
 	}
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
-	public String getMissatgeInfo() {
-		return missatgeInfo;
-	}
-	public void setMissatgeInfo(String missatgeInfo) {
-		this.missatgeInfo = missatgeInfo;
-	}
-	public String getMissatgeWarn() {
-		return missatgeWarn;
-	}
-	public void setMissatgeWarn(String missatgeWarn) {
-		this.missatgeWarn = missatgeWarn;
-	}
-	public TipusTasca getTipus() {
-		return tipus;
-	}
-	public void setTipus(TipusTasca tipus) {
-		this.tipus = tipus;
+	public void setTitol(String titol) {
+		this.titol = titol;
 	}
 	public String getJbpmName() {
 		return jbpmName;
@@ -325,6 +155,12 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
+	public boolean isOpen() {
+		return open;
+	}
+	public void setOpen(boolean open) {
+		this.open = open;
+	}
 	public boolean isCompleted() {
 		return completed;
 	}
@@ -343,29 +179,89 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public void setSuspended(boolean suspended) {
 		this.suspended = suspended;
 	}
-	public String getProcessInstanceId() {
-		return processInstanceId;
+	public List<String> getOutcomes() {
+		return outcomes;
 	}
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
+	public void setOutcomes(List<String> outcomes) {
+		this.outcomes = outcomes;
 	}
-	public String getRecursForm() {
-		return recursForm;
+	public Long getTascaId() {
+		return tascaId;
 	}
-	public void setRecursForm(String recursForm) {
-		this.recursForm = recursForm;
+	public void setTascaId(Long tascaId) {
+		this.tascaId = tascaId;
 	}
-	public String getFormExtern() {
-		return formExtern;
+	public String getTascaNom() {
+		return tascaNom;
 	}
-	public void setFormExtern(String formExtern) {
-		this.formExtern = formExtern;
+	public void setTascaNom(String tascaNom) {
+		this.tascaNom = tascaNom;
 	}
-	public boolean isDelegable() {
-		return delegable;
+	public TascaTipusDto getTascaTipus() {
+		return tascaTipus;
 	}
-	public void setDelegable(boolean delegable) {
-		this.delegable = delegable;
+	public void setTascaTipus(TascaTipusDto tascaTipus) {
+		this.tascaTipus = tascaTipus;
+	}
+	public String getTascaMissatgeInfo() {
+		return tascaMissatgeInfo;
+	}
+	public void setTascaMissatgeInfo(String tascaMissatgeInfo) {
+		this.tascaMissatgeInfo = tascaMissatgeInfo;
+	}
+	public String getTascaMissatgeWarn() {
+		return tascaMissatgeWarn;
+	}
+	public void setTascaMissatgeWarn(String tascaMissatgeWarn) {
+		this.tascaMissatgeWarn = tascaMissatgeWarn;
+	}
+	public String getTascaRecursForm() {
+		return tascaRecursForm;
+	}
+	public void setTascaRecursForm(String tascaRecursForm) {
+		this.tascaRecursForm = tascaRecursForm;
+	}
+	public String getTascaFormExternCodi() {
+		return tascaFormExternCodi;
+	}
+	public void setTascaFormExternCodi(String tascaFormExternCodi) {
+		this.tascaFormExternCodi = tascaFormExternCodi;
+	}
+	public boolean isTascaDelegable() {
+		return tascaDelegable;
+	}
+	public void setTascaDelegable(boolean tascaDelegable) {
+		this.tascaDelegable = tascaDelegable;
+	}
+	public boolean isTascaTramitacioMassiva() {
+		return tascaTramitacioMassiva;
+	}
+	public void setTascaTramitacioMassiva(boolean tascaTramitacioMassiva) {
+		this.tascaTramitacioMassiva = tascaTramitacioMassiva;
+	}
+	public boolean isValidada() {
+		return validada;
+	}
+	public void setValidada(boolean validada) {
+		this.validada = validada;
+	}
+	public boolean isDocumentsComplet() {
+		return documentsComplet;
+	}
+	public void setDocumentsComplet(boolean documentsComplet) {
+		this.documentsComplet = documentsComplet;
+	}
+	public boolean isSignaturesComplet() {
+		return signaturesComplet;
+	}
+	public void setSignaturesComplet(boolean signaturesComplet) {
+		this.signaturesComplet = signaturesComplet;
+	}
+	public boolean isAgafada() {
+		return agafada;
+	}
+	public void setAgafada(boolean agafada) {
+		this.agafada = agafada;
 	}
 	public boolean isDelegada() {
 		return delegada;
@@ -403,94 +299,126 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public void setDelegacioPersona(PersonaDto delegacioPersona) {
 		this.delegacioPersona = delegacioPersona;
 	}
-	public boolean isValidada() {
-		return validada;
+	public Long getExpedientId() {
+		return expedientId;
 	}
-	public void setValidada(boolean validada) {
-		this.validada = validada;
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
 	}
-	public boolean isDocumentsComplet() {
-		return documentsComplet;
+	public String getExpedientIdentificador() {
+		return expedientIdentificador;
 	}
-	public void setDocumentsComplet(boolean documentsComplet) {
-		this.documentsComplet = documentsComplet;
+	public void setExpedientIdentificador(String expedientIdentificador) {
+		this.expedientIdentificador = expedientIdentificador;
 	}
-	public boolean isSignaturesComplet() {
-		return signaturesComplet;
+	public String getProcessInstanceId() {
+		return processInstanceId;
 	}
-	public void setSignaturesComplet(boolean signaturesComplet) {
-		this.signaturesComplet = signaturesComplet;
+	public void setProcessInstanceId(String processInstanceId) {
+		this.processInstanceId = processInstanceId;
 	}
-	public Map<String, PersonaDto> getPersonesMap() {
-		return personesMap;
-	}
-	public void setPersonesMap(Map<String, PersonaDto> personesMap) {
-		this.personesMap = personesMap;
-	}
-	public List<String> getOutcomes() {
-		return outcomes;
-	}
-	public void setOutcomes(List<String> outcomes) {
-		this.outcomes = outcomes;
-	}
-
-	public DefinicioProcesDto getDefinicioProces() {
-		return definicioProces;
-	}
-	public void setDefinicioProces(DefinicioProcesDto definicioProces) {
-		this.definicioProces = definicioProces;
-	}
-	public String getNomLimitat() {
-		if (nom.length() > 100)
-			return nom.substring(0, 100) + " (...)";
-		else
-			return nom;
-	}
-
-	public Long getTascaId() {
-		return tascaId;
-	}
-	public void setTascaId(Long tascaId) {
-		this.tascaId = tascaId;
-	}
-	public boolean isAgafada() {
-		return agafada;
-	}
-	public void setAgafada(boolean agafada) {
-		this.agafada = agafada;
-	}
-	
-	@Override
-	public int compareTo(ExpedientTascaDto aThat) {
-	    if (this == aThat) return 0;
-    	return this.getCreateTime().compareTo(aThat.getCreateTime());
-	}
-	
 	public String getExpedientTipusNom() {
 		return expedientTipusNom;
 	}
 	public void setExpedientTipusNom(String expedientTipusNom) {
 		this.expedientTipusNom = expedientTipusNom;
 	}
-	public boolean isTramitacioMassiva() {
-		return tramitacioMassiva;
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
 	}
-	public void setTramitacioMassiva(boolean tramitacioMassiva) {
-		this.tramitacioMassiva = tramitacioMassiva;
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
-	public boolean isAssignadaPersona() {
-		return assignadaPersona;
+	public PersonaDto getResponsable() {
+		return responsable;
 	}
-	public void setAssignadaPersona(boolean assignadaPersona) {
-		this.assignadaPersona = assignadaPersona;
+	public void setResponsable(PersonaDto responsable) {
+		this.responsable = responsable;
+	}
+	public List<PersonaDto> getResponsables() {
+		return responsables;
+	}
+	public void setResponsables(List<PersonaDto> responsables) {
+		this.responsables = responsables;
+	}
+	public boolean isAssignadaUsuariActual() {
+		return assignadaUsuariActual;
+	}
+	public void setAssignadaUsuariActual(boolean assignadaUsuariActual) {
+		this.assignadaUsuariActual = assignadaUsuariActual;
 	}
 
+	public TascaEstatDto getEstat() {
+		if (cancelled) {
+			return TascaEstatDto.CANCELADA;
+		} else if (suspended) {
+			return TascaEstatDto.SUSPESA;
+		} else if (completed) {
+			return TascaEstatDto.FINALITZADA;
+		} else {
+			return TascaEstatDto.PENDENT;
+		}
+	}
+
+	public TascaPrioritatDto getPrioritat() {
+		if (priority <= -2) {
+			return TascaPrioritatDto.MOLT_BAIXA;
+		} else if (priority == -1) {
+			return TascaPrioritatDto.BAIXA;
+		} else if (priority == 1) {
+			return TascaPrioritatDto.ALTA;
+		} else if (priority >= 2) {
+			return TascaPrioritatDto.MOLT_ALTA;
+		} else {
+			return TascaPrioritatDto.NORMAL;
+		}
+	}
+
+	public String getResponsableString() {
+		if ((responsables == null || responsables.isEmpty()) || agafada)
+			return responsable == null ? "" : responsable.toString();
+		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
+	}
+
+	public boolean isAssignadaPersonaAmbCodi(String personaCodi) {
+		boolean trobada = false;
+		if (getResponsable() != null)
+			trobada = personaCodi.equals(getResponsable().getCodi());
+		if (!trobada && getResponsables() != null) {
+			for (PersonaDto resp: getResponsables()) {
+				if (personaCodi.equals(resp.getCodi())) {
+					trobada = true;
+					break;
+				}
+			}
+		}
+		return trobada;
+	}
+
+	@Override
+	public int compareTo(ExpedientTascaDto aThat) {
+	    if (this == aThat) return 0;
+    	return this.getCreateTime().compareTo(aThat.getCreateTime());
+	}
+
+	public String getTitolLimitat() {
+		if (titol.length() > 100)
+			return titol.substring(0, 100) + " (...)";
+		else
+			return titol;
+	}
+
+	private static final String PREFIX_TASCA_INICIAL = "TIE_";
 	public boolean isInicial() {
 		return id.startsWith(PREFIX_TASCA_INICIAL);
 	}
 
-	public int getPrioritatOrdinal() {
-		return prioritat.ordinal();
+	public boolean isTransicioPerDefecte() {
+		if (outcomes != null && !outcomes.isEmpty() && outcomes.size() == 1) {
+			return outcomes.get(0) == null || outcomes.get(0).isEmpty();
+		} else {
+			return false;
+		}
 	}
 
 }
