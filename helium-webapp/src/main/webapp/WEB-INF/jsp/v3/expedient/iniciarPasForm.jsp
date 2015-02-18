@@ -9,7 +9,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
-	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${tasca.nom}</title>
+	<title><spring:message code='expedient.iniciar.iniciar_expedient' />: ${tasca.tascaNom}</title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -248,7 +248,7 @@
 	</script>
 </head>
 <body>
-	<c:if test="${not empty tasca.formExtern}">
+	<c:if test="${not empty tasca.tascaFormExternCodi}">
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 		<script type="text/javascript">

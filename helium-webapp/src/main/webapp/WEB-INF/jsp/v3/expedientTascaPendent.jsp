@@ -44,7 +44,7 @@
 			<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
 			<ul id="dropdown-menu-${tasca.id}" class="dropdown-menu">
 				<c:if test="${tasca.oberta and not tasca.suspesa}">
-					<c:if test="${tasca.responsableCodi == dadesPersona.codi}">
+					<c:if test="${tasca.assignee == dadesPersona.codi}">
 						<li><a id="tramitar-tasca-${tasca.id}" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 						<c:if test="${tasca.tramitacioMassiva}">
 							<li><a href="../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
@@ -65,7 +65,7 @@
 				<c:if test="${not tasca.completed and not tasca.cancelada}">
 					<c:if test="${expedient.permisSupervision}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li></c:if>
 				</c:if>
-				<c:if test="${not empty tasca.responsables and tasca.responsableCodi == dadesPersona.codi and tasca.oberta}">
+				<c:if test="${not empty tasca.responsables and tasca.assignee == dadesPersona.codi and tasca.oberta}">
 					<c:if test="${expedient.permisSupervision}"><li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar(${tasca.id});" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li></c:if>
 				</c:if>											
 			</ul>

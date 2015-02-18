@@ -505,7 +505,7 @@ public class TascaHelper {
 			dto.setResponsables(responsables);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null) {
+		if (auth != null && task.getAssignee() != null) {
 			dto.setAssignadaUsuariActual(task.getAssignee().equals(auth.getName()));
 		} else {
 			dto.setAssignadaUsuariActual(false);

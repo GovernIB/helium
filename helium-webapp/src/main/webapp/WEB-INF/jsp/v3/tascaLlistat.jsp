@@ -317,7 +317,7 @@
 								{{if !cancelled}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 								{{/if}}
-								{{if responsables != null && agafada && responsableCodi == "${dadesPersona.codi}" && open}}
+								{{if responsables != null && agafada && assignee == "${dadesPersona.codi}" && open}}
 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-callback="alliberar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
  							</ul>
