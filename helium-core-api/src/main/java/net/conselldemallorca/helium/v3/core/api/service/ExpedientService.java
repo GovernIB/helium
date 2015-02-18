@@ -6,7 +6,9 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -559,7 +561,7 @@ public interface ExpedientService {
 	
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
 
-	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall);
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall);
 	
 	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId);
 	

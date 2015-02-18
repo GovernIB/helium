@@ -30,7 +30,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -89,11 +88,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	@Autowired
 	protected TascaService tascaService;
 	@Autowired
-	protected DissenyService dissenyService;
-	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
-
-
 
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
@@ -325,17 +320,15 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		// Omple els documents per adjuntar i els de només lectura
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
-		List<TascaDocumentDto> documentsNomesLectura = new ArrayList<TascaDocumentDto>();
+		
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
 			TascaDocumentDto document = itDocuments.next();
 			if (document.isReadOnly()) {
 				if (document.getId() != null)
-					documentsNomesLectura.add(document);
-				itDocuments.remove();
+					itDocuments.remove();
 			}
 		}
-		model.addAttribute("documentsNomesLectura", documentsNomesLectura);
 		model.addAttribute("documents", documents);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("tascaId", tascaId);
@@ -361,6 +354,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
+			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
+				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
 			} else {
 				resposta = accioDocumentAdjuntar(
 						request,
@@ -386,7 +381,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@RequestParam(value = "docId", required = true) Long docId,		
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
-		String generatId = "";
+		String generatNom = null;
 		try {
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (!tasca.isValidada()) {
@@ -399,7 +394,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						expedientId,
 						data);
 				if (generat != null) {
-					generatId = String.valueOf(generat.getId());
+					generatNom = String.valueOf(generat.getArxiuNom());
 					if (!generat.isAdjuntarAuto()) {
 						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
 						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
@@ -411,7 +406,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error generant el document " + docId, ex);
 		}
-		return generatId;
+		return generatNom;
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)

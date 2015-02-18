@@ -92,8 +92,20 @@ $(document).ready(function() {
 	$("button[data-toggle=button]").click(function() {
 		$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
 		$(this).blur();
+		if ($(this).attr('id') == 'nomesTasquesPersonalsCheck') {
+			$('#nomesTasquesGrupCheck').attr('disabled', !$(this).hasClass('active'));
+		}
+		if ($(this).attr('id') == 'nomesTasquesGrupCheck') {
+			$('#nomesTasquesPersonalsCheck').attr('disabled', !$(this).hasClass('active'));
+		}
 		$("button[value=consultar]").click();
 	});
+	if ($('#nomesTasquesPersonalsCheck').hasClass('active')) {
+		$('#nomesTasquesGrupCheck').attr('disabled', true);
+	}
+	if ($('#nomesTasquesGrupCheck').hasClass('active')) {
+		$('#nomesTasquesPersonalsCheck').attr('disabled', true);
+	}
 	$('#expedientTipusId').on('change', function() {
 		var tipus = $(this).val();
 		$('#estatText').select2('val', '', true);

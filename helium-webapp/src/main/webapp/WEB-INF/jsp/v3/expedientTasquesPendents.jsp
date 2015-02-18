@@ -160,10 +160,7 @@
 							<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 						</c:if>
 						<c:if test="${not tasca.completed and tasca.tramitacioMassiva}">
-							<c:choose>
-								<c:when test="${tasca.assignadaPersona}"><a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
-								<c:otherwise><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></c:otherwise>
-							</c:choose>			
+							<span class="<c:if test="${tasca.assignadaPersona}">tramitar_massivament</c:if> label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
 						</c:if>
 					</div> 
 				</td>
@@ -213,33 +210,41 @@
 						</div>
 					</c:if>
 				</td>
-				<script type="text/javascript">
-						$(document).ready(function() {
-							$('#dropdown-menu-${tasca.id} a').heliumEvalLink({
-								refrescarAlertes: true,
-								refrescarPagina: false,
-								alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-								maximize: true
-							});
-							$('#dropdown-menu-context-${tasca.id} a').heliumEvalLink({
-								refrescarAlertes: true,
-								refrescarPagina: false,
-								alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-								maximize: true
-							});
-						});
-						
-						var maxcol = $("#taulaDades thead th").length - 6;
-						if($("#taulaDades thead th ").find('input[type="checkbox"]').is(':hidden')) {
-							$(".first").hide();
-							$("#td_nohiha").attr('colspan', 1);
-						} else {
-							$("#td_nohiha").attr('colspan', 2);
-						}
-						$(".maxcols").attr('colspan', maxcol);
-						$(".datacol").attr('colspan', (maxcol > 7) ? 2 : 1);
-				</script>
 			</tr>
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$('#dropdown-menu-${tasca.id} a').heliumEvalLink({
+						refrescarAlertes: true,
+						refrescarPagina: false,
+						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+						maximize: true
+					});
+					$('#dropdown-menu-context-${tasca.id} a').heliumEvalLink({
+						refrescarAlertes: true,
+						refrescarPagina: false,
+						alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+						maximize: true
+					});
+					$(".tramitar_massivament").click(function() {
+						$("#table-pendents-${tasca.id}").unbind("click");
+						window.location='../v3/tasca/${tasca.id}/massiva';
+					});	
+					$("#table-pendents-${tasca.id}").click(function() {
+						if ($('#tramitar-tasca-${tasca.id}', $(this)).length > 0)
+							$('#tramitar-tasca-${tasca.id}', $(this)).click();
+					});			
+				});
+				
+				var maxcol = $("#taulaDades thead th").length - 6;
+				if($("#taulaDades thead th ").find('input[type="checkbox"]').is(':hidden')) {
+					$(".first").hide();
+					$("#td_nohiha").attr('colspan', 1);
+				} else {
+					$("#td_nohiha").attr('colspan', 2);
+				}
+				$(".maxcols").attr('colspan', maxcol);
+				$(".datacol").attr('colspan', (maxcol > 7) ? 2 : 1);
+			</script>
 		</c:forEach>
 	</c:when>
 	<c:otherwise>
@@ -254,6 +259,9 @@
 <style type="text/css">
 	.table-pendents {
 		background-color: rgba(0, 0, 0, 0);
+	}
+	.table-pendents {
+		cursor: pointer;
 	}
 	.table-pendents.header td,.table-pendents.header td:HOVER {
 		background-color: #428bca !important; color: white !important;padding-top: 4px;padding-bottom: 4px;padding-left: 8px;

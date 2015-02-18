@@ -1,29 +1,14 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<%-- SENSE US --%>
+
+<%@page import="net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
-<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-<c:set var="numColumnes" value="${3}"/>
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
-<html>
-<head>
-	<title>${tasca.titol}</title>
-	<hel:modalHead/>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
-	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-	<script src="<c:url value="/js/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <style type="text/css">
 	.documentTramitacio .btn-file {position: relative; overflow: hidden;}
 	.documentTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
@@ -49,12 +34,9 @@
 	.documentTramitacio .form-group .col-xs-11 {padding-right: 0px;}
 	.documentTramitacio .obligatori {background-position: right 8px;}
 </style>
-</head>
-<body>
-	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"/>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-		<form id="form${document.id}" class="form-horizontal form-tasca" action="documentAdjuntar" enctype="multipart/form-data" method="post" onsubmit="return false;">
+		<form id="form${document.id}" class="form-horizontal form-tasca" action="${tascaId}/documentAdjuntar" enctype="multipart/form-data" method="post" onsubmit="return false;">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			
 			<div class="inlineLabels">
@@ -63,11 +45,11 @@
 		 			<c:if test="${document.plantilla}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='../../../../../../v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar'><c:param name='docId' value='${document.id}'/></c:url>"
+							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar'><c:param name='docId' value='${document.id}'/></c:url>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
 							data-rdt-link-ajax=true
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
-							data-rdt-link-callback="documentGenerar(${document.id},${document.arxiuNom},${document.documentCodi}, ${document.adjuntarAuto});">
+							data-rdt-link-callback="documentGenerar(${document.id},${document.documentCodi}, ${document.adjuntarAuto});">
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
@@ -76,7 +58,7 @@
 					</a>
 					<a 	class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" 
 						id="removeUrl${document.id}" 
-						href="<c:url value="../../../../../../v3/expedient/${expedientId}/tasca/${tascaId}/documentEsborrar"><c:param name="docId" value="${document.id}"/></c:url>"
+						href="<c:url value="/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/documentEsborrar"><c:param name="docId" value="${document.id}"/></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						data-rdt-link-ajax=true
 						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />" 
@@ -137,7 +119,9 @@
 		</form>
 	</div>
 </c:forEach>
+	        
 <script type="text/javascript">
+	// <![CDATA[
 	$(document).on('change', '.btn-file :file', function() {
 		var input = $(this),
 		numFiles = input.get(0).files ? input.get(0).files.length : 1,
@@ -162,6 +146,7 @@
 			}
 		});	
 	});
+	
 	function documentGuardar(docId) {
 		$.ajax({
             type: 'POST',
@@ -201,10 +186,11 @@
             }
         });
 	}
-	function documentGenerar(docId, nom, codi, adjuntarAuto, correcte) {		
-		if (adjuntarAuto == 'false') {
+	
+	function documentGenerar(docId, codi, adjuntarAuto, data) {
+		if (data == "arxiuView") {
 			window.location.href = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
-		} else {
+		} else if (data != null) {
        		$("#amagarFile"+docId).addClass("hide");
    			$("#modal-botons"+docId).addClass("hide");
    			$("#downloadUrl"+docId).attr('href', "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar");
@@ -213,7 +199,7 @@
    			$("#removeUrl"+docId).removeClass("hide");
    			$("#div_timer"+docId).addClass("hide");
    			
-   			$("#docNom"+docId).text(nom);
+   			$("#docNom"+docId).text(data);
    			$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
    			if ($("#data"+docId).val() != "")
    				$("#docData"+docId).text($("#data"+docId).val());
@@ -221,6 +207,7 @@
    				$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
    		}
 	}
+	
 	function amagarFile(docId, correcte) {
 		if (correcte) {
 			$("#amagarFile"+docId).removeClass("hide");
@@ -232,6 +219,5 @@
 			$("#form"+docId).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
 		}
 	}
+	// ]]>
 </script>
-</body>
-</html>

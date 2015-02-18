@@ -48,11 +48,12 @@ public class AjaxHelper {
 
 	private static boolean isRequestUriAjax(
 			HttpServletRequest request) {
-		return request.getRequestURI().startsWith(URI_PREFIX_AJAX);
+		return request.getRequestURI().contains(URI_PREFIX_AJAX);
 	}
 	private static String getUriSensePrefix(
 			HttpServletRequest request) {
-		return request.getRequestURI().substring(URI_PREFIX_AJAX.length());
+		String uri = request.getRequestURI();
+		return uri.substring(uri.indexOf(URI_PREFIX_AJAX) + URI_PREFIX_AJAX.length());
 	}
 	private static Set<String> getUriMap(
 			HttpServletRequest request) {

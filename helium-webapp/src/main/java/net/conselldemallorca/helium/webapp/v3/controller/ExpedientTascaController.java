@@ -52,7 +52,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
-			boolean permisosVerOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+			boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios));
 			}
@@ -69,9 +69,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		boolean mostrarDeOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+		boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		List<ExpedientTascaDto> dadesInstancia = expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), mostrarDeOtrosUsuarios);
+		List<ExpedientTascaDto> dadesInstancia = expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios);
 		Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 		tasques.put(instanciaProces, dadesInstancia);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
@@ -89,7 +89,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable boolean nomesTasquesGrup,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		boolean permisosVerOtrosUsuarios = (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
+		boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, permisosVerOtrosUsuarios && !nomesMeves, nomesTasquesPersonals, nomesTasquesGrup));
 		model.addAttribute("expedient", expedientService.findAmbId(expedientId));	
 		return "v3/expedientTasquesPendents";
@@ -191,6 +191,10 @@ public class ExpedientTascaController extends BaseExpedientController {
         	logger.error("No s'ha pogut alliberar la tasca " + tascaId, ex);
 		}
 		return resultado;
+	}
+	
+	private boolean veureTasquesAltresUsuaris(HttpServletRequest request, ExpedientDto expedient) {
+		return (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);

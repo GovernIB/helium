@@ -52,30 +52,36 @@
 	.signarTramitacio .iconos {display: inline;}
 	.signarTramitacio .no-disponible {padding-top:  30px;}
 </style>
-<script src="https://www.java.com/js/deployJava.js"></script>
 <c:set var="sourceUrl" value="${globalProperties['app.base.url']}/document/arxiuPerSignar.html"/>
 <script type="text/javascript">
-cargarApplet();
-function cargarApplet() {
-	try {
-		if (typeof(signaturaApplet) == "undefined") {
-			var attributes = {
-					id: 'signaturaApplet',
-					code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
-					archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
-					width: 1,
-					height: 1};
-			if (typeof(deployJava) != "undefined") {
-				deployJava.runApplet(
-						attributes,
-						{},
-						'1.5');
-			}
-		}
-	} catch (e) {
-		alert(e);
-	}
-} 
+$(document).ready(function() {
+	docWriteWrapper($('#applet'), function () {
+		var attributes = {
+				id: 'signaturaApplet',
+				code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
+				archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
+				width: 1,
+				height: 1};
+		if (typeof(deployJava) != "undefined") {
+			deployJava.runApplet(
+					attributes,
+					{},
+					'1.5');
+			obtenirCertificats();
+		} 
+	});
+});
+
+function docWriteWrapper(jq, func) {
+    var oldwrite = document.write, content = '';
+    document.write = function(text) {
+        content += text;
+    }
+    func();
+    document.write = oldwrite;
+    jq.html(content);
+}
+
 function obtenirCertificats() {
 	try {
 		if (typeof(signaturaApplet) != "undefined") {
@@ -105,11 +111,14 @@ function obtenirCertificats() {
 					    allowClear: true,
 					    minimumResultsForSearch: 10
 					});			
+					$(".modal-botons button").removeClass('hide');
 				}
 		 	} else {
 		 		setTimeout("obtenirCertificats()", 1000);
 		 	}
-		}
+		} else {
+	 		setTimeout("obtenirCertificats()", 1000);
+	 	}
 	} catch (e) {
 		setTimeout("obtenirCertificats()", 1000);
 	}
@@ -185,11 +194,6 @@ function signarCaib(token, form, contentType) {
 </script>
 </head>
 <body>
-	<script type="text/javascript">
-	// <![CDATA[
-		obtenirCertificats();
-	//]]>
-	</script>
 	<div class="dades">
 		<c:forEach var="document" items="${signatures}">
 			<div class="signarTramitacio well well-small">
@@ -205,14 +209,16 @@ function signarCaib(token, form, contentType) {
 									<div id="iconos${document.id}" class="iconos"></div>
 									<div id="firmar${document.id}">
 										<c:if test="${not document.signat}">						
-											<form:form id="form${document.id}" action="signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+											<form:form id="form${document.id}" action="${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
 												<input type="hidden" id="docId" name="docId" value="${document.id}"/>
 												<input type="hidden" id="taskId" name="taskId" value="${tascaId}"/>
 												<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
 												<div class="inlineLabels col first">
 													<div class="ctrlHolder">
 														<label id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-														<select style="display: none" id="certs${document.id}" name="certs"></select>
+														<select id="certs${document.id}" name="certs">
+															<option value=""><spring:message code="expedient.document.signat.carregant"/></option>
+														</select>
 													</div>
 													<div class="ctrlHolder">
 														<label for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
@@ -220,7 +226,7 @@ function signarCaib(token, form, contentType) {
 													</div>
 												</div>
 												<div id="modal-botons${document.id}" class="modal-botons">
-													<button class="pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
+													<button class="hide pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
 												</div>
 											</form:form>
 										</c:if>
@@ -243,5 +249,6 @@ function signarCaib(token, form, contentType) {
 			</div>
 		</c:forEach>
 	</div>
+	<div id="applet"></div>
 </body>
 </html>

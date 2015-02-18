@@ -7,13 +7,17 @@ import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -2182,7 +2186,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly=true)
-	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
 		List<InstanciaProcesDto> arbre = getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
@@ -2200,8 +2204,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}				
 		}		
 		
+		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
+			@Override
+			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
+				if (e1.getKey() == null || e2.getKey() == null)
+					return 0;
+				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
+				if (e1.getKey().getId().equals(e2.getKey().getId())) {
+					return res;
+				} else {
+					return res != 0 ? res : 1;
+				}
+			}
+		});
+		sortedEntries.addAll(resposta.entrySet());
+		
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
-		return resposta;
+		return sortedEntries;
 	}	
 
 	public List<ExpedientLogDto> getLogs(Map<String, String> processos, ExpedientLog log, String parentProcessInstanceId, ExpedientDto expedient, String piId, boolean detall) {

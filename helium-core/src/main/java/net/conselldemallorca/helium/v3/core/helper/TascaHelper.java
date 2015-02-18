@@ -264,6 +264,8 @@ public class TascaHelper {
 						resposta.add(tasca);
 					} else if (nomesTasquesPersonals && !esTareaGrupo) {
 						resposta.add(tasca);
+					} else if (!nomesTasquesPersonals && !nomesTasquesGrup) {
+						resposta.add(tasca);
 					}
 				}
 			}

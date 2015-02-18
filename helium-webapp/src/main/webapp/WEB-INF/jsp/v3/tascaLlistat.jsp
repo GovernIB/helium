@@ -64,6 +64,23 @@
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
 		    });
+			$("button[data-toggle=button]").click(function() {
+				$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
+				$(this).blur();
+				if ($(this).attr('id') == 'mostrarTasquesPersonalsCheck') {
+					$('#mostrarTasquesGrupCheck').attr('disabled', !$(this).hasClass('active'));
+				}
+				if ($(this).attr('id') == 'mostrarTasquesGrupCheck') {
+					$('#mostrarTasquesPersonalsCheck').attr('disabled', !$(this).hasClass('active'));
+				}
+				$("button[value=consultar]").click();
+			});
+			if ($('#mostrarTasquesPersonalsCheck').hasClass('active')) {
+				$('#mostrarTasquesGrupCheck').attr('disabled', true);
+			}
+			if ($('#mostrarTasquesGrupCheck').hasClass('active')) {
+				$('#mostrarTasquesPersonalsCheck').attr('disabled', true);
+			}
 						
 			<c:if test="${entornId != null}">
 				$('#expedientTipusId').on('change', function() {
@@ -260,7 +277,7 @@
 								<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 							{{/if}}
  							{{if !completed && tramitacioMassiva && assignadaPersona}}													
-								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: window.location='../v3/tasca/{{:id}}/massiva'"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
+								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../v3/tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
 							{{/if}}					
  							{{if !completed && tramitacioMassiva && !assignadaPersona}}													
 								<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>

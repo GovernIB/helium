@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
@@ -34,17 +35,31 @@ public class BaseTascaController extends BaseController {
 			String pipellaActiva) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
-		List<TascaDadaDto> dadesNomesLectura = new ArrayList<TascaDadaDto>();
+		
+		List<Object> nomesLectura = new ArrayList<Object>();
+		
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
 			if (dada.isReadOnly()) {
-				dadesNomesLectura.add(dada);
+				nomesLectura.add(dada);
 				itDades.remove();
 			}
 		}
-		model.addAttribute("dadesNomesLectura", dadesNomesLectura);
+		
+		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
+		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
+		while (itDocuments.hasNext()) {
+			TascaDocumentDto document = itDocuments.next();
+			if (document.isReadOnly()) {
+				if (document.getId() != null)
+					nomesLectura.add(document);
+			}
+		}
+		
+		model.addAttribute("nomesLectura", nomesLectura);		
+		
 		model.addAttribute(
 				"hasFormulari",
 				tascaService.hasFormulari(tascaId));

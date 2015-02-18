@@ -3,17 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -52,28 +44,11 @@ public class ExpedientRegistroController extends BaseExpedientController {
 
 		if (expedient.isPermisAdministration()  || expedient.isPermisSupervision()) {
 			boolean detall = tipus_retroces != null && tipus_retroces == 0;
-			Map<InstanciaProcesDto, List<ExpedientLogDto>> loggers  = expedientService.getLogsOrdenatsPerData(expedient, detall);
-			
-			SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
-				@Override
-				public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
-					if (e1.getKey() == null || e2.getKey() == null)
-						return 0;
-					int res = e1.getKey().getId().compareTo(e2.getKey().getId());
-					if (e1.getKey().getId().equals(e2.getKey().getId())) {
-						return res;
-					} else {
-						return res != 0 ? res : 1;
-					}
-				}
-			});
-			sortedEntries.addAll(loggers.entrySet());
-
 			model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("tipus_retroces", tipus_retroces);
 			model.addAttribute("expedient", expedient);
-			model.addAttribute("logs", sortedEntries);
+			model.addAttribute("logs", expedientService.getLogsOrdenatsPerData(expedient, detall));
 		}		
 		return "v3/expedientLog";
 	}

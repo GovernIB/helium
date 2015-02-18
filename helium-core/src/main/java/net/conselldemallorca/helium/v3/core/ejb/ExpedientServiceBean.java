@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -380,7 +382,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<InstanciaProcesDto, List<ExpedientLogDto>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
 		return delegate.getLogsOrdenatsPerData(expedient, detall);
 	}
 

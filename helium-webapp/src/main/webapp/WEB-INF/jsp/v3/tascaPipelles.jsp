@@ -30,6 +30,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
+	<script src="https://www.java.com/js/deployJava.js"></script>
 <script>
 $(document).ready(function() {
 	<%-- Mostrar/ocultar dades de referència --%>
@@ -92,9 +93,9 @@ function refrescarAccionsBotons() {
 </script>
 </head>
 <body>
-	<c:if test="${not empty dadesNomesLectura}">
+	<c:if test="${not empty nomesLectura}">
 		<c:import url="import/expedientDadesTaula.jsp">
-			<c:param name="dadesAttribute" value="dadesNomesLectura"/>
+			<c:param name="dadesAttribute" value="nomesLectura"/>
 			<c:param name="titol" value="Dades de referència"/>
 			<c:param name="numColumnes" value="${numColumnes}"/>
 			<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
