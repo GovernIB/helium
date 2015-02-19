@@ -58,6 +58,9 @@ public class InstanciaProcesDto {
 			return titol;
 		return definicioProces.getJbpmKey() + " " + id;
 	}
+	public void setTitol(String titol) {
+		this.titol = titol;
+	}
 	public DefinicioProcesDto getDefinicioProces() {
 		return definicioProces;
 	}

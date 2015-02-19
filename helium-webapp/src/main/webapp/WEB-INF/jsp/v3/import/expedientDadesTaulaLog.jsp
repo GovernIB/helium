@@ -35,7 +35,7 @@
 		<c:if test="${expedient.permisAdministration || (tipus_retroces == 0 && not expedient.permisAdministration)}">
 			<td>
 				<c:choose>
-					<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${tipus_retroces == 0}">: ${tasques[log.targetId].nom}</c:if></c:when>
+					<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${tipus_retroces == 0}">: ${tasques[log.targetId].tascaNom}</c:if></c:when>
 					<c:when test="${log.targetProces}"><spring:message code="expedient.log.objecte.PROCES"/>: ${log.targetId}</c:when>
 					<c:when test="${log.targetExpedient}"><spring:message code="expedient.log.objecte.EXPEDIENT"/></c:when>
 					<c:otherwise>???: ${log.targetId}</c:otherwise>
@@ -45,7 +45,7 @@
 		<td>
 			<c:choose>
 				<c:when test="${log.targetTasca and tipus_retroces != 0}">
-					${tasques[log.targetId].nom}
+					${tasques[log.targetId].tascaNom}
 					<span class="right">
 						<a data-rdt-link-modal="true" class="icon a-modal-registre" href="<c:url value="../../v3/expedient/logAccionsTasca?id=${expedient.id}&targetId=${log.targetId}"/>" ><i  class="fa fa-search"></i></a>
 					</span>

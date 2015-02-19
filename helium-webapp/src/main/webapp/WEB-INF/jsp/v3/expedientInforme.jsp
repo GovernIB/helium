@@ -127,21 +127,31 @@ $(document).ready(function() {
 	$("button[data-toggle=button]").click(function() {
 		$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
 		$(this).blur();
-		if ($(this).attr('id') == 'nomesTasquesPersonalsCheck') {
-			$('#nomesTasquesGrupCheck').attr('disabled', !$(this).hasClass('active'));
-		}
-		if ($(this).attr('id') == 'nomesTasquesGrupCheck') {
-			$('#nomesTasquesPersonalsCheck').attr('disabled', !$(this).hasClass('active'));
-		}
+		actualizarBotonesFiltros($(this).attr('id'));
 		$("button[value=filtrar]").click();
 	});
-	if ($('#nomesTasquesPersonalsCheck').hasClass('active')) {
+	actualizarBotonesFiltros();
+});
+function actualizarBotonesFiltros(id) {
+	$('#nomesMevesCheck').attr('disabled', false);
+	$('#nomesTasquesPersonalsCheck').attr('disabled', false);
+	$('#nomesTasquesGrupCheck').attr('disabled', false);
+
+	var nomesMeves = ($('#nomesMevesCheck').hasClass('active') && id == null) || (!$('#nomesMevesCheck').hasClass('active') && id == 'nomesMevesCheck') || ($('#nomesMevesCheck').hasClass('active') && id != 'nomesMevesCheck'); 
+	var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
+	var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
+
+	if (nomesMeves) {
 		$('#nomesTasquesGrupCheck').attr('disabled', true);
 	}
-	if ($('#nomesTasquesGrupCheck').hasClass('active')) {
-		$('#nomesTasquesPersonalsCheck').attr('disabled', true);
+	if (nomesTasquesPersonals) {
+		$('#nomesTasquesGrupCheck').attr('disabled', true);
 	}
-});
+	if (nomesTasquesGrup) {
+		$('#nomesTasquesPersonalsCheck').attr('disabled', true);
+		$('#nomesMevesCheck').attr('disabled', true);
+	}
+}
 </script>
 </head>
 <body>		

@@ -34,7 +34,7 @@
 								</td>
 								<td>
 									<c:choose>
-										<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${param.tipus_retroces == 0}">: ${tasques[log.targetId].nom}</c:if></c:when>
+										<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${param.tipus_retroces == 0}">: ${tasques[log.targetId].tascaNom}</c:if></c:when>
 										<c:when test="${log.targetProces}"><spring:message code="expedient.log.objecte.PROCES"/>: ${log.targetId}</c:when>
 										<c:when test="${log.targetExpedient}"><spring:message code="expedient.log.objecte.EXPEDIENT"/></c:when>
 										<c:otherwise>???: ${log.targetId}</c:otherwise>

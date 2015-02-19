@@ -380,20 +380,20 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
 	}
 
-	public boolean isAssignadaPersonaAmbCodi(String personaCodi) {
-		boolean trobada = false;
-		if (getResponsable() != null)
-			trobada = personaCodi.equals(getResponsable().getCodi());
-		if (!trobada && getResponsables() != null) {
-			for (PersonaDto resp: getResponsables()) {
-				if (personaCodi.equals(resp.getCodi())) {
-					trobada = true;
-					break;
-				}
-			}
-		}
-		return trobada;
-	}
+//	public boolean isAssignadaPersonaAmbCodi(String personaCodi) {
+//		boolean trobada = false;
+//		if (getResponsable() != null)
+//			trobada = personaCodi.equals(getResponsable().getCodi());
+//		if (!trobada && getResponsables() != null) {
+//			for (PersonaDto resp: getResponsables()) {
+//				if (personaCodi.equals(resp.getCodi())) {
+//					trobada = true;
+//					break;
+//				}
+//			}
+//		}
+//		return trobada;
+//	}
 
 	@Override
 	public int compareTo(ExpedientTascaDto aThat) {

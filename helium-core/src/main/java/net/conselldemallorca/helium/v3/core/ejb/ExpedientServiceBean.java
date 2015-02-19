@@ -270,8 +270,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
-		return delegate.findTasquesPendents(id, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean permisosVerOtrosUsuarios, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
+		return delegate.findTasquesPendents(id, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
 	}
 
 	@Override

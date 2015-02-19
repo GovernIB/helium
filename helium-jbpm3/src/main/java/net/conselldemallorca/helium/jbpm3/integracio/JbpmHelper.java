@@ -1510,14 +1510,16 @@ public class JbpmHelper {
 		if (personals) {
 			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandPersonal));
-		} else if (grup) {
+		} else if (grup && !nomesMeves) {
 			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandGroup));
 		} else if (tots) {
 			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandPersonal = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, false, nomesAmbPendents, nomesMeves);
 			resultat.addAll((List<String>)commandService.execute(commandPersonal));
-			GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, nomesAmbPendents, nomesMeves);
-			resultat.addAll((List<String>)commandService.execute(commandGroup));
+			if (!nomesMeves) {
+				GetRootProcessInstancesForExpedientsWithActiveTasksCommand commandGroup = new GetRootProcessInstancesForExpedientsWithActiveTasksCommand(actorId, processInstanceIds, true, nomesAmbPendents, nomesMeves);
+				resultat.addAll((List<String>)commandService.execute(commandGroup));
+			}
 		}
 
 		List<String> idsDiferents = new ArrayList<String>();

@@ -464,19 +464,20 @@ public class TascaHelper {
 
 	public List<ExpedientTascaDto> findTasquesPendentsPerExpedient(
 			Expedient expedient,
-			boolean mostrarDeOtrosUsuarios,
+			boolean permisosVerOtrosUsuarios,
+			boolean nomesMeves,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (nomesMeves) {
+			permisosVerOtrosUsuarios = false;
+			nomesTasquesGrup = false;
+		}
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
-				ExpedientTascaDto tasca = getExpedientTascaDto(
-						task,
-						expedient,
-						true);
-				if (mostrarDeOtrosUsuarios || tasca.isAssignadaPersonaAmbCodi(auth.getName())) {
+				ExpedientTascaDto tasca = getExpedientTascaDto(task, expedient, true);
+				if (permisosVerOtrosUsuarios || tasca.isAssignadaUsuariActual()) {
 					boolean esTareaGrupo = !tasca.isAgafada() && tasca.getResponsables() != null && !tasca.getResponsables().isEmpty();
 					if (nomesTasquesGrup && esTareaGrupo) {						
 						resposta.add(tasca);
@@ -497,14 +498,13 @@ public class TascaHelper {
 			boolean completed,
 			boolean mostrarDeOtrosUsuarios) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
 		for (JbpmTask task: tasks) {
 			ExpedientTascaDto tasca = getExpedientTascaDto(
 					task,
 					expedient,
 					true);
-			if ((tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaPersonaAmbCodi(auth.getName()))) {
+			if ((tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
 				resposta.add(tasca);
 			}
 		}
@@ -720,7 +720,7 @@ public class TascaHelper {
 			}
 			dto.setResponsables(responsables);
 		}
-		if (auth != null && task.getPooledActors().size() > 0 && task.getAssignee() != null) {
+		if (auth != null && task.getPooledActors().isEmpty() && task.getAssignee() != null) {
 			dto.setAssignadaUsuariActual(task.getAssignee().equals(auth.getName()));
 		} 
 		return dto;

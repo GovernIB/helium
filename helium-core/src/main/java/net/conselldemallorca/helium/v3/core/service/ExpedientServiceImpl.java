@@ -1461,7 +1461,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean mostrarDeOtrosUsuarios, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean permisosVerOtrosUsuarios, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
 		logger.debug("Consulta de tasques pendents de l'expedient (" +
 				"id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1469,7 +1469,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		return tascaHelper.findTasquesPendentsPerExpedient(expedient, mostrarDeOtrosUsuarios, nomesTasquesPersonals, nomesTasquesGrup);
+		return tascaHelper.findTasquesPendentsPerExpedient(expedient, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
 	}
 
 	@Override
@@ -2185,6 +2185,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (pi.getProcessInstance() == null)
 			return null;
 		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
+		if (pi.getDescription() != null && pi.getDescription().length() > 0)
+			dto.setTitol(pi.getDescription());
 		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
 		return dto;
 	}

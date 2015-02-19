@@ -374,13 +374,14 @@ public interface ExpedientService {
 	 * 
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param nomesTasquesGrup2 
 	 * @return La llista de tasques pendents.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
+	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean permisosVerOtrosUsuarios, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
 
 	/**
 	 * Retorna la llista de dades d'una instància de procés de
