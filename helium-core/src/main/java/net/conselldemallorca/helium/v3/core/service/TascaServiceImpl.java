@@ -501,20 +501,15 @@ public class TascaServiceImpl implements TascaService {
 					NullComparator nullComparator = new NullComparator();
 					if ("titol".equals(finalSort)) {
 						if (finalAsc)
-							result = nullComparator.compare(t1.getTitol(), t2.getTitol());
-						else
-							result = nullComparator.compare(t2.getTitol(), t1.getTitol());
-					} else if ("expedientIdentificador".equals(finalSort)) {
-						if (finalAsc)
 							result = nullComparator.compare(t1.getExpedientIdentificador(), t2.getExpedientIdentificador());
-						else 
+						else
 							result = nullComparator.compare(t2.getExpedientIdentificador(), t1.getExpedientIdentificador());
-					} else if ("expedientTipusNom".equals(finalSort)) {
+					} else if ("tipus.nom".equals(finalSort)) {
 						if (finalAsc)
 							result = nullComparator.compare(t1.getExpedientTipusNom(), t2.getExpedientTipusNom());
 						else
 							result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
-					} else if ("dataCreacio".equals(finalSort)) {
+					} else if ("createTime".equals(finalSort)) {
 						if (finalAsc)
 							result = nullComparator.compare(t1.getCreateTime(), t2.getCreateTime());
 						else
@@ -524,7 +519,7 @@ public class TascaServiceImpl implements TascaService {
 							result = t1.getPriority() - t2.getPriority();
 						else
 							result = t2.getPriority() - t1.getPriority();
-					} else if ("dataLimit".equals(finalSort)) {
+					} else if ("dueDate".equals(finalSort)) {
 						if (finalAsc)
 							result = nullComparator.compare(t1.getDueDate(), t2.getDueDate());
 						else
