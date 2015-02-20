@@ -72,6 +72,19 @@ public class ServiceUtils {
 				getMapValorsDomini(mapCamps, mapValors),
 				isExpedientFinalitzat(expedient));
 	}
+	public void expedientIndexLuceneRecrear(Expedient expedient) {
+		luceneHelper.deleteExpedient(expedient);
+		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
+		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
+		luceneHelper.createExpedient(
+				expedient,
+				getMapDefinicionsProces(expedient.getProcessInstanceId()),
+				mapCamps,
+				mapValors,
+				getMapValorsDomini(mapCamps, mapValors),
+				isExpedientFinalitzat(expedient),
+				false);
+	}
 	
 	public Object getVariableJbpmProcesValor(
 			String processInstanceId,

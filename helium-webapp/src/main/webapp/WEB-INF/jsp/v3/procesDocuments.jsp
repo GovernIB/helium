@@ -49,7 +49,7 @@ div.procesDocument:hover {
 							data-rdt-link-callback="recargarPanel(${proces.id});"
 							data-rdt-link-modal-min-height="180">
 							<span class="fa fa-plus"></span>
-							 <spring:message code="expedient.boto.nou_document"/>
+							<spring:message code="expedient.boto.nou_document"/>
 						</a>
 					</div>
 				</div>

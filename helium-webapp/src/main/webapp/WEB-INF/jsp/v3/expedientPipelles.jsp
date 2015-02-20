@@ -146,16 +146,8 @@
 					    dataType: 'json',
 					    success: function(data) {
 					        $("#canviDefinicioProcesJbpm").toggleClass('hide');
-					        $.ajax({
-								url: '<c:url value="/nodeco/v3/missatges"/>',
-								async: false,
-								timeout: 20000,
-								success: function (data) {
-									$("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
-									$('#contingut-alertes *').remove();
-									$('#contingut-alertes').append(data);
-								}
-						    });
+					        $("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
+							refrescarAlertas();
 					    },
 					  	error: function(XMLHttpRequest, textStatus, errorThrown) {
 						}
@@ -164,6 +156,16 @@
 			});
 	
 		});
+		function refrescarAlertas() {
+			$.ajax({
+				url: "<c:url value="/nodeco/v3/missatges"/>",
+				async: false,
+				timeout: 20000,
+				success: function (data) {
+					$('#contingut-alertes').html(data);
+				}
+			});
+		}
 		function alertaError(textStatus, jqXHR) {
 			if (textStatus == 'error') {
 				if (jqXHR.status === 0) {
@@ -279,6 +281,7 @@
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
 							<li><a data-rdt-link-modal-min-height="190" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+							<!-- <li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" data-rdt-link-callback="refrescarAlertas();" data-rdt-link-ajax="true" href="<c:url value="../../v3/expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li> -->
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 							<c:if test="${expedient.permisAdministration}">

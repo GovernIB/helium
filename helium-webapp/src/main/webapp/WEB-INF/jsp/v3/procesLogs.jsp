@@ -6,41 +6,67 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <c:set var="numColumnes" value="${3}"/>
 <style type="text/css">
-div.procesLog {
+#contingut-registre div.procesLog {
 	color: white !important;
 	background-color: #428bca !important;
 	border-color: #357ebd !important;
 	font-weight: bold;
 }
-div.procesLog:hover {
+#contingut-registre div.procesLog:hover {
 	background-color: #3071a9 !important;
 	border-color: #285e8e !important;
 }
-.panel-body {
+#contingut-registre .panel-body {
 	padding-bottom: 0px !important;
 }
-.panel-body > table {
+#contingut-registre .panel-body > table {
 	overflow: hidden;
 }
-.panel-body table:last-child {
+#contingut-registre .panel-body table:last-child {
 	margin-bottom: 0px;
 }
-.contingut-carregant-proces {
+#contingut-registre .contingut-carregant-proces {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
-.log_options {min-width: 110px;}
-.log_options i, .options a {
+#contingut-registre .log_options {min-width: 110px;}
+#contingut-registre .log_options i, .options a {
 	padding-right: 2px;
 	padding-left: 2px;			
 }
-.dataTable_log .panel.panel-default {
+#contingut-registre #contingut-registre .panel.panel-default {
 	border: 0 none;
 	margin-bottom: 1px;
 }
-.registre_a_retrocedir {background: #ffffcc;}
-.btnLogDetall {
+#contingut-registre .registre_a_retrocedir {background: #ffffcc;}
+#contingut-registre .btnLogDetall {
 	text-align:right;
+}
+#contingut-registre .table {
+    display: none;
+}
+#contingut-registre .dataTable_log .panel-body-grup {
+    border: none;
+    border-collapse: collapse;
+}
+#contingut-registre .dataTable_log .panel {
+    border: none;
+}
+#contingut-registre .panel-body-grup {
+    margin-bottom: -20px;
+}
+#contingut-registre td {
+  height: inherit; /* inherited value from parent element */
+}
+#contingut-registre .tableLogs {
+	margin-top: 0px;
+	bottom-top: 0px; 
+    position: relative;
+    border-collapse: collapse;
+    display: inline-table;
+}
+#contingut-registre table td {
+    overflow:hidden;
 }
 </style>
 <c:choose>

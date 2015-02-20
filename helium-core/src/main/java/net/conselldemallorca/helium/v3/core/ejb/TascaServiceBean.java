@@ -67,10 +67,11 @@ public class TascaServiceBean implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup,
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup,
 			PaginacioParamsDto paginacioParams) throws Exception {
-		return delegate.findPerFiltrePaginat(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup, paginacioParams);
+		return delegate.findPerFiltrePaginat(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup, paginacioParams);
 	}
 
 	@Override
@@ -192,9 +193,10 @@ public class TascaServiceBean implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup) {
-		return delegate.findIdsPerFiltre(entornId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, mostrarTasquesPersonals, mostrarTasquesGrup);
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup) {
+		return delegate.findIdsPerFiltre(entornId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
 	}
 
 	@Override

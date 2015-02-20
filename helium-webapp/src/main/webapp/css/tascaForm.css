@@ -186,6 +186,7 @@ div.tab-content {
 /* 			border: solid 0px; */
 /* 			padding-right: 0px; */
 /* 		} */
+.well.well-small {margin: 20px;}
 .registre th {
 	border-bottom: solid 1px #CACACA !important;
 	background: rgba(221,221,221,1);

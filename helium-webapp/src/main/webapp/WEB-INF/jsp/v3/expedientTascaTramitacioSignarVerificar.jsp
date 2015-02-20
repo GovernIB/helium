@@ -50,7 +50,7 @@
 		</div>
 	</c:forEach>
 	<div id="modal-botons" class="well">
-		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 </body>
 </html>

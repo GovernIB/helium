@@ -111,8 +111,9 @@ public interface TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup,
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup,
 			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
@@ -309,10 +310,9 @@ public interface TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup);
-
-
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup);
 
 	/**
 	 * Retorna l'arxiu del document.

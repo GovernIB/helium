@@ -67,20 +67,9 @@
 			$("button[data-toggle=button]").click(function() {
 				$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
 				$(this).blur();
-				if ($(this).attr('id') == 'mostrarTasquesPersonalsCheck') {
-					$('#mostrarTasquesGrupCheck').attr('disabled', !$(this).hasClass('active'));
-				}
-				if ($(this).attr('id') == 'mostrarTasquesGrupCheck') {
-					$('#mostrarTasquesPersonalsCheck').attr('disabled', !$(this).hasClass('active'));
-				}
+				actualizarBotonesFiltros($(this).attr('id'));
 				$("button[value=consultar]").click();
 			});
-			if ($('#mostrarTasquesPersonalsCheck').hasClass('active')) {
-				$('#mostrarTasquesGrupCheck').attr('disabled', true);
-			}
-			if ($('#mostrarTasquesGrupCheck').hasClass('active')) {
-				$('#mostrarTasquesPersonalsCheck').attr('disabled', true);
-			}
 						
 			<c:if test="${entornId != null}">
 				$('#expedientTipusId').on('change', function() {
@@ -106,7 +95,31 @@
 	
 				$('#expedientTipusId').trigger('change');
 			</c:if>
+			actualizarBotonesFiltros();
 		});
+		function actualizarBotonesFiltros(id) {
+			$('#nomesMevesCheck').attr('disabled', false);
+			$('#nomesTasquesPersonalsCheck').attr('disabled', false);
+			$('#nomesTasquesGrupCheck').attr('disabled', false);
+			$('#responsable').select2("val", "", true);
+			$('#responsable').attr('disabled', false);
+
+			var nomesMeves = ($('#nomesMevesCheck').hasClass('active') && id == null) || (!$('#nomesMevesCheck').hasClass('active') && id == 'nomesMevesCheck') || ($('#nomesMevesCheck').hasClass('active') && id != 'nomesMevesCheck'); 
+			var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
+			var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
+
+			if (nomesMeves) {
+				$('#nomesTasquesGrupCheck').attr('disabled', true);
+				$('#responsable').attr('disabled', true);
+			}
+			if (nomesTasquesPersonals) {
+				$('#nomesTasquesGrupCheck').attr('disabled', true);
+			}
+			if (nomesTasquesGrup) {
+				$('#nomesTasquesPersonalsCheck').attr('disabled', true);
+				$('#nomesMevesCheck').attr('disabled', true);
+			}
+		}
 		function agafar(tascaId, correcte) {
 			if (correcte) {
  				var start = new Date().getTime();	
@@ -179,29 +192,18 @@
 			<c:otherwise>
 				<div id="filtresCollapsable" class="collapse<c:if test="${true or tascaConsultaCommand.filtreDesplegat}"> in</c:if>">
 					<div class="row">
-						<div class="col-md-5">
+						<div class="col-md-3">
 							<hel:inputText name="titol" textKey="tasca.llistat.filtre.camp.titol" placeholderKey="tasca.llistat.filtre.camp.titol" inline="true"/>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<hel:inputText name="expedient" textKey="tasca.llistat.filtre.camp.expedient" placeholderKey="tasca.llistat.filtre.camp.expedient" inline="true"/>
 						</div>
-						<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
-							<div class="col-md-3">
-								<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
-							</div>
-						</c:if>
-						<div class="col-md-5">
+						<div class="col-md-3">
 							<hel:inputSelect name="expedientTipusId" textKey="tasca.llistat.filtre.camp.tipexp" placeholderKey="tasca.llistat.filtre.camp.tipexp" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
-						</div>
-						<div class="col-md-5">
+						</div>		
+						<div class="col-md-3">
 							<hel:inputSelect inline="true" name="tasca" textKey="tasca.llistat.filtre.camp.tasca" placeholderKey="tasca.llistat.filtre.camp.tasca"/>
 						</div>
-						<!-- <div class="col-md-3">
-							<hel:inputSelect name="prioritat" textKey="tasca.llistat.filtre.camp.prioritat" placeholderKey="tasca.llistat.filtre.camp.prioritat" optionItems="${prioritats}" optionValueAttribute="valor" optionTextAttribute="codi" inline="true"/>
-						</div>
-						 -->
-					</div>
-					<div class="row">
 						<div class="col-md-4">
 							<label><spring:message code="tasca.llistat.filtre.camp.datcre"/></label>
 							<div class="row">
@@ -224,16 +226,30 @@
 								</div>
 							</div>
 						</div>
+						<div class="col-md-4">				
+							<label>&nbsp;</label>
+							<div class="row">
+								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+									<div class="col-md-12">
+										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+									</div>
+								</c:if>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="row">						
 					<div class="col-md-12">
-						<form:hidden path="mostrarTasquesPersonals"/>
-						<form:hidden path="mostrarTasquesGrup"/>
+						<form:hidden path="nomesTasquesPersonals"/>
+						<form:hidden path="nomesTasquesGrup"/>
+						<form:hidden path="nomesMeves"/>
 						<div class="row">
 							<div class="col-md-6 btn-group">
-								<button id="mostrarTasquesPersonalsCheck" data-path="mostrarTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-								<button id="mostrarTasquesGrupCheck" data-path="mostrarTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.mostrarTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+									<button id="nomesMevesCheck" data-path="nomesMeves" title="<spring:message code="tasca.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-male"></span></button>
+								</c:if>
+								<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+								<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 							</div>
 							<div class="col-md-6">
 							<div class="pull-right">

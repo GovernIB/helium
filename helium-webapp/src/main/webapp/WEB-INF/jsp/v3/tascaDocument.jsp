@@ -66,9 +66,9 @@
 						<i class="fa fa-times"></i>
 					</a>
 					<div id="hideData${document.id}" class="comentari small <c:if test="${empty document.tokenSignatura}">hide</c:if>">
-						<p><label>Arxiu</label>: <label id="docNom${document.id}">${document.arxiuNom}</label></p>
-						<p><label>Adjuntat el</label>: <label id="docDataAdj${document.id}"><fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></label></p>
-						<p><label>Data del document</label>: <label id="docData${document.id}"><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></label></p>
+						<p><label><spring:message code='tasca.doc.adjunt.arxiu' /></label>: <label id="docNom${document.id}">${document.arxiuNom}</label></p>
+						<p><label><spring:message code='tasca.doc.adjunt.adjuntat.el' /></label>: <label id="docDataAdj${document.id}"><fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></label></p>
+						<p><label><spring:message code='tasca.doc.adjunt.data.document' /></label>: <label id="docData${document.id}"><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></label></p>
 					</div>
 				</h4>
 				<div class="form-group">
@@ -85,7 +85,7 @@
 				</div>
 				<div id="div_timer${document.id}" class="control-group left control-group-mid <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 			    	<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-						<label class="control-label col-xs-1" for="data${document.id}">Data del document</label>
+						<label class="control-label col-xs-1" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
 						<div class="input-group">
 							<input class="form-control datepicker" id="data${document.id}" name="data"/>
 							<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>

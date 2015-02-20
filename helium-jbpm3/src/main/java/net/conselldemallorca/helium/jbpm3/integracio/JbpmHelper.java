@@ -1268,6 +1268,7 @@ public class JbpmHelper {
 	}
 	
 	public LlistatIds findListTasks( // 3.0
+			String usuari,
 			String responsable,
 			String tasca,
 			String tascaSel,
@@ -1278,10 +1279,13 @@ public class JbpmHelper {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			PaginacioParamsDto paginacioParams,
-			boolean nomesAmbTasquesPersonals,
-			boolean nomesAmbTasquesGrup,
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup,
 			boolean nomesAmbPendents) {
-		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");		
+		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");
+		if (nomesMeves)
+			responsable = usuari;
 		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
 				responsable,
 				tasca,
@@ -1293,8 +1297,8 @@ public class JbpmHelper {
 				dataLimitInici,
 				dataLimitFi,
 				paginacioParams.getOrdres(),
-				nomesAmbTasquesPersonals,
-				nomesAmbTasquesGrup);
+				nomesTasquesPersonals,
+				nomesTasquesGrup);
 		command.setFirstRow(
 				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany());
 		command.setMaxResults(

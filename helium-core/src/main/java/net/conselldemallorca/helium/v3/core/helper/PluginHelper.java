@@ -100,6 +100,8 @@ public class PluginHelper {
 	public List<PersonaDto> findLikeNomSencer(String text) {
 		try {
 			List<DadesPersona> persones = personesPlugin.findLikeNomSencer(text);
+			if (persones == null)
+				return new ArrayList<PersonaDto>();
 			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
 		} catch (PersonesPluginException ex) {
 			logger.error("Error al cercar les persones amb el nom sencer", ex);

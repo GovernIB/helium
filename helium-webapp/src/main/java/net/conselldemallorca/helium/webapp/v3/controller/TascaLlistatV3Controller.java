@@ -148,8 +148,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 							filtreCommand.getDataLimitInicial(),
 							filtreCommand.getDataLimitFinal(),
 							filtreCommand.getPrioritat(),
-							filtreCommand.isMostrarTasquesPersonals(),
-							filtreCommand.isMostrarTasquesGrup(),
+							filtreCommand.isNomesMeves(),
+							filtreCommand.isNomesTasquesPersonals(),
+							filtreCommand.isNomesTasquesGrup(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
 			if (entornActual == null)
@@ -192,8 +193,9 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			filtreCommand.getDataLimitInicial(),
 			filtreCommand.getDataLimitFinal(),
 			filtreCommand.getPrioritat(),
-			filtreCommand.isMostrarTasquesPersonals(),
-			filtreCommand.isMostrarTasquesGrup());
+			filtreCommand.isNomesMeves(),
+			filtreCommand.isNomesTasquesPersonals(),
+			filtreCommand.isNomesTasquesGrup());
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null) {

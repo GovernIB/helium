@@ -683,6 +683,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient,
 				expedientHelper.isFinalitzat(expedient));
 	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public boolean luceneReindexarExpedient(Long expedientId) {
+		try {
+			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+					expedientId,
+					false,
+					true,
+					false);
+			serviceUtils.expedientIndexLuceneRecrear(expedient);
+			return true;
+		} catch (Exception ex) {
+			return false;
+		}
+	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -2601,39 +2617,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<ExpedientLog> logs = expedientLoggerHelper.findLogsRetrocedits(logId);
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
 	}
-	/*
-	@Transactional
-	@Override
-	public void deleteConsulta(Long id) {
-		Consulta vell = consultaRepository.findById(id);
-		Long expedientTipusId = vell.getExpedientTipus().getId();
-		Long entornId = vell.getEntorn().getId();
-		if (vell != null){
-			consultaRepository.delete(id);
-			reordenarConsultes(entornId, expedientTipusId); 
-		}
-	}
-
-	@Transactional
-	private void reordenarConsultes(Long entornId, Long expedientTipusId) {		
-		List<Consulta> consultes = consultaRepository.findConsultesAmbEntornIExpedientTipusOrdenat(
-				entornId,
-				expedientTipusId);		
-		int i = 0;
-		for (Consulta consulta: consultes)
-			consulta.setOrdre(i++);
-	}
 	
-	
-
-	
-*/
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
 		return expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol) != null;
-	}
-	
+	}	
 	
 	@Override
 	@Transactional

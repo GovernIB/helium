@@ -43,7 +43,8 @@ public class BaseTascaController extends BaseController {
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
 			if (dada.isReadOnly()) {
-				nomesLectura.add(dada);
+				if (!dada.isCampOcult())
+					nomesLectura.add(dada);
 				itDades.remove();
 			}
 		}
@@ -52,9 +53,8 @@ public class BaseTascaController extends BaseController {
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
 			TascaDocumentDto document = itDocuments.next();
-			if (document.isReadOnly()) {
-				if (document.getId() != null)
-					nomesLectura.add(document);
+			if (document.isReadOnly() && document.getId() != null) {
+				nomesLectura.add(document);
 			}
 		}
 		

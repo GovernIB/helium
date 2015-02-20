@@ -53,7 +53,9 @@ public class ExpedientLogDto {
 		this.accioTipus = accioTipus;
 	}
 	public String getAccioParams() {
-		return accioParams;
+		if (accioParams != null)
+			return accioParams.replaceAll(",", ", ");
+		return null;
 	}
 	public void setAccioParams(String accioParams) {
 		if(accioParams!=null){

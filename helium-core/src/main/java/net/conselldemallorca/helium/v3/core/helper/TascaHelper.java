@@ -301,6 +301,7 @@ public class TascaHelper {
 					ExtendedPermission.ADMINISTRATION},
 				auth);
 		final LlistatIds ids = jbpmHelper.findListTasks(
+				auth.getName(),
 				(isPermisSupervision) ? null : auth.getName(), 
 				null,
 				null,
@@ -311,6 +312,7 @@ public class TascaHelper {
 				null, 
 				null, 
 				paginacioParams,
+				false,
 				true,
 				true,
 				false);

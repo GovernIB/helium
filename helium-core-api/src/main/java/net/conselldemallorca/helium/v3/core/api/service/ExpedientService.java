@@ -374,7 +374,6 @@ public interface ExpedientService {
 	 * 
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param nomesTasquesGrup2 
 	 * @return La llista de tasques pendents.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
@@ -675,4 +674,6 @@ public interface ExpedientService {
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
 	public void reprendre(Long id);
+
+	public boolean luceneReindexarExpedient(Long expedientId);
 }

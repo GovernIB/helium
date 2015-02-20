@@ -191,8 +191,9 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup) {
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup) {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
@@ -205,8 +206,9 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitInici=" + dataLimitInici + ", " +
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
-				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
-				"mostrarTasquesGrup=" + mostrarTasquesGrup + ")");
+				"nomesMeves=" + nomesMeves + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -261,6 +263,7 @@ public class TascaServiceImpl implements TascaService {
 				null);
 		
 		LlistatIds ids = jbpmHelper.findListTasks(
+				usuari,
 				responsable,
 				titol,
 				tasca,
@@ -271,8 +274,9 @@ public class TascaServiceImpl implements TascaService {
 				dataLimitInici,
 				dataLimitFi,
 				new PaginacioParamsDto(),
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup,
+				nomesMeves, 
+				nomesTasquesPersonals, 
+				nomesTasquesGrup,
 				true);
 		return ids.getIds();
 	}
@@ -293,8 +297,9 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean mostrarTasquesPersonals,
-			boolean mostrarTasquesGrup,
+			boolean nomesMeves, 
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup,
 			final PaginacioParamsDto paginacioParams) throws Exception {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
@@ -309,8 +314,9 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitInici=" + dataLimitInici + ", " +
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
-				"mostrarTasquesPersonals=" + mostrarTasquesPersonals + ", " +
-				"mostrarTasquesGrup=" + mostrarTasquesGrup + ")");
+				"nomesMeves=" + nomesMeves + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -390,6 +396,7 @@ public class TascaServiceImpl implements TascaService {
 		}
 		
 		LlistatIds ids = jbpmHelper.findListTasks(
+				usuari,
 				responsable,
 				titol,
 				tasca,
@@ -400,8 +407,9 @@ public class TascaServiceImpl implements TascaService {
 				dataLimitInici,
 				dataLimitFi,
 				paginacioParams,
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup,
+				nomesMeves, 
+				nomesTasquesPersonals, 
+				nomesTasquesGrup,
 				true);
 		if (consultaTramitacioMassivaTascaId != null) {			
 			// Filtra les tasques per mostrar només les del entorn seleccionat
