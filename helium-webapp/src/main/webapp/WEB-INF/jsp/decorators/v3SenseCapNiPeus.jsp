@@ -27,7 +27,7 @@
 </head>
 <body>
 	<!-- Sense cap ni peus v3 -->
-	<div style="padding: 15px">
+	<div style="padding: 15px;overflow-x: hidden;">
 		<div id="contingut-alertes"><hel:missatges/></div>
 		<decorator:body />
 	</div>

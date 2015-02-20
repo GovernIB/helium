@@ -89,6 +89,23 @@ public class CampValorsController extends BaseExpedientController {
 				getMapDelsValors(valors));
 	}
 	
+	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valors/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> consultaAmbTascaValor(
+			HttpServletRequest request,
+			@PathVariable(value = "campId") Long campId,
+			@PathVariable(value = "tascaId") String tascaId,
+			@PathVariable(value = "valor") String textFiltre,
+			ModelMap model) {
+		return tascaService.findValorsPerCampDesplegable(
+				tascaId,
+				null,
+				campId,
+				null,
+				textFiltre,
+				null);
+	}
+	
 	@RequestMapping(value = "/{campId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consulta(
@@ -104,6 +121,22 @@ public class CampValorsController extends BaseExpedientController {
 				null,
 				textFiltre,
 				getMapDelsValors(valors));
+	}
+	
+	@RequestMapping(value = "/{campId}/valors/{valor}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SeleccioOpcioDto> consultaValor(
+			HttpServletRequest request,
+			@PathVariable(value = "campId") Long campId,
+			@PathVariable(value = "valor") String textFiltre,
+			ModelMap model) {
+		return tascaService.findValorsPerCampDesplegable(
+				null,
+				null,
+				campId,
+				null,
+				textFiltre,
+				null);
 	}
 
 	@RequestMapping(value = "/{campId}/context/{processInstanceId}/{tascaId}/valor/{valor}", method = RequestMethod.GET)
