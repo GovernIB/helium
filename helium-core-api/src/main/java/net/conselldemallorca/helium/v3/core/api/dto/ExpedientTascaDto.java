@@ -405,4 +405,9 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 			return false;
 		}
 	}
+
+	public boolean isFormExtern() {
+		return (tascaFormExternCodi != null && !tascaFormExternCodi.isEmpty());
+	}
+
 }

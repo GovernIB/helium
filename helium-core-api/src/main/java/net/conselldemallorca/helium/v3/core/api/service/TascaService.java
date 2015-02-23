@@ -10,6 +10,7 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
@@ -272,8 +273,6 @@ public interface TascaService {
 			String id,
 			String outcome);
 
-	
-
 	/**
 	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
 	 * l'usuari que ha creat la delegació.
@@ -291,7 +290,16 @@ public interface TascaService {
 			String id,
 			String accio);
 
-	
+	/**
+	 * Inicia un formulari extern i retorna les dades per a obrir
+	 * una finestra amb el formulari.
+	 * 
+	 * @param id
+	 *            Atribut id de la tasca.
+	 * @return
+	 */
+	public FormulariExternDto formulariExternIniciar(
+			String id);
 
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 	
@@ -347,4 +355,5 @@ public interface TascaService {
 	public boolean hasDocuments(String tascaId);
 
 	public boolean hasSignatures(String tascaId);
+
 }

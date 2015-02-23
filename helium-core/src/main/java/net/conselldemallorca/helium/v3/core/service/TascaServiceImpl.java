@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
@@ -56,6 +57,7 @@ import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.FormulariExternHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
@@ -134,6 +136,8 @@ public class TascaServiceImpl implements TascaService {
 	private ServiceUtils serviceUtils;
 	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private FormulariExternHelper formulariExternHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
@@ -1159,6 +1163,27 @@ public class TascaServiceImpl implements TascaService {
 				usuari);
 		jbpmHelper.executeActionInstanciaTasca(id, accio);
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+	}
+
+	@Override
+	@Transactional
+	public FormulariExternDto formulariExternIniciar(
+			String id) {
+		logger.debug("Iniciant formulari extern per la tasca (" +
+				"id=" + id + ")");
+		tascaHelper.getTascaComprovacionsTramitacio(
+				id,
+				true,
+				true);
+		FormulariExternDto dto = new FormulariExternDto();
+		dto.setFormulariId("1");
+		dto.setUrl("http://oficina.limit.es");
+		dto.setWidth(800);
+		dto.setHeight(600);
+		return dto;
+		/*return formulariExternHelper.iniciar(
+				id,
+				variableHelper.getVariablesJbpmTascaValor(id));*/
 	}
 
 	private void verificarFinalitzacioExpedient(

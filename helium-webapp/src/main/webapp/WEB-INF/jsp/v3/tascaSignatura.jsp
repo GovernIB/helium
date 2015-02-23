@@ -194,6 +194,15 @@ function signarCaib(token, form, contentType) {
 </script>
 </head>
 <body>
+	<c:if test="${not signaturesComplet}">
+		<div class="alert alert-warning">
+			<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+			<p>
+				<span class="fa fa-warning"></span>
+				<spring:message code="tasca.tramitacio.firmes.no.complet"/>
+			</p>
+		</div>
+	</c:if>
 	<div class="dades">
 		<c:forEach var="document" items="${signatures}">
 			<div class="signarTramitacio well well-small">

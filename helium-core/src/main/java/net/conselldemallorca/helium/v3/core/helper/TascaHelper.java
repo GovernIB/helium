@@ -457,6 +457,10 @@ public class TascaHelper {
 				task.getDescriptionWithFields());
 	}
 
+	public Tasca findTascaByJbpmTaskId(
+			String jbpmTaskId) {
+		return findTascaByJbpmTask(jbpmHelper.getTaskById(jbpmTaskId));
+	}
 	public Tasca findTascaByJbpmTask(
 			JbpmTask task) {
 		return tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(

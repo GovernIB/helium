@@ -3,14 +3,21 @@
  */
 package net.conselldemallorca.helium.v3.core.helper;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 import org.springframework.security.acls.model.Permission;
@@ -28,6 +35,11 @@ public class ExpedientTipusHelper {
 
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
+
+	@Resource
+	private JbpmHelper jbpmHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
 
@@ -89,6 +101,25 @@ public class ExpedientTipusHelper {
 			}
 		}
 		return expedientTipus;
+	}
+
+	public ExpedientTipus findAmbTaskId(
+			String taskId) {
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		return findAmbProcessInstanceId(task.getProcessInstanceId());
+	}
+
+	public ExpedientTipus findAmbProcessInstanceId(
+			String processInstanceId) {
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(
+				processInstanceId);
+		List<Expedient> expedients = expedientRepository.findByProcessInstanceId(
+				rootProcessInstance.getId());
+		if (expedients.size() > 0) {
+			return expedients.get(0).getTipus();
+		} else {
+			return null;
+		}
 	}
 
 }

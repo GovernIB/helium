@@ -551,7 +551,9 @@ public class VariableHelper {
 				while (it.hasNext()) {
 					FilaResultat fr = it.next();
 					for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-						if (parellaCodi.getCodi().equals(columnaCodi) &&
+						boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(domini.getTipus());
+						boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
+						if (matches &&
 								(
 									valor == null || 
 									parellaCodi.getValor().toString().equals(valor) ||
@@ -559,7 +561,8 @@ public class VariableHelper {
 								)
 							) {
 							for (ParellaCodiValor parellaValor: fr.getColumnes()) {
-								if (parellaValor.getCodi().equals(columnaValor)) {
+								matches = (ignoreCase) ? parellaValor.getCodi().equalsIgnoreCase(columnaValor) : parellaValor.getCodi().equals(columnaValor);
+								if (matches) {
 									ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
 											parellaCodi.getValor().toString(),
 											parellaValor.getValor());
@@ -704,25 +707,25 @@ public class VariableHelper {
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
 			ExpedientDadaDto expedientDadaDto,
 			CampTasca campTasca) {
-		TascaDadaDto tascaDto = new TascaDadaDto();
-		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());
-		tascaDto.setVarValor(expedientDadaDto.getVarValor());
-		tascaDto.setCampId(expedientDadaDto.getCampId());
-		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
-		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
-		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
-		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		TascaDadaDto tascaDadaDto = new TascaDadaDto();
+		tascaDadaDto.setVarCodi(expedientDadaDto.getVarCodi());
+		tascaDadaDto.setVarValor(expedientDadaDto.getVarValor());
+		tascaDadaDto.setCampId(expedientDadaDto.getCampId());
+		tascaDadaDto.setCampTipus(expedientDadaDto.getCampTipus());
+		tascaDadaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
+		tascaDadaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
+		tascaDadaDto.setCampOcult(expedientDadaDto.isCampOcult());
 		if (campTasca != null) {
-			tascaDto.setReadOnly(campTasca.isReadOnly());
-			tascaDto.setReadFrom(campTasca.isReadFrom());
-			tascaDto.setWriteTo(campTasca.isWriteTo());
-			tascaDto.setRequired(campTasca.isRequired());
+			tascaDadaDto.setReadOnly(campTasca.isReadOnly());
+			tascaDadaDto.setReadFrom(campTasca.isReadFrom());
+			tascaDadaDto.setWriteTo(campTasca.isWriteTo());
+			tascaDadaDto.setRequired(campTasca.isRequired());
 		}
-		tascaDto.setText(expedientDadaDto.getText());
-		tascaDto.setError(expedientDadaDto.getError());
-		tascaDto.setObservacions(expedientDadaDto.getObservacions());
-		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
-		tascaDto.setValidacions(expedientDadaDto.getValidacions());
+		tascaDadaDto.setText(expedientDadaDto.getText());
+		tascaDadaDto.setError(expedientDadaDto.getError());
+		tascaDadaDto.setObservacions(expedientDadaDto.getObservacions());
+		tascaDadaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDadaDto.setValidacions(expedientDadaDto.getValidacions());
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
@@ -731,7 +734,7 @@ public class VariableHelper {
 								dto,
 								campTasca));
 			}
-			tascaDto.setMultipleDades(multipleDades);
+			tascaDadaDto.setMultipleDades(multipleDades);
 		}
 		if (expedientDadaDto.getRegistreDades() != null) {
 			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
@@ -741,11 +744,28 @@ public class VariableHelper {
 								dto,
 								campTasca));
 			}
-			tascaDto.setRegistreDades(registreDades);
+			tascaDadaDto.setRegistreDades(registreDades);
 		}
-		return tascaDto;
+		if (campTasca.getCamp().getDominiParams() != null) {
+			String dominiParams = campTasca.getCamp().getDominiParams();
+			String[] pairs = dominiParams.split(";");
+			List<String> paramCampCodis = new ArrayList<String>();
+			for (String pair: pairs) {
+				String[] parts = pair.split(":");
+				if (parts.length >= 2) {
+					String campCodi = parts[1];
+					if (!campCodi.startsWith("@") && !campCodi.startsWith("#{")) {
+						paramCampCodis.add(campCodi);
+					}
+				}
+			}
+			tascaDadaDto.setCampParams(
+					paramCampCodis.toArray(
+							new String[paramCampCodis.size()]));
+		}
+		return tascaDadaDto;
 	}
-	
+
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto expedientDadaDto) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());

@@ -52,7 +52,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/proces/{processInstanceId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaAmbProces(
@@ -70,7 +70,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaAmbTasca(
@@ -88,7 +88,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valors/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaAmbTascaValor(
@@ -158,7 +158,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/proces/{processInstanceId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValorProces(
@@ -177,7 +177,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValorTasca(
@@ -196,7 +196,7 @@ public class CampValorsController extends BaseExpedientController {
 				textFiltre,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValor(
@@ -227,4 +227,5 @@ public class CampValorsController extends BaseExpedientController {
 		}
 		return resposta;
 	}
+
 }

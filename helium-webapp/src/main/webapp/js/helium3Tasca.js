@@ -32,17 +32,34 @@ $(function() {
 	$(".enter").keyfilter(/^[-+]?[0-9]*$/);
 	$(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
 	$(".suggest").each(function(){
-		var suggest = $(this);
-		suggest.select2({
+		var input = $(this);
+		input.select2({
 		    minimumInputLength: 3,
 		    width: '100%',
 		    allowClear: true,
 		    ajax: {
-		        url: function (value) {
-		        	return suggest.data("urlconsultallistat") + "/" + value;
+		        url: function(value) {
+		        	return input.data("urlconsultallistat");
 		        },
 		        dataType: 'json',
-		        results: function (data, page) {
+		        data: function (value) {
+		        	var dataObj = {};
+		        	if (value) {
+		        		dataObj['q'] = value;
+		        	}
+		        	var params = '';
+		        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+		        		if ($(this).val()) {
+		        			params += $(this).attr('id') + ':' + $(this).val() + ',';
+		        		}
+		        	});
+		        	if (params.length > 0)
+		        		params = params.substring(0, params.length);
+		        	if (params.length > 0)
+		        		dataObj['valors'] = params;
+		        	return dataObj;
+		        },
+		        results: function(data, page) {
 		        	var results = [];
 		        	for (var i = 0; i < data.length; i++) {
 		        		results.push({id: data[i].codi, text: data[i].nom});
@@ -52,27 +69,51 @@ $(function() {
 		    },
 		    initSelection: function(element, callback) {
 		    	if ($(element).val()) {
-			    	$.ajax(suggest.data("urlconsultainicial") + "/" + $(element).val(), {
+			    	$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
 		                dataType: "json"
 		            }).done(function(data) {
 		            	callback({id: data.codi, text: data.nom});
 		            });
 		    	}
 		    },
+		}).on('change', function() {
+			var campName = $(this).attr('name');
+			$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+				if ($(this).data('campparams') == campName) {
+					$(this).select2("val", "");
+				}
+			});
 		});
 	});
 	$(".seleccio").each(function(){
-		var seleccio = $(this);
-		seleccio.select2({
+		var input = $(this);
+		input.select2({
 			width: '100%',
-		    placeholder: seleccio.data("placeholder"),
+		    placeholder: input.data("placeholder"),
 		    allowClear: true,
-		    minimumResultsForSearch: 10,
+		    minimumResultsForSearch: -1,
 		    ajax: {
 		        url: function (value) {
-		        	return seleccio.data("urlselectllistat") + "/" + value;
+		        	return input.data("urlconsultallistat");
 		        },
 		        dataType: 'json',
+		        data: function (value) {
+		        	var dataObj = {};
+		        	if (value) {
+		        		dataObj['q'] = value;
+		        	}
+		        	var params = '';
+		        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+		        		if ($(this).val()) {
+		        			params += $(this).attr('id') + ':' + $(this).val() + ',';
+		        		}
+		        	});
+		        	if (params.length > 0)
+		        		params = params.substring(0, params.length);
+		        	if (params.length > 0)
+		        		dataObj['valors'] = params;
+		        	return dataObj;
+		        },
 		        results: function (data, page) {
 		        	var results = [];
 		        	for (var i = 0; i < data.length; i++) {
@@ -81,16 +122,23 @@ $(function() {
 		            return {results: results};
 		        }
 		    },
-		    initSelection: function(element, callback) {
+		    initSelection: function (element, callback) {
 		    	if ($(element).val()) {
-		    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
+		    		$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
 		                dataType: "json"
 		            }).done(function(data) {
 		            	callback({id: data[0].codi, text: data[0].nom});
 		            });
 		    	}
 		    },
-		})
+		}).on('change', function () {
+			var campName = $(this).attr('name');
+			$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+				if ($(this).data('campparams') == campName) {
+					$(this).select2("val", "");
+				}
+			});
+		});
 	});
 	// Camp múltiple: afegir
 	$("#command").on("click", ".btn_multiple", function(){
@@ -319,6 +367,30 @@ $(function() {
 			$("#command").attr('action', $("#command").attr('action') + "/accio/" + $(this).data("action"));
 			return true;
 		}
+		return false;
+	});
+	$('#boto-formext').click(function() {
+		$.ajax({
+			url: $(this).attr('href'),
+			async: false,
+			timeout: 20000,
+			success: function (data) {
+				var dialogWidth = parseInt(data.width);
+				var dialogHeight = parseInt(data.height);
+				$('<iframe id="formExtern" src="' + data.url + '"/>').dialog({
+					title: 'Formulari extern',
+	                autoOpen: true,
+	                modal: true,
+	                autoResize: false,
+	                width: dialogWidth,
+	                height: dialogHeight,
+	                close: function() {
+	                	document.location.reload();
+					}
+	            }).width(dialogWidth - 24);
+			},
+			error: modalAjaxErrorFunction
+	    });
 		return false;
 	});
 });

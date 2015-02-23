@@ -1,14 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
-<%-- SENSE US --%>
-
-<%@page import="net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper"%>
+<%@ page import="net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<c:if test="${not documentsComplet}">
+	<div class="alert alert-warning">
+		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+		<p>
+			<span class="fa fa-warning"></span>
+			<spring:message code="tasca.tramitacio.documents.no.complet"/>
+		</p>
+	</div>
+</c:if>
 <style type="text/css">
 	.documentTramitacio .btn-file {position: relative; overflow: hidden;}
 	.documentTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
@@ -119,7 +125,6 @@
 		</form>
 	</div>
 </c:forEach>
-	        
 <script type="text/javascript">
 	// <![CDATA[
 	$(document).on('change', '.btn-file :file', function() {

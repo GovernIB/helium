@@ -23,13 +23,15 @@
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
-	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
+	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 	<script src="https://www.java.com/js/deployJava.js"></script>
 <script>
 $(document).ready(function() {
@@ -108,15 +110,33 @@ function refrescarAccionsBotons() {
 			<c:set var="pipellaIndex" value="${1}"/>
 			<ul id="tasca-pipelles" class="nav nav-tabs">
 				<c:if test="${hasFormulari}">
-					<li id="pipella-form"><a href="#tasca-form" data-toggle="tab"><c:if test="${not tasca.validada}"><span class="fa fa-warning"> </span></c:if>${pipellaIndex}. <spring:message code="tasca.tramitacio.pipella.form"/></a></li>
+					<li id="pipella-form">
+						<a href="#tasca-form" data-toggle="tab">
+							<c:if test="${not tasca.validada}"><span class="fa fa-warning"></span></c:if>
+							${pipellaIndex}.
+							<spring:message code="tasca.tramitacio.pipella.form"/>
+						</a>
+					</li>
 					<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 				</c:if>
 				<c:if test="${hasDocuments}">
-					<li id="pipella-document"><a href="#tasca-document" data-toggle="tab">${pipellaIndex}. <spring:message code="tasca.tramitacio.pipella.document"/></a></li>
+					<li id="pipella-document">
+						<a href="#tasca-document" data-toggle="tab">
+							<c:if test="${not tasca.documentsComplet}"><span class="fa fa-warning"></span></c:if>
+							${pipellaIndex}.
+							<spring:message code="tasca.tramitacio.pipella.document"/>
+						</a>
+					</li>
 					<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 				</c:if>
 				<c:if test="${hasSignatures}">
-					<li id="pipella-signature"><a href="#tasca-signatura" data-toggle="tab">${pipellaIndex}. <spring:message code="tasca.tramitacio.pipella.signatura"/></a></li>
+					<li id="pipella-signatura">
+						<a href="#tasca-signatura" data-toggle="tab">
+							<c:if test="${not tasca.signaturesComplet}"><span class="fa fa-warning"></span></c:if>
+							${pipellaIndex}.
+							<spring:message code="tasca.tramitacio.pipella.signatura"/>
+						</a>
+					</li>
 					<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
 				</c:if>
 			</ul>

@@ -14,6 +14,7 @@ import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
@@ -164,6 +165,13 @@ public class TascaServiceBean implements TascaService {
 		delegate.executarAccio(
 				id,
 				accio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public FormulariExternDto formulariExternIniciar(
+			String id) {
+		return delegate.formulariExternIniciar(id);
 	}
 
 	@Override

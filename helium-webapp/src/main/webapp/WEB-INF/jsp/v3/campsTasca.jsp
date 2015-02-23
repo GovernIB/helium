@@ -133,12 +133,20 @@
 			
 <%-- SUGGEST ------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'SUGGEST'}">
-				<c:set var="urlConsultaInicial"><c:url value='/v3/domini/consulta/inicial'/>/${tasca.id}/${dada.campId}</c:set>
-				<c:set var="urlConsultaLlistat"><c:url value='/v3/domini/consulta'/>/${tasca.id}/${dada.campId}</c:set>
+				<c:choose>
+					<c:when test="${not tasca.inicial}">
+						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valor"/></c:set>
+						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
+					</c:when>
+					<c:otherwise>
+						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
+						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+					</c:otherwise>
+				</c:choose>
 				<c:set var="placeholder"><spring:message code='js.helforms.selec_valor'/></c:set>
 				<c:choose>
-					<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${campCodi}" name="${campNom}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campNom][campIndex]}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}"/></c:when>
-					<c:otherwise><form:input path="${campCodi}" cssClass="form-control suggest" id="${campCodi}" disabled="${disabled}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}"/></c:otherwise>
+					<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${campCodi}" name="${campNom}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campNom][campIndex]}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:when>
+					<c:otherwise><form:input path="${campCodi}" cssClass="form-control suggest" id="${campCodi}" disabled="${disabled}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:otherwise>
 				</c:choose>
 			</c:if>
 			
@@ -146,18 +154,18 @@
 			<c:if test="${dada.campTipus == 'SELECCIO'}">
 				<c:choose>
 					<c:when test="${not tasca.inicial}">
-						<c:set var="urlSelectInicial"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valor"/></c:set>
-						<c:set var="urlSelectLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
+						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valor"/></c:set>
+						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
 					</c:when>
 					<c:otherwise>
-						<c:set var="urlSelectInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
-						<c:set var="urlSelectLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
+						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
 					</c:otherwise>
 				</c:choose>
-				<c:set var="placeholder"><spring:message code='js.helforms.selec_valor'/></c:set>
+				<c:set var="placeholder"><spring:message code="js.helforms.selec_valor"/></c:set>
 				<c:choose>
-					<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${campCodi}" name="${campNom}" class="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" value="${command[campNom][campIndex]}" data-urlselectinicial="${urlSelectInicial}" data-urlselectllistat="${urlSelectLlistat}"/></c:when>
-					<c:otherwise><form:input path="${campCodi}" id="${campCodi}" cssClass="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" data-urlselectinicial="${urlSelectInicial}" data-urlselectllistat="${urlSelectLlistat}"/></c:otherwise>
+					<c:when test="${dada.campMultiple or isMultiple}"><input type="text" id="${campCodi}" name="${campNom}" class="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" value="${command[campNom][campIndex]}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:when>
+					<c:otherwise><form:input path="${campCodi}" id="${campCodi}" cssClass="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:otherwise>
 				</c:choose>
 			</c:if>
 			

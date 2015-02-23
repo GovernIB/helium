@@ -27,7 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
@@ -515,6 +515,16 @@ public class TascaTramitacioController extends BaseTascaController {
 		return signat;
 	}
 
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/formExtern", method = RequestMethod.GET)
+	@ResponseBody
+	public FormulariExternDto formExtern(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		return tascaService.formulariExternIniciar(tascaId);
+	}
+
 	@RequestMapping(value = "/formExtern", method = RequestMethod.GET)
 	public String formExtern(
 			HttpServletRequest request,
@@ -587,7 +597,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/import/tasquesMassivaTaula";
 	}
 
-	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
+	/*@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
@@ -602,7 +612,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				null,
 				new HashMap<String, Object>());
 	}
-	
+
 	@RequestMapping(value = {"/tasca/camp/{campId}/valorsSeleccio"}, method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
@@ -615,7 +625,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				campId,
 				model);
 	}
-	
+
 	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorsSeleccio/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> valorsSeleccio(
@@ -632,7 +642,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				null,
 				new HashMap<String, Object>());
 	}
-	
+
 	@RequestMapping(value = "/tasca/{tascaId}/camp/{campId}/valorSeleccioInicial/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto valorsSeleccioInicial(
@@ -655,7 +665,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return new SeleccioOpcioDto();
 	}
-	
+
 	@RequestMapping(value = {"/tasca/camp/{campId}/valorSeleccioInicial/{valor}"}, method = RequestMethod.GET)
 	@ResponseBody
 	public SeleccioOpcioDto valorsSeleccioInicial(
@@ -669,7 +679,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				campId,
 				valor,
 				model);
-	}
+	}*/
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -1490,7 +1500,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				TascaDocumentDto document = tascaService.findDocument(tascaId, docId);
 				params[1] = document.getDocumentCodi();
 				params[2] = (data == null) ? new Date() : data;
-				generat = expedientService.generarDocumentPlantillaTasca(tascaId, docId, expedientId);
+				generat = expedientService.generarDocumentPlantillaTasca(
+						tascaId,
+						docId,
+						expedientId);
 				params[3] = generat.getArxiuContingut();
 				params[4] = generat.getArxiuNom();
 				params[5] = auth.getCredentials();
@@ -1509,7 +1522,10 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} else {
 			try {
-				generat = expedientService.generarDocumentPlantillaTasca(tascaId, docId, expedientId);
+				generat = expedientService.generarDocumentPlantillaTasca(
+						tascaId,
+						docId,
+						expedientId);
 				MissatgesHelper.info(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
@@ -1528,7 +1544,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		return generat;
 	}
 
-	private Map<String, Object> getMapDelsValors(String valors) {
+	/*private Map<String, Object> getMapDelsValors(String valors) {
 		if (valors == null)
 			return null;
 		Map<String, Object> resposta = new HashMap<String, Object>();
@@ -1539,7 +1555,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta.put(parts[0], parts[1]);
 		}
 		return resposta;
-	}
+	}*/
 
 	private Map<String, String> getFormRecursParams(String text) {
 		Map<String, String> params = new HashMap<String, String>();

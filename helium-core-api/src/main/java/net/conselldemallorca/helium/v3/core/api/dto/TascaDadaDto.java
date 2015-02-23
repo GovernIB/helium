@@ -25,6 +25,8 @@ public class TascaDadaDto {
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
+	private String[] campParams;
+
 	private String jbpmAction;
 	private String observacions;
 	private String definicioProcesKey;
@@ -33,7 +35,7 @@ public class TascaDadaDto {
 	private List<TascaDadaDto> multipleDades;
 	private List<TascaDadaDto> registreDades;
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
-	
+
 	private String error;
 
 	private boolean readOnly;
@@ -93,6 +95,12 @@ public class TascaDadaDto {
 	}
 	public void setCampOcult(boolean campOcult) {
 		this.campOcult = campOcult;
+	}
+	public String[] getCampParams() {
+		return campParams;
+	}
+	public void setCampParams(String[] campParams) {
+		this.campParams = campParams;
 	}
 	public String getJbpmAction() {
 		return jbpmAction;
@@ -197,12 +205,11 @@ public class TascaDadaDto {
 			for (TascaDadaDto dada: multipleDades)
 				textos[i++] = dada.getText();
 			return Arrays.toString(textos);
-			//return Arrays.toString(getMultipleValor());
 		} else {
 			return text;
 		}
 	}
-	
+
 	public  Class<?> getJavaClass() {
 		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
@@ -240,6 +247,19 @@ public class TascaDadaDto {
 
 	public void setDefinicioProcesKey(String definicioProcesKey) {
 		this.definicioProcesKey = definicioProcesKey;
+	}
+
+	public String getCampParamsConcatenats() {
+		if (campParams == null) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < campParams.length; i++) {
+			sb.append(campParams[i]);
+			if (i < campParams.length - 1)
+				sb.append(",");
+		}
+		return sb.toString();
 	}
 
 }
