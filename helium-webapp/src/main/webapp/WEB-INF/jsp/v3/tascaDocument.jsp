@@ -1,11 +1,30 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper"%>
+
+<%-- SENSE US --%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+<style type="text/css">
+	#tasca-document .well.well-small {margin: 0 0 15px;}
+	#tasca-document .form-tasca .modal-botons {padding-bottom: 25px;}
+	.documentTramitacio h4.titol-missatge {width: 100%;display: inline-table;}
+	.documentTramitacio h4.titol-missatge a{margin-left: 10px;}
+	.documentTramitacio .col-xs-1 {width: auto;padding-left: 0px;}
+	.documentTramitacio .titol-missatge label {padding-top: 0px;}
+	.documentTramitacio .titol-missatge .obligatori {background-position: right 8px;}
+	.documentTramitacio .btn-file {position: relative; overflow: hidden;}
+	.documentTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
+	.documentTramitacio .col-xs-4 {width: 15%;}
+	.documentTramitacio .col-xs-10 {width: 85%;}	
+	.documentTramitacio .col-xs-10.arxiu {padding-right: 0px;}			
+	.documentTramitacio .div_timer .input-group {padding-left: 15px;}
+	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
+	.documentTramitacio .comentari {padding-top: 30px;}
+</style>
 <c:if test="${not documentsComplet}">
 	<div class="alert alert-warning">
 		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
@@ -15,31 +34,6 @@
 		</p>
 	</div>
 </c:if>
-<style type="text/css">
-	.documentTramitacio .btn-file {position: relative; overflow: hidden;}
-	.documentTramitacio .btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.documentTramitacio .form-group {width: 100%;display: inline-flex;}
-	.documentTramitacio .fila_reducida {width: 100%;}
-	.documentTramitacio .col-xs-1 {width: auto;padding-left: 0px;}				
-	.documentTramitacio .col-xs-4 {width: 20%;}		
-	.documentTramitacio .col-xs-8 {width: 77%;}
-	.documentTramitacio .col-xs-8 .form-group {margin-left: 0px;margin-right: 0px;}
-	.documentTramitacio .col-xs-8 .form-group .col-xs-4 {padding-left: 0px;width: 15%;}
-	.documentTramitacio .col-xs-8 .form-group .col-xs-8 {width: 85%;padding-left: 15px;padding-right: 0px;}
-	.documentTramitacio .col-xs-11 {padding-left: 0px;width: 100%;}				
-	.documentTramitacio #s2id_estatId {width: 100% !important;}
-	.documentTramitacio .arxiu {margin-left: 0%; margin-top: 10px;}
-	.documentTramitacio h4.titol-missatge {width: 100%;}
-	.documentTramitacio h4.titol-missatge a{margin-left: 10px;}
-	.documentTramitacio a.icon {margin-left: 10px !important;}
-	.documentTramitacio .comentari {padding-top: 30px;}
-	.documentTramitacio .comentari label {font-weight: bold;}
-	.documentTramitacio .modal-botons {padding-bottom: 30px;}
-	.documentTramitacio .form-horizontal .control-label {padding-top: 0px;}
-	.documentTramitacio .form-group {padding-right: 0px;}
-	.documentTramitacio .form-group .col-xs-11 {padding-right: 0px;}
-	.documentTramitacio .obligatori {background-position: right 8px;}
-</style>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
 		<form id="form${document.id}" class="form-horizontal form-tasca" action="${tascaId}/documentAdjuntar" enctype="multipart/form-data" method="post" onsubmit="return false;">
@@ -76,45 +70,29 @@
 						<p><label><spring:message code='tasca.doc.adjunt.adjuntat.el' /></label>: <label id="docDataAdj${document.id}"><fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></label></p>
 						<p><label><spring:message code='tasca.doc.adjunt.data.document' /></label>: <label id="docData${document.id}"><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></label></p>
 					</div>
-				</h4>
-				<div class="form-group">
-					<div class="col-xs-11 arxiu">
-			            <div id="amagarFile${document.id}" class="input-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-			                <input id="contingut${document.id}" name="contingut" readonly="readonly" class="form-control" />
-			                <span class="input-group-btn">
-			                    <span class="btn btn-default btn-file">
-			                         <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
-			                 	</span>
-			                </span>
-			            </div>
-					</div>
+				</h4>				
+			</div>				
+				
+			<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
+				<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
+		        <div class="col-xs-10 arxiu">
+		            <div class="input-group">
+		                <input id="contingut${document.id}" name="contingut" class="form-control" />
+		                <span class="input-group-btn">
+		                    <span class="btn btn-default btn-file">
+		                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
+		                    </span>
+		                </span>
+		            </div>
 				</div>
-				<div id="div_timer${document.id}" class="control-group left control-group-mid <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-			    	<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-						<label class="control-label col-xs-1" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
-						<div class="input-group">
-							<input class="form-control datepicker" id="data${document.id}" name="data"/>
-							<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
-						</div>
+        	</div>
+			<div id="div_timer${document.id}" class="div_timer form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
+		    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
+					<label class="control-label col-xs-4" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
+					<div class="input-group col-xs-10">
+						<input class="form-control datepicker" id="data${document.id}" name="data"/>
+						<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
 					</div>
-		            <script type="text/javascript">
-	                    $(document).ready(function() {
-	                    	$('.datepicker').datepicker({
-	                    		format: 'dd/mm/yyyy',
-	                    		weekStart: 1,
-	                    		autoclose: true,
-	                    		language: '${idioma}'
-	                    	}).on('show', function() {
-	                    		var iframe = $('.modal-body iframe', window.parent.document);
-	                    		var height = $('html').height() + 190;
-	                    		iframe.height(height + 'px');
-	                    	}).on('hide', function() {
-	                    		var iframe = $('.modal-body iframe', window.parent.document);
-	                    		var height = $('html').height();
-	                    		iframe.height(height + 'px');
-	                    	});
-						});
-                    </script>
 				</div>
 			</div>
 			<div id="modal-botons${document.id}" class="modal-botons <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
@@ -124,9 +102,10 @@
 			</div>
 		</form>
 	</div>
-</c:forEach>
+</c:forEach>	        
+
 <script type="text/javascript">
-	// <![CDATA[
+	// <![CDATA[	
 	$(document).on('change', '.btn-file :file', function() {
 		var input = $(this),
 		numFiles = input.get(0).files ? input.get(0).files.length : 1,
@@ -135,7 +114,7 @@
 	});
 	
 	$(document).ready( function() {
-		$('.icon').heliumEvalLink({
+		$('.documentTramitacio .icon').heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
 			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
@@ -150,6 +129,20 @@
 					alert(log);
 			}
 		});	
+		$('.datepicker').datepicker({
+    		format: 'dd/mm/yyyy',
+    		weekStart: 1,
+    		autoclose: true,
+    		language: '${idioma}'
+    	}).on('show', function() {
+    		var iframe = $('.modal-body iframe', window.parent.document);
+    		var height = $('html').height() + 190;
+    		iframe.height(height + 'px');
+    	}).on('hide', function() {
+    		var iframe = $('.modal-body iframe', window.parent.document);
+    		var height = $('html').height();
+    		iframe.height(height + 'px');
+    	});		
 	});
 	
 	function documentGuardar(docId) {

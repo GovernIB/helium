@@ -676,4 +676,6 @@ public interface ExpedientService {
 	public void reprendre(Long id);
 
 	public boolean luceneReindexarExpedient(Long expedientId);
+
+	public ArxiuDto arxiuDocumentPerSignar(String token);
 }

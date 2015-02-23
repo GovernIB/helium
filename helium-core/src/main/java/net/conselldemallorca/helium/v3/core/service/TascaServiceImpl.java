@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -651,7 +652,6 @@ public class TascaServiceImpl implements TascaService {
 			return documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
-					false,
 					false);
 		}
 		return null;
@@ -894,14 +894,14 @@ public class TascaServiceImpl implements TascaService {
 			String token,
 			byte[] signatura) throws Exception {
 		boolean signat = false;
-		net.conselldemallorca.helium.v3.core.api.dto.DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
-		if (dto != null) {
+		DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
+		if (dto != null && dto.isSignat()) {
 			registreDao.crearRegistreSignarDocument(
 					expedientId,
 					dto.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					dto.getDocumentCodi());
-			signat = true;
+			signat = dto.isSignat();
 		}
 		return signat;
 	}

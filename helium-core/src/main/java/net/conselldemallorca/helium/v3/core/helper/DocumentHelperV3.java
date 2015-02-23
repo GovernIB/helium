@@ -102,12 +102,9 @@ public class DocumentHelperV3 {
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
-
-
-
+	
 	public ArxiuDto getArxiuPerDocumentStoreId(
 			Long documentStoreId,
-			boolean ambContingutOriginal,
 			boolean perSignar,
 			boolean ambSegellSignatura) {
 		ArxiuDto resposta = new ArxiuDto();
@@ -706,22 +703,21 @@ public class DocumentHelperV3 {
 		DocumentDto dto = null;
 		Long documentStoreId = getDocumentStoreIdPerToken(token);		
 		if (documentStoreId != null) {
-			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 			dto = getDocumentSenseContingut(documentStoreId);
-			boolean custodiat = false;
-			if (pluginCustodiaDao.isCustodiaActiu()) {
+			if (dto != null && pluginCustodiaDao.isCustodiaActiu()) {
+				DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 				String nomArxiu = getNomArxiuAmbExtensio(
 						dto.getArxiuNom(),
 						getExtensioArxiuSignat());
 				String referenciaCustodia = null;
 				if (pluginCustodiaDao.isValidacioImplicita()) {
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-							documentStore.getId(),
+							documentStoreId,
 							documentStore.getReferenciaFont(),
 							nomArxiu,
 							dto.getCustodiaCodi(),
 							signatura);
-					custodiat = true;
+					documentStore.setReferenciaCustodia(referenciaCustodia);
 				} else {
 					RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
 							dto.getVistaContingut(),
@@ -729,27 +725,25 @@ public class DocumentHelperV3 {
 							false);
 					if (resposta.isEstatOk()) {
 						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-								documentStore.getId(),
+								documentStoreId,
 								documentStore.getReferenciaFont(),
 								nomArxiu,
 								dto.getCustodiaCodi(),
 								signatura);
-						custodiat = true;
+						documentStore.setReferenciaCustodia(referenciaCustodia);
 					}
 				}
-				documentStore.setReferenciaCustodia(referenciaCustodia);
-			}
-			if (custodiat) {
-				documentStore.setSignat(true);
-				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-						tascaId,
-						true,
-						true);
-				String.valueOf(task.getTask().getId());
-				jbpmHelper.setTaskInstanceVariable(
-						tascaId,
-						DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-						documentStore.getId());
+
+				if (referenciaCustodia != null) {
+					documentStore.setSignat(true);
+					dto.setSignat(true);
+
+					jbpmHelper.setTaskInstanceVariable(
+							tascaId,
+							DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+							documentStore.getId());
+				}
+				documentStoreRepository.flush();
 			}
 		}
 		return dto;

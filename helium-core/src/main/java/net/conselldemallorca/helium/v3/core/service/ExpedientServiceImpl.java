@@ -1368,6 +1368,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public ArxiuDto arxiuDocumentPerSignar(String token) {
+		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
+		DocumentDto dto = documentHelper.getDocumentVista(documentStoreId, true, true);
+		if (dto == null)
+			return null;
+		return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
 			String processInstanceId) {
@@ -1683,7 +1693,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				documentStore.getProcessInstanceId());
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
-				false,
 				false,
 				false);
 	}

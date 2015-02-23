@@ -328,6 +328,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "arxiuView";
 	}
 
+	@RequestMapping(value = "/document/arxiuPerSignar")
+	public String arxiuPerSignar(
+		HttpServletRequest request,
+		@RequestParam(value = "token", required = true) String token,
+		ModelMap model) {
+		ArxiuDto arxiu = null;
+		if (token != null)
+			arxiu = expedientService.arxiuDocumentPerSignar(token);
+		if (arxiu != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		}
+		return "arxiuView";
+	}
+
 	@RequestMapping(value = "/{expedientId}/document/{documentId}/descarregar", method = RequestMethod.GET)
 	public String documentDescarregar(
 			HttpServletRequest request,

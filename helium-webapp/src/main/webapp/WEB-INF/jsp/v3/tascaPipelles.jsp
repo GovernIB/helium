@@ -51,8 +51,9 @@ $(document).ready(function() {
 	<%-- Càrrega de contingut de les pipelles --%>
 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		var targetHref = $(e.target).attr('href');
-		var loaded = $(targetHref).data('loaded');
-		if (!loaded) {
+// 		var loaded = $(targetHref).data('loaded');
+// 		if (!loaded) {
+			$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
 			$(targetHref).load(
 				$(targetHref).data('href'),
 				function (responseText, textStatus, jqXHR) {
@@ -68,11 +69,11 @@ $(document).ready(function() {
 									buttonContainerId: "modal-botons",
 									buttonCloseClass: "modal-tancar"
 								});
-						$(this).data('loaded', 'true');
+// 						$(this).data('loaded', 'true');
 					}
 				}
 			);
-		}
+// 		}
 	});
 	<%-- Mostrar primera pipella activa --%>
 	<c:choose>
@@ -143,17 +144,17 @@ function refrescarAccionsBotons() {
 			<div class="tab-content">
 				<c:if test="${hasFormulari}">
 					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/form"/>">
-						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+<!-- 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div> -->
 					</div>
 				</c:if>
 				<c:if test="${hasDocuments}">
 					<div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>">
-						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+<!-- 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div> -->
 					</div>
 				</c:if>
 				<c:if test="${hasSignatures}">
 					<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"/>">
-						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+<!-- 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div> -->
 					</div>
 				</c:if>
 			</div>

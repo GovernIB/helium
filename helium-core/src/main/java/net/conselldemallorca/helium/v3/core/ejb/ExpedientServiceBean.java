@@ -625,4 +625,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public boolean luceneReindexarExpedient(Long expedientId) {
 		return delegate.luceneReindexarExpedient(expedientId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto arxiuDocumentPerSignar(String token) {
+		return delegate.arxiuDocumentPerSignar(token);
+	}
 }
