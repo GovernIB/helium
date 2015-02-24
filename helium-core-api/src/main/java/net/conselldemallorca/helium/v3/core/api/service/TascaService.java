@@ -210,6 +210,7 @@ public interface TascaService {
 	 * 
 	 * @param id
 	 *            Atribut id de la tasca.
+	 * @param expedientId 
 	 * @param variables
 	 *            Valors del formulari de la tasca.
 	 * @return la tasca guardada.
@@ -218,8 +219,9 @@ public interface TascaService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientTascaDto guardar(
+	public void guardar(
 			String id,
+			Long expedientId, 
 			Map<String, Object> variables);
 
 	/**

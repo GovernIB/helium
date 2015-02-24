@@ -155,32 +155,11 @@
             processData: false,
             success: function(data) {
             	if (data != "") {
-            		$("#amagarFile"+docId).addClass("hide");
-        			$("#modal-botons"+docId).addClass("hide");
-        			$("#downloadUrl"+docId).attr('href', "<c:url value='/v3/expedient/${expedientId}/document/'/>"+data+"/descarregar");
-        			$("#downloadUrl"+docId).removeClass("hide");
-        			$("#hideData"+docId).removeClass("hide");
-        			$("#removeUrl"+docId).removeClass("hide");
-        			$("#div_timer"+docId).addClass("hide");
-        			
-        			$("#docNom"+docId).text($("#contingut"+docId).val());
-        			$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
-        			if ($("#data"+docId).val() != "")
-           				$("#docData"+docId).text($("#data"+docId).val());
-           			else
-           				$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
+            		var url = "<c:url value='/v3/expedient/${expedientId}/document/'/>"+data+"/descarregar";
+        			actualizarDatos(docId, $("#contingut"+docId).val(), url);
         		}
             	
-    	    	// Refrescar alertas
-    	    	$.ajax({
-    				url: "<c:url value="/nodeco/v3/missatges"/>",
-    				async: false,
-    				timeout: 20000,
-    				success: function (data) {
-    					$('#contingut-alertes *').remove();
-    					$('#contingut-alertes').append(data);
-    				}
-    			});
+            	refrescarAlertesFunction();
             }
         });
 	}
@@ -188,22 +167,26 @@
 	function documentGenerar(docId, codi, adjuntarAuto, data) {
 		if (data == "arxiuView") {
 			window.location.href = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
-		} else if (data != null) {
-       		$("#amagarFile"+docId).addClass("hide");
-   			$("#modal-botons"+docId).addClass("hide");
-   			$("#downloadUrl"+docId).attr('href', "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar");
-   			$("#downloadUrl"+docId).removeClass("hide");
-   			$("#hideData"+docId).removeClass("hide");
-   			$("#removeUrl"+docId).removeClass("hide");
-   			$("#div_timer"+docId).addClass("hide");
-   			
-   			$("#docNom"+docId).text(data);
-   			$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
-   			if ($("#data"+docId).val() != "")
-   				$("#docData"+docId).text($("#data"+docId).val());
-   			else
-   				$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
+		} else if (data != null && data != '') {
+			var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
+   			actualizarDatos(docId, data, url);
    		}
+	}
+	
+	function actualizarDatos(docId, nom, url) {
+		$("#docNom"+docId).text(nom);
+		$("#downloadUrl"+docId).attr('href', url);
+   		$("#amagarFile"+docId).addClass("hide");
+		$("#modal-botons"+docId).addClass("hide");
+		$("#downloadUrl"+docId).removeClass("hide");
+		$("#hideData"+docId).removeClass("hide");
+		$("#removeUrl"+docId).removeClass("hide");
+		$("#div_timer"+docId).addClass("hide");
+		$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
+		if ($("#data"+docId).val() != "")
+			$("#docData"+docId).text($("#data"+docId).val());
+		else
+			$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
 	}
 	
 	function amagarFile(docId, correcte) {
@@ -216,6 +199,18 @@
 			$("#div_timer"+docId).removeClass("hide");
 			$("#form"+docId).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
 		}
+	}
+	
+	function refrescarAlertesFunction() {
+    	$.ajax({
+			url: "<c:url value="/nodeco/v3/missatges"/>",
+			async: false,
+			timeout: 20000,
+			success: function (data) {
+				$('#contingut-alertes *').remove();
+				$('#contingut-alertes').append(data);
+			}
+		});
 	}
 	// ]]>
 </script>

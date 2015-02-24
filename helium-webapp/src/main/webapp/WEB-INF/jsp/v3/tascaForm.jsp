@@ -93,7 +93,7 @@
 </c:if--%>
 <c:choose>
 	<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
-	<c:otherwise><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
+	<c:otherwise><c:url var="tascaFormAction" value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
 </c:choose>
 <form:form onsubmit="return confirmar(this)" action="${tascaFormAction}" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 	<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
@@ -159,9 +159,6 @@
 		</c:choose>
 		<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 	</c:forEach>
-	<div id="guardarValidarTarea">
-		<%@ include file="campsTascaBotons.jsp" %>
-	</div>
 </form:form>
 <%--</body>
 </html>--%>

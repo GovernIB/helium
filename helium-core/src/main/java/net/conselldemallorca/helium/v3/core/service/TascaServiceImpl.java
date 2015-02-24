@@ -73,6 +73,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.apache.commons.collections.comparators.NullComparator;
@@ -109,6 +110,8 @@ public class TascaServiceImpl implements TascaService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private CampRepository campRepository;
+	@Resource
+	private TascaRepository tascaRepository;
 	@Resource
 	private CampTascaRepository campTascaRepository;
 	@Resource
@@ -966,20 +969,44 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional
-	public ExpedientTascaDto guardar(
-			String id,
+	public void guardar(
+			String taskId,
+			Long expedientId,
 			Map<String, Object> variables) {
 		logger.debug("Guardant les dades del formulari de la tasca (" +
-				"id=" + id + ", " +
+				"taskId=" + taskId + ", " +
 				"variables=...)");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuari = auth.getName();
+		expedientLoggerHelper.afegirLogExpedientPerTasca(
+				taskId,
+				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
+				null,
+				usuari);
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
+				taskId,
 				true,
 				true);
-		ExpedientTascaDto tasca = tascaHelper.guardarVariables(
+		boolean iniciada = task.getStartTime() == null;
+		tascaHelper.processarCampsAmbDominiCacheActivat(
 				task,
 				variables);
-		return tasca;
+		jbpmHelper.startTaskInstance(taskId);
+		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);
+		
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		
+		if (iniciada) {
+			Registre registre = new Registre(
+					new Date(),
+					expedientId,
+					usuari,
+					Registre.Accio.MODIFICAR,
+					Registre.Entitat.TASCA,
+					taskId);
+			registre.setMissatge("Iniciar tasca \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+			registreRepository.save(registre);
+		}
 	}
 
 	@Override

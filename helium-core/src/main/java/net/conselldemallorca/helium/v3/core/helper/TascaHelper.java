@@ -18,10 +18,8 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -42,7 +40,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 import org.slf4j.Logger;
@@ -70,13 +67,9 @@ public class TascaHelper {
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
-	RegistreRepository registreRepository;
-	@Resource
 	private VariableHelper variableHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
-	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private CampTascaRepository campTascaRepository;
 	@Resource
@@ -793,48 +786,6 @@ public class TascaHelper {
 			}
 		}
 		return ok;
-	}
-
-	public ExpedientTascaDto guardarVariable(
-			JbpmTask task,
-			String variableCodi,
-			Object variableValor) {
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put(variableCodi,  variableValor);
-		return guardarVariables(task, variables);
-	}
-	public ExpedientTascaDto guardarVariables(
-			JbpmTask task,
-			Map<String, Object> variables) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String usuari = auth.getName();
-		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				task.getId(),
-				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
-				null,
-				usuari);
-		boolean iniciada = task.getStartTime() == null;
-		processarCampsAmbDominiCacheActivat(
-				task,
-				variables);
-		jbpmHelper.startTaskInstance(task.getId());
-		jbpmHelper.setTaskInstanceVariables(task.getId(), variables, false);
-		ExpedientTascaDto tasca = getExpedientTascaDto(
-				task,
-				null,
-				false);
-		if (iniciada) {
-			Registre registre = new Registre(
-					new Date(),
-					tasca.getExpedientId(),
-					usuari,
-					Registre.Accio.MODIFICAR,
-					Registre.Entitat.TASCA,
-					task.getId());
-			registre.setMissatge("Iniciar tasca \"" + tasca.getTitol() + "\"");
-			registreRepository.save(registre);
-		}
-		return tasca;
 	}
 
 	public void processarCampsAmbDominiCacheActivat(

@@ -123,11 +123,13 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto guardar(
-			String id,
+	public void guardar(
+			String taskId,
+			Long expedientId,
 			Map<String, Object> variables) {
-		return delegate.guardar(
-				id,
+		delegate.guardar(
+				taskId,
+				expedientId,
 				variables);
 	}
 

@@ -521,7 +521,9 @@ public class DocumentHelperV3 {
 	
 	private TascaDocumentDto toTascaDocumentDto(
 			JbpmTask task,
-			Document document, boolean required, boolean readonly) {
+			Document document, 
+			boolean required, 
+			boolean readonly) {
 		TascaDocumentDto dto = new TascaDocumentDto();
 		String varCodi = getVarPerDocumentCodi(
 				document.getCodi(),
@@ -536,7 +538,6 @@ public class DocumentHelperV3 {
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
 		if (documentStoreId != null) {
-			dto.setDocumentPendent(false);
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 			if (documentStore != null) {
 				dto.setDocumentStoreId(documentStoreId);
@@ -545,8 +546,8 @@ public class DocumentHelperV3 {
 				dto.setDataModificacio(documentStore.getDataModificacio());
 				dto.setDataDocument(documentStore.getDataDocument());
 				dto.setSignat(documentStore.isSignat());
+				dto.setRegistrat(documentStore.isRegistrat());
 				if (documentStore.isSignat()) {
-					dto.setDocumentPendentSignar(documentStore.isSignat());
 					dto.setUrlVerificacioCustodia(
 							pluginCustodiaDao.getUrlComprovacioSignatura(
 									documentStoreId.toString()));
@@ -557,7 +558,6 @@ public class DocumentHelperV3 {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
 				if (documentStore.isRegistrat()) {
-					dto.setRegistrat(true);
 					dto.setRegistreData(documentStore.getRegistreData());
 					dto.setRegistreNumero(documentStore.getRegistreNumero());
 					dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
@@ -565,17 +565,7 @@ public class DocumentHelperV3 {
 					dto.setRegistreEntrada(documentStore.isRegistreEntrada());
 				}
 			}
-		}
-		if (!document.getFirmes().isEmpty()) {
-			dto.setDocumentPendentSignar(true);
-			Iterator<FirmaTasca> firmas = document.getFirmes().iterator();
-			while (firmas.hasNext()) {						
-				if (firmas.next().isRequired()) {
-					dto.setSignatRequired(true);
-					break;
-				}
-			}
-		}		
+		}	
 		return dto;
 	}
 

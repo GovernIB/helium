@@ -23,15 +23,11 @@ public class TascaDocumentDto {
 	private boolean required;
 	private boolean readOnly;
 
-	private boolean documentPendent = true;
-	private boolean documentPendentSignar = false;
-
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
 
 	private boolean signat = false;
-	private boolean signatRequired = false;
 	
 	private Long signaturaPortasignaturesId;
 	private String signaturaUrlVerificacio;
@@ -97,12 +93,6 @@ public class TascaDocumentDto {
 	}
 	public void setReadOnly(boolean readOnly) {
 		this.readOnly = readOnly;
-	}
-	public boolean isDocumentPendent() {
-		return documentPendent;
-	}
-	public void setDocumentPendent(boolean documentPendent) {
-		this.documentPendent = documentPendent;
 	}
 	public Date getDataCreacio() {
 		return dataCreacio;
@@ -199,18 +189,6 @@ public class TascaDocumentDto {
 	}
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
-	}
-	public boolean isDocumentPendentSignar() {
-		return documentPendentSignar;
-	}
-	public void setDocumentPendentSignar(boolean documentPendentSignar) {
-		this.documentPendentSignar = documentPendentSignar;
-	}
-	public boolean isSignatRequired() {
-		return signatRequired;
-	}
-	public void setSignatRequired(boolean signatRequired) {
-		this.signatRequired = signatRequired;
 	}
 	public String getUrlVerificacioCustodia() {
 		return urlVerificacioCustodia;

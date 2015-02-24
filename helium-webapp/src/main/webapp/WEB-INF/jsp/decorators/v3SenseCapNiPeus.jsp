@@ -18,6 +18,7 @@
 	<link rel="shortcut icon" href="<c:url value="/img/ico/favicon.png"/>">
 	<link rel="icon" type="image/png" href="<c:url value="/img/ico/favicon.png"/>">
 	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script>
+<!-- 	<script src="//code.jquery.com/jquery-1.10.2.js"></script> -->
 	<!-- Llibreria per a compatibilitat amb HTML5 -->
 	<!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>

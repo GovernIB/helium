@@ -45,7 +45,7 @@
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
 					<c:choose>
 						<c:when test="${not empty document.tokenSignatura}"><c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
-							<a class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
+							<a title="<spring:message code='comuns.descarregar' />" class="icon" id="downloadUrl${document.id}" href="${downloadUrl}">
 								<i class="fa fa-download"></i>
 							</a>
 							<div id="iconos${document.id}" class="iconos"></div>							
