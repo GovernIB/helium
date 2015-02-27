@@ -289,6 +289,8 @@ public class ExecucioMassivaService {
 			label = getMessage("expedient.eines.buidarlog.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.REPRENDRE_EXPEDIENT)){
 			label = getMessage("expedient.eines.reprendre_expedient");
+		} else if (tipus.equals(ExecucioMassivaTipus.REPRENDRE)){
+			label = getMessage("expedient.eines.reprendre_tramitacio");
 		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
 			label = getMessage("expedient.eines.reassignar.expedients");
 		} else {
@@ -480,9 +482,13 @@ public class ExecucioMassivaService {
 				buidarLogExpedient(dto);
 				mesuresTemporalsHelper.mesuraCalcular("Buidar log", "massiva", expedient);
 			} else if (tipus == ExecucioMassivaTipus.REPRENDRE_EXPEDIENT){
-				mesuresTemporalsHelper.mesuraIniciar("reprendre process instance", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient);
 				reprendreExpedient(dto);
-				mesuresTemporalsHelper.mesuraCalcular("reprendre process instance", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient);
+			} else if (tipus == ExecucioMassivaTipus.REPRENDRE){
+				mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient);
+				reprendreTramitacio(dto);
+				mesuresTemporalsHelper.mesuraCalcular("reprendre tramitació process instance", "massiva", expedient);
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
 				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient);
 				//reassignarExpedient(dto);
@@ -1041,7 +1047,25 @@ public class ExecucioMassivaService {
 			eme.setDataFi(new Date());
 			execucioMassivaExpedientDao.saveOrUpdate(eme);
 		} catch (Exception ex) {
-			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reprendre l'expedient", ex);
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut desfer la finalització de l'expedient", ex);
+			throw ex;
+		}
+	}
+	
+	private void reprendreTramitacio(OperacioMassivaDto dto) throws Exception {
+		ExecucioMassivaExpedient eme = null;
+		ExpedientDto exp = dto.getExpedient();
+		try {
+			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
+			eme.setDataInici(new Date());
+			expedientService.reprendre(
+					exp.getProcessInstanceId(),
+					dto.getUsuari());
+			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			eme.setDataFi(new Date());
+			execucioMassivaExpedientDao.saveOrUpdate(eme);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + dto.getId() + ". No s'ha pogut reprendre la tramitació de l'expedient", ex);
 			throw ex;
 		}
 	}

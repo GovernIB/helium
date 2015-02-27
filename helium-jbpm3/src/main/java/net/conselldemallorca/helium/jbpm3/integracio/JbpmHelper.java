@@ -868,11 +868,14 @@ public class JbpmHelper {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		Token root = processInstance.getRootToken();
-		if (!root.hasEnded())
-			resposta.put(root.getName(), new JbpmToken(root));
-		Map<String, Token> activeTokens = processInstance.getRootToken().getChildren();
-		for (String tokenName: activeTokens.keySet()) {
-			resposta.put(tokenName, new JbpmToken(activeTokens.get(tokenName)));
+		resposta.put(
+				root.getName(),
+				new JbpmToken(root));
+		Map<String, Token> childTokens = processInstance.getRootToken().getChildren();
+		for (String tokenName: childTokens.keySet()) {
+			resposta.put(
+					tokenName,
+					new JbpmToken(childTokens.get(tokenName)));
 		}
 		adminService.mesuraCalcular("jBPM getAllTokens", "jbpmDao");
 		return resposta;

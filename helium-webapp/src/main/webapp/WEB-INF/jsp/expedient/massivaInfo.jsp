@@ -74,6 +74,13 @@ function confirmarModificarVariables(e) {
 	programacio();
 	return confirm("<fmt:message key='expedient.eines.confirm_modificar_variable' />");
 }
+function confirmarReprendreTramitacio(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	programacio();
+	return confirm("<fmt:message key='expedient.eines.confirm_reprendre_tramitacions' />");
+}
 function confirmarReindexar(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
@@ -348,6 +355,17 @@ $(document).ready(function(){
 						<c:param name="values">submit</c:param>
 						<c:param name="titles"><fmt:message key='comuns.aturar' /></c:param>
 					</c:import>
+			</form:form>	
+
+			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reprendre_tramitacions' /></h3>
+			<form:form action="reprendreMas.html" cssClass="uniForm" onsubmit="return confirmarReprendreTramitacio(event)"  onclick="javascript:massiva(this)">
+				<input type="hidden" id="idx_inici" name="inici">
+				<input type="hidden" id="idx_correu" name="correu">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="type" value="buttons"/>
+					<c:param name="values">submit</c:param>
+					<c:param name="titles"><fmt:message key='comuns.reprendre' /></c:param>
+				</c:import>
 			</form:form>
 		</div>
 		<div class="inlineLabels uniForm col last">
@@ -457,8 +475,8 @@ $(document).ready(function(){
 			<br>
 				<fmt:message key="expedient.document.info.sensedocuments"/>
 			<br>
-			</c:if>	
-			
+			</c:if>
+
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key='expedient.eines.reindexar.expedients' /></h3>
 			<form:form action="reindexarMas.html" cssClass="uniForm" onsubmit="return confirmarReindexar(event)"  onclick="javascript:massiva(this)">
 				<input type="hidden" id="idx_inici" name="inici">
@@ -488,7 +506,7 @@ $(document).ready(function(){
 				<c:import url="../common/formElement.jsp">
 					<c:param name="type" value="buttons"/>
 					<c:param name="values">submit</c:param>
-					<c:param name="titles"><fmt:message key='comuns.reprendre' /></c:param>
+					<c:param name="titles"><fmt:message key='comuns.desfer' /></c:param>
 				</c:import>
 			</form:form>
 <%--			
