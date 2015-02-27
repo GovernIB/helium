@@ -8,6 +8,7 @@ import java.util.Date;
 import org.hibernate.SQLQuery;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
+import org.jbpm.graph.exe.Token;
 
 /**
  * Command per activar un token donat el seu id
@@ -32,10 +33,14 @@ public class TokenActivarCommand extends AbstractGetObjectBaseCommand {
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		SQLQuery updateQuery = jbpmContext.getSession().createSQLQuery("update jbpm_token set end_=? where id_=?");
+		Token token = jbpmContext.getToken(tokenId);
+		SQLQuery updateQuery = jbpmContext.getSession().createSQLQuery(
+				"update jbpm_token set end_ = ? where id_ = ?");
 		updateQuery.setTimestamp(0, activar ? null : new Date());
 		updateQuery.setLong(1, tokenId);
-		return updateQuery.executeUpdate();
+		int result = updateQuery.executeUpdate();
+		jbpmContext.getSession().refresh(token);
+		return result;
 	}
 
 	public long getId() {
