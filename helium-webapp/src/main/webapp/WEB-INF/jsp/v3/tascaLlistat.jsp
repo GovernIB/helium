@@ -43,17 +43,9 @@
 					$('#reasignacioMassivaCount').html(seleccio.length);
 					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">
 						$('#tramitacioMassivaCount').html(seleccio.length);
-						$("input[name=correu]").trigger('change');	
 					</c:if>
 				}
-			});		
-            $("#inici_timer").on("dp.change",function (e) {
-            	$("input[name=correu]").trigger('change');
-			});
-			$("input[name=correu]").change(function(){
-				$("a[id='btnMassiva']").attr("href","../../../v3/expedient/massivaTramitacioTasca?inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
-				$("a[id='btnReassignacioMassiva']").attr("href","../../../v3/tasca/massivaReassignacioTasca?massiva=true&inici="+$("#inici").val()+"&correu="+$("#correu").is(":checked"));
-			});
+			});	
 			$("button[data-toggle=button]").click(function() {
 				$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
 				$(this).blur();
@@ -97,6 +89,15 @@
 			</c:if>
 			actualizarBotonesFiltros();
 		});
+		function massivaTasca(element, tipo) {
+			var href = null;
+			
+			if (tipo === 'reassignacio') href = "<c:url value='/modal/v3/tasca/massivaReassignacioTasca'/>";
+			else if (tipo === 'tramitacio') href = "<c:url value='/modal/v3/expedient/massivaTramitacioTasca'/>";
+			else return false;
+			
+			$(element).attr('href', href + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
+		}	
 		function actualizarBotonesFiltros(id) {
 			$('#nomesMevesCheck').attr('disabled', false);
 			$('#nomesTasquesPersonalsCheck').attr('disabled', false);
@@ -293,10 +294,7 @@
 							{{/if}}
  							{{if !completed && tascaTramitacioMassiva && assignadaUsuariActual}}													
 								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../v3/tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
-							{{/if}}					
- 							{{if !completed && tascaTramitacioMassiva && !assignadaUsuariActual}}													
-								<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
-							{{/if}}						
+							{{/if}}	
 						</div>
 					</script>
 				</th>
@@ -360,13 +358,13 @@
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="../v3/tasca/massivaReassignacioTasca?massiva=false"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a onclick="massivaTasca(this,'reassignacio');" class="btn btn-default" data-rdt-link-modal="true" href="#"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
 						<c:otherwise>
 						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a class="btn btn-default" data-rdt-link-modal="true" href="<c:url value="../../../v3/tasca/massivaReassignacioTasca?massiva=true"/>"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
-						<a class="btn btn-default" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../../../v3/expedient/massivaTramitacioTasca"/>"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a onclick="massivaTasca(this,'reassignacio');" class="btn btn-default" data-rdt-link-modal="true" href="#"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a onclick="massivaTasca(this,'tramitacio');" class="btn btn-default" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="#"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	
 			</div>

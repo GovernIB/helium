@@ -126,7 +126,7 @@ div.procesTasca:hover {
 									<c:set var="contHiHaPendents" value="0" scope="request"/>
 									<c:set var="contHiHaNoPendents" value="0" scope="request"/>
 									<c:set var="count" value="${fn:length(dadesProces.value)}"/>
-									<c:import url="import/expedientDadesTaula.jsp">
+									<c:import url="import/expedientTaula.jsp">
 										<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 										<c:param name="numColumnes" value="${numColumnes}"/>
 										<c:param name="count" value="${count}"/>

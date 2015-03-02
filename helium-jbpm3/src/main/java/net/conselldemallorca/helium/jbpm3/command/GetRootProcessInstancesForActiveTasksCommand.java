@@ -191,13 +191,13 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		
 		if (titol != null && !"".equals(titol)) {
 			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ";
-		}		
-		
-		if ("dataCreacio".equals(sort)) {
+		}	
+
+		if ("createTime".equals(sort)) {
 			hql += " order by ti.create " + (asc ? "asc" : "desc");
 		} else if ("prioritat".equals(sort)) {
 			hql += " order by ti.priority " + (asc ? "asc" : "desc");
-		} else if ("dataLimit".equals(sort)) {
+		} else if ("dueDate".equals(sort)) {
 			hql += " order by ti.dueDate " + (asc ? "asc" : "desc");
 		} else if ("titol".equals(sort)) {
 			hql += " order by ti.name " + (asc ? "asc" : "desc");

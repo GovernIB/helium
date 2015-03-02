@@ -7,27 +7,6 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="numColumnes" value="${3}"/>
-<%--<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
-<html>
-<head>
-	<title>${tasca.titol}</title>
-	<hel:modalHead/>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script>
-	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-	<script src="<c:url value="/js/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
-	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
-</head>
-<body>--%>
 <script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 <c:if test="${not tasca.validada}">
 	<div class="alert alert-warning">
@@ -91,15 +70,14 @@
 		</form>
 	</div>
 </c:if--%>
+	
 <c:choose>
 	<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
-	<c:otherwise><c:url var="tascaFormAction" value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
+	<c:otherwise><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
 </c:choose>
+
 <form:form onsubmit="return confirmar(this)" action="${tascaFormAction}" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 	<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
-	<form:hidden path="inici"/>
-	<form:hidden path="correu"/>
-	<form:hidden path="numTascaMassiva"/>
 	<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 		<c:set var="inline" value="${false}"/>
 		<c:set var="isRegistre" value="${false}"/>

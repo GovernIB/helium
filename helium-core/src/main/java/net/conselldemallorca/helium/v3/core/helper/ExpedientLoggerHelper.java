@@ -85,7 +85,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ExpedientLoggerHelper {
-	private static final String MESSAGE_LOG_PREFIX = "[H3l1um]";
+	public static final String MESSAGE_LOG_PREFIX = "[H3l1um]";
 	private static final String MESSAGE_LOGINFO_PREFIX = "[H3l1nf0]";
 	@Resource
 	private JbpmHelper jbpmHelper;
@@ -1279,36 +1279,49 @@ public class ExpedientLoggerHelper {
 	}
 
 	public ExpedientLog afegirLogExpedientPerTasca(
+			JbpmTask task,
+			ExpedientLogAccioTipus tipus,
+			String accioParams,
+			String user) {
+		return afegirLogExpedientPerTasca(task.getId(), null, tipus, accioParams, user);
+	}
+
+	public ExpedientLog afegirLogExpedientPerTasca(
 			String taskInstanceId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
-		return afegirLogExpedientPerTasca(taskInstanceId, tipus, accioParams, null);
+		return afegirLogExpedientPerTasca(taskInstanceId, null, tipus, accioParams, null);
 	}
 	
 	public ExpedientLog afegirLogExpedientPerTasca(
 			String taskInstanceId,
+			Long expedientId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams,
 			String user) {
 		long jbpmLogId = jbpmHelper.addTaskInstanceMessageLog(
 				taskInstanceId,
 				getMessageLogPerTipus(tipus));
-		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		Expedient expedient = null;
+		if (expedientId == null) {
+			JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		} else {
+			expedient = expedientRepository.findOne(expedientId);
+		}
 		String usuari = "Timer";
 		if (user != null) {
 			usuari = user;
 		} else {
-			try {
-				usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-			}catch (Exception e){}
+			try {usuari = SecurityContextHolder.getContext().getAuthentication().getName();}
+			catch (Exception e){}
 		}
 		ExpedientLog expedientLog = new ExpedientLog(
 				expedient,
 				usuari,
 				taskInstanceId,
 				tipus);
-		expedientLog.setProcessInstanceId(new Long(task.getProcessInstanceId()));
+		expedientLog.setProcessInstanceId(new Long(expedient.getProcessInstanceId()));
 		expedientLog.setJbpmLogId(jbpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);

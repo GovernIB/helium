@@ -8,7 +8,9 @@
 <div id="modal-botons" class="pull-right">
 	<c:choose>
 		<c:when test="${tasca.validada}">
-			<button type="button" id="tasca-boto-restaurar" name="accio" value="restaurar" class="btn btn-default tasca-boto"><span class="fa fa-undo"></span>&nbsp;<spring:message code="tasca.tramitacio.boto.restaurar"/></button>
+			<c:if test="${hasFormulari or hasDocuments or hasSignatures}">
+				<button type="button" id="tasca-boto-restaurar" name="accio" value="restaurar" class="btn btn-default tasca-boto"><span class="fa fa-undo"></span>&nbsp;<spring:message code="tasca.tramitacio.boto.restaurar"/></button>
+			</c:if>
 		</c:when>
 		<c:otherwise>
 			<button type="button" id="tasca-boto-guardar" name="accio" value="guardar" class="btn btn-default tasca-boto"><span class="fa fa-save"></span>&nbsp;<spring:message code="tasca.tramitacio.boto.guardar"/></button>

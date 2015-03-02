@@ -27,15 +27,13 @@
 	.signarTramitacio .select2-container {width: 100% !important;}
 	.signarTramitacio .ctrlHolder {padding-bottom: 10px;}
 </style>
-<c:if test="${not signaturesComplet}">
-	<div class="alert alert-warning">
-		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-		<p>
-			<span class="fa fa-warning"></span>
-			<spring:message code="tasca.tramitacio.firmes.no.complet"/>
-		</p>
-	</div>
-</c:if>
+<div class="alert alert-warning">
+	<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+	<p>
+		<span class="fa fa-warning"></span>
+		<spring:message code="tasca.tramitacio.firmes.no.complet"/>
+	</p>
+</div>
 <c:set var="sourceUrl" value="${globalProperties['app.base.url']}/v3/expedient/document/arxiuPerSignar"/>
 <c:forEach var="document" items="${signatures}">
 	<div class="signarTramitacio well well-small">
@@ -53,9 +51,9 @@
 							<div id="firmar${document.id}">
 								<c:if test="${not document.signat}">						
 									<form:form id="form${document.id}" action="${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
-										<input type="hidden" id="docId" name="docId" value="${document.id}"/>
-										<input type="hidden" id="taskId" name="taskId" value="${tascaId}"/>
-										<input type="hidden" id="token" name="token" value="${document.tokenSignatura}"/>
+										<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
+										<input type="hidden" id="taskId${document.id}" name="taskId" value="${tascaId}"/>
+										<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
 										
 										<div class="form-group">
 											<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
@@ -115,7 +113,18 @@ $(document).ready(function() {
 			obtenirCertificats();
 		} 
 	});
+ 	comprobarRequeridos();
 });
+
+function comprobarRequeridos() {
+	var alertas = false;
+	$.each($('#tasca-signatura .obligatori'), function (i, item) {
+		if ($(item).closest('div').find('input[name=passwd]').is(":visible"))
+			alertas = true;
+	});
+	$('#pipella-signatura span.fa.fa-warning').toggle(alertas);
+	$('#tasca-signatura div.alert.alert-warning').toggle(alertas);
+}
 
 function docWriteWrapper(jq, func) {
     var oldwrite = document.write, content = '';
@@ -199,20 +208,12 @@ function signarCaib(token, form, contentType) {
  				            data: $(form).serialize(),
  				            success: function(data) {
  				            	if (data) {
- 				            		$("#firmar"+$(form).find('#docId').val()).hide();
- 				            		$("#iconos"+$(form).find('#docId').val()).load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/'+$(form).find('#docId').val()+'"/>');
+ 				            		$("#firmar"+$(form).find('input[name=docId]').val()).hide();
+ 				            		$("#iconos"+$(form).find('input[name=docId]').val()).load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/'+$(form).find('input[name=docId]').val()+'"/>');
  				            	}
  				            	
- 				            	// Refrescar alertas
- 				            	$.ajax({
- 									url: "<c:url value='/nodeco/v3/missatges'/>",
- 									async: false,
- 									timeout: 20000,
- 									success: function (data) {
- 										$('#contingut-alertes *').remove();
- 										$('#contingut-alertes').append(data);
- 									}
- 								});
+ 				            	refrescarAlertesFunction();
+ 				            	comprobarRequeridos();
  				            }
  				        });
  					} else {

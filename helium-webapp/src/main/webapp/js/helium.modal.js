@@ -316,7 +316,8 @@ function modalRefrescarElements(
 				return false;
 			});
 		}
-		$('.modal-footer', $(iframe).parent().parent()).append(clon);
+		if ($('.modal-footer [value="'+element.attr('value')+'"]', $(iframe).parent().parent()).length == 0)
+			$('.modal-footer', $(iframe).parent().parent()).append(clon);
 	});
 	$('#' + settings.buttonContainerId, $(iframe).contents()).hide();
 	// Ajustar tamany

@@ -23,7 +23,6 @@
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-<%-- 	<script type="text/javascript" src="<c:url value="/js/helium.tramitar.js"/>"></script> --%>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
@@ -33,6 +32,11 @@
 <!-- 	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script> -->
 <!-- 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css"> -->
 	<script src="https://www.java.com/js/deployJava.js"></script>
+	
+	<c:choose>
+		<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
+		<c:otherwise><c:url var="tascaFormAction" value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
+	</c:choose>
 <script>
 $(document).ready(function() {
 	<%-- Mostrar/ocultar dades de referència --%>
@@ -74,14 +78,24 @@ $(document).ready(function() {
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
-		
 		var accio = $(this).attr('value');
 		if (accio.indexOf('completar') == 0) {
 			if (!confirm("<spring:message code="tasca.tramitacio.confirm.finalitzar"/>"))
 				return false;
 		}
-		$("#command").attr('action', $("#command").attr('action') + "/" + $(this).attr('value'));
-		$("#command").submit();		
+		if ($("#command").length > 0) {
+			$("#command").attr('action', "${tascaFormAction}/" + $(this).attr('value'));
+			$("#command").submit();
+		} else {
+			$.ajax({
+	            type: 'POST',
+	            url: "${tascaFormAction}/${massiva}/" + $(this).attr('value'),
+	            data: { massiva: "${massiva}", inici: "${inici}", correu: "${correu}" },
+	            success: function(data) {		            	
+	            	refrescarAlertesFunction();
+	            }
+	        });
+		}
 	});
 	<%-- Mostrar primera pipella activa --%>
 	<c:choose>
@@ -89,11 +103,30 @@ $(document).ready(function() {
 		<c:otherwise>$('#tasca-pipelles li:first a').click();</c:otherwise>
 	</c:choose>
 });
+
+function refrescarAlertesFunction() {
+	$.ajax({
+		url: "<c:url value="/nodeco/v3/missatges"/>",
+		async: false,
+		timeout: 20000,
+		success: function (data) {
+			$('#contingut-alertes *').remove();
+			$('#contingut-alertes').append(data);
+		}
+	});
+}
 </script>
 </head>
 <body>
+	<c:if test="${not empty tasquesTramitar}">
+		<div id="tasquesTramitar">
+			<c:import url="import/tasquesMassiva.jsp">
+				<c:param name="count" value="${fn:length(tasquesTramitar)}"/>
+			</c:import>
+		</div>
+	</c:if>
 	<c:if test="${not empty nomesLectura}">
-		<c:import url="import/expedientDadesTaula.jsp">
+		<c:import url="import/expedientTaula.jsp">
 			<c:param name="dadesAttribute" value="nomesLectura"/>
 			<c:param name="titol" value="Dades de referència"/>
 			<c:param name="numColumnes" value="${numColumnes}"/>
@@ -117,7 +150,7 @@ $(document).ready(function() {
 		<c:if test="${hasDocuments}">
 			<li id="pipella-document">
 				<a href="#tasca-document" data-toggle="tab">
-					<c:if test="${not tasca.documentsComplet}"><span class="fa fa-warning"></span></c:if>
+					<span class="fa fa-warning" <c:if test="${tasca.documentsComplet}">style="display: none"</c:if>></span>
 					${pipellaIndex}.
 					<spring:message code="tasca.tramitacio.pipella.document"/>
 				</a>
@@ -127,7 +160,7 @@ $(document).ready(function() {
 		<c:if test="${hasSignatures}">
 			<li id="pipella-signatura">
 				<a href="#tasca-signatura" data-toggle="tab">
-					<c:if test="${not tasca.signaturesComplet}"><span class="fa fa-warning"></span></c:if>
+					<span class="fa fa-warning" <c:if test="${tasca.signaturesComplet}">style="display: none"</c:if>></span>
 					${pipellaIndex}.
 					<spring:message code="tasca.tramitacio.pipella.signatura"/>
 				</a>
@@ -140,10 +173,10 @@ $(document).ready(function() {
 			<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/form"/>"></div>
 		</c:if>
 		<c:if test="${hasDocuments}">
-			<div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"><c:param name="complete" value="${tasca.documentsComplet}"/></c:url>"></div>
+			<div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div>
 		</c:if>
 		<c:if test="${hasSignatures}">
-			<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"><c:param name="complete" value="${tasca.signaturesComplet}"/></c:url>"></div>
+			<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"/>"></div>
 		</c:if>
 	</div>
 	<div id="guardarValidarTarea">

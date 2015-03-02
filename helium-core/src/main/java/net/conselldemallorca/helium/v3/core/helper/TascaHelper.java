@@ -510,122 +510,6 @@ public class TascaHelper {
 		return resposta;
 	}
 
-	/*public ExpedientTascaDto toExpedientTascaCompleteDto(
-			JbpmTask task,
-			Expedient expedient) {
-		ExpedientTascaDto dto = getExpedientTascaDto(task, expedient);
-
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
-				task.getProcessDefinitionId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
-				task.getName(),
-				definicioProces);
-		if (task.isCacheActiu()) {
-			dto.setTitol(task.getFieldFromDescription("titol"));
-		} else {
-			if (tasca != null)
-				dto.setTitol(tasca.getNom());
-			else
-				dto.setTitol(task.getName());
-		}
-		dto.setOutcomes(
-				jbpmHelper.findTaskInstanceOutcomes(task.getId()));
-		dto.setExpedientId(expedient.getId());
-		dto.setExpedientIdentificador(expedient.getIdentificador());
-		dto.setExpedientTipusNom(expedient.getTipus().getNom());
-		dto.setProcessInstanceId(task.getProcessInstanceId());
-		
-		if(tasca != null)
-			dto.setFormExtern(tasca.getFormExtern());		
-		
-		dto.setDefinicioProces(conversioTipusHelper.convertir(tasca.getDefinicioProces(), DefinicioProcesDto.class));
-		
-		dto.setDocumentsComplet(isDocumentsComplet(task));
-		dto.setSignaturesComplet(isSignaturesComplet(task));
-		dto.setTramitacioMassiva(tasca.isTramitacioMassiva());
-		
-		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
-		
-		DelegationInfo delegationInfo = getDelegationInfo(task);
-		
-		if (delegationInfo != null) {
-			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
-			dto.setDelegada(true);
-			dto.setDelegacioOriginal(original);
-			dto.setDelegacioData(delegationInfo.getStart());
-			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
-			dto.setDelegacioComentari(delegationInfo.getComment());
-			JbpmTask tascaDelegacio = null;
-			if (original) {
-				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getTargetTaskId());
-			} else {
-				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
-			}			
-			
-			dto.setDelegacioPersona(conversioTipusHelper.convertir(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
-		}
-				
-		return dto;
-	}
-
-	public ExpedientTascaDto getExpedientTascaCompleteDto(JbpmTask task) {
-		ExpedientTascaDto dto = getExpedientTascaDto(
-				task,
-				null,
-				false);
-		dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
-		DelegationInfo delegationInfo = getDelegationInfo(task);
-		if (delegationInfo != null) {
-			boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
-			dto.setDelegada(true);
-			dto.setDelegacioOriginal(original);
-			dto.setDelegacioData(delegationInfo.getStart());
-			dto.setDelegacioSupervisada(delegationInfo.isSupervised());
-			dto.setDelegacioComentari(delegationInfo.getComment());
-			JbpmTask tascaDelegacio = null;
-			if (original) {
-				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getTargetTaskId());
-			} else {
-				tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
-			}			
-			
-			dto.setDelegacioPersona(conversioTipusHelper.convertir(pluginPersonaDao.findAmbCodiPlugin(tascaDelegacio.getAssignee()), PersonaDto.class));
-		}
-		return dto;
-	}
-	
-	public ExpedientTascaDto getExpedientTascaCacheDto(
-			JbpmTask task,
-			DadesCacheTasca dadesCacheTasca) {
-		ExpedientTascaDto dto = new ExpedientTascaDto();
-		dto.setId(task.getId());
-		dto.setTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
-		dto.setTitol(dadesCacheTasca.getTitol());
-		dto.setDescripcio(task.getDescription());
-		if (task.getAssignee() != null) {
-			dto.setResponsable(
-					dtoConverter.getResponsableTasca(task.getAssignee()));
-			dto.setResponsableCodi(task.getAssignee());
-		}
-		Set<String> pooledActors = task.getPooledActors();
-		if (pooledActors != null && pooledActors.size() > 0) {
-			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-			for (String pooledActor: pooledActors)
-				responsables.add(
-						dtoConverter.getResponsableTasca(pooledActor));
-			dto.setResponsables(responsables);
-		}
-		dto.setOberta(task.isOpen());
-		dto.setCancelada(task.isCancelled());
-		dto.setSuspesa(task.isSuspended());
-		dto.setCompleted(task.isCompleted());
-		dto.setExpedientIdentificador(dadesCacheTasca.getIdentificador());
-		dto.setExpedientTipusNom(dadesCacheTasca.getExpedientTipusNom());
-		dto.setProcessInstanceId(task.getProcessInstanceId());
-		dto.setAgafada(task.isAgafada());
-		return dto;
-	}*/
-
 	public ExpedientTascaDto getExpedientTascaDto(
 			JbpmTask task,
 			Expedient expedient,
@@ -649,6 +533,7 @@ public class TascaHelper {
 		dto.setCompleted(task.isCompleted());
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
+		dto.setTascaTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
 		if (perTramitacio) {
 			// Opcional outcomes?
 			dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
@@ -665,7 +550,6 @@ public class TascaHelper {
 			dto.setTascaRecursForm(tasca.getRecursForm());
 			dto.setTascaFormExternCodi(tasca.getFormExtern());
 			dto.setTascaDelegable(tasca.getExpressioDelegacio() != null);
-			dto.setTascaTramitacioMassiva(tasca.isTramitacioMassiva());
 			// Opcional estat tramitació tasca?
 			dto.setValidada(isTascaValidada(task));
 			dto.setDocumentsComplet(isDocumentsComplet(task));
@@ -790,8 +674,8 @@ public class TascaHelper {
 
 	public void processarCampsAmbDominiCacheActivat(
 			JbpmTask task,
+			Tasca tasca,
 			Map<String, Object> variables) {
-		Tasca tasca = findTascaByJbpmTask(task);
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId());
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().isDominiCacheText()) {

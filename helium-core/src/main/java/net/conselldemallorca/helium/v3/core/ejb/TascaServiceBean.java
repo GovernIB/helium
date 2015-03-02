@@ -135,27 +135,31 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto validar(
-			String id,
+	public void validar(
+			String tascaId,
+			Long expedientId,
 			Map<String, Object> variables) {
-		return delegate.validar(
-				id,
+		delegate.validar(
+				tascaId,
+				expedientId,
 				variables);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTascaDto restaurar(String id) {
-		return delegate.restaurar(id);
+	public void restaurar(String tascaId, Long expedientId) {
+		delegate.restaurar(tascaId, expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void completar(
-			String id,
+			String tascaId,
+			Long expedientId,
 			String outcome) {
 		delegate.completar(
-				id,
+				tascaId,
+				expedientId,
 				outcome);
 	}
 

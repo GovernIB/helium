@@ -70,9 +70,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 			return modalUrlTancar(false);
 		}
-
-		model.addAttribute("inici", inici);
-		model.addAttribute("correu", correu);
+		if (massiva) {
+			model.addAttribute("inici", inici);
+			model.addAttribute("correu", correu);
+		}
 		model.addAttribute("massiva", massiva);		
 		model.addAttribute("reassignacioTasquesCommand", new ReassignacioTasquesCommand());
 		

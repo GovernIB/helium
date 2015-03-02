@@ -5,20 +5,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
-<style>
-div.grup:hover {
-	background-color: #e5e5e5 !important;
-	border-color: #ccc !important;
-}
-div.grup .panel-body-grup {
-	padding-bottom: 0px !important;
-}
-.panel-body-grup {
-	margin: -1px;
-}
-.panel {width: calc(100% - 15px);}
-</style>
-
 <c:set var="paramCount" value="${param.count}"/>
 <div class="missatgesBlau">		
 	<div class="panel-group">

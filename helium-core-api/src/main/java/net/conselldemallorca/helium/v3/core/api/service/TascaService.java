@@ -208,7 +208,7 @@ public interface TascaService {
 	/**
 	 * Guarda les variables del formulari de la tasca.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param expedientId 
 	 * @param variables
@@ -220,14 +220,14 @@ public interface TascaService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void guardar(
-			String id,
+			String tascaId,
 			Long expedientId, 
 			Map<String, Object> variables);
 
 	/**
 	 * Valida el formulari de la tasca.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param variables
 	 *            Valors del formulari de la tasca.
@@ -237,15 +237,17 @@ public interface TascaService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ExpedientTascaDto validar(
-			String id,
+	public void validar(
+			String tascaId,
+			Long expedientId,
 			Map<String, Object> variables);
 
 	/**
 	 * Restaura (tornar enrere validació) el formulari de la tasca.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
+	 * @param expedientId 
 	 * @return la tasca restaurada.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
@@ -254,13 +256,14 @@ public interface TascaService {
 	 * @throws IllegalStateException
 	 *             Si la tasca no es troba en estat validada.
 	 */
-	public ExpedientTascaDto restaurar(String id);
+	public void restaurar(String tascaId, Long expedientId);
 
 	/**
 	 * Completa la tasca.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
+	 * @param expedientId 
 	 * @param outcome
 	 *            Transició de sortida de la tasca.
 	 * @return la tasca completada.
@@ -272,7 +275,8 @@ public interface TascaService {
 	 *             Si la tasca no es troba en disposició de ser completada.
 	 */
 	public void completar(
-			String id,
+			String tascaId,
+			Long expedientId,
 			String outcome);
 
 	/**

@@ -68,7 +68,7 @@ div.procesTermini:hover {
 								<c:set var="iniciats_termini" value="${iniciats[proces.id]}" scope="request"/>
 								<c:set var="procesId" value="${proces.id}" scope="request"/>								
 								<c:set var="count" value="${fn:length(dadesProces.value)}"/>
-								<c:import url="import/expedientDadesTaula.jsp">
+								<c:import url="import/expedientTaula.jsp">
 									<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 									<c:param name="numColumnes" value="${numColumnes}"/>
 									<c:param name="count" value="${count}"/>

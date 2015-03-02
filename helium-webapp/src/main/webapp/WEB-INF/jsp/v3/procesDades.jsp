@@ -15,7 +15,7 @@
 				<c:if test="${count > 0}">
 					<c:choose>
 						<c:when test="${not empty agrupacio}">
-							<c:import url="import/expedientDadesTaula.jsp">
+							<c:import url="import/expedientTaula.jsp">
 								<c:param name="id" value="${agrupacio.id}"/>
 								<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 								<c:param name="titol" value="${agrupacio.nom}"/>
@@ -26,7 +26,7 @@
 							</c:import>
 						</c:when>
 						<c:otherwise>
-							<c:import url="import/expedientDadesTaula.jsp">
+							<c:import url="import/expedientTaula.jsp">
 								<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 								<c:param name="titol" value="${agrupacio.nom}"/>
 								<c:param name="numColumnes" value="${numColumnes}"/>

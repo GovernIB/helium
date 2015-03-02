@@ -1,8 +1,16 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -22,6 +31,8 @@ import org.springframework.ui.Model;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class BaseTascaController extends BaseController {
+	protected String TAG_PARAM_REGEXP = "<!--helium:param-(.+?)-->";
+	protected static final String VARIABLE_TRAMITACIO_MASSIVA = "variableTramitacioMassiva";
 
 	@Autowired
 	protected TascaService tascaService;
@@ -75,9 +86,12 @@ public class BaseTascaController extends BaseController {
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
 			model.addAttribute("pipellaActiva", "form");
-		model.addAttribute(
-				"isModal",
-				ModalHelper.isModal(request));
+		model.addAttribute("isModal", ModalHelper.isModal(request));
+		
+		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
+		if (datosTramitacionMasiva != null) {
+			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
+		}
 		return "v3/tascaPipelles";
 	}
 
@@ -91,5 +105,50 @@ public class BaseTascaController extends BaseController {
 			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
 		else
 			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
+	}
+
+	protected String guardarDatosTramitacionMasiva(HttpServletRequest request, Set<Long> seleccio, String inici, Boolean correu) {
+		Map<String, Object> camps = new HashMap<String, Object>();		
+		String[] tascaIds = new String[seleccio.size()];
+		int i = 0;
+		for (Long tId : seleccio) {
+			tascaIds[i++] = tId.toString();
+		}
+
+		Date iniciMassiva = new Date();
+		if (inici != null) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			try {
+				iniciMassiva = sdf.parse(inici);
+			} catch (ParseException e) {}
+		}
+		
+		camps.put("inici", iniciMassiva);
+		camps.put("correu", correu);
+		camps.put("tasquesTramitar", tascaIds);
+		SessionHelper.setAttribute(request,VARIABLE_TRAMITACIO_MASSIVA, camps);
+		return tascaIds[0];
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected Map<String, Object> getDatosTramitacionMasiva(HttpServletRequest request) {
+		Object obj = SessionHelper.getAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
+		if (obj instanceof Map) {
+			return (Map<String, Object>) obj;
+		}
+		return null;
+	}
+
+	protected Map<String, String> getFormRecursParams(String text) {
+		Map<String, String> params = new HashMap<String, String>();
+		Pattern pattern = Pattern.compile(TAG_PARAM_REGEXP);
+		Matcher matcher = pattern.matcher(text);
+		while (matcher.find()) {
+			String[] paramParts = matcher.group(1).split(":");
+			if (paramParts.length == 2) {
+				params.put(paramParts[0], paramParts[1]);
+			}
+		}
+		return params;
 	}
 }

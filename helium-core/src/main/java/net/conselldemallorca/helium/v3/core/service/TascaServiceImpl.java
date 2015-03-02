@@ -978,25 +978,22 @@ public class TascaServiceImpl implements TascaService {
 				"variables=...)");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
-		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
-				null,
-				usuari);
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskId,
 				true,
 				true);
-		boolean iniciada = task.getStartTime() == null;
-		tascaHelper.processarCampsAmbDominiCacheActivat(
-				task,
-				variables);
-		jbpmHelper.startTaskInstance(taskId);
-		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);
-		
+		expedientLoggerHelper.afegirLogExpedientPerTasca(
+				taskId,
+				expedientId,
+				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
+				null,
+				usuari);
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
+		jbpmHelper.startTaskInstance(taskId);
+		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);		
 		
-		if (iniciada) {
+		if (task.getStartTime() == null) {
 			Registre registre = new Registre(
 					new Date(),
 					expedientId,
@@ -1011,184 +1008,173 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional
-	public ExpedientTascaDto validar(
-			String id,
+	public void validar(
+			String tascaId,
+			Long expedientId,
 			Map<String, Object> variables) {
 		logger.debug("Validant el formulari de la tasca (" +
-				"id=" + id + ", " +
+				"tascaId=" + tascaId + ", " +
 				"variables=...)");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				id,
+				tascaId,
+				expedientId,
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
 				usuari);
-		tascaHelper.processarCampsAmbDominiCacheActivat(task, variables);
-		jbpmHelper.startTaskInstance(id);
-		jbpmHelper.setTaskInstanceVariables(id, variables, false);
-		tascaHelper.validarTasca(id);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
-				task,
-				null,
-				false);
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
+		jbpmHelper.startTaskInstance(tascaId);
+		jbpmHelper.setTaskInstanceVariables(tascaId, variables, false);
+		tascaHelper.validarTasca(tascaId);
+		
 		Registre registre = new Registre(
 				new Date(),
-				tasca.getExpedientId(),
+				expedientId,
 				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
-				id);
-		registre.setMissatge("Validar \"" + tasca.getTitol() + "\"");
+				tascaId);
+		registre.setMissatge("Validar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 		registreRepository.save(registre);
-		return tasca;
 	}
 
 	@Override
 	@Transactional
-	public ExpedientTascaDto restaurar(
-			String id) {
+	public void restaurar(
+			String tascaId,
+			Long expedientId) {
 		logger.debug("Restaurant el formulari de la tasca (" +
-				"id=" + id + ", " +
+				"tascaId=" + tascaId + ", " +
 				"variables=...)");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				id,
+				tascaId,
+				expedientId,
 				ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR,
 				null,
 				usuari);
-		if (!tascaHelper.isTascaValidada(task)) {
-			throw new IllegalStateException(
-					id,
-					JbpmTask.class,
-					"validada");
-		}
-		tascaHelper.restaurarTasca(id);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
-				task,
-				null,
-				false);
+		tascaHelper.restaurarTasca(tascaId);
+		
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
 		Registre registre = new Registre(
 				new Date(),
-				tasca.getExpedientId(),
+				expedientId,
 				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
-				id);
-		registre.setMissatge("Restaurar \"" + tasca.getTitol() + "\"");
+				tascaId);
+		registre.setMissatge("Restaurar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 		registreRepository.save(registre);
-		return tasca;
 	}
 
 	@Override
 	@Transactional
 	public void completar(
-			String id,
+			String tascaId,
+			Long expedientId,
 			String outcome) {
 		logger.debug("Completant la tasca (" +
-				"id=" + id + ", " +
+				"tascaId=" + tascaId + ", " +
 				"variables=...)");
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
-				true,
-				true);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
 		if (!tascaHelper.isTascaValidada(task)) {
 			throw new IllegalStateException(
-					id,
+					tascaId,
 					JbpmTask.class,
 					"validada");
 		}
 		if (!tascaHelper.isDocumentsComplet(task)) {
 			throw new IllegalStateException(
-					id,
+					tascaId,
 					JbpmTask.class,
 					"documents_ok");
 		}
 		if (!tascaHelper.isSignaturesComplet(task)) {
 			throw new IllegalStateException(
-					id,
+					tascaId,
 					JbpmTask.class,
 					"firmes_ok");
 		}
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(task.getProcessInstanceId());
-		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				id,
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+				tascaId,
+				expedientId,
 				ExpedientLogAccioTipus.TASCA_COMPLETAR,
 				outcome,
 				usuari);
-		jbpmHelper.startTaskInstance(id);
-		jbpmHelper.endTaskInstance(id, outcome);
+		jbpmHelper.startTaskInstance(tascaId);
+		jbpmHelper.endTaskInstance(tascaId, outcome);
 		// Accions per a una tasca delegada
 		DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
 		if (delegationInfo != null) {
-			if (!id.equals(delegationInfo.getSourceTaskId())) {
+			if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
 				// Copia les variables de la tasca delegada a la original
 				jbpmHelper.setTaskInstanceVariables(
 						delegationInfo.getSourceTaskId(),
-						jbpmHelper.getTaskInstanceVariables(task.getId()),
+						jbpmHelper.getTaskInstanceVariables(tascaId),
 						false);
 				JbpmTask taskOriginal = jbpmHelper.getTaskById(
 						delegationInfo.getSourceTaskId());
 				if (!delegationInfo.isSupervised()) {
 					// Si no es supervisada també finalitza la tasca original
-					completar(taskOriginal.getId(), outcome);
+					completar(taskOriginal.getId(), expedientId, outcome);
 				}
 				tascaHelper.deleteDelegationInfo(taskOriginal);
 			}
 		}
-		List<Expedient> expedients = expedientRepository.findByProcessInstanceId(
-				pi.getId());
-		for (Expedient expedient : expedients) {
-			actualitzarTerminisIAlertes(id, expedient);
-			verificarFinalitzacioExpedient(expedient, pi);
-		}
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
-				task,
-				null,
-				false);
+		
+		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedientLog.getExpedient().getProcessInstanceId());		
+		actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
+		verificarFinalitzacioExpedient(expedientLog.getExpedient(), pi);
+		serviceUtils.expedientIndexLuceneUpdate(expedientLog.getExpedient().getProcessInstanceId());
+		
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
 		Registre registre = new Registre(
 				new Date(),
-				tasca.getExpedientId(),
+				expedientId,
 				usuari,
 				Registre.Accio.FINALITZAR,
 				Registre.Entitat.TASCA,
-				id);
-		registre.setMissatge("Finalitzar \"" + tasca.getTitol() + "\"");
+				tascaId);
+		registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 		registreRepository.save(registre);
 	}
 
 	@Override
 	@Transactional
 	public void executarAccio(
-			String id,
+			String tascaId,
 			String accio) {
 		logger.debug("Executant acció de la tasca (" +
-				"id=" + id + ", " +
+				"tascaId=" + tascaId + ", " +
 				"accio=" + accio + ")");
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				id,
+				tascaId,
 				true,
 				true);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
-				id,
+				task,
 				ExpedientLogAccioTipus.TASCA_ACCIO_EXECUTAR,
 				accio,
 				usuari);
-		jbpmHelper.executeActionInstanciaTasca(id, accio);
+		jbpmHelper.executeActionInstanciaTasca(tascaId, accio);
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 	}
 

@@ -20,17 +20,17 @@
 			<tr>
 				<td>
 					${tasca.titol}
-					<c:if test="${not empty tasca.responsables && not tasca.agafada}">
-						<span class="fa fa-users"></span>
+					<c:if test="${not tasca.agafada && not empty tasca.responsables}">
+						<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
 					</c:if>
 					<div class="pull-right">
-						<c:if test="${tasca.cancelada}">
+						<c:if test="${tasca.cancelled}">
 							<span class="label label-danger" title="<spring:message code="enum.tasca.etiqueta.CA"/>">CA</span>
 						</c:if>
-						<c:if test="${tasca.suspesa}">
+						<c:if test="${tasca.suspended}">
 							<span class="label label-info" title="<spring:message code="enum.tasca.etiqueta.SU"/>">SU</span>
 						</c:if>
-						<c:if test="${tasca.oberta}">
+						<c:if test="${tasca.open}">
 							<span class="label label-warning" title="<spring:message code="enum.tasca.etiqueta.PD"/>">PD</span>
 						</c:if>
 						<c:if test="${tasca.completed}">
@@ -39,15 +39,15 @@
 						<c:if test="${tasca.agafada}">
 							<span class="label label-default" title="<spring:message code="enum.tasca.etiqueta.AG"/>">AG</span>
 						</c:if>
-						<c:if test="${tasca.tramitacioMassiva}">
+						<c:if test="${not tasca.completed and tasca.tascaTramitacioMassiva}">
 							<span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span>
 						</c:if>
 					</div>
 				</td>
 				<td>${tasca.expedientIdentificador}</td>
 				<td>${tasca.expedientTipusNom}</td>
-				<td><fmt:formatDate value="${tasca.dataCreacio}" pattern="dd/MM/yyyy"/></td>
-				<td><fmt:formatDate value="${tasca.dataLimit}" pattern="dd/MM/yyyy"/></td>								
+				<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
+				<td><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>								
 			</tr>
 		</tbody>
 	</c:forEach>				       		

@@ -25,20 +25,17 @@
 	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
 	.documentTramitacio .comentari {padding-top: 30px;}
 </style>
-<c:if test="${not documentsComplet}">
-	<div class="alert alert-warning">
-		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-		<p>
-			<span class="fa fa-warning"></span>
-			<spring:message code="tasca.tramitacio.documents.no.complet"/>
-		</p>
-	</div>
-</c:if>
+<div class="alert alert-warning">
+	<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+	<p>
+		<span class="fa fa-warning"></span>
+		<spring:message code="tasca.tramitacio.documents.no.complet"/>
+	</p>
+</div>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
 		<form id="form${document.id}" class="form-horizontal form-tasca" action="${tascaId}/documentAdjuntar" enctype="multipart/form-data" method="post" onsubmit="return false;">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
-			
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
@@ -142,7 +139,8 @@
     		var iframe = $('.modal-body iframe', window.parent.document);
     		var height = $('html').height();
     		iframe.height(height + 'px');
-    	});		
+    	});
+		comprobarRequeridos();
 	});
 	
 	function documentGuardar(docId) {
@@ -157,8 +155,8 @@
             	if (data != "") {
             		var url = "<c:url value='/v3/expedient/${expedientId}/document/'/>"+data+"/descarregar";
         			actualizarDatos(docId, $("#contingut"+docId).val(), url);
-        		}
-            	
+        			comprobarRequeridos();
+        		}            	
             	refrescarAlertesFunction();
             }
         });
@@ -171,6 +169,17 @@
 			var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
    			actualizarDatos(docId, data, url);
    		}
+		comprobarRequeridos();
+	}
+	
+	function comprobarRequeridos() {
+		var alertas = false;
+		$.each($('#tasca-document .obligatori'), function (i, item) {
+			if ($(item).closest('form').find('input[name=contingut]').is(":visible"))
+				alertas = true;
+		});
+		$('#pipella-document span.fa.fa-warning').toggle(alertas);
+		$('#tasca-document div.alert.alert-warning').toggle(alertas);
 	}
 	
 	function actualizarDatos(docId, nom, url) {
@@ -198,19 +207,9 @@
 			$("#removeUrl"+docId).addClass("hide");
 			$("#div_timer"+docId).removeClass("hide");
 			$("#form"+docId).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
+			
+			comprobarRequeridos();
 		}
-	}
-	
-	function refrescarAlertesFunction() {
-    	$.ajax({
-			url: "<c:url value="/nodeco/v3/missatges"/>",
-			async: false,
-			timeout: 20000,
-			success: function (data) {
-				$('#contingut-alertes *').remove();
-				$('#contingut-alertes').append(data);
-			}
-		});
 	}
 	// ]]>
 </script>

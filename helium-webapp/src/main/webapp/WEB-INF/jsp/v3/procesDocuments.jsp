@@ -73,7 +73,7 @@ div.procesDocument:hover {
 							<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
 								<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>
 								<c:set var="count" value="${fn:length(dadesProces.value)}"/>
-								<c:import url="import/expedientDadesTaula.jsp">
+								<c:import url="import/expedientTaula.jsp">
 									<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 									<c:param name="numColumnes" value="${numColumnes}"/>
 									<c:param name="count" value="${count}"/>
