@@ -42,7 +42,7 @@
 		 			<c:if test="${document.plantilla}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar'><c:param name='docId' value='${document.id}'/></c:url>"
+							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar/${document.id}'/>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
 							data-rdt-link-ajax=true
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
@@ -154,7 +154,19 @@
             success: function(data) {
             	if (data != "") {
             		var url = "<c:url value='/v3/expedient/${expedientId}/document/'/>"+data+"/descarregar";
-        			actualizarDatos(docId, $("#contingut"+docId).val(), url);
+        			$("#docNom"+docId).text($("#contingut"+docId).val());
+        			$("#downloadUrl"+docId).attr('href', url);
+        	   		$("#amagarFile"+docId).addClass("hide");
+        			$("#modal-botons"+docId).addClass("hide");
+        			$("#downloadUrl"+docId).removeClass("hide");
+        			$("#hideData"+docId).removeClass("hide");
+        			$("#removeUrl"+docId).removeClass("hide");
+        			$("#div_timer"+docId).addClass("hide");
+        			$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
+        			if ($("#data"+docId).val() != "")
+        				$("#docData"+docId).text($("#data"+docId).val());
+        			else
+        				$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
         			comprobarRequeridos();
         		}            	
             	refrescarAlertesFunction();
@@ -163,11 +175,24 @@
 	}
 	
 	function documentGenerar(docId, codi, adjuntarAuto, data) {
+		var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
 		if (data == "arxiuView") {
-			window.location.href = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
+	   		window.location.href = url;
 		} else if (data != null && data != '') {
-			var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
-   			actualizarDatos(docId, data, url);
+			var getData = JSON.parse(data);
+			$("#docNom"+docId).text(getData.nom);
+			$("#downloadUrl"+docId).attr('href', url);
+	   		$("#amagarFile"+docId).addClass("hide");
+			$("#modal-botons"+docId).addClass("hide");
+			$("#downloadUrl"+docId).removeClass("hide");
+			$("#hideData"+docId).removeClass("hide");
+			$("#removeUrl"+docId).removeClass("hide");
+			$("#div_timer"+docId).addClass("hide");
+			$("#docDataAdj"+docId).text(getData.fecha_modificacio);
+			if ($("#data"+docId).val() != "")
+				$("#docData"+docId).text($("#data"+docId).val());
+			else
+				$("#docData"+docId).text(getData.fecha_document);
    		}
 		comprobarRequeridos();
 	}
@@ -180,22 +205,6 @@
 		});
 		$('#pipella-document span.fa.fa-warning').toggle(alertas);
 		$('#tasca-document div.alert.alert-warning').toggle(alertas);
-	}
-	
-	function actualizarDatos(docId, nom, url) {
-		$("#docNom"+docId).text(nom);
-		$("#downloadUrl"+docId).attr('href', url);
-   		$("#amagarFile"+docId).addClass("hide");
-		$("#modal-botons"+docId).addClass("hide");
-		$("#downloadUrl"+docId).removeClass("hide");
-		$("#hideData"+docId).removeClass("hide");
-		$("#removeUrl"+docId).removeClass("hide");
-		$("#div_timer"+docId).addClass("hide");
-		$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
-		if ($("#data"+docId).val() != "")
-			$("#docData"+docId).text($("#data"+docId).val());
-		else
-			$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
 	}
 	
 	function amagarFile(docId, correcte) {

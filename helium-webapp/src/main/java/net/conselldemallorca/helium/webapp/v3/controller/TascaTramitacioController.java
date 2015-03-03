@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -433,13 +435,13 @@ public class TascaTramitacioController extends BaseTascaController {
 		return resposta;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar/{docId}", method = RequestMethod.GET)
 	@ResponseBody
 	public String documentGenerarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = true) Long docId,
+			@PathVariable Long docId,
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
 		String generatNom = null;
@@ -461,13 +463,20 @@ public class TascaTramitacioController extends BaseTascaController {
 						return "arxiuView";
 					}
 					generatNom = generat.getArxiuNom();
+					data = generat.getDataDocument();
 				}
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error generant el document " + docId, ex);
 		}
-		return generatNom;
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
+		Map<String, Object> mjson = new LinkedHashMap<String, Object>();
+		mjson.put("nom", generatNom);
+		mjson.put("fecha_modificacio", sdf.format(new Date()));
+		mjson.put("fecha_document", sdf2.format(data));
+		return JSONValue.toJSONString(mjson);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)
