@@ -18,6 +18,8 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -702,6 +704,9 @@ public class TascaServiceImpl implements TascaService {
 				"codiFiltre=" + codiFiltre + ", " +
 				"textFiltre=" + textFiltre + ", " +
 				"valorsFormulari=...)");
+		
+		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
+		
 		Camp camp = campRepository.findOne(campId);
 		String pidCalculat = processInstanceId;
 		if (processInstanceId == null && id != null) {
@@ -716,18 +721,30 @@ public class TascaServiceImpl implements TascaService {
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().equals(camp)) {
 					trobat = true;
-					break;
+				} else if (campTasca.getCamp().getTipus().equals(TipusCamp.REGISTRE)) {
+					for (CampRegistre campReg: campTasca.getCamp().getRegistreMembres()) {
+						if (campReg.getMembre().equals(camp)) {
+							trobat = true;
+							break;
+						}
+					}
 				}
+				if (trobat)
+					break;
 			}
 			if (!trobat) {
-				throw new NotFoundException(
-						camp.getId(),
-						Camp.class);
+//				throw new NotFoundException(
+//						camp.getId(),
+//						Camp.class);
+				logger.error("El camp consultat no pertany a la tasca " + id, 
+						new NotFoundException(camp.getId(),	Camp.class));
+				// Aquest cas no s'hauria de donar. 
+				// En cas que es doni, ara per ara, l'unic que feim és no retornar valors.
+				return resposta;
 			}
 			pidCalculat = task.getProcessInstanceId();
 		}
 		// Consulta els valors possibles
-		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
 		if (camp.getDominiId() != null) {
 			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
