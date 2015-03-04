@@ -68,8 +68,7 @@
 						<p><label><spring:message code='tasca.doc.adjunt.data.document' /></label>: <label id="docData${document.id}"><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></label></p>
 					</div>
 				</h4>				
-			</div>				
-				
+			</div>
 			<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 				<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
 		        <div class="col-xs-10 arxiu">
@@ -77,7 +76,7 @@
 		                <input id="contingut${document.id}" name="contingut" class="form-control" />
 		                <span class="input-group-btn">
 		                    <span class="btn btn-default btn-file">
-		                        <spring:message code='expedient.document.arxiu' />… <input type="file" name="arxiu">
+		                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
 		                    </span>
 		                </span>
 		            </div>
@@ -143,7 +142,27 @@
 		comprobarRequeridos();
 	});
 	
+	function checkFile(docId) {
+        var fileExtension = "";
+        var fileElementVal = $("#arxiu"+docId).val();
+        if (fileElementVal.lastIndexOf(".") > 0) {
+            fileExtension = fileElementVal.substring(fileElementVal.lastIndexOf(".") + 1, fileElementVal.length);
+        }
+        if($("#arxiu"+docId).attr('accept') !== undefined) {
+	        if ($("#arxiu"+docId).attr('accept').indexOf(fileExtension) != -1) {
+	            return true;
+	        } else {	        	
+	            alert("<spring:message code='error.extensio.document.permesa' /> "+$("#arxiu"+docId).attr('accept'));
+	            return false;
+	        }
+        } else {
+        	return true;
+        }
+    }
+	
 	function documentGuardar(docId) {
+		if (!checkFile(docId))
+			return false;
 		$.ajax({
             type: 'POST',
             url: $("#form"+docId).attr('action'),

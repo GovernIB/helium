@@ -535,6 +535,7 @@ public class DocumentHelperV3 {
 		dto.setRequired(required);
 		dto.setReadOnly(readonly);
 		dto.setPlantilla(document.isPlantilla());
+		dto.setExtensionsPermeses(document.getExtensionsPermeses());
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
 		if (documentStoreId != null) {
@@ -693,21 +694,23 @@ public class DocumentHelperV3 {
 		DocumentDto dto = null;
 		Long documentStoreId = getDocumentStoreIdPerToken(token);		
 		if (documentStoreId != null) {
-			dto = getDocumentSenseContingut(documentStoreId);
-			if (dto != null && pluginCustodiaDao.isCustodiaActiu()) {
-				DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+			dto = getDocumentSenseContingut(documentStoreId);			
+			boolean custodiat = false;
+			if (pluginCustodiaDao.isCustodiaActiu()) {
 				String nomArxiu = getNomArxiuAmbExtensio(
 						dto.getArxiuNom(),
-						getExtensioArxiuSignat());
+						getExtensioArxiuSignat());		
 				String referenciaCustodia = null;
 				if (pluginCustodiaDao.isValidacioImplicita()) {
+					logger.info("signarDocumentTascaAmbToken : documentId: " + documentStore.getId() + ". gesdocId: " +documentStore.getReferenciaFont() + ". nomArxiuSignat: " + nomArxiu + ". codiTipusCustodia: " + dto.getCustodiaCodi()); 
 					referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-							documentStoreId,
+							documentStore.getId(),
 							documentStore.getReferenciaFont(),
 							nomArxiu,
 							dto.getCustodiaCodi(),
 							signatura);
-					documentStore.setReferenciaCustodia(referenciaCustodia);
+					custodiat = true;
 				} else {
 					RespostaValidacioSignatura resposta = pluginSignaturaDao.verificarSignatura(
 							dto.getVistaContingut(),
@@ -715,25 +718,27 @@ public class DocumentHelperV3 {
 							false);
 					if (resposta.isEstatOk()) {
 						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
-								documentStoreId,
+								documentStore.getId(),
 								documentStore.getReferenciaFont(),
 								nomArxiu,
 								dto.getCustodiaCodi(),
 								signatura);
-						documentStore.setReferenciaCustodia(referenciaCustodia);
+						custodiat = true;
 					}
 				}
-
-				if (referenciaCustodia != null) {
-					documentStore.setSignat(true);
-					dto.setSignat(true);
-
-					jbpmHelper.setTaskInstanceVariable(
-							tascaId,
-							DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi(),
-							documentStore.getId());
-				}
-				documentStoreRepository.flush();
+				documentStore.setReferenciaCustodia(referenciaCustodia);
+			}
+			if (custodiat) {
+				documentStore.setSignat(true);
+				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+						tascaId,
+						true,
+						true);
+				String.valueOf(task.getTask().getId());
+				jbpmHelper.setTaskInstanceVariable(
+						tascaId,
+						DocumentHelper.PREFIX_SIGNATURA + dto.getDocumentCodi(),
+						documentStore.getId());
 			}
 		}
 		return dto;

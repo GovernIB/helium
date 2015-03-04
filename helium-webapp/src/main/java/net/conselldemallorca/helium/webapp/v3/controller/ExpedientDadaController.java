@@ -438,7 +438,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				for(CampDto camp: camps) {
 					while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
 						i++;
-					if (!camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
+					if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
 						campsNoUtilitzats.add(camp);
 					} else if (i < (dadesInstancia.size() - 1)){
 						i++;

@@ -48,6 +48,8 @@ public class TascaDocumentDto {
 	private String error;
 	
 	private String urlVerificacioCustodia;
+	
+	private String extensionsPermeses;
 
 	public TascaDocumentDto() {
 	}
@@ -223,5 +225,18 @@ public class TascaDocumentDto {
 		} else {
 			return null;
 		}
+	}
+
+	public String getExtensionsPermeses() {
+		if (extensionsPermeses == null || extensionsPermeses.isEmpty())
+			return null;		
+		StringBuffer exts = new StringBuffer();
+		for (String ext : extensionsPermeses.split(","))
+			exts.append("."+ext+",");
+		return exts.substring(0, exts.length()-1);
+	}
+
+	public void setExtensionsPermeses(String extensionsPermeses) {
+		this.extensionsPermeses = extensionsPermeses;
 	}
 }

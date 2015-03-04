@@ -915,13 +915,13 @@ public class TascaServiceImpl implements TascaService {
 			byte[] signatura) throws Exception {
 		boolean signat = false;
 		DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
-		if (dto != null && dto.isSignat()) {
+		if (dto != null) {
 			registreDao.crearRegistreSignarDocument(
 					expedientId,
 					dto.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					dto.getDocumentCodi());
-			signat = dto.isSignat();
+			signat = true;
 		}
 		return signat;
 	}
