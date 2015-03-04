@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +59,7 @@ public class TerminiServiceImpl implements TerminiService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String processInstanceId) {
+	public List<TerminiDto> findTerminisAmbProcessInstanceId(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		if (pi.getProcessInstance() == null)
 			return null;
@@ -72,8 +71,8 @@ public class TerminiServiceImpl implements TerminiService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(instanciaProcesId);
+	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
+		List<TerminiIniciat> terminiIniciats = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
 		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
 	}
 
@@ -375,17 +374,6 @@ public class TerminiServiceImpl implements TerminiService {
 				mesos,
 				dies,
 				esDataFi);
-	}
-	
-	@Transactional
-	@Override
-	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {		
-		List<TerminiIniciat> terminisObj = terminiIniciatRepository.findByProcessInstanceId(processInstanceId);
-		List<TerminiIniciatDto> terminiDto = new ArrayList<TerminiIniciatDto>();
-		for(TerminiIniciat terminiObj : terminisObj) {
-			terminiDto.add(conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class));
-		}
-		return terminiDto;
 	}
 
 	@Transactional

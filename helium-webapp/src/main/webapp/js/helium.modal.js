@@ -316,7 +316,7 @@ function modalRefrescarElements(
 				return false;
 			});
 		}
-		if ($('.modal-footer [value="'+element.attr('value')+'"]', $(iframe).parent().parent()).length == 0)
+		if ($('.modal-footer [value="'+element.attr('id')+'"]', $(iframe).parent().parent()).length == 0)
 			$('.modal-footer', $(iframe).parent().parent()).append(clon);
 	});
 	$('#' + settings.buttonContainerId, $(iframe).contents()).hide();

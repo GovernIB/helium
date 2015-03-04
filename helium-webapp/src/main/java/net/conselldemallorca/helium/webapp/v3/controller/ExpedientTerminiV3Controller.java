@@ -75,8 +75,8 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<TerminiDto> terminisInstanciaProces = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				terminisInstanciaProces = terminiService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId());
-				iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
+				terminisInstanciaProces = terminiService.findTerminisAmbProcessInstanceId(instanciaProces.getId());
+				iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbProcessInstanceId(instanciaProces.getId()));
 			}
 			terminis.put(instanciaProces, terminisInstanciaProces);
 		}
@@ -94,14 +94,12 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);		
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
-		terminis.put(instanciaProces, terminiService.findTerminisAmbExpedientId(expedientId, instanciaProces.getId()));
-		iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbExpedientId(expedientId, instanciaProces.getId()));
-		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		terminis.put(instanciaProces, terminiService.findTerminisAmbProcessInstanceId(instanciaProces.getId()));
+		iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbProcessInstanceId(instanciaProces.getId()));
+		model.addAttribute("inicialProcesInstanceId", procesId);
 		model.addAttribute("terminis",terminis);
 		model.addAttribute("iniciats",iniciats);
 		return "v3/procesTerminis";

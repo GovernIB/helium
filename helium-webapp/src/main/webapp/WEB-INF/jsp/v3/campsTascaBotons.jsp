@@ -26,7 +26,7 @@
         					<c:when test="${not empty outcome}"><c:set var="textCompletar" value="${outcome}"/></c:when>
         					<c:otherwise><c:set var="textCompletar"><spring:message code="tasca.tramitacio.boto.finalitzar"/></c:set></c:otherwise>
         				</c:choose>
-        				<button type="button" id="tasca-boto-completar" name="accio" value="completar/${outcome}" class="btn btn-primary tasca-boto">${textCompletar}</button>
+        				<button type="button" id="tasca-boto-completar-${textCompletar}" data-transicio="${textCompletar}" name="accio" value="completar" class="btn btn-primary tasca-boto">${textCompletar}</button>
         			</c:forEach>
 	      		</div>
 			</c:when>

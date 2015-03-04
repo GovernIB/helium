@@ -54,9 +54,9 @@ public class BaseTascaController extends BaseController {
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
 			if (dada.isReadOnly()) {
-				if (!dada.isCampOcult())
+//				if (!dada.isCampOcult())
 					nomesLectura.add(dada);
-				itDades.remove();
+//				itDades.remove();
 			}
 		}
 		

@@ -298,13 +298,14 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaId,
 				"form");
 	}
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar/{transicio}", method = RequestMethod.POST)
-	public String completar(
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
+	public String completarAmbTransicioPerDefecte(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@PathVariable String transicio,
 			@ModelAttribute("command") Object command, 
+			@RequestParam(value = "transicio", required = false) String transicio,
 			BindingResult result, 
 			SessionStatus status, 
 			ModelMap model) {
@@ -328,25 +329,6 @@ public class TascaTramitacioController extends BaseTascaController {
 					"form");
 		}
 		return modalUrlTancar();
-	}
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
-	public String completarAmbTransicioPerDefecte(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@ModelAttribute("command") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
-			ModelMap model) {
-		return completar(
-				request,
-				expedientId,
-				tascaId,
-				null,
-				command, 
-				result, 
-				status, 
-				model);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document", method = RequestMethod.GET)
@@ -638,13 +620,13 @@ public class TascaTramitacioController extends BaseTascaController {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
-		Iterator<TascaDadaDto> itDades = dades.iterator();
-		while (itDades.hasNext()) {
-			TascaDadaDto dada = itDades.next();
-			if (dada.isReadOnly()) {
-				itDades.remove();
-			}
-		}
+//		Iterator<TascaDadaDto> itDades = dades.iterator();
+//		while (itDades.hasNext()) {
+//			TascaDadaDto dada = itDades.next();
+//			if (dada.isReadOnly()) {
+//				itDades.remove();
+//			}
+//		}
 		model.addAttribute("dades", dades);
 		if (tasca.getTascaRecursForm() != null && tasca.getTascaRecursForm().length() > 0) {
 			try {
@@ -904,7 +886,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
-			try {			
+			try {
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();

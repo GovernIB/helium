@@ -84,15 +84,22 @@ $(document).ready(function() {
 				return false;
 		}
 		if ($("#command").length > 0) {
+			if ($(this).data('transicio') !== undefined) {
+				$("#command").append( '<input type="hidden" id="transicio" name="transicio" value="'+$(this).data('transicio')+'"/>' );
+			}
 			$("#command").attr('action', "${tascaFormAction}/" + $(this).attr('value'));
 			$("#command").submit();
 		} else {
+			var transicio;
+			if ($(this).data('transicio') !== undefined) {
+				transicio = $(this).data('transicio');
+			}
 			$.ajax({
 	            type: 'POST',
-	            url: "${tascaFormAction}/${massiva}/" + $(this).attr('value'),
-	            data: { massiva: "${massiva}", inici: "${inici}", correu: "${correu}" },
+	            url: "${tascaFormAction}/" + $(this).attr('value'),
+	            data: { "transicio": transicio },
 	            success: function(data) {		            	
-	            	refrescarAlertesFunction();
+	            	window.parent.modalTancar(window.frameElement, true);
 	            }
 	        });
 		}

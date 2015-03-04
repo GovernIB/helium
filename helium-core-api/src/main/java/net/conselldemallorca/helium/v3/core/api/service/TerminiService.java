@@ -18,9 +18,7 @@ public interface TerminiService {
 	
 	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId);
 
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId);
-
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId);
+	public List<TerminiDto> findTerminisAmbProcessInstanceId(String processInstanceId);
 
 	public TerminiIniciatDto findIniciatAmbId(Long id);
 

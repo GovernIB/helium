@@ -8,10 +8,10 @@
 
 <c:set var="campInline" value="${inline}"/>
 <c:set var="obligatorio"><c:if test="${dada.required}"> data-required="true"</c:if></c:set>
-<c:if test="${!dada.readOnly}">
+<%-- <c:if test="${!dada.readOnly}"> --%>
 	
 	<c:set var="campErrors"><form:errors path="${campCodi}"/></c:set>
-	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if>">
+	<div class="form-group <c:if test="${dada.readOnly or dada.campOcult}"> hide </c:if><c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if>">
 		<label for="${dada.varCodi}" class="control-label<c:choose><c:when test='${inline}'> sr-only</c:when><c:otherwise> col-xs-3<c:if test="${dada.required}"> obligatori</c:if></c:otherwise></c:choose>">${dada.campEtiqueta}</label>
 		<div class="controls<c:if test='${not inline}'> col-xs-9</c:if> <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if>">
 
@@ -188,23 +188,23 @@
 	</div>	<%-- Fi div form-group--%>
 
 	<c:if test="${dada.campMultiple and isRegistre}">
-		<div class="form-group condensed">
+		<div class="form-group condensed <c:if test="${dada.readOnly or dada.campOcult}"> hide </c:if>">
 			<c:if test="${not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
 			<button id="button_add_var_mult_${campCodi}" type="button" class="btn pull-left btn_multiple"><spring:message code='comuns.afegir' /></button>
 		</div>
 	</c:if>
 <%-- Fi VARIABLES MULTIPLES -------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
-</c:if>
-<c:if test="${dada.readOnly}">
-	<div class="controls">
-		<label class="control-label-value"><c:out value="${dada.text}"/></label>
-	</div>
+<%-- </c:if> --%>
+<%-- <c:if test="${dada.readOnly}"> --%>
+<!-- 	<div class="controls"> -->
+<%-- 		aa<label class="control-label-value"><c:out value="${dada.text}"/></label> --%>
+<!-- 	</div> -->
 	
-	<c:if test="${dada.campTipus == 'TERMINI' && not empty dada.varValor}">
-		<c:out value="${dada.varValor.anys}/${dada.varValor.mesos}/${dada.varValor.dies}"/>
-	</c:if>	
-</c:if>
+<%-- 	<c:if test="${dada.campTipus == 'TERMINI' && not empty dada.varValor}"> --%>
+<%-- 		<c:out value="${dada.varValor.anys}/${dada.varValor.mesos}/${dada.varValor.dies}"/> --%>
+<%-- 	</c:if>	 --%>
+<%-- </c:if> --%>
 <c:set var="campCodi" value=""/>
 <c:set var="campInline" value="${false}"/>
 <c:set var="campErrors" value=""/>

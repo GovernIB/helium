@@ -65,13 +65,7 @@ public class TerminiServiceBean implements TerminiService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiIniciatDto> findIniciatsAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		return delegate.findIniciatsAmbExpedientId(expedientId, instanciaProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiDto> findTerminisAmbExpedientId(Long expedientId, String instanciaProcesId) {
-		return delegate.findTerminisAmbExpedientId(expedientId, instanciaProcesId);
+	public List<TerminiDto> findTerminisAmbProcessInstanceId(String processInstanceId) {
+		return delegate.findTerminisAmbProcessInstanceId(processInstanceId);
 	}
 }
