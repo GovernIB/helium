@@ -678,4 +678,6 @@ public interface ExpedientService {
 	public boolean luceneReindexarExpedient(Long expedientId);
 
 	public ArxiuDto arxiuDocumentPerSignar(String token);
+
+	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId);
 }

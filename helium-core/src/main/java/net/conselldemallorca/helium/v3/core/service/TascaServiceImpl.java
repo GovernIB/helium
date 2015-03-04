@@ -1005,8 +1005,9 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
 				null,
 				usuari);
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), task.getProcessDefinitionId());
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
+		tascaHelper.filtreVariablesReadOnlyOcult(tasca, variables);
 		jbpmHelper.startTaskInstance(taskId);
 		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);		
 		
@@ -1044,8 +1045,9 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
 				usuari);
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), task.getProcessDefinitionId());
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
+		tascaHelper.filtreVariablesReadOnlyOcult(tasca, variables);
 		jbpmHelper.startTaskInstance(tascaId);
 		jbpmHelper.setTaskInstanceVariables(tascaId, variables, false);
 		tascaHelper.validarTasca(tascaId);
@@ -1083,7 +1085,7 @@ public class TascaServiceImpl implements TascaService {
 				usuari);
 		tascaHelper.restaurarTasca(tascaId);
 		
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), task.getProcessDefinitionId());
 		Registre registre = new Registre(
 				new Date(),
 				expedientId,
@@ -1160,7 +1162,7 @@ public class TascaServiceImpl implements TascaService {
 		verificarFinalitzacioExpedient(expedientLog.getExpedient(), pi);
 		serviceUtils.expedientIndexLuceneUpdate(expedientLog.getExpedient().getProcessInstanceId());
 		
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), String.valueOf(task.getProcessDefinitionId()));
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), task.getProcessDefinitionId());
 		Registre registre = new Registre(
 				new Date(),
 				expedientId,

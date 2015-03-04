@@ -631,4 +631,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public ArxiuDto arxiuDocumentPerSignar(String token) {
 		return delegate.arxiuDocumentPerSignar(token);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId) {
+		return delegate.findAccionsVisiblesAmbProcessInstanceId(processInstanceId);
+	}
 }

@@ -364,7 +364,8 @@ $(function() {
 	})
 	$(".btn_accio").click(function(){
 		if (confirm($(this).data("confirmacio"))) {
-			$("#command").attr('action', $("#command").attr('action') + "/accio/" + $(this).data("action"));
+			$("#command").attr('action', $("#command").attr('action') + "/accio");
+			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');		
 			return true;
 		}
 		return false;

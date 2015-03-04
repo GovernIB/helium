@@ -699,6 +699,15 @@ public class TascaHelper {
 		}
 	}
 
+	public void filtreVariablesReadOnlyOcult(Tasca tasca, Map<String, Object> variables) {
+		for (CampTasca campTasca: tasca.getCamps()) {
+			if (variables.containsKey(campTasca.getCamp().getCodi())) {
+				if (campTasca.isReadOnly() || campTasca.getCamp().isOcult())
+					variables.remove(campTasca.getCamp().getCodi());
+			}
+		}
+	}
+
 	public void createDelegationInfo(
 			JbpmTask task,
 			JbpmTask original,

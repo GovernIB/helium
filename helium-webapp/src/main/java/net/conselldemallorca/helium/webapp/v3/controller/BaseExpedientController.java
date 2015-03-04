@@ -32,8 +32,7 @@ public class BaseExpedientController extends BaseController {
 			String pipellaActiva) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute("expedient", expedient);
-		model.addAttribute("participants", expedientService.findParticipants(expedientId));		
-		model.addAttribute("accions", expedientService.findAccionsVisibles(expedientId));
+		model.addAttribute("participants", expedientService.findParticipants(expedientId));
 		model.addAttribute("relacionats", expedientService.findRelacionats(expedientId));
 		DefinicioProcesVersioDto versions = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
 		model.addAttribute("definicioProces", versions);

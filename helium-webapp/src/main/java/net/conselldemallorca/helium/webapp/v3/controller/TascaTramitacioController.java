@@ -269,14 +269,14 @@ public class TascaTramitacioController extends BaseTascaController {
 	}
 
 	@RequestMapping(value = {
-			"/{expedientId}/tasca/{tascaId}/accio/{accioCamp}",
-			"/{expedientId}/tasca/{tascaId}/form/accio/{accioCamp}"
+			"/{expedientId}/tasca/{tascaId}/accio",
+			"/{expedientId}/tasca/{tascaId}/form/accio"
 			}, method = RequestMethod.POST)
 	public String accio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@PathVariable String accioCamp,
+			@RequestParam(value = "accioCamp", required = true) String accioCamp,
 			@ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
@@ -300,7 +300,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
-	public String completarAmbTransicioPerDefecte(
+	public String completar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
@@ -620,13 +620,13 @@ public class TascaTramitacioController extends BaseTascaController {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
-//		Iterator<TascaDadaDto> itDades = dades.iterator();
-//		while (itDades.hasNext()) {
-//			TascaDadaDto dada = itDades.next();
-//			if (dada.isReadOnly()) {
-//				itDades.remove();
-//			}
-//		}
+		Iterator<TascaDadaDto> itDades = dades.iterator();
+		while (itDades.hasNext()) {
+			TascaDadaDto dada = itDades.next();
+			if (dada.isReadOnly()) {
+				itDades.remove();
+			}
+		}
 		model.addAttribute("dades", dades);
 		if (tasca.getTascaRecursForm() != null && tasca.getTascaRecursForm().length() > 0) {
 			try {
@@ -773,7 +773,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request, 
 			String tascaId, 
 			Long expedientId,
-			Map<String, Object> variables, Object command) {
+			Map<String, Object> variables, 
+			Object command) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {

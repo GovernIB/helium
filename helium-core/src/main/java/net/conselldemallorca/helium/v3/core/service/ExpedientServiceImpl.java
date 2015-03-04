@@ -1435,6 +1435,32 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId) {
+		logger.debug("Consulta d'accions visibles de l'expedient amb processInstanceId(" +
+				"processInstanceId=" + processInstanceId + ")");
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
+		// Filtra les accions restringides per rol que no estan permeses per a l'usuari actual
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Iterator<Accio> it = accions.iterator();
+		while (it.hasNext()) {
+			Accio accio = it.next();
+			if (accio.getRols() != null) {
+				boolean permesa = false;
+				for (String rol: accio.getRols().split(",")) {
+					if (isUserInRole(auth, rol)) {
+						permesa = true;
+						break;
+					}
+				}
+				if (!permesa) it.remove();
+			}
+		}
+		return conversioTipusHelper.convertirList(accions, AccioDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<AccioDto> findAccionsVisibles(Long id) {
 		logger.debug("Consulta d'accions visibles de l'expedient (" +
 				"id=" + id + ")");

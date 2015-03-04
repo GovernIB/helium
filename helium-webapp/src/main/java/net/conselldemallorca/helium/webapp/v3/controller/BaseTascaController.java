@@ -56,7 +56,7 @@ public class BaseTascaController extends BaseController {
 			if (dada.isReadOnly()) {
 				if (!dada.isCampOcult())
 					nomesLectura.add(dada);
-//				itDades.remove();
+				itDades.remove();
 			}
 		}
 		

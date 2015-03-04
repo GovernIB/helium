@@ -287,12 +287,6 @@
 							<c:if test="${expedient.permisAdministration}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
 							</c:if>
-							<c:if test="${not empty accions}">
-								<li class="divider"></li>
-								<c:forEach var="accio" items="${accions}">
-									<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
-								</c:forEach>
-							</c:if>
 						</ul>
 					</div>
 				</c:if>
