@@ -30,15 +30,12 @@ public class ExpedientAccioController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			List<AccioDto> accionsPI = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId());
-			accions.put(instanciaProces, accionsPI);
+			accions.put(instanciaProces, expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId()));
 		}
-		model.addAttribute("tasques", accions);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());		
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);
@@ -54,9 +51,8 @@ public class ExpedientAccioController extends BaseExpedientController {
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		List<AccioDto> accionsPI = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId());
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
-		accions.put(instanciaProces, accionsPI);
+		accions.put(instanciaProces, expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId()));
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);	

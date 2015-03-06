@@ -111,20 +111,24 @@ public class TascaFormValidatorHelper implements Validator {
 								for (Object reg: registres) {
 									boolean emptyReg = true;
 									for (TascaDadaDto campRegistre : registreDades) {
-										boolean emptyVal = true;
-										Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
-										if (oValor != null) {
-											if (oValor instanceof TerminiDto) {
-												emptyVal = ((TerminiDto)oValor).isEmpty();
-											} else if (oValor instanceof String && "".equals(oValor)) {
-												emptyVal = true;
-											} else {
-												emptyVal = false;
+										if (campRegistre.isRequired()) {
+											boolean emptyVal = true;
+											Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
+											if (oValor != null) {
+												if (oValor instanceof TerminiDto) {
+													emptyVal = ((TerminiDto)oValor).isEmpty();
+												} else if (oValor instanceof String && "".equals(oValor)) {
+													emptyVal = true;
+												} else {
+													emptyVal = false;
+												}
 											}
-										}
-										if (emptyVal) {
-											if (campRegistre.isRequired()) {
-												errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]." : ".") + campRegistre.getVarCodi(), "not.blank");
+											if (emptyVal) {
+												if (campRegistre.isRequired()) {
+													errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]." : ".") + campRegistre.getVarCodi(), "not.blank");
+												}
+											} else {
+												emptyReg = false;
 											}
 										} else {
 											emptyReg = false;

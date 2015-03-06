@@ -736,7 +736,7 @@ public class VariableHelper {
 				multipleDades.add(
 						getTascaDadaDtoFromExpedientDadaDto(
 								dto,
-								campTasca));
+								findCampTascaAmbCampId(dto.getCampId(), campTasca)));
 			}
 			tascaDadaDto.setMultipleDades(multipleDades);
 		}
@@ -746,7 +746,7 @@ public class VariableHelper {
 				registreDades.add(
 						getTascaDadaDtoFromExpedientDadaDto(
 								dto,
-								campTasca));
+								findCampTascaAmbCampId(dto.getCampId(), campTasca)));
 			}
 			tascaDadaDto.setRegistreDades(registreDades);
 		}
@@ -768,6 +768,71 @@ public class VariableHelper {
 							new String[paramCampCodis.size()]));
 		}
 		return tascaDadaDto;
+	}
+	
+	private CampTasca findCampTascaAmbCampId(Long id, CampTasca campTasca) {
+		CampRegistre campRegistre = null;
+		CampTasca campRegistreTasca = null;
+		if (id.equals(campTasca.getCamp().getId())) {
+			return campTasca;
+		} else {
+			if (campTasca.getCamp() != null) {
+				if (campTasca.getCamp().getRegistreMembres() != null) {
+					for (CampRegistre reg : campTasca.getCamp().getRegistreMembres()) {
+						for (CampTasca regMembre : reg.getMembre().getCampsTasca()) {
+							if (id.equals(regMembre.getCamp().getId())) {
+								campRegistre = reg;
+								campRegistreTasca = regMembre;
+								break;
+							}
+						}
+						for (CampTasca regRegistre : reg.getRegistre().getCampsTasca()) {
+							if (id.equals(regRegistre.getCamp().getId())) {
+								campRegistre = reg;
+								campRegistreTasca = regRegistre;
+								break;
+							}
+						}						
+					} 
+				}
+				if (campTasca.getCamp().getRegistrePares() != null) {
+					for (CampRegistre reg : campTasca.getCamp().getRegistrePares()) {
+						for (CampTasca regMembre : reg.getMembre().getCampsTasca()) {
+							if (id.equals(regMembre.getCamp().getId())) {
+								campRegistre = reg;
+								campRegistreTasca = regMembre;
+								break;
+							}
+						}
+						for (CampTasca regRegistre : reg.getRegistre().getCampsTasca()) {
+							if (id.equals(regRegistre.getCamp().getId())) {
+								campRegistre = reg;
+								campRegistreTasca = regRegistre;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (campRegistre != null) {
+			return campRegistreToCampTasca(campRegistre, campRegistreTasca);
+		} else {
+			return campTasca;
+		}
+	}
+	
+	private CampTasca campRegistreToCampTasca (CampRegistre campRegistre, CampTasca campTasca) {
+		CampTasca cTasca = new CampTasca();
+		cTasca.setCamp(campTasca.getCamp());
+		cTasca.setId(campTasca.getId());
+		cTasca.setOrder(campRegistre.getOrdre());
+		cTasca.setReadFrom(campTasca.isReadFrom());
+		cTasca.setReadOnly(campTasca.isReadOnly());
+		cTasca.setRequired(campRegistre.isObligatori());
+		cTasca.setTasca(campTasca.getTasca());
+		cTasca.setWriteTo(campTasca.isWriteTo());
+		return cTasca;
 	}
 
 	public List<TascaDadaDto> getTascaDadasDtoFromExpedientDadasDto(List<ExpedientDadaDto> expedientDadasDto) {
