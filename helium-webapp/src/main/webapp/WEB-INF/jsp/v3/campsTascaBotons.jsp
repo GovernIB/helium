@@ -19,7 +19,7 @@
 	</c:choose>
 	<c:if test="${not tasca.delegada or not tasca.delegacioOriginal}">
 		<c:choose>
-			<c:when test="${not empty tasca.outcomes && fn:length(tasca.outcomes) gt 1}">
+			<c:when test="${not empty tasca.outcomes && fn:length(tasca.outcomes) gt 0}">
 				<div class="outcomes" data-textfi="<spring:message code="tasca.tramitacio.boto.finalitzar"/>">
         			<c:forEach var="outcome" items="${tasca.outcomes}" varStatus="status">
         				<c:choose>

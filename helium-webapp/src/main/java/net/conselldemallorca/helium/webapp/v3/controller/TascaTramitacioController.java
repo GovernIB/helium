@@ -712,7 +712,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			String transicio,
 			Object command) {
 		if (!accioCompletarForm(request, tascaId, expedientId, transicio)) {
-			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
+//			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			return false;
 		}
 		return true;

@@ -1521,7 +1521,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		return tascaHelper.findTasquesPendentsPerExpedient(expedient, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
+		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
+		for (JbpmProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
+			resposta.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(jpi.getId(), expedient, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup));
+		}
+		return resposta;
 	}
 
 	@Override
