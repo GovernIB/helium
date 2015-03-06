@@ -138,7 +138,7 @@ function refrescarAlertesFunction() {
 			<c:param name="titol" value="Dades de referència"/>
 			<c:param name="numColumnes" value="${numColumnes}"/>
 			<c:param name="count" value="${fn:length(dadesNomesLectura)}"/>
-			<c:param name="desplegat" value="${false}"/>
+			<c:param name="desplegat" value="${true}"/>
 			<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
 		</c:import>
 	</c:if>

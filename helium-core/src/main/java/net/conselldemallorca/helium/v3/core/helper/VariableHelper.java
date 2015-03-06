@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
 import org.slf4j.Logger;
@@ -69,6 +70,8 @@ public class VariableHelper {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private TascaRepository tascaRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private CampRepository campRepository;
 	@Resource
@@ -130,10 +133,11 @@ public class VariableHelper {
 		return resposta;
 	}
 	
-	public List<TascaDadaDto> findDadesTascaPerInstanciaProces(String processInstanceId) {
-		List<TascaDadaDto> dades = new ArrayList<TascaDadaDto>();
-		for (ExpedientDadaDto dada : findDadesPerInstanciaProces(processInstanceId)) {
-			dades.add(getTascaDadaDtoFromExpedientDadaDto(dada));
+	public Map<String, TascaDadaDto> findDadesTascaPerExpedientId(Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		Map<String, TascaDadaDto> dades = new HashMap<String, TascaDadaDto>();
+		for (ExpedientDadaDto dada : findDadesPerInstanciaProces(expedient.getProcessInstanceId())) {
+			dades.put(dada.getVarCodi(), getTascaDadaDtoFromExpedientDadaDto(dada));
 		}
 		return dades;
 	}
@@ -766,6 +770,14 @@ public class VariableHelper {
 		return tascaDadaDto;
 	}
 
+	public List<TascaDadaDto> getTascaDadasDtoFromExpedientDadasDto(List<ExpedientDadaDto> expedientDadasDto) {
+		List<TascaDadaDto> dadas = new ArrayList<TascaDadaDto>();
+		for (ExpedientDadaDto expedientDada : expedientDadasDto) {
+			dadas.add(getTascaDadaDtoFromExpedientDadaDto(expedientDada));
+		}
+		return dadas;
+	}
+		
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto expedientDadaDto) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());

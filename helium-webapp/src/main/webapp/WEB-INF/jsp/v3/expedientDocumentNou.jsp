@@ -19,14 +19,13 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-</script>
-<style type="text/css">
-	.btn-file {position: relative; overflow: hidden;}
-	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.col-xs-4 {width: 7%;}		
-	.col-xs-8 {width: 93%;}
-	#s2id_estatId {width: 100% !important;}
-</style>
+	<style type="text/css">
+		.btn-file {position: relative; overflow: hidden;}
+		.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
+		.col-xs-4 {width: 7%;}		
+		.col-xs-8 {width: 93%;}
+		#s2id_estatId {width: 100% !important;}
+	</style>
 </head>
 <body>		
 	<form:form cssClass="form-horizontal form-tasca" action="documentAdjuntar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">

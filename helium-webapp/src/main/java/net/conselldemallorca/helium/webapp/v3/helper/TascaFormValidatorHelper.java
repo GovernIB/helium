@@ -374,7 +374,7 @@ public class TascaFormValidatorHelper implements Validator {
 								validacio.getExpressio());
 						String codiError = "error.camp." + camp.getVarCodi();
 						validationRule.setErrorCode(codiError);
-						validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
+						validationRule.setDefaultErrorMessage(validacio.getMissatge());
 						beanValidationConfiguration.addPropertyRule(
 								camp.getVarCodi(),
 								validationRule);

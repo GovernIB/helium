@@ -699,13 +699,16 @@ public class TascaHelper {
 		}
 	}
 
-	public void filtreVariablesReadOnlyOcult(Tasca tasca, Map<String, Object> variables) {
+	public Map<String, Object> filtreVariablesReadOnlyOcult(Tasca tasca, Map<String, Object> variables) {
+		Map<String, Object> filtreVariables = new HashMap<String, Object>();
+		filtreVariables.putAll(variables);
 		for (CampTasca campTasca: tasca.getCamps()) {
 			if (variables.containsKey(campTasca.getCamp().getCodi())) {
 				if (campTasca.isReadOnly() || campTasca.getCamp().isOcult())
-					variables.remove(campTasca.getCamp().getCodi());
+					filtreVariables.remove(campTasca.getCamp().getCodi());
 			}
 		}
+		return filtreVariables;
 	}
 
 	public void createDelegationInfo(

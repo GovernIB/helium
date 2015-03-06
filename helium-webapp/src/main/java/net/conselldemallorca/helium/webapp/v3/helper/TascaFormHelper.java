@@ -75,7 +75,13 @@ public class TascaFormHelper {
     		try {
     			if (!camp.getCampTipus().equals(CampTipusDto.ACCIO)) {
 		    		Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-		    		if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+	    			if (camp.isReadOnly() && !camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+	    				valor = camp.getVarValor();
+	    				PropertyUtils.setSimpleProperty(
+								command,
+								camp.getVarCodi(),
+								valor);
+	    			} else if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
     					valor = getArrayFromRegistre(camp, valor);
     				}
 		    		if (!perFiltre && camp.isCampMultiple()) {
@@ -537,6 +543,9 @@ public class TascaFormHelper {
 					int i = 0;
 					for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
 						Object oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
+						if (camp.isReadOnly()) {
+							oValor = campRegistre.getVarValor();
+						}
 						if (oValor instanceof TerminiDto)
 							oValor = ((TerminiDto)oValor).toSavinString();
 						linies[l][i++] = oValor;
@@ -548,7 +557,10 @@ public class TascaFormHelper {
 				Object[] linia = new Object[midaLinia];
 				int i = 0;
 				for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
-					Object oValor = PropertyUtils.getProperty(valor, campRegistre.getVarCodi()); 
+					Object oValor = PropertyUtils.getProperty(valor, campRegistre.getVarCodi());
+					if (camp.isReadOnly()) {
+						oValor = campRegistre.getVarValor();
+					}
 					if (oValor instanceof TerminiDto)
 						oValor = ((TerminiDto)oValor).toSavinString();
 					linia[i++] = oValor;

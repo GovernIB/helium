@@ -1,5 +1,5 @@
-<td id="cela-${procesId}-${dada.varCodi}"<c:if test="${dadaTipusRegistre}"> colspan="${paramNumColumnes}"</c:if><c:if test="${dada.campOcult}"> class="campOcult"</c:if><c:if test="${not empty dada.error}"> style="background-color:#f2dede"</c:if>>
-	<address class=var_dades>
+<td id="cela-${procesId}-${dada.varCodi}"<c:if test="${dadaTipusRegistre}"> colspan="${paramNumColumnes}"</c:if><c:if test="${dada.campOcult}"> class="campOcult"</c:if>>
+	<address class="var_dades <c:if test="${not empty dada.error}">has-error</c:if>">
 		<c:if test="${dada.campOcult}"><span class="fa fa-eye-slash"></span></c:if>
 		<label class="<c:if test="${dada.required}">obligatori</c:if>">${dada.campEtiqueta}</label><br/>
 		<c:choose>
@@ -23,13 +23,14 @@
 						</c:forEach>
 					</tbody>
 				</table>
+				<c:if test="${not empty dada.error}">
+					<p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<span>${dada.error}</span></p>
+				</c:if>
 			</c:when>
 			<c:otherwise>
-				<c:if test="${not empty dada.varValor}">
-					<c:choose>
-						<c:when test="${not empty dada.error}"><strong><i class="icon-warning-sign" title="${dada.error}"></i></strong></c:when>
-						<c:otherwise><strong>${dada.textMultiple}</strong></c:otherwise>
-					</c:choose>
+				<c:if test="${not empty dada.varValor}"><strong>${dada.textMultiple}</strong></c:if>
+				<c:if test="${not empty dada.error}">
+					<p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<span>${dada.error}</span></p>
 				</c:if>
 			</c:otherwise>
 		</c:choose>

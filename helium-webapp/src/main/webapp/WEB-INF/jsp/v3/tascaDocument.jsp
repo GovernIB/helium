@@ -34,7 +34,7 @@
 </div>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-		<form id="form${document.id}" class="form-horizontal form-tasca" action="${tascaId}/documentAdjuntar" enctype="multipart/form-data" method="post" onsubmit="return false;">
+		<form id="form${document.id}" class="form-horizontal form-tasca" action="" enctype="multipart/form-data" method="post" onsubmit="return false;">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
@@ -42,7 +42,7 @@
 		 			<c:if test="${document.plantilla}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/documentGenerar/${document.id}'/>"
+							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/document/${document.id}/generar'/>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
 							data-rdt-link-ajax=true
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
@@ -55,7 +55,7 @@
 					</a>
 					<a 	class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" 
 						id="removeUrl${document.id}" 
-						href="<c:url value="/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/documentEsborrar"><c:param name="docId" value="${document.id}"/></c:url>"
+						href="<c:url value="/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/document/${document.id}/esborrar"></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						data-rdt-link-ajax=true
 						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />" 
@@ -165,7 +165,7 @@
 			return false;
 		$.ajax({
             type: 'POST',
-            url: $("#form"+docId).attr('action'),
+            url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/adjuntar'/>",
             data: new FormData($("#form"+docId)[0]),
             cache: false,
             contentType: false,

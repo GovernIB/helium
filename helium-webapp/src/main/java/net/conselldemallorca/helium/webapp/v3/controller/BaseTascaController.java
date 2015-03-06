@@ -24,6 +24,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 /**
  * Controlador base per al llistat d'expedients.
@@ -33,6 +35,7 @@ import org.springframework.ui.Model;
 public class BaseTascaController extends BaseController {
 	protected String TAG_PARAM_REGEXP = "<!--helium:param-(.+?)-->";
 	protected static final String VARIABLE_TRAMITACIO_MASSIVA = "variableTramitacioMassiva";
+	protected static final String VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO = "variableBindingResultTramitacio";
 
 	@Autowired
 	protected TascaService tascaService;
@@ -54,8 +57,10 @@ public class BaseTascaController extends BaseController {
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
 			if (dada.isReadOnly()) {
-				if (!dada.isCampOcult())
+				if (!dada.isCampOcult()) {
+					setErrorValidate(request, tascaId, dada);
 					nomesLectura.add(dada);
+				}
 				itDades.remove();
 			}
 		}
@@ -93,6 +98,18 @@ public class BaseTascaController extends BaseController {
 			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
 		}
 		return "v3/tascaPipelles";
+	}
+
+	private void setErrorValidate(HttpServletRequest request, String tascaId, TascaDadaDto dada) {		
+		Object bindingResult = SessionHelper.getAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
+		if (bindingResult != null && ((BindingResult) bindingResult).hasErrors()) {
+			for (FieldError error : ((BindingResult) bindingResult).getFieldErrors()) {
+				if (dada.getVarCodi().equals(error.getField())) {
+					dada.setError(getMessage(request, "lectura."+error.getCode()));
+					break;
+				}
+			}
+		}	
 	}
 
 	protected String getReturnUrl(

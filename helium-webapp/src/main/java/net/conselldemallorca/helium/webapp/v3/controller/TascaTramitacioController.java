@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
@@ -78,14 +79,15 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 public class TascaTramitacioController extends BaseTascaController {
 	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
 	public static final String VARIABLE_COMMAND_TRAMITACIO = "variableCommandTramitacio";
-	public static final String VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO = "variableBindingResultTramitacio";
-
+	
 	@Autowired
 	protected ExpedientService expedientService;
 	@Autowired
 	protected TascaService tascaService;
 	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
+	@Autowired
+	private VariableHelper variableHelper;
 
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
@@ -202,9 +204,10 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionStatus status,
 			ModelMap model) {
 		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
+		afegirVariablesExpedient(tascaDadas, expedientId);
 		validator.setTasca(tascaDadas);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		validator.setRequest(request);
 		guardarForm(validator, variables, command, result, request, tascaId, expedientId);
 		status.setComplete();
@@ -226,15 +229,18 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionStatus status, 
 			Model model) {
 		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
+		afegirVariablesExpedient(tascaDadas, expedientId);
 		validator.setTasca(tascaDadas);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		validator.setRequest(request);
-		if (guardarForm(validator, variables, command, result, request, tascaId, expedientId) && !result.hasErrors()) {
-			validarForm(validator, variables, command, result, request, tascaId, expedientId);
+		if (guardarForm(validator, variables, command, result, request, tascaId, expedientId)) {
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Object commandValidar = TascaFormHelper.getCommandForCamps(tascaDadas, variables, campsAddicionals, campsAddicionalsClasses, false);
+			validarForm(validator, variables, commandValidar, result, request, tascaId, expedientId);
 		}
 		status.setComplete();
-		
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId, result);
 		return getReturnUrl(
@@ -242,6 +248,27 @@ public class TascaTramitacioController extends BaseTascaController {
 				expedientId,
 				tascaId,
 				"form");
+	}
+
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
+	public String completar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@ModelAttribute("command") Object command, 
+			@RequestParam(value = "transicio", required = false) String transicio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {
+		boolean correcte = false;
+		String returnUrl = validar(request, expedientId, tascaId, command, result, status, model);
+		if (!result.hasErrors()) {
+			correcte = completarForm(request, tascaId, expedientId, transicio, command);
+		}	
+		if (!correcte) {
+			return returnUrl;
+		}
+		return modalUrlTancar();
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/restaurar", method = RequestMethod.POST)
@@ -254,9 +281,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionStatus status, 
 			ModelMap model) {
 		try {
-			List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-			accioRestaurarForm(request, tascaId, expedientId, variables, command); 	
+			accioRestaurarForm(request, tascaId, expedientId); 	
         } catch (Exception ex) {
         	MissatgesHelper.error(request, ex.getMessage());
         	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
@@ -282,14 +307,15 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionStatus status, 
 			ModelMap model) {
 		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
+		afegirVariablesExpedient(tascaDadas, expedientId);
 		validator.setTasca(tascaDadas);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		validator.setRequest(request);
 		validator.validate(command, result);
-		if (result.hasErrors() || !accioGuardarForm(request, tascaId, expedientId, variables, command)) {
+		if (result.hasErrors() || !accioGuardarForm(request, tascaId, expedientId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
-		} else if (accioExecutarAccio(request, tascaId, accioCamp, command)) {
+		} else if (accioExecutarAccio(request, tascaId, accioCamp)) {
 			model.addAttribute("campFocus", accioCamp);
 		}
 		return getReturnUrl(
@@ -299,36 +325,12 @@ public class TascaTramitacioController extends BaseTascaController {
 				"form");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
-	public String completar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String tascaId,
-			@ModelAttribute("command") Object command, 
-			@RequestParam(value = "transicio", required = false) String transicio,
-			BindingResult result, 
-			SessionStatus status, 
-			ModelMap model) {
-		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-		validator.setTasca(tascaDadas);
-		validator.setRequest(request);
-		boolean correcte = false;
-		if (guardarForm(validator, variables, command, result, request, tascaId, expedientId) &&
-			validarForm(validator, variables, command, result, request, tascaId, expedientId) && 
-			completarForm(request, tascaId, expedientId, transicio, command)) {
-			correcte = true;
+	private void afegirVariablesExpedient(List<TascaDadaDto> tascaDadas, Long expedientId) {
+		Map<String, TascaDadaDto> dadesExpedient = variableHelper.findDadesTascaPerExpedientId(expedientId);
+		for (TascaDadaDto tascaDada : tascaDadas) {
+			dadesExpedient.remove(tascaDada.getVarCodi());
 		}
-		status.setComplete();		
-		if (!correcte) {
-			return getReturnUrl(
-					request,
-					expedientId,
-					tascaId,
-					"form");
-		}
-		return modalUrlTancar();
+		tascaDadas.addAll(dadesExpedient.values());
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document", method = RequestMethod.GET)
@@ -380,7 +382,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaSignatura";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentAdjuntar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/adjuntar", method = RequestMethod.POST)
 	@ResponseBody
 	public String documentAdjuntar(
 			HttpServletRequest request,
@@ -417,7 +419,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		return resposta;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentGenerar/{docId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{docId}/generar", method = RequestMethod.GET)
 	@ResponseBody
 	public String documentGenerarGet(
 			HttpServletRequest request,
@@ -482,13 +484,13 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "arxiuView";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/documentEsborrar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{docId}/esborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentEsborrar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = true) Long docId,		
+			@PathVariable Long docId,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
 		boolean response = false;
@@ -672,7 +674,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			String tascaId,
 			Long expedientId) {
 		validator.validate(command, result);
-		if (result.hasErrors() || !accioGuardarForm(request, tascaId, expedientId, variables, command)) {
+		if (result.hasErrors() || !accioGuardarForm(request, tascaId, expedientId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 			return false;
 		}
@@ -681,8 +683,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	
 	private boolean validarForm(
 			TascaFormValidatorHelper validator, 
-			Map<String, Object> variables, 
-			Object command, 
+			Map<String, Object> variables,
+			Object commandValidar, 
 			BindingResult result, 
 			HttpServletRequest request,
 			String tascaId,
@@ -690,12 +692,12 @@ public class TascaTramitacioController extends BaseTascaController {
 		validator.setRequest(request);
 		validator.setValidarObligatoris(true);
 		validator.setValidarExpresions(true);
-		validator.validate(command, result);
+		validator.validate(commandValidar, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 //			MissatgesHelper.errorGlobal(request, result, getMessage(request, "error.validacio"));
 			return false;
-		} else if (!accioValidarForm(request, tascaId, expedientId, variables, command)) {
+		} else if (!accioValidarForm(request, tascaId, expedientId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			return false;
 		}
@@ -709,7 +711,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			Long expedientId,
 			String transicio,
 			Object command) {
-		if (!accioCompletarForm(request, tascaId, expedientId, transicio, command)) {
+		if (!accioCompletarForm(request, tascaId, expedientId, transicio)) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			return false;
 		}
@@ -719,9 +721,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	private boolean accioRestaurarForm(
 			HttpServletRequest request, 
 			String tascaId,
-			Long expedientId, 
-			Map<String, Object> variables, 
-			Object command) {
+			Long expedientId) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -773,8 +773,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request, 
 			String tascaId, 
 			Long expedientId,
-			Map<String, Object> variables, 
-			Object command) {
+			Map<String, Object> variables) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -828,8 +827,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request, 
 			String tascaId,
 			Long expedientId,
-			Map<String, Object> variables,
-			Object command) {
+			Map<String, Object> variables) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -882,8 +880,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	private boolean accioExecutarAccio(
 			HttpServletRequest request,
 			String tascaId,
-			String accio,
-			Object command) {
+			String accio) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -943,8 +940,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Long expedientId,
-			String transicio,
-			Object command) {
+			String transicio) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		String transicioSortida = null;
 		for (String outcome: tasca.getOutcomes()) {

@@ -49,8 +49,8 @@
 							<div id="iconos${document.id}" class="iconos"></div>							
 							</h4>
 							<div id="firmar${document.id}">
-								<c:if test="${not document.signat}">						
-									<form:form id="form${document.id}" action="${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+								<c:if test="${not document.signat}">
+									<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/v3/expedient/${expedientId}/tasca/${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
 										<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 										<input type="hidden" id="taskId${document.id}" name="taskId" value="${tascaId}"/>
 										<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>

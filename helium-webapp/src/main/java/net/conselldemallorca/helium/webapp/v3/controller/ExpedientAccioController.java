@@ -9,11 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,23 +44,22 @@ public class ExpedientAccioController extends BaseExpedientController {
 		model.addAttribute("accions", accions);
 		return "v3/expedientAccio";
 	}
-	
-//	@RequestMapping(value = "/{expedientId}/terminis/{procesId}", method = RequestMethod.GET)
-//	public String dadesProces(
-//			HttpServletRequest request,
-//			@PathVariable Long expedientId,
-//			@PathVariable String procesId,
-//			Model model) {
-//		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);		
-//		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
-//		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
-//		terminis.put(instanciaProces, terminiService.findTerminisAmbProcessInstanceId(instanciaProces.getId()));
-//		iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbProcessInstanceId(instanciaProces.getId()));
-//		model.addAttribute("inicialProcesInstanceId", procesId);
-//		model.addAttribute("terminis",terminis);
-//		model.addAttribute("iniciats",iniciats);
-//		return "v3/procesTerminis";
-//	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientAccioController.class);
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/accions/{procesId}", method = RequestMethod.GET)
+	public String refrescarTasca(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable String procesId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		List<AccioDto> accionsPI = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId());
+		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
+		accions.put(instanciaProces, accionsPI);
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("expedient", expedient);
+		model.addAttribute("accions", accions);	
+		return "v3/procesAccions";
+	}
 }

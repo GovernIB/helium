@@ -64,7 +64,7 @@ div.procesDocument:hover {
 						<div class="pull-right">
 							<c:choose>
 								<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
-								<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+								<c:otherwise><span class="icona-collapse fa fa-chevron-down"></span></c:otherwise>
 							</c:choose>
 						</div>
 					</div>
