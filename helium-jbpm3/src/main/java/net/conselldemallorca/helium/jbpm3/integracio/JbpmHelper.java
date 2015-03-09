@@ -868,18 +868,38 @@ public class JbpmHelper {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(id);
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		Token root = processInstance.getRootToken();
-		resposta.put(
-				root.getName(),
-				new JbpmToken(root));
-		Map<String, Token> childTokens = processInstance.getRootToken().getChildren();
-		for (String tokenName: childTokens.keySet()) {
-			resposta.put(
-					tokenName,
-					new JbpmToken(childTokens.get(tokenName)));
-		}
+		
+		getTokenAndChildren(root, resposta);
+		
 		adminService.mesuraCalcular("jBPM getAllTokens", "jbpmDao");
 		return resposta;
 	}
+	
+	private void getTokenAndChildren(Token root, Map<String,JbpmToken> resposta){
+		Map<String, Token> childTokens = root.getChildren();
+		for (String tokenName: childTokens.keySet()) {
+			JbpmToken child = new JbpmToken(childTokens.get(tokenName));
+			resposta.put(tokenName,child);
+			if(child.getToken().getChildren() != null){
+				getTokenAndChildren(child.getToken(),resposta);
+			}
+		}
+		resposta.put(root.getName(),new JbpmToken(root));
+	}
+	
+//	private HashMap<String,JbpmToken> sortTokensMapById(Map<String,JbpmToken> hMap) { 
+//		TreeMap<String, JbpmToken> treeMap = new TreeMap<String, JbpmToken>(new TokenComparator());
+//		treeMap.putAll(hMap);
+//	       
+//		return null;
+//	}
+//	
+//	private class TokenComparator implements Comparator<JbpmToken> {
+//	    @Override
+//	    public int compare(JbpmToken o1, JbpmToken o2) {
+//	        return o1.getId().compareTo(o2.getId());
+//	    }
+//	}
 	
 	
 	@SuppressWarnings("unchecked")

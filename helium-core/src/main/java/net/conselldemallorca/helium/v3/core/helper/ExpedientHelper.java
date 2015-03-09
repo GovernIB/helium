@@ -132,7 +132,8 @@ public class ExpedientHelper {
 			Long id,
 			boolean comprovarPermisRead,
 			boolean comprovarPermisWrite,
-			boolean comprovarPermisDelete) throws NotFoundException, NotAllowedException {
+			boolean comprovarPermisDelete,
+			boolean comprovarPermisAdministration) throws NotFoundException, NotAllowedException {
 		Expedient expedient = expedientRepository.findOne(id);
 		if (expedient == null) {
 			throw new NotFoundException(
@@ -194,6 +195,19 @@ public class ExpedientHelper {
 						id,
 						Expedient.class,
 						PermisTipusEnumDto.DELETE);
+			}
+		}
+		if (comprovarPermisAdministration) {
+			if (!permisosHelper.isGrantedAny(
+					expedientTipus.getId(),
+					ExpedientTipus.class,
+					new Permission[] {
+						ExtendedPermission.ADMINISTRATION},
+					auth)) {
+				throw new NotAllowedException(
+						id,
+						Expedient.class,
+						PermisTipusEnumDto.ADMINISTRATION);
 			}
 		}
 		return expedient;

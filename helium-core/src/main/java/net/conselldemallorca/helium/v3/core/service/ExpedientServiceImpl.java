@@ -584,6 +584,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				false,
 				true,
+				false,
 				false);
 		if (!execucioDinsHandler) {
 			ExpedientLog elog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
@@ -692,6 +693,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedientId,
 					false,
 					true,
+					false,
 					false);
 			serviceUtils.expedientIndexLuceneRecrear(expedient);
 			return true;
@@ -715,7 +717,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				false,
 				false,
-				true);
+				true,
+				false);
 		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
 		for (JbpmProcessInstance pi: processInstancesTree)
 			for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
@@ -839,6 +842,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
+				false,
 				false,
 				false);
 		ExpedientDto expedientDto = conversioTipusHelper.convertir(
@@ -1388,6 +1392,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				true,
 				false,
+				false,
 				false);
 		DefinicioProces definicioProces;
 		if (processInstanceId != null) {
@@ -1418,6 +1423,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
+				false,
 				false,
 				false);
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedient(
@@ -1468,6 +1474,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				true,
 				false,
+				false,
 				false);
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				expedient.getProcessInstanceId());
@@ -1504,6 +1511,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				true,
 				false,
+				false,
 				false);
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, false, mostrarDeOtrosUsuarios);
 		tasques.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, true, mostrarDeOtrosUsuarios));
@@ -1519,6 +1527,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
+				false,
 				false,
 				false);
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
@@ -1539,6 +1548,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
+				false,
 				false,
 				false);
 		if (processInstanceId == null) {
@@ -1567,6 +1577,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				true,
 				false,
+				false,
 				false);
 		DefinicioProces definicioProces;
 		if (processInstanceId == null) {
@@ -1594,6 +1605,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
+				false,
 				false,
 				false);
 		return documentHelper.findDocumentPerExpedientDocumentStoreId(
@@ -1663,6 +1675,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				true,
 				false,
+				false,
 				false);
 		if (processInstanceId == null) {
 			resposta.addAll(documentHelper.findDocumentsPerInstanciaProces(
@@ -1711,6 +1724,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				true,
 				false,
+				false,
 				false);
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
@@ -1739,6 +1753,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				false,
 				true,
+				false,
 				false);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
@@ -1764,6 +1779,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				false,
 				true,
+				false,
 				false);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
@@ -1793,6 +1809,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				false,
 				true,
+				false,
 				false);
 		mesuresTemporalsHelper.mesuraIniciar(
 				"Anular",
@@ -1834,10 +1851,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				origenId,
 				false,
 				true,
+				false,
 				false);
 		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
 				destiId,
 				true,
+				false,
 				false,
 				false);
 		boolean existeix = false;
@@ -1877,9 +1896,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				origenId,
 				false,
 				true,
+				false,
 				false);
 		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
 				destiId,
+				false,
 				false,
 				false,
 				false);
@@ -1895,6 +1916,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
+				false,
 				false,
 				false);
 		List<ExpedientDto> list = new ArrayList<ExpedientDto>();
@@ -1916,6 +1938,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				id,
 				false,
 				true,
+				false,
 				false);
 		DefinicioProces defprocNova = null;
 		try {
@@ -1958,7 +1981,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				true,
 				true,
-				true);
+				true,
+				false);
 		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
 		if (MesuresTemporalsHelper.isActiu()) {
 			expedient = expedientRepository.findByProcessInstanceId(pi.getId()).get(0);
@@ -2372,6 +2396,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				true,
 				false,
+				false,
 				false);
 		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
 		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
@@ -2741,6 +2766,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				false,
 				true,
+				false,
 				false);
 		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
 		expedientLoggerHelper.afegirLogExpedientPerProces(
@@ -2765,6 +2791,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				false,
 				true,
+				false,
 				false);
 		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
 		expedientLoggerHelper.afegirLogExpedientPerProces(
@@ -2792,6 +2819,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientLog.getExpedient().getId(),
 				false,
 				true,
+				false,
 				false);
 		jbpmHelper.reassignTaskInstance(taskId, expression, expedientLog.getExpedient().getEntorn().getId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
@@ -2819,6 +2847,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				false,
 				true,
+				false,
 				false);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
@@ -2844,6 +2873,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				false,
 				true,
+				false,
 				false);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
@@ -2902,6 +2932,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientId,
 				false,
 				true,
+				false,
 				false);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
