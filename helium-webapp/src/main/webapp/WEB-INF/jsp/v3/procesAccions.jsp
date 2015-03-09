@@ -8,13 +8,13 @@
 <script src="<c:url value="/js/helium.datatable.js"/>"></script>
 <c:set var="numColumnes" value="${3}"/>
 <style type="text/css">
-div.procesaccio {
+div.proces {
 	color: white !important;
 	background-color: #428bca !important;
 	border-color: #357ebd !important;
 	font-weight: bold;
 }
-div.procesaccio:hover {
+div.proces:hover {
 	background-color: #3071a9 !important;
 	border-color: #285e8e !important;
 }
@@ -31,70 +31,12 @@ div.procesaccio:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
-.accio_options {min-width: 110px;}
-.accio_options i, .options a {
-	padding-right: 2px;
-	padding-left: 2px;			
+#llistat_accions .accio_options {
+	width: 100px;
 }
-.dataTable_accio {
-	border: 0 none;
-}
-.dataTable_accio {
-	padding:0 !important;
-}
-.registre_a_retrocedir {background: #ffffcc;}
-.dadesTaulaaccio {
- 	width: 100%;
-}
-.tauladades {padding-bottom: 10px}
-.dataTable_accio > .panel.panel-default > .panel-body-grup > .table-bordered > tbody > tr > td {
-	border: 0 none !important;
-	padding: 0px;
-	width: 100%;
-	height: 0px;
-}
-#llistat_accions >div > .panel.panel-default {
-	margin-bottom: 10px;
-	border: 0px;
-}
-.dataTable_accio > .panel.panel-default > .panel-body-grup > .table-bordered > tbody > tr > td.dadesTaulaaccioTd {
-	height: auto;
-}
-
-.dataTable_accio > .panel.panel-default > .panel-body-grup > .table-bordered > tbody > tr {
-	height: 0px;
-	display: none;
-}
-.dataTable_accio > .panel.panel-default > .panel-body-grup > .table-bordered > tbody > tr.dadesTaulaaccioTr {
-	height: auto;
-	display: table-row;
-}
-.dataTable_accio .dadesTaulaaccioTd {
-	padding: 15px !important;
-}
-.panel-body-no {
-	padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 15px;
-	border: 1px solid #ddd;
-	background-color: #fff;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-}
-
-.dataTable_accio .dadesTaulaaccioTd > .panel.panel-default{
-	margin-bottom: 0px;
-}
+#dataTables_new {padding-top: 5px;padding-bottom: 10px;}
 </style>
 
-<!-- 
-<c:if test="${not empty accions}">
-	<c:forEach var="accio" items="${accions}">
-		<li><a href="../../v3/expedient/${expedient.id}/accio?accioId=${accio.id}"><span class="fa fa-bolt"></span> ${accio.nom}</a></li>
-	</c:forEach>
-</c:if>
--->
 <c:choose>
 	<c:when test="${not empty accions}">
 		<c:set var="procesFirst" value="${true}"/>
@@ -117,22 +59,12 @@ div.procesaccio:hover {
 									<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
 								</c:choose>
 							</div>
-						</div>
+						</div> 
 						<div id="panel_accio_${proces.id}" class="dataTable_accio panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
 							<c:choose>
 								<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
 									<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>
-									<c:set var="procesId" value="${proces.id}" scope="request"/>
-									<c:set var="hiHaPendents" value="0"/>
-									<c:set var="hiHaNoPendents" value="0"/>
-									<c:forEach var="accio" items="${dadesProces.value}">
-										<c:if test="${accio.open}"><c:set var="hiHaPendents" value="${hiHaPendents + 1}"/></c:if>
-										<c:if test="${not accio.open}"><c:set var="hiHaNoPendents" value="${hiHaNoPendents + 1}"/></c:if>
-									</c:forEach>
-									<c:set var="hiHaPendents" value="${hiHaPendents}" scope="request"/>
-									<c:set var="hiHaNoPendents" value="${hiHaNoPendents}" scope="request"/>
-									<c:set var="contHiHaPendents" value="0" scope="request"/>
-									<c:set var="contHiHaNoPendents" value="0" scope="request"/>
+									<c:set var="procesId" value="${proces.id}" scope="request"/>								
 									<c:set var="count" value="${fn:length(dadesProces.value)}"/>
 									<c:import url="import/expedientTaula.jsp">
 										<c:param name="dadesAttribute" value="dadesAgrupacio"/>
@@ -144,9 +76,7 @@ div.procesaccio:hover {
 									<c:set var="agrupacioFirst" value="${false}"/>
 								</c:when>
 								<c:otherwise>
-									<div class="panel-body-no">
-										<div class="well well-small"><spring:message code='expedient.accio.proces.cap' /></div>
-									</div>
+									<div class="well well-small"><spring:message code='expedient.termini.proces.cap' /></div>
 								</c:otherwise>
 							</c:choose>
 						</div>

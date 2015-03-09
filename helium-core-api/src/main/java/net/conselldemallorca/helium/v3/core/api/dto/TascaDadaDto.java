@@ -91,7 +91,7 @@ public class TascaDadaDto {
 		this.campMultiple = campMultiple;
 	}
 	public boolean isCampOcult() {
-		return campOcult;
+		return isReadOnly() ? false : campOcult;
 	}
 	public void setCampOcult(boolean campOcult) {
 		this.campOcult = campOcult;

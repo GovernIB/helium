@@ -31,7 +31,7 @@
 			<tr>
 				<c:forEach var="membre" items="${registreCap}" varStatus="varStatusCab">
 					<th <c:if test="${membre.required}"> data-required="true"</c:if>>
-						${membre.campEtiqueta}<c:if test='${membre.required}'><i class='icon-asterisk'></i></c:if>
+						<label class="col-xs-3 <c:if test='${membre.required}'>control-label obligatori</c:if>">${membre.campEtiqueta}</label>
 						<c:if test="${not empty membre.observacions}">
 							<p class="help-block"><span class="label label-info">Nota</span> ${membre.observacions}</p>
 						</c:if>

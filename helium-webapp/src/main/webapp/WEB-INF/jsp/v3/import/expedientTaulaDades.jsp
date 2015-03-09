@@ -1,5 +1,5 @@
 <td id="cela-${procesId}-${dada.varCodi}"<c:if test="${dadaTipusRegistre}"> colspan="${paramNumColumnes}"</c:if><c:if test="${dada.campOcult}"> class="campOcult"</c:if>>
-	<address class="var_dades <c:if test="${not empty dada.error}">has-error</c:if>">
+	<address class="var_dades <c:if test="${not empty dada.error}">has-error</c:if> <c:if test="${dadaTipusRegistre}">var_registre</c:if>">
 		<c:if test="${dada.campOcult}"><span class="fa fa-eye-slash"></span></c:if>
 		<label class="<c:if test="${dada.required}">obligatori</c:if>">${dada.campEtiqueta}</label><br/>
 		<c:choose>
@@ -9,7 +9,7 @@
 					<thead>
 						<tr>
 							<c:forEach var="dadaFila0" items="${registreFilesTaula[0].registreDades}">
-								<th>${dadaFila0.campEtiqueta}</th>
+								<th><label <c:if test='${dadaFila0.required}'> class="control-label obligatori"</c:if>>${dadaFila0.campEtiqueta}</label></th>
 							</c:forEach>
 						</tr>
 					</thead>

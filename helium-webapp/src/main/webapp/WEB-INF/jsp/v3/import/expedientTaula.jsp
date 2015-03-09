@@ -29,7 +29,11 @@
 	#contingut-dades .var_dades {float: left;width:calc(100% - 15px);}
 	#contingut-dades .var_botons {float: right;color: #428bca;}
 	#contingut-dades .var_botons span {display: block;padding-top: 5px;}
-	#contingut-dades .var_botons span:hover {color: #3071a9}
+	#contingut-dades .var_botons span:hover {color: #3071a9}	
+	#contingut-dades .var_registre .obligatori {
+	  	background-position: right 7px;
+	  	padding-right: 15px;
+	}
  	#grup-default-dades label.obligatori {background-position: right 7px;padding-right: 15px;} 
 </style>
 
@@ -138,6 +142,9 @@
 								</c:when>
 								<c:when test="${fn:endsWith(dada.class.name, 'TokenDto')}">								
 									<%@ include file="expedientTaulaToken.jsp" %>
+								</c:when>
+								<c:when test="${fn:endsWith(dada.class.name, 'AccioDto')}">								
+									<%@ include file="expedientTaulaAccio.jsp" %>
 								</c:when>
 								<c:otherwise>[Tipus desconegut]</c:otherwise>
 							</c:choose>

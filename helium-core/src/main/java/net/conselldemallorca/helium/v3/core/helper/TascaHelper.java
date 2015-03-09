@@ -705,7 +705,7 @@ public class TascaHelper {
 		filtreVariables.putAll(variables);
 		for (CampTasca campTasca: tasca.getCamps()) {
 			if (variables.containsKey(campTasca.getCamp().getCodi())) {
-				if (campTasca.isReadOnly() || campTasca.getCamp().isOcult())
+				if (campTasca.isReadOnly())
 					filtreVariables.remove(campTasca.getCamp().getCodi());
 			}
 		}

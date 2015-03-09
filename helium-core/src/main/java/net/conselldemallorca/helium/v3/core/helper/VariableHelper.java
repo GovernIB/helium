@@ -408,6 +408,8 @@ public class VariableHelper {
 									taskInstanceId,
 									processInstanceId,
 									false);
+							dtoRegistre.setRequired(campRegistre.isObligatori());
+							dtoRegistre.setOrdre(campRegistre.getOrdre());
 							index += 1;
 							registreDades.add(dtoRegistre);
 						}
@@ -733,20 +735,24 @@ public class VariableHelper {
 		if (expedientDadaDto.getMultipleDades() != null) {
 			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
-				multipleDades.add(
-						getTascaDadaDtoFromExpedientDadaDto(
-								dto,
-								findCampTascaAmbCampId(dto.getCampId(), campTasca)));
+				TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(
+						dto,
+						campTasca);
+				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
+				tascaDada.setRequired(campTasca.isReadOnly() ? false : dto.isRequired());
+				multipleDades.add(tascaDada);
 			}
 			tascaDadaDto.setMultipleDades(multipleDades);
 		}
 		if (expedientDadaDto.getRegistreDades() != null) {
 			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
-				registreDades.add(
-						getTascaDadaDtoFromExpedientDadaDto(
-								dto,
-								findCampTascaAmbCampId(dto.getCampId(), campTasca)));
+				TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(
+						dto,
+						campTasca);
+				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
+				tascaDada.setRequired(campTasca.isReadOnly() ? false : dto.isRequired());
+				registreDades.add(tascaDada);
 			}
 			tascaDadaDto.setRegistreDades(registreDades);
 		}
@@ -768,71 +774,6 @@ public class VariableHelper {
 							new String[paramCampCodis.size()]));
 		}
 		return tascaDadaDto;
-	}
-	
-	private CampTasca findCampTascaAmbCampId(Long id, CampTasca campTasca) {
-		CampRegistre campRegistre = null;
-		CampTasca campRegistreTasca = null;
-		if (id.equals(campTasca.getCamp().getId())) {
-			return campTasca;
-		} else {
-			if (campTasca.getCamp() != null) {
-				if (campTasca.getCamp().getRegistreMembres() != null) {
-					for (CampRegistre reg : campTasca.getCamp().getRegistreMembres()) {
-						for (CampTasca regMembre : reg.getMembre().getCampsTasca()) {
-							if (id.equals(regMembre.getCamp().getId())) {
-								campRegistre = reg;
-								campRegistreTasca = regMembre;
-								break;
-							}
-						}
-						for (CampTasca regRegistre : reg.getRegistre().getCampsTasca()) {
-							if (id.equals(regRegistre.getCamp().getId())) {
-								campRegistre = reg;
-								campRegistreTasca = regRegistre;
-								break;
-							}
-						}						
-					} 
-				}
-				if (campTasca.getCamp().getRegistrePares() != null) {
-					for (CampRegistre reg : campTasca.getCamp().getRegistrePares()) {
-						for (CampTasca regMembre : reg.getMembre().getCampsTasca()) {
-							if (id.equals(regMembre.getCamp().getId())) {
-								campRegistre = reg;
-								campRegistreTasca = regMembre;
-								break;
-							}
-						}
-						for (CampTasca regRegistre : reg.getRegistre().getCampsTasca()) {
-							if (id.equals(regRegistre.getCamp().getId())) {
-								campRegistre = reg;
-								campRegistreTasca = regRegistre;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		if (campRegistre != null) {
-			return campRegistreToCampTasca(campRegistre, campRegistreTasca);
-		} else {
-			return campTasca;
-		}
-	}
-	
-	private CampTasca campRegistreToCampTasca (CampRegistre campRegistre, CampTasca campTasca) {
-		CampTasca cTasca = new CampTasca();
-		cTasca.setCamp(campTasca.getCamp());
-		cTasca.setId(campTasca.getId());
-		cTasca.setOrder(campRegistre.getOrdre());
-		cTasca.setReadFrom(campTasca.isReadFrom());
-		cTasca.setReadOnly(campTasca.isReadOnly());
-		cTasca.setRequired(campRegistre.isObligatori());
-		cTasca.setTasca(campTasca.getTasca());
-		cTasca.setWriteTo(campTasca.isWriteTo());
-		return cTasca;
 	}
 
 	public List<TascaDadaDto> getTascaDadasDtoFromExpedientDadasDto(List<ExpedientDadaDto> expedientDadasDto) {

@@ -25,6 +25,8 @@ public class ExpedientDadaDto {
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
+	private boolean required;
+	private int ordre;
 	private String jbpmAction;
 	private String observacions;
 
@@ -66,6 +68,12 @@ public class ExpedientDadaDto {
 	}
 	public void setCampId(Long campId) {
 		this.campId = campId;
+	}
+	public int getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
 	}
 	public CampTipusDto getCampTipus() {
 		return campTipus;
@@ -127,7 +135,12 @@ public class ExpedientDadaDto {
 	public void setError(String error) {
 		this.error = error;
 	}
-
+	public boolean isRequired() {
+		return required;
+	}
+	public void setRequired(boolean required) {
+		this.required = required;
+	}
 	public Object[] getMultipleValor() {
 		if (isCampMultiple())
 			return (Object[])getVarValor();
@@ -214,9 +227,5 @@ public class ExpedientDadaDto {
 		} else {
 			return String.class;
 		}
-	}
-	
-	public boolean isRequired() {
-		return false;
 	}
 }

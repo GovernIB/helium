@@ -56,11 +56,9 @@ public class BaseTascaController extends BaseController {
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
-			if (dada.isReadOnly()) {
-				if (!dada.isCampOcult()) {
-					setErrorValidate(request, tascaId, dada);
-					nomesLectura.add(dada);
-				}
+			if (dada.isReadOnly()) {				
+				setErrorValidate(request, tascaId, dada);
+				nomesLectura.add(dada);
 				itDades.remove();
 			}
 		}

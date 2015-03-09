@@ -286,6 +286,8 @@ public class TascaFormHelper {
 							} else {
 								valor = new TerminiDto();
 							}
+						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null){
+							valor = "";
 						}
 						PropertyUtils.setSimpleProperty(
 								command,
