@@ -183,6 +183,7 @@ public class TascaFormValidatorHelper implements Validator {
 			logger.error("Error en el validator", ex);
 			errors.reject("error.validator");
 		}
+		logger.info("XX Errores en el validator: " + errors.toString());
 	}
 	
 	public static String getErrorField(Errors errors, TascaDadaDto dada, LoopTagStatus index) {
