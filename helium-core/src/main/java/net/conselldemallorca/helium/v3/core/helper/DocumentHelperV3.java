@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -45,7 +46,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentDescarregarException;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -68,7 +71,9 @@ public class DocumentHelperV3 {
 	public static final String PREFIX_VAR_DOCUMENT = "H3l1um#document.";
 	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
 	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
-
+	
+	@Resource
+	private PlantillaHelper plantillaHelper;
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
@@ -99,6 +104,8 @@ public class DocumentHelperV3 {
 	private PluginSignaturaDao pluginSignaturaDao;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private OpenOfficeUtils openOfficeUtils;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -1194,6 +1201,88 @@ public class DocumentHelperV3 {
 		} else {
 			return var;
 		}
+	}
+
+	private String nomArxiuAmbExtensio(String fileName, String extensio) {
+		if (extensio == null || extensio.length() == 0)
+			return fileName;
+		int indexPunt = fileName.lastIndexOf(".");
+		if (indexPunt != -1) {
+			String nom = fileName.substring(0, indexPunt);
+			return nom + "." + extensio;
+		} else {
+			return fileName + "." + extensio;
+		}
+	}
+
+	private boolean isActiuConversioVista() {
+		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
+		if (!"true".equalsIgnoreCase(actiuConversio))
+			return false;
+		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
+		if (actiuConversioVista == null)
+			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
+		return "true".equalsIgnoreCase(actiuConversioVista);
+	}
+	
+	private String getExtensioVista(Document document) {
+		String extensioVista = null;
+		if (isActiuConversioVista()) {
+			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
+				extensioVista = document.getConvertirExtensio();
+			} else {
+				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
+				if (extensioVista == null)
+					extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
+			}
+		}
+		return extensioVista;
+	}
+
+	public DocumentDto generarDocumentAmbPlantilla(
+			String taskInstanceId,
+			String processInstanceId,
+			Long documentId) throws DocumentGenerarException, DocumentConvertirException {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		Document document = documentRepository.findOne(documentId);
+		DocumentDto resposta = new DocumentDto();
+		resposta.setCodi(document.getCodi());
+		resposta.setDataCreacio(new Date());
+		resposta.setDataDocument(new Date());
+		resposta.setArxiuNom(document.getNom() + ".odt");
+		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
+		if (document.isPlantilla()) {
+			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
+					expedient.getEntorn().getId(),
+					documentId,
+					taskInstanceId,
+					processInstanceId,
+					new Date());
+			if (isActiuConversioVista()) {
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					openOfficeUtils.convertir(
+							resposta.getArxiuNom(),
+							resultat.getContingut(),
+							getExtensioVista(document),
+							baos);
+					resposta.setArxiuNom(
+							nomArxiuAmbExtensio(
+									resposta.getArxiuNom(),
+									getExtensioVista(document)));
+					resposta.setArxiuContingut(baos.toByteArray());
+				} catch (Exception ex) {
+					throw new DocumentConvertirException(
+							"Error en la conversió del document",
+							ex);
+				}
+			} else {
+				resposta.setArxiuContingut(resultat.getContingut());
+			}
+		} else {
+			resposta.setArxiuContingut(document.getArxiuContingut());
+		}
+		return resposta;
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

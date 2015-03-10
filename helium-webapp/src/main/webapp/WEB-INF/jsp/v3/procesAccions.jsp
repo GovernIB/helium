@@ -8,13 +8,13 @@
 <script src="<c:url value="/js/helium.datatable.js"/>"></script>
 <c:set var="numColumnes" value="${3}"/>
 <style type="text/css">
-div.proces {
+div.procesaccio {
 	color: white !important;
 	background-color: #428bca !important;
 	border-color: #357ebd !important;
 	font-weight: bold;
 }
-div.proces:hover {
+div.procesaccio:hover {
 	background-color: #3071a9 !important;
 	border-color: #285e8e !important;
 }
@@ -76,7 +76,7 @@ div.proces:hover {
 									<c:set var="agrupacioFirst" value="${false}"/>
 								</c:when>
 								<c:otherwise>
-									<div class="well well-small"><spring:message code='expedient.termini.proces.cap' /></div>
+									<div class="well well-small"><spring:message code='expedient.accio.proces.cap' /></div>
 								</c:otherwise>
 							</c:choose>
 						</div>

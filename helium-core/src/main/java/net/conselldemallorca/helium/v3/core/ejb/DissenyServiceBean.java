@@ -18,7 +18,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
@@ -159,8 +158,8 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void executarAccio(AccioDto accio, ExpedientDto expedient) {
-		delegate.executarAccio(accio, expedient);
+	public void executarAccio(Long accioId, Long expedientId) throws Exception {
+		delegate.executarAccio(accioId, expedientId);
 	}
 
 	@Override

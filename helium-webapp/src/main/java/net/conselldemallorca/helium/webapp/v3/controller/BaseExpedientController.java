@@ -42,7 +42,7 @@ public class BaseExpedientController extends BaseController {
 		else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
-			model.addAttribute("pipellaActiva", "tasques");
+			model.addAttribute("pipellaActiva", "dades");
 		return "v3/expedientPipelles";
 	}
 }

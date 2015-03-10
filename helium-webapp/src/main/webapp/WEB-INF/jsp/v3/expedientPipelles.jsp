@@ -294,9 +294,9 @@
 		</div>
 		<div id="expedient-pipelles" class="col-md-9">
 			<ul class="nav nav-tabs" role="tablist">
-				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
 				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
+				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
 				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.cronograma"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
 				<li id="pipella-tokens"><a href="#contingut-tokens" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tokens"/></a></li>

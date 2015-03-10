@@ -14,6 +14,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
@@ -41,7 +42,9 @@ import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundExceptio
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
@@ -70,6 +73,10 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Resource
 	private EntornRepository entornRepository;
+	@Resource
+	private ExpedientHelper expedientHelper;
+	@Resource
+	private MessageHelper messageHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
@@ -450,21 +457,28 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	@Transactional
 	@Override
-	public void executarAccio(AccioDto accio, ExpedientDto expedient) {
-		if (MesuresTemporalsHelper.isActiu()) { 
-			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
-		}
+	public void executarAccio(Long accioId, Long expedientId) throws Exception {
+		AccioDto accio = findAccioAmbId(accioId);
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false,
+				false);
+		ExpedientDto expedientDto = conversioTipusHelper.convertir(
+				expedient,
+				ExpedientDto.class);
+		mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedientDto.getTipus().getNom());
 		expedientLoggerHelper.afegirLogExpedientPerProces(
-				expedient.getProcessInstanceId(),
+				expedientDto.getProcessInstanceId(),
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accio.getJbpmAction());
 		jbpmHelper.executeActionInstanciaProces(
-				expedient.getProcessInstanceId(),
+				expedientDto.getProcessInstanceId(),
 				accio.getJbpmAction());
-		verificarFinalitzacioExpedient(expedient);
-		serviceUtils.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+		verificarFinalitzacioExpedient(expedientDto);
+		serviceUtils.expedientIndexLuceneUpdate(expedientDto.getProcessInstanceId());
+		mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedientDto.getTipus().getNom());
 	}
 
 	private void verificarFinalitzacioExpedient(ExpedientDto expedient) {

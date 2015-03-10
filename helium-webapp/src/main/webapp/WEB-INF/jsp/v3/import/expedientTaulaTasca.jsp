@@ -16,7 +16,7 @@
 				<th><spring:message code="expedient.tasca.columna.asignada_a"/></th>
 				<th><spring:message code="expedient.tasca.columna.datcre"/></th>
 				<th><spring:message code="expedient.tasca.columna.datlim"/></th>
-				<th></th>
+				<th width="10%"></th>
 			</tr>
 		</thead>
 		<tbody>

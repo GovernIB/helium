@@ -624,7 +624,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
-			if (dada.isReadOnly()) {
+			if (dada.isReadOnly() || dada.isCampOcult()) {
 				itDades.remove();
 			}
 		}

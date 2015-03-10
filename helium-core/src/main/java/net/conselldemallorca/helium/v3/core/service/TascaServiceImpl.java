@@ -658,8 +658,16 @@ public class TascaServiceImpl implements TascaService {
 					documentStore.getId(),
 					false,
 					false);
+		} else {
+			DocumentDto document = documentHelper.generarDocumentAmbPlantilla(
+					tascaId,
+					task.getProcessInstanceId(),
+					documentId);
+			ArxiuDto arxiu = new ArxiuDto();
+			arxiu.setNom(document.getArxiuNom());
+			arxiu.setContingut(document.getArxiuContingut());
+			return arxiu;
 		}
-		return null;
 	}
 
 	@Override
@@ -992,7 +1000,7 @@ public class TascaServiceImpl implements TascaService {
 			Map<String, Object> variables) {
 		logger.debug("Guardant les dades del formulari de la tasca (" +
 				"taskId=" + taskId + ", " +
-				"variables=...)");
+				"variables= "+variables+")");
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuari = auth.getName();
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(

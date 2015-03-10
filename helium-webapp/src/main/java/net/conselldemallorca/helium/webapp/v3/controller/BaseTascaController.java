@@ -59,7 +59,6 @@ public class BaseTascaController extends BaseController {
 			if (dada.isReadOnly()) {				
 				setErrorValidate(request, tascaId, dada);
 				nomesLectura.add(dada);
-				itDades.remove();
 			}
 		}
 		
@@ -103,7 +102,7 @@ public class BaseTascaController extends BaseController {
 		if (bindingResult != null && ((BindingResult) bindingResult).hasErrors()) {
 			for (FieldError error : ((BindingResult) bindingResult).getFieldErrors()) {
 				if (dada.getVarCodi().equals(error.getField())) {
-					dada.setError(getMessage(request, "lectura."+error.getCode()));
+					dada.setError(getMessage(request, "lectura." + error.getCode()));
 					break;
 				}
 			}

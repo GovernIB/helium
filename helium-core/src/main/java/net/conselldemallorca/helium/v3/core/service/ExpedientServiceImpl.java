@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,8 +54,6 @@ import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -109,7 +106,6 @@ import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.v3.core.helper.PlantillaHelper;
 import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
@@ -170,8 +166,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private ExpedientLoggerRepository expedientLogRepository;
 	@Resource
-	private PlantillaHelper plantillaHelper;
-	@Resource
 	private CampRepository campRepository;
 	@Resource
 	private AlertaRepository alertaRepository;
@@ -230,8 +224,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	private String textBloqueigIniciExpedient;
-	@Resource
-	private OpenOfficeUtils openOfficeUtils;
 
 	@Override
 	@Transactional
@@ -2170,20 +2162,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 				taskInstanceId,
 				true,
 				true);
-		DocumentDto document = generarDocumentAmbPlantilla(
+		DocumentDto document = documentHelper.generarDocumentAmbPlantilla(
 				taskInstanceId,
 				task.getProcessInstanceId(),
 				documentId);
-		Long documentStoreId = documentHelper.actualitzarDocument(
-				taskInstanceId,
-				task.getProcessInstanceId(),
-				document.getCodi(),
-				null,
-				document.getDataDocument(),
-				document.getArxiuNom(),
-				document.getArxiuContingut(),
-				false);
-		document.setId(documentStoreId);
+		if (document.isAdjuntarAuto()) {
+			Long documentStoreId = documentHelper.actualitzarDocument(
+					taskInstanceId,
+					task.getProcessInstanceId(),
+					document.getCodi(),
+					null,
+					document.getDataDocument(),
+					document.getArxiuNom(),
+					document.getArxiuContingut(),
+					false);
+			document.setId(documentStoreId);
+		}
 		return document;
 	}
 
@@ -2192,92 +2186,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public DocumentDto generarDocumentAmbPlantillaProces(
 			String processInstanceId,
 			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
-		return generarDocumentAmbPlantilla(
+		return documentHelper.generarDocumentAmbPlantilla(
 				null,
 				processInstanceId,
 				documentId);
-	}
-
-	private DocumentDto generarDocumentAmbPlantilla(
-			String taskInstanceId,
-			String processInstanceId,
-			Long documentId) throws DocumentGenerarException, DocumentConvertirException {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Document document = documentRepository.findOne(documentId);
-		DocumentDto resposta = new DocumentDto();
-		resposta.setCodi(document.getCodi());
-		resposta.setDataCreacio(new Date());
-		resposta.setDataDocument(new Date());
-		resposta.setArxiuNom(document.getNom() + ".odt");
-		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
-		if (document.isPlantilla()) {
-			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
-					expedient.getEntorn().getId(),
-					documentId,
-					taskInstanceId,
-					processInstanceId,
-					new Date());
-			if (isActiuConversioVista()) {
-				try {
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					openOfficeUtils.convertir(
-							resposta.getArxiuNom(),
-							resultat.getContingut(),
-							getExtensioVista(document),
-							baos);
-					resposta.setArxiuNom(
-							nomArxiuAmbExtensio(
-									resposta.getArxiuNom(),
-									getExtensioVista(document)));
-					resposta.setArxiuContingut(baos.toByteArray());
-				} catch (Exception ex) {
-					throw new DocumentConvertirException(
-							"Error en la conversió del document",
-							ex);
-				}
-			} else {
-				resposta.setArxiuContingut(resultat.getContingut());
-			}
-		} else {
-			resposta.setArxiuContingut(document.getArxiuContingut());
-		}
-		return resposta;
-	}
-
-	private String nomArxiuAmbExtensio(String fileName, String extensio) {
-		if (extensio == null || extensio.length() == 0)
-			return fileName;
-		int indexPunt = fileName.lastIndexOf(".");
-		if (indexPunt != -1) {
-			String nom = fileName.substring(0, indexPunt);
-			return nom + "." + extensio;
-		} else {
-			return fileName + "." + extensio;
-		}
-	}
-
-	private boolean isActiuConversioVista() {
-		String actiuConversio = (String)GlobalProperties.getInstance().get("app.conversio.actiu");
-		if (!"true".equalsIgnoreCase(actiuConversio))
-			return false;
-		String actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.actiu");
-		if (actiuConversioVista == null)
-			actiuConversioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.actiu");
-		return "true".equalsIgnoreCase(actiuConversioVista);
-	}
-	
-	private String getExtensioVista(Document document) {
-		String extensioVista = null;
-		if (isActiuConversioVista()) {
-			if (document.getConvertirExtensio() != null && document.getConvertirExtensio().length() > 0) {
-				extensioVista = document.getConvertirExtensio();
-			} else {
-				extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.vista.extension");
-				if (extensioVista == null)
-					extensioVista = (String)GlobalProperties.getInstance().get("app.conversio.gentasca.extension");
-			}
-		}
-		return extensioVista;
 	}
 	
 	@Override

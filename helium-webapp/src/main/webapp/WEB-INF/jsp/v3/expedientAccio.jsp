@@ -33,3 +33,28 @@ div.proces:hover {
 </style>
 
 <c:import url="procesAccions.jsp"/>
+
+<script type="text/javascript">
+// <![CDATA[	
+	$(document).ready(function() {				
+		$('.procesaccio').click( function() {
+			var icona = $(this).find('.icona-collapse');
+			icona.toggleClass('fa-chevron-down');
+			icona.toggleClass('fa-chevron-up');
+			if ($(this).data('carrega') == "ajax") {
+				$('#contingut-carregant').show();
+				var processInstanceId = $(this).data('processinstanceid');
+				$("#panel_accio_"+processInstanceId).html('<div style="text-align:center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
+				recargarPanel (processInstanceId, true);
+			}
+		});
+	});		
+	function recargarPanel (processInstanceId, correcte) {
+		if (correcte) {
+			var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/accions/"/>' + processInstanceId;
+			var panell = $("#dataTable_accio_"+processInstanceId);
+			panell.load(url);
+		}
+	}
+//]]>
+</script>

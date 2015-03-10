@@ -5,9 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -15,11 +13,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jbpm.JbpmException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -27,7 +23,6 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -86,44 +81,6 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		public void validate(Object target, Errors errors) {
 			ValidationUtils.rejectIfEmpty(errors, "script", "not.blank");
 		}
-	}
-	
-	@RequestMapping(value = "/{expedientId}/accio", method = RequestMethod.GET)
-	public String accio(
-			HttpServletRequest request,
-			@PathVariable Long expedientId, 
-			@RequestParam(value = "accioId", required = true) Long accioId,
-			ModelMap model) {
-		boolean permesa = false;
-		AccioDto accio = dissenyService.findAccioAmbId(accioId);
-		if (accio.getRols() == null || accio.getRols().length() == 0) {
-			permesa = true;
-		} else {
-			String[] llistaRols = accio.getRols().split(",");
-			for (String rol: llistaRols) {
-				if (request.isUserInRole(rol)) {
-					permesa = true;
-					break;
-				}
-			}
-		}
-		if (permesa) {
-			ExpedientDto expedient = expedientService.findAmbId(expedientId);
-			if (accio.isPublica() || expedient.isPermisWrite()) {
-				try {
-					dissenyService.executarAccio(accio, expedient);
-					MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
-				} catch (JbpmException ex ) {
-					MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accio.getJbpmAction() + ": "+ ex.getCause().getMessage());
-		        	logger.error("ENTORNID:"+expedient.getEntorn().getId()+" NUMEROEXPEDIENT:"+expedient.getId()+" Error al executar la accio", ex);
-				}
-			} else {
-				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.accio.no.permesa"));
-		}
-		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientExecucionsController.class);
