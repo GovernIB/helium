@@ -20,6 +20,9 @@ td > .form-group {
 	margin-left: 	0px !important;
 	/*margin-bottom:	0px;*/
 }
+th label {
+	font-weight: 700;
+}
 .controls {
 	padding-right: 0 !important;
 }
@@ -166,6 +169,9 @@ div.tab-content {
 .btn_date {
 	cursor: pointer;
 }
+.registre.has-error .no-obligatori .form-control {
+	border: 1px solid #ccc;
+} 
 .has-error .form-control {
 	background-color: #ffefe !important;
 }
@@ -188,6 +194,7 @@ div.tab-content {
 /* 		} */
 .well.well-small {margin: 20px;}
 .registre_taula {overflow: auto;}
+.registre_taula .col-xs-3{width: auto !important; padding-left: 0px; position: relative;}
 .registre th {
 	border-bottom: solid 1px #CACACA !important;
 	background: rgba(221,221,221,1);
@@ -206,4 +213,4 @@ div.tab-content {
 .contingut-carregant {
 	padding-top: 50px;
    	text-align: center;
-   }
+}

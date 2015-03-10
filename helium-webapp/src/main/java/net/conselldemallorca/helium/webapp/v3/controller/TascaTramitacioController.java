@@ -268,6 +268,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (!correcte) {
 			return returnUrl;
 		}
+		status.setComplete();
 		return modalUrlTancar();
 	}
 
@@ -286,6 +287,7 @@ public class TascaTramitacioController extends BaseTascaController {
         	MissatgesHelper.error(request, ex.getMessage());
         	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
         }
+		status.setComplete();
 		return getReturnUrl(
 				request,
 				expedientId,
@@ -306,23 +308,13 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result, 
 			SessionStatus status, 
 			ModelMap model) {
-		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-		afegirVariablesExpedient(tascaDadas, expedientId);
-		validator.setTasca(tascaDadas);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-		validator.setRequest(request);
-		validator.validate(command, result);
-		if (result.hasErrors() || !accioGuardarForm(request, tascaId, expedientId, variables)) {
+		String returnUrl = guardar(request,expedientId,tascaId,command,result,status,model);
+		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 		} else if (accioExecutarAccio(request, tascaId, accioCamp)) {
 			model.addAttribute("campFocus", accioCamp);
 		}
-		return getReturnUrl(
-				request,
-				expedientId,
-				tascaId,
-				"form");
+		return returnUrl;
 	}
 
 	private void afegirVariablesExpedient(List<TascaDadaDto> tascaDadas, Long expedientId) {

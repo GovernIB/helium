@@ -668,6 +668,9 @@ public class TascaService {
 			String taskId,
 			Map<String, Object> variables,
 			String usuari)  throws NotFoundException, IllegalStateException{
+		logger.debug("Guardant les dades del formulari de la tasca (" +
+				"taskId=" + taskId + ", " +
+				"variables= "+variables+")");
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, usuari, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) { 
@@ -696,6 +699,7 @@ public class TascaService {
 			mesuresTemporalsHelper.mesuraCalcular("Guardar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "Start TaskInstance");
 			mesuresTemporalsHelper.mesuraIniciar("Guardar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "taskInstance Variables");
 		}
+		logger.debug("Guardant les dades v26 (filtreVariables= "+variables+")");
 		jbpmDao.setTaskInstanceVariables(taskId, variables, false);
 		if (MesuresTemporalsHelper.isActiu()) {
 			mesuresTemporalsHelper.mesuraCalcular("Guardar tasca", "tasques", expedient.getTipus().getNom(), task.getName(), "taskInstance Variables");
