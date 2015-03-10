@@ -186,14 +186,30 @@ public class PlantillaHelper {
 		List<ExpedientDadaDto> dades = variableHelper.findDadesPerInstanciaProces(processInstanceId);
 		for (ExpedientDadaDto dada: dades) {
 			if (dada.isCampMultiple()) {
-				String[] multipleTexts = new String[dada.getMultipleDades().size()];
-				int index = 0;
-				for (ExpedientDadaDto multipleDada: dada.getMultipleDades()) {
-					multipleTexts[index++] = multipleDada.getText();
+				if (dada.isCampTipusRegistre()) {
+					Object[] multipleTexts = new Object[dada.getMultipleDades().size()];
+					int index = 0;
+					for (ExpedientDadaDto multipleDada: dada.getMultipleDades()) {
+						String[] registreTexts = new String[multipleDada.getRegistreDades().size()];
+						int indexreg = 0;
+						for (ExpedientDadaDto registreDada: multipleDada.getRegistreDades()) {
+							registreTexts[indexreg++] = registreDada.getText();
+						}
+						multipleTexts[index++] = registreTexts;
+					}
+					model.put(
+							dada.getVarCodi(),
+							multipleTexts);
+				} else {
+					String[] multipleTexts = new String[dada.getMultipleDades().size()];
+					int index = 0;
+					for (ExpedientDadaDto multipleDada: dada.getMultipleDades()) {
+						multipleTexts[index++] = multipleDada.getText();
+					}
+					model.put(
+							dada.getVarCodi(),
+							multipleTexts);
 				}
-				model.put(
-						dada.getVarCodi(),
-						multipleTexts);
 			} else if (dada.isCampTipusRegistre()) {
 				String[] registreTexts = new String[dada.getRegistreDades().size()];
 				int index = 0;
@@ -217,14 +233,30 @@ public class PlantillaHelper {
 		List<TascaDadaDto> dades = variableHelper.findDadesPerInstanciaTasca(task);
 		for (TascaDadaDto dada: dades) {
 			if (dada.isCampMultiple()) {
-				String[] multipleTexts = new String[dada.getMultipleDades().size()];
-				int index = 0;
-				for (TascaDadaDto multipleDada: dada.getMultipleDades()) {
-					multipleTexts[index++] = multipleDada.getText();
+				if (dada.isCampTipusRegistre()) {
+					Object[] multipleTexts = new Object[dada.getMultipleDades().size()];
+					int index = 0;
+					for (TascaDadaDto multipleDada: dada.getMultipleDades()) {
+						String[] registreTexts = new String[multipleDada.getRegistreDades().size()];
+						int indexreg = 0;
+						for (TascaDadaDto registreDada: multipleDada.getRegistreDades()) {
+							registreTexts[indexreg++] = registreDada.getText();
+						}
+						multipleTexts[index++] = registreTexts;
+					}
+					model.put(
+							dada.getVarCodi(),
+							multipleTexts);
+				} else {
+					String[] multipleTexts = new String[dada.getMultipleDades().size()];
+					int index = 0;
+					for (TascaDadaDto multipleDada: dada.getMultipleDades()) {
+						multipleTexts[index++] = multipleDada.getText();
+					}
+					model.put(
+							dada.getVarCodi(),
+							multipleTexts);
 				}
-				model.put(
-						dada.getVarCodi(),
-						multipleTexts);
 			} else if (dada.isCampTipusRegistre()) {
 				String[] registreTexts = new String[dada.getRegistreDades().size()];
 				int index = 0;
