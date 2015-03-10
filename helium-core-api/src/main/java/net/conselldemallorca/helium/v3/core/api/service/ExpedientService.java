@@ -30,6 +30,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
@@ -645,18 +647,22 @@ public interface ExpedientService {
 
 	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception;
 
-	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) throws Exception;
+	public DocumentDto generarDocumentAmbPlantillaProces(
+			String processInstanceId,
+			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
 
-	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long docId, Long expedientId) throws Exception;
+	public DocumentDto generarDocumentAmbPlantillaTasca(
+			String tascaId,
+			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
 
 	public boolean isExtensioDocumentPermesa(String extensio);
 
 	public void buidarLogExpedient(String processInstanceId);
 
 	public void createVariable(Long expedientId, String processInstanceId,	String varName, Object value);
-	
+
 	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor);
-	
+
 	public void deleteVariable(Long expedientId, String processInstanceId, String varName);
 
 	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi);

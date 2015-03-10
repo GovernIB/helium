@@ -438,7 +438,6 @@ public class TascaTramitacioController extends BaseTascaController {
 						request,
 						tascaId, 
 						docId, 
-						expedientId,
 						(data == null) ? new Date() : data);
 				if (generat != null) {
 					if (!generat.isAdjuntarAuto()) {
@@ -459,7 +458,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		Map<String, Object> mjson = new LinkedHashMap<String, Object>();
 		mjson.put("nom", generatNom);
 		mjson.put("fecha_modificacio", sdf.format(new Date()));
-		mjson.put("fecha_document", sdf2.format(data));
+		mjson.put("fecha_document", (data != null) ? sdf2.format(data) : null);
 		return JSONValue.toJSONString(mjson);
 	}
 
@@ -1167,7 +1166,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Long docId,
-			Long expedientId,
 			Date data) {
 		DocumentDto generat = null;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
@@ -1188,10 +1186,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				TascaDocumentDto document = tascaService.findDocument(tascaId, docId);
 				params[1] = document.getDocumentCodi();
 				params[2] = (data == null) ? new Date() : data;
-				generat = expedientService.generarDocumentPlantillaTasca(
+				generat = expedientService.generarDocumentAmbPlantillaTasca(
 						tascaId,
-						docId,
-						expedientId);
+						docId);
 				params[3] = generat.getArxiuContingut();
 				params[4] = generat.getArxiuNom();
 				params[5] = auth.getCredentials();
@@ -1210,10 +1207,9 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} else {
 			try {
-				generat = expedientService.generarDocumentPlantillaTasca(
+				generat = expedientService.generarDocumentAmbPlantillaTasca(
 						tascaId,
-						docId,
-						expedientId);
+						docId);
 				MissatgesHelper.info(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {

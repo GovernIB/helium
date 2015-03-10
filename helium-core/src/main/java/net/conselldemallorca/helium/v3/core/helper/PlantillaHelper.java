@@ -41,10 +41,13 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
@@ -53,6 +56,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.sf.jooreports.templates.DocumentTemplate;
+import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
 
 import org.springframework.security.core.Authentication;
@@ -123,52 +127,119 @@ public class PlantillaHelper {
 			Long documentId,
 			String taskInstanceId,
 			String processInstanceId,
-			Date dataDocument) throws Exception {
-		deshabilitarLogging();
-		Document document = documentRepository.findOne(documentId);
-		byte[] contingut = null;
-		if (document.isPlantilla()) {
-			// Obtenir tasca, expedient, responsable i omplir el model						
-			ExpedientDto expedientDto;
-			ExpedientTascaDto tasca = null;
-			String responsableCodi;
-			Map<String, Object> model = variableHelper.findVarsDadesPerInstanciaProces(processInstanceId);
-			if (taskInstanceId != null) {
-				JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
-				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-				expedientDto = expedientHelper.toExpedientDto(expedient);
-				tasca = tascaHelper.getExpedientTascaDto(
-						task,
-						expedient,
-						true);
-				model.putAll(variableHelper.getVariablesJbpmTascaValor(task.getId()));
-				responsableCodi = task.getAssignee();
+			Date dataDocument) throws DocumentGenerarException {
+		try {
+			deshabilitarLogging();
+			Document document = documentRepository.findOne(documentId);
+			byte[] contingut = null;
+			if (document.isPlantilla()) {
+				// Obtenir tasca, expedient, responsable i omplir el model						
+				ExpedientDto expedientDto;
+				ExpedientTascaDto tasca = null;
+				String responsableCodi;
+				Map<String, Object> model = new HashMap<String, Object>();
+				afegirDadesProcesAlModel(processInstanceId, model);
+				if (taskInstanceId != null) {
+					JbpmTask task = jbpmhelper.getTaskById(taskInstanceId);
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+					expedientDto = expedientHelper.toExpedientDto(expedient);
+					tasca = tascaHelper.getExpedientTascaDto(
+							task,
+							expedient,
+							true);
+					afegirDadesTascaAlModel(task, model);
+					responsableCodi = task.getAssignee();
+				} else {
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+					expedientDto = expedientHelper.toExpedientDto(expedient);
+					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+					responsableCodi = auth.getName();
+				}
+				afegirContextAlModel(
+						responsableCodi,
+						expedientDto,
+						tasca,
+						dataDocument,
+						model);
+				afegirFuncionsAlModel(
+						entornRepository.findOne(entornId),
+						taskInstanceId,
+						processInstanceId,
+						model);
+				contingut = generarAmbJooReports(
+						document.getArxiuContingut(),
+						model);
 			} else {
-				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-				expedientDto = expedientHelper.toExpedientDto(expedient);
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				responsableCodi = auth.getName();
+				contingut = document.getArxiuContingut();
 			}
-			afegirContextAlModel(
-					responsableCodi,
-					expedientDto,
-					tasca,
-					dataDocument,
-					model);
-			afegirFuncionsAlModel(
-					entornRepository.findOne(entornId),
-					taskInstanceId,
-					processInstanceId,
-					model);
-			contingut = generarAmbJooReports(
-					document.getArxiuContingut(),
-					model);
-		} else {
-			contingut = document.getArxiuContingut();
+			return new ArxiuDto(
+					document.getNom() + ".odt",
+					contingut);
+		} catch (Exception ex) {
+			throw new DocumentGenerarException("Error al generar el document", ex);
 		}
-		return new ArxiuDto(
-				document.getNom() + ".odt",
-				contingut);
+	}
+
+	private void afegirDadesProcesAlModel(
+			String processInstanceId,
+			Map<String, Object> model) {
+		List<ExpedientDadaDto> dades = variableHelper.findDadesPerInstanciaProces(processInstanceId);
+		for (ExpedientDadaDto dada: dades) {
+			if (dada.isCampMultiple()) {
+				String[] multipleTexts = new String[dada.getMultipleDades().size()];
+				int index = 0;
+				for (ExpedientDadaDto multipleDada: dada.getMultipleDades()) {
+					multipleTexts[index++] = multipleDada.getText();
+				}
+				model.put(
+						dada.getVarCodi(),
+						multipleTexts);
+			} else if (dada.isCampTipusRegistre()) {
+				String[] registreTexts = new String[dada.getRegistreDades().size()];
+				int index = 0;
+				for (ExpedientDadaDto registreDada: dada.getRegistreDades()) {
+					registreTexts[index++] = registreDada.getText();
+				}
+				model.put(
+						dada.getVarCodi(),
+						registreTexts);
+			} else {
+				model.put(
+						dada.getVarCodi(),
+						dada.getText());
+			}
+		}
+	}
+
+	private void afegirDadesTascaAlModel(
+			JbpmTask task,
+			Map<String, Object> model) {
+		List<TascaDadaDto> dades = variableHelper.findDadesPerInstanciaTasca(task);
+		for (TascaDadaDto dada: dades) {
+			if (dada.isCampMultiple()) {
+				String[] multipleTexts = new String[dada.getMultipleDades().size()];
+				int index = 0;
+				for (TascaDadaDto multipleDada: dada.getMultipleDades()) {
+					multipleTexts[index++] = multipleDada.getText();
+				}
+				model.put(
+						dada.getVarCodi(),
+						multipleTexts);
+			} else if (dada.isCampTipusRegistre()) {
+				String[] registreTexts = new String[dada.getRegistreDades().size()];
+				int index = 0;
+				for (TascaDadaDto registreDada: dada.getRegistreDades()) {
+					registreTexts[index++] = registreDada.getText();
+				}
+				model.put(
+						dada.getVarCodi(),
+						registreTexts);
+			} else {
+				model.put(
+						dada.getVarCodi(),
+						dada.getText());
+			}
+		}
 	}
 
 	private void afegirContextAlModel(
@@ -612,7 +683,7 @@ public class PlantillaHelper {
 
 	private byte[] generarAmbJooReports(
 			byte[] plantillaContingut,
-			Map<String, Object> model) throws Exception {
+			Map<String, Object> model) throws IOException, DocumentTemplateException {
 		DocumentTemplateFactory documentTemplateFactory = new DocumentTemplateFactory();
 		documentTemplateFactory.getFreemarkerConfiguration().setTemplateExceptionHandler(new TemplateExceptionHandler() {
 		    public void handleTemplateException(TemplateException te, Environment env, Writer out) throws TemplateException {
@@ -644,7 +715,7 @@ public class PlantillaHelper {
 		return resultat.toByteArray();
 	}
 
-	private void deshabilitarLogging() throws Exception {
+	private void deshabilitarLogging() throws ClassNotFoundException {
 		Logger.selectLoggerLibrary(Logger.LIBRARY_NONE);
 	}
 

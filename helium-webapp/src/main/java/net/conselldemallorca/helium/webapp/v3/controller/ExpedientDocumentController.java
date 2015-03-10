@@ -152,7 +152,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
-			DocumentDto generat = expedientService.generarDocumentPlantilla(docId, expedient);
+			DocumentDto generat = expedientService.generarDocumentAmbPlantillaProces(
+					expedient.getProcessInstanceId(),
+					docId);
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
 		} catch (Exception ex) {
@@ -398,4 +400,5 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDocumentController.class);
+
 }

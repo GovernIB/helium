@@ -34,9 +34,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -508,14 +511,18 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto generarDocumentPlantilla(Long docId, ExpedientDto expedient) throws Exception {
-		return delegate.generarDocumentPlantilla(docId, expedient);
+	public DocumentDto generarDocumentAmbPlantillaProces(
+			String processInstanceId,
+			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		return delegate.generarDocumentAmbPlantillaProces(processInstanceId, documentId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long docId, Long expedientId) throws Exception {
-		return delegate.generarDocumentPlantillaTasca(tascaId, docId, expedientId);
+	public DocumentDto generarDocumentAmbPlantillaTasca(
+			String tascaId,
+			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		return delegate.generarDocumentAmbPlantillaTasca(tascaId, documentId);
 	}
 
 	@Override

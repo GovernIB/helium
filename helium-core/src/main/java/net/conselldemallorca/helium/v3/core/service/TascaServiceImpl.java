@@ -552,7 +552,7 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientTascaDto.class);
 		return resposta;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public List<TascaDadaDto> findDades(
@@ -860,7 +860,7 @@ public class TascaServiceImpl implements TascaService {
 				"Amollar tasca \"" + tasca.getTitol() + "\"");
 		return tasca;
 	}
-	
+
 	@Override
 	@Transactional
 	public void esborrarDocument(
@@ -1258,7 +1258,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 		}
 	}
-	
+
 	@Transactional
 	private void crearAlertaCompletat(
 			TerminiIniciat terminiIniciat,
@@ -1273,7 +1273,7 @@ public class TascaServiceImpl implements TascaService {
 		alerta.setTerminiIniciat(terminiIniciat);
 		alertaRepository.save(alerta);
 	}
-	
+
 	@Transactional
 	private void esborrarAlertesAntigues(TerminiIniciat terminiIniciat) {
 		List<Alerta> antigues = alertaRepository.findActivesAmbTerminiIniciatId(terminiIniciat.getId());
@@ -1282,4 +1282,5 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaServiceImpl.class);
+
 }

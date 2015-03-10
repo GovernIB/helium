@@ -90,6 +90,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
+import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
@@ -2158,28 +2160,49 @@ public class ExpedientServiceImpl implements ExpedientService {
 			return nomArxiu.substring(index + 1);
 		}
 	}
-        
+
 	@Override
 	@Transactional
-	public DocumentDto generarDocumentPlantillaTasca(String tascaId, Long documentId, Long expedientId) throws Exception {
-		ExpedientDto expedient = findAmbId(expedientId);
-		DocumentDto doc = generarDocumentPlantilla(documentId, expedient);
+	public DocumentDto generarDocumentAmbPlantillaTasca(
+			String taskInstanceId,
+			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				taskInstanceId,
+				true,
+				true);
+		DocumentDto document = generarDocumentAmbPlantilla(
+				taskInstanceId,
+				task.getProcessInstanceId(),
+				documentId);
 		Long documentStoreId = documentHelper.actualitzarDocument(
-				tascaId,
-				expedient.getProcessInstanceId(),
-				doc.getCodi(),
+				taskInstanceId,
+				task.getProcessInstanceId(),
+				document.getCodi(),
 				null,
-				doc.getDataDocument(),
-				doc.getArxiuNom(),
-				doc.getArxiuContingut(),
+				document.getDataDocument(),
+				document.getArxiuNom(),
+				document.getArxiuContingut(),
 				false);
-		doc.setId(documentStoreId);
-		return doc;
+		document.setId(documentStoreId);
+		return document;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
-	public DocumentDto generarDocumentPlantilla(Long documentId, ExpedientDto expedient) throws Exception {
+	public DocumentDto generarDocumentAmbPlantillaProces(
+			String processInstanceId,
+			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		return generarDocumentAmbPlantilla(
+				null,
+				processInstanceId,
+				documentId);
+	}
+
+	private DocumentDto generarDocumentAmbPlantilla(
+			String taskInstanceId,
+			String processInstanceId,
+			Long documentId) throws DocumentGenerarException, DocumentConvertirException {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		Document document = documentRepository.findOne(documentId);
 		DocumentDto resposta = new DocumentDto();
 		resposta.setCodi(document.getCodi());
@@ -2188,14 +2211,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		resposta.setArxiuNom(document.getNom() + ".odt");
 		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.isPlantilla()) {
-			try {				
-				ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
-						expedient.getEntorn().getId(),
-						documentId,
-						null,
-						expedient.getProcessInstanceId(),
-						new Date());
-				if (isActiuConversioVista()) {
+			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
+					expedient.getEntorn().getId(),
+					documentId,
+					taskInstanceId,
+					processInstanceId,
+					new Date());
+			if (isActiuConversioVista()) {
+				try {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					openOfficeUtils.convertir(
 							resposta.getArxiuNom(),
@@ -2207,18 +2230,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 									resposta.getArxiuNom(),
 									getExtensioVista(document)));
 					resposta.setArxiuContingut(baos.toByteArray());
-				} else {
-					resposta.setArxiuContingut(resultat.getContingut());
+				} catch (Exception ex) {
+					throw new DocumentConvertirException(
+							"Error en la conversió del document",
+							ex);
 				}
-			} catch (Exception ex) {
-				throw new Exception(ex);
+			} else {
+				resposta.setArxiuContingut(resultat.getContingut());
 			}
 		} else {
 			resposta.setArxiuContingut(document.getArxiuContingut());
 		}
 		return resposta;
 	}
-	
+
 	private String nomArxiuAmbExtensio(String fileName, String extensio) {
 		if (extensio == null || extensio.length() == 0)
 			return fileName;

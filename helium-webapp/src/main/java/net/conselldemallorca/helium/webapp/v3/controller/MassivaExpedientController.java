@@ -635,7 +635,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 		List<Long> listIds = new ArrayList<Long>(ids);
 		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 		try {
-			DocumentDto generat = expedientService.generarDocumentPlantilla(docId, expedient);
+			DocumentDto generat = expedientService.generarDocumentAmbPlantillaProces(
+					expedient.getProcessInstanceId(),
+					docId);
 			if (generat != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());

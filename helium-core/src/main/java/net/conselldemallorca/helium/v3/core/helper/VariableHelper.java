@@ -132,7 +132,7 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
-	
+
 	public Map<String, TascaDadaDto> findDadesTascaPerExpedientId(Long expedientId) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		Map<String, TascaDadaDto> dades = new HashMap<String, TascaDadaDto>();
@@ -141,12 +141,14 @@ public class VariableHelper {
 		}
 		return dades;
 	}
-	
+
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId) {
 		return findDadesPerInstanciaProces(processInstanceId, false);
 	}
-	
-	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String processInstanceId, boolean incloureVariablesBuides) {
+
+	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
+			String processInstanceId,
+			boolean incloureVariablesBuides) {
 		String tipusExp = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
@@ -264,7 +266,7 @@ public class VariableHelper {
 		}
 		return resposta;
 	}
-	
+
 	public List<TascaDadaDto> findDadesPerInstanciaTasca(
 			JbpmTask task) {
 		String tipusExp = null;

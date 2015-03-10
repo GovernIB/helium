@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.core.util;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
@@ -54,7 +53,10 @@ public class OpenOfficeUtils {
 			InputStream arxiuContingut,
 			String extensioSortida,
 			OutputStream sortida) throws Exception {
-		logger.info("OpenOfficeUtils > convertir > INI > arxiuNom=" + arxiuNom + ", size=" + arxiuContingut.available() + " bytes");
+		logger.info("Conversió OpenOffice (" +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut.available() + "bytes, " +
+				"extensioSortida=" + extensioSortida + ")");
 		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);			
 		DocumentFormat outputFormat = getDocumentFormatRegistry().getFormatByFileExtension(extensioSortida);
 		if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
@@ -73,7 +75,6 @@ public class OpenOfficeUtils {
 			arxiuContingut.close();
 			sortida.close();
 		}
-		logger.info("OpenOfficeUtils > convertir > FIN > arxiuNom=" + arxiuNom + ", extensioSortida=" + extensioSortida + ", size=" + ((ByteArrayOutputStream) sortida).size() + " bytes");
 	}
 	public String nomArxiuConvertit(
 			String arxiuNom,
