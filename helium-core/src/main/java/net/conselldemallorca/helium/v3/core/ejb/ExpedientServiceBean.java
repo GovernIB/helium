@@ -644,4 +644,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId) {
 		return delegate.findAccionsVisiblesAmbProcessInstanceId(processInstanceId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
+		return delegate.existsExpedientAmbEntornTipusINumero(entornId, expedientTipusId, numero);
+	}
 }

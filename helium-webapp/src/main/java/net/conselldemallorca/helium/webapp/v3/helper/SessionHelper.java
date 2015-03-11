@@ -8,8 +8,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.validation.Errors;
-
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
@@ -38,7 +36,6 @@ public class SessionHelper {
 	public static final String VARIABLE_PERMIS_ENTORN_ORGANIZATION = "potOrganitzarEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_ADMINISTRATION = "potAdministrarEntorn";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
-	public static final String VARIABLE_TASCA_ERROR = "tascaError";
 	
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
 	public static final String VARIABLE_FILTRE_CONSULTA_TASCA = "filtreConsultaTasca";
@@ -295,17 +292,6 @@ public class SessionHelper {
 					request,
 					VARIABLE_PREFERENCIES_USUARI,
 					preferencies);
-		}
-		public Errors getTascaError() {
-			return (Errors)getAttribute(
-					request,
-					VARIABLE_TASCA_ERROR);
-		}
-		public void setTascaError(Errors errors) {
-			setAttribute(
-					request,
-					VARIABLE_TASCA_ERROR,
-					errors);
 		}
 		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioMassives() {

@@ -34,10 +34,17 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			Long tipusId,
 			String numero);
 	
-	Expedient findByEntornIdAndTipusIdAndTitol(
-			Long entornId,
-			Long tipusId,
-			String titol);
+	@Query(	"select e " +
+			"from Expedient e " +
+			"where " +
+			"   e.entorn.id = :entornId " +
+			"   and e.tipus.id = :tipusId " +
+			"	and (:esNullTitol = true or lower(e.titol) like lower('%'||:titol||'%')) ")
+	List<Expedient> findByEntornIdAndTipusIdAndTitol(
+			@Param("entornId") Long entornId,
+			@Param("tipusId") Long tipusId,
+			@Param("esNullTitol") boolean esNullTitol,
+			@Param("titol") String titol);
 	
 	Expedient findByEntornAndTipusAndNumero(
 			Entorn entorn,

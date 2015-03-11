@@ -2622,7 +2622,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
-		return expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol) != null;
+		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol).isEmpty();
 	}	
 	
 	@Override
@@ -2995,6 +2995,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 			expedientTipus.updateSequenciaDefault(any, increment - 1);
 		}
 		return numero;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
+		return expedientRepository.findByEntornIdAndTipusIdAndNumero(
+				entornId,
+				expedientTipusId,
+				numero) != null;
 	}
 	
 	private PersonaDto comprovarUsuari(String usuari) {

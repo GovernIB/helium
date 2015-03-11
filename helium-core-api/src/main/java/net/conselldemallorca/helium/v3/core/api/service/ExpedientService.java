@@ -573,8 +573,6 @@ public interface ExpedientService {
 
 	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId);
 
-	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
-
 	public void cancelarTasca(Long expedientId, Long taskId);
 
 	public void suspendreTasca(Long expedientId, Long taskId);
@@ -686,4 +684,8 @@ public interface ExpedientService {
 	public ArxiuDto arxiuDocumentPerSignar(String token);
 
 	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId);
+
+	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
+	
+	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero);
 }

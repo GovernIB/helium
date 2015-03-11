@@ -20,7 +20,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -72,23 +71,30 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 		if ("iniciar".equals(accio)) {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientInicioPasTitolCommand.getExpedientTipusId());
 			
-			Validator validator = new ExpedientInicioPasTitolValidator(dissenyService, expedientService);
-			validator.validate(expedientInicioPasTitolCommand, result);
-
+			Validator validator = null;
+			try {
+				validator = new ExpedientInicioPasTitolValidator(expedientTipus, expedientService);
+				validator.validate(expedientInicioPasTitolCommand, result);
+			} catch (Exception ex) {
+				validator = null;
+				MissatgesHelper.error(request, getMessage(request, "error.validacio") + ": " + ex.getLocalizedMessage());
+				logger.error(getMessage(request, "error.validacio"), ex);
+			}
 			DefinicioProcesDto definicioProces = null;
 			if (definicioProcesId != null) {
 				definicioProces = dissenyService.getById(definicioProcesId);
 			} else {
 				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientInicioPasTitolCommand.getExpedientTipusId());
 			}
-			if (result.hasErrors()) {
+			if (result.hasErrors() || validator == null) {
+				if (validator != null)
+					MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 				model.addAttribute(expedientInicioPasTitolCommand);
 				model.addAttribute("definicioProces", definicioProces);
 				model.addAttribute("anysSeleccionables", getAnysSeleccionables());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("entornId", expedientInicioPasTitolCommand.getEntornId());
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-				MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
 				return "v3/expedient/iniciarPasTitol";
 			}
 			try {
@@ -126,11 +132,11 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	}
 
 	protected class ExpedientInicioPasTitolValidator implements Validator {
-		private DissenyService dissenyService;
+		private ExpedientTipusDto tipus;
 		private ExpedientService expedientService;
 
-		public ExpedientInicioPasTitolValidator(DissenyService dissenyService, ExpedientService expedientService) {
-			this.dissenyService = dissenyService;
+		public ExpedientInicioPasTitolValidator(ExpedientTipusDto tipus, ExpedientService expedientService) {
+			this.tipus = tipus;
 			this.expedientService = expedientService;
 		}
 
@@ -141,25 +147,23 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 
 		public void validate(Object target, Errors errors) {
 			ExpedientInicioPasTitolCommand command = (ExpedientInicioPasTitolCommand) target;
-			ExpedientTipusDto tipus = dissenyService.getExpedientTipusById(command.getExpedientTipusId());
 			if (tipus == null) {
 				errors.reject("error.expedienttipus.desconegut");
 			} else {
-				boolean teNumero = (tipus.isTeNumero() && tipus.isDemanaNumero());
-				if (teNumero && (command.getNumero() == null || command.getNumero().isEmpty()))
-					errors.rejectValue("numero", "not.blank");
-				boolean teTitol = (tipus.isTeNumero() && tipus.isDemanaTitol());
-				if (teTitol && (command.getTitol() == null || command.getTitol().isEmpty()))
-					errors.rejectValue("titol", "not.blank");
+				if (tipus.isTeNumero() && tipus.isDemanaNumero()) {
+					if (command.getNumero() == null || command.getNumero().isEmpty())
+						errors.rejectValue("numero", "not.blank");
+					else if (expedientService.existsExpedientAmbEntornTipusINumero(command.getEntornId(), command.getExpedientTipusId(), command.getNumero()))
+						errors.rejectValue("numero", "error.expedient.numerorepetit");
+				}				
+				if (tipus.isTeNumero() && tipus.isDemanaTitol()) {
+					if (command.getTitol() == null || command.getTitol().isEmpty())
+						errors.rejectValue("titol", "not.blank");
+					else if (expedientService.existsExpedientAmbEntornTipusITitol(command.getEntornId(), command.getExpedientTipusId(), command.getTitol()))
+						errors.rejectValue("titol", "error.expedient.titolrepetit");
+				}
 				if (tipus.isSeleccionarAny() && command.getAny() == null)
 					errors.rejectValue("any", "not.blank");
-				boolean existsExpedientAmbEntornTipusITitol = expedientService.existsExpedientAmbEntornTipusITitol(command.getEntornId(), command.getExpedientTipusId(), command.getTitol());
-				if (teTitol && existsExpedientAmbEntornTipusITitol) {
-					errors.rejectValue("titol", "error.expedient.titolrepetit");
-				}
-				if (teNumero && existsExpedientAmbEntornTipusITitol) {
-					errors.rejectValue("numero", "error.expedient.numerorepetit");
-				}
 			}
 		}
 	}

@@ -40,6 +40,7 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springmodules.validation.valang.ValangException;
 
 /**
  * Controlador pel pas de formulari de l'inici d'expedient
@@ -114,12 +116,19 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
-
-			TascaFormHelper.getBeanValidatorForCommand(dades).validate(command, result);
+			Map<String, Object> valors = null;
+			Validator validatorForCommand = null; 
+			try {
+				validatorForCommand = TascaFormHelper.getBeanValidatorForCommand(dades);
+				validatorForCommand.validate(command, result);
+			} catch (ValangException ex) {
+				validatorForCommand = null;
+				MissatgesHelper.error(request, getMessage(request, "error.validacio") + ": " + ex.getLocalizedMessage());
+				logger.error(getMessage(request, "error.validacio"), ex);
+			}
 			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
 			validator.setTasca(dades);
-			validator.setRequest(request);
-			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(dades, command, false);
+			valors = TascaFormHelper.getValorsFromCommand(dades, command, false);
 			validarForm(validator, valors, command, result, request, tasca.getId());
 			
 			DefinicioProcesDto definicioProces = null;
@@ -129,8 +138,9 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
 			}
 			model.addAttribute("definicioProces", definicioProces);
-			if (result.hasErrors()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+			if (result.hasErrors() || validatorForCommand == null) {
+				if (validatorForCommand != null)
+					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
 				model.addAttribute("dades", dades);
@@ -176,7 +186,6 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			BindingResult result, 
 			HttpServletRequest request,
 			String tascaId) {
-		validator.setRequest(request);
 		validator.setValidarObligatoris(true);
 		validator.validate(command, result);
 		if (result.hasErrors()) {

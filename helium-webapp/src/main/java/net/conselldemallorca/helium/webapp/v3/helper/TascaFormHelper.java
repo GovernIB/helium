@@ -337,7 +337,10 @@ public class TascaFormHelper {
 								Method metodeSet = valorRegistre.getClass().getMethod(
 										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
 										campRegistre.getJavaClass());
-								metodeSet.invoke(valorRegistre, ((Object[])valor)[i++]);
+								Object valorReg = null;
+								if (((Object[])valor).length > i)
+									valorReg = ((Object[])valor)[i++];
+								metodeSet.invoke(valorRegistre, valorReg);
 							}
 						}
 					}

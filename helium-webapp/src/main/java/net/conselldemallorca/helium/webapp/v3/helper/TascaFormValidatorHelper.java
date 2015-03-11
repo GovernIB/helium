@@ -10,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.jstl.core.LoopTagStatus;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -45,7 +44,6 @@ public class TascaFormValidatorHelper implements Validator {
 	private TascaService tascaService;
 	@Resource(name = "expedientServiceV3")
 	private ExpedientService expedientService;
-	private HttpServletRequest request;
 	boolean inicial;
 	boolean validarObligatoris;
 	boolean validarExpresions;
@@ -77,9 +75,6 @@ public class TascaFormValidatorHelper implements Validator {
 	}
 	public void setValidarExpresions(boolean validarExpresions) {
 		this.validarExpresions = validarExpresions;
-	}
-	public void setRequest(HttpServletRequest request) {
-		this.request = request;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -171,12 +166,6 @@ public class TascaFormValidatorHelper implements Validator {
 			}
 			if (validarExpresions) {
 				getValidatorExpresions(tascas, command).validate(command, errors);
-			}
-			if (request != null) {
-				SessionHelper.setAttribute(
-						request,
-						SessionHelper.VARIABLE_TASCA_ERROR,
-						errors);
 			}
 			logger.debug(errors.toString());
 		} catch (Exception ex) {
