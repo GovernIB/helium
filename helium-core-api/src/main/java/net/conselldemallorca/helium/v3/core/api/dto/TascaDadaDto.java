@@ -227,6 +227,35 @@ public class TascaDadaDto {
 		}
 	}
 
+	public String getJavaClassMultiple() {
+		if (isCampMultiple()) {
+			String[] textos = new String[multipleDades.size()];
+			int i = 0;
+			for (TascaDadaDto dadaMultiple: multipleDades) {
+				if (isCampTipusRegistre()) {
+					String[] regs = new String[dadaMultiple.getRegistreDades().size()];
+					int j = 0;
+					for (TascaDadaDto dadaRegistre: dadaMultiple.getRegistreDades()) {
+						regs[j++] = getJavaClassFromVar(dadaRegistre);
+					}
+					textos[i++] = Arrays.toString(regs);
+				} else {
+					textos[i++] = getJavaClassFromVar(dadaMultiple);
+				}
+			}
+			return Arrays.toString(textos);
+		} else if (isCampTipusRegistre()) {
+			String[] regs = new String[registreDades.size()];
+			int i = 0;
+			for (TascaDadaDto dadaRegistre: registreDades) {
+				regs[i++] = getJavaClassFromVar(dadaRegistre);
+			}
+			return Arrays.toString(regs);
+		} else {
+			return getJavaClassFromVar(this);
+		}
+	}
+
 	public  Class<?> getJavaClass() {
 		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
@@ -277,6 +306,13 @@ public class TascaDadaDto {
 				sb.append(",");
 		}
 		return sb.toString();
+	}
+
+	private String getJavaClassFromVar(TascaDadaDto tascaDada) {
+		if (tascaDada.getVarValor() == null) {
+			return null;
+		}
+		return tascaDada.getVarValor().getClass().getName();
 	}
 
 }

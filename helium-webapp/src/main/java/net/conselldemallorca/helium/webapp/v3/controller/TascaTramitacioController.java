@@ -614,7 +614,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						"campEtiqueta=" + dada.getCampEtiqueta() + ", " +
 						"campTipus=" + dada.getCampTipus() + ", " +
 						"text=" + dada.getTextMultiple() + ", " +
-						"varClass=" + ((dada.getVarValor() != null) ? dada.getVarValor().getClass().getName() : "null") + ")");
+						"class=" + dada.getJavaClassMultiple() + ")");
 			}
 		}
 		Iterator<TascaDadaDto> itDades = dades.iterator();
