@@ -221,7 +221,7 @@ public class PlantillaHelper {
 				}
 				model.put(
 						dada.getVarCodi(),
-						registreTexts);
+						new Object[] {registreTexts});
 			} else {
 				model.put(
 						dada.getVarCodi(),
@@ -268,7 +268,7 @@ public class PlantillaHelper {
 				}
 				model.put(
 						dada.getVarCodi(),
-						registreTexts);
+						new Object[] {registreTexts});
 			} else {
 				model.put(
 						dada.getVarCodi(),
