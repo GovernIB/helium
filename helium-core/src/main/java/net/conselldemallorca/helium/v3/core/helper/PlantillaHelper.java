@@ -89,6 +89,7 @@ import freemarker.template.TemplateModelException;
  */
 @Component("PlantillaHelperV3")
 public class PlantillaHelper {
+
 	@Resource
 	private PersonaHelper personaHelper;
 	@Resource
@@ -121,6 +122,8 @@ public class PlantillaHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private TascaHelper tascaHelper;
+
+
 
 	public ArxiuDto generarDocumentPlantilla(
 			Long entornId,
