@@ -202,9 +202,26 @@ public class TascaDadaDto {
 		if (isCampMultiple()) {
 			String[] textos = new String[multipleDades.size()];
 			int i = 0;
-			for (TascaDadaDto dada: multipleDades)
-				textos[i++] = dada.getText();
+			for (TascaDadaDto dadaMultiple: multipleDades) {
+				if (isCampTipusRegistre()) {
+					String[] regs = new String[dadaMultiple.getRegistreDades().size()];
+					int j = 0;
+					for (TascaDadaDto dadaRegistre: dadaMultiple.getRegistreDades()) {
+						regs[j++] = dadaRegistre.getText();
+					}
+					textos[i++] = Arrays.toString(regs);
+				} else {
+					textos[i++] = dadaMultiple.getText();
+				}
+			}
 			return Arrays.toString(textos);
+		} else if (isCampTipusRegistre()) {
+			String[] regs = new String[registreDades.size()];
+			int i = 0;
+			for (TascaDadaDto dadaRegistre: registreDades) {
+				regs[i++] = dadaRegistre.getText();
+			}
+			return Arrays.toString(regs);
 		} else {
 			return text;
 		}
