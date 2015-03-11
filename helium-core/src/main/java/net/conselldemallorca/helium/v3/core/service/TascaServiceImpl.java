@@ -1016,9 +1016,7 @@ public class TascaServiceImpl implements TascaService {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), task.getProcessDefinitionId());
 		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
 		jbpmHelper.startTaskInstance(taskId);
-		Map<String, Object> filtreVariables = tascaHelper.filtreVariablesReadOnlyOcult(tasca, variables);
-		logger.debug("Guardant les dades v30 (filtreVariables= "+filtreVariables+")");
-		jbpmHelper.setTaskInstanceVariables(taskId, filtreVariables, false);		
+		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);		
 		
 		if (task.getStartTime() == null) {
 			Registre registre = new Registre(
@@ -1055,11 +1053,9 @@ public class TascaServiceImpl implements TascaService {
 				null,
 				usuari);
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(task.getName(), task.getProcessDefinitionId());
-		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);		
-		Map<String, Object> filtreVariables = tascaHelper.filtreVariablesReadOnlyOcult(tasca, variables);
-		logger.debug("Guardant les dades (filtreVariables= "+filtreVariables+")");
+		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
 		jbpmHelper.startTaskInstance(tascaId);
-		jbpmHelper.setTaskInstanceVariables(tascaId, filtreVariables, false);
+		jbpmHelper.setTaskInstanceVariables(tascaId, variables, false);
 		tascaHelper.validarTasca(tascaId);
 		
 		Registre registre = new Registre(

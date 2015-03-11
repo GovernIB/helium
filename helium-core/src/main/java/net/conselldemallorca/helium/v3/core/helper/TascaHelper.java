@@ -700,19 +700,6 @@ public class TascaHelper {
 		}
 	}
 
-	public Map<String, Object> filtreVariablesReadOnlyOcult(Tasca tasca, Map<String, Object> variables) {
-		Map<String, Object> filtreVariables = new HashMap<String, Object>();
-		filtreVariables.putAll(variables);
-		logger.info("XX filtreVariablesReadOnlyOcult: variables: " + variables);
-		for (CampTasca campTasca: tasca.getCamps()) {
-			logger.info("XX filtreVariablesReadOnlyOcult: campTasca: " + campTasca.getCamp().getCodi() + ", readOnly: "+ campTasca.isReadOnly() + ", "+ variables.containsKey(campTasca.getCamp().getCodi()));
-			if (campTasca.isReadOnly())
-				filtreVariables.remove(campTasca.getCamp().getCodi());
-		}
-		logger.info("XX filtreVariablesReadOnlyOcult: filtreVariables: " + filtreVariables);
-		return filtreVariables;
-	}
-
 	public void createDelegationInfo(
 			JbpmTask task,
 			JbpmTask original,

@@ -261,10 +261,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
 		boolean guardado = guardarForm(validator, variables, command, result, request, tascaId, expedientId);
 		status.setComplete();
-
-		if (!guardado || result.hasErrors()) {
-			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
-		} else if (accioExecutarAccio(request, tascaId, accioCamp)) {
+		if (guardado && accioExecutarAccio(request, tascaId, accioCamp)) {
 			model.addAttribute("campFocus", accioCamp);
 		}
 		return mostrarInformacioTascaPerPipelles(
@@ -786,7 +783,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
-			try {			
+			try {
+				tascaService.guardar(tascaId, expedientId, variables);
+				
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -808,8 +807,6 @@ public class TascaTramitacioController extends BaseTascaController {
 				params[3] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				
-				tascaService.guardar(tascaId, expedientId, variables);
 				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.guardar", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {
