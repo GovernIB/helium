@@ -39,32 +39,40 @@ import org.springmodules.validation.util.cel.valang.ValangConditionExpressionPar
  */
 public class TascaFormValidatorHelper implements Validator {
 	private static final int STRING_MAX_LENGTH = 2048;
-	private static ThreadLocal<List<TascaDadaDto>> tascaThreadLocal = new ThreadLocal<List<TascaDadaDto>>();
+	//private static ThreadLocal<List<TascaDadaDto>> tascaThreadLocal = new ThreadLocal<List<TascaDadaDto>>();
 	@Resource(name = "tascaServiceV3")
 	private TascaService tascaService;
 	@Resource(name = "expedientServiceV3")
 	private ExpedientService expedientService;
+
+	private List<TascaDadaDto> tascaDades;
 	boolean inicial;
 	boolean validarObligatoris;
 	boolean validarExpresions;
 
-	public TascaFormValidatorHelper(TascaService tascaService) {
+	/*public TascaFormValidatorHelper(TascaService tascaService) {
 		this.tascaService = tascaService;
 		this.inicial = false;
 		this.validarObligatoris = true;
 		this.validarExpresions = true;
-	}
+	}*/
 
-	public TascaFormValidatorHelper(TascaService tascaService, boolean validarObligatoris) {
+	public TascaFormValidatorHelper(
+			TascaService tascaService,
+			List<TascaDadaDto> tascaDades) {
 		this.tascaService = tascaService;
+		this.tascaDades = tascaDades;
 		this.inicial = false;
 		// Si validam els obligatoris també validarem les expresions
-		this.validarObligatoris = validarObligatoris;
+		this.validarObligatoris = false;
 		this.validarExpresions = validarObligatoris;
 	}
 
-	public TascaFormValidatorHelper(ExpedientService expedientService) {
+	public TascaFormValidatorHelper(
+			ExpedientService expedientService,
+			List<TascaDadaDto> tascaDades) {
 		this.expedientService = expedientService;
+		this.tascaDades = tascaDades;
 		this.inicial = true;
 		this.validarObligatoris = false;
 		this.validarExpresions = true;
@@ -81,11 +89,11 @@ public class TascaFormValidatorHelper implements Validator {
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(Object.class);
 	}
-	
+
 	public void validate(Object command, Errors errors) {
 		try {
-			List<TascaDadaDto> tascas = getTascaDades(command);
-			for (TascaDadaDto camp : tascas) {
+			List<TascaDadaDto> tascaDades = getTascaDades(command);
+			for (TascaDadaDto camp : tascaDades) {
 				if (validarObligatoris && camp.isRequired()) {
 					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
@@ -165,16 +173,16 @@ public class TascaFormValidatorHelper implements Validator {
 				comprovaCamp(camp, command, errors);
 			}
 			if (validarExpresions) {
-				getValidatorExpresions(tascas, command).validate(command, errors);
+				getValidatorPerExpressions(tascaDades, command).validate(command, errors);
 			}
 			logger.debug(errors.toString());
 		} catch (Exception ex) {
 			logger.error("Error en el validator", ex);
 			errors.reject("error.validator");
 		}
-		logger.info("XX Errores en el validator: " + errors.toString());
+		logger.debug("Errors de validació en el formulari de la tasca: " + errors.toString());
 	}
-	
+
 	public static String getErrorField(Errors errors, TascaDadaDto dada, LoopTagStatus index) {
 		try {
 			FieldError fieldError = errors.getFieldError(dada.getVarCodi() + "[" + index.getIndex()  + "]");
@@ -220,7 +228,7 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 		return empty;
 	}
-	
+
 	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
 		if (camp != null && camp.getCampTipus() != null) {
 			if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
@@ -258,10 +266,6 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 	}
 
-	public void setTasca(List<TascaDadaDto> tasca) {
-		tascaThreadLocal.set(tasca);
-	}
-	
 //	public void setExpedient(List<ExpedientDadaDto> expedient) {
 //		List<TascaDadaDto> tasca = new ArrayList<TascaDadaDto>();
 //		for (ExpedientDadaDto expdada: expedient) {
@@ -281,13 +285,13 @@ public class TascaFormValidatorHelper implements Validator {
 
 	@SuppressWarnings("unchecked")
 	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {
-		if (tascaThreadLocal.get() != null) {
-			return tascaThreadLocal.get();
+		if (tascaDades != null) {
+			return tascaDades;
 		}
 		if (inicial) {
-			List<TascaDadaDto> tascas = null;
+			List<TascaDadaDto> tascaDades = null;
 			if (PropertyUtils.getSimpleProperty(command, "listaDadas") != null) {
-				tascas =  (List<TascaDadaDto>) PropertyUtils.getSimpleProperty(command, "listaDadas");
+				tascaDades =  (List<TascaDadaDto>) PropertyUtils.getSimpleProperty(command, "listaDadas");
 			} else {
 				// TODO
 				/*Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
@@ -296,14 +300,16 @@ public class TascaFormValidatorHelper implements Validator {
 				ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, null);
 				tascas = tascaService.findDadesPerTasca(tasca.getId());*/
 			}
-			return tascas;
+			return tascaDades;
 		} else {
-			String id = (String) PropertyUtils.getSimpleProperty(command, "id");
+			String id = (String)PropertyUtils.getSimpleProperty(command, "id");
 			return tascaService.findDades(id);
 		}
 	}
-	
-	private Validator getValidatorExpresions(List<TascaDadaDto> tascaDadas, Object command) {
+
+	private Validator getValidatorPerExpressions(
+			List<TascaDadaDto> tascaDadas,
+			Object command) {
 		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
 		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
 		for (TascaDadaDto camp: tascaDadas) {

@@ -31,7 +31,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
@@ -86,8 +85,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	protected TascaService tascaService;
 	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
-	@Autowired
-	private VariableHelper variableHelper;
+
+
 
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
@@ -152,12 +151,23 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result,
 			SessionStatus status,
 			Model model) {
-		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-		afegirVariablesExpedient(tascaDadas, expedientId);
-		validator.setTasca(tascaDadas);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-		guardarForm(validator, variables, command, result, request, tascaId, expedientId);
+		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
+		//afegirVariablesInstanciaProces(tascaDades, tascaId);
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+				tascaService,
+				tascaDades);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
+				tascaDades,
+				command,
+				false);
+		guardarForm(
+				validator,
+				variables,
+				command,
+				result,
+				request,
+				tascaId,
+				expedientId);
 		status.setComplete();
 		return mostrarInformacioTascaPerPipelles(
 				request,
@@ -175,16 +185,40 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-		afegirVariablesExpedient(tascaDadas, expedientId);
-		validator.setTasca(tascaDadas);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-		if (guardarForm(validator, variables, command, result, request, tascaId, expedientId)) {
+		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
+		//afegirVariablesInstanciaProces(tascaDades, tascaId);
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+				tascaService,
+				tascaDades);
+		//validator.setTasca(tascaDades);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
+				tascaDades,
+				command,
+				false);
+		if (guardarForm(
+				validator,
+				variables,
+				command,
+				result,
+				request,
+				tascaId,
+				expedientId)) {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-			Object commandValidar = TascaFormHelper.getCommandForCamps(tascaDadas, variables, campsAddicionals, campsAddicionalsClasses, false);
-			validarForm(validator, variables, commandValidar, result, request, tascaId, expedientId);
+			Object commandValidar = TascaFormHelper.getCommandForCamps(
+					tascaDades,
+					variables,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
+			validarForm(
+					validator,
+					variables,
+					commandValidar,
+					result,
+					request,
+					tascaId,
+					expedientId);
 		}
 		status.setComplete();
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
@@ -207,9 +241,21 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionStatus status, 
 			Model model) {
 		boolean correcte = false;
-		String returnUrl = validar(request, expedientId, tascaId, command, result, status, model);
+		String returnUrl = validar(
+				request,
+				expedientId,
+				tascaId,
+				command,
+				result,
+				status,
+				model);
 		if (!result.hasErrors()) {
-			correcte = completarForm(request, tascaId, expedientId, transicio, command);
+			correcte = completarForm(
+					request,
+					tascaId,
+					expedientId,
+					transicio,
+					command);
 		}	
 		if (!correcte) {
 			return returnUrl;
@@ -250,16 +296,27 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "accioCamp", required = true) String accioCamp,
-			@ModelAttribute("command") Object command, 
-			BindingResult result, 
-			SessionStatus status, 
+			@ModelAttribute("command") Object command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
-		List<TascaDadaDto> tascaDadas = tascaService.findDades(tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-		afegirVariablesExpedient(tascaDadas, expedientId);
-		validator.setTasca(tascaDadas);
-		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-		boolean guardado = guardarForm(validator, variables, command, result, request, tascaId, expedientId);
+		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
+		//afegirVariablesInstanciaProces(tascaDades, tascaId);
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+				tascaService,
+				tascaDades);
+		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
+				tascaDades,
+				command,
+				false);
+		boolean guardado = guardarForm(
+				validator,
+				variables,
+				command,
+				result,
+				request,
+				tascaId,
+				expedientId);
 		status.setComplete();
 		if (guardado && accioExecutarAccio(request, tascaId, accioCamp)) {
 			model.addAttribute("campFocus", accioCamp);
@@ -269,14 +326,6 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaId,
 				model,
 				"form");
-	}
-
-	private void afegirVariablesExpedient(List<TascaDadaDto> tascaDadas, Long expedientId) {
-		Map<String, TascaDadaDto> dadesExpedient = variableHelper.findDadesTascaPerExpedientId(expedientId);
-		for (TascaDadaDto tascaDada : tascaDadas) {
-			dadesExpedient.remove(tascaDada.getVarCodi());
-		}
-		tascaDadas.addAll(dadesExpedient.values());
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document", method = RequestMethod.GET)

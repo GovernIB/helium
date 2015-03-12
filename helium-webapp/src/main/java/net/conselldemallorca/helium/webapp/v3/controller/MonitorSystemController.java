@@ -12,7 +12,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.helper.MonitorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MonitorHelper;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;

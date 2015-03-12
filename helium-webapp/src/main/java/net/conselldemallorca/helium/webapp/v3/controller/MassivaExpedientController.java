@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
@@ -32,7 +33,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
@@ -44,9 +44,9 @@ import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -86,16 +86,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-
 	@Autowired
 	private TascaService tascaService;
-	
 	@Autowired
-	private VariableHelper variableHelper;
-	
-	@Autowired
-	ExecucioMassivaService execucioMassivaService;
-	
+	private ExecucioMassivaService execucioMassivaService;
+
+
+
 	private Set<Long> guardarIdsAccionesMasivas(HttpServletRequest request, Long consultaId) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		sessionManager.removeSeleccioMassives();
@@ -495,24 +492,35 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 				String varCodi = null;
-				String idPI = expedient.getProcessInstanceId();
-				for (CampDto camp : expedientService.getCampsInstanciaProcesById(idPI)){
+				String processInstanceId = expedient.getProcessInstanceId();
+				for (CampDto camp : expedientService.getCampsInstanciaProcesById(processInstanceId)){
 					if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
 						varCodi = camp.getCodi();
 					}
 				}
 
-				List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
-				TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(idPI, varCodi, true));
-				tascaDadas.add(tascaDada);
-				
-				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
-				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(expedientService);
-				validator.setTasca(tascaDadas);
+				List<ExpedientDadaDto> expedientDades = expedientService.findDadesPerInstanciaProces(
+						expedient.getId(),
+						processInstanceId);
+				List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+				for (ExpedientDadaDto expedientDada: expedientDades) {
+					if (expedientDada.getVarCodi().equals(varCodi)) {
+						tascaDades.add(
+								TascaFormHelper.toTascaDadaDto(expedientDada));
+						break;
+					}
+				}
+				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
+						tascaDades,
+						command,
+						false);
+				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+						expedientService,
+						tascaDades);
 				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
-						variableHelper.findDadesPerInstanciaProces(idPI),
-						variables); 
-						
+						expedientDades,
+						variables);
+
 				validator.validate(commandPerValidacio, result);
 				if (result.hasErrors()) {
 					model.addAttribute("modificarVariablesCommand", command);

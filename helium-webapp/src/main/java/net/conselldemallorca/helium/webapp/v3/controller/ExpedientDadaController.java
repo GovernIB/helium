@@ -224,21 +224,22 @@ public class ExpedientDadaController extends BaseExpedientController {
 			SessionStatus status, 
 			Model model) {
 		try {
-			List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
+			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 //			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
 			TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
-			tascaDadas.add(tascaDada);
+			tascaDades.add(tascaDada);
 			
 //			@SuppressWarnings("unchecked")
 //			Map<String, Object> llista =  PropertyUtils.describe(command);
 //			Object varValue = llista.get(varCodi);
 			
-			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
 			Object varValue = variables.get(varCodi);
 			
 			//List<ExpedientDadaDto> expedientDadas = variableHelper.findDadesPerInstanciaProces(procesId);
-			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(expedientService);
-			validator.setTasca(tascaDadas);
+			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+					expedientService,
+					tascaDades);
 //			Map<String, Object> valors = new HashMap<String, Object>();
 //			valors.put(varCodi, varValue);
 			Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
@@ -352,7 +353,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		try {
 			boolean error = false;
 			
-			List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
+			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 			
 			if ("Buit".equals(varCodi)) {
 				result.rejectValue("varCodi", "expedient.nova.data.camp.variable.buit");
@@ -384,13 +385,14 @@ public class ExpedientDadaController extends BaseExpedientController {
 			// Variable de la definició de procés
 			else {
 				TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
-				tascaDadas.add(tascaDada);
+				tascaDades.add(tascaDada);
 				
-				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDadas, command, false);
+				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
 				Object varValue = variables.get(varCodi);
 			
-				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(expedientService);
-				validator.setTasca(tascaDadas);
+				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+						expedientService,
+						tascaDades);
 			
 				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
 						variableHelper.findDadesPerInstanciaProces(procesId),
@@ -408,7 +410,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 				return "v3/expedientDadaNova";
 			}
-			
 			MissatgesHelper.info(request, getMessage(request, "info.dada.nova.proces.creada") );
 		} catch (NotAllowedException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );

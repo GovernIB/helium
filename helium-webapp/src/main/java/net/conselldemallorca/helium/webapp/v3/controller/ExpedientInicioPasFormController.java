@@ -115,21 +115,28 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-			List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
 			Map<String, Object> valors = null;
 			Validator validatorForCommand = null; 
 			try {
-				validatorForCommand = TascaFormHelper.getBeanValidatorForCommand(dades);
+				validatorForCommand = TascaFormHelper.getBeanValidatorForCommand(tascaDades);
 				validatorForCommand.validate(command, result);
 			} catch (ValangException ex) {
 				validatorForCommand = null;
 				MissatgesHelper.error(request, getMessage(request, "error.validacio") + ": " + ex.getLocalizedMessage());
 				logger.error(getMessage(request, "error.validacio"), ex);
 			}
-			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(tascaService, false);
-			validator.setTasca(dades);
-			valors = TascaFormHelper.getValorsFromCommand(dades, command, false);
-			validarForm(validator, valors, command, result, request, tasca.getId());
+			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+					tascaService,
+					tascaDades);
+			valors = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
+			validarForm(
+					validator,
+					valors,
+					command,
+					result,
+					request,
+					tasca.getId());
 			
 			DefinicioProcesDto definicioProces = null;
 			if (definicioProcesId != null) {
@@ -143,7 +150,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
-				model.addAttribute("dades", dades);
+				model.addAttribute("dades", tascaDades);
 				model.addAttribute("entornId", entorn.getId());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());

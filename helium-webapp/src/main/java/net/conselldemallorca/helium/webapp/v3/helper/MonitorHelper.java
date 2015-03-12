@@ -1,10 +1,8 @@
-package net.conselldemallorca.helium.v3.core.helper;
+package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
-
-import org.springframework.stereotype.Component;
 
 /**
  * Monitor.
@@ -12,12 +10,12 @@ import org.springframework.stereotype.Component;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings("restriction")
-@Component
 public class MonitorHelper {
 	private static Boolean actiu = null;
 	private static long prevUpTime, prevProcessCpuTime;
 
 	private static RuntimeMXBean rmBean;
+
 	
 	private static com.sun.management.OperatingSystemMXBean sunOSMBean;
 	public static com.sun.management.OperatingSystemMXBean getSunOSMBean() {

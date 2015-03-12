@@ -3,10 +3,14 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import java.util.List;
+
+import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.ProcessInstance;
 
 /**
  * Handler per esborrar un document del procés.
@@ -22,6 +26,22 @@ public class DocumentEsborrarHandler extends AbstractHeliumActionHandler impleme
 
 
 	public void execute(ExecutionContext executionContext) throws Exception {
+		executionContext.getTaskMgmtInstance().getTaskInstances();
+		java.util.List fills = executionContext.getJbpmContext().getSession().getNamedQuery("GraphSession.findSubProcessInstances").
+				setEntity("processInstance", executionContext.getProcessInstance()).
+				list();
+		for (org.jbpm.graph.exe.ProcessInstance pi: executionContext.getJbpmContext().getSession().getNamedQuery("GraphSession.findSubProcessInstances").setEntity("processInstance", executionContext.getProcessInstance()).list()) {
+			
+		}
+		executionContext.getJbpmContext().getSession()
+		
+		executionContext.getJbpmContext().getGraphSession().
+		
+		new net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand();
+		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
+		
+		executionContext.getProcessInstance().getRootToken().getChildrenAtNode(aNode)
+		
 		String dc = (String)getValorOVariable(executionContext, documentCodi, varDocumentCodi);
 		if (dc == null)
 			throw new JbpmException("No s'ha especificat cap codi de document");
