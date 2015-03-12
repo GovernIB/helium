@@ -39,7 +39,6 @@ import org.springmodules.validation.util.cel.valang.ValangConditionExpressionPar
  */
 public class TascaFormValidatorHelper implements Validator {
 	private static final int STRING_MAX_LENGTH = 2048;
-	//private static ThreadLocal<List<TascaDadaDto>> tascaThreadLocal = new ThreadLocal<List<TascaDadaDto>>();
 	@Resource(name = "tascaServiceV3")
 	private TascaService tascaService;
 	@Resource(name = "expedientServiceV3")
@@ -50,12 +49,7 @@ public class TascaFormValidatorHelper implements Validator {
 	boolean validarObligatoris;
 	boolean validarExpresions;
 
-	/*public TascaFormValidatorHelper(TascaService tascaService) {
-		this.tascaService = tascaService;
-		this.inicial = false;
-		this.validarObligatoris = true;
-		this.validarExpresions = true;
-	}*/
+
 
 	public TascaFormValidatorHelper(
 			TascaService tascaService,
@@ -266,40 +260,8 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 	}
 
-//	public void setExpedient(List<ExpedientDadaDto> expedient) {
-//		List<TascaDadaDto> tasca = new ArrayList<TascaDadaDto>();
-//		for (ExpedientDadaDto expdada: expedient) {
-//			TascaDadaDto tascaDada = new TascaDadaDto();
-//			tascaDada.setCampTipus(expdada.getCampTipus());
-//			tascaDada.setCampMultiple(expdada.isCampMultiple());
-//			tascaDada.setVarCodi(expdada.getVarCodi());
-//			tascaDada.setCampId(expdada.getCampId());
-//			tascaDada.setText(expdada.getText());
-//			tascaDada.setCampEtiqueta(expdada.getCampEtiqueta());
-//			tascaDada.setRequired(false);
-//			tascaDada.setValidacions(expdada.getValidacions());
-//			tasca.add(tascaDada);
-//		}
-//		tascaThreadLocal.set(tasca);
-//	}
-
-	@SuppressWarnings("unchecked")
 	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {
 		if (tascaDades != null) {
-			return tascaDades;
-		}
-		if (inicial) {
-			List<TascaDadaDto> tascaDades = null;
-			if (PropertyUtils.getSimpleProperty(command, "listaDadas") != null) {
-				tascaDades =  (List<TascaDadaDto>) PropertyUtils.getSimpleProperty(command, "listaDadas");
-			} else {
-				// TODO
-				/*Long entornId = (Long) PropertyUtils.getSimpleProperty(command, "entornId");
-				Long expedientTipusId = (Long) PropertyUtils.getSimpleProperty(command, "expedientTipusId");
-				Long definicioProcesId = (Long) PropertyUtils.getSimpleProperty(command, "definicioProcesId");
-				ExpedientTascaDto tasca = expedientService.getStartTask(entornId, expedientTipusId, definicioProcesId, null);
-				tascas = tascaService.findDadesPerTasca(tasca.getId());*/
-			}
 			return tascaDades;
 		} else {
 			String id = (String)PropertyUtils.getSimpleProperty(command, "id");
