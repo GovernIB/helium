@@ -72,11 +72,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 	@Autowired
 	private VariableHelper variableHelper;
 
-	@RequestMapping(value = "/{expedientId}/dada") //, method = RequestMethod.GET)
+
+
+	@RequestMapping(value = "/{expedientId}/dada")
 	public String dades(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@RequestParam(value = "ambOcults", required = false) Boolean ambOcults,
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
@@ -85,20 +86,39 @@ public class ExpedientDadaController extends BaseExpedientController {
 					model,
 					"dades");
 		}
+		omplirModelPipellaDades(
+				expedientId,
+				false,
+				model);
+		return "v3/expedientDades";
+	}
+	@RequestMapping(value = "/{expedientId}/dadaAmbOcults")
+	public String dadesAmbOcults(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioExpedientPerPipella(
+					request,
+					expedientId,
+					model,
+					"dades");
+		}
+		omplirModelPipellaDades(
+				expedientId,
+				true,
+				model);
+		return "v3/expedientDades";
+	}
+
+	private void omplirModelPipellaDades(
+			Long expedientId,
+			boolean ambOcults,
+			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute(
 				"expedient",
 				expedient);
-		/*model.addAttribute(
-				"dades",
-				expedientService.findDadesPerInstanciaProces(
-						expedientId,
-						null));
-		model.addAttribute(
-				"agrupacions",
-				expedientService.findAgrupacionsDadesPerInstanciaProces(
-						expedientId,
-						null));*/
 		// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
@@ -107,7 +127,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesInstancia = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				dadesInstancia = getDadesInstanciaProces(expedientId, instanciaProces.getId());
+				dadesInstancia = getDadesInstanciaProces(
+						expedientId,
+						instanciaProces.getId(),
+						ambOcults);
 			}
 			dades.put(instanciaProces, dadesInstancia);
 		}
@@ -116,14 +139,14 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("arbreProcessos", arbreProcessos);
 		model.addAttribute("dades", dades);
 		boolean isAdmin = expedient.isPermisAdministration(); 
-		if (!isAdmin) 
+		if (!isAdmin) {
 			ambOcults = false;
+		}
 		model.addAttribute("isAdmin", isAdmin);
-		model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
-		return "v3/expedientDades";
+		model.addAttribute("ambOcults", ambOcults);
 	}
 
-	@RequestMapping(value = "/{expedientId}/dades/{procesId}") //, method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/dades/{procesId}")
 	public String dadesProces(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -136,7 +159,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 			ambOcults = false;
 		model.addAttribute("isAdmin", isAdmin);
 		model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
-		model.addAttribute("dades", getDadesInstanciaProces(expedientId, procesId));
+		model.addAttribute(
+				"dades",
+				getDadesInstanciaProces(
+						expedientId,
+						procesId,
+						ambOcults == null ? false : ambOcults.booleanValue()));
 		return "v3/procesDades";
 	}
 
@@ -421,6 +449,33 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,##0.00"),
+						true));
+		binder.registerCustomEditor(
+				Boolean.class,
+				new CustomBooleanEditor(true));
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
+	}
+
+
+
 	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesId) {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 			List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
@@ -451,7 +506,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			}
 	}
 
-	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(Long expedientId, String instaciaProcesId) {
+	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(
+			Long expedientId,
+			String instaciaProcesId,
+			boolean ambOcults) {
 		
 		// definirem un mapa. La clau serà el nom de l'agrupació, i el valor el llistat de variables de l'agrupació
 		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesProces = new LinkedHashMap<CampAgrupacioDto, List<ExpedientDadaDto>>();
@@ -489,49 +547,22 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<ExpedientDadaDto> dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
 		
 		for (ExpedientDadaDto dada: dadesInstancia) {
-			if ((agrupacioId == null && dada.getAgrupacioId() == null) || dada.getAgrupacioId().equals(agrupacioId)) {
-				dadesAgrupacio.add(dada);
-			} else {
-				if (!dadesAgrupacio.isEmpty()) {
-					dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
-					dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
+			if (ambOcults || !dada.isCampOcult()) {
+				if ((agrupacioId == null && dada.getAgrupacioId() == null) || dada.getAgrupacioId().equals(agrupacioId)) {
+					dadesAgrupacio.add(dada);
+				} else {
+					if (!dadesAgrupacio.isEmpty()) {
+						dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
+						dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
+					}
+					agrupacioId = dada.getAgrupacioId();
+					dadesAgrupacio.add(dada);
 				}
-				agrupacioId = dada.getAgrupacioId();
-				dadesAgrupacio.add(dada);
 			}
 		}
 		
 		dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
 		return dadesProces;
-	}
-
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(
-				Long.class,
-				new CustomNumberEditor(Long.class, true));
-		binder.registerCustomEditor(
-				Double.class,
-				new CustomNumberEditor(Double.class, true));
-		binder.registerCustomEditor(
-				BigDecimal.class,
-				new CustomNumberEditor(
-						BigDecimal.class,
-						new DecimalFormat("#,##0.00"),
-						true));
-		binder.registerCustomEditor(
-				Boolean.class,
-//				new CustomBooleanEditor(false));
-				new CustomBooleanEditor(true));
-		binder.registerCustomEditor(
-				Date.class,
-				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-//		binder.registerCustomEditor(
-//				TerminiDto.class,
-//				new TerminiTypeEditorHelper());
-		binder.registerCustomEditor(
-				Object.class,
-				new ObjectTypeEditorHelper());
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);

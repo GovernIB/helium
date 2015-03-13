@@ -26,11 +26,14 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 <c:choose>
 	<c:when test="${not empty dades}">
 		<c:if test="${isAdmin}">
-			<div class="left ocults">
-				<label class="control-label" for="ambOcults">
- 					<spring:message code="expedient.dada.ocults"/>
-					<input type="checkbox" <c:if test="${ambOcults}">checked="checked"</c:if> class="span12" id="ambOcults"/>
-				</label>
+			<div class="pull-left">
+				<a id="boto-ocults" href="#" class="btn btn-default<c:if test="${ambOcults}"> active</c:if>">
+					<c:choose>
+						<c:when test="${ambOcults}"><span class="fa fa-check-square-o"></span></c:when>
+						<c:otherwise><span class="fa fa-square-o"></span></c:otherwise>
+					</c:choose>
+					Mostrar ocults
+				</a>
 			</div>
 		</c:if>
 		<c:set var="procesFirst" value="${true}"/>
@@ -68,7 +71,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 				<div id="panel_${proces.id}" class="panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
 				<c:choose>
 				<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
-					<c:forEach items="${dadesProces.value}" var="dadesAgrupacioEntry" varStatus="agrupacioStatus">
+					<c:forEach var="dadesAgrupacioEntry" items="${dadesProces.value}" varStatus="agrupacioStatus">
 						<c:set var="agrupacio" value="${dadesAgrupacioEntry.key}"/>
 						<c:set var="count" value="${fn:length(dadesAgrupacioEntry.value)}"/>
 						<c:set var="dadesAgrupacio" value="${dadesAgrupacioEntry.value}" scope="request"/>
@@ -81,8 +84,6 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 										<c:param name="titol" value="${agrupacio.nom}"/>
 										<c:param name="numColumnes" value="${numColumnes}"/>
 										<c:param name="count" value="${count}"/>
-	<%-- 													<c:param name="condicioCamp" value="agrupacioId"/> --%>
-	<%-- 													<c:param name="condicioValor" value="${agrupacio.id}"/> --%>
 										<c:param name="desplegat" value="${agrupacioFirst}"/>
 										<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
 										<c:param name="procesId" value="${proces.id}"/>
@@ -91,11 +92,8 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 								<c:otherwise>
 									<c:import url="import/expedientTaula.jsp">
 										<c:param name="dadesAttribute" value="dadesAgrupacio"/>
-	<%--													<c:param name="titol" value="${agrupacio.nom}"/> --%>
 										<c:param name="numColumnes" value="${numColumnes}"/>
 										<c:param name="count" value="${count}"/>
-	<%-- 													<c:param name="condicioCamp" value="agrupacioId"/> --%>
-	<%-- 													<c:param name="condicioEmpty" value="${true}"/> --%>
 										<c:param name="desplegat" value="${true}"/>
 										<c:param name="mostrarCapsalera" value="${false}"/>
 										<c:param name="procesId" value="${proces.id}"/>
@@ -126,7 +124,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 var panell;
 
 $(document).ready(function() {
-	$('.proces').click( function() {
+	$('.proces').click(function() {
 		var icona = $(this).find('.icona-collapse');
 		icona.toggleClass('fa-chevron-down');
 		icona.toggleClass('fa-chevron-up');
@@ -140,13 +138,20 @@ $(document).ready(function() {
 			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + id, {"ambOcults": ambOcults}, updatePanell);
 		}
 	});
-
- 	if ($("#ambOcults").length) {
- 		$("#ambOcults").change(function(){
- 			$("#contingut-dades").data("loaded", false);
- 			$("#pipella-dades a").trigger('shown.bs.tab');
- 	 	});
- 	}
+	$('#boto-ocults').click(function() {
+		<c:choose>
+			<c:when test="${ambOcults}">$('#contingut-dades').data('href', '<c:url value="/nodeco/v3/expedient/${expedient.id}/dada"/>');</c:when>
+			<c:otherwise>$('#contingut-dades').data('href', '<c:url value="/nodeco/v3/expedient/${expedient.id}/dadaAmbOcults"/>');</c:otherwise>
+		</c:choose>
+		$('#contingut-dades').load(
+			$('#contingut-dades').data('href'),
+			function (responseText, textStatus, jqXHR) {
+				if (textStatus == 'error') {
+					modalAjaxErrorFunction(jqXHR, textStatus);
+				}
+			}
+		);
+	});
 
  	updateBadges();
 
@@ -192,12 +197,6 @@ function updatePanell() {
 		ajaxRefrescarAlertes: true,
 		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
 	});
-// 	$('.btnNovaDada a').heliumEvalLink({
-// 		refrescarAlertes: true,
-// 		refrescarPagina: false,
-// 		ajaxRefrescarAlertes: true,
-// 		alertesRefreshUrl: '<c:url value="/nodeco/v3/missatges"/>'
-// 	});
 	$('.icon', panell).heliumEvalLink({
 		refrescarAlertes: true,
 		refrescarPagina: false

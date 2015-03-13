@@ -17,193 +17,144 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<style>
-		#expedient-info h3 {
-			font-weight: bold;
-			margin-top: 0;
-			border-bottom: 1px solid #e3e3e3;
-			padding-bottom: .2em;
-		}
-		#expedient-info h4 {
-			font-weight: bold;
-			margin-top: 0;
-			border-bottom: 1px solid #e3e3e3;
-			padding-bottom: .2em;
-			margin-bottom: 0.4em;
-		}
-		#expedient-info dt {
-			color: #999;
-			font-size: small;
-			font-style: italic;
-			font-weight: normal;
-		}
-		#expedient-info dd {
-			font-size: medium;
-			font-weight: bold;
-			margin-bottom: 0.4em;
-		}
-		#expedient-info-participants, #expedient-info-relacionats {
-			padding-bottom: .2em !important;
-			margin-bottom: .6em !important;
-		}
-		#expedient-info ul.interessats {
-			padding-left: 1em !important;
-		}
-		#expedient-info-accio {
-			margin-top: 1em;
-		}
-		#expedient-pipelles .tab-pane {
-			margin-top: .6em;
-		}
-		.contingut-carregant {
-			margin-top: 4em;
-			text-align: center;
-		}
-		.edita {
-			color: #428bca
-		}
-		.edita:hover {
-			color: #3071a9
-		}
-		.formRelacioDelete {float: right;}
-	</style>
-	<script>
-		$(document).ready(function() {		
-			$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-				e.target // activated tab
-				e.relatedTarget // previous tab
-				var targetHref = $(e.target).attr('href');
-				var loaded = $(targetHref).data('loaded')
-				var pdades = e.target.href.indexOf("#contingut-dades") != -1;
-				if (!loaded) {
-					if (pdades) {
-						var ambOcults = "";
-						if ($("#ambOcults").length)
-							ambOcults = $("#ambOcults").prop('checked');
-						$(targetHref).load(
-								$(targetHref).data('href'),
-								{"ambOcults": ambOcults},
-								function (responseText, textStatus, jqXHR) {
-									if (textStatus == 'error') {
-										alertaError(jqXHR);
-										if (jqXHR.status === 0) {
-							                alert('Not connected.\n Verify network.');
-							            } else if (jqXHR.status == 404) {
-							                alert('Requested page not found [404].');
-							            } else if (jqXHR.status == 500) {
-							                alert('Internal server error [500].');
-	// 						            } else if (exception === 'parsererror') {
-	// 						                alert('Requested JSON parse failed.');
-	// 						            } else if (exception === 'timeout') {
-	// 						                alert('Timeout error.');
-	// 						            } else if (exception === 'abort') {
-	// 						                alert('Ajax request aborted.');
-							            } else {
-							                alert('Unknown error:\n' + jqXHR.responseText);
-							            }
-									} else {
-										$(this).data('loaded', 'true');
-									}
-								}
-							);
-					} else {
-						$(targetHref).load(
-							$(targetHref).data('href'),
-							function (responseText, textStatus, jqXHR) {
-								if (textStatus == 'error') {
-									if (jqXHR.status === 0) {
-						                alert('Not connected.\n Verify network.');
-						            } else if (jqXHR.status == 404) {
-						                alert('Requested page not found [404].');
-						            } else if (jqXHR.status == 500) {
-						                alert('Internal server error [500].');
-						            } else if (exception === 'parsererror') {
-						                alert('Requested JSON parse failed.');
-						            } else if (exception === 'timeout') {
-						                alert('Timeout error.');
-						            } else if (exception === 'abort') {
-						                alert('Ajax request aborted.');
-						            } else {
-						                alert('Unknown error:\n' + jqXHR.responseText);
-						            }
-								} else {
-									$(this).data('loaded', 'true');
-								}
-							}
-						);
-					}
-				}
-			})
-			<c:choose>
-				<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
-				<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
-			</c:choose>
-			$('#definicioProcesVersio').on('change', function () {
-				if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
-					$.ajax({
-					    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
-					    type:'GET',
-					    dataType: 'json',
-					    success: function(data) {
-					        $("#canviDefinicioProcesJbpm").toggleClass('hide');
-					        $("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
-							refrescarAlertas();
-					    },
-					  	error: function(XMLHttpRequest, textStatus, errorThrown) {
+<style>
+	#expedient-info h3 {
+		font-weight: bold;
+		margin-top: 0;
+		border-bottom: 1px solid #e3e3e3;
+		padding-bottom: .2em;
+	}
+	#expedient-info h4 {
+		font-weight: bold;
+		margin-top: 0;
+		border-bottom: 1px solid #e3e3e3;
+		padding-bottom: .2em;
+		margin-bottom: 0.4em;
+	}
+	#expedient-info dt {
+		color: #999;
+		font-size: small;
+		font-style: italic;
+		font-weight: normal;
+	}
+	#expedient-info dd {
+		font-size: medium;
+		font-weight: bold;
+		margin-bottom: 0.4em;
+	}
+	#expedient-info-participants, #expedient-info-relacionats {
+		padding-bottom: .2em !important;
+		margin-bottom: .6em !important;
+	}
+	#expedient-info ul.interessats {
+		padding-left: 1em !important;
+	}
+	#expedient-info-accio {
+		margin-top: 1em;
+	}
+	#expedient-pipelles .tab-pane {
+		margin-top: .6em;
+	}
+	.contingut-carregant {
+		margin-top: 4em;
+		text-align: center;
+	}
+	.edita {
+		color: #428bca
+	}
+	.edita:hover {
+		color: #3071a9
+	}
+	.formRelacioDelete {float: right;}
+</style>
+<script>
+	$(document).ready(function() {		
+		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+			var targetHref = $(e.target).attr('href');
+			var loaded = $(targetHref).data('loaded')
+			if (!loaded) {
+				$(targetHref).load(
+					$(targetHref).data('href'),
+					function (responseText, textStatus, jqXHR) {
+						if (textStatus == 'error') {
+							modalAjaxErrorFunction(jqXHR, textStatus);
+						} else {
+							$(this).data('loaded', 'true');
 						}
-					});
-				}
-			});
-	
+					}
+				);
+			}
+		})
+		<c:choose>
+			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
+			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
+		</c:choose>
+		$('#definicioProcesVersio').on('change', function () {
+			if (confirm("<spring:message code='expedient.eines.confirm_canviar_versio_proces' />")) {
+				$.ajax({
+				    url:'${expedient.id}/updateDefinicioProces/' + $(this).val(),
+				    type:'GET',
+				    dataType: 'json',
+				    success: function(data) {
+				        $("#canviDefinicioProcesJbpm").toggleClass('hide');
+				        $("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
+						refrescarAlertas();
+				    },
+				  	error: function(XMLHttpRequest, textStatus, errorThrown) {
+					}
+				});
+			}
 		});
-		function refrescarAlertas() {
-			$.ajax({
-				url: "<c:url value="/nodeco/v3/missatges"/>",
-				async: false,
-				timeout: 20000,
-				success: function (data) {
-					$('#contingut-alertes').html(data);
-				}
-			});
-		}
-		function alertaError(textStatus, jqXHR) {
-			if (textStatus == 'error') {
-				if (jqXHR.status === 0) {
-	                alert('Not connected.\n Verify network.');
-	            } else if (jqXHR.status == 404) {
-	                alert('Requested page not found [404].');
-	            } else if (jqXHR.status == 500) {
-	                alert('Internal server error [500].');
-	            } else if (exception === 'parsererror') {
-	                alert('Requested JSON parse failed.');
-	            } else if (exception === 'timeout') {
-	                alert('Timeout error.');
-	            } else if (exception === 'abort') {
-	                alert('Ajax request aborted.');
-	            } else {
-	                alert('Unknown error:\n' + jqXHR.responseText);
-	            }
+
+	});
+	function refrescarAlertas() {
+		$.ajax({
+			url: "<c:url value="/nodeco/v3/missatges"/>",
+			async: false,
+			timeout: 20000,
+			success: function (data) {
+				$('#contingut-alertes').html(data);
 			}
+		});
+	}
+	/*function alertaError(textStatus, jqXHR) {
+		if (textStatus == 'error') {
+			if (jqXHR.status === 0) {
+                alert('Not connected.\n Verify network.');
+            } else if (jqXHR.status == 404) {
+                alert('Requested page not found [404].');
+            } else if (jqXHR.status == 500) {
+                alert('Internal server error [500].');
+            } else if (exception === 'parsererror') {
+                alert('Requested JSON parse failed.');
+            } else if (exception === 'timeout') {
+                alert('Timeout error.');
+            } else if (exception === 'abort') {
+                alert('Ajax request aborted.');
+            } else {
+                alert('Unknown error:\n' + jqXHR.responseText);
+            }
 		}
-			
-		function confirmarEsborrarRelacio(e, idExpedient) {
-			var e = e || window.event;
-			e.cancelBubble = true;
-			if (e.stopPropagation) e.stopPropagation();
-			if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
-				$('#' + idExpedient + '_formRelacioDelete').submit();
-			}
+	}*/
+		
+	function confirmarEsborrarRelacio(e, idExpedient) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		if (confirm("<spring:message code='expedient.info.confirm.relacio.esborrar'/>")) {
+			$('#' + idExpedient + '_formRelacioDelete').submit();
 		}
-		function confirmarBuidarLogExpedient(e) {
-			var e = e || window.event;
-			e.cancelBubble = true;
-			if (e.stopPropagation) e.stopPropagation();
-			return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
-	// 		if (confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />")) {
-	// 			document.getElementById("buidarlogForm").submit();
-	// 		}
-		}
-	</script>
+	}
+	function confirmarBuidarLogExpedient(e) {
+		var e = e || window.event;
+		e.cancelBubble = true;
+		if (e.stopPropagation) e.stopPropagation();
+		return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
+// 		if (confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />")) {
+// 			document.getElementById("buidarlogForm").submit();
+// 		}
+	}
+</script>
 </head>
 <body>
 	<div class="row">
@@ -304,13 +255,13 @@
 				<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
 			</ul>
 			<div class="tab-content">
-				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
-					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>
-				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dada"/>">
+				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dadaAmbOcults"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>">

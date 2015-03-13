@@ -63,11 +63,7 @@
 		<c:otherwise>
 			<c:set var="nombre" value="${0}"/>
 			<c:forEach var="dada" items="${paramDades}">
-				<c:set var="mostrardada" value="true"/>
-				<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
-					<c:set var="mostrardada" value="${not dada.campOcult or ambOcults}"/>
-				</c:if>
-				<c:if test="${mostrardada}"><c:set var="nombre" value="${nombre + 1}"/></c:if>
+				<c:set var="nombre" value="${nombre + 1}"/>
 			</c:forEach>
 		</c:otherwise>
 	</c:choose>
@@ -92,71 +88,62 @@
 				<c:set var="index" value="${0}"/>
 				<c:set var="posicioOffset" value="${0}"/>
 				<c:forEach var="dada" items="${paramDades}">
-					<c:set var="mostrardada" value="true"/>
-					<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
-						<c:set var="mostrardada" value="${not dada.campOcult or (dada.campOcult and ambOcults)}"/>
-					</c:if>
-					<c:if test="${mostrardada}">
-						<c:set var="posicioActual" value="${(index + posicioOffset) % paramNumColumnes}"/>
-						<c:set var="condicioValor" value="${true}"/>
-						<c:choose>
-							<c:when test="${not empty paramCondicioCamp and not empty paramCondicioEmpty}">
-								<c:set var="condicioValor" value="${empty dada[paramCondicioCamp]}"/>
-							</c:when>
-							<c:when test="${not empty paramCondicioCamp and empty paramCondicioValor}">
-								<c:set var="condicioValor" value="${dada[paramCondicioCamp]}"/>
-							</c:when>
-							<c:when test="${not empty paramCondicioCamp and not empty paramCondicioValor}">
-								<c:set var="condicioValor" value="${dada[paramCondicioCamp] == paramCondicioValor}"/>
-							</c:when>
-						</c:choose>
-						<c:if test="${condicioValor}">
-							<c:if test="${posicioActual == 0}"><tr></c:if>
-							<c:set var="dadaTipusRegistre" value="${false}"/>
-							<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
-								<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
-							</c:if>
-							<c:if test="${dadaTipusRegistre}">
-								<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
-								<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
-								<c:set var="posicioActual" value="${0}"/>
-							</c:if>
-							<c:choose>
-								<c:when test="${fn:endsWith(dada.class.name, 'DadaDto')}">
-									<%@ include file="expedientTaulaDades.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'TascaDocumentDto')}">
-									<%@ include file="expedientTaulaTascaDocument.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'DocumentDto')}">
-									<%@ include file="expedientTaulaDocument.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'TerminiDto')}">								
-									<%@ include file="expedientTaulaTermini.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'ExpedientLogDto')}">								
-									<%@ include file="expedientTaulaLog.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'ExpedientTascaDto')}">								
-									<%@ include file="expedientTaulaTasca.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'TokenDto')}">								
-									<%@ include file="expedientTaulaToken.jsp" %>
-								</c:when>
-								<c:when test="${fn:endsWith(dada.class.name, 'AccioDto')}">								
-									<%@ include file="expedientTaulaAccio.jsp" %>
-								</c:when>
-								<c:otherwise>[Tipus desconegut]</c:otherwise>
-							</c:choose>
-							<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
-							<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1))}"></tr></c:if>
-							<c:set var="index" value="${index + 1}"/>
+					<c:set var="posicioActual" value="${(index + posicioOffset) % paramNumColumnes}"/>
+					<c:set var="condicioValor" value="${true}"/>
+					<c:choose>
+						<c:when test="${not empty paramCondicioCamp and not empty paramCondicioEmpty}">
+							<c:set var="condicioValor" value="${empty dada[paramCondicioCamp]}"/>
+						</c:when>
+						<c:when test="${not empty paramCondicioCamp and empty paramCondicioValor}">
+							<c:set var="condicioValor" value="${dada[paramCondicioCamp]}"/>
+						</c:when>
+						<c:when test="${not empty paramCondicioCamp and not empty paramCondicioValor}">
+							<c:set var="condicioValor" value="${dada[paramCondicioCamp] == paramCondicioValor}"/>
+						</c:when>
+					</c:choose>
+					<c:if test="${condicioValor}">
+						<c:if test="${posicioActual == 0}"><tr></c:if>
+						<c:set var="dadaTipusRegistre" value="${false}"/>
+						<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
+							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
 						</c:if>
+						<c:if test="${dadaTipusRegistre}">
+							<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
+							<c:set var="posicioActual" value="${0}"/>
+						</c:if>
+						<c:choose>
+							<c:when test="${fn:endsWith(dada.class.name, 'DadaDto')}">
+								<%@ include file="expedientTaulaDades.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'TascaDocumentDto')}">
+								<%@ include file="expedientTaulaTascaDocument.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'DocumentDto')}">
+								<%@ include file="expedientTaulaDocument.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'TerminiDto')}">								
+								<%@ include file="expedientTaulaTermini.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'ExpedientLogDto')}">								
+								<%@ include file="expedientTaulaLog.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'ExpedientTascaDto')}">								
+								<%@ include file="expedientTaulaTasca.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'TokenDto')}">								
+								<%@ include file="expedientTaulaToken.jsp" %>
+							</c:when>
+							<c:when test="${fn:endsWith(dada.class.name, 'AccioDto')}">								
+								<%@ include file="expedientTaulaAccio.jsp" %>
+							</c:when>
+							<c:otherwise>[Tipus desconegut]</c:otherwise>
+						</c:choose>
+						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
+						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1))}"></tr></c:if>
+						<c:set var="index" value="${index + 1}"/>
 					</c:if>
 				</c:forEach>
-				<c:if test="${index == 0}">
-					<div class="well well-small"><spring:message code='expedient.dada.agrupacio.cap'/></div>
-				</c:if>
 			</tbody>
 		</table>
 	</div>
