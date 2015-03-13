@@ -32,7 +32,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 						<c:when test="${ambOcults}"><span class="fa fa-check-square-o"></span></c:when>
 						<c:otherwise><span class="fa fa-square-o"></span></c:otherwise>
 					</c:choose>
-					Mostrar ocults
+					<spring:message code='expedient.dada.mostrar.ocultes'/>
 				</a>
 			</div>
 		</c:if>

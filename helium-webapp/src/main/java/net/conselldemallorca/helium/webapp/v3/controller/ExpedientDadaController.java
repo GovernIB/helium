@@ -252,7 +252,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			SessionStatus status, 
 			Model model) {
 		try {
-			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+			@SuppressWarnings("unchecked")
+			Map<String, Object> llista =  PropertyUtils.describe(command);
+			Object varValue = llista.get(varCodi);
+			/*List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 //			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
 			TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
 			tascaDades.add(tascaDada);
@@ -274,9 +277,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					variableHelper.findDadesPerInstanciaProces(procesId),
 					variables); 
 					
-			validator.validate(commandPerValidacio, result);
+			validator.validate(commandPerValidacio, result);*/
 			if (result.hasErrors()) {
-				
 				return "v3/expedientDadaModificar";
 			}
 //			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
@@ -288,7 +290,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
-		
 		return modalUrlTancar(false);
 	}
 
