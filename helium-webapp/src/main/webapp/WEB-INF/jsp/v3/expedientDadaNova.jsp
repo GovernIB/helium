@@ -19,7 +19,12 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-		<style>
+	
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	<style type="text/css">
 		body {margin-top:15px;}
 		form {width:calc(100% - 15px);}
 		input, select, textarea {width:100%;}

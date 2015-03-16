@@ -14,7 +14,6 @@
 	<style>
 		body {background-image: none; padding-top: 0px;}
 		.form-horizontal .form-group {margin-right: 0px;margin-left: 0px;;padding-left: 0px;}
-/* 		.col-xs-8,.col-xs-4 {width: 100%;margin-left: 0px;padding-left: 0px;padding-right: 0px;} */
 		.form-horizontal .control-label {text-align: left;}
 		.fila_reducida {margin-left: 0px;margin-right: 0px;padding-left: 0px;padding-right: 0px;}
 		#s2id_any {width: 100% !important;}
@@ -26,6 +25,12 @@
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/helium3Tasca.js"/>"></script>
+	
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
