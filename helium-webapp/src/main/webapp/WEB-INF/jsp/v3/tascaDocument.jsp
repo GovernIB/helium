@@ -34,7 +34,7 @@
 </div>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-		<form id="form${document.id}" class="form-horizontal form-tasca" action="" enctype="multipart/form-data" method="post" onsubmit="return false;">
+		<form id="form${document.id}" class="form-horizontal form-tasca" action="" enctype="multipart/form-data" method="post"">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
@@ -42,11 +42,9 @@
 		 			<c:if test="${document.plantilla and tasca.validada}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/generar'/>"
+							href="<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/generar'/>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
-							data-rdt-link-ajax=true
-							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
-							data-rdt-link-callback="documentGenerar(${document.id},${document.documentCodi}, ${document.adjuntarAuto});">
+							title="<spring:message code='expedient.massiva.tasca.doc.generar' />">
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
@@ -55,11 +53,9 @@
 					</a>
 					<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
 						id="removeUrl${document.id}" 
-						href="<c:url value="/ajax/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/esborrar"></c:url>"
+						href="<c:url value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/esborrar"></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
-						data-rdt-link-ajax=true
-						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />" 
-						data-rdt-link-callback="amagarFile(${document.id});">
+						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
 						<i class="fa fa-times"></i>
 					</a>
 					<div id="hideData${document.id}" class="comentari small <c:if test="${empty document.tokenSignatura}">hide</c:if>">
@@ -149,72 +145,19 @@
         if (fileElementVal.lastIndexOf(".") > 0) {
             fileExtension = fileElementVal.substring(fileElementVal.lastIndexOf(".") + 1, fileElementVal.length);
         }
-        if($("#arxiu"+docId).attr('accept') !== undefined) {
-	        if ($("#arxiu"+docId).attr('accept').indexOf(fileExtension) != -1) {
-	            return true;
-	        } else {	        	
-	            alert("<spring:message code='error.extensio.document.permesa' /> "+$("#arxiu"+docId).attr('accept'));
-	            return false;
-	        }
-        } else {
-        	return true;
+        if($("#arxiu"+docId).attr('accept') !== undefined && $("#arxiu"+docId).attr('accept').indexOf(fileExtension) == -1) {    	
+            alert("<spring:message code='error.extensio.document.permesa' /> "+$("#arxiu"+docId).attr('accept'));
+            return false;
         }
+        return true;
     }
 	
 	function documentGuardar(docId) {
 		if (!checkFile(docId))
 			return false;
-		$.ajax({
-            type: 'POST',
-            url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/adjuntar'/>",
-            data: new FormData($("#form"+docId)[0]),
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: function(data) {
-            	if (data != "") {
-            		var url = "<c:url value='/v3/expedient/${expedientId}/document/'/>"+data+"/descarregar";
-        			$("#docNom"+docId).text($("#contingut"+docId).val());
-        			$("#downloadUrl"+docId).attr('href', url);
-        	   		$("#amagarFile"+docId).addClass("hide");
-        			$("#modal-botons"+docId).addClass("hide");
-        			$("#downloadUrl"+docId).removeClass("hide");
-        			$("#hideData"+docId).removeClass("hide");
-        			$("#removeUrl"+docId).removeClass("hide");
-        			$("#div_timer"+docId).addClass("hide");
-        			$("#docDataAdj"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y %H:%M'));
-        			if ($("#data"+docId).val() != "")
-        				$("#docData"+docId).text($("#data"+docId).val());
-        			else
-        				$("#docData"+docId).text((new Date()).toLocaleFormat('%d/%m/%Y'));
-        			comprobarRequeridos();
-        		}            	
-            	refrescarAlertesFunction();
-            }
-        });
-	}
-	
-	function documentGenerar(docId, codi, adjuntarAuto, data) {
-		var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/'/>"+docId+"/"+codi+"/descarregar";
-		if (data == "arxiuView") {
-	   		window.location.href = url;
-		} else if (data != null && data != '') {
-			var getData = JSON.parse(data);
-			$("#docNom"+docId).text(getData.nom);
-			$("#downloadUrl"+docId).attr('href', url);
-	   		$("#amagarFile"+docId).addClass("hide");
-			$("#modal-botons"+docId).addClass("hide");
-			$("#downloadUrl"+docId).removeClass("hide");
-			$("#hideData"+docId).removeClass("hide");
-			$("#removeUrl"+docId).removeClass("hide");
-			$("#div_timer"+docId).addClass("hide");
-			$("#docDataAdj"+docId).text(getData.fecha_modificacio);
-			if ($("#data"+docId).val() != "")
-				$("#docData"+docId).text($("#data"+docId).val());
-			else
-				$("#docData"+docId).text(getData.fecha_document);
-   		}
-		comprobarRequeridos();
+		var url = "<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/adjuntar'/>";
+		$("#form"+docId).attr('action', url);
+		$("#form"+docId).submit();
 	}
 	
 	function comprobarRequeridos() {
@@ -229,20 +172,6 @@
         		$('#tasca-document div.alert.alert-warning').toggle(!data);            	
             }
 		});
-	}
-	
-	function amagarFile(docId, correcte) {
-		if (correcte) {
-			$("#amagarFile"+docId).removeClass("hide");
-			$("#modal-botons"+docId).removeClass("hide");
-			$("#downloadUrl"+docId).addClass("hide");
-			$("#hideData"+docId).addClass("hide");
-			$("#removeUrl"+docId).addClass("hide");
-			$("#div_timer"+docId).removeClass("hide");
-			$("#form"+docId).find(':input').not(':button, :submit, :reset, :hidden, :checkbox, :radio').val('');
-			
-			comprobarRequeridos();
-		}
 	}
 	// ]]>
 </script>

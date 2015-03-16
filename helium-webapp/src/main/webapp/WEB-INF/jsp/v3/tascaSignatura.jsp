@@ -50,7 +50,7 @@
 							</h4>
 							<div id="firmar${document.id}">
 								<c:if test="${not document.signat}">
-									<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/v3/expedient/${expedientId}/tasca/${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+									<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/expedient/${expedientId}/tasca/${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
 										<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 										<input type="hidden" id="taskId${document.id}" name="taskId" value="${tascaId}"/>
 										<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
@@ -80,7 +80,18 @@
 							<script type="text/javascript">
 							// <![CDATA[
 								$(document).ready( function() {
-									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/${document.id}"/>');
+									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/${document.id}"/>');// Comprobar fichero
+									
+									$.get("${sourceUrl}?token=${document.tokenSignatura}")
+									.done(function(data) {})
+									.fail(function(xhr, status, error) {
+										$('#contingut-alertes').append(
+												"<div id='errors' class='alert alert-danger'>" +
+													"<button class='close' data-dismiss='alert'>×</button>" +
+													"<p><spring:message code='tasca.signa.alert.no.document'/>: " + xhr.responseText.match(/.*<h1.*>([\s\S]*)<\/h1>.*/) + "</p>" +
+												"</div>");
+										$("#modal-botons${document.id}").addClass('hide');
+									});
 								});
 							//]]>
 							</script>
@@ -186,59 +197,40 @@ function signarCaib(token, form, contentType) {
 	if (cert == null || cert.length == 0) {
 		alert("<spring:message code='tasca.signa.alert.nosel'/>");
 	} else {
-		// Comprobar fichero
-		$.get("${sourceUrl}?token=" + token)
-		.done(function(data) {
-			try {
- 				var signaturaB64 = signaturaApplet.signaturaPdf(
- 						"${sourceUrl}?token=" + token,
- 						cert,
- 						form.passwd.value,
- 						contentType);
- 				if (signaturaB64 == null) {
+		try {
+			var signaturaB64 = signaturaApplet.signaturaPdf(
+					"${sourceUrl}?token=" + token,
+					cert,
+					form.passwd.value,
+					contentType);
+			if (signaturaB64 == null) {
+			$('#contingut-alertes').append(
+					"<div id='errors' class='alert alert-danger'>" +
+						"<button class='close' data-dismiss='alert'>×</button>" +
+						"<p><spring:message code='tasca.signa.alert.error'/></p>" +
+					"</div>");
+			} else {
+				if (signaturaB64.length > 0) {
+					for (var i = 0; i < signaturaB64.length; i++) {
+						$(form).append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+					}
+					$(form).removeAttr('onsubmit');
+					$(form).submit();
+				} else {
 					$('#contingut-alertes').append(
 							"<div id='errors' class='alert alert-danger'>" +
 								"<button class='close' data-dismiss='alert'>×</button>" +
-								"<p><spring:message code='tasca.signa.alert.error'/></p>" +
+								"<p><spring:message code='tasca.signa.alert.no.document.signar'/>: ${sourceUrl}?token=" + token + "</p>" +
 							"</div>");
- 				} else {
- 					if (signaturaB64.length > 0) {
-	 					for (var i = 0; i < signaturaB64.length; i++) {
-	 						$(form).append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
-	 					}
- 					    $.ajax({
- 				            type: 'POST',
- 				            url: $(form).attr('action'),
- 				            data: $(form).serialize(),
- 				            success: function(data) {
- 				            	if (data) {
- 				            		$("#firmar"+$(form).find('input[name=docId]').val()).hide();
- 				            		$("#iconos"+$(form).find('input[name=docId]').val()).load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/'+$(form).find('input[name=docId]').val()+'"/>');
- 				            	}
- 				            	
- 				            	refrescarAlertesFunction();
- 				            	comprobarRequeridos();
- 				            }
- 				        });
- 					} else {
- 						$('#contingut-alertes').append(
- 								"<div id='errors' class='alert alert-danger'>" +
- 									"<button class='close' data-dismiss='alert'>×</button>" +
- 									"<p><spring:message code='tasca.signa.alert.no.document.signar'/>: ${sourceUrl}?token=" + token + "</p>" +
- 								"</div>");
- 					}
- 				}
-			} catch (e) {
-				$('#contingut-alertes').append(
-						"<div id='errors' class='alert alert-danger'>" +
-							"<button class='close' data-dismiss='alert'>×</button>" +
-							"<p>" + e +"</p>" +
-						"</div>");
+				}
 			}
-		})
-		.fail(function(xhr, status, error) {
-			alert("<spring:message code='tasca.signa.alert.no.document'/>: " + xhr.responseText);
-		});
+		} catch (e) {
+			$('#contingut-alertes').append(
+					"<div id='errors' class='alert alert-danger'>" +
+						"<button class='close' data-dismiss='alert'>×</button>" +
+						"<p>" + e +"</p>" +
+					"</div>");
+		}
 	}
 }
 </script>

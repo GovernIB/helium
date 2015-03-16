@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +42,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -393,7 +391,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/adjuntar", method = RequestMethod.POST)
-	@ResponseBody
 	public String documentAdjuntar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -402,7 +399,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
-		String resposta = "";
 		try {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
@@ -414,7 +410,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
 			} else {
-				resposta = accioDocumentAdjuntar(
+				accioDocumentAdjuntar(
 						request,
 						tascaId,
 						docId,
@@ -426,11 +422,14 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error al adjuntar el document " + docId, ex);
 		}
-		return resposta;
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				tascaId,
+				model,
+				"document");
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{docId}/generar", method = RequestMethod.GET)
-	@ResponseBody
 	public String documentGenerarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -438,7 +437,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long docId,
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
-		String generatNom = null;
 		try {
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (!tasca.isValidada()) {
@@ -455,21 +453,18 @@ public class TascaTramitacioController extends BaseTascaController {
 						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
 						return "arxiuView";
 					}
-					generatNom = generat.getArxiuNom();
-					data = generat.getDataDocument();
 				}
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error generant el document " + docId, ex);
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-		SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
-		Map<String, Object> mjson = new LinkedHashMap<String, Object>();
-		mjson.put("nom", generatNom);
-		mjson.put("fecha_modificacio", sdf.format(new Date()));
-		mjson.put("fecha_document", (data != null) ? sdf2.format(data) : null);
-		return JSONValue.toJSONString(mjson);
+
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				tascaId,
+				model,
+				"document");
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)
@@ -494,31 +489,33 @@ public class TascaTramitacioController extends BaseTascaController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{docId}/esborrar", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean documentEsborrar(
+	public String documentEsborrar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable Long docId,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
-		boolean response = false;
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		if (!tasca.isValidada()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 		} else {
-			response = accioDocumentEsborrar(
+			accioDocumentEsborrar(
 					request,
 					tascaId,
 					docId,
 					(data == null) ? new Date() : data);
 		}
-		return response;
+
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				tascaId,
+				model,
+				"document");
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signarAmbToken", method = RequestMethod.POST)
-	@ResponseBody
-	public boolean signarAmbToken(
+	public String signarAmbToken(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
@@ -556,7 +553,12 @@ public class TascaTramitacioController extends BaseTascaController {
         			request,
         			getMessage(request, "error.rebre.signatura") );
 	    }
-		return signat;
+
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				tascaId,
+				model,
+				"signatura");
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/formExtern", method = RequestMethod.GET)
