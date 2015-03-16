@@ -86,7 +86,7 @@
 		    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
 					<label class="control-label col-xs-4" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
 					<div class="input-group col-xs-10">
-						<input class="form-control datepicker" id="data${document.id}" name="data"/>
+						<input class="form-control datetimepicker" id="data${document.id}" name="data"/>
 						<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
 					</div>
 				</div>
@@ -127,11 +127,10 @@
 					alert(log);
 			}
 		});	
-		$('.datepicker').datepicker({
-    		format: 'dd/mm/yyyy',
-    		weekStart: 1,
-    		autoclose: true,
-    		language: '${idioma}'
+		$('.datetimepicker').datetimepicker({
+    			locale: moment.locale('${idioma}'),
+				minDate: new Date(),
+				format: "DD/MM/YYYY"
     	}).on('show', function() {
     		var iframe = $('.modal-body iframe', window.parent.document);
     		var height = $('html').height() + 190;

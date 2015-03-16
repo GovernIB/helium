@@ -55,8 +55,8 @@
 								<c:otherwise><c:set var="formattedDate" value="${command[campNom][campIndex]}"/></c:otherwise>
 							</c:choose>
 							
-							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/yyyy" data-required="${dada.required}" value="${formattedDate}"/></c:when>
-						<c:otherwise><form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="${dada.required}"/></c:otherwise>
+							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/></c:when>
+						<c:otherwise><form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="${dada.required}"/></c:otherwise>
 					</c:choose>
 					<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 				</div>

@@ -12,15 +12,18 @@
 		<meta name="decorator" content="senseCapNiPeus"/>
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
-		<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-		<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-		<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 		<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 		<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 		<script src="<c:url value="/js/select2.min.js"/>"></script>
 		<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 		<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+		
+		<script src="<c:url value="/js/moment.js"/>"></script>
+		<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+		<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+		<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+		
 		<style>
 			.select2-container-fix {
 				padding-left: 15px !important;
@@ -91,7 +94,7 @@
 								<%-- DATE ---------------------------------------------------------------------------------------%>		
 								<c:when test="${camp.campTipus == 'DATE'}">
 									<div class="input-group">
-										<form:input path="${camp.varCodi}" id="${camp.varCodi}" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="${camp.required}"/>
+										<form:input path="${camp.varCodi}" id="${camp.varCodi}" cssClass="date form-control" placeholder="dd/mm/aaaaa" data-required="${camp.required}"/>
 										<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 									</div>
 								</c:when>

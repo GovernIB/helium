@@ -11,9 +11,6 @@
 	<meta name="capsaleraTipus" content="llistat"/>
 	<meta name="title" content="<spring:message code='expedient.llistat.titol'/>"/>
 	<meta name="title-icon-class" content="fa fa-folder"/>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
@@ -25,6 +22,12 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	
 	<style type="text/css">
 		.col-md-1.btn-group {width: 4.333%;}
 		.col-md-6.btn-group {width: 54%;}
@@ -179,10 +182,10 @@ function refrescarAlertas(e) {
 				<label><spring:message code="expedient.llistat.filtre.camp.data.inici"/></label>
 				<div class="row">
 					<div class="col-md-6">
-						<hel:inputDate name="dataIniciInicial" textKey="expedient.llistat.filtre.camp.data.inici.1" placeholder="dd/mm/yyyy" inline="true"/>
+						<hel:inputDate name="dataIniciInicial" textKey="expedient.llistat.filtre.camp.data.inici.1" placeholder="dd/mm/aaaa" inline="true"/>
 					</div>
 					<div class="col-md-6">
-						<hel:inputDate name="dataIniciFinal" textKey="expedient.llistat.filtre.camp.data.inici.2" placeholder="dd/mm/yyyy" inline="true"/>
+						<hel:inputDate name="dataIniciFinal" textKey="expedient.llistat.filtre.camp.data.inici.2" placeholder="dd/mm/aaaa" inline="true"/>
 					</div>
 				</div>
 			</div>
@@ -190,10 +193,10 @@ function refrescarAlertas(e) {
 				<label><spring:message code="expedient.llistat.filtre.camp.data.fi"/></label>
 				<div class="row">
 					<div class="col-md-6">
-						<hel:inputDate name="dataFiInicial" textKey="expedient.llistat.filtre.camp.data.fi.1" placeholder="dd/mm/yyyy" inline="true"/>
+						<hel:inputDate name="dataFiInicial" textKey="expedient.llistat.filtre.camp.data.fi.1" placeholder="dd/mm/aaaa" inline="true"/>
 					</div>
 					<div class="col-md-6">
-						<hel:inputDate name="dataFiFinal" textKey="expedient.llistat.filtre.camp.data.fi.2" placeholder="dd/mm/yyyy" inline="true"/>
+						<hel:inputDate name="dataFiFinal" textKey="expedient.llistat.filtre.camp.data.fi.2" placeholder="dd/mm/aaaa" inline="true"/>
 					</div>
 				</div>
 			</div>

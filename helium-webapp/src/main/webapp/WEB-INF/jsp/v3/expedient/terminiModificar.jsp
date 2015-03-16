@@ -9,9 +9,6 @@
 <html>
 <head>
 	<title><spring:message code='expedient.termini.modificar' />: ${expedientTerminiModificarCommand.nom}</title>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
-	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
@@ -22,6 +19,12 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	
 	<hel:modalHead/>
 	<meta name="decorator" content="senseCapNiPeus"/>
 	<script type="text/javascript">
@@ -105,11 +108,11 @@
 			</div>
 			<div id="terminiDataInici">
 				<label><spring:message code="expedient.termini.data.inici"/></label>
-				<hel:inputDate inline="true" required="true" name="dataInici" textKey="expedient.termini.data.inici" placeholderKey="expedient.termini.data.inici" placeholder="dd/MM/yyyy"/>
+				<hel:inputDate inline="true" required="true" name="dataInici" textKey="expedient.termini.data.inici" placeholderKey="expedient.termini.data.inici" placeholder="dd/MM/aaaa"/>
 			</div>
 			<div id="terminiDataFi">
 				<label><spring:message code="expedient.termini.data.fi"/></label>
-				<hel:inputDate inline="true" required="true" name="dataFi" textKey="expedient.termini.data.fi" placeholderKey="expedient.termini.data.fi" placeholder="dd/MM/yyyy"/>
+				<hel:inputDate inline="true" required="true" name="dataFi" textKey="expedient.termini.data.fi" placeholderKey="expedient.termini.data.fi" placeholder="dd/MM/aaaa"/>
 			</div>
 		</div>
 		<div id="modal-botons">

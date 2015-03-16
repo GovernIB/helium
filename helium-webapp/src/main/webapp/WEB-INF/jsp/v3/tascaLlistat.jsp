@@ -11,22 +11,22 @@
 	<meta name="capsaleraTipus" content="llistat"/>
 	<meta name="title" content="<spring:message code='tasca.llistat.titol'/>"/>
 	<meta name="title-icon-class" content="fa fa-clipboard"/>
-	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<link href="<c:url value="/css/DT_bootstrap.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
-    <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
-	<script src="<c:url value="/js/datepicker-locales/bootstrap-datepicker.${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/jquery.dataTables.js"/>"></script>
 	<script src="<c:url value="/js/DT_bootstrap.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.datatable.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	
 	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#taulaDades").heliumDataTable({
@@ -51,8 +51,8 @@
 				$(this).blur();
 				$("button[value=consultar]").click();
 			});
-			$('#inici_timer').datetimepicker({
-				language: '${idioma}',
+			$('.date_time').datetimepicker({
+				locale: moment.locale('${idioma}'),
 				minDate: new Date(),
 				format: "DD/MM/YYYY HH:mm"
 		    });
@@ -170,8 +170,8 @@
 			    	<label for="inici"><spring:message code="expedient.consulta.datahorainici" /></label>
 					<div class='col-sm-6'>
 			            <div class="form-group">
-			                <div class='input-group date' id='inici_timer'>
-			                    <input id="inici" name="inici" class="form-control" data-format="dd/MM/yyyy hh:mm" type="text">
+			                <div class='input-group date date_time' id='inici_timer'>
+			                    <input id="inici" name="inici" class="form-control date_time" data-format="dd/MM/aaaa hh:mm" type="text">
 			                    <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
 			                </div>
 			            </div>
@@ -209,10 +209,10 @@
 							<label><spring:message code="tasca.llistat.filtre.camp.datcre"/></label>
 							<div class="row">
 								<div class="col-md-6">
-									<hel:inputDate name="dataCreacioInicial" textKey="tasca.llistat.filtre.camp.datcre.ini" placeholder="dd/mm/yyyy" inline="true"/>
+									<hel:inputDate name="dataCreacioInicial" textKey="tasca.llistat.filtre.camp.datcre.ini" placeholder="dd/mm/aaaa" inline="true"/>
 								</div>
 								<div class="col-md-6">
-									<hel:inputDate name="dataCreacioFinal" textKey="tasca.llistat.filtre.camp.datcre.fin" placeholder="dd/mm/yyyy" inline="true"/>
+									<hel:inputDate name="dataCreacioFinal" textKey="tasca.llistat.filtre.camp.datcre.fin" placeholder="dd/mm/aaaa" inline="true"/>
 								</div>
 							</div>
 						</div>
@@ -220,10 +220,10 @@
 							<label><spring:message code="tasca.llistat.filtre.camp.datlim"/></label>
 							<div class="row">
 								<div class="col-md-6">
-									<hel:inputDate name="dataLimitInicial" textKey="tasca.llistat.filtre.camp.datlim.ini" placeholder="dd/mm/yyyy" inline="true"/>
+									<hel:inputDate name="dataLimitInicial" textKey="tasca.llistat.filtre.camp.datlim.ini" placeholder="dd/mm/aaaa" inline="true"/>
 								</div>
 								<div class="col-md-6">
-									<hel:inputDate name="dataLimitFinal" textKey="tasca.llistat.filtre.camp.datlim.fin" placeholder="dd/mm/yyyy" inline="true"/>
+									<hel:inputDate name="dataLimitFinal" textKey="tasca.llistat.filtre.camp.datlim.fin" placeholder="dd/mm/aaaa" inline="true"/>
 								</div>
 							</div>
 						</div>

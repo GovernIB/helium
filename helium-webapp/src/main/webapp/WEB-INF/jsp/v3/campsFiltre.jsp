@@ -69,7 +69,7 @@
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">
-							<form:input path="${campPath}[0]" id="${campPath}[0]" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="false"/>
+							<form:input path="${campPath}[0]" id="${campPath}[0]" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="false"/>
 							<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 						</div>
 					</div>
@@ -78,7 +78,7 @@
 					<label class="control-label col-xs-4 hide" for="${campPath}[1]"><spring:message code="common.campfiltre.i"/></label>
 					<div class="col-xs-13">
 						<div class="input-group">
-							<form:input path="${campPath}[1]" id="${campPath}[1]" cssClass="date form-control" placeholder="dd/mm/yyyy" data-required="false"/>
+							<form:input path="${campPath}[1]" id="${campPath}[1]" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="false"/>
 							<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 						</div>
 					</div>

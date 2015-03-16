@@ -21,8 +21,10 @@
 			<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<div class="col-xs-8">
 				<div class="input-group" style="width:100%">
-					<form:input path="${campPath}" cssClass="form-control datepicker" id="${campPath}" disabled="${disabled}"/>
-					<span class="input-group-addon" style="width:1%"><span class="fa fa-calendar"></span></span>
+					<div class="input-group date">
+						<form:input path="${campPath}" cssClass="form-control datetimepicker" data-format="dd/MM/yyyy" id="${campPath}" disabled="${disabled}"/>
+						<span class="input-group-addon" style="width:1%"><span class="fa fa-calendar"></span></span>
+					</div>
 				</div>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
@@ -32,8 +34,10 @@
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
 			<label class="sr-only ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<div class="input-group">
-				<form:input path="${campPath}" cssClass="form-control datepicker" id="${campPath}" placeholder="${campPlaceholder}" disabled="${disabled}"/>
-				<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
+				<div class="input-group date">
+					<form:input path="${campPath}" cssClass="form-control datetimepicker" data-format="dd/MM/yyyy" id="${campPath}" placeholder="${campPlaceholder}" disabled="${disabled}"/>
+					<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
+				</div>
 			</div>
 		</div>
 	</c:otherwise>
@@ -41,19 +45,20 @@
 <script>$("#${campPath}").mask("99/99/9999");</script>
 <script>
 $(document).ready(function() {
-	$('.datepicker').datepicker({
-		format: 'dd/mm/yyyy',
-		weekStart: 1,
-		autoclose: true,
-		language: '${idioma}'
-	}).on('show', function() {
+	$('.datetimepicker').datetimepicker({
+		locale: moment.locale('${idioma}'),
+		format: 'DD/MM/YYYY'
+    }).on('dp.show', function() {
 		var iframe = $('.modal-body iframe', window.parent.document);
-		var height = $('html').height() + 190;
-		iframe.height(height + 'px');
-	}).on('hide', function() {
+		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');
+		iframe.height((iframe.height() + 200) + 'px');
+		divField.height((divField.height() + 200) + 'px');
+	}).on('dp.hide', function() {
 		var iframe = $('.modal-body iframe', window.parent.document);
+		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');
 		var height = $('html').height();
-		iframe.height(height + 'px');
+		iframe.height((iframe.height() - 200) + 'px');
+		divField.height((divField.height() - 200) + 'px');
 	});
 });
 </script>

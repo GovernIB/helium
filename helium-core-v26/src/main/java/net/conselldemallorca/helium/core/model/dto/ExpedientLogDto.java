@@ -57,8 +57,8 @@ public class ExpedientLogDto {
 	}
 	public void setAccioParams(String accioParams) {
 		if(accioParams!=null){
-			if(accioParams.length()>255){
-				this.accioParams = accioParams.substring(0, 255);
+			if(accioParams.length()>2047){
+				this.accioParams = accioParams.substring(0, 2047);
 			}else{
 				this.accioParams = accioParams;
 			}

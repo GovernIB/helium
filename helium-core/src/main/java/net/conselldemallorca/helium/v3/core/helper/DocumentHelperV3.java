@@ -1249,7 +1249,7 @@ public class DocumentHelperV3 {
 		resposta.setCodi(document.getCodi());
 		resposta.setDataCreacio(new Date());
 		resposta.setDataDocument(new Date());
-		resposta.setArxiuNom(document.getNom() + ".odt");
+		resposta.setArxiuNom(expedient.getNumeroIdentificador() + "-" + document.getNom() + ".odt");
 		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.isPlantilla()) {
 			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
