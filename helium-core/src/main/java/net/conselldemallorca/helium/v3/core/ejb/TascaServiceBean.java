@@ -97,6 +97,8 @@ public class TascaServiceBean implements TascaService {
 			Long campId,
 			String codiFiltre,
 			String textFiltre,
+			Long registreCampId,
+			Integer registreIndex,
 			Map<String, Object> valorsFormulari) {
 		return delegate.findValorsPerCampDesplegable(
 				id,
@@ -104,6 +106,8 @@ public class TascaServiceBean implements TascaService {
 				campId,
 				codiFiltre,
 				textFiltre,
+				registreCampId,
+				registreIndex,
 				valorsFormulari);
 	}
 

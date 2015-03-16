@@ -750,6 +750,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 				campId,
 				null,
 				null,
+				null,
+				null,
 				new HashMap<String, Object>());
 	}
 
@@ -766,9 +768,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 				campId,
 				valor,
 				null,
+				null,
+				null,
 				new HashMap<String, Object>());
 	}
-	
+
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
@@ -776,7 +780,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
 		return resposta;
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -806,4 +810,5 @@ public class MassivaExpedientController extends BaseExpedientController {
 	}
 
 	private static final Log logger = LogFactory.getLog(MassivaExpedientController.class);
+
 }

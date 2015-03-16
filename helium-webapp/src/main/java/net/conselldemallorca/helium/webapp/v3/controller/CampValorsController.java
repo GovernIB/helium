@@ -50,6 +50,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				null,
 				textFiltre,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
 
@@ -68,6 +70,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				null,
 				textFiltre,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
 
@@ -86,6 +90,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				null,
 				textFiltre,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
 
@@ -96,6 +102,8 @@ public class CampValorsController extends BaseExpedientController {
 			@PathVariable(value = "campId") Long campId,
 			@PathVariable(value = "tascaId") String tascaId,
 			@PathVariable(value = "valor") String textFiltre,
+			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
+			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			ModelMap model) {
 		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
@@ -103,9 +111,11 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				null,
 				textFiltre,
+				registreCampId,
+				registreIndex,
 				null);
 	}
-	
+
 	@RequestMapping(value = "/{campId}/valors", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consulta(
@@ -120,9 +130,11 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				null,
 				textFiltre,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
-	
+
 	@RequestMapping(value = "/{campId}/valors/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValor(
@@ -136,6 +148,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				null,
 				textFiltre,
+				null,
+				null,
 				null);
 	}
 
@@ -148,6 +162,8 @@ public class CampValorsController extends BaseExpedientController {
 			@PathVariable(value = "tascaId") String tascaId,
 			@PathVariable(value = "valor") String valor,
 			@RequestParam(value = "q", required = false) String textFiltre,
+			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
+			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
 		return tascaService.findValorsPerCampDesplegable(
@@ -156,6 +172,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				valor,
 				textFiltre,
+				registreCampId,
+				registreIndex,
 				getMapDelsValors(valors));
 	}
 
@@ -175,6 +193,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				valor,
 				textFiltre,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
 
@@ -186,6 +206,8 @@ public class CampValorsController extends BaseExpedientController {
 			@PathVariable(value = "tascaId") String tascaId,
 			@PathVariable(value = "valor") String valor,
 			@RequestParam(value = "q", required = false) String textFiltre,
+			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
+			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
 		return tascaService.findValorsPerCampDesplegable(
@@ -194,6 +216,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				valor,
 				textFiltre,
+				registreCampId,
+				registreIndex,
 				getMapDelsValors(valors));
 	}
 
@@ -212,6 +236,8 @@ public class CampValorsController extends BaseExpedientController {
 				campId,
 				valor,
 				textFiltre,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
 

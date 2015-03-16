@@ -699,28 +699,34 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<SeleccioOpcioDto> findValorsPerCampDesplegable(
-			String id,
+			String tascaId,
 			String processInstanceId,
 			Long campId,
 			String codiFiltre,
 			String textFiltre,
+			Long registreCampId,
+			Integer registreIndex,
 			Map<String, Object> valorsFormulari) {
 		logger.debug("Consultant llista de valors per camp selecció (" +
-				"id=" + id + ", " +
+				"tascaId=" + tascaId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"campId=" + campId + ", " +
 				"codiFiltre=" + codiFiltre + ", " +
 				"textFiltre=" + textFiltre + ", " +
+				"registreCampId=" + registreCampId + ", " +
+				"registreIndex=" + registreIndex + ", " +
 				"valorsFormulari=...)");
-		
 		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
-		
 		Camp camp = campRepository.findOne(campId);
+		Camp registreCamp = null;
+		if (registreCampId != null) {
+			registreCamp = campRepository.findOne(registreCampId);
+		}
 		String pidCalculat = processInstanceId;
-		if (processInstanceId == null && id != null) {
+		if (processInstanceId == null && tascaId != null) {
 			JbpmTask task = null;
 			task = tascaHelper.getTascaComprovacionsTramitacio(
-					id,
+					tascaId,
 					true,
 					true);
 			// Comprova si el camp pertany a la tasca
@@ -741,10 +747,7 @@ public class TascaServiceImpl implements TascaService {
 					break;
 			}
 			if (!trobat) {
-//				throw new NotFoundException(
-//						camp.getId(),
-//						Camp.class);
-				logger.error("El camp consultat no pertany a la tasca " + id, 
+				logger.error("El camp consultat no pertany a la tasca " + tascaId, 
 						new NotFoundException(camp.getId(),	Camp.class));
 				// Aquest cas no s'hauria de donar. 
 				// En cas que es doni, ara per ara, l'unic que feim és no retornar valors.
@@ -756,9 +759,11 @@ public class TascaServiceImpl implements TascaService {
 		if (camp.getDominiId() != null) {
 			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
+						registreCamp,
+						registreIndex,
 						null,
 						valorsFormulari,
-						id,
+						tascaId,
 						pidCalculat);
 			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
 				boolean afegir = 

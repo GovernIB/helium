@@ -26,7 +26,7 @@
 	
 		<%-- CAPÇALERA TAULA ------------------------------------------------------------------------------------------%>
 		<div class="registre_taula">
-		<table id="table_mult_${varStatusMain.index}" class="table table-bordered table-condensed">
+		<table id="table_mult_${varStatusMain.index}" class="table table-bordered table-condensed" data-registre-id="${dadaActual.campId}">
 			<thead>
 			<tr>
 				<c:forEach var="membre" items="${registreCap}" varStatus="varStatusCab">

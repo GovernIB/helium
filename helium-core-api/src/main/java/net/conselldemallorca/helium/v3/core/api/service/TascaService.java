@@ -150,7 +150,7 @@ public interface TascaService {
 	 * Retorna la llista de possibles valors per a un camp de tipus
 	 * selecció d'una tasca.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param processInstanceId
 	 *            Atribut processInstanceId de la tasca.
@@ -160,6 +160,10 @@ public interface TascaService {
 	 *            Codi per filtrar resultats.
 	 * @param textFiltre
 	 *            Text per filtrar resultats.
+	 * @param registreCampId
+	 *            El camp de la variable de tipus registre superior.
+	 * @param registreIndex
+	 *            La fila dins la variable de tipus registre.
 	 * @param valorsFormulari
 	 *            Els valors dels camps del formulari.
 	 * @return la llista de valors
@@ -169,11 +173,13 @@ public interface TascaService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<SeleccioOpcioDto> findValorsPerCampDesplegable(
-			String id,
+			String tascaId,
 			String processInstanceId,
 			Long campId,
 			String codiFiltre,
 			String textFiltre,
+			Long registreCampId,
+			Integer registreIndex,
 			Map<String, Object> valorsFormulari);
 
 	/**

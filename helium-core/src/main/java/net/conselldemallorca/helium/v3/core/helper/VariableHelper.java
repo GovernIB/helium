@@ -519,6 +519,8 @@ public class VariableHelper {
 		}
 		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
 				camp,
+				null,
+				null,
 				valor,
 				valorsAddicionals,
 				taskInstanceId,
@@ -531,6 +533,8 @@ public class VariableHelper {
 
 	public List<ParellaCodiValorDto> getPossiblesValorsCamp(
 			Camp camp,
+			Camp registreCamp,
+			Integer registreIndex,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
@@ -552,6 +556,8 @@ public class VariableHelper {
 								taskInstanceId,
 								processInstanceId,
 								camp,
+								registreCamp,
+								registreIndex,
 								valorsAddicionals));
 				String columnaCodi = camp.getDominiCampValor();
 				String columnaValor = camp.getDominiCampText();
@@ -648,6 +654,8 @@ public class VariableHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			Camp camp,
+			Camp registreCamp,
+			Integer registreIndex,
 			Map<String, Object> valorsAddicionals) {
 		String dominiParams = camp.getDominiParams();
 		if (dominiParams == null || dominiParams.length() == 0)
@@ -676,10 +684,22 @@ public class VariableHelper {
 			} else {
 				if (valorsAddicionals != null && valorsAddicionals.size() > 0)
 					value = valorsAddicionals.get(campCodi);
-				if (value == null && taskInstanceId != null)
-					value = getVariableJbpmTascaValor(taskInstanceId, campCodi);
-				if (value == null && processInstanceId != null)
-					value = getVariableJbpmProcesValor(processInstanceId, campCodi);
+				if (value == null) {
+					if (registreCamp != null) {
+						value = getValorCampRegistre(
+								taskInstanceId,
+								processInstanceId,
+								registreCamp,
+								registreIndex,
+								campCodi);
+					}
+					if (value == null) {
+						if (taskInstanceId != null)
+							value = getVariableJbpmTascaValor(taskInstanceId, campCodi);
+						else if (processInstanceId != null)
+							value = getVariableJbpmProcesValor(processInstanceId, campCodi);
+					}
+				}
 			}
 			if (value != null)
 				params.put(paramCodi, value);
@@ -837,7 +857,15 @@ public class VariableHelper {
 		
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
 			try {
-				tascaDto.setVarValor(getPossiblesValorsCamp(camp, null, null, null, null));
+				tascaDto.setVarValor(
+						getPossiblesValorsCamp(
+								camp,
+								null,
+								null,
+								null,
+								null,
+								null,
+								null));
 			} catch (Exception e) {
 				tascaDto.setVarValor(null);
 			}
@@ -873,5 +901,48 @@ public class VariableHelper {
 		}
 	}
 
+	private Object getValorCampRegistre(
+			String taskInstanceId,
+			String processInstanceId,
+			Camp registreCamp,
+			Integer registreIndex,
+			String campCodi) {
+		Object registreValor = null;
+		if (taskInstanceId != null)
+			registreValor = getVariableJbpmTascaValor(
+					taskInstanceId,
+					registreCamp.getCodi());
+		else if (processInstanceId != null)
+			registreValor = getVariableJbpmProcesValor(
+					processInstanceId,
+					registreCamp.getCodi());
+		if (registreValor != null) {
+			Object[] filaValor = null;
+			if (registreCamp.isMultiple() && registreValor instanceof Object[][]) {
+				Object[][] registreArray = (Object[][])registreValor;
+				if (registreArray.length > registreIndex)
+					filaValor = registreArray[registreIndex];
+			}
+			if (!registreCamp.isMultiple() && registreValor instanceof Object[]) {
+				if (registreIndex == null || registreIndex == 0)
+					filaValor = (Object[])registreValor;
+			}
+			if (filaValor != null) {
+				Object valor = null;
+				int index = 0;
+				for (CampRegistre campRegistre: registreCamp.getRegistreMembres()) {
+					if (campCodi.equals(campRegistre.getMembre().getCodi())) {
+						valor = filaValor[index];
+						break;
+					}
+					index++;
+				}
+				return valor;
+			}
+		}
+		return null;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(VariableHelper.class);
+
 }

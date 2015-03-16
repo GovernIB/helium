@@ -1,6 +1,156 @@
 /**
  * Funcions a executar al montar un formulari de tasca a la versió 3
  */
+function initSuggest(element) {
+	var input = $(element);
+	input.select2({
+	    minimumInputLength: 3,
+	    width: '100%',
+	    allowClear: true,
+	    ajax: {
+	        url: function(value) {
+	        	return input.data("urlconsultallistat");
+	        },
+	        dataType: 'json',
+	        data: function (value) {
+	        	var dataObj = {};
+	        	if (value) {
+	        		dataObj['q'] = value;
+	        	}
+	        	var regPrefix = '';
+	        	if (input.attr('id').indexOf('.') != -1) 
+	        		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
+	        	var params = '';
+	        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+	        		var attrId = $(this).attr('id');
+	        		if ($(this).val()) {
+	        			if (attrId.indexOf('.') == -1) {
+	        				if (regPrefix.length == 0)
+	        					params += attrId + ':' + $(this).val() + ',';
+	        			} else {
+	        				if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0)
+	        					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
+	        			}
+	        		}
+	        	});
+	        	if (params.length > 0)
+	        		params = params.substring(0, params.length);
+	        	if (params.length > 0)
+	        		dataObj['valors'] = params;
+	        	return dataObj;
+	        },
+	        results: function(data, page) {
+	        	var results = [];
+	        	for (var i = 0; i < data.length; i++) {
+	        		results.push({id: data[i].codi, text: data[i].nom});
+	        	}
+	            return {results: results};
+	        }
+	    },
+	    initSelection: function(element, callback) {
+	    	var registreCampId = $(element).closest('table').data('registre-id');
+	    	var registreIndex = $(element).closest('tr').index();
+	    	if ($(element).val()) {
+	    		$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
+	                dataType: "json",
+	                data: function () {
+	                	var dataObj = {};
+	                	dataObj['registreCampId'] = registreCampId;
+	                	dataObj['registreIndex'] = registreIndex;
+	                	return dataObj;
+	                }
+	            }).done(function(data) {
+	            	if (data.length > 0)
+	            		callback({id: data[0].codi, text: data[0].nom});
+	            });
+	    	}
+	    },
+	}).on('change', function() {
+		var campName = $(this).attr('name');
+		$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+			if ($(this).data('campparams') == campName) {
+				$(this).select2("val", "");
+			}
+		});
+	});
+}
+function initSeleccio(element) {
+	var input = $(element);
+	input.select2({
+		width: '100%',
+	    placeholder: input.data("placeholder"),
+	    allowClear: true,
+	    minimumResultsForSearch: -1,
+	    ajax: {
+	        url: function (value) {
+	        	return input.data("urlconsultallistat");
+	        },
+	        dataType: 'json',
+	        data: function (value) {
+	        	var dataObj = {};
+	        	if (value) {
+	        		dataObj['q'] = value;
+	        	}
+	        	var regPrefix = '';
+	        	if (input.attr('id').indexOf('.') != -1) 
+	        		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
+	        	var params = '';
+	        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+	        		var attrId = $(this).attr('id');
+	        		if ($(this).val()) {
+	        			if (attrId.indexOf('.') == -1) {
+	        				if (regPrefix.length == 0)
+	        					params += attrId + ':' + $(this).val() + ',';
+	        			} else {
+	        				if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0)
+	        					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
+	        			}
+	        		}
+	        	});
+	        	if (params.length > 0)
+	        		params = params.substring(0, params.length);
+	        	if (params.length > 0)
+	        		dataObj['valors'] = params;
+	        	return dataObj;
+	        },
+	        results: function (data, page) {
+	        	var results = [];
+	        	for (var i = 0; i < data.length; i++) {
+	        		results.push({id: data[i].codi, text: data[i].nom});
+	        	}
+	            return {results: results};
+	        }
+	    },
+	    initSelection: function (element, callback) {
+	    	var registreCampId = $(element).closest('table').data('registre-id');
+	    	var registreIndex = $(element).closest('tr').index();
+	    	var ajaxData;
+	    	if (registreCampId) {
+	    		ajaxData = {
+	                	registreCampId: registreCampId,
+	                	registreIndex: registreIndex
+	                };
+	    	}
+	    	if ($(element).val()) {
+	    		$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
+	                dataType: "json",
+	                data: ajaxData
+	            }).done(function(data) {
+	            	if (data.length > 0)
+	            		callback({id: data[0].codi, text: data[0].nom});
+	            });
+	    	}
+	    },
+	}).on('change', function () {
+		var campName = $(this).attr('name');
+		$('input.suggest,input.seleccio', input.parents('form')).each(function() {
+			if ($(this).data('campparams') == campName) {
+				$(this).select2("val", "");
+			}
+		});
+	});
+}
+
 $(function() {
 	if (typeof String.prototype.endsWith !== 'function') {
 	    String.prototype.endsWith = function(suffix) {
@@ -34,117 +184,14 @@ $(function() {
 	$(".termdia").keyfilter(/^[-+]?[0-9]*$/);
 	$(".enter").keyfilter(/^[-+]?[0-9]*$/);
 	$(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
-	$(".suggest").each(function(){
-		var input = $(this);
-		input.select2({
-		    minimumInputLength: 3,
-		    width: '100%',
-		    allowClear: true,
-		    ajax: {
-		        url: function(value) {
-		        	return input.data("urlconsultallistat");
-		        },
-		        dataType: 'json',
-		        data: function (value) {
-		        	var dataObj = {};
-		        	if (value) {
-		        		dataObj['q'] = value;
-		        	}
-		        	var params = '';
-		        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-		        		if ($(this).val()) {
-		        			params += $(this).attr('id') + ':' + $(this).val() + ',';
-		        		}
-		        	});
-		        	if (params.length > 0)
-		        		params = params.substring(0, params.length);
-		        	if (params.length > 0)
-		        		dataObj['valors'] = params;
-		        	return dataObj;
-		        },
-		        results: function(data, page) {
-		        	var results = [];
-		        	for (var i = 0; i < data.length; i++) {
-		        		results.push({id: data[i].codi, text: data[i].nom});
-		        	}
-		            return {results: results};
-		        }
-		    },
-		    initSelection: function(element, callback) {
-		    	if ($(element).val()) {
-			    	$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
-		                dataType: "json"
-		            }).done(function(data) {
-		            	callback({id: data.codi, text: data.nom});
-		            });
-		    	}
-		    },
-		}).on('change', function() {
-			var campName = $(this).attr('name');
-			$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-				if ($(this).data('campparams') == campName) {
-					$(this).select2("val", "");
-				}
-			});
-		});
+	$(".suggest").each(function() {
+		initSuggest(this);
 	});
-	$(".seleccio").each(function(){
-		var input = $(this);
-		input.select2({
-			width: '100%',
-		    placeholder: input.data("placeholder"),
-		    allowClear: true,
-		    minimumResultsForSearch: -1,
-		    ajax: {
-		        url: function (value) {
-		        	return input.data("urlconsultallistat");
-		        },
-		        dataType: 'json',
-		        data: function (value) {
-		        	var dataObj = {};
-		        	if (value) {
-		        		dataObj['q'] = value;
-		        	}
-		        	var params = '';
-		        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-		        		if ($(this).val()) {
-		        			params += $(this).attr('id') + ':' + $(this).val() + ',';
-		        		}
-		        	});
-		        	if (params.length > 0)
-		        		params = params.substring(0, params.length);
-		        	if (params.length > 0)
-		        		dataObj['valors'] = params;
-		        	return dataObj;
-		        },
-		        results: function (data, page) {
-		        	var results = [];
-		        	for (var i = 0; i < data.length; i++) {
-		        		results.push({id: data[i].codi, text: data[i].nom});
-		        	}
-		            return {results: results};
-		        }
-		    },
-		    initSelection: function (element, callback) {
-		    	if ($(element).val()) {
-		    		$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
-		                dataType: "json"
-		            }).done(function(data) {
-		            	callback({id: data[0].codi, text: data[0].nom});
-		            });
-		    	}
-		    },
-		}).on('change', function () {
-			var campName = $(this).attr('name');
-			$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-				if ($(this).data('campparams') == campName) {
-					$(this).select2("val", "");
-				}
-			});
-		});
+	$(".seleccio").each(function() {
+		initSeleccio(this);
 	});
 	// Camp múltiple: afegir
-	$("#command").on("click", ".btn_multiple", function(){
+	$("#command").on("click", ".btn_multiple", function() {
 		var previousInput = $(this).closest('.form-group').prev();
 		var newInput = previousInput.clone();
 		$('div.select2-container', newInput).remove();
@@ -204,79 +251,26 @@ $(function() {
 			    minimumResultsForSearch: 10
 			});
 		});
-		// Camp de tipus enter
+		// Camp de tipus sencer
 		newInput.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
 		// Camp de tipus float
 		newInput.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
 		// Camp de tipus suggest
-		newInput.find(".suggest").each(function(){
-			var suggest = $(this);
-			suggest.select2({
-			    minimumInputLength: 3,
-			    width: '100%',
-			    allowClear: true,
-			    ajax: {
-			        url: function (value) {
-			        	return suggest.data("urlconsultallistat") + "/" + value;
-			        },
-			        dataType: 'json',
-			        results: function (data, page) {
-			        	var results = [];
-			        	for (var i = 0; i < data.length; i++) {
-			        		results.push({id: data[i].codi, text: data[i].nom});
-			        	}
-			            return {results: results};
-			        }
-			    },
-			    initSelection: function(element, callback) {
-			    	if ($(element).val()) {
-				    	$.ajax(suggest.data("urlconsultainicial") + "/" + $(element).val(), {
-			                dataType: "json"
-			            }).done(function(data) {
-			            	callback({id: data.codi, text: data.nom});
-			            });
-			    	}
-			    },
-			});
+		newInput.find(".suggest").each(function() {
+			$(this).val('');
+			initSuggest(this);
 		});
 		// Camp de tipus seleccio
-		newInput.find(".seleccio").each(function(){
-			var seleccio = $(this);
-			seleccio.select2({
-				width: '100%',
-			    placeholder: seleccio.data("placeholder"),
-			    allowClear: true,
-			    minimumResultsForSearch: 10,
-			    ajax: {
-			        url: function (value) {
-			        	return seleccio.data("urlselectllistat") + "/" + value;
-			        },
-			        dataType: 'json',
-			        results: function (data, page) {
-			        	var results = [];
-			        	for (var i = 0; i < data.length; i++) {
-			        		results.push({id: data[i].codi, text: data[i].nom});
-			        	}
-			            return {results: results};
-			        }
-			    },
-			    initSelection: function(element, callback) {
-			    	if ($(element).val()) {
-			    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
-			                dataType: "json"
-			            }).done(function(data) {
-			            	callback({id: data[0].codi, text: data[0].nom});
-			            });
-			    	}
-			    },
-			})
+		newInput.find(".seleccio").each(function() {
+			$(this).val('');
+			initSeleccio(this);
 		});
 	});
 	$(".validada").each(function(index){
 		validado(true);
 	});
 	// Camp múltiple: eliminar
-	$("#command").on("click", ".btn_eliminar", function(){
+	$("#command").on("click", ".btn_eliminar", function() {
 		var multiple = $(this).closest('.multiple');
 		var inputgroupmultiple = $(this).closest('.input-group-multiple');
 		if (multiple.find(".input-group-multiple").size() > 1) {
@@ -322,7 +316,6 @@ $(function() {
 			});
 		}
 	});
-
 	// Eliminar fila
 	$("#command").on("click", ".eliminarFila", function() {
 		var table = $(this).closest('table');
@@ -439,7 +432,6 @@ function cleanAction(action) {
 	return action;
 }
 function addField(idTable) {
-	// TODO No se tiene en cuenta si una variable múltiple está dentro de una de registro
 	tabla = $('#' + idTable);
 	tr = $('tr:last', tabla);
 	var newTr = tr.clone();
@@ -471,36 +463,6 @@ function addField(idTable) {
 			}
 		}
 	});
-//	newTr.find(':input').each(
-//		function(indice, valor) {
-//			if (this.getAttribute("id") != null) {
-//				var id = this.getAttribute("id");
-//				var id_lim = id.substr(0, id.indexOf("["));
-//				var id_fin = id.substr(id.lastIndexOf("]")+1);
-//				var i = 1;
-//				while (document.getElementById(id_lim + "[" + i + "]" + id_fin)) {
-//					i = i + 1;
-//				}
-//				this.setAttribute("id", id_lim + "[" + i + "]" + id_fin);
-//				this.setAttribute("name", id_lim + "[" + i + "]" + id_fin);
-//				
-//				// Camp de tipus price
-//				$(this).find(".price").priceFormat({
-//						prefix: '',
-//						centsSeparator: ',',
-//					    thousandsSeparator: '.',
-//					    allowNegative: false
-//					});
-//				// Camp de tipus date
-//				$(this).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true});
-//				// Camp de tipus termini
-//				$(this).find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
-//				// Camp de tipus enter
-//				$(this).find(".enter").keyfilter(/^[-+]?[0-9]*$/);
-//				// Camp de tipus float
-//				$(this).find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
-//			}
-//		});
 	newTr.appendTo(tabla);
 	// Camp de tipus price
 	newTr.find(".price").priceFormat({
@@ -531,67 +493,14 @@ function addField(idTable) {
 	// Camp de tipus float
 	newTr.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
 	// Camp de tipus suggest
-	newTr.find(".suggest").each(function(){
-		var suggest = $(this);
-		suggest.select2({
-		    minimumInputLength: 3,
-		    width: '100%',
-		    allowClear: true,
-		    ajax: {
-		        url: function (value) {
-		        	return suggest.data("urlconsultallistat") + "/" + value;
-		        },
-		        dataType: 'json',
-		        results: function (data, page) {
-		        	var results = [];
-		        	for (var i = 0; i < data.length; i++) {
-		        		results.push({id: data[i].codi, text: data[i].nom});
-		        	}
-		            return {results: results};
-		        }
-		    },
-		    initSelection: function(element, callback) {
-		    	if ($(element).val()) {
-			    	$.ajax(suggest.data("urlconsultainicial") + "/" + $(element).val(), {
-		                dataType: "json"
-		            }).done(function(data) {
-		            	callback({id: data.codi, text: data.nom});
-		            });
-		    	}
-		    },
-		});
+	newTr.find(".suggest").each(function() {
+		$(this).val('');
+		initSuggest(this);
 	});
 	// Camp de tipus seleccio
-	newTr.find(".seleccio").each(function(){
-		var seleccio = $(this);
-		seleccio.select2({
-			width: '100%',
-		    placeholder: seleccio.data("placeholder"),
-		    allowClear: true,
-		    minimumResultsForSearch: 10,
-		    ajax: {
-		        url: function (value) {
-		        	return seleccio.data("urlselectllistat") + "/" + value;
-		        },
-		        dataType: 'json',
-		        results: function (data, page) {
-		        	var results = [];
-		        	for (var i = 0; i < data.length; i++) {
-		        		results.push({id: data[i].codi, text: data[i].nom});
-		        	}
-		            return {results: results};
-		        }
-		    },
-		    initSelection: function(element, callback) {
-		    	if ($(element).val()) {
-		    		$.ajax(seleccio.data("urlselectinicial") + "/" + $(element).val(), {
-		                dataType: "json"
-		            }).done(function(data) {
-		            	callback({id: data[0].codi, text: data[0].nom});
-		            });
-		    	}
-		    },
-		})
+	newTr.find(".seleccio").each(function() {
+		$(this).val('');
+		initSeleccio(this);
 	});
 	newTr.find('button.btn_eliminar').click(function() {
 		if (newTr.index() < 2) {
@@ -623,7 +532,7 @@ function limpiarFila(tr) {
 		}
 	});
 }
-	
+
 function confirmar(form) {
 	$("table").each(function(){
 		if ($(this).hasClass("hide")) {
@@ -636,35 +545,3 @@ function confirmar(form) {
 function campOnFocus(camp) {
 	$("#command").find("[data-action='" + camp + "']").focus();
 }
-
-//function canviTermini(input) {
-//	var campId = input.id.substring(0, input.id.lastIndexOf("_"));
-//	var anys = document.getElementById(campId + "_anys").value;
-//	var mesos = document.getElementById(campId + "_mesos").value;
-//	var dies = document.getElementById(campId + "_dies").value;
-//	if (anys != "0" && mesos != "0" && dies != "") {
-//		if (dies == "") {
-//			dies = "0";
-//			$("#" + campId + "_dies").val(dies);
-//		}
-//		$(campId).val(anys + "/" + mesos + "/" + dies);
-//	} else {
-//		$(campId).val("");
-//	}
-//}
-
-//function accioCampExecutar(elem, field) {
-//	if (confirm("<spring:message code='js.helforms.confirmacio' />")) {
-//		var fieldField = document.getElementById("helAccioCamp");
-//		if (fieldField == null) {
-//			newField = document.createElement('input');
-//			newField.setAttribute("id", "helAccioCamp");
-//			newField.setAttribute("name", "helAccioCamp");
-//			newField.setAttribute("type", "hidden");
-//			newField.setAttribute("value", field);
-//			elem.form.appendChild(newField);
-//		}
-//		return true;
-//	}
-//	return false;
-//}

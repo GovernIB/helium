@@ -51,6 +51,8 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 				campId,
 				null,
 				textInicial,
+				null,
+				null,
 				getMapDelsValors(valors));
 	}
 
@@ -80,6 +82,8 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 				campId,
 				null,
 				null,
+				null,
+				null,
 				null);
 		for (SeleccioOpcioDto sel : opcions) {
 			if (sel.getCodi().equals(codi)) {
@@ -102,6 +106,8 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 				campId,
 				null,
 				textInicial,
+				null,
+				null,
 				null);
 	}
 
@@ -116,6 +122,8 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 				null,
 				campId,
 				codi,
+				null,
+				null,
 				null,
 				null);
 		for (SeleccioOpcioDto sel : opcions) {
@@ -138,6 +146,8 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 				campId,
 				null,
 				valor,
+				null,
+				null,
 				null);
 	}
 
