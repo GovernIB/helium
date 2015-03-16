@@ -1105,6 +1105,16 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public boolean isTascaValidada(String tascaId) {
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		return tascaHelper.isTascaValidada(task);
+	}	
+
+	@Override
+	@Transactional(readOnly = true)
 	public boolean isDocumentsComplet(String tascaId) {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,

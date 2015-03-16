@@ -79,9 +79,26 @@ $(document).ready(function() {
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
 		var accio = $(this).attr('value');
+		var permetreFinalitzar = true;
 		if (accio.indexOf('completar') == 0) {
-			if (!confirm("<spring:message code="tasca.tramitacio.confirm.finalitzar"/>"))
-				return false;
+			$.ajax({
+		        type: 'POST',
+		        url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/isPermetreFinalitzar'/>",
+		        cache: false,
+		        contentType: false,
+		        processData: false,
+		        async: false,
+		        success: function(data) {
+		        	if (data != "") {
+		        		alert(data);
+		        		permetreFinalitzar = false;
+		        	} else if (!confirm("<spring:message code="tasca.tramitacio.confirm.finalitzar"/>")) {
+		        		permetreFinalitzar = false;
+		        	}
+		        }
+			});
+	        if (!permetreFinalitzar)
+	        	return false;
 		}
 		if ($("#command").length > 0) {
 			if ($(this).data('transicio') !== undefined) {

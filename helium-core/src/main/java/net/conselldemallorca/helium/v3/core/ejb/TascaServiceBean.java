@@ -269,6 +269,12 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isTascaValidada(String tascaId) {
+		return delegate.isTascaValidada(tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isDocumentsComplet(String tascaId) {
 		return delegate.isDocumentsComplet(tascaId);
 	}

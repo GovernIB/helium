@@ -86,8 +86,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
 
-
-
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
 			HttpServletRequest request,
@@ -235,30 +233,15 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@ModelAttribute("command") Object command, 
 			@RequestParam(value = "transicio", required = false) String transicio,
-			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		boolean correcte = false;
-		String returnUrl = validar(
-				request,
-				expedientId,
-				tascaId,
-				command,
-				result,
-				status,
-				model);
-		if (!result.hasErrors()) {
-			correcte = completarForm(
+		if (!accioCompletarForm(request, tascaId, expedientId, transicio)) {
+			return mostrarInformacioTascaPerPipelles(
 					request,
 					tascaId,
-					expedientId,
-					transicio,
-					command);
-		}	
-		if (!correcte) {
-			return returnUrl;
+					model,
+					"form");
 		}
 		status.setComplete();
 		return modalUrlTancar();
@@ -356,6 +339,26 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		return "v3/tascaDocument";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isPermetreFinalitzar", method = RequestMethod.POST)
+	@ResponseBody
+	public String isPermetreFinalitzar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		StringBuffer resposta = new StringBuffer();
+		if (!tascaService.isTascaValidada(tascaId)) {
+			resposta.append(getMessage(request, "tasca.tramitacio.form.no.validat") + ".\n");
+		}
+		if (!tascaService.isDocumentsComplet(tascaId)) {
+			resposta.append(getMessage(request, "tasca.tramitacio.documents.no.complet") + ".\n");
+		}
+		if (!tascaService.isSignaturesComplet(tascaId)) {
+			resposta.append(getMessage(request, "tasca.tramitacio.firmes.no.complet") + ".");
+		}
+		return resposta.toString();
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isDocumentsComplet", method = RequestMethod.POST)
@@ -769,19 +772,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			return false;
 		}
 		
-		return true;
-	}
-	
-	private boolean completarForm(
-			HttpServletRequest request,
-			String tascaId,
-			Long expedientId,
-			String transicio,
-			Object command) {
-		if (!accioCompletarForm(request, tascaId, expedientId, transicio)) {
-//			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			return false;
-		}
 		return true;
 	}
 
