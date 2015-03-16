@@ -266,4 +266,16 @@ public class TascaServiceBean implements TascaService {
 	public ArxiuDto getArxiuPerDocumentIdCodi(String tascaId, Long documentId, String documentCodi) {
 		return delegate.getArxiuPerDocumentIdCodi(tascaId, documentId, documentCodi);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isDocumentsComplet(String tascaId) {
+		return delegate.isDocumentsComplet(tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isSignaturesComplet(String tascaId) {
+		return delegate.isSignaturesComplet(tascaId);
+	}
 }

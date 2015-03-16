@@ -354,8 +354,20 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		model.addAttribute("documents", documents);
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute("tascaId", tascaId);
+		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		return "v3/tascaDocument";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isDocumentsComplet", method = RequestMethod.POST)
+	@ResponseBody
+	public boolean isDocumentsComplet(@PathVariable String tascaId) {
+		return tascaService.isDocumentsComplet(tascaId);
+	}
+	
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isSignaturesComplet", method = RequestMethod.POST)
+	@ResponseBody
+	public boolean isSignaturesComplet(@PathVariable String tascaId) {
+		return tascaService.isSignaturesComplet(tascaId);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signatura", method = RequestMethod.GET)

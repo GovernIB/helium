@@ -1104,6 +1104,26 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public boolean isDocumentsComplet(String tascaId) {
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		return tascaHelper.isDocumentsComplet(task);
+	}	
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean isSignaturesComplet(String tascaId) {
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		return tascaHelper.isSignaturesComplet(task);
+	}	
+
+	@Override
 	@Transactional
 	public void completar(
 			String tascaId,

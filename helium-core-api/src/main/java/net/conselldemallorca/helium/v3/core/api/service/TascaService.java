@@ -362,4 +362,8 @@ public interface TascaService {
 
 	public boolean hasSignatures(String tascaId);
 
+	public boolean isDocumentsComplet(String tascaId);
+
+	public boolean isSignaturesComplet(String tascaId);
+
 }

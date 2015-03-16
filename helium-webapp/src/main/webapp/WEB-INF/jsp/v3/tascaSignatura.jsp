@@ -117,13 +117,17 @@ $(document).ready(function() {
 });
 
 function comprobarRequeridos() {
-	var alertas = false;
-	$.each($('#tasca-signatura .obligatori'), function (i, item) {
-		if ($(item).closest('div').find('input[name=passwd]').is(":visible"))
-			alertas = true;
+	$.ajax({
+        type: 'POST',
+        url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/isSignaturesComplet'/>",
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function(data) {
+        	$('#pipella-signatura span.fa.fa-warning').toggle(!data);
+        	$('#tasca-signatura div.alert.alert-warning').toggle(!data);
+        }
 	});
-	$('#pipella-signatura span.fa.fa-warning').toggle(alertas);
-	$('#tasca-signatura div.alert.alert-warning').toggle(alertas);
 }
 
 function docWriteWrapper(jq, func) {

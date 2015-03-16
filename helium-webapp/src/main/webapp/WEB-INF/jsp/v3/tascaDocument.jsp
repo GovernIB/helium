@@ -25,7 +25,7 @@
 	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
 	.documentTramitacio .comentari {padding-top: 30px;}
 </style>
-<div class="alert alert-warning">
+<div class="alert alert-warning">	
 	<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
 	<p>
 		<span class="fa fa-warning"></span>
@@ -39,10 +39,10 @@
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-		 			<c:if test="${document.plantilla}">
+		 			<c:if test="${document.plantilla and tasca.validada}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/document/${document.id}/generar'/>"
+							href="<c:url value='/ajax/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/generar'/>"
 							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
 							data-rdt-link-ajax=true
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />" 
@@ -53,9 +53,9 @@
 					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/expedient/${expedientId}/document/${document.documentStoreId}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
-					<a 	class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" 
+					<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
 						id="removeUrl${document.id}" 
-						href="<c:url value="/ajax/v3/expedient/${expedientId}/tasca/${tascaId}/document/${document.id}/esborrar"></c:url>"
+						href="<c:url value="/ajax/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/esborrar"></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						data-rdt-link-ajax=true
 						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />" 
@@ -91,11 +91,13 @@
 					</div>
 				</div>
 			</div>
-			<div id="modal-botons${document.id}" class="modal-botons <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-				<button class="pull-right btn btn-primary right" name="accio" onclick="documentGuardar(${document.id});" value="document_guardar">
-					<spring:message code='comuns.guardar' />
-				</button>
-			</div>
+			<c:if test="${tasca.validada}">
+				<div id="modal-botons${document.id}" class="modal-botons <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
+					<button class="pull-right btn btn-primary right" name="accio" onclick="documentGuardar(${document.id});" value="document_guardar">
+						<spring:message code='comuns.guardar' />
+					</button>
+				</div>
+			</c:if>
 		</form>
 	</div>
 </c:forEach>	        
@@ -165,7 +167,7 @@
 			return false;
 		$.ajax({
             type: 'POST',
-            url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/adjuntar'/>",
+            url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/adjuntar'/>",
             data: new FormData($("#form"+docId)[0]),
             cache: false,
             contentType: false,
@@ -194,7 +196,7 @@
 	}
 	
 	function documentGenerar(docId, codi, adjuntarAuto, data) {
-		var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/document/'/>"+docId+"/"+codi+"/descarregar";
+		var url = "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/'/>"+docId+"/"+codi+"/descarregar";
 		if (data == "arxiuView") {
 	   		window.location.href = url;
 		} else if (data != null && data != '') {
@@ -217,13 +219,17 @@
 	}
 	
 	function comprobarRequeridos() {
-		var alertas = false;
-		$.each($('#tasca-document .obligatori'), function (i, item) {
-			if ($(item).closest('form').find('input[name=contingut]').is(":visible"))
-				alertas = true;
+		$.ajax({
+            type: 'POST',
+            url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/isDocumentsComplet'/>",
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+        		$('#pipella-document span.fa.fa-warning').toggle(!data);
+        		$('#tasca-document div.alert.alert-warning').toggle(!data);            	
+            }
 		});
-		$('#pipella-document span.fa.fa-warning').toggle(alertas);
-		$('#tasca-document div.alert.alert-warning').toggle(alertas);
 	}
 	
 	function amagarFile(docId, correcte) {
