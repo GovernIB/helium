@@ -166,7 +166,8 @@ public class TascaFormValidatorHelper implements Validator {
 				}
 				comprovaCamp(camp, command, errors);
 			}
-			if (validarExpresions) {
+			// Només valida amb expressions si no hi ha errors previs
+			if (validarExpresions && !errors.hasErrors()) {
 				getValidatorPerExpressions(tascaDades, command).validate(command, errors);
 			}
 			logger.debug(errors.toString());
@@ -309,18 +310,26 @@ public class TascaFormValidatorHelper implements Validator {
 									String codiError = "error.camp." + camp.getVarCodi();
 									validationRule.setErrorCode(codiError);
 									validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
+									System.out.println(">>> Expressió validació (" +
+											"camp=" + camp.getVarCodi() + ", " +
+											"expressió=" + expressio + ", " +
+											"missatge=" + camp.getCampEtiqueta() + ": " + validacio.getMissatge() + ")");
 									beanValidationConfiguration.addPropertyRule(
 											camp.getVarCodi(),
 											validationRule);
 								} else {
 									for (int i = 0; i < Array.getLength(valors); i++) {
-										String expressio_fill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
+										String expressioFill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
 										ExpressionValidationRule validationRule = new ExpressionValidationRule(
 												new ValangConditionExpressionParser(),
-												expressio_fill);
+												expressioFill);
 										String codiError = "error.camp." + camp.getVarCodi();
 										validationRule.setErrorCode(codiError);
 										validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
+										System.out.println(">>> Expressió validació (" +
+												"camp=" + camp.getVarCodi() + "[" + i + "], " +
+												"expressió=" + expressioFill + ", " +
+												"missatge=" + camp.getCampEtiqueta() + ": " + validacio.getMissatge() + ")");
 										beanValidationConfiguration.addPropertyRule(
 												camp.getVarCodi() + "[" + i + "]",
 												validationRule);
@@ -334,6 +343,10 @@ public class TascaFormValidatorHelper implements Validator {
 						ExpressionValidationRule validationRule = new ExpressionValidationRule(
 								new ValangConditionExpressionParser(),
 								validacio.getExpressio());
+						System.out.println(">>> Expressió validació (" +
+								"camp=" + camp.getVarCodi() + ", " +
+								"expressió=" + validacio.getExpressio() + ", " +
+								"missatge=" + validacio.getMissatge() + ")");
 						String codiError = "error.camp." + camp.getVarCodi();
 						validationRule.setErrorCode(codiError);
 						validationRule.setDefaultErrorMessage(validacio.getMissatge());

@@ -767,7 +767,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		validator.validate(commandValidar, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
-//			MissatgesHelper.errorGlobal(request, result, getMessage(request, "error.validacio"));
 			return false;
 		} else if (!accioValidarForm(request, tascaId, expedientId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));

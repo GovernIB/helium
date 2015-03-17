@@ -22,7 +22,6 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-	
 	<hel:modalHead/>
 	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
 </head>
