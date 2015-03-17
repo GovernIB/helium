@@ -519,6 +519,31 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<ExpedientDadaDto> dadesInstancia = expedientService.findDadesPerInstanciaProces(expedientId, instaciaProcesId);
 		if (dadesInstancia == null || dadesInstancia.isEmpty())
 			return null;
+//		Collections.sort(
+//				dadesInstancia, 
+//				new Comparator<ExpedientDadaDto>() {
+//					public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+//						if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
+//							return 0;
+//						if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
+//							return (d1.getAgrupacioId() == null ? -1 : 1);
+//						int c = d1.getAgrupacioId().compareTo(d2.getAgrupacioId());
+//						if (c != 0) 
+//							return c;
+//						else 
+//							return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
+//					}
+//				});
+		
+		// Obtenim les agrupacions de la definició de procés
+		// Les posam amb un map per a que obtenir el nom sigui directe
+		List<CampAgrupacioDto> agrupacions = expedientService.findAgrupacionsDadesPerInstanciaProces(expedientId, instaciaProcesId);
+		final Map<Long,CampAgrupacioDto> magrupacions = new HashMap<Long, CampAgrupacioDto>();
+		for (CampAgrupacioDto agrupacio : agrupacions) {
+			magrupacions.put(agrupacio.getId(), agrupacio);
+		}
+		
+//		Ordenem les dadesInstancia per ordre d'agrupació
 		Collections.sort(
 				dadesInstancia, 
 				new Comparator<ExpedientDadaDto>() {
@@ -527,7 +552,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 							return 0;
 						if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
 							return (d1.getAgrupacioId() == null ? -1 : 1);
-						int c = d1.getAgrupacioId().compareTo(d2.getAgrupacioId());
+						int c = magrupacions.get(d1.getAgrupacioId()).getOrdre() - magrupacions.get(d2.getAgrupacioId()).getOrdre();
 						if (c != 0) 
 							return c;
 						else 
@@ -535,14 +560,20 @@ public class ExpedientDadaController extends BaseExpedientController {
 					}
 				});
 		
-		// Obtenim les agrupacions de la definició de procés
-		// Les posam amb un map per a que obtenir el nom sigui directe
-		List<CampAgrupacioDto> agrupacions = expedientService.findAgrupacionsDadesPerInstanciaProces(expedientId, instaciaProcesId);
-		Map<Long,CampAgrupacioDto> magrupacions = new HashMap<Long, CampAgrupacioDto>();
-		for (CampAgrupacioDto agrupacio : agrupacions) {
-			magrupacions.put(agrupacio.getId(), agrupacio);
-		}
+//		Collections.sort(dadesInstancia,new Comparator<ExpedientDadaDto>() {
+//			public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+//				if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
+//					return 0;
+//				if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
+//					return (d1.getAgrupacioId() == null ? -1 : 1);
+//				return magrupacions.get(d1.getAgrupacioId()).getOrdre() - magrupacions.get(d2.getAgrupacioId()).getOrdre();
+//			}
+//		});
+		
 		magrupacions.put(null, null);
+		
+		
+		
 		
 		Long agrupacioId = null;
 		List<ExpedientDadaDto> dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
@@ -553,6 +584,14 @@ public class ExpedientDadaController extends BaseExpedientController {
 					dadesAgrupacio.add(dada);
 				} else {
 					if (!dadesAgrupacio.isEmpty()) {
+						if (magrupacions.get(agrupacioId) != null)
+						Collections.sort(
+								dadesAgrupacio, 
+								new Comparator<ExpedientDadaDto>() {
+									public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+										return d1.getOrdre() - d2.getOrdre();
+									}
+								});
 						dadesProces.put(magrupacions.get(agrupacioId), dadesAgrupacio);
 						dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
 					}

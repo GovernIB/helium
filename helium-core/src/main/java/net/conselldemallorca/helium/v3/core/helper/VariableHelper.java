@@ -381,6 +381,8 @@ public class VariableHelper {
 			dto.setCampOcult(camp.isOcult());
 			dto.setObservacions(camp.getObservacions());
 			dto.setJbpmAction(camp.getJbpmAction());
+			if (camp.getOrdre() != null)
+				dto.setOrdre(camp.getOrdre());
 			if (camp.getAgrupacio() != null)
 				dto.setAgrupacioId(camp.getAgrupacio().getId());
 			if (camp.getValidacions() != null)
