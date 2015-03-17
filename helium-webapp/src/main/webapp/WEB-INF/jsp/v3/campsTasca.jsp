@@ -134,7 +134,7 @@
 <%-- SUGGEST ------------------------------------------------------------------------------------%>
 			<c:if test="${dada.campTipus == 'SUGGEST'}">
 				<c:choose>
-					<c:when test="${not tasca.inicial}">
+					<c:when test="${not empty tasca and not tasca.inicial}">
 						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valor"/></c:set>
 						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
 					</c:when>
@@ -153,7 +153,7 @@
 <%-- SELECCIO ------------------------------------------------------------------------------------%>					
 			<c:if test="${dada.campTipus == 'SELECCIO'}">
 				<c:choose>
-					<c:when test="${not tasca.inicial}">
+					<c:when test="${not empty tasca and not tasca.inicial}">
 						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valor"/></c:set>
 						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
 					</c:when>

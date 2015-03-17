@@ -9,7 +9,6 @@ import java.lang.management.ThreadMXBean;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@SuppressWarnings("restriction")
 public class MonitorHelper {
 	private static Boolean actiu = null;
 	private static long prevUpTime, prevProcessCpuTime;

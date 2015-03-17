@@ -109,7 +109,7 @@ div.tab-content {
 }
 .multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {
 	float: left;
-	width: calc(100% - 29px);
+	width: calc(100% - 29px) !important;
 }
 .multiple_camp div.suggest, .multiple_camp div.seleccio {
 	float: left;
@@ -117,11 +117,11 @@ div.tab-content {
 }
 .registre .multiple input, .registre .multiple textarea, .registre .multiple_camp .input-group, .registre .multiple_camp .inputcheck {
 	float: left;
-	width: 100% !important;
+	width: 100%;
 }
 .registre .multiple_camp div.suggest, .registre .multiple_camp div.seleccio {
 	float: left;
-	width: 100% !important;
+	width: 100%;
 }
 .registre .multiple input.checkbox {
 	width: auto !important;
@@ -132,7 +132,7 @@ div.tab-content {
 }
 .termgrup input, .termgrup select {
 	float: left;
-		width: calc(100% - 65px); 
+		width: calc(100% - 65px) !important;
 }
 .tercpre {
 	float: left;

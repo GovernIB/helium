@@ -108,9 +108,11 @@ public class TascaFormHelper {
 		    					Array.set(newArray, index++, val);
 		    				}
 		    			}
-	    				resposta.put(
-	    						camp.getVarCodi(),
-	    						newArray);
+		    			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE) || valor != null) {
+		    				resposta.put(
+		    						camp.getVarCodi(),
+		    						newArray);
+		    			}
 		    		} else {
 		    			if (camp.getCampTipus().equals(CampTipusDto.TERMINI) && valor != null) {
 	    					valor = ((TerminiDto)valor).toSavinString();
@@ -118,9 +120,11 @@ public class TascaFormHelper {
 		    			if (camp.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
 			    			valor = Boolean.FALSE;
 			    		}
-		    			resposta.put(
-		    					camp.getVarCodi(),
-		    					valor);
+		    			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE) || valor != null) {
+			    			resposta.put(
+			    					camp.getVarCodi(),
+			    					valor);
+		    			}
 		    		}
     			}
     		} catch (Exception ignored) {}
@@ -544,7 +548,7 @@ public class TascaFormHelper {
 				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
 				int mida = ((Object[])valor).length;
 				Object[][] linies = new Object[mida][midaLinia];
-				
+				boolean varIncloure = false;				
 				for (int l = 0; l < mida; l++) {
 					Object registre = ((Object[])valor)[l];
 					int i = 0;
@@ -555,14 +559,17 @@ public class TascaFormHelper {
 						}
 						if (oValor instanceof TerminiDto)
 							oValor = ((TerminiDto)oValor).toSavinString();
+						if (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor))
+							varIncloure = true;
 						linies[l][i++] = oValor;
 					}
 				}
-				return linies;
+				return varIncloure ? linies : null;
 			} else {
 				int midaLinia = camp.getRegistreDades().size();
 				Object[] linia = new Object[midaLinia];
 				int i = 0;
+				boolean varIncloure = false;
 				for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
 					Object oValor = PropertyUtils.getProperty(valor, campRegistre.getVarCodi());
 					if (camp.isReadOnly()) {
@@ -570,9 +577,11 @@ public class TascaFormHelper {
 					}
 					if (oValor instanceof TerminiDto)
 						oValor = ((TerminiDto)oValor).toSavinString();
+					if (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor))
+						varIncloure = true;
 					linia[i++] = oValor;
 				}
-				return linia;
+				return varIncloure ? linia : null;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
