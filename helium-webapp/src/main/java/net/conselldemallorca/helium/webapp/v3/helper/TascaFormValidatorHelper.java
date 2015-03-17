@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.sf.cglib.beans.BeanGenerator;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -168,7 +171,9 @@ public class TascaFormValidatorHelper implements Validator {
 			}
 			// Només valida amb expressions si no hi ha errors previs
 			if (validarExpresions && !errors.hasErrors()) {
-				getValidatorPerExpressions(tascaDades, command).validate(command, errors);
+				getValidatorPerExpressions(tascaDades, command).validate(
+						getCommandPerValidadorExpressions(command),
+						errors);
 			}
 			logger.debug(errors.toString());
 		} catch (Exception ex) {
@@ -304,35 +309,21 @@ public class TascaFormValidatorHelper implements Validator {
 										}
 										expressio = expressio.replace("sum(" + camp.getVarCodi() + ")", suma.toString());
 									}
-									ExpressionValidationRule validationRule = new ExpressionValidationRule(
-											new ValangConditionExpressionParser(),
-											expressio);
-									String codiError = "error.camp." + camp.getVarCodi();
-									validationRule.setErrorCode(codiError);
-									validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
-									System.out.println(">>> Expressió validació (" +
-											"camp=" + camp.getVarCodi() + ", " +
-											"expressió=" + expressio + ", " +
-											"missatge=" + camp.getCampEtiqueta() + ": " + validacio.getMissatge() + ")");
-									beanValidationConfiguration.addPropertyRule(
+									afegirExpressioValidacio(
 											camp.getVarCodi(),
-											validationRule);
+											expressio,
+											camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
+											"error.camp." + camp.getVarCodi(),
+											beanValidationConfiguration);
 								} else {
 									for (int i = 0; i < Array.getLength(valors); i++) {
 										String expressioFill = expressio.replaceAll(camp.getVarCodi() + "[^\\[]" , camp.getVarCodi() + "[" + i + "]");
-										ExpressionValidationRule validationRule = new ExpressionValidationRule(
-												new ValangConditionExpressionParser(),
-												expressioFill);
-										String codiError = "error.camp." + camp.getVarCodi();
-										validationRule.setErrorCode(codiError);
-										validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
-										System.out.println(">>> Expressió validació (" +
-												"camp=" + camp.getVarCodi() + "[" + i + "], " +
-												"expressió=" + expressioFill + ", " +
-												"missatge=" + camp.getCampEtiqueta() + ": " + validacio.getMissatge() + ")");
-										beanValidationConfiguration.addPropertyRule(
+										afegirExpressioValidacio(
 												camp.getVarCodi() + "[" + i + "]",
-												validationRule);
+												expressioFill,
+												camp.getCampEtiqueta() + ": " + validacio.getMissatge(),
+												"error.camp." + camp.getVarCodi(),
+												beanValidationConfiguration);
 									}
 								}
 							}
@@ -340,19 +331,12 @@ public class TascaFormValidatorHelper implements Validator {
 							logger.error("No s'ha pogut generar la validació de l'expressió definida per a la variable '" + camp.getVarCodi() + "' amb campId " + camp.getCampId());
 						}
 					} else {
-						ExpressionValidationRule validationRule = new ExpressionValidationRule(
-								new ValangConditionExpressionParser(),
-								validacio.getExpressio());
-						System.out.println(">>> Expressió validació (" +
-								"camp=" + camp.getVarCodi() + ", " +
-								"expressió=" + validacio.getExpressio() + ", " +
-								"missatge=" + validacio.getMissatge() + ")");
-						String codiError = "error.camp." + camp.getVarCodi();
-						validationRule.setErrorCode(codiError);
-						validationRule.setDefaultErrorMessage(validacio.getMissatge());
-						beanValidationConfiguration.addPropertyRule(
+						afegirExpressioValidacio(
 								camp.getVarCodi(),
-								validationRule);
+								validacio.getExpressio(),
+								validacio.getMissatge(),
+								"error.camp." + camp.getVarCodi(),
+								beanValidationConfiguration);
 					}
 				}
 			}
@@ -361,6 +345,51 @@ public class TascaFormValidatorHelper implements Validator {
 				Object.class,
 				beanValidationConfiguration);
 		return new BeanValidator(validationConfigurationLoader);
+	}
+
+	private void afegirExpressioValidacio(
+			String varCodi,
+			String validacioExpressio,
+			String validacioMissatge,
+			String errorCodi,
+			DefaultBeanValidationConfiguration beanValidationConfiguration) {
+		ExpressionValidationRule validationRule = new ExpressionValidationRule(
+				new ValangConditionExpressionParser(),
+				validacioExpressio);
+		logger.debug("Afegint expressió VALANG al validador (" +
+				"camp=" + varCodi + ", " +
+				"expressió=" + validacioExpressio + ", " +
+				"missatge=" + validacioMissatge + ")");
+		validationRule.setDefaultErrorMessage(validacioMissatge);
+		validationRule.setErrorCode(errorCodi);
+		beanValidationConfiguration.addPropertyRule(
+				varCodi,
+				validationRule);
+	}
+
+	private Object getCommandPerValidadorExpressions(
+			Object commandOriginal) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		// Crea una còpia del command amb els strings que sigin NULL amb valor buit
+		// per evitar excepcions en les expressions VALANG
+		BeanGenerator bg = new BeanGenerator();
+		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
+			if (!"class".equals(descriptor.getName())) {
+				bg.addProperty(descriptor.getName(), descriptor.getPropertyType());
+			}
+		}
+		Object command = bg.create();
+		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
+			if (!"class".equals(descriptor.getName())) {
+				Object valor = PropertyUtils.getProperty(commandOriginal, descriptor.getName());
+				if (String.class.equals(descriptor.getPropertyType()) && valor == null)
+					valor = "";
+				PropertyUtils.setProperty(
+						command,
+						descriptor.getName(),
+						valor);
+			}
+		}
+		return command;
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormValidatorHelper.class);

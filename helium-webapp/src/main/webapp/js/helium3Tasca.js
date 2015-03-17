@@ -1,6 +1,53 @@
 /**
  * Funcions a executar al montar un formulari de tasca a la versió 3
  */
+function desplegableObtenirParams(input, value) {
+	var dataObj = {};
+	if (value) {
+		dataObj['q'] = value;
+	}
+	var regPrefix = '';
+	if (input.attr('id').indexOf('.') != -1) 
+		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
+	var params = '';
+	$('input', input.parents('form')).each(function() {
+		var attrId = $(this).attr('id');
+		if ($(this).val()) {
+			if (attrId.indexOf('.') == -1) {
+				if (regPrefix.length == 0)
+					params += attrId + ':' + $(this).val() + ',';
+			} else {
+				if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0)
+					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
+			}
+		}
+	});
+	if (params.length > 0)
+		params = params.substring(0, params.length);
+	if (params.length > 0)
+		dataObj['valors'] = params;
+	return dataObj;
+}
+function desplegableInitSeleccio(url, element, callback) {
+	var registreCampId = $(element).closest('table').data('registre-id');
+	var registreIndex = $(element).closest('tr').index();
+	var ajaxData;
+	if (registreCampId) {
+		ajaxData = {
+            	registreCampId: registreCampId,
+            	registreIndex: registreIndex
+            };
+	}
+	if ($(element).val()) {
+		$.ajax(url, {
+            dataType: "json",
+            data: ajaxData
+        }).done(function(data) {
+        	if (data.length > 0)
+        		callback({id: data[0].codi, text: data[0].nom});
+        });
+	}
+}
 function initSuggest(element) {
 	var input = $(element);
 	input.select2({
@@ -13,31 +60,7 @@ function initSuggest(element) {
 	        },
 	        dataType: 'json',
 	        data: function (value) {
-	        	var dataObj = {};
-	        	if (value) {
-	        		dataObj['q'] = value;
-	        	}
-	        	var regPrefix = '';
-	        	if (input.attr('id').indexOf('.') != -1) 
-	        		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
-	        	var params = '';
-	        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-	        		var attrId = $(this).attr('id');
-	        		if ($(this).val()) {
-	        			if (attrId.indexOf('.') == -1) {
-	        				if (regPrefix.length == 0)
-	        					params += attrId + ':' + $(this).val() + ',';
-	        			} else {
-	        				if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0)
-	        					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
-	        			}
-	        		}
-	        	});
-	        	if (params.length > 0)
-	        		params = params.substring(0, params.length);
-	        	if (params.length > 0)
-	        		dataObj['valors'] = params;
-	        	return dataObj;
+	        	return desplegableObtenirParams(input, value);
 	        },
 	        results: function(data, page) {
 	        	var results = [];
@@ -48,22 +71,8 @@ function initSuggest(element) {
 	        }
 	    },
 	    initSelection: function(element, callback) {
-	    	var registreCampId = $(element).closest('table').data('registre-id');
-	    	var registreIndex = $(element).closest('tr').index();
-	    	if ($(element).val()) {
-	    		$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
-	                dataType: "json",
-	                data: function () {
-	                	var dataObj = {};
-	                	dataObj['registreCampId'] = registreCampId;
-	                	dataObj['registreIndex'] = registreIndex;
-	                	return dataObj;
-	                }
-	            }).done(function(data) {
-	            	if (data.length > 0)
-	            		callback({id: data[0].codi, text: data[0].nom});
-	            });
-	    	}
+	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + $(element).val();
+	    	desplegableInitSeleccio(ajaxUrl, element, callback);
 	    },
 	}).on('change', function() {
 		var campName = $(this).attr('name');
@@ -87,31 +96,7 @@ function initSeleccio(element) {
 	        },
 	        dataType: 'json',
 	        data: function (value) {
-	        	var dataObj = {};
-	        	if (value) {
-	        		dataObj['q'] = value;
-	        	}
-	        	var regPrefix = '';
-	        	if (input.attr('id').indexOf('.') != -1) 
-	        		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
-	        	var params = '';
-	        	$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-	        		var attrId = $(this).attr('id');
-	        		if ($(this).val()) {
-	        			if (attrId.indexOf('.') == -1) {
-	        				if (regPrefix.length == 0)
-	        					params += attrId + ':' + $(this).val() + ',';
-	        			} else {
-	        				if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0)
-	        					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
-	        			}
-	        		}
-	        	});
-	        	if (params.length > 0)
-	        		params = params.substring(0, params.length);
-	        	if (params.length > 0)
-	        		dataObj['valors'] = params;
-	        	return dataObj;
+	        	return desplegableObtenirParams(input, value);
 	        },
 	        results: function (data, page) {
 	        	var results = [];
@@ -122,29 +107,16 @@ function initSeleccio(element) {
 	        }
 	    },
 	    initSelection: function (element, callback) {
-	    	var registreCampId = $(element).closest('table').data('registre-id');
-	    	var registreIndex = $(element).closest('tr').index();
-	    	var ajaxData;
-	    	if (registreCampId) {
-	    		ajaxData = {
-	                	registreCampId: registreCampId,
-	                	registreIndex: registreIndex
-	                };
-	    	}
-	    	if ($(element).val()) {
-	    		$.ajax(input.data("urlconsultainicial") + "/" + $(element).val(), {
-	                dataType: "json",
-	                data: ajaxData
-	            }).done(function(data) {
-	            	if (data.length > 0)
-	            		callback({id: data[0].codi, text: data[0].nom});
-	            });
-	    	}
+	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + $(element).val();
+	    	desplegableInitSeleccio(ajaxUrl, element, callback);
 	    },
 	}).on('change', function () {
 		var campName = $(this).attr('name');
 		$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-			if ($(this).data('campparams') == campName) {
+			var campParams;
+			if ($(this).data('campparams'))
+				campParams = $(this).data('campparams').split(',');
+			if ($.inArray(campName, campParams) != -1) {
 				$(this).select2("val", "");
 			}
 		});
