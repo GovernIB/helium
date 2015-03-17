@@ -181,6 +181,13 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
+		if (tascaService.isTascaValidada(tascaId)) {
+			return mostrarInformacioTascaPerPipelles(
+					request,
+					tascaId,
+					model,
+					"form");
+		}
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
@@ -232,9 +239,12 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "transicio", required = false) String transicio,
+			@ModelAttribute("command") Object command, 
+			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
-		if (!accioCompletarForm(request, tascaId, expedientId, transicio)) {
+			Model model) {		
+		validar(request, expedientId, tascaId, command, result, status, model);
+		if (result.hasErrors() || !accioCompletarForm(request, tascaId, expedientId, transicio)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
 					tascaId,
@@ -250,8 +260,6 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@ModelAttribute("command") Object command, 
-			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
 		try {
@@ -347,9 +355,9 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			Model model) {
 		StringBuffer resposta = new StringBuffer();
-		if (!tascaService.isTascaValidada(tascaId)) {
-			resposta.append(getMessage(request, "tasca.tramitacio.form.no.validat") + ".\n");
-		}
+//		if (!tascaService.isTascaValidada(tascaId)) {
+//			resposta.append(getMessage(request, "tasca.tramitacio.form.no.validat") + ".\n");
+//		}
 		if (!tascaService.isDocumentsComplet(tascaId)) {
 			resposta.append(getMessage(request, "tasca.tramitacio.documents.no.complet") + ".\n");
 		}
@@ -684,7 +692,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();
-			if (dada.isReadOnly() || dada.isCampOcult()) {
+			if (dada.isReadOnly()) {
 				itDades.remove();
 			}
 		}
@@ -978,7 +986,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
 				resposta = true;
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
@@ -1037,8 +1045,12 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaService.completar(tascaId, expedientId, transicioSortida);
 				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.completar", new Object[] {tascaIds.length}));
 				resposta = true;
-			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+			} catch (Exception ex) {				
+				if (ex instanceof IllegalStateException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
+				} else if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
@@ -1056,7 +1068,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.tasca.completat"));
 				resposta = true;
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
@@ -1137,7 +1149,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					null);
 				MissatgesHelper.info(request, getMessage(request, "info.document.adjuntat"));
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.guardar.document") + " " + tascaId + ": " + ex.getCause().getMessage());
@@ -1205,7 +1217,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.document.esborrat"));
 				resposta = true;
 	        } catch (Exception ex) {
-	        	if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+	        	if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.esborrar.document") + " " + tascaId + ": " + ex.getCause().getMessage());
@@ -1271,7 +1283,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						docId);
 				MissatgesHelper.info(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.generar.document") + " " + tascaId + ": " + ex.getCause().getMessage());
