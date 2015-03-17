@@ -40,7 +40,6 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -48,7 +47,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springmodules.validation.valang.ValangException;
 
 /**
  * Controlador pel pas de formulari de l'inici d'expedient
@@ -101,53 +99,65 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 	public String iniciarPasFormPost(
 			HttpServletRequest request, 
 			@RequestParam(value = "id", required = false) String id, 
-			@RequestParam(value = "expedientTipusId", required = true) 
-			Long expedientTipusId, 
-			@RequestParam(value = "definicioProcesId", required = false) 
-			Long definicioProcesId, 
-			@RequestParam(value = "accio", required = false) 
-			String accio, 
-			@Valid @ModelAttribute("command") Object command,			
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, 
+			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId, 
+			@Valid @ModelAttribute("command") Object command,
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		if ("iniciar".equals(accio)) {
-			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-			ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
-			Map<String, Object> valors = null;
-			Validator validatorForCommand = null; 
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
+		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
+		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+				tascaService,
+				tascaDades);
+		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
+		
+		validator.setValidarObligatoris(true);
+		validator.setValidarExpresions(true);
+		validator.validate(command, result);
+		DefinicioProcesDto definicioProces = null;
+		if (definicioProcesId != null) {
+			definicioProces = dissenyService.getById(definicioProcesId);
+		} else {
+			definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+		}
+		model.addAttribute("definicioProces", definicioProces);
+		if (result.hasErrors()) {
+			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+			model.addAttribute(command);
+			model.addAttribute("tasca", tasca);
+			model.addAttribute("dades", tascaDades);
+			model.addAttribute("entornId", entorn.getId());
+			model.addAttribute("expedientTipus", expedientTipus);
+			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
+
+			return "v3/expedient/iniciarPasForm";
+		}
+		// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
+		if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
+			ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand = new ExpedientInicioPasTitolCommand();
+			expedientInicioPasTitolCommand.setAny(Calendar.getInstance().get(Calendar.YEAR));
+			expedientInicioPasTitolCommand.setExpedientTipusId(expedientTipusId);
+			expedientInicioPasTitolCommand.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, expedientInicioPasTitolCommand.getAny()));
+			expedientInicioPasTitolCommand.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
+			expedientInicioPasTitolCommand.setEntornId(entorn.getId());
+			model.addAttribute(expedientInicioPasTitolCommand);
+			model.addAttribute("anysSeleccionables", getAnysSeleccionables());
+			model.addAttribute("expedientTipus", expedientTipus);
+
+			request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS, valors);
+
+			return "v3/expedient/iniciarPasTitol";
+		} else {
 			try {
-				validatorForCommand = TascaFormHelper.getBeanValidatorForCommand(tascaDades);
-				validatorForCommand.validate(command, result);
-			} catch (ValangException ex) {
-				validatorForCommand = null;
-				MissatgesHelper.error(request, getMessage(request, "error.validacio") + ": " + ex.getLocalizedMessage());
-				logger.error(getMessage(request, "error.validacio"), ex);
-			}
-			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
-					tascaService,
-					tascaDades);
-			valors = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
-			validarForm(
-					validator,
-					valors,
-					command,
-					result,
-					request,
-					tasca.getId());
-			
-			DefinicioProcesDto definicioProces = null;
-			if (definicioProcesId != null) {
-				definicioProces = dissenyService.getById(definicioProcesId);
-			} else {
-				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
-			}
-			model.addAttribute("definicioProces", definicioProces);
-			if (result.hasErrors() || validatorForCommand == null) {
-				if (validatorForCommand != null)
-					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+				ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProcesId, (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO), (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL), (Integer) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY), valors);
+				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+				ExpedientIniciController.netejarSessio(request);
+			} catch (Exception ex) {				
+				MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient") + ": " + ex);
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
 				model.addAttribute("dades", tascaDades);
@@ -157,47 +167,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 
 				return "v3/expedient/iniciarPasForm";
 			}
-			// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
-			if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
-				ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand = new ExpedientInicioPasTitolCommand();
-				expedientInicioPasTitolCommand.setAny(Calendar.getInstance().get(Calendar.YEAR));
-				expedientInicioPasTitolCommand.setExpedientTipusId(expedientTipusId);
-				expedientInicioPasTitolCommand.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, expedientInicioPasTitolCommand.getAny()));
-				expedientInicioPasTitolCommand.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
-				expedientInicioPasTitolCommand.setEntornId(entorn.getId());
-				model.addAttribute(expedientInicioPasTitolCommand);
-				model.addAttribute("anysSeleccionables", getAnysSeleccionables());
-				model.addAttribute("expedientTipus", expedientTipus);
-
-				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_FORM_VALORS, valors);
-
-				return "v3/expedient/iniciarPasTitol";
-			} else {
-				try {
-					ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProcesId, (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO), (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL), (Integer) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY), valors);
-					MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
-					ExpedientIniciController.netejarSessio(request);
-				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
-					logger.error("No s'ha pogut iniciar l'expedient", ex);
-				}
-			}
 		}
 		return modalUrlTancar();
-	}
-
-	private void validarForm(
-			TascaFormValidatorHelper validator, 
-			Map<String, Object> variables, 
-			Object command, 
-			BindingResult result, 
-			HttpServletRequest request,
-			String tascaId) {
-		validator.setValidarObligatoris(true);
-		validator.validate(command, result);
-		if (result.hasErrors()) {
-			MissatgesHelper.errorGlobal(request, result, getMessage(request, "error.validacio"));
-		} 
 	}
 
 	private synchronized ExpedientDto iniciarExpedient(Long entornId, Long expedientTipusId, Long definicioProcesId, String numero, String titol, Integer any, Map<String, Object> valors) {
