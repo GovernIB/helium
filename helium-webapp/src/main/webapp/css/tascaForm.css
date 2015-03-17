@@ -109,7 +109,7 @@ div.tab-content {
 }
 .multiple input, .multiple textarea, .multiple_camp .input-group, .multiple_camp .inputcheck {
 	float: left;
-	width: calc(100% - 29px) !important;
+	width: calc(100% - 29px);
 }
 .multiple_camp div.suggest, .multiple_camp div.seleccio {
 	float: left;
