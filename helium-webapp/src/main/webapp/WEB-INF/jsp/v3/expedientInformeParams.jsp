@@ -23,11 +23,6 @@
 		<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 		<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 		
-		<script src="<c:url value="/js/moment.js"/>"></script>
-		<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
-		<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
-		<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-		
 		<style>
 			.select2-container-fix {
 				padding-left: 15px !important;

@@ -10,10 +10,6 @@
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 	
-<script src="<c:url value="/js/moment.js"/>"></script>
-<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
-<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
-<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 
 	<form:form id="command" commandName="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 		<input type="hidden" id="procesId" name="procesId" value="${procesId}">

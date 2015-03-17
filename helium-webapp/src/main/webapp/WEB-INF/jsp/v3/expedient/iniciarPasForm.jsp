@@ -23,11 +23,6 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	
-	<script src="<c:url value="/js/moment.js"/>"></script>
-	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
-	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
 	<hel:modalHead/>
 	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
 </head>
