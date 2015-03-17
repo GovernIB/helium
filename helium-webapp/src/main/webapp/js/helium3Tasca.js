@@ -14,11 +14,9 @@ function desplegableObtenirParams(input, value) {
 		var attrId = $(this).attr('id');
 		if ($(this).val()) {
 			if (attrId.indexOf('.') == -1) {
-				if (regPrefix.length == 0)
-					params += attrId + ':' + $(this).val() + ',';
-			} else {
-				if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0)
-					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
+				params += attrId + ':' + $(this).val() + ',';
+			} else if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0) {
+				params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
 			}
 		}
 	});
