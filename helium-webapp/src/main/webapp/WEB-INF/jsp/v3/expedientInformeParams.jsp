@@ -19,6 +19,10 @@
 		<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 		<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 		
+		<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+		<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+		<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+		
 		<script src="<c:url value="/js/moment.js"/>"></script>
 		<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 		<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>

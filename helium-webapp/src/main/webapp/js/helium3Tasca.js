@@ -167,10 +167,7 @@ $(function() {
 	    thousandsSeparator: '.',
 	    allowNegative: false
 	});
-	$(".date").mask("99/99/9999").datetimepicker({
-		locale: moment.locale('ca'),
-		format: 'DD/MM/YYYY'
-	});
+	$(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
 	$(".btn_date").click(function(){
 		$(this).prev(".date").trigger("focus");
 	});
@@ -235,10 +232,7 @@ $(function() {
 			    allowNegative: false
 			});
 		// Camp de tipus date
-		newInput.find(".date").mask("99/99/9999").datetimepicker({
-			locale: moment.locale('ca'),
-			format: 'DD/MM/YYYY'
-		});
+		newInput.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
 		newInput.find(".btn_date").click(function(){
 			$(this).prev(".date").trigger("focus");
 		});
@@ -472,10 +466,7 @@ function addField(idTable) {
 		    allowNegative: false
 		});
 	// Camp de tipus date
-	newTr.find(".date").mask("99/99/9999").datetimepicker({
-		locale: moment.locale('ca'),
-		format: 'DD/MM/YYYY'
-		});
+	newTr.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
 	newTr.find(".btn_date").click(function(){
 		$(this).prev(".date").trigger("focus");
 	});

@@ -7,6 +7,10 @@
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="numColumnes" value="${3}"/>
+
+<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 <script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 <c:if test="${not tasca.validada}">
 	<div class="alert alert-warning">
