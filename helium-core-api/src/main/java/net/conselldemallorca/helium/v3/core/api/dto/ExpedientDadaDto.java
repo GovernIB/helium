@@ -25,10 +25,11 @@ public class ExpedientDadaDto {
 	private String campEtiqueta;
 	private boolean campMultiple;
 	private boolean campOcult;
-	private boolean required;
-	private int ordre;
+	private String[] campParams;
+
 	private String jbpmAction;
 	private String observacions;
+	private String definicioProcesKey;
 
 	private String text;
 	private List<ExpedientDadaDto> multipleDades;
@@ -36,21 +37,13 @@ public class ExpedientDadaDto {
 	private List<ValidacioDto> validacions;
 
 	private String error;
-	
+
+	private boolean required; // Si es obligatori a dins camp tipus registre
+	private int ordre;
 	private Long agrupacioId;
 
-	public String getObservacions() {
-		return observacions;
-	}
-	public void setObservacions(String observacions) {
-		this.observacions = observacions;
-	}
-	public String getJbpmAction() {
-		return jbpmAction;
-	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
-	}
+
+
 	public String getVarCodi() {
 		return varCodi;
 	}
@@ -69,12 +62,6 @@ public class ExpedientDadaDto {
 	public void setCampId(Long campId) {
 		this.campId = campId;
 	}
-	public int getOrdre() {
-		return ordre;
-	}
-	public void setOrdre(int ordre) {
-		this.ordre = ordre;
-	}
 	public CampTipusDto getCampTipus() {
 		return campTipus;
 	}
@@ -87,23 +74,41 @@ public class ExpedientDadaDto {
 	public void setCampEtiqueta(String campEtiqueta) {
 		this.campEtiqueta = campEtiqueta;
 	}
-	public boolean isCampOcult() {
-		return campOcult;
-	}
-	public void setCampOcult(boolean campOcult) {
-		this.campOcult = campOcult;
-	}
 	public boolean isCampMultiple() {
 		return campMultiple;
 	}
 	public void setCampMultiple(boolean campMultiple) {
 		this.campMultiple = campMultiple;
 	}
-	public Long getAgrupacioId() {
-		return agrupacioId;
+	public boolean isCampOcult() {
+		return campOcult;
 	}
-	public void setAgrupacioId(Long agrupacioId) {
-		this.agrupacioId = agrupacioId;
+	public void setCampOcult(boolean campOcult) {
+		this.campOcult = campOcult;
+	}
+	public String[] getCampParams() {
+		return campParams;
+	}
+	public void setCampParams(String[] campParams) {
+		this.campParams = campParams;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
+	}
+	public String getDefinicioProcesKey() {
+		return definicioProcesKey;
+	}
+	public void setDefinicioProcesKey(String definicioProcesKey) {
+		this.definicioProcesKey = definicioProcesKey;
 	}
 	public String getText() {
 		return text;
@@ -141,6 +146,19 @@ public class ExpedientDadaDto {
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
+	public int getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
+	}
+	public Long getAgrupacioId() {
+		return agrupacioId;
+	}
+	public void setAgrupacioId(Long agrupacioId) {
+		this.agrupacioId = agrupacioId;
+	}
+
 	public Object[] getMultipleValor() {
 		if (isCampMultiple())
 			return (Object[])getVarValor();
@@ -188,23 +206,22 @@ public class ExpedientDadaDto {
 	public boolean isFontExterna() {
 		return CampTipusDto.SELECCIO.equals(campTipus) || CampTipusDto.SUGGEST.equals(campTipus);
 	}
+
 	public boolean isCampTipusRegistre() {
 		return CampTipusDto.REGISTRE.equals(campTipus);
 	}
-	
+
 	public String getTextMultiple() {
-		if (isCampMultiple()) {
-			String[] textos = new String[multipleDades.size()];
-			int i = 0;
-			for (ExpedientDadaDto dada: multipleDades)
-				textos[i++] = dada.getText();
-			return Arrays.toString(textos);
-			//return Arrays.toString(getMultipleValor());
-		} else {
-			return text;
-		}
+		return getMultipleComText(false);
 	}
-	
+
+	public String getPlantillaText() {
+		return (varValor != null) ? getText() : null;
+	}
+	public String getPlantillaTextMultiple() {
+		return getMultipleComText(true);
+	}
+
 	public  Class<?> getJavaClass() {
 		if (CampTipusDto.STRING.equals(campTipus)) {
 			return String.class;
@@ -228,4 +245,45 @@ public class ExpedientDadaDto {
 			return String.class;
 		}
 	}
+
+
+
+	private String getMultipleComText(boolean plantilla) {
+		if (isCampMultiple()) {
+			String[] textos = new String[multipleDades.size()];
+			int i = 0;
+			for (ExpedientDadaDto dadaMultiple: multipleDades) {
+				if (isCampTipusRegistre()) {
+					String[] regs = new String[dadaMultiple.getRegistreDades().size()];
+					int j = 0;
+					for (ExpedientDadaDto dadaRegistre: dadaMultiple.getRegistreDades()) {
+						if (plantilla)
+							regs[j++] = dadaRegistre.getPlantillaText();
+						else
+							regs[j++] = dadaRegistre.getText();
+					}
+					textos[i++] = Arrays.toString(regs);
+				} else {
+					if (plantilla)
+						textos[i++] = dadaMultiple.getPlantillaText();
+					else
+						textos[i++] = dadaMultiple.getText();
+				}
+			}
+			return Arrays.toString(textos);
+		} else if (isCampTipusRegistre()) {
+			String[] regs = new String[registreDades.size()];
+			int i = 0;
+			for (ExpedientDadaDto dadaRegistre: registreDades) {
+				if (plantilla)
+					regs[i++] = dadaRegistre.getPlantillaText();
+				else
+					regs[i++] = dadaRegistre.getText();
+			}
+			return Arrays.toString(regs);
+		} else {
+			return text;
+		}
+	}
+
 }

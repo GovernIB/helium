@@ -199,32 +199,14 @@ public class TascaDadaDto {
 	}
 
 	public String getTextMultiple() {
-		if (isCampMultiple()) {
-			String[] textos = new String[multipleDades.size()];
-			int i = 0;
-			for (TascaDadaDto dadaMultiple: multipleDades) {
-				if (isCampTipusRegistre()) {
-					String[] regs = new String[dadaMultiple.getRegistreDades().size()];
-					int j = 0;
-					for (TascaDadaDto dadaRegistre: dadaMultiple.getRegistreDades()) {
-						regs[j++] = dadaRegistre.getText();
-					}
-					textos[i++] = Arrays.toString(regs);
-				} else {
-					textos[i++] = dadaMultiple.getText();
-				}
-			}
-			return Arrays.toString(textos);
-		} else if (isCampTipusRegistre()) {
-			String[] regs = new String[registreDades.size()];
-			int i = 0;
-			for (TascaDadaDto dadaRegistre: registreDades) {
-				regs[i++] = dadaRegistre.getText();
-			}
-			return Arrays.toString(regs);
-		} else {
-			return text;
-		}
+		return getMultipleComText(false);
+	}
+
+	public String getPlantillaText() {
+		return (varValor != null) ? getText() : null;
+	}
+	public String getPlantillaTextMultiple() {
+		return getMultipleComText(true);
 	}
 
 	public String getJavaClassMultiple() {
@@ -306,6 +288,46 @@ public class TascaDadaDto {
 				sb.append(",");
 		}
 		return sb.toString();
+	}
+
+
+
+	private String getMultipleComText(boolean plantilla) {
+		if (isCampMultiple()) {
+			String[] textos = new String[multipleDades.size()];
+			int i = 0;
+			for (TascaDadaDto dadaMultiple: multipleDades) {
+				if (isCampTipusRegistre()) {
+					String[] regs = new String[dadaMultiple.getRegistreDades().size()];
+					int j = 0;
+					for (TascaDadaDto dadaRegistre: dadaMultiple.getRegistreDades()) {
+						if (plantilla)
+							regs[j++] = dadaRegistre.getPlantillaText();
+						else
+							regs[j++] = dadaRegistre.getText();
+					}
+					textos[i++] = Arrays.toString(regs);
+				} else {
+					if (plantilla)
+						textos[i++] = dadaMultiple.getPlantillaText();
+					else
+						textos[i++] = dadaMultiple.getText();
+				}
+			}
+			return Arrays.toString(textos);
+		} else if (isCampTipusRegistre()) {
+			String[] regs = new String[registreDades.size()];
+			int i = 0;
+			for (TascaDadaDto dadaRegistre: registreDades) {
+				if (plantilla)
+					regs[i++] = dadaRegistre.getPlantillaText();
+				else
+					regs[i++] = dadaRegistre.getText();
+			}
+			return Arrays.toString(regs);
+		} else {
+			return text;
+		}
 	}
 
 	private String getJavaClassFromVar(TascaDadaDto tascaDada) {

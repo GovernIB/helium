@@ -129,7 +129,6 @@ $(function() {
 	}
 	var action = $("#command").attr('action');
 	$("#command").attr('action', cleanAction($("#command").attr('action')));
-
 	// Ajustaments per a cada tipus de camp
 	$(".price").priceFormat({
 		prefix: '',

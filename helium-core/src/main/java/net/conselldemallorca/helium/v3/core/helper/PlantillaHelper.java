@@ -196,7 +196,7 @@ public class PlantillaHelper {
 						String[] registreTexts = new String[multipleDada.getRegistreDades().size()];
 						int indexreg = 0;
 						for (ExpedientDadaDto registreDada: multipleDada.getRegistreDades()) {
-							registreTexts[indexreg++] = registreDada.getText();
+							registreTexts[indexreg++] = registreDada.getPlantillaText();
 						}
 						multipleTexts[index++] = registreTexts;
 					}
@@ -207,7 +207,7 @@ public class PlantillaHelper {
 					String[] multipleTexts = new String[dada.getMultipleDades().size()];
 					int index = 0;
 					for (ExpedientDadaDto multipleDada: dada.getMultipleDades()) {
-						multipleTexts[index++] = multipleDada.getText();
+						multipleTexts[index++] = multipleDada.getPlantillaText();
 					}
 					model.put(
 							dada.getVarCodi(),
@@ -217,7 +217,7 @@ public class PlantillaHelper {
 				String[] registreTexts = new String[dada.getRegistreDades().size()];
 				int index = 0;
 				for (ExpedientDadaDto registreDada: dada.getRegistreDades()) {
-					registreTexts[index++] = registreDada.getText();
+					registreTexts[index++] = registreDada.getPlantillaText();
 				}
 				model.put(
 						dada.getVarCodi(),
@@ -225,7 +225,7 @@ public class PlantillaHelper {
 			} else {
 				model.put(
 						dada.getVarCodi(),
-						dada.getText());
+						dada.getPlantillaText());
 			}
 		}
 	}
@@ -243,7 +243,7 @@ public class PlantillaHelper {
 						String[] registreTexts = new String[multipleDada.getRegistreDades().size()];
 						int indexreg = 0;
 						for (TascaDadaDto registreDada: multipleDada.getRegistreDades()) {
-							registreTexts[indexreg++] = registreDada.getText();
+							registreTexts[indexreg++] = registreDada.getPlantillaText();
 						}
 						multipleTexts[index++] = registreTexts;
 					}
@@ -254,7 +254,7 @@ public class PlantillaHelper {
 					String[] multipleTexts = new String[dada.getMultipleDades().size()];
 					int index = 0;
 					for (TascaDadaDto multipleDada: dada.getMultipleDades()) {
-						multipleTexts[index++] = multipleDada.getText();
+						multipleTexts[index++] = multipleDada.getPlantillaText();
 					}
 					model.put(
 							dada.getVarCodi(),
@@ -264,7 +264,7 @@ public class PlantillaHelper {
 				String[] registreTexts = new String[dada.getRegistreDades().size()];
 				int index = 0;
 				for (TascaDadaDto registreDada: dada.getRegistreDades()) {
-					registreTexts[index++] = registreDada.getText();
+					registreTexts[index++] = registreDada.getPlantillaText();
 				}
 				model.put(
 						dada.getVarCodi(),
@@ -272,7 +272,7 @@ public class PlantillaHelper {
 			} else {
 				model.put(
 						dada.getVarCodi(),
-						dada.getText());
+						dada.getPlantillaText());
 			}
 		}
 	}
