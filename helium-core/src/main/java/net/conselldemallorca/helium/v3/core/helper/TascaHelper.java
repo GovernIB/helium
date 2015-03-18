@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +49,8 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -508,6 +511,16 @@ public class TascaHelper {
 				resposta.add(tasca);
 			}
 		}
+		final boolean compl = completed;
+		Collections.sort(
+				resposta, 
+				new Comparator<ExpedientTascaDto>() {
+					public int compare(ExpedientTascaDto t1, ExpedientTascaDto t2) {
+						int order = t1.getCreateTime().compareTo(t2.getCreateTime());
+						return compl ? order : order*-1;
+					}
+				}
+			);
 		return resposta;
 	}
 
