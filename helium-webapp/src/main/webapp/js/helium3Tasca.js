@@ -11,12 +11,14 @@ function desplegableObtenirParams(input, value) {
 		regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
 	var params = '';
 	$('input', input.parents('form')).each(function() {
-		var attrId = $(this).attr('id');
 		if ($(this).val()) {
-			if (attrId.indexOf('.') == -1) {
-				params += attrId + ':' + $(this).val() + ',';
-			} else if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0) {
-				params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
+			var attrId = $(this).attr('id');
+			if (attrId) {
+				if (attrId.indexOf('.') == -1) {
+					params += attrId + ':' + $(this).val() + ',';
+				} else if (regPrefix.length > 0 && attrId.indexOf(regPrefix) == 0) {
+					params += (attrId.substring(attrId.indexOf('.') + 1)) + ':' + $(this).val() + ',';
+				}
 			}
 		}
 	});

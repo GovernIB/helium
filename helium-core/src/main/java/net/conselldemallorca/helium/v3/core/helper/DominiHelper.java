@@ -244,11 +244,13 @@ public class DominiHelper {
 			Map<String, Object> parametres) {
 		String separador = ", ";
 		StringBuilder sb = new StringBuilder();
-		for (String key: parametres.keySet()) {
-			sb.append(key);
-			sb.append(":");
-			sb.append(parametres.get(key));
-			sb.append(separador);
+		if (parametres != null) {
+			for (String key: parametres.keySet()) {
+				sb.append(key);
+				sb.append(":");
+				sb.append(parametres.get(key));
+				sb.append(separador);
+			}
 		}
 		if (sb.length() > 0)
 			sb.substring(0, sb.length() - separador.length());
