@@ -112,7 +112,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
-		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
+		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(tascaDades, command, false, true);
 		
 		validator.setValidarObligatoris(true);
 		validator.setValidarExpresions(true);

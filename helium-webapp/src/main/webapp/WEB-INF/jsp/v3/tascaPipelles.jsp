@@ -103,26 +103,17 @@ $(document).ready(function() {
 	        if (!permetreFinalitzar)
 	        	return false;
 		}
-		if ($("#command").length > 0) {
-			if ($(this).data('transicio') !== undefined) {
-				$("#command").append( '<input type="hidden" id="transicio" name="transicio" value="'+$(this).data('transicio')+'"/>' );
-			}
-			$("#command").attr('action', "${tascaFormAction}/" + $(this).attr('value'));
-			$("#command").submit();
-		} else {
-			var transicio;
-			if ($(this).data('transicio') !== undefined) {
-				transicio = $(this).data('transicio');
-			}
-			$.ajax({
-	            type: 'POST',
-	            url: "${tascaFormAction}/" + $(this).attr('value'),
-	            data: { "transicio": transicio },
-	            success: function(data) {		            	
-	            	window.parent.modalTancar(window.frameElement, true);
-	            }
-	        });
+		if ($("#command").length == 0) {
+			$('<form/>', {id: 'command', method : 'POST'}).appendTo('body');
 		}
+		if ($(this).data('transicio') !== undefined) {
+			$("#command").append( '<input type="hidden" id="transicio" name="transicio" value="'+$(this).data('transicio')+'"/>' );
+		}
+		if ($('#tasca-pipelles li[class=active]').length > 0) {
+			$("#command").append( '<input type="hidden" id="pipellaActiva" name="pipellaActiva" value="'+$('#tasca-pipelles li[class=active]').attr('id')+'"/>' );
+		}
+		$("#command").attr('action', "${tascaFormAction}/" + $(this).attr('value'));
+		$("#command").submit();
 	});
 	<%-- Mostrar primera pipella activa --%>
 	<c:choose>

@@ -66,12 +66,17 @@ public class TascaFormHelper {
 				false);
 	}
 
+	public static Map<String, Object> getValorsFromCommand(List<TascaDadaDto> tascaDades, Object command, boolean perFiltre) {
+		return getValorsFromCommand(tascaDades, command, perFiltre, false);
+	}
+
 	public static Map<String, Object> getValorsFromCommand(
-			List<TascaDadaDto> tascaDadas,
+			List<TascaDadaDto> tascaDades,
 			Object command,
-			boolean perFiltre) {
+			boolean perFiltre,
+			boolean iniciExpedient) {
     	Map<String, Object> resposta = new HashMap<String, Object>();
-    	for (TascaDadaDto camp: tascaDadas) {
+    	for (TascaDadaDto camp: tascaDades) {
     		try {
     			if (!camp.getCampTipus().equals(CampTipusDto.ACCIO)) {
 		    		Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
@@ -82,7 +87,7 @@ public class TascaFormHelper {
 								camp.getVarCodi(),
 								valor);
 	    			} else if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-    					valor = getArrayFromRegistre(camp, valor);
+    					valor = getArrayFromRegistre(camp, valor, iniciExpedient);
     				}
 		    		if (!perFiltre && camp.isCampMultiple()) {
 	    				// Lleva els valors buits de l'array
@@ -540,9 +545,7 @@ public class TascaFormHelper {
 		return bg.create();
 	}
 
-
-
-	private static Object getArrayFromRegistre(TascaDadaDto camp, Object valor) throws Exception {
+	private static Object getArrayFromRegistre(TascaDadaDto camp, Object valor, boolean iniciExpedient) throws Exception {
 		try {
 			if (camp.isCampMultiple()) {
 				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
@@ -559,7 +562,7 @@ public class TascaFormHelper {
 						}
 						if (oValor instanceof TerminiDto)
 							oValor = ((TerminiDto)oValor).toSavinString();
-						if (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor))
+						if (!iniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 							varIncloure = true;
 						linies[l][i++] = oValor;
 					}
@@ -577,7 +580,7 @@ public class TascaFormHelper {
 					}
 					if (oValor instanceof TerminiDto)
 						oValor = ((TerminiDto)oValor).toSavinString();
-					if (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor))
+					if (!iniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 						varIncloure = true;
 					linia[i++] = oValor;
 				}
@@ -662,5 +665,4 @@ public class TascaFormHelper {
 //	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);
-
 }

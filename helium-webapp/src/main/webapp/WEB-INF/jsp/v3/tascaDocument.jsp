@@ -43,7 +43,7 @@
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
 							href="<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/generar'/>"
-							data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"
+							<c:if test="${document.adjuntarAuto}">data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"</c:if>
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />">
 							<i class="fa fa-file-text-o"></i>
 						</a>

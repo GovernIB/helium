@@ -85,7 +85,7 @@ public class BaseTascaController extends BaseController {
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)
-			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
+			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva").substring("pipella-".length()));
 		else
 			model.addAttribute("pipellaActiva", "form");
 		model.addAttribute("isModal", ModalHelper.isModal(request));

@@ -169,7 +169,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"form");
+				null);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/validar", method = RequestMethod.POST)
@@ -186,7 +186,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					tascaId,
 					model,
-					"form");
+					null);
 		}
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
@@ -230,7 +230,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				"form");
+				result.hasErrors() ? "form" : null);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
@@ -242,14 +242,14 @@ public class TascaTramitacioController extends BaseTascaController {
 			@ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {		
+			Model model) {
 		validar(request, expedientId, tascaId, command, result, status, model);
 		if (result.hasErrors() || !accioCompletarForm(request, tascaId, expedientId, transicio)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
 					tascaId,
 					model,
-					"form");
+					result.hasErrors() ? "form" : null);
 		}
 		status.setComplete();
 		return modalUrlTancar();
