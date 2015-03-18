@@ -825,11 +825,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.formulari.restaurat"));
 				resposta = true;
 			} catch (Exception ex) {
-				// String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
-				// MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaIdLog);
-				// logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + tascaIdLog, ex);
-				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaId);
-				logger.error("No s'ha pogut restaurat les dades del formulari en la tasca " + tascaId, ex);
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
+				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + descripcioTasca);
+				logger.error("No s'ha pogut restaurat les dades del formulari en la tasca " + descripcioTasca, ex);
 			}
 		}
 		return resposta;
@@ -879,11 +877,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.dades.form.guardat"));
 				resposta = true;
 			} catch (Exception ex) {
-//				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
-//				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaIdLog);
-//				logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + tascaIdLog, ex);
-				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaId);
-				logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + tascaId, ex);
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
+				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + descripcioTasca);
+				logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + descripcioTasca, ex);
 			}
 		}
 		return resposta;
@@ -933,11 +929,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.formulari.validat"));
 				resposta = true;
 			} catch (Exception ex) {
-//				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
-//				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + tascaIdLog);
-//				logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + tascaIdLog, ex);
-				MissatgesHelper.error(request, getMessage(request, "error.validar.formulari") + " " + tascaId);
-				logger.error("No s'ha pogut validar el formulari en la tasca " + tascaId, ex);
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
+				MissatgesHelper.error(request, getMessage(request, "error.validar.formulari") + " " + descripcioTasca);
+				logger.error("No s'ha pogut validar el formulari en la tasca " + descripcioTasca, ex);
 			}
 		}
 		return resposta;
@@ -986,14 +980,15 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
 				resposta = true;
 			} catch (Exception ex) {
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
 				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.executar.accio") + " " + tascaId + ": " + 
+		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 					logger.error("No s'ha pogut executar l'acció " + tascaId, ex);
 				}
@@ -1015,7 +1010,6 @@ public class TascaTramitacioController extends BaseTascaController {
 				break;
 			}
 		}
-		
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -1049,15 +1043,15 @@ public class TascaTramitacioController extends BaseTascaController {
 				if (ex instanceof IllegalStateException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
 				} else if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.finalitzar.tasca") + " " + tascaId + ": " + 
+		        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 					logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
 				}
@@ -1071,11 +1065,11 @@ public class TascaTramitacioController extends BaseTascaController {
 				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.finalitzar.tasca") + " " + tascaId + ": " + 
+		        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 					logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
 				}
@@ -1149,16 +1143,17 @@ public class TascaTramitacioController extends BaseTascaController {
 					null);
 				MissatgesHelper.info(request, getMessage(request, "info.document.adjuntat"));
 			} catch (Exception ex) {
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
 				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.guardar.document") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.guardar.document") + " " + tascaId + ": " + 
+		        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut executar l'acció " + tascaId, ex);
+					logger.error("No s'ha pogut guardar el document " + tascaId, ex);
 				}
 			}
 		}
@@ -1217,14 +1212,15 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.document.esborrat"));
 				resposta = true;
 	        } catch (Exception ex) {
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
 	        	if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.esborrar.document") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.esborrar.document") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.executar.accio") + " " + tascaId + ": " + 
+		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 					logger.error("No s'ha pogut esborrar el document '" + docId + "' a la tasca " + tascaId, ex);
 		        }
@@ -1283,20 +1279,31 @@ public class TascaTramitacioController extends BaseTascaController {
 						docId);
 				MissatgesHelper.info(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
+				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
 				if (ex.getCause() != null && ex instanceof ValidationException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.generar.document") + " " + tascaId + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.generar.document") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.generar.document") + " " + tascaId + ": " + 
+		        			getMessage(request, "error.generar.document") + " " + descripcioTasca + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 					logger.error("No s'ha pogut generar l'document " + tascaId, ex);
 				}
 			}
 		}
 		return generat;
+	}
+
+	private String getDescripcioTascaPerMissatgeUsuari(
+			String tascaId) {
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		return getDescripcioTascaPerMissatgeUsuari(tasca);
+	}
+	private String getDescripcioTascaPerMissatgeUsuari(
+			ExpedientTascaDto tasca) {
+		return tasca.getTitol() + " - " + tasca.getExpedientIdentificador();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaTramitacioController.class);
