@@ -93,7 +93,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 									<c:import url="import/expedientTaula.jsp">
 										<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 										<c:param name="numColumnes" value="${numColumnes}"/>
-										<c:param name="count" value="${count}"/>
+										<c:param name="count" value="${totalsPerProces[proces]}"/>
 										<c:param name="desplegat" value="${true}"/>
 										<c:param name="mostrarCapsalera" value="${false}"/>
 										<c:param name="procesId" value="${proces.id}"/>

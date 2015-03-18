@@ -114,6 +114,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
+		Map<InstanciaProcesDto,Integer> totalsPerProces = new LinkedHashMap<InstanciaProcesDto, Integer>();
 		// Per a cada instància de procés ordenem les dades per agrupació  
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -125,12 +126,18 @@ public class ExpedientDadaController extends BaseExpedientController {
 						ambOcults);
 			}
 			dades.put(instanciaProces, dadesInstancia);
+			int contadorTotals = 0;
+			for(List<ExpedientDadaDto> list: dadesInstancia.values()){
+				contadorTotals += list.size();
+			}
+			totalsPerProces.put(instanciaProces, contadorTotals);
 		}
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("arbreProcessos", arbreProcessos);
 		model.addAttribute("dades", dades);
 		model.addAttribute("ambOcults", !expedient.isPermisAdministration() ? false : ambOcults);
+		model.addAttribute("totalsPerProces", totalsPerProces);
 	}
 
 	@RequestMapping(value = "/{expedientId}/dades/{procesId}")

@@ -60,6 +60,9 @@
 		<c:when test="${not empty paramCount and ambOcults}">
 			<c:set var="nombre" value="${paramCount}"/>
 		</c:when>
+		<c:when test="${not empty paramCount}">
+			<c:set var="nombre" value="${paramCount}"/>
+		</c:when>
 		<c:otherwise>
 			<c:set var="nombre" value="${0}"/>
 			<c:forEach var="dada" items="${paramDades}">
