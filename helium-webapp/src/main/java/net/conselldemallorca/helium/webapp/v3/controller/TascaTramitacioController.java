@@ -1144,17 +1144,11 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.document.adjuntat"));
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				if (ex.getCause() != null && ex instanceof ValidationException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut guardar el document " + tascaId, ex);
-				}
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
 			}
 		}
 		return documentStoreId;
@@ -1213,17 +1207,11 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 	        } catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-	        	if (ex.getCause() != null && ex instanceof ValidationException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.esborrar.document") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut esborrar el document '" + docId + "' a la tasca " + tascaId, ex);
-		        }
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.esborrar.document") + " " + descripcioTasca + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut esborrar el document '" + docId + "' a la tasca " + tascaId, ex);
 	        }
 		}
 		return resposta;
@@ -1270,7 +1258,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
-				logger.error("No s'ha pogut generar l'document massiu en la tasca " + tascaId, ex);
+				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
 			}
 		} else {
 			try {
@@ -1280,17 +1268,11 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.info(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				if (ex.getCause() != null && ex instanceof ValidationException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.generar.document") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.generar.document") + " " + descripcioTasca + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut generar l'document " + tascaId, ex);
-				}
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.generar.document") + " " + descripcioTasca + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut generar el document " + tascaId, ex);
 			}
 		}
 		return generat;

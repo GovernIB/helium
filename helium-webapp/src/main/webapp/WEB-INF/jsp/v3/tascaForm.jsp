@@ -32,48 +32,6 @@
 		</c:choose>
 	</div>
 </c:if>
-<%--c:if test="${not empty tasca.tascaFormExternCodi}">	
-	<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-	<script type="text/javascript">
-		function clickFormExtern(form) {
-			formulariExternDwrService.dadesIniciFormulari(
-					form.id.value,
-					{
-						callback: function(retval) {
-							if (retval) {
-								$("#linkClickFormExtern").attr('href', '<c:url value='../../../../../v3/expedient/formExtern'/>?width='+retval[1]+'&height='+retval[2]+'&url='+retval[0]).click();
-							} else {
-								alert("<spring:message code='tasca.form.error_ini' />");
-							}
-						},
-						async: false
-					});
-			return false;
-		}
-	</script>
-	<div class="form-group">
-		<form id="formExtern" action="formExtern" class="form-horizontal form-tasca" onclick="return clickFormExtern(this)">
-			<input type="hidden" name="id" value="${tasca.id}"/>
-			<div id="modal-botons-form-extern" class="pull-right form_extern">
-				<button type="submit" id="btn_formextern" name="accio" value="formextern" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></button>
-			</div>								
-			<a id="linkClickFormExtern" data-rdt-link-modal="true" data-rdt-link-modal-min-height="400" data-rdt-link-callback="recargarPanel(this);" href="#" class="hide"></a>
-			<script type="text/javascript">
-				$('#linkClickFormExtern').heliumEvalLink({
-					refrescarAlertes: true,
-					refrescarPagina: false,
-					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
-				});
-				function recargarPanel(tag, correcte) {
-					if (correcte) {
-						location.reload();
-					}
-				}
-			</script>
-		</form>
-	</div>
-</c:if--%>
 	
 <c:choose>
 	<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
@@ -142,5 +100,3 @@
 		<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 	</c:forEach>
 </form:form>
-<%--</body>
-</html>--%>

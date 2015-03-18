@@ -17,6 +17,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -121,7 +122,6 @@ public class ExpedientIniciController extends BaseExpedientController {
 		}
 		model.addAttribute("expedientTipus", tipus);
 		model.addAttribute("definicionsProces", definicionsProces);
-
 		return "v3/expedient/iniciar";
 	}
 
@@ -131,7 +131,6 @@ public class ExpedientIniciController extends BaseExpedientController {
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		netejarSessio(request);
 		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
-
 		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
 		DefinicioProcesDto definicioProces = null;
 		if (definicioProcesId != null) {
@@ -151,7 +150,6 @@ public class ExpedientIniciController extends BaseExpedientController {
 			return "v3/expedient/iniciarPasForm";
 		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
 			// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número redirigeix al pas per demanar aquestes dades
-
 			ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
 			command.setAny(Calendar.getInstance().get(Calendar.YEAR));
 			command.setExpedientTipusId(expedientTipusId);
@@ -171,8 +169,17 @@ public class ExpedientIniciController extends BaseExpedientController {
 				ExpedientIniciController.netejarSessio(request);
 				return modalUrlTancar();
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
-				logger.error("No s'ha pogut iniciar l'expedient", ex);
+				if (ex.getCause() != null && ex instanceof ValidationException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				} else {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.iniciar.expedient") + ": " + 
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+					logger.error("No s'ha pogut iniciar l'expedient", ex);
+		        }
 			}
 		}
 		return iniciarGet(request, model);

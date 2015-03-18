@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -102,8 +103,17 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient"));
-				logger.error("No s'ha pogut iniciar l'expedient", ex);
+				if (ex.getCause() != null && ex instanceof ValidationException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				} else {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.iniciar.expedient") + ": " + 
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+					logger.error("No s'ha pogut iniciar l'expedient", ex);
+		        }
 			}
 		}
 		return modalUrlTancar();

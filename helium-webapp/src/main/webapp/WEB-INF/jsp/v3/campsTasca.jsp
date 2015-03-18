@@ -125,7 +125,6 @@
 				
 				<c:if test="${not empty campFocus}">
 					<script>
-						alert("campFocus: " + ${campFocus});
 						campOnFocus(${dada.jbpmAction});
 					</script>
 				</c:if>

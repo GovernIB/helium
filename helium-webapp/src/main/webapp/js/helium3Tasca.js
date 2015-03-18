@@ -324,8 +324,9 @@ $(function() {
 			$(this).prev().val(false);
 		}
 	})
-	$(".btn_accio").click(function(){
+	$(".btn_accio").click(function() {
 		if (confirm($(this).data("confirmacio"))) {
+			$(this).attr('disabled', 'disabled');
 			$("#command").attr('action', $("#command").attr('action') + "/accio");
 			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');		
 			return true;

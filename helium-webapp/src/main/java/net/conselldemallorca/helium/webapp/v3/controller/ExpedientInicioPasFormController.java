@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -155,16 +156,24 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProcesId, (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO), (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL), (Integer) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY), valors);
 				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
-			} catch (Exception ex) {				
-				MissatgesHelper.error(request, getMessage(request, "error.iniciar.expedient") + ": " + ex);
-				logger.error("No s'ha pogut iniciar l'expedient", ex);
+			} catch (Exception ex) {
+				if (ex.getCause() != null && ex instanceof ValidationException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				} else {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.iniciar.expedient") + ": " + 
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+					logger.error("No s'ha pogut iniciar l'expedient", ex);
+		        }
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
 				model.addAttribute("dades", tascaDades);
 				model.addAttribute("entornId", entorn.getId());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-
 				return "v3/expedient/iniciarPasForm";
 			}
 		}
