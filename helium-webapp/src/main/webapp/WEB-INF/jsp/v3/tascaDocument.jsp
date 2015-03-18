@@ -25,13 +25,24 @@
 	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
 	.documentTramitacio .comentari {padding-top: 30px;}
 </style>
-<div class="alert alert-warning">	
-	<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-	<p>
-		<span class="fa fa-warning"></span>
-		<spring:message code="tasca.tramitacio.documents.no.complet"/>
-	</p>
-</div>
+<c:if test="${not tasca.validada}">
+	<div class="alert alert-warning">	
+		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+		<p>
+			<span class="fa fa-warning"></span>
+			<spring:message code="tasca.doc.no_es_podran"/>
+		</p>
+	</div>
+</c:if>
+<c:if test="${not tasca.documentsComplet}">
+	<div class="alert alert-warning alert-valid">	
+		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+		<p>
+			<span class="fa fa-warning"></span>
+			<spring:message code="tasca.tramitacio.documents.no.complet"/>
+		</p>
+	</div>
+</c:if>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
 		<form id="form${document.id}" class="form-horizontal form-tasca" action="" enctype="multipart/form-data" method="post"">
@@ -65,29 +76,29 @@
 					</div>
 				</h4>				
 			</div>
-			<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-				<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
-		        <div class="col-xs-10 arxiu">
-		            <div class="input-group">
-		                <input id="contingut${document.id}" name="contingut" class="form-control" />
-		                <span class="input-group-btn">
-		                    <span class="btn btn-default btn-file">
-		                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
-		                    </span>
-		                </span>
-		            </div>
-				</div>
-        	</div>
-			<div id="div_timer${document.id}" class="div_timer form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-		    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
-					<label class="control-label col-xs-4" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
-					<div class="input-group col-xs-10">
-						<input class="form-control datetimepicker" id="data${document.id}" name="data"/>
-						<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
+			<c:if test="${tasca.validada}">
+				<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
+					<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
+			        <div class="col-xs-10 arxiu">
+			            <div class="input-group">
+			                <input  id="contingut${document.id}" name="contingut" class="form-control" />
+			                <span class="input-group-btn">
+			                    <span class="btn btn-default btn-file">
+			                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
+			                    </span>
+			                </span>
+			            </div>
+					</div>
+	        	</div>
+				<div id="div_timer${document.id}" class="div_timer form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
+			    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
+						<label class="control-label col-xs-4" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
+						<div class="input-group col-xs-10">
+							<input class="form-control datetimepicker" id="data${document.id}" name="data"/>
+							<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
+						</div>
 					</div>
 				</div>
-			</div>
-			<c:if test="${tasca.validada}">
 				<div id="modal-botons${document.id}" class="modal-botons <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 					<button class="pull-right btn btn-primary right" name="accio" onclick="documentGuardar(${document.id});" value="document_guardar">
 						<spring:message code='comuns.guardar' />
@@ -136,7 +147,6 @@
     		var height = $('html').height();
     		iframe.height(height + 'px');
     	});
-		comprobarRequeridos();
 	});
 	
 	function checkFile(docId) {
@@ -158,20 +168,6 @@
 		var url = "<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/adjuntar'/>";
 		$("#form"+docId).attr('action', url);
 		$("#form"+docId).submit();
-	}
-	
-	function comprobarRequeridos() {
-		$.ajax({
-            type: 'POST',
-            url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/isDocumentsComplet'/>",
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: function(data) {
-        		$('#pipella-document span.fa.fa-warning').toggle(!data);
-        		$('#tasca-document div.alert.alert-warning').toggle(!data);            	
-            }
-		});
 	}
 	// ]]>
 </script>

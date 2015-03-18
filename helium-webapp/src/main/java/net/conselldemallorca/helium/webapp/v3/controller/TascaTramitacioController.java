@@ -393,7 +393,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					"signatura");
 		}		
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute("tascaId", tascaId);
+		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
 		return "v3/tascaSignatura";
 	}

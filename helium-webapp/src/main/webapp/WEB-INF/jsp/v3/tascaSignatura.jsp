@@ -27,13 +27,24 @@
 	.signarTramitacio .select2-container {width: 100% !important;}
 	.signarTramitacio .ctrlHolder {padding-bottom: 10px;}
 </style>
-<div class="alert alert-warning">
-	<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-	<p>
-		<span class="fa fa-warning"></span>
-		<spring:message code="tasca.tramitacio.firmes.no.complet"/>
-	</p>
-</div>
+<c:if test="${not tasca.documentsComplet}">
+	<div class="alert alert-warning">	
+		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+		<p>
+			<span class="fa fa-warning"></span>
+			<spring:message code="tasca.signa.no_es_podran"/>
+		</p>
+	</div>
+</c:if>
+<c:if test="${not tasca.signaturesComplet}">
+	<div class="alert alert-warning alert-valid">
+		<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+		<p>
+			<span class="fa fa-warning"></span>
+			<spring:message code="tasca.tramitacio.firmes.no.complet"/>
+		</p>
+	</div>
+</c:if>
 <c:set var="sourceUrl" value="${globalProperties['app.base.url']}/v3/expedient/document/arxiuPerSignar"/>
 <c:forEach var="document" items="${signatures}">
 	<div class="signarTramitacio well well-small">
@@ -50,9 +61,9 @@
 							</h4>
 							<div id="firmar${document.id}">
 								<c:if test="${not document.signat}">
-									<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/expedient/${expedientId}/tasca/${tascaId}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+									<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
 										<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
-										<input type="hidden" id="taskId${document.id}" name="taskId" value="${tascaId}"/>
+										<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
 										<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
 										
 										<div class="form-group">
@@ -80,7 +91,7 @@
 							<script type="text/javascript">
 							// <![CDATA[
 								$(document).ready( function() {
-									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tascaId}/icones/${document.id}"/>');// Comprobar fichero
+									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
 									
 									$.get("${sourceUrl}?token=${document.tokenSignatura}")
 									.done(function(data) {})
@@ -124,22 +135,7 @@ $(document).ready(function() {
 			obtenirCertificats();
 		} 
 	});
- 	comprobarRequeridos();
 });
-
-function comprobarRequeridos() {
-	$.ajax({
-        type: 'POST',
-        url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tascaId}/isSignaturesComplet'/>",
-        cache: false,
-        contentType: false,
-        processData: false,
-        success: function(data) {
-        	$('#pipella-signatura span.fa.fa-warning').toggle(!data);
-        	$('#tasca-signatura div.alert.alert-warning').toggle(!data);
-        }
-	});
-}
 
 function docWriteWrapper(jq, func) {
     var oldwrite = document.write, content = '';
