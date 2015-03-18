@@ -25,7 +25,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 <c:set var="numColumnes" value="${3}"/>
 <c:choose>
 	<c:when test="${not empty dades}">
-		<c:if test="${isAdmin}">
+		<c:if test="${expedient.permisAdministration}">
 			<div class="pull-left">
 				<a id="boto-ocults" href="#" class="btn btn-default<c:if test="${ambOcults}"> active</c:if>">
 					<c:choose>
@@ -43,7 +43,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 			<div class="btnNovaDada right">
 				<a id=""
 					class="btn btn-default" 
-					href="../../v3/expedient/${expedientId}/novaDada/${proces.id}" 
+					href="../../v3/expedient/${expedient.id}/novaDada/${proces.id}" 
 					data-rdt-link-modal="true" 
 					data-rdt-link-callback="reestructura(${proces.id});"
 					data-rdt-link-modal-min-height="350">
@@ -135,7 +135,7 @@ $(document).ready(function() {
 			var ambOcults = "";
 			if ($("#ambOcults").length)
 				ambOcults = $("#ambOcults").prop('checked');
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + id, {"ambOcults": ambOcults}, updatePanell);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedient.id}/dades/"/>' + id, {"ambOcults": ambOcults}, updatePanell);
 		}
 	});
 	$('#boto-ocults').click(function() {

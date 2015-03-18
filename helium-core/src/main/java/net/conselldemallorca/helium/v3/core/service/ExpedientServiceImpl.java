@@ -548,6 +548,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional
+	public ExpedientDadaDto getDadaPerInstanciaProces(String processInstanceId, String variableCodi, boolean incloureVariablesBuides) {
+		return variableHelper.getDadaPerInstanciaProces(processInstanceId, variableCodi, incloureVariablesBuides);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto dadaPerInstanciaProces) {
+		return variableHelper.getTascaDadaDtoFromExpedientDadaDto(dadaPerInstanciaProces);
+	}
+
+	@Override
+	@Transactional
+	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId) {
+		return variableHelper.findDadesPerInstanciaProces(procesId);
+	}
+
+	@Override
+	@Transactional
 	public void update(
 			Long id,
 			String numero,

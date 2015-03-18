@@ -28,7 +28,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -69,11 +68,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 	@Autowired
 	private TascaService tascaService;
 
-	@Autowired
-	private VariableHelper variableHelper;
-
-
-
 	@RequestMapping(value = "/{expedientId}/dada")
 	public String dades(
 			HttpServletRequest request,
@@ -92,6 +86,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model);
 		return "v3/expedientDades";
 	}
+	
 	@RequestMapping(value = "/{expedientId}/dadaAmbOcults")
 	public String dadesAmbOcults(
 			HttpServletRequest request,
@@ -116,9 +111,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 			boolean ambOcults,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		model.addAttribute(
-				"expedient",
-				expedient);
 		// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
@@ -134,16 +126,11 @@ public class ExpedientDadaController extends BaseExpedientController {
 			}
 			dades.put(instanciaProces, dadesInstancia);
 		}
-		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("arbreProcessos", arbreProcessos);
 		model.addAttribute("dades", dades);
-		boolean isAdmin = expedient.isPermisAdministration(); 
-		if (!isAdmin) {
-			ambOcults = false;
-		}
-		model.addAttribute("isAdmin", isAdmin);
-		model.addAttribute("ambOcults", ambOcults);
+		model.addAttribute("ambOcults", !expedient.isPermisAdministration() ? false : ambOcults);
 	}
 
 	@RequestMapping(value = "/{expedientId}/dades/{procesId}")
@@ -154,17 +141,15 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@RequestParam(value = "ambOcults", required = false) Boolean ambOcults,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		boolean isAdmin = expedient.isPermisAdministration(); 
-		if (!isAdmin) 
-			ambOcults = false;
-		model.addAttribute("isAdmin", isAdmin);
-		model.addAttribute("ambOcults", ambOcults == null ? false : ambOcults);
+		model.addAttribute("expedient", expedient);
+		ambOcults = (ambOcults == null || !expedient.isPermisAdministration()) ? false : ambOcults;
+		model.addAttribute("ambOcults", ambOcults);
 		model.addAttribute(
 				"dades",
 				getDadesInstanciaProces(
 						expedientId,
 						procesId,
-						ambOcults == null ? false : ambOcults.booleanValue()));
+						ambOcults));
 		return "v3/procesDades";
 	}
 
@@ -208,8 +193,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 //					}
 //				}
 				List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
-				TascaDadaDto tascaDada = variableHelper.getTascaDadaDtoFromExpedientDadaDto(
-						variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+				TascaDadaDto tascaDada = expedientService.getTascaDadaDtoFromExpedientDadaDto(
+						expedientService.getDadaPerInstanciaProces(procesId, varCodi, true));
 				llistTasca.add(tascaDada);
 				model.addAttribute("procesId", procesId);
 				model.addAttribute("varCodi", varCodi);
@@ -252,36 +237,27 @@ public class ExpedientDadaController extends BaseExpedientController {
 			SessionStatus status, 
 			Model model) {
 		try {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> llista =  PropertyUtils.describe(command);
-			Object varValue = llista.get(varCodi);
-			/*List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
-//			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
-			TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+			TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(expedientService.getDadaPerInstanciaProces(procesId, varCodi, true));
 			tascaDades.add(tascaDada);
-			
-//			@SuppressWarnings("unchecked")
-//			Map<String, Object> llista =  PropertyUtils.describe(command);
-//			Object varValue = llista.get(varCodi);
-			
+
 			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
 			Object varValue = variables.get(varCodi);
 			
-			//List<ExpedientDadaDto> expedientDadas = variableHelper.findDadesPerInstanciaProces(procesId);
-			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
-					expedientService,
-					tascaDades);
+			//List<ExpedientDadaDto> expedientDadas = expedientService.findDadesPerInstanciaProces(procesId);
+//			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+//					expedientService,
+//					tascaDades);
 //			Map<String, Object> valors = new HashMap<String, Object>();
 //			valors.put(varCodi, varValue);
-			Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
-					variableHelper.findDadesPerInstanciaProces(procesId),
-					variables); 
+//			Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
+//					expedientService.findDadesPerInstanciaProces(procesId),
+//					variables); 
 					
-			validator.validate(commandPerValidacio, result);*/
+//			validator.validate(commandPerValidacio, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";
 			}
-//			ExpedientDadaDto expedientDada = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
 			expedientService.updateVariable(expedientId, procesId, varCodi, varValue);
 			MissatgesHelper.info(request, getMessage(request, "info.dada.proces.modificada") );
 		} catch (NotAllowedException ex) {
@@ -321,11 +297,11 @@ public class ExpedientDadaController extends BaseExpedientController {
 				campsAddicionalsClasses.put("codi", String.class);
 				campsAddicionalsClasses.put("valor", String.class);
 				campsAddicionalsClasses.put("varCodi", String.class);
-//				List<TascaDadaDto> llistTasca = variableHelper.findDadesTascaPerInstanciaProces(procesId);
+//				List<TascaDadaDto> llistTasca = expedientService.findDadesTascaPerInstanciaProces(procesId);
 				List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
 				if (varCodi != null && !"".equals(varCodi)) {
-					TascaDadaDto tascaDada = variableHelper.getTascaDadaDtoFromExpedientDadaDto(
-							variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+					TascaDadaDto tascaDada = expedientService.getTascaDadaDtoFromExpedientDadaDto(
+							expedientService.getDadaPerInstanciaProces(procesId, varCodi, true));
 					llistTasca.add(tascaDada);
 					model.addAttribute("dada", tascaDada);
 				}
@@ -352,9 +328,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			Model model) {
-		model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
-		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, null, null, null, model));
-		return "v3/expedientDadaNova";
+		return novaDadaAmbCodiGet(
+				request,
+				expedientId,
+				procesId,
+				null,
+				model);
 	}
 
 	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.GET)
@@ -366,6 +345,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Model model) {
 		model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, varCodi, null, null, model));
+		if (varCodi == null)
+			return "v3/expedientDadaNova";
 		return "v3/procesDadaNova";
 	}
 
@@ -379,14 +360,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		try {
-			boolean error = false;
-			
-			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
-			
+		try {			
 			if ("Buit".equals(varCodi)) {
 				result.rejectValue("varCodi", "expedient.nova.data.camp.variable.buit");
-				error = true;
 			}
 			// Variable nova tipus String
 			else if ("String".equals(varCodi)) {
@@ -395,25 +371,22 @@ public class ExpedientDadaController extends BaseExpedientController {
 				// Validam que el nom de la variable no comenci per majúscula seguida de minúscula
 				if (codi == null) {
 					result.rejectValue("codi", "error.camp.codi.buit");
-					error = true;
 				} else {
 					if (codi.matches("^[A-Z]{1}[a-z]{1}.*")) {
 						result.rejectValue("codi", "error.camp.codi.maymin");
-						error = true;
 					}
 					if (codi.contains(".")) {
 						result.rejectValue("codi", "error.camp.codi.char.nok");
-						error = true;
-					}
-					
-					if (!error) {
+					}					
+					if (!result.hasErrors()) {
 						expedientService.createVariable(expedientId, procesId, codi, valor);
 					}
 				}
 			} 
 			// Variable de la definició de procés
 			else {
-				TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true));
+				List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+				TascaDadaDto tascaDada = TascaFormHelper.toTascaDadaDto(expedientService.getDadaPerInstanciaProces(procesId, varCodi, true));
 				tascaDades.add(tascaDada);
 				
 				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
@@ -424,18 +397,16 @@ public class ExpedientDadaController extends BaseExpedientController {
 						tascaDades);
 			
 				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
-						variableHelper.findDadesPerInstanciaProces(procesId),
+						expedientService.findDadesPerInstanciaProces(procesId),
 						variables);
 				
 				validator.validate(commandPerValidacio, result);
 				
-				if (result.hasErrors()) {
-					error = true;
-				} else {
+				if (!result.hasErrors()) {
 					expedientService.createVariable(expedientId, procesId, varCodi, varValue);
 				}
 			}
-			if (error) {
+			if (result.hasErrors()) {
 				model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 				return "v3/expedientDadaNova";
 			}
@@ -475,43 +446,40 @@ public class ExpedientDadaController extends BaseExpedientController {
 				new ObjectTypeEditorHelper());
 	}
 
-
-
 	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesId) {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-			List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
-			List<CampDto> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
-			List<ExpedientDadaDto> dadesInstancia = expedientService.findDadesPerInstanciaProces(expedientId, procesId);
-			if (dadesInstancia != null) {
-				Collections.sort(
-					dadesInstancia, 
-					new Comparator<ExpedientDadaDto>() {
-						public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-							return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
-						}
-					}
-				);
-				int i = 0;
-				for(CampDto camp: camps) {
-					while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
-						i++;
-					if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
-						campsNoUtilitzats.add(camp);
-					} else if (i < (dadesInstancia.size() - 1)){
-						i++;
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
+		List<CampDto> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
+		List<ExpedientDadaDto> dadesInstancia = expedientService.findDadesPerInstanciaProces(expedientId, procesId);
+		if (dadesInstancia != null) {
+			Collections.sort(
+				dadesInstancia, 
+				new Comparator<ExpedientDadaDto>() {
+					public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+						return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
 					}
 				}
-				return campsNoUtilitzats;
-			} else {
-				return camps;
+			);
+			int i = 0;
+			for(CampDto camp: camps) {
+				while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
+					i++;
+				if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
+					campsNoUtilitzats.add(camp);
+				} else if (i < (dadesInstancia.size() - 1)){
+					i++;
+				}
 			}
+			return campsNoUtilitzats;
+		} else {
+			return camps;
+		}
 	}
 
 	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> getDadesInstanciaProces(
 			Long expedientId,
 			String instaciaProcesId,
-			boolean ambOcults) {
-		
+			boolean ambOcults) {		
 		// definirem un mapa. La clau serà el nom de l'agrupació, i el valor el llistat de variables de l'agrupació
 		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesProces = new LinkedHashMap<CampAgrupacioDto, List<ExpedientDadaDto>>();
 		
@@ -519,21 +487,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<ExpedientDadaDto> dadesInstancia = expedientService.findDadesPerInstanciaProces(expedientId, instaciaProcesId);
 		if (dadesInstancia == null || dadesInstancia.isEmpty())
 			return null;
-//		Collections.sort(
-//				dadesInstancia, 
-//				new Comparator<ExpedientDadaDto>() {
-//					public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-//						if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
-//							return 0;
-//						if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
-//							return (d1.getAgrupacioId() == null ? -1 : 1);
-//						int c = d1.getAgrupacioId().compareTo(d2.getAgrupacioId());
-//						if (c != 0) 
-//							return c;
-//						else 
-//							return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
-//					}
-//				});
 		
 		// Obtenim les agrupacions de la definició de procés
 		// Les posam amb un map per a que obtenir el nom sigui directe
@@ -545,35 +498,23 @@ public class ExpedientDadaController extends BaseExpedientController {
 		
 //		Ordenem les dadesInstancia per ordre d'agrupació
 		Collections.sort(
-				dadesInstancia, 
-				new Comparator<ExpedientDadaDto>() {
-					public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-						if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
-							return 0;
-						if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
-							return (d1.getAgrupacioId() == null ? -1 : 1);
-						int c = magrupacions.get(d1.getAgrupacioId()).getOrdre() - magrupacions.get(d2.getAgrupacioId()).getOrdre();
-						if (c != 0) 
-							return c;
-						else 
-							return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
-					}
-				});
-		
-//		Collections.sort(dadesInstancia,new Comparator<ExpedientDadaDto>() {
-//			public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-//				if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
-//					return 0;
-//				if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
-//					return (d1.getAgrupacioId() == null ? -1 : 1);
-//				return magrupacions.get(d1.getAgrupacioId()).getOrdre() - magrupacions.get(d2.getAgrupacioId()).getOrdre();
-//			}
-//		});
+			dadesInstancia, 
+			new Comparator<ExpedientDadaDto>() {
+				public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+					if (d1.getAgrupacioId() == null && d2.getAgrupacioId() == null)
+						return 0;
+					if (d1.getAgrupacioId() == null ^ d2.getAgrupacioId() == null)
+						return (d1.getAgrupacioId() == null ? -1 : 1);
+					int c = magrupacions.get(d1.getAgrupacioId()).getOrdre() - magrupacions.get(d2.getAgrupacioId()).getOrdre();
+					if (c != 0) 
+						return c;
+					else 
+						return d1.getCampEtiqueta().compareToIgnoreCase(d2.getCampEtiqueta());
+				}
+			}
+		);
 		
 		magrupacions.put(null, null);
-		
-		
-		
 		
 		Long agrupacioId = null;
 		List<ExpedientDadaDto> dadesAgrupacio = new ArrayList<ExpedientDadaDto>();
@@ -606,5 +547,4 @@ public class ExpedientDadaController extends BaseExpedientController {
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);
-
 }

@@ -817,6 +817,7 @@ public class VariableHelper {
 		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
 		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
 		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		tascaDto.setRequired(expedientDadaDto.isRequired());
 		tascaDto.setText(expedientDadaDto.getText());
 		tascaDto.setError(expedientDadaDto.getError());
 		tascaDto.setObservacions(expedientDadaDto.getObservacions());

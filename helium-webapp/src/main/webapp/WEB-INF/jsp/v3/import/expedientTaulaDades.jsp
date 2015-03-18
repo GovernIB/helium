@@ -35,7 +35,7 @@
 			</c:otherwise>
 		</c:choose>
 	</address>
-	<c:if test="${isAdmin}">
+	<c:if test="${expedient.permisAdministration}">
 	<div class=var_botons>
 		<a 	class="var-edit" 
 			data-rdt-link-modal=true

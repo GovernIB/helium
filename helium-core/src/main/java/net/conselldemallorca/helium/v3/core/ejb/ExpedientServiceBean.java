@@ -650,4 +650,22 @@ public class ExpedientServiceBean implements ExpedientService {
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
 		return delegate.existsExpedientAmbEntornTipusINumero(entornId, expedientTipusId, numero);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDadaDto getDadaPerInstanciaProces(String processInstanceId, String variableCodi, boolean incloureVariablesBuides) {
+		return delegate.getDadaPerInstanciaProces(processInstanceId, variableCodi, incloureVariablesBuides);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto dadaPerInstanciaProces) {
+		return delegate.getTascaDadaDtoFromExpedientDadaDto(dadaPerInstanciaProces);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId) {
+		return delegate.findDadesPerInstanciaProces(procesId);
+	}
 }
