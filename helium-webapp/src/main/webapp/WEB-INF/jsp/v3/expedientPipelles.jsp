@@ -17,7 +17,7 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-<style>
+<style type="text/css">
 	#expedient-info h3 {
 		font-weight: bold;
 		margin-top: 0;
@@ -67,7 +67,7 @@
 	}
 	.formRelacioDelete {float: right;}
 </style>
-<script>
+<script type="text/javascript">
 	$(document).ready(function() {		
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
@@ -100,7 +100,8 @@
 				        $("#desc_def_proc").text($("#definicioProcesVersio option:selected").text());
 						refrescarAlertas();
 				    },
-				  	error: function(XMLHttpRequest, textStatus, errorThrown) {
+				    error :function(jqXHR, exception) {
+						modalAjaxErrorFunction(jqXHR, exception);
 					}
 				});
 			}
@@ -117,25 +118,6 @@
 			}
 		});
 	}
-	/*function alertaError(textStatus, jqXHR) {
-		if (textStatus == 'error') {
-			if (jqXHR.status === 0) {
-                alert('Not connected.\n Verify network.');
-            } else if (jqXHR.status == 404) {
-                alert('Requested page not found [404].');
-            } else if (jqXHR.status == 500) {
-                alert('Internal server error [500].');
-            } else if (exception === 'parsererror') {
-                alert('Requested JSON parse failed.');
-            } else if (exception === 'timeout') {
-                alert('Timeout error.');
-            } else if (exception === 'abort') {
-                alert('Ajax request aborted.');
-            } else {
-                alert('Unknown error:\n' + jqXHR.responseText);
-            }
-		}
-	}*/
 		
 	function confirmarEsborrarRelacio(e, idExpedient) {
 		var e = e || window.event;
@@ -150,9 +132,6 @@
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();
 		return confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />");
-// 		if (confirm("<spring:message code='expedient.accio.buidarlog.confirmacio' />")) {
-// 			document.getElementById("buidarlogForm").submit();
-// 		}
 	}
 </script>
 </head>

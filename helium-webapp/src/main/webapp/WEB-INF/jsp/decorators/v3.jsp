@@ -192,8 +192,7 @@
 						<a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" class="btn btn-primary" href="<c:url value="/modal/v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
 						<script type="text/javascript">
 							$('#iniciar-expediente a').heliumEvalLink({
-								alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-								refrescarAlertes: true,
+								refrescarAlertes: false,
 								refrescarPagina: false
 							});
 						</script>
