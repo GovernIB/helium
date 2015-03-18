@@ -27,6 +27,8 @@ import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -116,6 +118,10 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 						parametres.get(codi)));
 			}
 		}
+		logger.debug("Petició de domini de tipus WS (" +
+				"id=" + domini.getId() + ", " +
+				"codi=" + domini.getCodi() + ", " +
+				"params=" + parametresToString(parametres) + ")");
 		List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
 		mesuresTemporalsHelper.mesuraCalcular("DOMINI WS: " + domini.getCodi(), "domini");
 		return resposta;
@@ -125,6 +131,10 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			Domini domini,
 			Map<String, Object> parametres) throws DominiException {
 		try {
+			logger.debug("Petició de domini de tipus SQL (" +
+					"id=" + domini.getId() + ", " +
+					"codi=" + domini.getCodi() + ", " +
+					"params=" + parametresToString(parametres) + ")");
 			mesuresTemporalsHelper.mesuraIniciar("DOMINI SQL: " + domini.getCodi(), "domini");
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
@@ -219,5 +229,22 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
 		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
+
+	private String parametresToString(
+			Map<String, Object> parametres) {
+		String separador = ", ";
+		StringBuilder sb = new StringBuilder();
+		for (String key: parametres.keySet()) {
+			sb.append(key);
+			sb.append(":");
+			sb.append(parametres.get(key));
+			sb.append(separador);
+		}
+		if (sb.length() > 0)
+			sb.substring(0, sb.length() - separador.length());
+		return sb.toString();
+	}
+
+	private static final Log logger = LogFactory.getLog(DominiDao.class);
 
 }

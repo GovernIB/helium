@@ -30,6 +30,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.DominiConsultaExceptio
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -106,6 +108,10 @@ public class DominiHelper {
 			}
 		}
 		try {
+			logger.debug("Petició de domini de tipus WS (" +
+					"id=" + domini.getId() + ", " +
+					"codi=" + domini.getCodi() + ", " +
+					"params=" + parametresToString(parametres) + ")");
 			List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
 			return resposta;
 		} catch (DominiHeliumException ex) {
@@ -122,6 +128,10 @@ public class DominiHelper {
 			Domini domini,
 			Map<String, Object> parametres) {
 		try {
+			logger.debug("Petició de domini de tipus SQL (" +
+					"id=" + domini.getId() + ", " +
+					"codi=" + domini.getCodi() + ", " +
+					"params=" + parametresToString(parametres) + ")");
 			NamedParameterJdbcTemplate jdbcTemplate = getJdbcTemplateFromDomini(domini);
 			MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
 				public boolean hasValue(String paramName) {
@@ -229,5 +239,22 @@ public class DominiHelper {
 		String desplegamentTomcat = GlobalProperties.getInstance().getProperty("app.domini.desplegament.tomcat");
 		return "true".equalsIgnoreCase(desplegamentTomcat);
 	}
+
+	private String parametresToString(
+			Map<String, Object> parametres) {
+		String separador = ", ";
+		StringBuilder sb = new StringBuilder();
+		for (String key: parametres.keySet()) {
+			sb.append(key);
+			sb.append(":");
+			sb.append(parametres.get(key));
+			sb.append(separador);
+		}
+		if (sb.length() > 0)
+			sb.substring(0, sb.length() - separador.length());
+		return sb.toString();
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(DominiHelper.class);
 
 }
