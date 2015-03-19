@@ -5,33 +5,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
-<style>
-div.proces {
-	color: white !important;
-	background-color: #428bca !important;
-	border-color: #357ebd !important;
-	font-weight: bold;
-}
-div.proces:hover {
-	background-color: #3071a9 !important;
-	border-color: #285e8e !important;
-}
-.panel-body {
-	padding-bottom: 0px !important;
-}
-.panel-body > table {
-	overflow: hidden;
-}
-.panel-body table:last-child {
-	margin-bottom: 0px;
-}
-.contingut-carregant-proces {
-	margin: 1em 0 2em 0;
-	text-align: center;
-}
-#dataTables_new {padding-top: 5px;padding-bottom: 10px;}
-</style>
-
 <c:import url="procesAccions.jsp"/>
 
 <script type="text/javascript">
@@ -47,6 +20,15 @@ div.proces:hover {
 				$("#panel_accio_"+processInstanceId).html('<div style="text-align:center"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
 				recargarPanel (processInstanceId, true);
 			}
+		});
+
+		$(".btn_accio").click(function() {
+			if (confirm("<spring:message code='expedient.info.confirm.accio.executar'/>")) {
+				var boto = $(this);
+				setTimeout(function() {boto.attr('disabled', true)}, 1);
+				return true;
+			}
+			return false;
 		});
 	});		
 	function recargarPanel (processInstanceId, correcte) {

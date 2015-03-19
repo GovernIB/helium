@@ -5,8 +5,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
-<script src="<c:url value="/js/helium.datatable.js"/>"></script>
-<c:set var="numColumnes" value="${3}"/>
 <style type="text/css">
 div.procesaccio {
 	color: white !important;
@@ -34,7 +32,23 @@ div.procesaccio:hover {
 #llistat_accions .accio_options {
 	width: 100px;
 }
-#dataTables_new {padding-top: 5px;padding-bottom: 10px;}
+#llistat_accions .panel.panel-default .panel.panel-default {
+	background-color: #fff;
+    border: none;
+    border-radius: 0px;
+    box-shadow: 0 ;
+    margin-bottom: 0px;
+}
+#llistat_accions .panel-body-grup {
+	margin-bottom: 0px;
+}
+
+#llistat_accions #grup-default-dades > table.table.table-bordered:first-child{
+	display: none;
+}
+#llistat_accions #grup-default-dades > table.table.table-bordered:last-child{
+	margin-bottom: 20px !important;
+}
 </style>
 
 <c:choose>
@@ -88,6 +102,7 @@ div.procesaccio:hover {
 	</c:when>
 	<c:otherwise>
 		<div class="panel-body-no">
-			<div class="well well-small"><spring:message code='expedient.accio.expedient.cap' /></div>			
+			<div class="well well-small"><spring:message code='expedient.accio.expedient.cap' /></div>
+		</div>
 	</c:otherwise>
 </c:choose>

@@ -18,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.
@@ -63,8 +62,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 	}
 	
 	@RequestMapping(value = "/{expedientId}/accio/{accioId}", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean accio(
+	public String accio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId, 
 			@PathVariable Long accioId, 
@@ -72,12 +70,12 @@ public class ExpedientAccioController extends BaseExpedientController {
 		try {
 			dissenyService.executarAccio(accioId, expedientId);
 			MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
-			return true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage());
         	logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
 		}
-		return false;
+		model.addAttribute("pipellaActiva", "accions");
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	protected static final Log logger = LogFactory.getLog(ExpedientAccioController.class);

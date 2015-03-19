@@ -73,23 +73,21 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/reindexa", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean reindexa(
+	public String reindexa(
 			HttpServletRequest request,
-			@PathVariable Long expedientId) {
-		boolean result = false;
+			@PathVariable Long expedientId, 
+			Model model) {
 		try {
-			result = expedientService.luceneReindexarExpedient(expedientId);
+			expedientService.luceneReindexarExpedient(expedientId);
 			MissatgesHelper.info(
 					request,
 					getMessage(
 							request,
 							"info.expedient.reindexat"));
-			result = true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient"));
 		}
-		return result;
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 	@RequestMapping(value = "/{expedientId}/imatgeDefProces", method = RequestMethod.GET)
