@@ -310,9 +310,9 @@ function refrescarAlertas(e) {
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="expedient/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-								{{if !aturat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/suspend" data-rdt-link-modal="true"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
-								{{if !anulat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/cancel" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
-								{{if anulat && permisWrite}}<li><a href="../v3/expedient/{{:id}}/reprendre" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.tasca.accio.reprendre"/></a></li>{{/if}}
+								{{if !aturat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/aturar" data-rdt-link-modal="true"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.llistat.accio.aturar"/></a></li>{{/if}}
+								{{if !anulat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/anular" data-rdt-link-modal="true"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.llistat.accio.anular"/></a></li>{{/if}}
+								{{if anulat && (permisWrite || permisAdministration)}}<li><a href="../v3/expedient/{{:id}}/activar" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.llistat.accio.activar"/></a></li>{{/if}}
 								{{if permisDelete}}<li><a href="../v3/expedient/{{:id}}/delete" data-rdt-link-ajax="true" data-rdt-link-callback="recarregarTaula(taulaDades);" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>{{/if}}
 							</ul>
 						</div>

@@ -35,16 +35,18 @@ public class ExpedientAturarController extends BaseExpedientController {
 	@Autowired
 	private ExpedientService expedientService;
 
-	@RequestMapping(value = "/{expedientId}/suspend", method = RequestMethod.GET)
-	public String aturarForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
+
+
+	@RequestMapping(value = "/{expedientId}/aturar", method = RequestMethod.GET)
+	public String aturarGet(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		model.addAttribute("expedientId", expedientId);
 		ExpedientEinesAturarCommand aturarExpedient = new ExpedientEinesAturarCommand();
 		model.addAttribute(aturarExpedient);
 		return "v3/expedient/aturar";
 	}
 
-	@RequestMapping(value = "/{expedientId}/aturarExpedient", method = RequestMethod.POST)
-	public String aturar(
+	@RequestMapping(value = "/{expedientId}/aturar", method = RequestMethod.POST)
+	public String aturarPost(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model, 
@@ -74,6 +76,8 @@ public class ExpedientAturarController extends BaseExpedientController {
 		return modalUrlTancar();
 	}
 
+
+
 	private class ExpedientAturarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
@@ -84,4 +88,5 @@ public class ExpedientAturarController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
 		}
 	}
+
 }

@@ -27,26 +27,58 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
- * Controlador per a la pàgina d'informació de l'expedient.
+ * Controlador per l'anulació d'expedients.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientCancelController extends BaseExpedientController {
+public class ExpedientAnularController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
 
-	@RequestMapping(value = "/{expedientId}/cancel", method = RequestMethod.GET)
-	public String cancelForm(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
+	@RequestMapping(value = "/{expedientId}/anular", method = RequestMethod.GET)
+	public String anularGet(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		model.addAttribute("expedientId", expedientId);
 		ExpedientEinesCancelCommand cancelExpedient = new ExpedientEinesCancelCommand();
 		model.addAttribute(cancelExpedient);
-		return "v3/expedient/cancel";
+		return "v3/expedient/anular";
 	}	
 
-	@RequestMapping(value = "/{expedientId}/reprendre", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/anular", method = RequestMethod.POST)
+	public String anularPost(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			Model model, 
+			@ModelAttribute("cancelExpedient") 
+			ExpedientEinesCancelCommand cancelExpedient, 
+			BindingResult result, 
+			SessionStatus status) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);			
+		if (!expedient.isAnulat()) {
+			new ExpedientAnularValidator().validate(cancelExpedient, result);
+			if (result.hasErrors()) {
+				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+				model.addAttribute("expedientId", expedientId);
+				model.addAttribute(cancelExpedient);
+				return "v3/expedient/anular";
+			}
+			try {
+				expedientService.cancel(expedientId, cancelExpedient.getMotiu());
+				MissatgesHelper.info(request, getMessage(request, "info.expedient.cancelat") );
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
+				logger.error(getMessage(request, "error.cancelar.expedient"), ex);
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.anulat"));
+		}
+		
+		return modalUrlTancar();
+	}
+
+	@RequestMapping(value = "/{expedientId}/activar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean reprendre(
 			HttpServletRequest request, 
@@ -65,39 +97,9 @@ public class ExpedientCancelController extends BaseExpedientController {
 		return result;
 	}
 
-	@RequestMapping(value = "/{expedientId}/cancelExpedient", method = RequestMethod.POST)
-	public String cancel(
-			HttpServletRequest request, 
-			@PathVariable Long expedientId, 
-			Model model, 
-			@ModelAttribute("cancelExpedient") 
-			ExpedientEinesCancelCommand cancelExpedient, 
-			BindingResult result, 
-			SessionStatus status) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);			
-		if (!expedient.isAnulat()) {
-			new ExpedientCancelValidator().validate(cancelExpedient, result);
-			if (result.hasErrors()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
-				model.addAttribute("expedientId", expedientId);
-				model.addAttribute(cancelExpedient);
-				return "v3/expedient/cancel";
-			}
-			try {
-				expedientService.cancel(expedientId, cancelExpedient.getMotiu());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.cancelat") );
-			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
-				logger.error(getMessage(request, "error.cancelar.expedient"), ex);
-			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.anulat"));
-		}
-		
-		return modalUrlTancar();
-	}
 
-	private class ExpedientCancelValidator implements Validator {
+
+	private class ExpedientAnularValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public boolean supports(Class clazz) {
 			return clazz.isAssignableFrom(ExpedientEinesCancelCommand.class);
@@ -107,6 +109,7 @@ public class ExpedientCancelController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
 		}
 	}
-	
-	private static final Log logger = LogFactory.getLog(ExpedientCancelController.class);
+
+	private static final Log logger = LogFactory.getLog(ExpedientAnularController.class);
+
 }

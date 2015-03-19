@@ -78,6 +78,9 @@ $(document).ready(function() {
 		);
 	});
 	$(".tasca-boto").click(function(e) {
+		alert(0);
+		$(this).addClass('disabled');
+		alert(1);
 		var e = e || window.event;
 		e.cancelBubble = true;
 		if (e.stopPropagation) e.stopPropagation();

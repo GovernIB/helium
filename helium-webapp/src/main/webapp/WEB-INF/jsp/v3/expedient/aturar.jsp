@@ -26,7 +26,7 @@
 		<hel:inputTextarea required="true" name="motiu" textKey="expedient.accio.aturar.camp.motiu" placeholderKey="expedient.accio.aturar.camp.motiu"/>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
-			<button type="submit" class="btn btn-primary"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.accio.aturar.boto.aturar"/></button>
+			<button type="submit" class="btn btn-primary"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.accio.aturar.boto.aturar"/></button>
 		</div>
 	</form:form>
 </body>
