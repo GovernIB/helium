@@ -136,6 +136,7 @@
 </script>
 </head>
 <body>
+
 	<div class="row">
 		<div class="col-md-3">
 			<div id="expedient-info" class="well">
@@ -212,7 +213,7 @@
 							<li><a data-rdt-link-modal-min-height="190" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 							<li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" data-rdt-link-callback="refrescarAlertas();" data-rdt-link-ajax="true" href="<c:url value="../../v3/expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li>
-							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-stop"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
+							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/suspend"/>"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/cancel"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 							<c:if test="${expedient.permisAdministration}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
@@ -223,6 +224,20 @@
 			</div>
 		</div>
 		<div id="expedient-pipelles" class="col-md-9">
+			<c:if test="${not empty expedient.infoAturat}">
+				<div class="alert alert-danger" role="alert">
+					<span class="fa fa-pause"></span>
+					<strong><spring:message code="expedient.info.aturat"/>:</strong>
+					${expedient.infoAturat}
+				</div>
+			</c:if>
+			<c:if test="${not empty expedient.comentari}">
+				<div class="alert alert-info" role="alert">
+					<span class="fa fa-info-circle"></span>
+					<strong><spring:message code="expedient.info.comentari"/>:</strong>
+					${expedient.comentari}
+				</div>
+			</c:if>
 			<ul class="nav nav-tabs" role="tablist">
 				<li id="pipella-dades"><a href="#contingut-dades" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.dades"/></a></li>
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>

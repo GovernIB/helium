@@ -325,7 +325,7 @@ $(function() {
 		} else {
 			$(this).prev().val(false);
 		}
-	})
+	});
 	$(".btn_accio").click(function() {
 		if (confirm($(this).data("confirmacio"))) {
 			$("#command").attr('action', $("#command").attr('action') + "/accio");

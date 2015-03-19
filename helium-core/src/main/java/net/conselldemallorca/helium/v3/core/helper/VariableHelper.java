@@ -90,6 +90,7 @@ public class VariableHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 
 
+
 	public Object getVariableJbpmTascaValor(
 			String taskId,
 			String varCodi) {
@@ -316,6 +317,7 @@ public class VariableHelper {
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName());
 		return resposta;
 	}
+
 	public TascaDadaDto findDadaPerInstanciaTasca(
 			JbpmTask task,
 			String variableCodi) {
@@ -362,123 +364,6 @@ public class VariableHelper {
 		}
 	}
 
-	private ExpedientDadaDto getDadaPerVariableJbpm(
-			Camp camp,
-			String varCodi,
-			Object varValor,
-			String taskInstanceId,
-			String processInstanceId,
-			boolean forsarSimple) {
-		ExpedientDadaDto dto = new ExpedientDadaDto();
-		dto.setVarCodi(varCodi);
-		dto.setVarValor(varValor);		
-		if (camp != null) {
-			dto.setCampId(camp.getId());
-			dto.setVarCodi(camp.getCodi());
-			dto.setCampEtiqueta(camp.getEtiqueta());
-			dto.setCampTipus(CampTipusDto.valueOf(camp.getTipus().name()));
-			dto.setCampMultiple(camp.isMultiple());
-			dto.setCampOcult(camp.isOcult());
-			dto.setObservacions(camp.getObservacions());
-			dto.setJbpmAction(camp.getJbpmAction());
-			if (camp.getOrdre() != null)
-				dto.setOrdre(camp.getOrdre());
-			if (camp.getAgrupacio() != null)
-				dto.setAgrupacioId(camp.getAgrupacio().getId());
-			if (camp.getValidacions() != null)
-				dto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
-		} else {
-			dto.setCampEtiqueta(varCodi);
-			dto.setText(String.valueOf(varValor));
-			dto.setCampTipus(CampTipusDto.STRING);
-		}
-		boolean esCampTipusAccio = camp != null && TipusCamp.ACCIO.equals(camp.getTipus());
-		if (camp != null && !esCampTipusAccio) {
-			try {
-				if (!camp.isMultiple() || forsarSimple) {
-					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
-						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
-						Object[] valorsRegistres = (Object[])varValor;
-						int index = 0;
-						for (CampRegistre campRegistre: camp.getRegistreMembres()) {							
-							Object valorsRegistre = null;
-							if (valorsRegistres != null && valorsRegistres.length>index) {
-								valorsRegistre = valorsRegistres[index];
-							}
-							ExpedientDadaDto dtoRegistre = getDadaPerVariableJbpm(
-									campRegistre.getMembre(),
-									campRegistre.getMembre().getCodi(),
-									valorsRegistre,
-									taskInstanceId,
-									processInstanceId,
-									false);
-							dtoRegistre.setRequired(campRegistre.isObligatori());
-							dtoRegistre.setOrdre(campRegistre.getOrdre());
-							index += 1;
-							registreDades.add(dtoRegistre);
-						}
-						dto.setRegistreDades(registreDades);
-					} else {
-						try {
-							dto.setText(
-									getTextPerCamp(
-											camp,
-											varValor,
-											null,
-											taskInstanceId,
-											processInstanceId));
-							if (dto.getText() == null || dto.getText().isEmpty()) {
-								dto.setText("");
-							}							
-						} catch (Exception ex) {
-							dto.setText("[!]");
-							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
-							dto.setError(ex.getMessage());
-						}
-					}
-				} else {
-					Object[] valorsMultiples = null;
-					// Comprovam que el valor desat actual és de tipus array. En cas contrari el convertim a array
-					if (varValor == null || varValor instanceof Object[]) {
-						valorsMultiples = (Object[])varValor;
-					} else { 
-						valorsMultiples = new Object[] {varValor};
-					}	
-					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
-					if (valorsMultiples != null) {
-						for (Object valor : valorsMultiples) {
-							ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
-									camp,
-									varCodi,
-									valor,
-									taskInstanceId,
-									processInstanceId,
-									true);
-							multipleDades.add(dtoMultiple);
-						}
-					} else {
-						ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
-								camp,
-								varCodi,
-								null,
-								taskInstanceId,
-								processInstanceId,
-								true);
-						multipleDades.add(dtoMultiple);
-					}
-					dto.setMultipleDades(multipleDades);
-				}
-			} catch (Exception ex) {
-				logger.error("Error al processar dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + varCodi + ")", ex);
-				StringBuilder sb = new StringBuilder();
-				getClassAsString(sb, varValor);
-				logger.info("Detalls del valor: " + sb.toString());
-				dto.setError(ex.getMessage());
-			}
-		}
-		return dto;
-	}
-
 	public String getTextPerCamp(
 			Camp camp,
 			Object valor,
@@ -490,12 +375,12 @@ public class VariableHelper {
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
 			try {					
-				valorFontExterna = (String)getTextPerCampAmbValor(
+				valorFontExterna = (String)(getTextPerCampAmbValor(
 						camp,
 						valor,
 						null,
 						taskInstanceId,
-						processInstanceId).getValor();
+						processInstanceId).getValor());
 			} catch (Exception e) {
 				return null;
 			}
@@ -504,33 +389,6 @@ public class VariableHelper {
 				camp.getTipus(),
 				valor,
 				valorFontExterna);
-	}
-
-	public ParellaCodiValorDto getTextPerCampAmbValor(
-			Camp camp,
-			Object valor,
-			Map<String, Object> valorsAddicionals,
-			String taskInstanceId,
-			String processInstanceId) throws Exception {
-		if (valor == null)
-			return null;
-		if (valor instanceof DominiCodiDescripcio) {
-			return new ParellaCodiValorDto(
-					((DominiCodiDescripcio)valor).getCodi(),
-					((DominiCodiDescripcio)valor).getDescripcio());
-		}
-		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
-				camp,
-				null,
-				null,
-				valor,
-				valorsAddicionals,
-				taskInstanceId,
-				processInstanceId);
-		if (!lista.isEmpty()) {
-			return lista.get(0);
-		}
-		return null;
 	}
 
 	public List<ParellaCodiValorDto> getPossiblesValorsCamp(
@@ -709,31 +567,6 @@ public class VariableHelper {
 		return params;
 	}
 
-	private Object valorVariableJbpmRevisat(Object valor) {
-		if (valor instanceof DominiCodiDescripcio) {
-			return ((DominiCodiDescripcio)valor).getCodi();
-		} else {
-			return valor;
-		}
-	}
-
-	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
-		if (variables != null) {
-			variables.remove(TascaHelper.VAR_TASCA_VALIDADA);
-			variables.remove(TascaHelper.VAR_TASCA_DELEGACIO);
-			List<String> codisEsborrar = new ArrayList<String>();
-			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(PREFIX_VAR_DOCUMENT) ||
-						codi.startsWith(PREFIX_VAR_SIGNATURA) ||
-						codi.startsWith(PREFIX_VAR_ADJUNT) ||
-						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
-					codisEsborrar.add(codi);
-			}
-			for (String codi: codisEsborrar)
-				variables.remove(codi);
-		}
-	}
-
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
 			ExpedientDadaDto expedientDadaDto,
 			CampTasca campTasca) {
@@ -889,6 +722,150 @@ public class VariableHelper {
 		return tascaDto;
 	}
 
+
+
+	private ExpedientDadaDto getDadaPerVariableJbpm(
+			Camp camp,
+			String varCodi,
+			Object varValor,
+			String taskInstanceId,
+			String processInstanceId,
+			boolean forsarSimple) {
+		ExpedientDadaDto dto = new ExpedientDadaDto();
+		dto.setVarCodi(varCodi);
+		dto.setVarValor(varValor);		
+		if (camp != null) {
+			dto.setCampId(camp.getId());
+			dto.setVarCodi(camp.getCodi());
+			dto.setCampEtiqueta(camp.getEtiqueta());
+			dto.setCampTipus(CampTipusDto.valueOf(camp.getTipus().name()));
+			dto.setCampMultiple(camp.isMultiple());
+			dto.setCampOcult(camp.isOcult());
+			dto.setObservacions(camp.getObservacions());
+			dto.setJbpmAction(camp.getJbpmAction());
+			if (camp.getOrdre() != null)
+				dto.setOrdre(camp.getOrdre());
+			if (camp.getAgrupacio() != null)
+				dto.setAgrupacioId(camp.getAgrupacio().getId());
+			if (camp.getValidacions() != null)
+				dto.setValidacions(conversioTipusHelper.convertirList(camp.getValidacions(), ValidacioDto.class));
+		} else {
+			dto.setCampEtiqueta(varCodi);
+			dto.setText(String.valueOf(varValor));
+			dto.setCampTipus(CampTipusDto.STRING);
+		}
+		boolean esCampTipusAccio = camp != null && TipusCamp.ACCIO.equals(camp.getTipus());
+		if (camp != null && !esCampTipusAccio) {
+			try {
+				if (!camp.isMultiple() || forsarSimple) {
+					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
+						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
+						Object[] valorsRegistres = (Object[])varValor;
+						int index = 0;
+						for (CampRegistre campRegistre: camp.getRegistreMembres()) {							
+							Object valorsRegistre = null;
+							if (valorsRegistres != null && valorsRegistres.length>index) {
+								valorsRegistre = valorsRegistres[index];
+							}
+							ExpedientDadaDto dtoRegistre = getDadaPerVariableJbpm(
+									campRegistre.getMembre(),
+									campRegistre.getMembre().getCodi(),
+									valorsRegistre,
+									taskInstanceId,
+									processInstanceId,
+									false);
+							dtoRegistre.setRequired(campRegistre.isObligatori());
+							dtoRegistre.setOrdre(campRegistre.getOrdre());
+							index += 1;
+							registreDades.add(dtoRegistre);
+						}
+						dto.setRegistreDades(registreDades);
+					} else {
+						try {
+							dto.setText(
+									getTextPerCamp(
+											camp,
+											varValor,
+											null,
+											taskInstanceId,
+											processInstanceId));
+							if (dto.getText() == null || dto.getText().isEmpty()) {
+								dto.setText("");
+							}							
+						} catch (Exception ex) {
+							dto.setText("[!]");
+							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
+							dto.setError(ex.getMessage());
+						}
+					}
+				} else {
+					Object[] valorsMultiples = null;
+					// Comprovam que el valor desat actual és de tipus array. En cas contrari el convertim a array
+					if (varValor == null || varValor instanceof Object[]) {
+						valorsMultiples = (Object[])varValor;
+					} else { 
+						valorsMultiples = new Object[] {varValor};
+					}	
+					List<ExpedientDadaDto> multipleDades = new ArrayList<ExpedientDadaDto>();
+					if (valorsMultiples != null) {
+						for (Object valor : valorsMultiples) {
+							ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
+									camp,
+									varCodi,
+									valor,
+									taskInstanceId,
+									processInstanceId,
+									true);
+							multipleDades.add(dtoMultiple);
+						}
+					} else {
+						ExpedientDadaDto dtoMultiple = getDadaPerVariableJbpm(
+								camp,
+								varCodi,
+								null,
+								taskInstanceId,
+								processInstanceId,
+								true);
+						multipleDades.add(dtoMultiple);
+					}
+					dto.setMultipleDades(multipleDades);
+				}
+			} catch (Exception ex) {
+				logger.error("Error al processar dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + varCodi + ")", ex);
+				StringBuilder sb = new StringBuilder();
+				getClassAsString(sb, varValor);
+				logger.info("Detalls del valor: " + sb.toString());
+				dto.setError(ex.getMessage());
+			}
+		}
+		return dto;
+	}
+
+	private Object valorVariableJbpmRevisat(Object valor) {
+		if (valor instanceof DominiCodiDescripcio) {
+			return ((DominiCodiDescripcio)valor).getCodi();
+		} else {
+			return valor;
+		}
+	}
+
+	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
+		if (variables != null) {
+			variables.remove(TascaHelper.VAR_TASCA_VALIDADA);
+			variables.remove(TascaHelper.VAR_TASCA_DELEGACIO);
+			List<String> codisEsborrar = new ArrayList<String>();
+			for (String codi: variables.keySet()) {
+				if (	codi.startsWith(PREFIX_VAR_DOCUMENT) ||
+						codi.startsWith(PREFIX_VAR_SIGNATURA) ||
+						codi.startsWith(PREFIX_VAR_ADJUNT) ||
+						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
+					codisEsborrar.add(codi);
+			}
+			for (String codi: codisEsborrar)
+				variables.remove(codi);
+		}
+	}
+
 	private void getClassAsString(StringBuilder sb, Object o) {
 		if (o.getClass().isArray()) {
 			sb.append("[");
@@ -942,6 +919,33 @@ public class VariableHelper {
 				}
 				return valor;
 			}
+		}
+		return null;
+	}
+
+	private ParellaCodiValorDto getTextPerCampAmbValor(
+			Camp camp,
+			Object valor,
+			Map<String, Object> valorsAddicionals,
+			String taskInstanceId,
+			String processInstanceId) throws Exception {
+		if (valor == null)
+			return null;
+		if (valor instanceof DominiCodiDescripcio) {
+			return new ParellaCodiValorDto(
+					((DominiCodiDescripcio)valor).getCodi(),
+					((DominiCodiDescripcio)valor).getDescripcio());
+		}
+		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
+				camp,
+				null,
+				null,
+				valor,
+				valorsAddicionals,
+				taskInstanceId,
+				processInstanceId);
+		if (!lista.isEmpty()) {
+			return lista.get(0);
 		}
 		return null;
 	}

@@ -153,50 +153,57 @@ function refrescarAlertesFunction() {
 			<c:param name="desplegadorClass" value="agrupacio-desplegador"/>
 		</c:import>
 	</c:if>
-	<c:set var="pipellaIndex" value="${1}"/>
-	<ul id="tasca-pipelles" class="nav nav-tabs">
-		<c:if test="${hasFormulari}">
-			<li id="pipella-form">
-				<a href="#tasca-form" data-toggle="tab">
-					<c:if test="${not tasca.validada}"><span class="fa fa-warning"></span></c:if>
-					${pipellaIndex}.
-					<spring:message code="tasca.tramitacio.pipella.form"/>
-				</a>
-			</li>
-			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
-		</c:if>
-		<c:if test="${hasDocuments}">
-			<li id="pipella-document">
-				<a href="#tasca-document" data-toggle="tab">
-					<span class="fa fa-warning" <c:if test="${tasca.documentsComplet}">style="display: none"</c:if>></span>
-					${pipellaIndex}.
-					<spring:message code="tasca.tramitacio.pipella.document"/>
-				</a>
-			</li>
-			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
-		</c:if>
-		<c:if test="${hasSignatures}">
-			<li id="pipella-signatura">
-				<a href="#tasca-signatura" data-toggle="tab">
-					<span class="fa fa-warning" <c:if test="${tasca.signaturesComplet}">style="display: none"</c:if>></span>
-					${pipellaIndex}.
-					<spring:message code="tasca.tramitacio.pipella.signatura"/>
-				</a>
-			</li>
-			<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
-		</c:if>
-	</ul>
-	<div class="tab-content">
-		<c:if test="${hasFormulari}">
-			<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/form"/>"></div>
-		</c:if>
-		<c:if test="${hasDocuments}">
-			<div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div>
-		</c:if>
-		<c:if test="${hasSignatures}">
-			<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"/>"></div>
-		</c:if>
-	</div>
+	<c:choose>
+		<c:when test="${hasFormulari or hasDocuments or hasSignatures}">
+			<c:set var="pipellaIndex" value="${1}"/>
+			<ul id="tasca-pipelles" class="nav nav-tabs">
+				<c:if test="${hasFormulari}">
+					<li id="pipella-form">
+						<a href="#tasca-form" data-toggle="tab">
+							<c:if test="${not tasca.validada}"><span class="fa fa-warning"></span></c:if>
+							${pipellaIndex}.
+							<spring:message code="tasca.tramitacio.pipella.form"/>
+						</a>
+					</li>
+					<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
+				</c:if>
+				<c:if test="${hasDocuments}">
+					<li id="pipella-document">
+						<a href="#tasca-document" data-toggle="tab">
+							<span class="fa fa-warning" <c:if test="${tasca.documentsComplet}">style="display: none"</c:if>></span>
+							${pipellaIndex}.
+							<spring:message code="tasca.tramitacio.pipella.document"/>
+						</a>
+					</li>
+					<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
+				</c:if>
+				<c:if test="${hasSignatures}">
+					<li id="pipella-signatura">
+						<a href="#tasca-signatura" data-toggle="tab">
+							<span class="fa fa-warning" <c:if test="${tasca.signaturesComplet}">style="display: none"</c:if>></span>
+							${pipellaIndex}.
+							<spring:message code="tasca.tramitacio.pipella.signatura"/>
+						</a>
+					</li>
+					<c:set var="pipellaIndex" value="${pipellaIndex + 1}"/>
+				</c:if>
+			</ul>
+			<div class="tab-content">
+				<c:if test="${hasFormulari}">
+					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/form"/>"></div>
+				</c:if>
+				<c:if test="${hasDocuments}">
+					<div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div>
+				</c:if>
+				<c:if test="${hasSignatures}">
+					<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"/>"></div>
+				</c:if>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<div class="well"><span class="fa fa-info-circle"></span> <spring:message code="tasca.tramitacio.sense.pipelles"/></div>
+		</c:otherwise>
+	</c:choose>
 	<div id="guardarValidarTarea">
 		<%@ include file="campsTascaBotons.jsp" %>
 	</div>
