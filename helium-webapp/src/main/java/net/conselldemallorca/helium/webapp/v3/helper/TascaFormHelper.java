@@ -549,16 +549,18 @@ public class TascaFormHelper {
 		try {
 			if (camp.isCampMultiple()) {
 				int midaLinia = camp.getMultipleDades().get(0).getRegistreDades().size();
-				int mida = ((Object[])valor).length;
+				int mida = camp.isReadOnly() ? camp.getMultipleDades().size() : ((Object[])valor).length;
 				Object[][] linies = new Object[mida][midaLinia];
 				boolean varIncloure = false;				
 				for (int l = 0; l < mida; l++) {
-					Object registre = ((Object[])valor)[l];
+					Object registre = camp.isReadOnly() ? null : ((Object[])valor)[l];
 					int i = 0;
 					for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
-						Object oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
+						Object oValor = null;
 						if (camp.isReadOnly()) {
-							oValor = campRegistre.getVarValor();
+							oValor = (camp.getMultipleDades().get(l).getRegistreDades().get(i)).getVarValor();
+						} else {
+							oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
 						}
 						if (oValor instanceof TerminiDto)
 							oValor = ((TerminiDto)oValor).toSavinString();
