@@ -106,7 +106,11 @@
 				});
 			}
 		});
-
+		$('#definicioProcesVersio').select2({
+		    width: '100%',
+		    allowClear: true,
+		    minimumResultsForSearch: 10
+		});
 	});
 	function refrescarAlertas() {
 		$.ajax({
@@ -178,7 +182,11 @@
 						--%>
 					</dd>
 					<div id="canviDefinicioProcesJbpm" class="hide">
-						<hel:inputSelect inline="true" name="definicioProcesVersio" optionItems="${definicioProces.listVersioAmbEtiqueta}" optionValueAttribute="versio" optionTextAttribute="etiqueta"/>
+						<select id="definicioProcesVersio">
+							<c:forEach var="opt" items="${definicioProces.listVersioAmbEtiqueta}">
+								<option value="${opt.versio}" <c:if test="${opt.versio == definicioProces.versio}"> selected</c:if>>${opt.etiqueta}</option>
+							</c:forEach>
+						</select>
 					</div>
 				</dl>
 				<c:if test="${not empty relacionats}">

@@ -252,17 +252,21 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
 			Object varValue = variables.get(varCodi);
 			
-			//List<ExpedientDadaDto> expedientDadas = expedientService.findDadesPerInstanciaProces(procesId);
-//			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
-//					expedientService,
-//					tascaDades);
-//			Map<String, Object> valors = new HashMap<String, Object>();
-//			valors.put(varCodi, varValue);
-//			Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
-//					expedientService.findDadesPerInstanciaProces(procesId),
-//					variables); 
-					
-//			validator.validate(commandPerValidacio, result);
+			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+					expedientService,
+					tascaDades);
+			
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Object commandValidar = TascaFormHelper.getCommandForCamps(
+					tascaDades,
+					variables,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
+			validator.setValidarExpresions(true);
+			validator.setValidarObligatoris(true);
+			validator.validate(commandValidar, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";
 			}
@@ -398,19 +402,25 @@ public class ExpedientDadaController extends BaseExpedientController {
 				tascaDades.add(tascaDada);
 				
 				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
-				Object varValue = variables.get(varCodi);
-			
+				
+				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+				Object commandValidar = TascaFormHelper.getCommandForCamps(
+						tascaDades,
+						variables,
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
+				
 				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 						expedientService,
 						tascaDades);
-			
-				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
-						expedientService.findDadesPerInstanciaProces(procesId),
-						variables);
-				
-				validator.validate(commandPerValidacio, result);
-				
+
+				validator.setValidarExpresions(true);
+				validator.setValidarObligatoris(true);
+				validator.validate(commandValidar, result);				
 				if (!result.hasErrors()) {
+					Object varValue = variables.get(varCodi);				
 					expedientService.createVariable(expedientId, procesId, varCodi, varValue);
 				}
 			}

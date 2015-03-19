@@ -36,7 +36,6 @@ public class BaseExpedientController extends BaseController {
 		model.addAttribute("relacionats", expedientService.findRelacionats(expedientId));
 		DefinicioProcesVersioDto versions = dissenyService.getByVersionsInstanciaProcesById(expedient.getProcessInstanceId());
 		model.addAttribute("definicioProces", versions);
-		model.addAttribute("definicioProcesVersio",versions.getVersio());
 		if (pipellaActiva != null)
 			model.addAttribute("pipellaActiva", pipellaActiva);
 		else if (request.getParameter("pipellaActiva") != null)
