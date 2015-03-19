@@ -2,15 +2,32 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
-<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>	
+<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
+<meta content="senseCapNiPeus" name="decorator"/>
+<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+<script src="<c:url value="/js/select2.min.js"/>"></script>
+<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+<script src="<c:url value="/js/helium.modal.js"/>"></script>
 <script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
 
 <link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	
-
+<style type="text/css">
+	.carregant {margin: 1em 0 2em 0;text-align: center;}
+	.col-xs-3 {width: 20%;}
+	.col-xs-9 {width: 80%;}
+</style>
+	
 <form:form id="command" commandName="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 	<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 
@@ -133,7 +150,7 @@
 	$(document).ready(function() {
 		$("#varCodi").select2({
 		    width: 'resolve',
-		    placeholder: 'Selecciona una opcio', //'<spring:message code="expedient.nova.data.selecciona"/>',
+		    placeholder: '<spring:message code="expedient.nova.data.selecciona"/>',
 		    allowClear: true,
 		    minimumResultsForSearch: 6
 		});
@@ -163,14 +180,23 @@
 				$("#valordada").removeClass("hide");
 				$("#nova").addClass("hide");
 				if (e.val != codi)
-					$("#formulari").load('<c:url value="/nodeco/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + e.val);
+					$("#formulari").load('<c:url value="/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + e.val);
 			}
 			codi = e.val;
 		});
-		<c:if test="${not empty varCodi}">
+		if (codi != "") {
 			$("#varCodi").select2("val", "${varCodi}");
 			$("#varCodi").click();
-		</c:if>
+			if ($("#varCodi").val() == "String") {
+				$("#valordada").addClass("hide");
+				$("#nova").removeClass("hide");
+			} else {
+				$("#valordada").removeClass("hide");
+				$("#nova").addClass("hide");
+				if ($("#varCodi").val() != codi)
+					$("#formulari").load('<c:url value="/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + $("#varCodi").val());
+			}
+		}
 		$("button:submit").click(function(){
 			if ($("#varCodi").val() == "") {
 				$("#selCamp").addClass("has-error");

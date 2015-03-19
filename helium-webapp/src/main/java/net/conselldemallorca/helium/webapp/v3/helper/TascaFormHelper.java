@@ -210,7 +210,7 @@ public class TascaFormHelper {
 		tascaDada.setCampId(expdada.getCampId());
 		tascaDada.setText(expdada.getText());
 		tascaDada.setCampEtiqueta(expdada.getCampEtiqueta());
-		tascaDada.setRequired(false);
+		tascaDada.setRequired(expdada.isRequired());
 		tascaDada.setValidacions(expdada.getValidacions());
 		
 		if (expdada.getMultipleDades() != null && !expdada.getMultipleDades().isEmpty()) {

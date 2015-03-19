@@ -632,14 +632,6 @@ public class VariableHelper {
 		}
 		return tascaDadaDto;
 	}
-
-	public List<TascaDadaDto> getTascaDadasDtoFromExpedientDadasDto(List<ExpedientDadaDto> expedientDadasDto) {
-		List<TascaDadaDto> dadas = new ArrayList<TascaDadaDto>();
-		for (ExpedientDadaDto expedientDada : expedientDadasDto) {
-			dadas.add(getTascaDadaDtoFromExpedientDadaDto(expedientDada));
-		}
-		return dadas;
-	}
 		
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto expedientDadaDto) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
