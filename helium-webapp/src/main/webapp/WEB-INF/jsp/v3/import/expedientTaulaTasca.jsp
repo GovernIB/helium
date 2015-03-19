@@ -119,44 +119,45 @@
 	<c:if test="${contHiHaNoPendents == 0}">
 	<td class="dadesTaulaTasca" colspan="5"><tr class="dadesTaulaTascaTr"><td class="dadesTaulaTascaTd td-finalitzats" colspan="5">
 	<div class="panel panel-default">
-	<div id="${procesId}-titol-tasques-finalitzats" class="panel-heading clicable grup tauladades" data-toggle="collapse" data-target="#${procesId}-tasques-finalitzats">
-		<spring:message code="expedient.tasca.grup.finalitzades"/>
-		<span class="badge">${hiHaNoPendents}</span>
-		<div class="pull-right"><span class="icona-collapse fa fa-chevron-down"></span></div>
+		<div id="${procesId}-titol-tasques-finalitzats" class="panel-heading clicable grup tauladades" data-toggle="collapse" data-target="#${procesId}-tasques-finalitzats">
+			<spring:message code="expedient.tasca.grup.finalitzades"/>
+			<span class="badge">${hiHaNoPendents}</span>
+			<div class="pull-right"><span class="icona-collapse fa fa-chevron-down"></span></div>
+		</div>
+		<div id="${procesId}-tasques-finalitzats" class="clear collapse panel-body-grup">
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th><spring:message code="expedient.tasca.columna.tasca"/></th>
+					<th><spring:message code="expedient.tasca.columna.responsable"/></th>
+					<th><spring:message code="expedient.tasca.columna.datcre"/></th>
+					<th><spring:message code="expedient.tasca.columna.datfi"/></th>
+				</tr>
+			</thead>
+			<tbody>
+		</c:if>
+		<c:set var="contHiHaNoPendents" value="${contHiHaNoPendents + 1}"/>	
+		<tr>
+			<td>${tasca.titol}</td>
+			<td>
+				<c:choose>
+					<c:when test="${not empty tasca.responsable}">${tasca.responsable.nomSencer}</c:when>
+					<c:when test="${not empty tasca.responsables}">
+						<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status">
+							${responsable.nomSencer}<c:if test="${not status.last}">, </c:if>
+						</c:forEach>
+					</c:when>
+					<c:otherwise></c:otherwise>
+				</c:choose>
+			</td>
+			<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
+			<td><fmt:formatDate value="${tasca.endTime}" pattern="dd/MM/yyyy HH:mm"/></td>
+		</tr>
+		<c:if test="${contHiHaNoPendents == hiHaNoPendents}">
+			</tbody>
+		</table>
+		</div>
 	</div>
-	<div id="${procesId}-tasques-finalitzats" class="clear collapse panel-body-grup">
-	<table class="table table-bordered">
-		<thead>
-			<tr>
-				<th><spring:message code="expedient.tasca.columna.tasca"/></th>
-				<th><spring:message code="expedient.tasca.columna.responsable"/></th>
-				<th><spring:message code="expedient.tasca.columna.datcre"/></th>
-				<th><spring:message code="expedient.tasca.columna.datfi"/></th>
-			</tr>
-		</thead>
-		<tbody>
-	</c:if>
-	<c:set var="contHiHaNoPendents" value="${contHiHaNoPendents + 1}"/>	
-	<tr>
-		<td>${tasca.titol}</td>
-		<td>
-			<c:choose>
-				<c:when test="${not empty tasca.responsable}">${tasca.responsable.nomSencer}</c:when>
-				<c:when test="${not empty tasca.responsables}">
-					<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status">
-						${responsable.nomSencer}<c:if test="${not status.last}">, </c:if>
-					</c:forEach>
-				</c:when>
-				<c:otherwise></c:otherwise>
-			</c:choose>
-		</td>
-		<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
-		<td><fmt:formatDate value="${tasca.endTime}" pattern="dd/MM/yyyy HH:mm"/></td>
-	</tr>
-	<c:if test="${contHiHaNoPendents == hiHaNoPendents}">
-		</tbody>
-	</table>
-	</div></div>
 
 	<script type="text/javascript">
 	// <![CDATA[			
@@ -175,12 +176,3 @@
 	</c:if>
 </c:if>
 
-<c:if test="${not (hiHaPendents gt 0 and tasca.open) and contHiHaPendents == 0}">
-	<script type="text/javascript">
-	// <![CDATA[			
-	$(document).ready(function() {
-		$('#${procesId}-titol-tasques').click();
-	});
-	//]]>
-	</script>
-</c:if>

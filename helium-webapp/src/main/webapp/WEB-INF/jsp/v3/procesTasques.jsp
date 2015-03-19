@@ -86,6 +86,11 @@ div.procesTasca:hover {
 .dataTable_tasca .dadesTaulaTascaTd > .panel.panel-default{
 	margin-bottom: 0px;
 }
+
+.alt_panel{
+	margin-bottom: 20px;
+}
+
 </style>
 <c:choose>
 	<c:when test="${not empty tasques}">
@@ -95,7 +100,7 @@ div.procesTasca:hover {
 				<c:set var="agrupacioFirst" value="${true}"/>
 				<c:set var="proces" value="${dadesProces.key}"/>
 				<div id="dataTable_tasca_${proces.id}">
-					<div class="panel panel-default">
+					<div class="panel-default alt_panel">
 						<div id="${proces.id}-titol-tasques" class="panel-heading clicable procesTasca" data-toggle="collapse" data-target="#panel_tasca_${proces.id}" data-id="${proces.id}_tasca" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 							<c:choose>
 								<c:when test="${proces.id == inicialProcesInstanceId}">
@@ -106,7 +111,7 @@ div.procesTasca:hover {
 							<div class="pull-right">
 								<c:choose>
 									<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
-									<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+									<c:otherwise><span class="icona-collapse fa fa-chevron-down"></span></c:otherwise>
 								</c:choose>
 							</div>
 						</div>
@@ -169,6 +174,7 @@ div.procesTasca:hover {
 	</c:when>
 	<c:otherwise>
 		<div class="panel-body-no">
-			<div class="well well-small"><spring:message code='expedient.tasca.expedient.cap' /></div>			
+			<div class="well well-small"><spring:message code='expedient.tasca.expedient.cap' /></div>	
+		</div>
 	</c:otherwise>
 </c:choose>
