@@ -328,9 +328,10 @@ $(function() {
 	})
 	$(".btn_accio").click(function() {
 		if (confirm($(this).data("confirmacio"))) {
-			$(this).attr('disabled', 'disabled');
 			$("#command").attr('action', $("#command").attr('action') + "/accio");
-			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');		
+			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');
+			var boto = $(this);
+			setTimeout(function() {boto.attr('disabled', true)}, 1);
 			return true;
 		}
 		return false;
