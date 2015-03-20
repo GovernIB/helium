@@ -61,7 +61,14 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 						</c:when>
 						<c:otherwise>${proces.titol}</c:otherwise>
 					</c:choose>
-					<span class="badge general" data-nombre="${totalsPerProces[proces]}">${totalsPerProces[proces]}</span>
+					<c:choose>
+						<c:when test="${totalsPerProces[proces] > 0}">
+							<span class="badge general" data-nombre="${totalsPerProces[proces]}">${totalsPerProces[proces]}</span>
+						</c:when>
+						<c:otherwise>
+							<span class="badge general"></span>
+						</c:otherwise>
+					</c:choose>
 					<div class="pull-right">
 						<c:choose>
 							<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>

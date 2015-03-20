@@ -152,12 +152,20 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		ambOcults = (ambOcults == null || !expedient.isPermisAdministration()) ? false : ambOcults;
 		model.addAttribute("ambOcults", ambOcults);
-		model.addAttribute(
-				"dades",
-				getDadesInstanciaProces(
-						expedientId,
-						procesId,
-						ambOcults));
+		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dades = getDadesInstanciaProces(expedientId,procesId,ambOcults);
+		model.addAttribute("dades",dades);
+		
+//		Map<InstanciaProcesDto,Integer> totalsPerProces = new LinkedHashMap<InstanciaProcesDto, Integer>();
+//		InstanciaProcesDto proces = expedientService.getInstanciaProcesById(procesId);
+		int contadorTotals = 0;
+		if(dades != null)
+			for(List<ExpedientDadaDto> list: dades.values()){
+				contadorTotals += list.size();
+			}
+//		totalsPerProces.put(proces, contadorTotals);
+		model.addAttribute("contadorTotals", contadorTotals);
+		model.addAttribute("procesId",procesId);
+		
 		return "v3/procesDades";
 	}
 

@@ -30,7 +30,7 @@
 								<c:param name="dadesAttribute" value="dadesAgrupacio"/>
 								<c:param name="titol" value="${agrupacio.nom}"/>
 								<c:param name="numColumnes" value="${numColumnes}"/>
-								<c:param name="count" value="${count}"/>
+								<c:param name="count" value="${contadorTotals}"/>
 								<c:param name="desplegat" value="${true}"/>
 								<c:param name="mostrarCapsalera" value="${false}"/>
 							</c:import>
@@ -39,8 +39,21 @@
 				</c:if>
 				<c:set var="agrupacioFirst" value="${false}"/>
 			</c:forEach>
+			
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.proces.cap' /></div>
 	</c:otherwise>
+	
 </c:choose>
+
+<script>
+/*<![CDATA[*/
+var procesId =<c:out value="${procesId}"/>
+var contadorTotals =<c:out value="${contadorTotals}"/>
+if(contadorTotals > 0){
+	$("#" + procesId + "-titol > span.badge.general").html(contadorTotals);
+}else{
+	$("#" + procesId + "-titol > span.badge.general").html('');	
+}
+</script>
