@@ -62,7 +62,7 @@
 	<div id="nova" class="hide">
 		<c:set var="campErrors"><form:errors path="codi"/></c:set>
 		<div class="form-group <c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label for="codi" class="control-label col-xs-3 obligatori">codi</label>
+			<label for="codi" class="control-label col-xs-3 obligatori"><spring:message code='expedient.nova.data.codi'/></label>
 			<div class="controls col-xs-9">
 				<form:input path="codi" cssClass="form-control" id="codi" />
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="codi"/></p></c:if>
@@ -70,7 +70,7 @@
 		</div>
 		<c:set var="campErrors"><form:errors path="valor"/></c:set>
 		<div class="form-group <c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label for="valor" class="control-label col-xs-3">valor</label>
+			<label for="valor" class="control-label col-xs-3"><spring:message code='expedient.nova.data.valor'/></label>
 			<div class="controls col-xs-9">
 				<form:input path="valor" cssClass="form-control" id="valor" />
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="valor"/></p></c:if>

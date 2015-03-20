@@ -14,6 +14,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 .contingut-carregant-proces {margin: 1em 0 2em 0;text-align: center;}
 .ocults {margin-top: 10px;padding-bottom: 5px;}
 .btnNovaDada {padding-bottom: 10px;}
+#contingut-dades {margin-top: 13px !important;}
 #contingut-dades .left {float: left;}
 #contingut-dades .right {float: right;}
 #contingut-dades .clear{clear: both;}
