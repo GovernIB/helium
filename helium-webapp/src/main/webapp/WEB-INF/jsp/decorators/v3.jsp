@@ -50,8 +50,17 @@
 		    text-align: left;
 			padding-right: 15px;
 		}
+		.nav-consulta-tipus-generic{
+			color: black;
+		    text-align: left;
+			padding-right: 15px;
+		}
+		
 		.nav-consulta-tipus a {
 			padding: 3px 0px !important;
+		}
+		.big-size{
+			font-size: large;
 		}
 		#iniciar-expediente a{
 			margin-right: 10px;
@@ -89,38 +98,8 @@
 			<div class="navbar-collapse collapse">
 				<div class="nav navbar-nav navbar-right">
 					<ul class="list-inline pull-right">
-						<c:if test="${dadesPersona.admin}">
-							<li class="dropdown" id="mesures">
-								<a href="#" data-toggle="dropdown">
-									<span class="fa fa-laptop"></span> <spring:message code='decorator.menu.administracio' />
-									<b class="caret caret-white"></b>
-								</a>
-								<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-									<c:if test="${globalProperties['app.mesura.temps.actiu']}">
-										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoTemps" href="<c:url value="/modal/v3/mesuresTemps"/>"><spring:message code='expedient.mesura.temps' /></a></li>
-									</c:if>
-									<c:if test="${globalProperties['app.expedient.monitor']}">
-										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
-									</c:if>
-									<li><a data-rdt-link-modal="true" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
-									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives"/>"><spring:message code='comuns.massiu' /></a></li>
-									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
-									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
-										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
-										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
-									</c:if>
-									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/festiu/calendari.html"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
-								</ul>
-							</li>
-							<script type="text/javascript">
-								$('#mesures a').heliumEvalLink({
-									alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-									refrescarAlertes: true,
-									refrescarPagina: false
-								});
-							</script>
-						</c:if>
-						<li class="dropdown">
+						
+						<li class="dropdown big-size">
 							<c:if test="${fn:length(entorns) gt 1}"><a href="#" data-toggle="dropdown"></c:if>
 							<span class="fa fa-cubes"></span> ${entornActual.nom}
 							<c:if test="${fn:length(entorns) gt 1}"><b class="caret caret-white"></b></a></c:if>
@@ -130,7 +109,7 @@
 			    				</c:forEach>
 							</ul>
 						</li>
-						<li class="dropdown">
+						<li class="dropdown big-size">
 							<span class="fa fa-cube"></span>
 							<c:if test="${fn:length(expedientTipusAccessibles) gt 0}"><a href="#" data-toggle="dropdown"></c:if>
 							<c:choose>
@@ -160,20 +139,7 @@
 					<div class="btn-group navbar-btn navbar-right">		
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						<div id="btnConsultes" class="btn-group" >
-							<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
-							<ul class="dropdown-menu">									
-								<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
-									<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
-										<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>													
-										<li class="nav-header">${expedientTipus.nom}</li>
-										<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
-											<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
-										</c:forEach>
-									</c:if>
-								</c:forEach>
-							</ul>
-						</div>
+						
 						<c:if test="${potDissenyarExpedientTipus or potGestionarExpedientTipus}">
 							<div class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
@@ -186,6 +152,36 @@
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/consulta/llistat.html"/>"><spring:message code='decorators.entorn.consultes.tipus' /></a></li></c:if>
 								</ul>
 							</div>
+						</c:if>
+						<c:if test="${dadesPersona.admin}">
+							<div class="btn-group">
+								<button id="mesures" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<c:if test="${globalProperties['app.mesura.temps.actiu']}">
+										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoTemps" href="<c:url value="/modal/v3/mesuresTemps"/>"><spring:message code='expedient.mesura.temps' /></a></li>
+									</c:if>
+									<c:if test="${globalProperties['app.expedient.monitor']}">
+										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
+									</c:if>
+									<li><a data-rdt-link-modal="true" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
+									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives"/>"><spring:message code='comuns.massiu' /></a></li>
+									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
+									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
+										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
+										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
+									</c:if>
+									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/festiu/calendari.html"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
+								</ul>
+								<script type="text/javascript">
+									$('#mesures').heliumEvalLink({
+										alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+										refrescarAlertes: true,
+										refrescarPagina: false
+									});
+								</script>
+							</div>
+
+							
 						</c:if>
 					</div>
 					<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">
@@ -204,6 +200,7 @@
 	<div class="container container-main <c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida-main</c:if>">
 		<div class="panel panel-default">
 			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
+			<c:set var="screen"><decorator:getProperty property="meta.screen"/></c:set>
 			<c:if test="${not empty decoratorMetaTitle}">
 				<div class="panel-heading">
 					<h2>
@@ -212,7 +209,26 @@
 						${decoratorMetaTitle}
 						<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
 						<c:if test="${not empty decoratorMetaSubtitle}"><small><decorator:getProperty property="meta.subtitle"/></small></c:if>
+						
+						<c:if test="${not empty screen && screen=='expedients'}">
+							<div id="btnConsultes" class="btn-group pull-right" >
+								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
+								<ul class="dropdown-menu">	
+									<li class="nav-consulta-tipus-generic"><a href="<c:url value="/v3/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>				
+									<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
+										<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
+											<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>													
+											<li class="nav-header">${expedientTipus.nom}</li>
+											<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
+												<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
+											</c:forEach>
+										</c:if>
+									</c:forEach>
+								</ul>
+							</div>
+						</c:if>
 					</h2>
+					
 				</div>
 			</c:if>
 			<div class="panel-body">

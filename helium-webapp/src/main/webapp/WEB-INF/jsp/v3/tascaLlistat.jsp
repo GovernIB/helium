@@ -238,6 +238,9 @@
 						</div>
 					</div>
 				</div>
+				
+				<button style="display:none" type="submit" name="accio" value="consultar"></button>
+				
 				<div class="row">						
 					<div class="col-md-12">
 						<form:hidden path="nomesTasquesPersonals"/>

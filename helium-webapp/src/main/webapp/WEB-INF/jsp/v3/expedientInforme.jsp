@@ -10,6 +10,7 @@
 	<title><spring:message code="consulta.form.informe" /></title>
 	<meta name="title" content="${consulta.nom}"/>
 	<meta name="title-icon-class" content="fa fa-search"/>
+	<meta name="screen" content="expedients">
 	<meta name="subtitle" content="${consulta.expedientTipus.nom}"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -172,6 +173,9 @@ function actualizarBotonesFiltros(id) {
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
 				<form:hidden path="nomesMeves"/>
+				
+				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
+				
 				<div class="row">
 					<div class="col-md-1 btn-group">
 						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>

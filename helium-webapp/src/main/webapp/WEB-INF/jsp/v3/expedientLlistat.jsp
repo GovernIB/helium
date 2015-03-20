@@ -10,6 +10,7 @@
 	<title><spring:message code="expedient.llistat.titol"/></title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<meta name="title" content="<spring:message code='expedient.llistat.titol'/>"/>
+	<meta name="screen" content="expedients">
 	<meta name="title-icon-class" content="fa fa-folder"/>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
@@ -232,6 +233,9 @@ function refrescarAlertas(e) {
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
 				<form:hidden path="nomesMeves"/>
+				
+				<button style="display:none" type="submit" name="accio" value="consultar"></button>
+				
 				<div class="row">
 					<div class="col-md-1 btn-group">
 						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
