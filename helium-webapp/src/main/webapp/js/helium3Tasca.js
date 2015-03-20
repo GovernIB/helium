@@ -89,7 +89,6 @@ function initSeleccio(element) {
 		width: '100%',
 	    placeholder: input.data("placeholder"),
 	    allowClear: true,
-	    //minimumResultsForSearch: -1,
 	    ajax: {
 	        url: function (value) {
 	        	return input.data("urlconsultallistat");

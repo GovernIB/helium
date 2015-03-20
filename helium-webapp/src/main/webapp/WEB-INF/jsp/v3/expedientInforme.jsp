@@ -33,7 +33,6 @@
 	<style>
 		#filtresCollapsable .controls{ width: 100% !important;}
 		#filtresCollapsable {padding-top: 20px;}
-		input, select, textarea {width: 100%;}
 		form .fila_reducida {padding-top: 0px;margin-bottom: 5px;}
 		#expedientInformeCommand .row {margin-bottom: -5px;}
 		#taulaDades {display: block;overflow-x: auto;border-left: 0 none;border-right: 0 none;border-bottom: 0 none;}
