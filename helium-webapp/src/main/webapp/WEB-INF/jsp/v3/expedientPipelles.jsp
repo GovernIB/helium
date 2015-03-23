@@ -233,7 +233,7 @@
 										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 									</c:when>
 									<c:otherwise>
-										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/activar"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
+										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
 									</c:otherwise>
 								</c:choose>
 							</c:if>

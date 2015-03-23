@@ -32,15 +32,15 @@
 		body {
 			background-image:url(<c:url value="/img/background-pattern.jpg"/>);
 			color:#666666;
-			padding-top: 120px;
+			padding-top: 148px;
 		}
-		.cabecera_reducida {height: 70px;}
+		.cabecera_reducida {height: 100px;}
 		.cabecera_reducida #govern-logo {margin-top: -5px;}
 		.cabecera_reducida #app-logo {margin-top: -5px;}
 		.cabecera_reducida #app-logo > img {width :80%;}
 		.cabecera_reducida .navbar-app .navbar-nav {padding-top: 4px;}
 		.cabecera_reducida .nav.navbar-nav.navbar-right {padding-top: 8px;}
-		.cabecera_reducida .navbar-btn {margin-top: -4px;}
+		.cabecera_reducida .navbar-btn {margin-top: 0px;}
 		.cabecera_reducida .navbar-btn .btn {padding: 3px 12px;}
 		.cabecera_reducida-main {margin-top: -30px;}
 		.nav-consulta-tipus {    
@@ -62,6 +62,26 @@
 		.big-size{
 			font-size: large;
 		}
+		.text-limit{
+		    display:inline-block;
+		    white-space: nowrap;
+		    overflow:hidden !important;
+		    text-overflow: ellipsis;
+		    margin-bottom: -7px;
+		}
+		
+		.text-limit.w475{
+			max-width:475px;
+		}
+		
+		ul.ul-menu{
+			margin-bottom: 5px;
+		}
+		
+		.top-sep{
+			margin-top: 20px;
+		}
+		
 		#iniciar-expediente a{
 			margin-right: 10px;
 			border-bottom-right-radius: 4px;
@@ -85,7 +105,7 @@
 	<!-- default v3 -->
 	<div class="navbar navbar-default navbar-fixed-top navbar-app <c:if test="${not preferenciesUsuari.cabeceraReducida}">nav-container</c:if><c:if test="${preferenciesUsuari.cabeceraReducida}">cabecera_reducida</c:if>" role="navigation">
 		<div class="container">
-			<div class="navbar-header">
+			<div class="navbar-header top-sep">
 				<div class="navbar-brand">
 					<div id="govern-logo" class="pull-left">
 						<img src="<c:url value="/img/govern-logo.png"/>" alt="Govern de les Illes Balears" />
@@ -97,11 +117,10 @@
 			</div>
 			<div class="navbar-collapse collapse">
 				<div class="nav navbar-nav navbar-right">
-					<ul class="list-inline pull-right">
-						
+					<ul class="list-inline pull-right ul-menu">
 						<li class="dropdown big-size">
 							<c:if test="${fn:length(entorns) gt 1}"><a href="#" data-toggle="dropdown"></c:if>
-							<span class="fa fa-cubes"></span> ${entornActual.nom}
+							<span class="fa fa-cubes"></span> <span data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>
 							<c:if test="${fn:length(entorns) gt 1}"><b class="caret caret-white"></b></a></c:if>
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<c:forEach var="entorn" items="${entorns}">
@@ -109,7 +128,12 @@
 			    				</c:forEach>
 							</ul>
 						</li>
-						<li class="dropdown big-size">
+					</ul>
+					<div class="clearfix"></div>
+					
+					<ul class="list-inline pull-right ul-menu">
+						
+						<li class="dropdown">
 							<span class="fa fa-cube"></span>
 							<c:if test="${fn:length(expedientTipusAccessibles) gt 0}"><a href="#" data-toggle="dropdown"></c:if>
 							<c:choose>
@@ -127,7 +151,7 @@
 						</li>
 						<li class="dropdown">
 							<a href="#" data-toggle="dropdown">
-								<span class="fa fa-user"></span> ${dadesPersona.codi}
+								<span class="fa fa-user"></span> ${dadesPersona.nom} ${dadesPersona.llinatge1} 
 								<b class="caret caret-white"></b>
 							</a>
 							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
@@ -136,6 +160,7 @@
 						</li>
 					</ul>
 					<div class="clearfix"></div>
+					
 					<div class="btn-group navbar-btn navbar-right">		
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
