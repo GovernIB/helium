@@ -282,12 +282,12 @@ function actualizarBotonesFiltros(id) {
 			</c:if>
 			<c:if test="${not empty consulta.informeNom and not empty campsInformeParams}">
 				<a data-rdt-link-modal="true" id="mostrar_informe" href="<c:url value="../v3/informe/${consulta.id}/mostrar_informe_params"/>" class="btn btn-default">
-					<span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
+					<span class="fa fa-file-text-o"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
 			<c:if test="${not empty consulta.informeNom and empty campsInformeParams}">
 				<a id="mostrar_informe" href="<c:url value="../v3/informe/${consulta.id}/mostrar_informe"/>" class="btn btn-default">
-					<span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
+					<span class="fa fa-file-text-o"></span>&nbsp;<spring:message code="expedient.consulta.informe"/>
 				</a>
 			</c:if>
 		</div>			

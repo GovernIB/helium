@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
@@ -503,6 +504,17 @@ public class TascaFormController extends BaseController {
     					command,
     					true,
 						false);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Guardant dades de la tasca (id=" + id + ")");
+					for (String var: variables.keySet()) {
+						Object valor = variables.get(var);
+						String valorComString = TascaFormHelper.varValorToString(valor);
+						logger.debug("    Variable (" +
+								"varCodi=" + var + ", " +
+								"class=" + ((valor != null) ? valor.getClass().getName() : "null") + ", " +
+								"valor=" + valorComString + ")");
+					}
+				}
 				
 				// Restauram la primera tasca
 				// ------------------------------------------
@@ -561,14 +573,26 @@ public class TascaFormController extends BaseController {
 			}
 		} else {
 			try {
+				Map<String, Object> variables = TascaFormUtil.getValorsFromCommand(
+    					camps,
+    					command,
+    					true,
+						false);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Guardant dades de la tasca (id=" + id + ")");
+					for (String var: variables.keySet()) {
+						Object valor = variables.get(var);
+						String valorComString = TascaFormHelper.varValorToString(valor);
+						logger.debug("    Variable (" +
+								"varCodi=" + var + ", " +
+								"class=" + ((valor != null) ? valor.getClass().getName() : "null") + ", " +
+								"valor=" + valorComString + ")");
+					}
+				}
 	        	tascaService.guardarVariables(
 	        			entornId,
 	        			id,
-	        			TascaFormUtil.getValorsFromCommand(
-	        					camps,
-	        					command,
-	        					true,
-	    						false),
+	        			variables,
 	    				null);
 	        	missatgeInfo(request, getMessage("info.dades.form.guardat"));
 	        } catch (Exception ex) {
@@ -595,7 +619,7 @@ public class TascaFormController extends BaseController {
 			String[] tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
 			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			try {
-//				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+				// TascaDto task = tascaService.getByIdSenseComprovacio(id);
 				Long expTipusId = task.getExpedient().getTipus().getId();
 				Map<String, Object> variables = TascaFormUtil.getValorsFromCommand(
     					camps,

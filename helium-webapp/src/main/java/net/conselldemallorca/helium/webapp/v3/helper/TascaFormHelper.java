@@ -91,7 +91,7 @@ public class TascaFormHelper {
     				}
 		    		if (!perFiltre && camp.isCampMultiple()) {
 	    				// Lleva els valors buits de l'array
-		    			List<Object> valorSenseBiuts = new ArrayList<Object>();
+		    			List<Object> valorSenseBuits = new ArrayList<Object>();
 		    			if (valor != null)
 			    			for (int i = 0; i < Array.getLength(valor); i++) {
 			    				Object va = Array.get(valor, i);
@@ -102,14 +102,16 @@ public class TascaFormHelper {
 			    					if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 				    					va = ((TerminiDto)va).toSavinString();
 				    				}
-			    					valorSenseBiuts.add(va);
+			    					valorSenseBuits.add(va);
 			    				}
 			    			}
 		    			Object newArray = null;
-		    			if (!valorSenseBiuts.isEmpty()) {
-	    					newArray = Array.newInstance(camp.getCampTipus().equals(CampTipusDto.TERMINI) ? String.class : camp.getJavaClass(), valorSenseBiuts.size());
+		    			if (!valorSenseBuits.isEmpty()) {
+	    					newArray = Array.newInstance(
+	    							camp.getCampTipus().equals(CampTipusDto.TERMINI) ? String.class : camp.getJavaClass(),
+	    							valorSenseBuits.size());
 		    				int index = 0;
-		    				for (Object val: valorSenseBiuts) {
+		    				for (Object val: valorSenseBuits) {
 		    					Array.set(newArray, index++, val);
 		    				}
 		    			}
@@ -125,6 +127,7 @@ public class TascaFormHelper {
 		    			if (camp.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
 			    			valor = Boolean.FALSE;
 			    		}
+		    			valor = compatibilitat26(camp, valor);
 		    			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE) || valor != null) {
 			    			resposta.put(
 			    					camp.getVarCodi(),
@@ -566,6 +569,7 @@ public class TascaFormHelper {
 							oValor = ((TerminiDto)oValor).toSavinString();
 						if (!iniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 							varIncloure = true;
+						valor = compatibilitat26(campRegistre, valor);
 						linies[l][i++] = oValor;
 					}
 				}
@@ -584,6 +588,7 @@ public class TascaFormHelper {
 						oValor = ((TerminiDto)oValor).toSavinString();
 					if (!iniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 						varIncloure = true;
+	    			valor = compatibilitat26(campRegistre, valor);
 					linia[i++] = oValor;
 				}
 				return varIncloure ? linia : null;
@@ -596,7 +601,6 @@ public class TascaFormHelper {
 
 	private static boolean empty(Object valor) {
 		boolean empty = true;
-		// Registre
 		if (valor instanceof Object[]) {
 			for (Object membre: (Object[])valor) {
 				if (!empty(membre)) {
@@ -626,45 +630,58 @@ public class TascaFormHelper {
 		return ambArray;
 	}
 
-//	private static Object cloneMultipleArray(
-//			String field,
-//			Object command,
-//			List<TascaDadaDto> tascaDadas,
-//			int addTolength) throws Exception {
-//		for (TascaDadaDto camp: tascaDadas) {
-//			if (camp.getVarCodi().equals(field)) {
-//				Object value = PropertyUtils.getSimpleProperty(command, field);
-//				if (value != null) {
-//					int length = ((Object[])value).length;
-//					return Array.newInstance(
-//							camp.getJavaClass(),
-//							length + addTolength);
-//				} else {
-//					return Array.newInstance(
-//							camp.getJavaClass(),
-//							1);
-//				}
-//			}
-//		}
-//		return null;
-//	}
+	public static String varValorToString(Object valor) {
+		String valorComString = null;
+		if (valor == null) return null;
+		if (valor instanceof Object[]) {
+			Object[] array = (Object[])valor;
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (int i = 0; i < array.length; i++) {
+				if (array[i] != null) {
+					if (array[i] instanceof Object[]) {
+						Object[] a = (Object[])array[i];
+						sb.append("[");
+						for (int j = 0; j < a.length; j++) {
+							if (a[j] != null)
+								sb.append(a[j].toString());
+							else
+								sb.append("null");
+							if (j < a.length - 1)
+								sb.append(", ");
+						}
+						sb.append("]");
+					} else {
+						sb.append(array[i].toString());
+					}
+				} else {
+					sb.append("null");
+				}
+				if (i < array.length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+			valorComString = sb.toString();
+		} else if (valor != null) {
+			valorComString = valor.toString();
+		}
+		return valorComString.toString();
+	}
 
-//	public static Object addMultiple(String field, Object command, List<TascaDadaDto> tascaDadas) throws Exception {
-//		Object value = PropertyUtils.getSimpleProperty(command, field);
-//		Object newArray = cloneMultipleArray(field, command, tascaDadas, 1);
-//		for (int i = 0; i < Array.getLength(newArray) - 1; i++)
-//			Array.set(newArray, i, Array.get(value, i));
-//		return newArray;
-//	}
-//	public static Object deleteMultiple(String field, Object command, List<TascaDadaDto> tascaDadas, int index) throws Exception {
-//		Object value = PropertyUtils.getSimpleProperty(command, field);
-//		Object newArray = cloneMultipleArray(field, command, tascaDadas, -1);
-//		int j = 0;
-//		for (int i = 0; i < Array.getLength(value); i++)
-//			if (i != index)
-//				Array.set(newArray, j++, Array.get(value, i));
-//		return newArray;
-//	}
+	private static Object compatibilitat26(
+			TascaDadaDto camp,
+			Object valor) {
+		// Per compatibilitat amb la forma de guardar els formularis v2.6
+		if (	camp.getCampTipus().equals(CampTipusDto.STRING) ||
+				camp.getCampTipus().equals(CampTipusDto.TEXTAREA) ||
+				camp.getCampTipus().equals(CampTipusDto.SELECCIO) ||
+				camp.getCampTipus().equals(CampTipusDto.SUGGEST)) {
+			if (valor == null)
+				return "";
+		}
+		return valor;
+	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);
+
 }

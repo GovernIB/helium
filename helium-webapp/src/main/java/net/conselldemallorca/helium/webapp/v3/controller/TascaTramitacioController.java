@@ -838,6 +838,17 @@ public class TascaTramitacioController extends BaseTascaController {
 			String tascaId, 
 			Long expedientId,
 			Map<String, Object> variables) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Guardant dades de la tasca (id=" + tascaId + ")");
+			for (String var: variables.keySet()) {
+				Object valor = variables.get(var);
+				String valorComString = TascaFormHelper.varValorToString(valor);
+				logger.debug("    Variable (" +
+						"varCodi=" + var + ", " +
+						"class=" + ((valor != null) ? valor.getClass().getName() : "null") + ", " +
+						"valor=" + valorComString + ")");
+			}
+		}
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {

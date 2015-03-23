@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -192,6 +193,17 @@ public abstract class CommonRegistreController extends BaseController {
 	        					command,
 	        					true,
 	    						false);
+			        	if (logger.isDebugEnabled()) {
+							logger.debug("Guardant dades del registre (id=" + id + ")");
+							for (String var: valorsCommand.keySet()) {
+								Object valor = valorsCommand.get(var);
+								String valorComString = TascaFormHelper.varValorToString(valor);
+								logger.debug("    Variable (" +
+										"varCodi=" + var + ", " +
+										"class=" + ((valor != null) ? valor.getClass().getName() : "null") + ", " +
+										"valor=" + valorComString + ")");
+							}
+						}
 			        	List<CampRegistre> membres = camp.getRegistreMembres();
 			        	Object[] valors = new Object[membres.size()];
 			        	for (int i = 0; i < membres.size(); i++) {
