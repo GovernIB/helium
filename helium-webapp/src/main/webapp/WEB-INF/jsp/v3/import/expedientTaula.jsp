@@ -38,7 +38,7 @@
 </style>
 
 <c:set var="grupId" value="grup-default"/>
-<c:if test="${not empty param.id}"><c:set var="grupId" value="grup-${param.id}"/></c:if>
+<c:if test="${not empty param.id}"><c:set var="grupId" value="${procesId}-grup-${param.id}"/></c:if>
 <c:set var="paramDades" value="${requestScope[param.dadesAttribute]}"/>
 <c:set var="paramCount" value="${param.count}"/>
 <c:if test="${not empty param.titol}"><c:set var="paramTitol" value="${param.titol}"/></c:if>
