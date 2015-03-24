@@ -678,7 +678,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
-		if (logger.isDebugEnabled()) {
+		/*if (logger.isDebugEnabled()) {
 			logger.debug("Dades de la tasca (id=" + tascaId + ", titol=" + tasca.getTitol() + ", numDades=" + dades.size() + ")");
 			for (TascaDadaDto dada: dades) {
 				logger.debug("    Dada (" +
@@ -688,7 +688,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						"text=" + dada.getTextMultiple() + ", " +
 						"class=" + dada.getJavaClassMultiple() + ")");
 			}
-		}
+		}*/
 		Iterator<TascaDadaDto> itDades = dades.iterator();
 		while (itDades.hasNext()) {
 			TascaDadaDto dada = itDades.next();

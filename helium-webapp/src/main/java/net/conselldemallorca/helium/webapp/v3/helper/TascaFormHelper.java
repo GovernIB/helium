@@ -569,7 +569,7 @@ public class TascaFormHelper {
 							oValor = ((TerminiDto)oValor).toSavinString();
 						if (!iniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 							varIncloure = true;
-						valor = compatibilitat26(campRegistre, valor);
+						oValor = compatibilitat26(campRegistre, oValor);
 						linies[l][i++] = oValor;
 					}
 				}
@@ -588,7 +588,7 @@ public class TascaFormHelper {
 						oValor = ((TerminiDto)oValor).toSavinString();
 					if (!iniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 						varIncloure = true;
-	    			valor = compatibilitat26(campRegistre, valor);
+					oValor = compatibilitat26(campRegistre, oValor);
 					linia[i++] = oValor;
 				}
 				return varIncloure ? linia : null;
