@@ -17,6 +17,8 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
@@ -145,6 +147,22 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
+	@RequestMapping(value = "/{expedientId}/desfinalitzar", method = RequestMethod.GET)
+	public String desfinalitzar(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			Model model) {
+		try {
+			expedientService.desfinalitzar(expedientId);
+			MissatgesHelper.info(request, getMessage(request, "info.expedient.reprendre") );
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"));
+			logger.error(getMessage(request, "error.reprendre.expedient"), ex);
+		}
+		
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -172,4 +190,6 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				Object.class,
 				new ObjectTypeEditorHelper());
 	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientV3Controller.class);
 }

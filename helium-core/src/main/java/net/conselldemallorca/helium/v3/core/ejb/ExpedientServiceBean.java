@@ -605,8 +605,20 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reprendre(Long id) {
+	public void activa(Long id) {
+		delegate.activa(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void reprendre(Long id) throws Exception {
 		delegate.reprendre(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void desfinalitzar(Long id) throws Exception {
+		delegate.desfinalitzar(id);
 	}
 
 	@Override

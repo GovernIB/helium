@@ -223,7 +223,7 @@
 										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/aturar"/>"><span class="fa fa-pause"></span>&nbsp;<spring:message code="expedient.info.accio.aturar"/></a></li>
 									</c:when>
 									<c:otherwise>
-										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
+										<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm_reprendre_tramitacio"/>" href="<c:url value="../../v3/expedient/${expedientId}/reprendre"/>"><span class="fa fa-play"></span>&nbsp;<spring:message code="expedient.info.accio.reprendre"/></a></li>
 									</c:otherwise>
 								</c:choose>
 							</c:if>
@@ -233,9 +233,14 @@
 										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/anular"/>"><span class="fa fa-times"></span>&nbsp;<spring:message code="expedient.info.accio.anular"/></a></li>
 									</c:when>
 									<c:otherwise>
-										<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
+										<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desanular"/>" href="<c:url value="../../v3/expedient/${expedientId}/activar"/>"><span class="fa fa-check"></span>&nbsp;<spring:message code="expedient.info.accio.activar"/></a></li>
 									</c:otherwise>
 								</c:choose>
+							</c:if>
+							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+								<c:if test="${not empty expedient.dataFi}">
+									<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+								</c:if>
 							</c:if>
 							<c:if test="${expedient.permisDelete}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>

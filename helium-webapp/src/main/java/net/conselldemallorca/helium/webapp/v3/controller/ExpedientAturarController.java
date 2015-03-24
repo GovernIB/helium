@@ -5,11 +5,14 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -76,7 +80,21 @@ public class ExpedientAturarController extends BaseExpedientController {
 		return modalUrlTancar();
 	}
 
-
+	@RequestMapping(value = "/{expedientId}/reprendre", method = RequestMethod.GET)
+	public String reprendre(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			Model model) {
+		try {
+			expedientService.reprendre(expedientId);
+			MissatgesHelper.info(request, getMessage(request, "info.expedient.reprendre") );
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"));
+			logger.error(getMessage(request, "error.reprendre.expedient"), ex);
+		}
+		
+		return "redirect:/v3/expedient/" + expedientId;
+	}
 
 	private class ExpedientAturarValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -88,5 +106,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientAturarController.class);
 
 }

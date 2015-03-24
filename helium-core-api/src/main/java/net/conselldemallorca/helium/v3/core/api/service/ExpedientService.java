@@ -677,7 +677,11 @@ public interface ExpedientService {
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
-	public void reprendre(Long id);
+	public void activa(Long id);
+	
+	public void reprendre(Long id) throws Exception;
+	
+	public void desfinalitzar(Long id) throws Exception;
 
 	public boolean luceneReindexarExpedient(Long expedientId);
 

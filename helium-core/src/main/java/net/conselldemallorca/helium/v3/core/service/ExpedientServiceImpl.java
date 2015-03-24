@@ -1785,8 +1785,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional
-	public void reprendre(Long id) {
-		logger.debug("Reprenent l'expedient (id=" + id + ")");
+	public void activa(Long id) {
+		logger.debug("Activant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				false,
@@ -1807,6 +1807,60 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ids[i++] = pi.getId();
 		jbpmHelper.resumeProcessInstances(ids);
 		expedient.setAnulat(false);
+	}
+	
+	@Override
+	@Transactional
+	public void reprendre(Long id) throws Exception {
+		logger.debug("Reprenent l'expedient (id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				false,
+				true,
+				false,
+				false);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
+				null);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		logger.debug("Reprenent les instàncies de procés associades a l'expedient (id=" + id + ")");
+		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
+				expedient.getProcessInstanceId());
+		String[] ids = new String[processInstancesTree.size()];
+		int i = 0;
+		for (JbpmProcessInstance pi: processInstancesTree)
+			ids[i++] = pi.getId();
+		jbpmHelper.resumeProcessInstances(ids);
+		expedient.setInfoAturat(null);
+		registreDao.crearRegistreReprendreExpedient(
+				expedient.getId(),
+				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+	
+	@Override
+	@Transactional
+	public void desfinalitzar(Long id) throws Exception {
+		logger.debug("Reprenent l'expedient (id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				false,
+				true,
+				false,
+				false);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
+				null);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		logger.debug("Desfer finalització de l'expedient (id=" + id + ")");
+		
+		jbpmHelper.reprendreExpedient(expedient.getProcessInstanceId());
+		expedient.setDataFi(null);
+		
+		registreDao.crearRegistreReprendreExpedient(
+				expedient.getId(),
+				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 	@Override

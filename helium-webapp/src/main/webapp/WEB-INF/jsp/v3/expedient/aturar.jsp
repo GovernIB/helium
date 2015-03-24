@@ -22,7 +22,7 @@
 </script>
 </head>
 <body>		
-	<form:form id="aturarExpedient" name="aturarExpedient" action="aturarExpedient" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmar(event)">
+	<form:form id="aturarExpedient" name="aturarExpedient" action="aturar" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmar(event)">
 		<hel:inputTextarea required="true" name="motiu" textKey="expedient.accio.aturar.camp.motiu" placeholderKey="expedient.accio.aturar.camp.motiu"/>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>

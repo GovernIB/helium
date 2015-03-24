@@ -66,7 +66,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 			}
 			try {
 				expedientService.cancel(expedientId, cancelExpedient.getMotiu());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.cancelat") );
+				MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
 				logger.error(getMessage(request, "error.cancelar.expedient"), ex);
@@ -79,22 +79,18 @@ public class ExpedientAnularController extends BaseExpedientController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/activar", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean reprendre(
+	public String reprendre(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
 			Model model) {
-		boolean result = false;
 		try {
-			expedientService.reprendre(expedientId);
-			MissatgesHelper.info(request, getMessage(request, "info.expedient.repres") );
-			result = true;
+			expedientService.activa(expedientId);
+			MissatgesHelper.info(request, getMessage(request, "info.expedient.reactivat") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"));
 			logger.error(getMessage(request, "error.activar.expedient"), ex);
 		}
-		
-		return result;
+		return "redirect:/v3/expedient/" + expedientId;
 	}
 
 
