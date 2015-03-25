@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,10 +80,12 @@ public class TascaFormHelper {
     	for (TascaDadaDto camp: tascaDades) {
     		try {
     			if (!camp.getCampTipus().equals(CampTipusDto.ACCIO)) {
-		    		Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+		    		Object valor = PropertyUtils.getSimpleProperty(
+		    				command,
+		    				camp.getVarCodi());
 	    			if (camp.isReadOnly() && !camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 	    				valor = camp.getVarValor();
-	    				PropertyUtils.setSimpleProperty(
+	    				setSimpleProperty(
 								command,
 								camp.getVarCodi(),
 								valor);
@@ -188,21 +191,30 @@ public class TascaFormHelper {
 	}
 	
 	public static Object getCommandForCamps(
-			List<TascaDadaDto> tascaDadas,
+			List<TascaDadaDto> tascaDades,
 			HttpServletRequest request) {
-		return getCommandForCamps(tascaDadas, null, null, null, false);
+		return getCommandForCamps(
+				tascaDades,
+				null,
+				null,
+				null,
+				false);
 	}
 	
 	public static Object getCommandForCampsExpedient(
-			List<ExpedientDadaDto> expDadas,
+			List<ExpedientDadaDto> expedientDades,
 			Map<String, Object> valors) {
-		List<TascaDadaDto> tascaDadas = new ArrayList<TascaDadaDto>();
-		for (ExpedientDadaDto expdada: expDadas) {
-			TascaDadaDto tascaDada = toTascaDadaDto(expdada);
-			tascaDadas.add(tascaDada);
+		List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+		for (ExpedientDadaDto expedientDada: expedientDades) {
+			TascaDadaDto tascaDada = toTascaDadaDto(expedientDada);
+			tascaDades.add(tascaDada);
 		}
-		
-		return getCommandForCamps(tascaDadas, valors, null, null, false);
+		return getCommandForCamps(
+				tascaDades,
+				valors,
+				null,
+				null,
+				false);
 	}
 	
 	public static TascaDadaDto toTascaDadaDto(ExpedientDadaDto expdada) {
@@ -234,30 +246,28 @@ public class TascaFormHelper {
 	}
 	
 	public static Object getCommandForCamps(
-			List<TascaDadaDto> tascaDadas,
+			List<TascaDadaDto> tascaDades,
 			Map<String, Object> valors,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			boolean perFiltre) {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Empram cglib per generar el command de manera dinàmica
-		Object command = getCommandModelForCamps(tascaDadas, campsAddicionalsClasses, registres, perFiltre);
-		
+		Object command = getCommandModelForCamps(
+				tascaDades,
+				campsAddicionalsClasses,
+				registres,
+				perFiltre);
 		// Inicialitza els camps del command amb els valors de la tasca
-		for (TascaDadaDto camp: tascaDadas) {
-			String tipusCommand = null;
+		for (TascaDadaDto camp: tascaDades) {
+			Object valor = null;
 			try {
-				Class<?> propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
-				tipusCommand = (propertyType != null) ? propertyType.getName() : null;
-				
 				// Obtenim el valor del camp
-				Object valor = null;
 				if (valors != null && valors.get(camp.getVarCodi()) != null) {
 					valor = valors.get(camp.getVarCodi());
 				} else {
 					valor = camp.getVarValor();
 				}
-				
 				if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 					// Camps múltiples
 					if (isCampMultiple(camp, perFiltre)) {
@@ -282,12 +292,12 @@ public class TascaFormHelper {
 							} else {
 								valorMultiple = valor;
 							}
-							PropertyUtils.setSimpleProperty(
+							setSimpleProperty(
 									command,
 									camp.getVarCodi(),
 									valorMultiple);
 						} else {
-							PropertyUtils.setSimpleProperty(
+							setSimpleProperty(
 									command,
 									camp.getVarCodi(),
 									Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1));
@@ -300,10 +310,10 @@ public class TascaFormHelper {
 							} else {
 								valor = new TerminiDto();
 							}
-						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null){
+						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null) {
 							valor = "";
 						}
-						PropertyUtils.setSimpleProperty(
+						setSimpleProperty(
 								command,
 								camp.getVarCodi(),
 								valor);
@@ -326,7 +336,6 @@ public class TascaFormHelper {
 						if (camp.isCampMultiple()) {
 							int mida = ((Object[])valor).length;
 							Object[] linies = (Object[])Array.newInstance(registre.getClass(), mida);
-							
 							for (int l = 0; l < mida; l++){
 								linies[l] = registre.getClass().newInstance();
 							}
@@ -359,26 +368,31 @@ public class TascaFormHelper {
 						}
 					}
 					// 5. Assignam el valor calculat a la propietat que representa el registre
-//					PropertyUtils.setNestedProperty(
-					PropertyUtils.setSimpleProperty(
+					setSimpleProperty(
 							command, 
 							camp.getVarCodi(),
 							valorRegistre);
 				}
 			} catch (Exception ex) {
-				logger.error("No s'ha pogut afegir el camp '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
+				logger.error("No s'ha pogut afegir el camp al command (" +
+						"campCodi=" + camp.getVarCodi() + ", " +
+						"valor=" + varValorToString(valor) + ", " +
+						"class=" + varValorClassToString(valor) + ")", ex);
 			}
 		}
-		
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
+				Object valor = campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null;
 				try {
-					PropertyUtils.setSimpleProperty(
+					setSimpleProperty(
 							command,
 							codi,
-							campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null);
+							valor);
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp addicional '" + codi + "'", ex);
+					logger.error("No s'ha pogut afegir el camp addicional al command (" +
+							"campCodi=" + codi + ", " +
+							"valor=" + varValorToString(valor) + ", " +
+							"class=" + varValorClassToString(valor) + ")", ex);
 				}
 			}
 		}
@@ -387,68 +401,79 @@ public class TascaFormHelper {
 	}
 	
 	public static Object getCommandBuitForCamps(
-			List<TascaDadaDto> tascaDadas,
+			List<TascaDadaDto> tascaDades,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			boolean perFiltre) {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Empram cglib per generar el command de manera dinàmica
-		Object command = getCommandModelForCamps(tascaDadas, campsAddicionalsClasses, registres, perFiltre);
+		Object command = getCommandModelForCamps(
+				tascaDades,
+				campsAddicionalsClasses,
+				registres,
+				perFiltre);
 		// Inicialitza els camps del command amb valors buits
-		for (TascaDadaDto camp: tascaDadas) {
-			String tipusCommand = null;
+		for (TascaDadaDto camp: tascaDades) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+				Object valor = null;
 				try {
-					Class<?> propertyType = PropertyUtils.getPropertyType(command, camp.getVarCodi());
-					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
-					
+					valor = Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1);
 					if (isCampMultiple(camp, perFiltre)) {
-						PropertyUtils.setSimpleProperty(
+						setSimpleProperty(
 								command,
 								camp.getVarCodi(),
-								Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1));
+								valor);
 					} else {
-						Object valor = null;
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							valor = new TerminiDto();
 						}
-						PropertyUtils.setSimpleProperty(
+						setSimpleProperty(
 								command,
 								camp.getVarCodi(),
 								valor);
 					}
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
+					logger.error("No s'ha pogut afegir el camp al command (" +
+							"campCodi=" + camp.getVarCodi() + ", " +
+							"valor=" + varValorToString(valor) + ", " +
+							"class=" + varValorClassToString(valor) + ")", ex);
 				}
 			} else if (!perFiltre) {
+				Object valorRegistre = null;
 				try {
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
 					Object registre = registres.get(camp.getVarCodi());
-					Object valorRegistre = null;
 					if (camp.isCampMultiple()) {
 						valorRegistre = Array.newInstance(registre.getClass(), 1);
 						((Object[])valorRegistre)[0] = registre;
 					} else {
 						valorRegistre = registre;
 					}
-					PropertyUtils.setSimpleProperty(
+					setSimpleProperty(
 							command, 
 							camp.getVarCodi(),
 							valorRegistre);
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp tipus registre '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
+					logger.error("No s'ha pogut afegir el camp tipus registre al command (" +
+							"campCodi=" + camp.getVarCodi() + ", " +
+							"valor=" + varValorToString(valorRegistre) + ", " +
+							"class=" + varValorClassToString(valorRegistre) + ")", ex);
 				}
 			}
 		}
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
+				Object valor = campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null;
 				try {
-					PropertyUtils.setSimpleProperty(
+					setSimpleProperty(
 							command,
 							codi,
-							campsAddicionals.containsKey(codi) ? campsAddicionals.get(codi) : null);
+							valor);
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp addicional '" + codi + "'", ex);
+					logger.error("No s'ha pogut afegir el camp addicional al command (" +
+							"campCodi=" + codi + ", " +
+							"valor=" + varValorToString(valor) + ", " +
+							"class=" + varValorClassToString(valor) + ")", ex);
 				}
 			}
 		}
@@ -461,69 +486,165 @@ public class TascaFormHelper {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Inicialitza els camps del command amb valors buits
 		for (TascaDadaDto camp: tascaDadas) {
-			String tipusCommand = null;
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+				Object valor = null;
 				try {
 					if (isCampMultiple(camp, perFiltre)) {
-						Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+						valor = PropertyUtils.getSimpleProperty(
+								command,
+								camp.getVarCodi());
 						if (valor == null)
-							PropertyUtils.setSimpleProperty(
+							setSimpleProperty(
 									command,
 									camp.getVarCodi(),
 									Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1));
 					}
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp '" + camp.getVarCodi() + "' al command", ex);
+					logger.error("No s'ha pogut afegir el camp al command (" +
+							"campCodi=" + camp.getVarCodi() + ", " +
+							"valor=" + varValorToString(valor) + ", " +
+							"class=" + varValorClassToString(valor) + ")", ex);
 				}
 			} else if (!perFiltre) {
+				Object valorRegistre = null;
 				try {
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
 					Object registre = registres.get(camp.getVarCodi());
-					Object valorRegistre = null;
 					if (camp.isCampMultiple()) {
-						Object valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+						Object valor = PropertyUtils.getSimpleProperty(
+								command,
+								camp.getVarCodi());
 						if (valor == null) {
 							valorRegistre = Array.newInstance(registre.getClass(), 1);
 							((Object[])valorRegistre)[0] = registre;
-							PropertyUtils.setSimpleProperty(
+							setSimpleProperty(
 									command, 
 									camp.getVarCodi(),
 									valorRegistre);
 						}
 					}
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp tipus registre '" + camp.getVarCodi() + "' al command (" + tipusCommand + ")", ex);
+					logger.error("No s'ha pogut afegir el camp de tipus registre al command (" +
+							"campCodi=" + camp.getVarCodi() + ", " +
+							"valor=" + varValorToString(valorRegistre) + ", " +
+							"class=" + varValorClassToString(valorRegistre) + ")", ex);
 				}
 			}
 		}
 	}
-	public static Object getCommandModelForCamps(
-			List<TascaDadaDto> tascaDadas,
+
+	public static String varValorToString(Object valor) {
+		String valorComString = null;
+		if (valor == null) return null;
+		if (valor instanceof Object[]) {
+			Object[] array = (Object[])valor;
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (int i = 0; i < array.length; i++) {
+				if (array[i] != null) {
+					if (array[i] instanceof Object[]) {
+						Object[] a = (Object[])array[i];
+						sb.append("[");
+						for (int j = 0; j < a.length; j++) {
+							if (a[j] != null)
+								sb.append(a[j].toString());
+							else
+								sb.append("null");
+							if (j < a.length - 1)
+								sb.append(", ");
+						}
+						sb.append("]");
+					} else {
+						sb.append(array[i].toString());
+					}
+				} else {
+					sb.append("null");
+				}
+				if (i < array.length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+			valorComString = sb.toString();
+		} else if (valor != null) {
+			valorComString = valor.toString();
+		}
+		return valorComString.toString();
+	}
+
+	public static String varValorClassToString(Object valor) {
+		String valorComString = null;
+		if (valor == null) return null;
+		if (valor instanceof Object[]) {
+			Object[] array = (Object[])valor;
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (int i = 0; i < array.length; i++) {
+				if (array[i] != null) {
+					if (array[i] instanceof Object[]) {
+						Object[] a = (Object[])array[i];
+						sb.append("[");
+						for (int j = 0; j < a.length; j++) {
+							if (a[j] != null)
+								sb.append(a[j].getClass().getName());
+							else
+								sb.append("null");
+							if (j < a.length - 1)
+								sb.append(", ");
+						}
+						sb.append("]");
+					} else {
+						sb.append(array[i].getClass().getName());
+					}
+				} else {
+					sb.append("null");
+				}
+				if (i < array.length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+			valorComString = sb.toString();
+		} else if (valor != null) {
+			valorComString = valor.getClass().toString();
+		}
+		return valorComString.toString();
+	}
+
+
+
+	private static Object getCommandModelForCamps(
+			List<TascaDadaDto> tascaDades,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			Map<String, Object> registres,
 			boolean perFiltre) {
+		logger.debug("Generant command per tasca");
 		// Empram cglib per generar el command de manera dinàmica
 		BeanGenerator bg = new BeanGenerator();
 		if (campsAddicionalsClasses != null) {
 			for (String codi: campsAddicionalsClasses.keySet()) {
-				bg.addProperty(codi, campsAddicionalsClasses.get(codi));
+				addpropertyToBean(
+						bg,
+						codi,
+						campsAddicionalsClasses.get(codi));
 			}
 		}
 		if (registres == null) registres = new HashMap<String, Object>();
-		for (TascaDadaDto camp: tascaDadas) {
+		for (TascaDadaDto camp: tascaDades) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				if (camp.getCampTipus() != null)  {
 					if (isCampMultiple(camp, perFiltre)) {
-						bg.addProperty(
+						addpropertyToBean(
+								bg,
 								camp.getVarCodi(),
 								Array.newInstance(camp.getJavaClass(), 1).getClass());
-					} else { 
-						bg.addProperty(
+					} else {
+						addpropertyToBean(
+								bg,
 								camp.getVarCodi(),
 								camp.getJavaClass());
 					}
 				} else {
-					bg.addProperty(
+					addpropertyToBean(
+							bg,
 							camp.getVarCodi(),
 							Object.class);
 				}
@@ -536,11 +657,15 @@ public class TascaFormHelper {
 						false);
 				if (camp.isCampMultiple()) {
 					// En cas de ser un registre múltiple el que cream és un array de Registre
-					bg.addProperty(
+					addpropertyToBean(
+							bg,
 							camp.getVarCodi(),
 							Array.newInstance(registre.getClass(), 1).getClass());
 				} else {
-					bg.addProperty(camp.getVarCodi(), registre.getClass());
+					addpropertyToBean(
+							bg,
+							camp.getVarCodi(),
+							registre.getClass());
 				}
 				registres.put(camp.getVarCodi(), registre);
 			}
@@ -580,7 +705,9 @@ public class TascaFormHelper {
 				int i = 0;
 				boolean varIncloure = false;
 				for (TascaDadaDto campRegistre : camp.getRegistreDades()) {
-					Object oValor = PropertyUtils.getProperty(valor, campRegistre.getVarCodi());
+					Object oValor = PropertyUtils.getProperty(
+							valor,
+							campRegistre.getVarCodi());
 					if (camp.isReadOnly()) {
 						oValor = campRegistre.getVarValor();
 					}
@@ -630,42 +757,29 @@ public class TascaFormHelper {
 		return ambArray;
 	}
 
-	public static String varValorToString(Object valor) {
-		String valorComString = null;
-		if (valor == null) return null;
-		if (valor instanceof Object[]) {
-			Object[] array = (Object[])valor;
-			StringBuilder sb = new StringBuilder();
-			sb.append("[");
-			for (int i = 0; i < array.length; i++) {
-				if (array[i] != null) {
-					if (array[i] instanceof Object[]) {
-						Object[] a = (Object[])array[i];
-						sb.append("[");
-						for (int j = 0; j < a.length; j++) {
-							if (a[j] != null)
-								sb.append(a[j].toString());
-							else
-								sb.append("null");
-							if (j < a.length - 1)
-								sb.append(", ");
-						}
-						sb.append("]");
-					} else {
-						sb.append(array[i].toString());
-					}
-				} else {
-					sb.append("null");
-				}
-				if (i < array.length - 1)
-					sb.append(", ");
-			}
-			sb.append("]");
-			valorComString = sb.toString();
-		} else if (valor != null) {
-			valorComString = valor.toString();
-		}
-		return valorComString.toString();
+	private static void addpropertyToBean(
+			BeanGenerator bg,
+			String propietatNom,
+			Class<?> propietatClass) {
+		logger.debug("Afegint propietat al command(" +
+				"nom=" + propietatNom + ", " + 
+				"class=" + propietatClass.getName() + ")");
+		bg.addProperty(
+				propietatNom,
+				propietatClass);
+	}
+
+	private static void setSimpleProperty(
+			Object command,
+			String propietatNom,
+			Object propietatValor) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		logger.debug("Posant valor a propietat del command(" +
+				"nom=" + propietatNom + ", " + 
+				"valor=" + varValorToString(propietatValor) + ")");
+		PropertyUtils.setSimpleProperty(
+				command,
+				propietatNom,
+				propietatValor);
 	}
 
 	private static Object compatibilitat26(

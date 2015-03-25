@@ -8,15 +8,12 @@
 	</appender>
 	<logger name="org.hibernate">
 		<level value="ERROR"/>
-		<appender-ref ref="console"/>
 	</logger>
 	<logger name="org.springframework.web">
 		<level value="WARN"/>
-		<appender-ref ref="console"/>
 	</logger>
 	<logger name="org.displaytag">
 		<level value="ERROR"/>
-		<appender-ref ref="console"/>
 	</logger>
 	<root>
 		<level value="INFO"/>
