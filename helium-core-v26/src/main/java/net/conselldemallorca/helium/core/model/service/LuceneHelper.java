@@ -348,15 +348,13 @@ public class LuceneHelper extends LuceneIndexSupport {
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE, expedient.getResponsableCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, dataPerIndexar(expedient.getDataInici()), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, expedient.getTipus().getCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
-		if (expedient.getEstat() != null) {
+		if (finalitzat) {
+			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, "-1", Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
+		} else if (expedient.getEstat() != null) {
 			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, expedient.getEstat().getCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT + VALOR_DOMINI_SUFIX + expedient.getEstat().getCodi(), expedient.getEstat().getCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		} else {
-			if (!finalitzat) {
-				createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, "0", Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
-			} else {
-				createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, "-1", Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
-			}
+			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, "0", Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		}
 		if (definicionsProces != null) {
 			for (String clau : definicionsProces.keySet()) {
