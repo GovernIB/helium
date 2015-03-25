@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:choose>
-<c:when test="${false}">
+<c:when test="${true}">
 <tr class="tasques-pendents">
 	<c:choose>
 		<c:when test="${not empty tasques}">
@@ -21,7 +21,7 @@
 					</thead>
 					<tbody>
 						<c:forEach var="tasca" items="${tasques}" varStatus="index">
-							<tr>
+							<tr id="fila-tasca-${tasca.id}">
 								<td>
 									${tasca.titol}
 									<c:if test="${not tasca.agafada && not empty tasca.responsables}">
@@ -86,12 +86,9 @@
 												</c:if>											
 											</ul>
 											<script type="text/javascript">
-												$("#table-pendents-${tasca.id}").append('<ul class="dropdown-menu" id="dropdown-menu-context-tasca-${tasca.id}" style="display:none">'+$('#dropdown-menu-tasca-${tasca.id}').html()+'</ul>');
-												$("#table-pendents-${tasca.id}").contextMenu({
-												    menuSelector: "#dropdown-menu-context-tasca-${tasca.id}",
-												    menuSelected: function (invokedOn, selectedMenu) {
-												        // alert(selectedMenu.text() + " > " + invokedOn.text());
-												    }
+												$("#fila-tasca-${tasca.id}").append('<ul class="dropdown-menu" id="dropdown-menu-context-${tasca.id}" style="display:none">'+$("#dropdown-menu-tasca-${tasca.id}").find('.dropdown-menu').html()+'</ul>');
+												$("#fila-tasca-${tasca.id}").contextMenu({
+												    menuSelector: "#dropdown-menu-context-${tasca.id}",
 												});
 											</script>
 										</div>

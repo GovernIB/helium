@@ -114,7 +114,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {
 		try {
 			expedientService.cancelarTasca(expedientId, tascaId);
-			MissatgesHelper.info(request, getMessage(request, "info.tasca.cancelar", new Object[] {String.valueOf(tascaId)}));
+			MissatgesHelper.success(request, getMessage(request, "info.tasca.cancelar", new Object[] {String.valueOf(tascaId)}));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId)} ));
         	logger.error("No s'ha pogut cancel·lar la tasca " + String.valueOf(tascaId), ex);
@@ -130,7 +130,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {		
 		try {
 			expedientService.suspendreTasca(expedientId, tascaId);
-			MissatgesHelper.info(request, getMessage(request, "info.tasca.suspendre"));
+			MissatgesHelper.success(request, getMessage(request, "info.tasca.suspendre"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.suspendre.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut suspendre la tasca " + tascaId, ex);
@@ -147,7 +147,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			ModelMap model) {
 		try {
 			expedientService.reprendreTasca(expedientId, tascaId);
-			MissatgesHelper.info(request, getMessage(request, "info.tasca.reprendre"));
+			MissatgesHelper.success(request, getMessage(request, "info.tasca.reprendre"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reprendre.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut reprendre la tasca " + tascaId, ex);
@@ -166,7 +166,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		try {
 			tascaService.agafar(tascaId);
 			resultado = true;
-			MissatgesHelper.info(request, getMessage(request, "info.tasca.disponible.personals"));
+			MissatgesHelper.success(request, getMessage(request, "info.tasca.disponible.personals"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.agafar.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut agafar la tasca " + tascaId, ex);
@@ -185,7 +185,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		try {
 			tascaService.alliberar(tascaId);
 			resultado = true;
-			MissatgesHelper.info(request, getMessage(request, "info.tasca.alliberada"));
+			MissatgesHelper.success(request, getMessage(request, "info.tasca.alliberada"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.alliberar.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut alliberar la tasca " + tascaId, ex);

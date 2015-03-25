@@ -165,7 +165,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 			// Si no requereix cap pas addicional inicia l'expedient directament
 			try {
 				ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProces.getId());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 				return modalUrlTancar();
 			} catch (Exception ex) {

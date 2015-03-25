@@ -100,7 +100,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			}
 			try {
 				ExpedientDto iniciat = iniciarExpedient(request, expedientInicioPasTitolCommand.getEntornId(), expedientInicioPasTitolCommand.getExpedientTipusId(), definicioProcesId, expedientInicioPasTitolCommand.getNumero(), expedientInicioPasTitolCommand.getTitol(), expedientInicioPasTitolCommand.getAny());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex instanceof ValidationException) {

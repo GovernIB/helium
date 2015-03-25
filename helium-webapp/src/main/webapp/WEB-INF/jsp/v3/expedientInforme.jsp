@@ -177,17 +177,17 @@ function actualizarBotonesFiltros(id) {
 				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
 				
 				<div class="row">
-					<div class="col-md-1 btn-group">
+					<div class="col-md-6">
+						<div class="btn-group">
+							<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+								<button id="nomesMevesCheck" data-path="nomesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-male"></span></button>
+							</c:if>
+							<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
+							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+						</div>
 						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
 					</div>
-					<div class="col-md-5 btn-group">
-						<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
-							<button id="nomesMevesCheck" data-path="nomesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-male"></span></button>
-						</c:if>
-						<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
-						<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
-					</div>
-					<div class="col-md-6 btn-group">
+					<div class="col-md-6">
 						<div class="pull-right">
 							<input type="hidden" name="consultaRealitzada" value="true"/>
 							<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>

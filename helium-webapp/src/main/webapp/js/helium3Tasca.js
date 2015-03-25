@@ -83,40 +83,60 @@ function initSuggest(element) {
 		});
 	});
 }
+var opcionsSeleccio = [];
 function initSeleccio(element) {
 	var input = $(element);
 	input.select2({
 		width: '100%',
-	    placeholder: input.data("placeholder"),
-	    allowClear: true,
-	    ajax: {
-	        url: function (value) {
-	        	return input.data("urlconsultallistat");
-	        },
-	        dataType: 'json',
-	        data: function (value) {
-	        	return desplegableObtenirParams(input, value);
-	        },
-	        results: function (data, page) {
-	        	var results = [];
-	        	for (var i = 0; i < data.length; i++) {
-	        		results.push({id: data[i].codi, text: data[i].nom});
-	        	}
-	            return {results: results};
-	        }
-	    },
+		placeholder: input.data("placeholder"),
+		allowClear: true,
+		data: function () {
+			var refrescar = input.data('select2-refresh') != 'false';
+			if (refrescar) {
+				$.ajax({
+					url: input.data("urlconsultallistat"),
+					data: desplegableObtenirParams(input),
+					dataType: 'json',
+					success: function(data) {
+						resposta = [];
+						for (i = 0; i < data.length; i++) {
+							resposta[i] = {
+								id: data[i].codi,
+								text: data[i].nom
+							};
+						}
+						opcionsSeleccio[input.attr('id')] = resposta;
+					},
+					async: false
+				});
+				input.data('select2-refresh', 'false');
+			}
+			return {results: opcionsSeleccio[input.attr('id')]};
+		},
 	    initSelection: function (element, callback) {
 	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + $(element).val();
 	    	desplegableInitSeleccio(ajaxUrl, element, callback);
 	    },
 	}).on('change', function () {
-		var campName = $(this).attr('name');
+		var regPrefix = '';
+		if (input.attr('id').indexOf('.') != -1) 
+			regPrefix = input.attr('id').substring(0, input.attr('id').indexOf('.'));
+		var campName = (regPrefix) ? $(this).attr('name').substring(regPrefix.length + 1) : $(this).attr('name');
+		console.log("regPrefix: " + regPrefix + ", campName: " + campName);
 		$('input.suggest,input.seleccio', input.parents('form')).each(function() {
-			var campParams;
-			if ($(this).data('campparams'))
-				campParams = $(this).data('campparams').split(',');
-			if ($.inArray(campName, campParams) != -1) {
-				$(this).select2("val", "");
+			var thisPrefix = '';
+			if ($(this).attr('id').indexOf('.') != -1) 
+				thisPrefix = $(this).attr('id').substring(0, $(this).attr('id').indexOf('.'));
+			if (thisPrefix == regPrefix) {
+				console.log("verificant: " + campName + ", " + $(this).data('campparams'));
+				var campParams;
+				if ($(this).data('campparams'))
+					campParams = $(this).data('campparams').split(',');
+				if ($.inArray(campName, campParams) != -1) {
+					$(this).select2("val", "");
+					$(this).removeData('select2-refresh');
+					console.log("removeData: " + $(this).attr("id"))
+				}
 			}
 		});
 	});

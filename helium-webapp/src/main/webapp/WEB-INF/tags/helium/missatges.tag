@@ -22,6 +22,7 @@
 %>
 <c:forEach var="text" items="${sessionErrors}">
 	<div class="alert alert-danger">
+		<span class="fa fa-warning"></span>
 		<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>
 		${text}
 	</div>
@@ -37,6 +38,7 @@
 %>
 <c:forEach var="text" items="${sessionWarnings}">
 	<div class="alert alert-warning">
+		<span class="fa fa-warning"></span>
 		<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>
 		${text}
 	</div>
@@ -52,6 +54,7 @@
 %>
 <c:forEach var="text" items="${sessionSuccesses}">
 	<div class="alert alert-success">
+		<span class="fa fa-check"></span>
 		<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>
 		${text}
 	</div>
@@ -67,6 +70,7 @@
 %>
 <c:forEach var="text" items="${sessionInfos}">
 	<div class="alert alert-info">
+		<span class="fa fa-info-circle"></span>
 		<button type="button" class="close-alertes" data-dismiss="alert" aria-hidden="true"><span class="fa fa-times"></span></button>
 		${text}
 	</div>

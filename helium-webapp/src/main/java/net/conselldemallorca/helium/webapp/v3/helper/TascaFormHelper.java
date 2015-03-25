@@ -417,8 +417,8 @@ public class TascaFormHelper {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				Object valor = null;
 				try {
-					valor = Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1);
 					if (isCampMultiple(camp, perFiltre)) {
+						valor = Array.newInstance(camp.getJavaClass(), perFiltre ? 2 : 1);
 						setSimpleProperty(
 								command,
 								camp.getVarCodi(),

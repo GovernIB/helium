@@ -118,7 +118,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		if (expedient.isPermisAdministration()){
 			try {
 				if(tokenService.activar(expedientId,tokenId,activar)){
-					MissatgesHelper.info(request, getMessage(request, cadenaMissatgeOk));
+					MissatgesHelper.success(request, getMessage(request, cadenaMissatgeOk));
 					response = true;
 				}else{
 					MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError));
@@ -163,7 +163,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 	        }
 				
 			tokenService.tokenRetrocedir(expedientId, tokenId, command.getNodeRetrocedir(), command.isCancelar());
-			MissatgesHelper.info(request, getMessage(request, "info.token.retrocedit") );
+			MissatgesHelper.success(request, getMessage(request, "info.token.retrocedit") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.retrocedir.token", new Object[] {String.valueOf(tokenId)} ));
 	    	logger.error("No s'ha pogut retrocedir el token " + String.valueOf(tokenId), ex);

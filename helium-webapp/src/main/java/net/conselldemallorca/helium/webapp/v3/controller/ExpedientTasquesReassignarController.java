@@ -79,7 +79,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				expedientService.reassignarTasca(
 						expedientTascaReassignarCommand.getTaskId(),
 						expedientTascaReassignarCommand.getExpression());
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.reassignada"));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.reassignada"));
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
 					MissatgesHelper.error(request, getMessage(request, ex.getCause().getMessage()));

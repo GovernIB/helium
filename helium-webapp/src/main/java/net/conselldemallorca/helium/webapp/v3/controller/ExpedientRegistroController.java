@@ -65,7 +65,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 		boolean response = false;
 		try {
 			expedientService.retrocedirFinsLog(logId, tipus_retroces == null || tipus_retroces != 0);
-			MissatgesHelper.info(request, getMessage(request, "expedient.registre.correcte"));
+			MissatgesHelper.success(request, getMessage(request, "expedient.registre.correcte"));
 			response = true;
 		} catch (JbpmException ex ) {
 			MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());

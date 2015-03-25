@@ -225,7 +225,7 @@ public class PerfilesController extends BaseController {
         		return "v3/persona/perfil";
         	}
     		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(null);
-			MissatgesHelper.info(request,getMessage(request, "info.perfil.guardat"));
+			MissatgesHelper.success(request,getMessage(request, "info.perfil.guardat"));
         } catch (Exception ex) {
         	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
         	logger.error("No s'ha pogut guardar el perfil", ex);

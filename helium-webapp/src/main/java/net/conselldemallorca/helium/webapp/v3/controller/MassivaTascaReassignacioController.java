@@ -168,7 +168,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			Object[] params = new Object[] {entorn.getId()};
 			dto.setParam2(execucioMassivaService.serialize(params));
 			execucioMassivaService.crearExecucioMassiva(dto);
-			MissatgesHelper.info(request, getMessage(request, "info.accio.massiu.reassignat", new Object[] {ids.size()}));
+			MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reassignat", new Object[] {ids.size()}));
 			ids.clear();
 		} catch (Exception e) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));

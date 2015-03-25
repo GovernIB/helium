@@ -263,7 +263,11 @@ public class VariableHelper {
 			resposta.add(
 					getTascaDadaDtoFromExpedientDadaDto(
 							expedientDadaDto,
-							campTasca));
+							campTasca.getCamp(),
+							campTasca.isReadOnly(),
+							campTasca.isReadFrom(),
+							campTasca.isWriteTo(),
+							campTasca.isRequired()));
 		}
 		return resposta;
 	}
@@ -311,7 +315,11 @@ public class VariableHelper {
 			resposta.add(
 					getTascaDadaDtoFromExpedientDadaDto(
 							expedientDadaDto,
-							campTasca));
+							campTasca.getCamp(),
+							campTasca.isReadOnly(),
+							campTasca.isReadFrom(),
+							campTasca.isWriteTo(),
+							campTasca.isRequired()));
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName(), "2");
 		mesuresTemporalsHelper.mesuraCalcular("Tasca DADES v3", "tasques", tipusExp, task.getName());
@@ -358,7 +366,11 @@ public class VariableHelper {
 					false);
 			return getTascaDadaDtoFromExpedientDadaDto(
 							dto,
-							campTasca);
+							campTasca.getCamp(),
+							campTasca.isReadOnly(),
+							campTasca.isReadFrom(),
+							campTasca.isWriteTo(),
+							campTasca.isRequired());
 		} else {
 			return null;
 		}
@@ -569,7 +581,11 @@ public class VariableHelper {
 
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
 			ExpedientDadaDto expedientDadaDto,
-			CampTasca campTasca) {
+			Camp camp,
+			boolean readOnly,
+			boolean readFrom,
+			boolean writeTo,
+			boolean required) {
 		TascaDadaDto tascaDadaDto = new TascaDadaDto();
 		tascaDadaDto.setVarCodi(expedientDadaDto.getVarCodi());
 		tascaDadaDto.setVarValor(expedientDadaDto.getVarValor());
@@ -578,11 +594,11 @@ public class VariableHelper {
 		tascaDadaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
 		tascaDadaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
 		tascaDadaDto.setCampOcult(expedientDadaDto.isCampOcult());
-		if (campTasca != null) {
-			tascaDadaDto.setReadOnly(campTasca.isReadOnly());
-			tascaDadaDto.setReadFrom(campTasca.isReadFrom());
-			tascaDadaDto.setWriteTo(campTasca.isWriteTo());
-			tascaDadaDto.setRequired(campTasca.isRequired());
+		if (camp != null) {
+			tascaDadaDto.setReadOnly(readOnly);
+			tascaDadaDto.setReadFrom(readFrom);
+			tascaDadaDto.setWriteTo(writeTo);
+			tascaDadaDto.setRequired(required);
 		}
 		tascaDadaDto.setText(expedientDadaDto.getText());
 		tascaDadaDto.setError(expedientDadaDto.getError());
@@ -594,27 +610,43 @@ public class VariableHelper {
 			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
 				TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(
 						dto,
-						campTasca);
+						camp,
+						readOnly,
+						readFrom,
+						writeTo,
+						required);
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
-				tascaDada.setRequired(campTasca.isReadOnly() ? false : dto.isRequired());
+				tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				multipleDades.add(tascaDada);
 			}
 			tascaDadaDto.setMultipleDades(multipleDades);
 		}
 		if (expedientDadaDto.getRegistreDades() != null) {
+			List<CampRegistre> registreCamps = camp.getRegistreMembres();
 			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
+				CampRegistre registreCamp = null;
+				for (CampRegistre cr: registreCamps) {
+					if (cr.getMembre().getCodi().equals(dto.getVarCodi())) {
+						registreCamp = cr;
+						break;
+					}
+				}
 				TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(
 						dto,
-						campTasca);
+						registreCamp.getMembre(),
+						false,
+						false,
+						false,
+						registreCamp.isObligatori());
 				// Si es un campo readonly quitamos la validación de los campos requeridos que contenga
-				tascaDada.setRequired(campTasca.isReadOnly() ? false : dto.isRequired());
+				tascaDada.setRequired(readOnly ? false : dto.isRequired());
 				registreDades.add(tascaDada);
 			}
 			tascaDadaDto.setRegistreDades(registreDades);
 		}
-		if (campTasca.getCamp().getDominiParams() != null) {
-			String dominiParams = campTasca.getCamp().getDominiParams();
+		if (camp.getDominiParams() != null) {
+			String dominiParams = camp.getDominiParams();
 			String[] pairs = dominiParams.split(";");
 			List<String> paramCampCodis = new ArrayList<String>();
 			for (String pair: pairs) {

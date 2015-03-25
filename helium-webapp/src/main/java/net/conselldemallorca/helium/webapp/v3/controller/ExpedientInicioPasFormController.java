@@ -154,7 +154,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		} else {
 			try {
 				ExpedientDto iniciat = iniciarExpedient(entorn.getId(), expedientTipusId, definicioProcesId, (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO), (String) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL), (Integer) request.getSession().getAttribute(ExpedientIniciController.CLAU_SESSIO_ANY), valors);
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex instanceof ValidationException) {

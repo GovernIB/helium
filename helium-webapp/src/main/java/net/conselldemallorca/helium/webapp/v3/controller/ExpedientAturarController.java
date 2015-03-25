@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -69,7 +67,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 			}
 			try {
 				expedientService.aturar(expedientId, aturarExpedient.getMotiu());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.aturat"));
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.aturat"));
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
 				ex.getLocalizedMessage();
@@ -87,7 +85,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 			Model model) {
 		try {
 			expedientService.reprendre(expedientId);
-			MissatgesHelper.info(request, getMessage(request, "info.expedient.reprendre") );
+			MissatgesHelper.success(request, getMessage(request, "info.expedient.reprendre") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"));
 			logger.error(getMessage(request, "error.reprendre.expedient"), ex);

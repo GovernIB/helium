@@ -69,7 +69,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 			Model model) {
 		try {
 			dissenyService.executarAccio(accioId, expedientId);
-			MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
+			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage());
         	logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);

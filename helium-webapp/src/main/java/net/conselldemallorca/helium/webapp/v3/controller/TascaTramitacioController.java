@@ -546,7 +546,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					Base64.decodeBase64(aData.toString().getBytes()));
 			if (signat) {
 				logger.info("Signatura del document amb el token " + token + " processada correctament");
-				MissatgesHelper.info(
+				MissatgesHelper.success(
 	        			request,
 	        			getMessage(request, "info.signatura.doc.processat") );
 			} else {
@@ -813,7 +813,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				tascaService.restaurar(tascaId, expedientId);
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.restaurar", new Object[] { tascaIds.length }));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.restaurar", new Object[] { tascaIds.length }));
 				resposta = true;
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
@@ -822,7 +822,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		} else {
 			try {
 				tascaService.restaurar(tascaId, expedientId);
-				MissatgesHelper.info(request, getMessage(request, "info.formulari.restaurat"));
+				MissatgesHelper.success(request, getMessage(request, "info.formulari.restaurat"));
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
@@ -876,7 +876,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				params[3] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.guardar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.guardar", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
@@ -885,7 +885,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		} else {
 			try {
 				tascaService.guardar(tascaId, expedientId, variables);
-				MissatgesHelper.info(request, getMessage(request, "info.dades.form.guardat"));
+				MissatgesHelper.success(request, getMessage(request, "info.dades.form.guardat"));
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
@@ -928,7 +928,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
 				tascaService.validar(tascaId, expedientId, variables);
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.validar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.validar", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
@@ -937,7 +937,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		} else {
 			try {
 				tascaService.validar(tascaId, expedientId, variables);
-				MissatgesHelper.info(request, getMessage(request, "info.formulari.validat"));
+				MissatgesHelper.success(request, getMessage(request, "info.formulari.validat"));
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
@@ -979,7 +979,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
 				tascaService.executarAccio(tascaId, accio);
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.accio", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.accio", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
@@ -988,7 +988,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		} else {
 			try {
 				tascaService.executarAccio(tascaId, accio);
-				MissatgesHelper.info(request, getMessage(request, "info.accio.executat"));
+				MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
@@ -1048,7 +1048,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
 				tascaService.completar(tascaId, expedientId, transicioSortida);
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.completar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.completar", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {				
 				if (ex instanceof IllegalStateException) {
@@ -1070,7 +1070,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		} else {
 			try {
 				tascaService.completar(tascaId, expedientId, transicioSortida);
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.completat"));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.completat"));
 				resposta = true;
 			} catch (Exception ex) {
 				if (ex.getCause() != null && ex instanceof ValidationException) {
@@ -1137,7 +1137,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {tascaIds.length}));
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
@@ -1152,7 +1152,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					nomArxiu,
 					contingutArxiu,
 					null);
-				MissatgesHelper.info(request, getMessage(request, "info.document.adjuntat"));
+				MissatgesHelper.success(request, getMessage(request, "info.document.adjuntat"));
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
 				MissatgesHelper.error(
@@ -1201,7 +1201,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						document.getDocumentCodi(),
 						null);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.document.esborrar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.esborrar", new Object[] {tascaIds.length}));
 				
 				resposta = true;
 			} catch (Exception ex) {
@@ -1214,7 +1214,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						tascaId,
 						document.getDocumentCodi(),
 						null);
-				MissatgesHelper.info(request, getMessage(request, "info.document.esborrat"));
+				MissatgesHelper.success(request, getMessage(request, "info.document.esborrat"));
 				resposta = true;
 	        } catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
@@ -1266,7 +1266,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 
-				MissatgesHelper.info(request, getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
@@ -1276,7 +1276,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				generat = expedientService.generarDocumentAmbPlantillaTasca(
 						tascaId,
 						docId);
-				MissatgesHelper.info(request, getMessage(request, "info.document.generat"));
+				MissatgesHelper.success(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
 				MissatgesHelper.error(

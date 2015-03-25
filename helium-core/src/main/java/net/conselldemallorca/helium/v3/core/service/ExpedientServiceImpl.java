@@ -2516,10 +2516,26 @@ public class ExpedientServiceImpl implements ExpedientService {
 				asc,
 				0,
 				-1);
+		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
+		if (filtreTasques) {
+			filtrarExpedientsAmbTasques(
+					llistaExpedientIds,
+					nomesMeves,
+					nomesAlertes,
+					mostrarAnulats,
+					nomesTasquesPersonals,
+					nomesTasquesGrup);
+		}
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = new ArrayList<Map<String,DadaIndexadaDto>>();
-		filtrarDadesExpedients(llistaExpedientIds, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup);
 		if (!llistaExpedientIds.isEmpty())
-			dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(consulta.getEntorn().getCodi(), llistaExpedientIds, campsInforme, sort, asc, firstRow, maxResults);
+			dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(
+					consulta.getEntorn().getCodi(),
+					llistaExpedientIds,
+					campsInforme,
+					sort,
+					asc,
+					firstRow,
+					maxResults);
 		
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
@@ -2576,13 +2592,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consulta.getExpedientTipus().getCodi(),
 				campsFiltre,
 				valors);
-		
-		filtrarDadesExpedients(llistaExpedientIds, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup);
-		
+		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
+		if (filtreTasques) {
+			filtrarExpedientsAmbTasques(
+					llistaExpedientIds,
+					nomesMeves,
+					nomesAlertes,
+					mostrarAnulats,
+					nomesTasquesPersonals,
+					nomesTasquesGrup);
+		}
 		return llistaExpedientIds;
 	}
 	
-	private void filtrarDadesExpedients(List<Long> llistaExpedientIds, 
+	private void filtrarExpedientsAmbTasques(
+			List<Long> llistaExpedientIds,
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,

@@ -179,7 +179,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Model model) {
 		try {
 			expedientService.deleteVariable(expedientId, procesId, varCodi);
-			MissatgesHelper.info(request, getMessage(request, "info.dada.proces.esborrada") );
+			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.esborrada") );
 			return true;
 		} catch (NotAllowedException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
@@ -279,7 +279,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				return "v3/expedientDadaModificar";
 			}
 			expedientService.updateVariable(expedientId, procesId, varCodi, varValue);
-			MissatgesHelper.info(request, getMessage(request, "info.dada.proces.modificada") );
+			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.modificada") );
 		} catch (NotAllowedException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {
@@ -436,7 +436,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 				return "v3/expedientDadaNova";
 			}
-			MissatgesHelper.info(request, getMessage(request, "info.dada.nova.proces.creada") );
+			MissatgesHelper.success(request, getMessage(request, "info.dada.nova.proces.creada") );
 		} catch (NotAllowedException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {

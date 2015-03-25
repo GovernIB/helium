@@ -205,7 +205,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			command.setContingut(contingutArxiu);
 
 			expedientService.crearModificarDocument(expedientId, processInstanceId, null, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
-			MissatgesHelper.info(request, getMessage(request, "info.document.guardat") );
+			MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
         } catch (Exception ex) {
 			logger.error("No s'ha pogut crear el document: expedientId: " + expedientId, ex);
 			MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + ": " + ex.getLocalizedMessage());
@@ -268,7 +268,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	        	return "v3/expedientDocumentModificar";
 	        }
 			expedientService.crearModificarDocument(expedientId, processInstanceId, documentStoreId, command.getNom(), command.getNomArxiu(), command.getDocId(), command.getContingut(), command.getData());
-			MissatgesHelper.info(request, getMessage(request, "info.document.guardat") );
+			MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
         } catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: expedientId: " + expedientId + " : documentStoreId : " + documentStoreId, ex);
 			MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + ": " + ex.getLocalizedMessage());
@@ -287,7 +287,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		boolean response = false; 
 		try {
 			expedientService.esborrarDocument(expedientId, documentStoreId, docCodi);
-			MissatgesHelper.info(request, getMessage(request, "info.doc.proces.esborrat") );
+			MissatgesHelper.success(request, getMessage(request, "info.doc.proces.esborrat"));
 			response = true; 
 		} catch (Exception ex) {
 			logger.error(getMessage(request, "error.esborrar.doc.proces"), ex);
@@ -306,7 +306,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		boolean response = false; 
 		try {
 			expedientService.deleteSignatura(expedientId, documentStoreId);
-			MissatgesHelper.info(request, getMessage(request, "info.signatura.esborrat") );
+			MissatgesHelper.success(request, getMessage(request, "info.signatura.esborrat"));
 			response = true; 
 		} catch (Exception ex) {
 			logger.error(getMessage(request, "error.esborrar.signatura"), ex);

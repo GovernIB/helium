@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -66,7 +65,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 			}
 			try {
 				expedientService.cancel(expedientId, cancelExpedient.getMotiu());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.anulat") );
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.anulat") );
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
 				logger.error(getMessage(request, "error.cancelar.expedient"), ex);
@@ -85,7 +84,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 			Model model) {
 		try {
 			expedientService.activa(expedientId);
-			MissatgesHelper.info(request, getMessage(request, "info.expedient.reactivat") );
+			MissatgesHelper.success(request, getMessage(request, "info.expedient.reactivat") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"));
 			logger.error(getMessage(request, "error.activar.expedient"), ex);

@@ -65,7 +65,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId) {
 		expedientService.delete(expedientId);
-		MissatgesHelper.info(
+		MissatgesHelper.success(
 				request,
 				getMessage(
 						request,
@@ -81,7 +81,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			Model model) {
 		try {
 			expedientService.luceneReindexarExpedient(expedientId);
-			MissatgesHelper.info(
+			MissatgesHelper.success(
 					request,
 					getMessage(
 							request,
@@ -121,7 +121,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			nom = expedientService.canviVersioDefinicioProces(
 					expedientId,
 					versio);
-			MissatgesHelper.info(request, getMessage(request, "info.canvi.versio.realitzat") );
+			MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.realitzat") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
 		}
@@ -137,7 +137,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			if (expedient.isPermisAdministration()) {
 				expedientService.buidarLogExpedient(expedient.getProcessInstanceId());
-				MissatgesHelper.info(request, getMessage(request, "info.expedient.buidatlog"));
+				MissatgesHelper.success(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));
 			}
@@ -154,7 +154,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			Model model) {
 		try {
 			expedientService.desfinalitzar(expedientId);
-			MissatgesHelper.info(request, getMessage(request, "info.expedient.reprendre") );
+			MissatgesHelper.success(request, getMessage(request, "info.expedient.reprendre") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"));
 			logger.error(getMessage(request, "error.reprendre.expedient"), ex);

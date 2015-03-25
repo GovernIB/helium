@@ -335,15 +335,15 @@ public class MassivaExpedientController extends BaseExpedientController {
 			if ("reindexar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.REINDEXAR);
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.info(request, getMessage(request, "info.reindexar.massiu.executat", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.reindexar.massiu.executat", new Object[] {listIds.size()}));
 			} else if ("buidarlog".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.BUIDARLOG);
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.info(request, getMessage(request, "info.buidarlog.massiu.executat", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.buidarlog.massiu.executat", new Object[] {listIds.size()}));
 			} else if ("reprendreExpedient".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.REPRENDRE_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.info(request, getMessage(request, "info.accio.massiu.reprendre_expedient", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reprendre_expedient", new Object[] {listIds.size()}));
 			} else if ("executar".equals(accio)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {
@@ -353,7 +353,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_SCRIPT);
 					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesScriptCommand) command).getScript()));
 					execucioMassivaService.crearExecucioMassiva(dto);
-					MissatgesHelper.info(request, getMessage(request, "info.script.massiu.executat", new Object[] {listIds.size()}));
+					MissatgesHelper.success(request, getMessage(request, "info.script.massiu.executat", new Object[] {listIds.size()}));
 					model.addAttribute("expedientEinesScriptCommand", command);
 				}
 			} else if ("aturar".equals(accio)) {
@@ -365,7 +365,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 					dto.setTipus(ExecucioMassivaTipusDto.ATURAR_EXPEDIENT);
 					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesAturarCommand) command).getMotiu()));
 					execucioMassivaService.crearExecucioMassiva(dto);		
-					MissatgesHelper.info(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
+					MissatgesHelper.success(request, getMessage(request, "info.expedient.massiu.aturats", new Object[] {listIds.size()}));
 					model.addAttribute("expedientEinesAturarCommand", command);
 				}
 			} else if ("executar_accio".equals(accio)) {
@@ -383,7 +383,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				params[2] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);				
-				MissatgesHelper.info(request, getMessage(request, "info.accio.massiu.executat", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.executat", new Object[] {listIds.size()}));
 				model.addAttribute("execucioAccioCommand", command);
 			} else if ("canviar_versio".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
@@ -404,7 +404,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {listIds.size()}));
 				model.addAttribute("canviVersioProcesCommand", command);
 			} else if ("document_esborrar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
@@ -420,7 +420,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.document.massiu.esborrar", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.esborrar", new Object[] {listIds.size()}));
 				model.addAttribute("documentExpedientCommand", command);
 			} else if ("document_generar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
@@ -435,7 +435,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.document.massiu.generar", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.generar", new Object[] {listIds.size()}));
 				model.addAttribute("documentExpedientCommand", command);
 			} else if ("document_adjuntar".equals(accio)) {
 				new DocumentAdjuntCrearValidator().validate(command, result);
@@ -454,7 +454,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				}
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.info(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
 				return modalUrlTancar();
 			} else if ("document_modificar".equals(accio)) {
 				new DocumentModificarValidator().validate(command, result);
@@ -485,7 +485,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.document.massiu.guardat", new Object[] {listIds.size()}));
 				return modalUrlTancar();
 			} else if ("modificar_variable".equals(accio)) {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
@@ -533,7 +533,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				MissatgesHelper.info(request, getMessage(request, "info.dada.massiu.modificat", new Object[] {varCodi, listIds.size()}));
+				MissatgesHelper.success(request, getMessage(request, "info.dada.massiu.modificat", new Object[] {varCodi, listIds.size()}));
 				return modalUrlTancar();
 			}
 		} catch (Exception e) {

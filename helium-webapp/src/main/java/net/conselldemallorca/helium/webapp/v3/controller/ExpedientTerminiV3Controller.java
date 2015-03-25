@@ -115,7 +115,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		boolean response = false; 
 		try {			
 			terminiService.iniciar(terminiId,expedientId,new Date(),true);
-			MissatgesHelper.info(request, getMessage(request, "info.termini.iniciat"));
+			MissatgesHelper.success(request, getMessage(request, "info.termini.iniciat"));
 			response = true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.iniciar.termini"));
@@ -134,7 +134,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		boolean response = false; 
 		try {
 			terminiService.pausar(terminiId, new Date());
-			MissatgesHelper.info(request, getMessage(request, "info.termini.aturat"));
+			MissatgesHelper.success(request, getMessage(request, "info.termini.aturat"));
 			response = true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.aturar.termini"));
@@ -153,7 +153,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		boolean response = false; 
 		try {
 			terminiService.continuar(terminiId, new Date());
-			MissatgesHelper.info(request, getMessage(request, "info.termini.continuat"));
+			MissatgesHelper.success(request, getMessage(request, "info.termini.continuat"));
 			response = true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.continuat.termini"));
@@ -172,7 +172,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		boolean response = false; 
 		try {
 			terminiService.cancelar(terminiId, new Date());
-			MissatgesHelper.info(request, getMessage(request, "info.termini.cancelat"));
+			MissatgesHelper.success(request, getMessage(request, "info.termini.cancelat"));
 			response = true;
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.cancelat.termini"));
@@ -244,7 +244,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 					expedientTerminiModificarCommand.getMesos(),
 					expedientTerminiModificarCommand.getDies(),
 					TerminiModificacioTipus.DATA_FI.name().equals(expedientTerminiModificarCommand.getTipus()));
-			MissatgesHelper.info(request, getMessage(request, "info.termini.modificat"));
+			MissatgesHelper.success(request, getMessage(request, "info.termini.modificat"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.modificar.termini"));
         	logger.error("No s'ha pogut modificar el termini", ex);

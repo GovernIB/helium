@@ -112,7 +112,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
         				command.getDataCancelacio(),
         				command.getTipusExpedientId());
         	}
-        	MissatgesHelper.info(request, getMessage(request, "info.reassignacio.produit") );
+        	MissatgesHelper.success(request, getMessage(request, "info.reassignacio.produit") );
         	status.setComplete();
         } catch (Exception ex) {
         	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
@@ -128,7 +128,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id) {		
 		adminService.deleteReassignacio(id);
-		MissatgesHelper.info(request, getMessage(request, "info.reassignacio.cancelat") );
+		MissatgesHelper.success(request, getMessage(request, "info.reassignacio.cancelat") );
 		return "v3/expedient/tasca/reassignarUsuaris";
 	}
 	

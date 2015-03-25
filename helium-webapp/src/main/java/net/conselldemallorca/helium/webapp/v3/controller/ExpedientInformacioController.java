@@ -88,7 +88,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 				command.getGeoReferencia(),
 				command.getGrupCodi(),
 				false);
-		MissatgesHelper.info(
+		MissatgesHelper.success(
 				request,
 				getMessage(
 						request,

@@ -64,7 +64,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			expedientService.evaluateScript(
 					expedientId,
 					expedientEinesScriptCommand.getScript());
-			MissatgesHelper.info(request, getMessage(request, "info.script.executat"));
+			MissatgesHelper.success(request, getMessage(request, "info.script.executat"));
 		} catch (Exception ex) {
 			Long entornId = entorn.getId();
 			logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
