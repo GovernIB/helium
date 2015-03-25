@@ -73,6 +73,7 @@ $(document).ready(function() {
 								buttonContainerId: "modal-botons",
 								buttonCloseClass: "modal-tancar"
 							});
+					$(".modal-title",parent.document).html('<a href="<c:url value="/v3/expedient/${tasca.expedientId}"/>" onclick="top.window.location.href=this.href;return false;">${fn:replace(tasca.expedientIdentificador, "'", "\\'")}</a>: ${fn:replace(tasca.titol, "'", "\\'")}');
 				}
 			}
 		);
@@ -136,6 +137,22 @@ function refrescarAlertesFunction() {
 </script>
 </head>
 <body>
+	<c:if test="${not empty tasca.createTime}">
+		<p><spring:message code="tasca.llistat.columna.creada"/> <fmt:formatDate type="both" value="${tasca.createTime}" /></p>
+	</c:if>
+
+	<c:if test="${not empty tasca.tascaMissatgeInfo}">
+		<div class="alert alert-info" role="alert">
+			${tasca.tascaMissatgeInfo}
+		</div>
+	</c:if>
+	<c:if test="${not empty tasca.tascaMissatgeWarn}">
+		<div class="alert alert-warning" role="alert">
+			${tasca.tascaMissatgeWarn}
+		</div>
+	</c:if>
+	
+	
 	<c:if test="${not empty tasquesTramitar}">
 		<div id="tasquesTramitar">
 			<c:import url="import/tasquesMassiva.jsp">
