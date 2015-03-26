@@ -42,6 +42,9 @@
 	</c:choose>
 <script>
 $(document).ready(function() {
+	
+	$('#contingut-alertes').prepend('<c:if test="${not empty tasca.createTime}"><p><spring:message code="tasca.llistat.columna.creada"/> <fmt:formatDate type="both" value="${tasca.createTime}" /></p></c:if>');
+	
 	<%-- Mostrar/ocultar dades de referència --%>
 	$("i.agrupacio-desplegador").parent().parent().click(function() {
 		var taula = $(this).parent().parent().parent();
@@ -137,17 +140,16 @@ function refrescarAlertesFunction() {
 </script>
 </head>
 <body>
-	<c:if test="${not empty tasca.createTime}">
-		<p><spring:message code="tasca.llistat.columna.creada"/> <fmt:formatDate type="both" value="${tasca.createTime}" /></p>
-	</c:if>
 
 	<c:if test="${not empty tasca.tascaMissatgeInfo}">
 		<div class="alert alert-info" role="alert">
+			<span class="fa fa-info-circle"></span>
 			${tasca.tascaMissatgeInfo}
 		</div>
 	</c:if>
 	<c:if test="${not empty tasca.tascaMissatgeWarn}">
 		<div class="alert alert-warning" role="alert">
+			<span class="fa fa-warning"></span>
 			${tasca.tascaMissatgeWarn}
 		</div>
 	</c:if>
