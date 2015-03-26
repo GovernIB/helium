@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:choose>
-<c:when test="${true}">
+<c:when test="${false}">
 <tr class="tasques-pendents">
 	<c:choose>
 		<c:when test="${not empty tasques}">
@@ -47,9 +47,9 @@
 											<c:choose>
 												<c:when test="${tasca.assignadaUsuariActual}"><a href="../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
 												<c:otherwise><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></c:otherwise>
-											</c:choose>			
+											</c:choose>
 										</c:if>
-									</div> 
+									</div>
 								</td>
 								<td class="columna-info-tasca">${tasca.responsableString}</td>
 								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
