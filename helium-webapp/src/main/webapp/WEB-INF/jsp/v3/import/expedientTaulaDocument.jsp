@@ -105,9 +105,16 @@
 										</tr>
 										<tr>
 											<td>
-												<fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
+												<spring:message code='expedient.document.data' /> <fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/>
 											</td>
 										</tr>
+										<c:if test="${not empty document.dataCreacio}">
+											<tr>
+												<td>
+													<spring:message code='expedient.document.adjuntat' /> <fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy hh:mm"/>
+												</td>
+											</tr>
+										</c:if>
 									</thead>
 								</table>
 							</c:if>
