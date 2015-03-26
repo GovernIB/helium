@@ -22,7 +22,7 @@
 					<tbody>
 						<c:forEach var="tasca" items="${tasques}" varStatus="index">
 							<tr id="fila-tasca-${tasca.id}">
-								<td>
+								<td class="columna-info-tasca">
 									${tasca.titol}
 									<c:if test="${not tasca.agafada && not empty tasca.responsables}">
 										<span class="fa fa-users" title="<spring:message code="enum.tasca.etiqueta.grup"/>"></span>
@@ -51,10 +51,10 @@
 										</c:if>
 									</div> 
 								</td>
-								<td>${tasca.responsableString}</td>
-								<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
-								<td ><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>
-								<td>
+								<td class="columna-info-tasca">${tasca.responsableString}</td>
+								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
+								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>
+								<td class="columna-accio-tasca">
 									<c:if test='${not tasca.completed}'>
 										<div class="btn-group">
 											<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
@@ -69,26 +69,30 @@
 													<c:if test="${not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
 														<li><a data-rdt-link-ajax=true data-rdt-link-callback="agafar(${tasca.id});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 													</c:if>
-													<c:if test="${expedient.permisSupervision}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
 												</c:if>
-												<li><a href="<c:url value="../v3/expedient/${expedient.id}"/>" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
+												<c:if test="${not empty tasca.responsables and tasca.assignee == dadesPersona.codi and tasca.open}">
+													<c:if test="${expedient.permisSupervision}"><li><a data-rdt-link-ajax="true" data-rdt-link-callback="alliberar(${tasca.id});" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li></c:if>
+												</c:if>	
 												<c:if test="${tasca.open}">
 													<c:if test="${expedient.permisReassignment}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
+												</c:if>
+												<c:if test="${tasca.open and not tasca.suspended}">
+													<c:if test="${expedient.permisSupervision}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
 												</c:if>
 												<c:if test="${tasca.suspended}">
 													<c:if test="${expedient.permisSupervision}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/reprendre" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li></c:if>
 												</c:if>
 												<c:if test="${not tasca.completed and not tasca.cancelled}">
 													<c:if test="${expedient.permisSupervision}"><li><a href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li></c:if>
-												</c:if>
-												<c:if test="${not empty tasca.responsables and tasca.assignee == dadesPersona.codi and tasca.open}">
-													<c:if test="${expedient.permisSupervision}"><li><a data-rdt-link-ajax="true" data-rdt-link-callback="alliberar(${tasca.id});" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li></c:if>
-												</c:if>											
+												</c:if>										
 											</ul>
 											<script type="text/javascript">
-												$("#fila-tasca-${tasca.id}").append('<ul class="dropdown-menu" id="dropdown-menu-context-${tasca.id}" style="display:none">'+$("#dropdown-menu-tasca-${tasca.id}").find('.dropdown-menu').html()+'</ul>');
+												$("#fila-tasca-${tasca.id}").append('<ul class="dropdown-menu" id="dropdown-menu-context-${tasca.id}" style="display:none">'+$("#fila-tasca-${tasca.id}").find('.dropdown-menu').html()+'</ul>');
 												$("#fila-tasca-${tasca.id}").contextMenu({
 												    menuSelector: "#dropdown-menu-context-${tasca.id}",
+												});
+												$("#fila-tasca-${tasca.id} td.columna-info-tasca").click(function() {
+													$('#tramitar-tasca-${tasca.id}').click();
 												});
 											</script>
 										</div>
