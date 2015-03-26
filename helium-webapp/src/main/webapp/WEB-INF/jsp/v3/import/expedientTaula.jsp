@@ -205,16 +205,7 @@ function updatePanell() {
 	updateBadges();
 }
 
-function reestructura (proces, correcte) {
-	if (correcte) {
-		panell = $('#panel_' + proces);
-		desplegats = panell.find(".collapse.in");
-		var ambOcults = "";
-		if ($("#ambOcults").length)
-			ambOcults = $("#ambOcults").prop('checked');
-		panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + proces, {"ambOcults": ambOcults}, updatePanell);
-	}
-};
+
 
 // function refresca (proces) {
 // 	alert(proces);
