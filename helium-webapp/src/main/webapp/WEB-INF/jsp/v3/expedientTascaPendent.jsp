@@ -80,13 +80,9 @@
 </td>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('#dropdown-menu-${tasca.id} a').heliumEvalLink({
-			refrescarAlertes: true,
-			refrescarPagina: false,
-			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-			maximize: true
-		});
-		$('#dropdown-menu-context-${tasca.id} a').heliumEvalLink({
+		$('#dropdown-menu-context-${tasca.id} a, #dropdown-menu-${tasca.id} a').heliumEvalLink({
+			dataTable: $('#taulaDades'),
+			refrescarTaula: true,
 			refrescarAlertes: true,
 			refrescarPagina: false,
 			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",

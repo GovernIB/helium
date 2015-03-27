@@ -95,7 +95,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			}
 		}
 		
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 	
 	private class TascaReassignarValidator implements Validator {

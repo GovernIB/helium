@@ -180,8 +180,8 @@
 						</c:if>
 						<c:if test="${dadesPersona.admin}">
 							<div class="btn-group">
-								<button id="mesures" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
-								<ul class="dropdown-menu">
+								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
+								<ul class="dropdown-menu" id="mesures">
 									<c:if test="${globalProperties['app.mesura.temps.actiu']}">
 										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoTemps" href="<c:url value="/modal/v3/mesuresTemps"/>"><spring:message code='expedient.mesura.temps' /></a></li>
 									</c:if>
@@ -198,7 +198,7 @@
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/festiu/calendari.html"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
 								</ul>
 								<script type="text/javascript">
-									$('#mesures').heliumEvalLink({
+									$('#mesures a').heliumEvalLink({
 										alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 										refrescarAlertes: true,
 										refrescarPagina: false

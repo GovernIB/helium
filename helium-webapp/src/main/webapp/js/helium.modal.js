@@ -124,11 +124,14 @@
 				});
 			});
 			modalobj.on('hide.bs.modal', function () {
-				if (!$(this).data('modal-cancel')) {
+				/*if (!$(this).data('modal-cancel')) {
 					$(this).removeData('modal-cancel');
 					if (settings.modalCloseFunction) {
 //						settings.modalCloseFunction();
 					} else {
+						if (settings.refrescarPagina) {
+							window.parent.location.reload();
+						}
 						if (settings.refrescarTaula && settings.dataTable) {
 							var taula = settings.dataTable;
 							if (!(taula === null)) {
@@ -143,22 +146,38 @@
 									taula.dataTable().fnDraw();
 							}
 						}
-						if (settings.refrescarPagina) {
-							window.parent.location.reload();
+						
+					}
+				}*/
+				if (settings.refrescarPagina) {
+					window.parent.location.reload();
+				} else {
+					if (settings.refrescarAlertes && settings.alertesRefreshUrl) {
+						$.ajax({
+							url: settings.alertesRefreshUrl,
+							async: false,
+							timeout: 20000,
+							success: function (data) {
+								$('#contingut-alertes *').remove();
+								$('#contingut-alertes').append(data);
+							},
+							error: modalAjaxErrorFunction
+					    });
+					}
+					if (settings.refrescarTaula && settings.dataTable) {
+						var taula = settings.dataTable;
+						if (!(taula === null)) {
+							var refrescat = false;
+							$('.dataTables_paginate li', taula.parent()).each(function() {
+								if ($(this).hasClass('active')) {
+									$('a', this).click();
+									refrescat = true;
+								}
+							});
+							if (!refrescat)
+								taula.dataTable().fnDraw();
 						}
 					}
-				}
-				if (settings.refrescarAlertes && settings.alertesRefreshUrl) {
-					$.ajax({
-						url: settings.alertesRefreshUrl,
-						async: false,
-						timeout: 20000,
-						success: function (data) {
-							$('#contingut-alertes *').remove();
-							$('#contingut-alertes').append(data);
-						},
-						error: modalAjaxErrorFunction
-				    });
 				}
 				if (settings.callback) {
 					var scb = settings.callback;
@@ -247,14 +266,14 @@
 					    });
 						return false;
 					} else if (modal) {
-						var modalCloseFunction = function() {
+						/*var modalCloseFunction = function() {
 							if (settings.refrescarPagina)
 								refrescarPaginaFunction();
 //							if (settings.refrescarAlertes && settings.alertesRefreshUrl)
 //								refrescarAlertesFunction();
 //							if (callback)
 //								executeCallbackFunction(true);
-						};
+						};*/
 						var modalDivId = $(this).attr('id') + "_modal";
 						if ($('#' + modalDivId).length == 0)
 							$('body').append('<div id="' + modalDivId + '"></div>');
@@ -264,7 +283,9 @@
 							minHeight:  $(this).data("rdt-link-modal-min-height"),
 							callback:  $(this).data("rdt-link-callback"),
 							ajax:  $(this).data("rdt-link-ajax"),
-							modalCloseFunction: modalCloseFunction,
+							dataTable: settings.dataTable,
+							/*modalCloseFunction: modalCloseFunction,*/
+							refrescarTaula: settings.refrescarTaula,
 							refrescarPagina: settings.refrescarPagina,
 							refrescarAlertes: settings.refrescarAlertes,
 							alertesRefreshUrl: settings.alertesRefreshUrl
