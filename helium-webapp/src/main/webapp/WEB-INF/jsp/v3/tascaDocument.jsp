@@ -67,7 +67,7 @@
 						href="<c:url value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/esborrar"></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
-						<i class="fa fa-times"></i>
+						<i class="fa fa-trash-o"></i>
 					</a>
 					<div id="hideData${document.id}" class="comentari small <c:if test="${empty document.tokenSignatura}">hide</c:if>">
 						<p><label><spring:message code='tasca.doc.adjunt.arxiu' /></label>: <label id="docNom${document.id}">${document.arxiuNom}</label></p>

@@ -41,14 +41,16 @@
 			data-rdt-link-modal=true
 			href='<c:url value="../../v3/expedient/${expedientId}/dades/${procesId}/edit/${dada.varCodi}"/>' 
 			data-rdt-link-callback="reestructura(${procesId});"
-			data-rdt-link-modal-min-height="300">
+			data-rdt-link-modal-min-height="300"
+			title="<spring:message code='expedient.dada.modificar'/>">
 			<span class="fa fa-pencil"></span>
 		</a>
 		<a 	class="var-delete" 
 			data-rdt-link-confirm="<spring:message code='expedient.info.confirm.dada.esborrar'/>"
 			data-rdt-link-ajax=true
 			href='<c:url value="../../v3/expedient/${expedientId}/dades/${procesId}/delete/${dada.varCodi}"/>' 
-			data-rdt-link-callback="reestructura(${procesId});">
+			data-rdt-link-callback="reestructura(${procesId});"
+			title="<spring:message code='expedient.dada.esborrar'/>">
 			<span class="fa fa-trash-o"></span>
 		</a>
 	</div>

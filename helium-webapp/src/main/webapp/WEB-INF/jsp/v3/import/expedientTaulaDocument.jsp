@@ -46,7 +46,8 @@
 														data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_signatures' />"
 														data-rdt-link-ajax=true
 														href='<c:url value="../../v3/expedient/${expedientId}/signaturaEsborrar/${document.id}"/>' 
-														data-rdt-link-callback="esborrarSignatura(${document.id});">
+														data-rdt-link-callback="esborrarSignatura(${document.id});"
+														title="<spring:message code='expedient.document.esborrar.signatures' />">
 														<i class="fa fa-certificate fa-stack-1x"></i>
 													  	<i class="fa fa-ban fa-stack-2x text-danger"></i>
 													</a>
@@ -64,7 +65,8 @@
 													data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 													data-rdt-link-ajax=true
 													href='<c:url value="../../v3/expedient/${expedientId}/documentEsborrar/${document.id}/${document.documentCodi}"/>' 
-													data-rdt-link-callback="recargarPanel(${document.processInstanceId});">
+													data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
+													title="<spring:message code='expedient.document.esborrar'/>">
 												</a>																				
 												
 												<%--
