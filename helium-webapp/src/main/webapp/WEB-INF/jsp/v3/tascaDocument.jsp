@@ -94,8 +94,8 @@
 			    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
 						<label class="control-label col-xs-4" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
 						<div class="input-group col-xs-10">
-							<input class="form-control datetimepicker" id="data${document.id}" name="data"/>
-							<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
+							<input class="form-control date" placeholder="dd/mm/aaaa" id="data${document.id}" name="data"/>
+							<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 						</div>
 					</div>
 				</div>
@@ -134,19 +134,20 @@
 					alert(log);
 			}
 		});	
-		$('.datetimepicker').datetimepicker({
-    			locale: moment.locale('${idioma}'),
-				minDate: new Date(),
-				format: "DD/MM/YYYY"
-    	}).on('show', function() {
-    		var iframe = $('.modal-body iframe', window.parent.document);
-    		var height = $('html').height() + 190;
-    		iframe.height(height + 'px');
-    	}).on('hide', function() {
-    		var iframe = $('.modal-body iframe', window.parent.document);
-    		var height = $('html').height();
-    		iframe.height(height + 'px');
-    	});
+		$('.date').mask("99/99/9999").datepicker({language: '${idioma}', autoclose: true, dateFormat: "dd/mm/yyyy"});
+// 		$('.datetimepicker').datetimepicker({
+//     			locale: moment.locale('${idioma}'),
+// 				minDate: new Date(),
+// 				format: "DD/MM/YYYY"
+//     	}).on('show', function() {
+//     		var iframe = $('.modal-body iframe', window.parent.document);
+//     		var height = $('html').height() + 190;
+//     		iframe.height(height + 'px');
+//     	}).on('hide', function() {
+//     		var iframe = $('.modal-body iframe', window.parent.document);
+//     		var height = $('html').height();
+//     		iframe.height(height + 'px');
+//     	});
 	});
 	
 	function checkFile(docId) {
