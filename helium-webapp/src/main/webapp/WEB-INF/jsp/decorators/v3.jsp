@@ -231,13 +231,16 @@
 					<div class="row">
 						<div class="col-md-10">
 							<h2>
-								<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
-								<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
-								${decoratorMetaTitle}
-								<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
-								<c:if test="${not empty decoratorMetaSubtitle}"><small><decorator:getProperty property="meta.subtitle"/></small></c:if>
+								<div>
+									<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
+									<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
+									${decoratorMetaTitle}
+									<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
+								</div>
 								
-								
+								<c:if test="${not empty decoratorMetaSubtitle}">
+									<div><small><decorator:getProperty property="meta.subtitle"/></small></div>
+								</c:if>
 							</h2>
 						</div>
 						<div class="col-md-2">
