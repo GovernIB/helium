@@ -45,7 +45,7 @@
 		.cabecera_reducida-main {margin-top: -30px;}
 		.nav-consulta-tipus {    
 			color: black;
-		    list-style-type: circle;
+		    list-style-type: none;
 		    margin-left: 30px;
 		    text-align: left;
 			padding-right: 15px;
@@ -228,32 +228,39 @@
 			<c:set var="screen"><decorator:getProperty property="meta.screen"/></c:set>
 			<c:if test="${not empty decoratorMetaTitle}">
 				<div class="panel-heading">
-					<h2>
-						<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
-						<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
-						${decoratorMetaTitle}
-						<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
-						<c:if test="${not empty decoratorMetaSubtitle}"><small><decorator:getProperty property="meta.subtitle"/></small></c:if>
-						
-						<c:if test="${not empty screen && screen=='expedients'}">
-							<div id="btnConsultes" class="btn-group pull-right" >
-								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
-								<ul class="dropdown-menu">	
-									<li class="nav-consulta-tipus-generic"><a href="<c:url value="/v3/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>				
-									<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
-										<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
-											<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>													
-											<li class="nav-header">${expedientTipus.nom}</li>
-											<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
-												<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
+					<div class="row">
+						<div class="col-md-10">
+							<h2>
+								<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
+								<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
+								${decoratorMetaTitle}
+								<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
+								<c:if test="${not empty decoratorMetaSubtitle}"><small><decorator:getProperty property="meta.subtitle"/></small></c:if>
+								
+								
+							</h2>
+						</div>
+						<div class="col-md-2">
+							<c:if test="${not empty screen && screen=='expedients'}">
+									<div id="btnConsultes" class="btn-group pull-right" >
+										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
+										<ul class="dropdown-menu">	
+											<li class="nav-consulta-tipus"><a href="<c:url value="/v3/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>
+											<li class="divider"></li>												
+											<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
+												<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
+													<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>	
+													<li class="nav-header">${expedientTipus.nom}</li>
+													<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
+														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
+													</c:forEach>
+												</c:if>
 											</c:forEach>
-										</c:if>
-									</c:forEach>
-								</ul>
-							</div>
-						</c:if>
-					</h2>
-					
+										</ul>
+									</div>
+								</c:if>
+						</div>
+					</div>
 				</div>
 			</c:if>
 			<div class="panel-body">
