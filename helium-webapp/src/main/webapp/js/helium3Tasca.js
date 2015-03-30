@@ -369,6 +369,9 @@ $(function() {
 	});
 	$(".btn_accio").click(function() {
 		if (confirm($(this).data("confirmacio"))) {
+			$('.modal-footer button',parent.document).prop('disabled',true);
+			$('#modal-botons button').prop('disabled',true);
+			$(this).prepend('<i class="fa fa-circle-o-notch fa-spin"></i>');
 			$("#command").attr('action', $("#command").attr('action') + "/accio");
 			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');
 			var boto = $(this);
