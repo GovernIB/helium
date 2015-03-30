@@ -91,6 +91,7 @@ function initSeleccio(element) {
 		placeholder: input.data("placeholder"),
 		allowClear: true,
 		data: function () {
+			var carregant = input.data('select2-refresh') == 'true';
 			var refrescar = input.data('select2-refresh') != 'false';
 			if (refrescar) {
 				$.ajax({
@@ -106,13 +107,34 @@ function initSeleccio(element) {
 							};
 						}
 						opcionsSeleccio[input.attr('id')] = resposta;
+						input.data('select2-refresh', 'false');
+						var select2 = input.data('select2');
+						if (select2.opened()) {
+							input.select2("close");
+							input.select2("open");
+						}
 					},
-					async: false
+					async: true
 				});
-				input.data('select2-refresh', 'false');
 			}
 			return {results: opcionsSeleccio[input.attr('id')]};
 		},
+		/*ajax: {
+	        url: function(value) {
+	        	return input.data("urlconsultallistat");
+	        },
+	        dataType: 'json',
+	        data: function () {
+	        	return desplegableObtenirParams(input);
+	        },
+	        results: function(data) {
+	        	var results = [];
+	        	for (var i = 0; i < data.length; i++) {
+	        		results.push({id: data[i].codi, text: data[i].nom});
+	        	}
+	            return {results: results};
+	        }
+	    },*/
 	    initSelection: function (element, callback) {
 	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + $(element).val();
 	    	desplegableInitSeleccio(ajaxUrl, element, callback);
