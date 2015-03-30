@@ -73,6 +73,9 @@
 		.text-limit.w475{
 			max-width:475px;
 		}
+		.text-limit.w900{
+			max-width:900px;
+		}
 		
 		ul.ul-menu{
 			margin-bottom: 5px;
@@ -234,7 +237,7 @@
 								<div>
 									<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
 									<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
-									${decoratorMetaTitle}
+									<div class="text-limit w900" title="${decoratorMetaTitle}">${decoratorMetaTitle}</div>
 									<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
 								</div>
 								
