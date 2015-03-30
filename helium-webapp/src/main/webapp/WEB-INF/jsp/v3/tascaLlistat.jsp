@@ -32,6 +32,7 @@
 			$("#taulaDades").heliumDataTable({
 				ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
 				localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
+				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 				rowClickCallback: function(row) {
 					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						if ($('a.consultar-tasca', $(row)).length > 0)

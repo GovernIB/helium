@@ -195,14 +195,6 @@
 						});
 						return false;
 					} else if (modal) {
-						var modalCloseFunction = function( data ) {
-							if (settings.modalRefrescarTaula)
-								refrescarTaulaFunction(data, callback);
-							if (settings.modalRefrescarPagina)
-								refrescarPaginaFunction();
-							if (settings.modalRefrescarAlertes && settings.alertesRefreshUrl)
-								refrescarAlertesFunction();
-						};
 						var modalDivId = taula.attr('id') + "_modal";
 						if ($('#' + modalDivId).length === 0)
 							taula.parent().append('<div id="' + modalDivId + '"></div>');
@@ -212,9 +204,10 @@
 							minHeight:  $(this).data("rdt-link-modal-min-height"),
 							callback:  $(this).data("rdt-link-callback"),
 							ajax:  $(this).data("rdt-link-ajax"),
-							modalCloseFunction: modalCloseFunction,
-							refrescarPagina: settings.refrescarPagina,
-							refrescarAlertes: settings.refrescarAlertes,
+							dataTable: taula,
+							refrescarPagina: settings.modalRefrescarPagina,
+							refrescarAlertes: settings.modalRefrescarAlertes,
+							refrescarTaula: settings.modalRefrescarTaula,
 							alertesRefreshUrl: settings.alertesRefreshUrl
 						});
 						return false;

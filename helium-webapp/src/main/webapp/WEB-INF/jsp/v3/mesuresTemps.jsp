@@ -253,7 +253,7 @@
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
 		<button type="button" class="btn btn-primary" name="export" value="export"><span class="fa fa-download"></span>&nbsp;<spring:message code="temps.exportar"/></button>
-		<button type="button" class="hidden btn btn-primary" name="refrescar" value="refrescar"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="comuns.refrescar"/></button>
+		<button type="button" class="btn btn-primary" name="refrescar" value="refrescar"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="comuns.refrescar"/></button>
 	</div>
 </body>
 </html>
