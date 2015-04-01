@@ -176,6 +176,16 @@ public class TascaLlistatV3Controller extends BaseController {
 		}
 		return result;
 	}
+	
+	@RequestMapping(value = "/expedientTipusAmbPermis/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
+	@ResponseBody
+	public ExpedientTipusDto expedientTipusAmbPermis(
+			@PathVariable Long entornId,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		
+		return dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornId,expedientTipusId);
+	}
 
 	@RequestMapping(value = "/tasques/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody

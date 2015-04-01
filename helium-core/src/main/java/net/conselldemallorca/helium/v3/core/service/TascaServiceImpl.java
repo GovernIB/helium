@@ -337,6 +337,13 @@ public class TascaServiceImpl implements TascaService {
 					false,
 					false);
 		}
+		
+		// Si no te permis ASSIGNMENT o ADMIN a damunt el tipus d'exp.
+		// forçar usuari actual
+		if (!(expedientTipusId != null && expedientTipusHelper.getExpedientTipusComprovantPermisosReassignar(expedientTipusId) != null)) {
+			responsable = SecurityContextHolder.getContext().getAuthentication().getName();
+		}
+		
 		// Obté la llista de tipus d'expedient permesos
 		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
 		permisosHelper.filterGrantedAny(

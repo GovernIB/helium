@@ -102,7 +102,31 @@ public class ExpedientTipusHelper {
 		}
 		return expedientTipus;
 	}
-
+	
+	public ExpedientTipus getExpedientTipusComprovantPermisosReassignar(Long id) throws NotFoundException, NotAllowedException {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
+		if (expedientTipus == null) {
+			throw new NotFoundException(
+					id,
+					ExpedientTipus.class);
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!permisosHelper.isGrantedAny(
+				id,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.REASSIGNMENT,
+					ExtendedPermission.ADMINISTRATION},
+				auth)) {
+			throw new NotAllowedException(
+					id,
+					ExpedientTipus.class,
+					PermisTipusEnumDto.WRITE);
+		}
+		
+		return expedientTipus;
+	}
+	
 	public ExpedientTipus findAmbTaskId(
 			String taskId) {
 		JbpmTask task = jbpmHelper.getTaskById(taskId);

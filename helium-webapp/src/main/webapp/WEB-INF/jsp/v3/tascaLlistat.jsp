@@ -74,6 +74,7 @@
 					if ($(this).val())
 						value = $(this).val();
 					
+					//tasques per expedientTipus
 					$.get('tasca/tasques/${entornId}/' + value)				
 					.done(function(data) {
 						for (var i = 0; i < data.length; i++) {
@@ -83,6 +84,28 @@
 					.fail(function() {
 						alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
 					});
+
+					//permisos d'expedientTipus
+					if (value != undefined && value != "-1"){
+						$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)				
+						.done(function(data) {
+							if(data != undefined && data.permisReassignment){
+								$('#responsableDiv').show();
+							}else{
+								$('#responsableDiv').hide();
+								if($('#responsable').data('select2'))
+									$('#responsable').data('select2').clear();
+							}
+						})
+						.fail(function() {
+							alert("<spring:message code="expedient.llistat.expedientTipusPermis.ajax.error"/>");
+						});
+					}else{
+						$('#responsableDiv').hide();
+						if($('#responsable').data('select2'))
+							$('#responsable').data('select2').clear();
+					}
+					
 				});
 	
 				$('#expedientTipusId').trigger('change');
@@ -219,13 +242,20 @@
 							</div>
 						</div>
 						<div class="col-md-4">				
-							<label>&nbsp;${expedientTipus.id} ${expedientTipus.permisReassignment} </label>
+							<label>&nbsp;</label>
 							<div class="row">
-								<c:if test="${not empty expedientTipus and expedientTipus.permisReassignment}">
-									<div class="col-md-12">
+							<c:choose>
+								<c:when test="${not empty expedientTipus and expedientTipus.permisReassignment}">
+									<div class="col-md-12"  id="responsableDiv">
 										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 									</div>
-								</c:if>
+								</c:when>
+								<c:otherwise>
+									<div class="col-md-12"  id="responsableDiv" style="display: none">
+										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+									</div>
+								</c:otherwise>
+								</c:choose>
 							</div>
 						</div>
 					</div>
