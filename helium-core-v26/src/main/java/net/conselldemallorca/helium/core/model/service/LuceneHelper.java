@@ -89,6 +89,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 			final Map<String, Map<String, String>> textDominis,
 			final boolean finalitzat,
 			final boolean comprovarIniciant) {
+		logger.debug("Creant expedient a l'index Lucene (ASYNC) (" +
+				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
 				createExpedient(expedient, definicionsProces, camps, valors, textDominis, finalitzat, comprovarIniciant);
@@ -96,7 +98,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 		};
 		thread.start();
 	}
-	public synchronized void updateExpedientCapsaleraAsync(final Expedient expedient, final boolean finalitzat) {
+	public synchronized void updateExpedientCapsaleraAsync(
+			final Expedient expedient,
+			final boolean finalitzat) {
+		logger.debug("Actualitzant capsalera expedient a l'index Lucene (ASYNC) (" +
+				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
 				updateExpedientCapsalera(expedient, finalitzat);
@@ -104,7 +110,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 		};
 		thread.start();
 	}
-	public synchronized void updateExpedientCampsAsync(final Expedient expedient, final Map<String, DefinicioProces> definicionsProces, final Map<String, Set<Camp>> camps, final Map<String, Map<String, Object>> valors, final Map<String, Map<String, String>> textDominis, final boolean finalitzat) {
+	public synchronized void updateExpedientCampsAsync(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
+		logger.debug("Actualitzant camps de l'expedient a l'index Lucene (ASYNC) (" +
+				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
 				updateExpedientCamps(expedient, definicionsProces, camps, valors, textDominis, finalitzat);
@@ -112,7 +126,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 		};
 		thread.start();
 	}
-	public synchronized void deleteExpedientAsync(final Expedient expedient) {
+	public synchronized void deleteExpedientAsync(
+			final Expedient expedient) {
+		logger.debug("Esborrant expedient de l'index Lucene (ASYNC) (" +
+				"id=" + expedient.getId() + ")");
 		Thread thread = new Thread() {
 			public void run() {
 				deleteExpedient(expedient);
@@ -121,6 +138,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		thread.start();
 	}
 	public synchronized void deleteAllAsync() {
+		logger.debug("Esborrant tota la informació de l'index Lucene (ASYNC)");
 		Thread thread = new Thread() {
 			public void run() {
 				deleteAll();
@@ -139,6 +157,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 			Map<String, String>> textDominis,
 			boolean finalitzat,
 			boolean comprovarIniciant) {
+		logger.debug("Creant expedient a l'index Lucene (" +
+				"id=" + expedient.getId() + ")");
 		// Si l'expedient s'està iniciant no l'indexa per evitar possibles duplicitats
 		// al reindexar des dels handlers de modificar dades de l'expedient
 		boolean indexarExpedient = true;
@@ -155,7 +175,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 	}
 
-	public synchronized boolean updateExpedientCapsalera(final Expedient expedient, final boolean finalitzat) {
+	public synchronized boolean updateExpedientCapsalera(
+			final Expedient expedient,
+			final boolean finalitzat) {
+		logger.debug("Actualitzant capsalera expedient a l'index Lucene (" +
+				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
 		boolean resultat = updateExpedientCamps(expedient, null, null, null, null, finalitzat);
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: updateExpedientCapsalera", "lucene", expedient.getTipus().getNom());
@@ -163,7 +187,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized boolean updateExpedientCamps(final Expedient expedient, final Map<String, DefinicioProces> definicionsProces, final Map<String, Set<Camp>> camps, final Map<String, Map<String, Object>> valors, final Map<String, Map<String, String>> textDominis, final boolean finalitzat) {
+	public synchronized boolean updateExpedientCamps(
+			final Expedient expedient,
+			final Map<String, DefinicioProces> definicionsProces,
+			final Map<String, Set<Camp>> camps,
+			final Map<String, Map<String, Object>> valors,
+			final Map<String, Map<String, String>> textDominis,
+			final boolean finalitzat) {
+		logger.debug("Actualitzant informació de l'expedient a l'index Lucene (" +
+				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: updateExpedientCamps", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		try {
@@ -198,6 +230,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	public synchronized void deleteExpedient(Expedient expedient) {
+		logger.debug("Esborrant informació de l'expedient de l'index Lucene (" +
+				"id=" + expedient.getId() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteExpedient", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
 		getLuceneIndexTemplate().deleteDocuments(termIdFromExpedient(expedient));
@@ -206,6 +240,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	@SuppressWarnings("unchecked")
 	public synchronized void deleteAll() {
+		logger.debug("Esborrant tota la informació de l'index Lucene");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: deleteAll", "lucene");
 		checkIndexOk();
 		List<Integer> documentsTots = searchTemplate.search(new MatchAllDocsQuery(), new HitExtractor() {
@@ -220,7 +255,14 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Long> findNomesIds(final String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors) {
+	public List<Long> findNomesIds(
+			final String entornCodi,
+			String tipusCodi,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors) {
+		logger.debug("Consulta d'index Lucene només ids (" +
+				"entornCodi=" + entornCodi + ", " +
+				"tipusCodi=" + tipusCodi + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findNomesIds", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
@@ -251,7 +293,19 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Long> findIdsAmbDadesExpedientPaginatV3(final String entornCodi, String tipusCodi, List<Camp> filtreCamps, List<Camp> campsInforme, Map<String, Object> filtreValors, String sort, boolean asc, final int firstRow, final int maxResults) {
+	public List<Long> findIdsAmbDadesExpedientPaginatV3(
+			final String entornCodi,
+			String tipusCodi,
+			List<Camp> filtreCamps,
+			List<Camp> campsInforme,
+			Map<String, Object> filtreValors,
+			String sort,
+			boolean asc,
+			final int firstRow,
+			final int maxResults) {
+		logger.debug("Consulta paginada d'index Lucene (1) (" +
+				"entornCodi=" + entornCodi + ", " +
+				"tipusCodi=" + tipusCodi + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientPaginatV3", "lucene");
 		checkIndexOk();
 		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
@@ -313,7 +367,17 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return resposta;
 	}
 
-	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedientPaginatV3(String entornCodi, List<Long> llistaExpedientIds, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults) {
+	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedientPaginatV3(
+			String entornCodi,
+			List<Long> llistaExpedientIds,
+			List<Camp> informeCamps,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults) {
+		logger.debug("Consulta paginada d'index Lucene donats ids (" +
+				"entornCodi=" + entornCodi + ", " +
+				"llistaExpedientIds=" + llistaExpedientIds.size() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
 		checkIndexOk();
 
