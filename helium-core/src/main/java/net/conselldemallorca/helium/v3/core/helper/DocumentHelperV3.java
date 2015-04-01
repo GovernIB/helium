@@ -8,8 +8,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -189,13 +187,59 @@ public class DocumentHelperV3 {
 
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
 			String processInstanceId) {
-		String tipusExp = null;
+		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
+		// Consulta els documents de la definició de procés
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+		List<Document> documents = documentRepository.findByDefinicioProces(definicioProces);
+		// Consulta els documents de l'instància de procés
+		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
+		if (varsInstanciaProces != null) {
+			filtrarVariablesAmbDocuments(varsInstanciaProces);
+			for (String var: varsInstanciaProces.keySet()) {
+				Long documentStoreId = (Long)varsInstanciaProces.get(var);
+				if (documentStoreId != null) {
+					if (var.startsWith(VariableHelper.PREFIX_VAR_DOCUMENT)) {
+						// Afegeix el document
+						String documentCodi = getDocumentCodiDeVariableJbpm(var);
+						Document document = null;
+						for (Document doc: documents) {
+							if (doc.getCodi().equals(documentCodi)) {
+								document = doc;
+								break;
+							}
+						}
+						if (document != null) {
+							resposta.add(
+									crearDtoPerDocumentExpedient(
+											document,
+											documentStoreId));
+						} else {
+							ExpedientDocumentDto dto = new ExpedientDocumentDto();
+							dto.setId(documentStoreId);
+							dto.setError("No s'ha trobat el document de la definició de procés (" +
+										"documentCodi=" + documentCodi + ")");
+							resposta.add(dto);
+						}
+					} else if (var.startsWith(VariableHelper.PREFIX_VAR_ADJUNT)) {
+						// Afegeix l'adjunt
+						resposta.add(
+								crearDtoPerAdjuntExpedient(
+										getAdjuntIdDeVariableJbpm(var),
+										documentStoreId));
+					}
+				}
+			}
+		}
+		return resposta;
+		/*String tipusExp = null;
 		if (MesuresTemporalsHelper.isActiu()) {
 			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp);
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
 		}
+
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "0");
@@ -204,10 +248,32 @@ public class DocumentHelperV3 {
 		List<ExpedientDocumentDto> resposta = convertDocumentDto(documents, processInstanceId, tipusExp);
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient", tipusExp, null, "1");
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3", "expedient",tipusExp);
-		return resposta;
+		return resposta;*/
+	}
+	public ExpedientDocumentDto findDocumentPerInstanciaProces(
+			String processInstanceId,
+			Long documentStoreId,
+			String documentCodi) {
+		// Consulta els documents de la definició de procés
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+		Document document = documentRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				documentCodi);
+		if (document != null) {
+			return crearDtoPerDocumentExpedient(
+							document,
+							documentStoreId);
+		} else {
+			ExpedientDocumentDto dto = new ExpedientDocumentDto();
+			dto.setId(documentStoreId);
+			dto.setError("No s'ha trobat el document de la definició de procés (" +
+						"documentCodi=" + documentCodi + ")");
+			return dto;
+		}
 	}
 	
-	public List<ExpedientDocumentDto> convertDocumentDto(List<Document> documents, String processInstanceId, String tipusExp) {
+	/*public List<ExpedientDocumentDto> convertDocumentDto(List<Document> documents, String processInstanceId, String tipusExp) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp);
 		
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENTS v3 convertDocumentDto", "expedient", tipusExp, null, "0");
@@ -250,9 +316,12 @@ public class DocumentHelperV3 {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENTS v3 convertDocumentDto", "expedient",tipusExp);
 		
 		return resposta;
-	}
+	}*/
 
-	public ExpedientDocumentDto findDocumentPerExpedientDocumentStoreId(Expedient expedient, Long documentStoreId, String docCodi) {
+	/*public ExpedientDocumentDto findDocumentPerExpedientDocumentStoreId(
+			Expedient expedient,
+			Long documentStoreId,
+			String docCodi) {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "0");
 		mesuresTemporalsHelper.mesuraIniciar("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "1");
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
@@ -276,7 +345,7 @@ public class DocumentHelperV3 {
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient", expedient.getTipus().getCodi(), null, "1");
 		mesuresTemporalsHelper.mesuraCalcular("Expedient DOCUMENT v3", "expedient",expedient.getTipus().getCodi());
 		return resposta;
-	}
+	}*/
 		
 	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId) {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -332,7 +401,7 @@ public class DocumentHelperV3 {
 		return firmaTascaRepository.countAmbTasca(task.getName(), task.getProcessDefinitionId()) > 0;
 	}
 
-	private ExpedientDocumentDto toExpedientDocument(
+	/*private ExpedientDocumentDto toExpedientDocument(
 			Long documentStoreId,
 			String documentCodi,
 			String adjuntId,
@@ -387,9 +456,72 @@ public class DocumentHelperV3 {
 			dto.setError("No s'ha trobat el documentStore del adjunt (id=" + documentStoreId + ", adjuntId=" + adjuntId + ")");
 		}
 		return dto;
+	}*/
+
+	
+	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
+			Document document,
+			Long documentStoreId) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			dto.setDataCreacio(documentStore.getDataCreacio());
+			dto.setDataModificacio(documentStore.getDataModificacio());
+			dto.setDataDocument(documentStore.getDataDocument());
+			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+			dto.setDocumentId(document.getId());
+			dto.setDocumentCodi(document.getCodi());
+			dto.setDocumentNom(document.getNom());
+			dto.setSignat(documentStore.isSignat());
+			if (documentStore.isSignat()) {
+				// TODO
+				//dto.setSignaturaPortasignaturesId(documentStore.getP);
+				dto.setSignaturaUrlVerificacio(
+						pluginCustodiaDao.getUrlComprovacioSignatura(
+								documentStoreId.toString()));
+			}
+			dto.setRegistrat(documentStore.isRegistrat());
+			if (documentStore.isRegistrat()) {
+				dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+				dto.setRegistreNumero(documentStore.getRegistreNumero());
+				dto.setRegistreData(documentStore.getRegistreData());
+				dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+				dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+			}
+		} else {
+			dto.setError("No s'ha trobat el documentStore del document (" +
+					"documentCodi=" + document.getCodi() + ", " +
+					"documentStoreId=" + documentStoreId + ")");
+		}
+		return dto;
 	}
 
-	private ExpedientDocumentDto toExpedientDocumentDto(
+	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
+			String adjuntId,
+			Long documentStoreId) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStoreId);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			dto.setDataCreacio(documentStore.getDataCreacio());
+			dto.setDataModificacio(documentStore.getDataModificacio());
+			dto.setDataDocument(documentStore.getDataDocument());
+			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+			dto.setAdjunt(true);
+			dto.setAdjuntId(adjuntId);
+			dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+		} else {
+			dto.setError("No s'ha trobat el documentStore del document adjunt (" +
+					"adjuntId=" + adjuntId + ", " +
+					"documentStoreId=" + documentStoreId + ")");
+		}
+		return dto;
+	}
+	
+	/*private ExpedientDocumentDto toExpedientDocumentDto(
 			Long documentStoreId,
 			boolean esDocument,
 			String documentCodi,
@@ -471,7 +603,7 @@ public class DocumentHelperV3 {
 			}
 		}
 		return dto;
-	}
+	}*/
 
 	public DocumentStore getDocumentStore(
 			JbpmTask task,
@@ -1095,60 +1227,68 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		return documentStore.getId();
 	}
-	
+
 	public void esborrarDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
-		esborrarDocument(
-				taskInstanceId,
-				processInstanceId,
-				documentCodi,
-				null);
+		Object varValor = null;
+		if (taskInstanceId != null) {
+			varValor = jbpmHelper.getTaskInstanceVariable(
+					taskInstanceId,
+					getVarPerDocumentCodi(documentCodi, false));
+		} else if (processInstanceId != null) {
+			varValor = jbpmHelper.getProcessInstanceVariable(
+					processInstanceId,
+					getVarPerDocumentCodi(documentCodi, false));
+		}
+		if (varValor != null && varValor instanceof Long) {
+			esborrarDocument(
+					taskInstanceId,
+					processInstanceId,
+					(Long)varValor);
+		}
 	}
-	
+
 	public void esborrarDocument(
 			String taskInstanceId,
 			String processInstanceId,
-			String documentCodi,
 			Long documentStoreId) {
-		if (documentStoreId == null)
-			documentStoreId = getDocumentStoreIdDeVariableJbpm(taskInstanceId, processInstanceId, documentCodi);
-		if (documentStoreId != null){
-			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-			if (documentStore != null) {
-				if (documentStore.isSignat()) {
-					if (pluginCustodiaDao.isCustodiaActiu()) {
-						try {
-							pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
-						} catch (PluginException ignored) {}
-					}
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			if (documentStore.isSignat()) {
+				if (pluginCustodiaDao.isCustodiaActiu()) {
+					try {
+						pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+					} catch (PluginException ignored) {}
 				}
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
-				if (processInstanceId != null) {
-					for (Portasignatures psigna: pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId)) {
-						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-							psigna.setEstat(TipusEstat.ESBORRAT);
-							pluginHelper.saveOrUpdatePortasignatures(psigna);
-						}
-					}
-				}
-				documentStoreRepository.delete(documentStoreId);
 			}
-			if (taskInstanceId != null) {
-				jbpmHelper.deleteTaskInstanceVariable(
-						taskInstanceId,
-						documentStore.getJbpmVariable());
-				jbpmHelper.deleteTaskInstanceVariable(
-						taskInstanceId,
-						PREFIX_SIGNATURA + documentCodi);
-			}
+			if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+				pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
 			if (processInstanceId != null) {
-				jbpmHelper.deleteProcessInstanceVariable(
-						processInstanceId,
-						documentStore.getJbpmVariable());
+				for (Portasignatures psigna: pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId)) {
+					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+						psigna.setEstat(TipusEstat.ESBORRAT);
+						pluginHelper.saveOrUpdatePortasignatures(psigna);
+					}
+				}
 			}
+			documentStoreRepository.delete(documentStoreId);
+		}
+		if (taskInstanceId != null) {
+			jbpmHelper.deleteTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable());
+			String documentCodi = getDocumentCodiPerVariableJbpm(
+					documentStore.getJbpmVariable());
+			jbpmHelper.deleteTaskInstanceVariable(
+					taskInstanceId,
+					PREFIX_SIGNATURA + documentCodi);
+		}
+		if (processInstanceId != null) {
+			jbpmHelper.deleteProcessInstanceVariable(
+					processInstanceId,
+					documentStore.getJbpmVariable());
 		}
 	}
 
@@ -1242,9 +1382,11 @@ public class DocumentHelperV3 {
 	public DocumentDto generarDocumentAmbPlantilla(
 			String taskInstanceId,
 			String processInstanceId,
-			Long documentId) throws DocumentGenerarException, DocumentConvertirException {
+			String documentCodi) throws DocumentGenerarException, DocumentConvertirException {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Document document = documentRepository.findOne(documentId);
+		Document document = documentRepository.findByDefinicioProcesAndCodi(
+				expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId),
+				documentCodi);
 		DocumentDto resposta = new DocumentDto();
 		resposta.setCodi(document.getCodi());
 		resposta.setDataCreacio(new Date());
@@ -1254,7 +1396,7 @@ public class DocumentHelperV3 {
 		if (document.isPlantilla()) {
 			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
 					expedient.getEntorn().getId(),
-					documentId,
+					document.getId(),
 					taskInstanceId,
 					processInstanceId,
 					new Date());

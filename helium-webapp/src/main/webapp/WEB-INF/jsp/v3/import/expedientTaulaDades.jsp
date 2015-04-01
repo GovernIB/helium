@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <td id="cela-${procesId}-${dada.varCodi}"<c:if test="${dadaTipusRegistre}"> colspan="${paramNumColumnes}"</c:if><c:if test="${dada.campOcult}"> class="campOcult"</c:if>>
 	<address class="var_dades <c:if test="${not empty dada.error}">has-error</c:if> <c:if test="${dadaTipusRegistre}">var_registre</c:if>">
 		<c:if test="${dada.campOcult}"><span class="fa fa-eye-slash"></span></c:if>

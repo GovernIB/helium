@@ -1302,13 +1302,10 @@ public class JbpmHelper {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			PaginacioParamsDto paginacioParams,
-			boolean nomesMeves, 
-			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAmbPendents) {
 		adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");
-		if (nomesMeves)
-			responsable = usuari;
 		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
 				responsable,
 				tasca,

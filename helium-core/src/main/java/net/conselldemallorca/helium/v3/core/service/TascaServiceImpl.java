@@ -201,8 +201,7 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesMeves, 
-			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
@@ -216,7 +215,6 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitInici=" + dataLimitInici + ", " +
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
-				"nomesMeves=" + nomesMeves + ", " +
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		// Comprova l'accés a l'entorn
@@ -284,7 +282,6 @@ public class TascaServiceImpl implements TascaService {
 				dataLimitInici,
 				dataLimitFi,
 				new PaginacioParamsDto(),
-				nomesMeves, 
 				nomesTasquesPersonals, 
 				nomesTasquesGrup,
 				true);
@@ -307,8 +304,7 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesMeves, 
-			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			final PaginacioParamsDto paginacioParams) throws Exception {
 		logger.debug("Consulta de tasques segons filtre (" +
@@ -324,7 +320,6 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitInici=" + dataLimitInici + ", " +
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
-				"nomesMeves=" + nomesMeves + ", " +
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		// Comprova l'accés a l'entorn
@@ -417,8 +412,7 @@ public class TascaServiceImpl implements TascaService {
 				dataLimitInici,
 				dataLimitFi,
 				paginacioParams,
-				nomesMeves, 
-				nomesTasquesPersonals, 
+				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				true);
 		if (consultaTramitacioMassivaTascaId != null) {			
@@ -640,14 +634,12 @@ public class TascaServiceImpl implements TascaService {
 		return documentHelper.hasDocumentsPerInstanciaTasca(task);
 	}
 
-	public ArxiuDto getArxiuPerDocumentIdCodi(
+	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
-			Long documentId,
 			String documentCodi) {
 		logger.debug("btenint contingut de l'arxiu per l'tasca (" +
 				"tascaId=" + tascaId + ", " +
-				"documentCodi=" + documentCodi + ", " +
-				"documentId=" + documentId + ")");
+				"documentCodi=" + documentCodi + ")");
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
 				true,
@@ -662,7 +654,7 @@ public class TascaServiceImpl implements TascaService {
 			DocumentDto document = documentHelper.generarDocumentAmbPlantilla(
 					tascaId,
 					task.getProcessInstanceId(),
-					documentId);
+					documentCodi);
 			ArxiuDto arxiu = new ArxiuDto();
 			arxiu.setNom(document.getArxiuNom());
 			arxiu.setContingut(document.getArxiuContingut());

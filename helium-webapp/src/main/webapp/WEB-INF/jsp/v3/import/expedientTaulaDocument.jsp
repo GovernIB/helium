@@ -1,3 +1,8 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:set var="document" value="${dada}"/>
 <td id="cela-${expedientId}-${document.id}">									
 	<c:choose>
@@ -30,45 +35,41 @@
 														data-rdt-link-modal-min-height="190" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 														class="icon modificar" 
-														href="<c:url value='../../v3/expedient/${expedientId}/documentModificar/${document.id}/${document.documentCodi}'/>">
+														href="<c:url value='../../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/${document.id}/modificar'/>">
 														<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
 													</a>
 												</c:if>
-												
 												<c:if test="${document.signat}">																					
 													<a 	data-rdt-link-modal="true" 
 														<c:if test="${not empty document.urlVerificacioCustodia}">data-rdt-link-modal-min-height="400"</c:if>
 														class="icon signature" 
-														href="<c:url value='../../v3/expedient/${expedientId}/verificarSignatura/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.urlVerificacioCustodia}">
+														href="<c:url value='/v3/expedient/${expedientId}/verificarSignatura/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.urlVerificacioCustodia}">
 														<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
 													</a>
 													<a 	class="icon signature fa-stack fa-2x" 
 														data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_signatures' />"
 														data-rdt-link-ajax=true
-														href='<c:url value="../../v3/expedient/${expedientId}/signaturaEsborrar/${document.id}"/>' 
+														href='<c:url value="/v3/expedient/${expedientId}/signaturaEsborrar/${document.id}"/>' 
 														data-rdt-link-callback="esborrarSignatura(${document.id});"
 														title="<spring:message code='expedient.document.esborrar.signatures' />">
 														<i class="fa fa-certificate fa-stack-1x"></i>
 													  	<i class="fa fa-ban fa-stack-2x text-danger"></i>
 													</a>
 												</c:if>
-												
 												<c:if test="${document.registrat}">
 													<a 	data-rdt-link-modal="true" 
 														class="icon registre" 
-														href="<c:url value='../../v3/expedient/${expedientId}/verificarRegistre/${document.id}/${document.documentCodi}'/>">
+														href="<c:url value='/v3/expedient/${expedientId}/verificarRegistre/${document.id}/${document.documentCodi}'/>">
 														<span class="fa fa-book fa-2x" title="<spring:message code='expedient.document.registrat' />"></span>
 													</a>
 												</c:if>
-												
 												<a 	class="icon fa fa-trash-o fa-2x" 
 													data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 													data-rdt-link-ajax=true
-													href='<c:url value="../../v3/expedient/${expedientId}/documentEsborrar/${document.id}/${document.documentCodi}"/>' 
+													href='<c:url value="../../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/${document.id}/esborrar"/>' 
 													data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 													title="<spring:message code='expedient.document.esborrar'/>">
 												</a>																				
-												
 												<%--
 												<c:if test="${not empty psignaPendentActual}">
 													<c:choose>
@@ -102,7 +103,6 @@
 													</div>
 												</c:if>
 												 --%>
-												
 											</td>
 										</tr>
 										<tr>
@@ -126,7 +126,12 @@
 				<tbody>
 					<tr>
 						<td colspan="2">
-							<strong class="nom_document">${document.documentNom}</strong><br/>
+							<strong class="nom_document">
+								<c:choose>
+									<c:when test="${not document.adjunt}">${document.documentNom}</c:when>
+									<c:otherwise>${document.adjuntTitol}</c:otherwise>
+								</c:choose>
+							</strong><br/>
 						</td>
 					</tr>
 				</tbody>

@@ -631,11 +631,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, request.getParameter("contingut"), null);
 	}
-	
+
 	@RequestMapping(value = "/documentGenerarMas", method = RequestMethod.GET)
 	public String documentGenerarGet(
 			HttpServletRequest request,
 			@RequestParam(value = "docId", required = true) Long docId,
+			@RequestParam(value = "codi", required = true) String documentCodi,
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			Model model) {
@@ -644,8 +645,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 		try {
 			DocumentDto generat = expedientService.generarDocumentAmbPlantillaProces(
+					expedient.getId(),
 					expedient.getProcessInstanceId(),
-					docId);
+					documentCodi);
 			if (generat != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
@@ -660,7 +662,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		}
 		return "arxiuView";
 	}
-	
+
 	@RequestMapping(value = "/{docId}/documentModificar", method = RequestMethod.GET)
 	public String documentModificarGet(
 			HttpServletRequest request,
@@ -694,48 +696,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 			SessionStatus status,
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, campId);
-	}
-	
-	private class ExpedientScriptValidator implements Validator {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(ExpedientEinesScriptCommand.class);
-		}
-		public void validate(Object target, Errors errors) {
-			ValidationUtils.rejectIfEmpty(errors, "script", "not.blank");
-		}
-	}
-	
-	private class ExpedientAturarValidator implements Validator {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(ExpedientEinesAturarCommand.class);
-		}
-		public void validate(Object target, Errors errors) {
-			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
-		}
-	}
-	
-	private class DocumentModificarValidator implements Validator {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(Object.class);
-		}
-		public void validate(Object command, Errors errors) {
-			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
-		}
-	}
-	
-	private class DocumentAdjuntCrearValidator implements Validator {
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		public boolean supports(Class clazz) {
-			return clazz.isAssignableFrom(Object.class);
-		}
-		public void validate(Object command, Errors errors) {
-			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
-			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
-			ValidationUtils.rejectIfEmpty(errors, "contingut", "not.blank");
-		}
 	}
 
 	@RequestMapping(value = "/{campId}/camp/{campId}/valorsSeleccio", method = RequestMethod.GET)
@@ -807,6 +767,50 @@ public class MassivaExpedientController extends BaseExpedientController {
 		binder.registerCustomEditor(
 				Object.class,
 				new ObjectTypeEditorHelper());
+	}
+
+
+
+	private class ExpedientScriptValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(ExpedientEinesScriptCommand.class);
+		}
+		public void validate(Object target, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "script", "not.blank");
+		}
+	}
+	
+	private class ExpedientAturarValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(ExpedientEinesAturarCommand.class);
+		}
+		public void validate(Object target, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "motiu", "not.blank");
+		}
+	}
+	
+	private class DocumentModificarValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Object.class);
+		}
+		public void validate(Object command, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
+		}
+	}
+	
+	private class DocumentAdjuntCrearValidator implements Validator {
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public boolean supports(Class clazz) {
+			return clazz.isAssignableFrom(Object.class);
+		}
+		public void validate(Object command, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
+			ValidationUtils.rejectIfEmpty(errors, "contingut", "not.blank");
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(MassivaExpedientController.class);

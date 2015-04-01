@@ -138,7 +138,7 @@
 				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 					<spring:message code='comuns.cancelar' />
 				</button>
-				<button type="submit" class="btn btn-primary"><spring:message code="comuns.reassignar"/></button>
+				<button type="submit" class="btn btn-primary"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="comuns.reassignar"/></button>
 			</div>
 		</form:form>
 	</body>

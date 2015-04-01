@@ -300,11 +300,37 @@ public class ExpedientServiceBean implements ExpedientService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
-			Long id,
+			Long expedientId,
 			String processInstanceId) {
 		return delegate.findDocumentsPerInstanciaProces(
-				id,
+				expedientId,
 				processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDocumentDto findDocumentPerInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String documentCodi) {
+		return delegate.findDocumentPerInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId,
+				documentCodi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void esborrarDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		delegate.esborrarDocument(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
 	}
 
 	@Override
@@ -512,17 +538,23 @@ public class ExpedientServiceBean implements ExpedientService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto generarDocumentAmbPlantillaProces(
+			Long expedientId,
 			String processInstanceId,
-			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
-		return delegate.generarDocumentAmbPlantillaProces(processInstanceId, documentId);
+			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		return delegate.generarDocumentAmbPlantillaProces(
+				expedientId,
+				processInstanceId,
+				documentCodi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
-			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
-		return delegate.generarDocumentAmbPlantillaTasca(tascaId, documentId);
+			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		return delegate.generarDocumentAmbPlantillaTasca(
+				tascaId,
+				documentCodi);
 	}
 
 	@Override
@@ -555,11 +587,11 @@ public class ExpedientServiceBean implements ExpedientService {
 		delegate.deleteVariable(expedientId, processInstanceId, varName);
 	}
 
-	@Override
+	/*@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi) {
 		return delegate.findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);
-	}
+	}*/
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -567,11 +599,11 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.verificarSignatura(documentStoreId);
 	}
 
-	@Override
+	/*@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception {
 		delegate.esborrarDocument(expedientId, documentStoreId, docCodi);
-	}
+	}*/
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

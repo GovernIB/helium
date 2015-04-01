@@ -38,8 +38,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
@@ -60,6 +63,7 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -292,11 +296,13 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		return result.booleanValue();
 	}
-	
+
 	@Transactional(readOnly=true)
 	@Override
 	public ExpedientTipusDto getExpedientTipusById(Long id) {
-		return conversioTipusHelper.convertir(expedientTipusRepository.findById(id), ExpedientTipusDto.class);
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.findById(id),
+				ExpedientTipusDto.class);
 	}
 
 	@Transactional(readOnly=true)
@@ -331,13 +337,13 @@ public class DissenyServiceImpl implements DissenyService {
 						ExtendedPermission.MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 	}
-	
+
 	@Transactional(readOnly=true)
 	@Override
 	public AccioDto findAccioAmbId(Long idAccio) {
 		return conversioTipusHelper.convertir(accioRepository.findOne(idAccio), AccioDto.class);
 	}
-	
+
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
@@ -347,6 +353,45 @@ public class DissenyServiceImpl implements DissenyService {
 				new Permission[] {
 						ExtendedPermission.CREATE,
 						ExtendedPermission.ADMINISTRATION});
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
+			Long entornId,
+			Long expedientTipusId) throws NotFoundException, NotAllowedException {
+		Entorn entorn = entornRepository.findOne(entornId);
+		if (entorn == null) {
+			throw new NotFoundException(
+					entornId,
+					Entorn.class);
+		}
+		boolean permes = permisosHelper.isGrantedAny(
+				expedientTipusId,
+				ExpedientTipus.class,
+				new Permission[] {
+						ExtendedPermission.READ,
+						ExtendedPermission.ADMINISTRATION},
+				SecurityContextHolder.getContext().getAuthentication());
+		if (!permes) {
+			throw new NotAllowedException(
+					expedientTipusId,
+					ExpedientTipus.class,
+					PermisTipusEnumDto.READ);
+		}
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
+				expedientTipusId);
+		if (expedientTipus.getEntorn() != entorn) {
+			throw new NotFoundException(
+					expedientTipusId,
+					ExpedientTipus.class);
+		}
+		List<ExpedientTipusDto> dtos = new ArrayList<ExpedientTipusDto>();
+		dtos.add(conversioTipusHelper.convertir(
+				expedientTipus,
+				ExpedientTipusDto.class));
+		expedientHelper.omplirPermisosExpedientsTipus(dtos);
+		return dtos.get(0);
 	}
 
 	private List<ExpedientTipusDto> findExpedientTipusAmbPermisosUsuariActual(
@@ -365,9 +410,11 @@ public class DissenyServiceImpl implements DissenyService {
 				},
 				ExpedientTipus.class,
 				permisos);
-		return conversioTipusHelper.convertirList(
+		List<ExpedientTipusDto> dtos = conversioTipusHelper.convertirList(
 				expedientsTipus,
 				ExpedientTipusDto.class);
+		expedientHelper.omplirPermisosExpedientsTipus(dtos);
+		return dtos;
 	}
 	
 	@Transactional(readOnly=true)

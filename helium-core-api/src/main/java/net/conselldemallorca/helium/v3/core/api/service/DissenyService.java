@@ -18,6 +18,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 
 
 /**
@@ -81,7 +83,26 @@ public interface DissenyService {
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws EntornNotFoundException;
-	
+
+	/**
+	 * Retorna un tipus d'expedient comprovant el permís read per a
+	 * l'usuari actual.
+	 * 
+	 * @param entornId
+	 *            L'atribut id del entorn.
+	 * @param expedientTipusId
+	 *            L'atribut id del tipus d'expedient.
+	 * @return
+	 *            El tipus d'expedient.
+	 * @throws NotFoundException
+	 *             Si algun dels ids especificats no s'ha trobat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
+			Long entornId,
+			Long expedientTipusId) throws NotFoundException, NotAllowedException;
+
 	/**
 	 * Retorna les consultes d'un tipus d'expedient per les quals l'usuari actual
 	 * te permisos de lectura.
@@ -122,4 +143,5 @@ public interface DissenyService {
 	public AreaDto findAreaById(Long areaId);
 
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId);
+
 }

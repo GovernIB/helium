@@ -43,6 +43,7 @@
 			<input id="inici" name="inici" value="${inici}" type="hidden"/>
 			<input id="correu" name="correu" value="${correu}" type="hidden"/>
 			<form:hidden path="docId"/>
+			<form:hidden path="codi"/>
 			<h4 class="titol-missatge">
 				${documentExpedientCommand.nom}
 	 			<c:if test="${document.plantilla}"> 

@@ -22,6 +22,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +103,16 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(Long entornId) throws EntornNotFoundException {
 		return delegate.findExpedientTipusAmbPermisCrearUsuariActual(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
+			Long entornId,
+			Long expedientTipusId) throws NotFoundException, NotAllowedException {
+		return findExpedientTipusAmbPermisReadUsuariActual(
+				entornId,
+				expedientTipusId);
 	}
 
 	@Override

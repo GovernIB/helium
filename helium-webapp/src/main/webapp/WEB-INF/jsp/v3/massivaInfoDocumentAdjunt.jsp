@@ -62,7 +62,6 @@
 					label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
 					input.trigger('fileselect', [numFiles, label]);
 				});
-				
 				$(document).ready( function() {
 					$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
 						var input = $(this).parents('.input-group').find(':text'),
@@ -77,7 +76,6 @@
 				}); 
 				// ]]>
 			</script>
-			
 			<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
 		</div>
 		<div id="modal-botons" class="well">

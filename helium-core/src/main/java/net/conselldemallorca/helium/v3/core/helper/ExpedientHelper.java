@@ -5,20 +5,18 @@ package net.conselldemallorca.helium.v3.core.helper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -27,12 +25,13 @@ import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.ControlPermisosDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -334,103 +333,23 @@ public class ExpedientHelper {
 		return null;
 	}
 
+	public void omplirPermisosExpedientsTipus(List<ExpedientTipusDto> expedientsTipus) {
+		List<Long> expedientTipusIds = new ArrayList<Long>();
+		for (ExpedientTipusDto expedientTipus: expedientsTipus) {
+			expedientTipusIds.add(expedientTipus.getId());
+		}
+		omplirPermisosDto(
+				expedientTipusIds,
+				expedientsTipus);
+	}
 	public void omplirPermisosExpedients(List<ExpedientDto> expedients) {
-		Set<Long> expedientTipusIds = new HashSet<Long>();
+		List<Long> expedientTipusIds = new ArrayList<Long>();
 		for (ExpedientDto expedient: expedients) {
 			expedientTipusIds.add(expedient.getTipus().getId());
 		}
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		ObjectIdentifierExtractor<Long> oie = new ObjectIdentifierExtractor<Long>() {
-			public Long getObjectIdentifier(Long id) {
-				return id;
-			}
-		};
-		List<Long> idsAmbPermisCreate = new ArrayList<Long>();
-		idsAmbPermisCreate.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAny(
-				idsAmbPermisCreate,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.CREATE,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> idsAmbPermisRead = new ArrayList<Long>();
-		idsAmbPermisRead.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAny(
-				idsAmbPermisRead,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> idsAmbPermisWrite = new ArrayList<Long>();
-		idsAmbPermisWrite.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAny(
-				idsAmbPermisWrite,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.WRITE,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> idsAmbPermisDelete = new ArrayList<Long>();
-		idsAmbPermisDelete.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAny(
-				idsAmbPermisDelete,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.DELETE,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> idsAmbPermisSupervision = new ArrayList<Long>();
-		idsAmbPermisSupervision.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAny(
-				idsAmbPermisSupervision,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.SUPERVISION,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> idsAmbPermisReassignment = new ArrayList<Long>();
-		idsAmbPermisReassignment.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAny(
-				idsAmbPermisReassignment,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.REASSIGNMENT,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> idsAmbPermisAdministration = new ArrayList<Long>();
-		idsAmbPermisAdministration.addAll(expedientTipusIds);
-		permisosHelper.filterGrantedAll(
-				idsAmbPermisAdministration,
-				oie,
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		for (ExpedientDto expedient: expedients) {
-			Long tipusId = expedient.getTipus().getId();
-			expedient.setPermisCreate(
-					idsAmbPermisCreate.contains(tipusId));
-			expedient.setPermisRead(
-					idsAmbPermisRead.contains(tipusId));
-			expedient.setPermisWrite(
-					idsAmbPermisWrite.contains(tipusId));
-			expedient.setPermisDelete(
-					idsAmbPermisDelete.contains(tipusId));
-			expedient.setPermisSupervision(
-					idsAmbPermisSupervision.contains(tipusId));
-			expedient.setPermisReassignment(
-					idsAmbPermisReassignment.contains(tipusId));
-			expedient.setPermisAdministration(
-					idsAmbPermisAdministration.contains(tipusId));
-		}
+		omplirPermisosDto(
+				expedientTipusIds,
+				expedients);
 	}
 	public void omplirPermisosExpedient(ExpedientDto expedient) {
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
@@ -539,6 +458,104 @@ public class ExpedientHelper {
 			}
 		} else {
 			return new Long(seq).toString();
+		}
+	}
+
+	private void omplirPermisosDto(
+			List<Long> ids,
+			List<? extends ControlPermisosDto> dtos) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		ObjectIdentifierExtractor<Long> oie = new ObjectIdentifierExtractor<Long>() {
+			public Long getObjectIdentifier(Long id) {
+				return id;
+			}
+		};
+		List<Long> idsAmbPermisCreate = new ArrayList<Long>();
+		idsAmbPermisCreate.addAll(ids);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisCreate,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.CREATE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisRead = new ArrayList<Long>();
+		idsAmbPermisRead.addAll(ids);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisRead,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisWrite = new ArrayList<Long>();
+		idsAmbPermisWrite.addAll(ids);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisWrite,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisDelete = new ArrayList<Long>();
+		idsAmbPermisDelete.addAll(ids);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisDelete,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.DELETE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisSupervision = new ArrayList<Long>();
+		idsAmbPermisSupervision.addAll(ids);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisSupervision,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisReassignment = new ArrayList<Long>();
+		idsAmbPermisReassignment.addAll(ids);
+		permisosHelper.filterGrantedAny(
+				idsAmbPermisReassignment,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.REASSIGNMENT,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisAdministration = new ArrayList<Long>();
+		idsAmbPermisAdministration.addAll(ids);
+		permisosHelper.filterGrantedAll(
+				idsAmbPermisAdministration,
+				oie,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		for (int i = 0; i < ids.size(); i++) {
+			Long id = ids.get(i);
+			ControlPermisosDto dto = dtos.get(i);
+			dto.setPermisCreate(
+					idsAmbPermisCreate.contains(id));
+			dto.setPermisRead(
+					idsAmbPermisRead.contains(id));
+			dto.setPermisWrite(
+					idsAmbPermisWrite.contains(id));
+			dto.setPermisDelete(
+					idsAmbPermisDelete.contains(id));
+			dto.setPermisSupervision(
+					idsAmbPermisSupervision.contains(id));
+			dto.setPermisReassignment(
+					idsAmbPermisReassignment.contains(id));
+			dto.setPermisAdministration(
+					idsAmbPermisAdministration.contains(id));
 		}
 	}
 

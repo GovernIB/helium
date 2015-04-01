@@ -22,6 +22,13 @@ public class PermisDto implements Serializable {
 	private boolean create;
 	private boolean delete;
 	private boolean administration;
+	private boolean design;
+	private boolean organization;
+	private boolean supervision;
+	private boolean manage;
+	private boolean reassignment;
+
+
 
 	public Long getId() {
 		return id;
@@ -70,6 +77,36 @@ public class PermisDto implements Serializable {
 	}
 	public void setAdministration(boolean administration) {
 		this.administration = administration;
+	}
+	public boolean isDesign() {
+		return design;
+	}
+	public void setDesign(boolean design) {
+		this.design = design;
+	}
+	public boolean isOrganization() {
+		return organization;
+	}
+	public void setOrganization(boolean organization) {
+		this.organization = organization;
+	}
+	public boolean isSupervision() {
+		return supervision;
+	}
+	public void setSupervision(boolean supervision) {
+		this.supervision = supervision;
+	}
+	public boolean isManage() {
+		return manage;
+	}
+	public void setManage(boolean manage) {
+		this.manage = manage;
+	}
+	public boolean isReassignment() {
+		return reassignment;
+	}
+	public void setReassignment(boolean reassignment) {
+		this.reassignment = reassignment;
 	}
 
 	@Override

@@ -68,11 +68,26 @@ public class TascaServiceBean implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesMeves, 
 			boolean nomesTasquesPersonals, 
 			boolean nomesTasquesGrup,
 			PaginacioParamsDto paginacioParams) throws Exception {
-		return delegate.findPerFiltrePaginat(entornId, consultaTramitacioMassivaTascaId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup, paginacioParams);
+		return delegate.findPerFiltrePaginat(
+				entornId,
+				consultaTramitacioMassivaTascaId,
+				expedientTipusId,
+				usuari,
+				titulo,
+				tasca,
+				responsable,
+				expedient,
+				dataCreacioInici,
+				dataCreacioFi,
+				dataLimitInici,
+				dataLimitFi,
+				prioritat,
+				nomesTasquesPersonals, 
+				nomesTasquesGrup,
+				paginacioParams);
 	}
 
 	@Override
@@ -211,10 +226,23 @@ public class TascaServiceBean implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesMeves, 
 			boolean nomesTasquesPersonals, 
 			boolean nomesTasquesGrup) {
-		return delegate.findIdsPerFiltre(entornId, expedientTipusId, usuari, titulo, tasca, responsable, expedient, dataCreacioInici, dataCreacioFi, dataLimitInici, dataLimitFi, prioritat, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
+		return delegate.findIdsPerFiltre(
+				entornId,
+				expedientTipusId,
+				usuari,
+				titulo,
+				tasca,
+				responsable,
+				expedient,
+				dataCreacioInici,
+				dataCreacioFi,
+				dataLimitInici,
+				dataLimitFi,
+				prioritat,
+				nomesTasquesPersonals,
+				nomesTasquesGrup);
 	}
 
 	@Override
@@ -267,8 +295,12 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ArxiuDto getArxiuPerDocumentIdCodi(String tascaId, Long documentId, String documentCodi) {
-		return delegate.getArxiuPerDocumentIdCodi(tascaId, documentId, documentCodi);
+	public ArxiuDto getArxiuPerDocumentCodi(
+			String tascaId,
+			String documentCodi) {
+		return delegate.getArxiuPerDocumentCodi(
+				tascaId,
+				documentCodi);
 	}
 
 	@Override
@@ -288,4 +320,5 @@ public class TascaServiceBean implements TascaService {
 	public boolean isSignaturesComplet(String tascaId) {
 		return delegate.isSignaturesComplet(tascaId);
 	}
+
 }

@@ -27,12 +27,8 @@
 		</div>
 		
 		<div id="modal-botons">
-			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
-				<spring:message code='comuns.cancelar' />
-			</button>
-			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit">
-				<spring:message code='comuns.reassignar' />
-			</button>
+			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel"><spring:message code="comuns.cancelar"/></button>
+			<button type="submit" class="btn btn-primary" id="submit" name="submit" value="submit"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="comuns.reassignar"/></button>
 		</div>
 	</form:form>
 </body>

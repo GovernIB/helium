@@ -78,7 +78,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -1607,9 +1606,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				CampAgrupacioDto.class);
 	}
 
-	@Override
+	/*@Override
 	@Transactional(readOnly = true)
-	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi) {
+	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(
+			Long expedientId,
+			Long documentStoreId,
+			String docCodi) {
 		logger.debug("Consulta el document de l'expedient (" +
 				"expedientId=" + expedientId + ", " +
 				"docCodi=" + docCodi + ", " +
@@ -1624,18 +1626,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient,
 				documentStoreId,
 				docCodi);
-	}
-
-	@Override
-	@Transactional
-	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception {
-		ExpedientDocumentDto document = findDocumentPerInstanciaProcesDocumentStoreId(expedientId, documentStoreId, docCodi);
-		documentHelper.esborrarDocument(
-				null,
-				document.getProcessInstanceId(),
-				docCodi,
-				documentStoreId);
-	}
+	}*/
 
 	@Override
 	@Transactional
@@ -1676,31 +1667,88 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
-			Long id,
-			String processInstanceId) {		
-		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
-		
-		logger.debug("Consulta els documents de l'expedient (" +
-				"id=" + id + ", " +
+			Long expedientId,
+			String processInstanceId) {
+		logger.debug("Consulta els documents de l'instància de procés (" +
+				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
+				expedientId,
 				true,
 				false,
 				false,
 				false);
 		if (processInstanceId == null) {
-			resposta.addAll(documentHelper.findDocumentsPerInstanciaProces(
-					expedient.getProcessInstanceId()));
+			return documentHelper.findDocumentsPerInstanciaProces(
+					expedient.getProcessInstanceId());
 		} else {
 			expedientHelper.comprovarInstanciaProces(
 					expedient,
 					processInstanceId);
-			resposta.addAll(documentHelper.findDocumentsPerInstanciaProces(
-					processInstanceId));
+			return documentHelper.findDocumentsPerInstanciaProces(
+					processInstanceId);
+		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDocumentDto findDocumentPerInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String documentCodi) {
+		logger.debug("Consulta un document de l'instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ", " +
+				"documentCodi=" + documentCodi + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		if (processInstanceId == null) {
+			return documentHelper.findDocumentPerInstanciaProces(
+					expedient.getProcessInstanceId(),
+					documentStoreId,
+					documentCodi);
+		} else {
+			return documentHelper.findDocumentPerInstanciaProces(
+					processInstanceId,
+					documentStoreId,
+					documentCodi);
+		}
+	}
+
+	@Override
+	@Transactional
+	public void esborrarDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		logger.debug("Consulta un document de l'instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		if (processInstanceId == null) {
+			documentHelper.esborrarDocument(
+					null,
+					expedient.getProcessInstanceId(),
+					documentStoreId);
+		} else {
+			documentHelper.esborrarDocument(
+					null,
+					processInstanceId,
+					documentStoreId);
 		}
 		
-		return resposta;
 	}
 
 	@Override
@@ -2229,7 +2277,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	public DocumentDto generarDocumentAmbPlantillaTasca(
 			String taskInstanceId,
-			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskInstanceId,
 				true,
@@ -2237,7 +2285,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		DocumentDto document = documentHelper.generarDocumentAmbPlantilla(
 				taskInstanceId,
 				task.getProcessInstanceId(),
-				documentId);
+				documentCodi);
 		if (document.isAdjuntarAuto()) {
 			Long documentStoreId = documentHelper.actualitzarDocument(
 					taskInstanceId,
@@ -2256,14 +2304,31 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public DocumentDto generarDocumentAmbPlantillaProces(
+			Long expedientId,
 			String processInstanceId,
-			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
-		return documentHelper.generarDocumentAmbPlantilla(
-				null,
-				processInstanceId,
-				documentId);
+			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		if (processInstanceId == null) {
+			return documentHelper.generarDocumentAmbPlantilla(
+					null,
+					expedient.getProcessInstanceId(),
+					documentCodi);
+		} else {
+			expedientHelper.comprovarInstanciaProces(
+					expedient,
+					processInstanceId);
+			return documentHelper.generarDocumentAmbPlantilla(
+					null,
+					processInstanceId,
+					documentCodi);
+		}
 	}
-	
+
 	@Override
 	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
@@ -3046,7 +3111,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Integer any) {
 		long increment = 0;
 		String numero = null;
-		ExpedientTipusDto expedientTipusDto = conversioTipusHelper.convertir(expedientTipus, ExpedientTipusDto.class);
+		//ExpedientTipusDto expedientTipusDto = conversioTipusHelper.convertir(expedientTipus, ExpedientTipusDto.class);
 		Expedient expedient = null;
 		if (any == null) 
 			any = Calendar.getInstance().get(Calendar.YEAR);
@@ -3061,9 +3126,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 					numero);
 			increment++;
 		} while (expedient != null);
-		if (increment > 1) {
+		/*if (increment > 1) {
 			expedientTipusDto.updateSequencia(any, increment - 1);
-		}
+		}*/
 		return numero;
 	}
 	

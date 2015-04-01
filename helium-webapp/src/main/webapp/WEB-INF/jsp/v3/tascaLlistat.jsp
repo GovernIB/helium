@@ -99,26 +99,17 @@
 			$(element).attr('href', href + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
 		}	
 		function actualizarBotonesFiltros(id) {
-			$('#nomesMevesCheck').attr('disabled', false);
 			$('#nomesTasquesPersonalsCheck').attr('disabled', false);
 			$('#nomesTasquesGrupCheck').attr('disabled', false);
 			$('#responsable').select2("val", "", true);
 			$('#responsable').attr('disabled', false);
-
-			var nomesMeves = ($('#nomesMevesCheck').hasClass('active') && id == null) || (!$('#nomesMevesCheck').hasClass('active') && id == 'nomesMevesCheck') || ($('#nomesMevesCheck').hasClass('active') && id != 'nomesMevesCheck'); 
 			var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
 			var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
-
-			if (nomesMeves) {
-				$('#nomesTasquesGrupCheck').attr('disabled', true);
-				$('#responsable').attr('disabled', true);
-			}
 			if (nomesTasquesPersonals) {
 				$('#nomesTasquesGrupCheck').attr('disabled', true);
 			}
 			if (nomesTasquesGrup) {
 				$('#nomesTasquesPersonalsCheck').attr('disabled', true);
-				$('#nomesMevesCheck').attr('disabled', true);
 			}
 		}
 		function agafar(tascaId, correcte) {
@@ -228,9 +219,9 @@
 							</div>
 						</div>
 						<div class="col-md-4">				
-							<label>&nbsp;</label>
+							<label>&nbsp;${expedientTipus.id} ${expedientTipus.permisReassignment} </label>
 							<div class="row">
-								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
+								<c:if test="${not empty expedientTipus and expedientTipus.permisReassignment}">
 									<div class="col-md-12">
 										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 									</div>
@@ -246,12 +237,8 @@
 					<div class="col-md-12">
 						<form:hidden path="nomesTasquesPersonals"/>
 						<form:hidden path="nomesTasquesGrup"/>
-						<form:hidden path="nomesMeves"/>
 						<div class="row">
 							<div class="col-md-6 btn-group">
-								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
-									<button id="nomesMevesCheck" data-path="nomesMeves" title="<spring:message code="tasca.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-male"></span></button>
-								</c:if>
 								<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 								<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 							</div>
@@ -309,8 +296,8 @@
 				<th data-rdt-property="prioritat" data-rdt-visible="false"><spring:message code="tasca.llistat.columna.prioritat"/></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="<c:out value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}"/>" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
- 						<div id="dropdown-menu-{{:id}}" class="dropdown navbar-right"> 
- 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> 
+ 						<div id="dropdown-menu-{{:id}}" class="dropdown navbar-right">
+ 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								{{if open and !suspended}}
 									{{if assignee == "${dadesPersona.codi}" && assignadaUsuariActual}}
@@ -339,7 +326,7 @@
 								{{/if}}
  							</ul>
  						</div>
-					</script> 
+					</script>
 				</th>
 				<th data-rdt-property="agafada" data-rdt-visible="false"></th>
 				<th data-rdt-property="cancelled" data-rdt-visible="false"></th>

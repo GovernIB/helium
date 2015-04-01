@@ -249,11 +249,6 @@
 									</c:otherwise>
 								</c:choose>
 							</c:if>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
-								<c:if test="${not empty expedient.dataFi}">
-									<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
-								</c:if>
-							</c:if>
 							<c:if test="${expedient.permisDelete}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
@@ -266,6 +261,11 @@
 							</c:if>
 							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
 							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+							</c:if>
+							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+								<c:if test="${not empty expedient.dataFi}">
+									<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+								</c:if>
 							</c:if>
 							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
 								<li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" href="<c:url value="../../v3/expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li>

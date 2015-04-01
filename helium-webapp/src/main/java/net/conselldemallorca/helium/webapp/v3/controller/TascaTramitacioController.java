@@ -398,12 +398,12 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaSignatura";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/adjuntar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@RequestParam(value = "docId", required = false) Long docId,
+			@PathVariable String documentCodi,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
@@ -421,14 +421,17 @@ public class TascaTramitacioController extends BaseTascaController {
 				accioDocumentAdjuntar(
 						request,
 						tascaId,
-						docId,
+						documentCodi,
 						nomArxiu,
 						contingutArxiu,
 						(data == null) ? new Date() : data).toString();
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
-			logger.error("Error al adjuntar el document " + docId, ex);
+			logger.error("Error al adjuntar el document a la tasca(" +
+					"tascaId=" + tascaId + ", " +
+					"documentCodi=" + documentCodi + ")",
+					ex);
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
@@ -437,12 +440,12 @@ public class TascaTramitacioController extends BaseTascaController {
 				"document");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{docId}/generar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/generar", method = RequestMethod.GET)
 	public String documentGenerarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@PathVariable Long docId,
+			@PathVariable String documentCodi,
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
 		try {
@@ -453,7 +456,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				DocumentDto generat = accioDocumentGenerar(
 						request,
 						tascaId, 
-						docId, 
+						documentCodi, 
 						(data == null) ? new Date() : data);
 				if (generat != null) {
 					if (!generat.isAdjuntarAuto()) {
@@ -465,9 +468,11 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
-			logger.error("Error generant el document " + docId, ex);
+			logger.error("Error generant el document (" +
+					"tascaId=" + tascaId + ", " +
+					"documentCodi=" + documentCodi + ")",
+					ex);
 		}
-
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
@@ -475,17 +480,15 @@ public class TascaTramitacioController extends BaseTascaController {
 				"document");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentId}/{documentCodi}/descarregar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/descarregar", method = RequestMethod.GET)
 	public String documentDescarregar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@PathVariable Long documentId,
 			@PathVariable String documentCodi,
 			Model model) {
-		ArxiuDto arxiu = tascaService.getArxiuPerDocumentIdCodi(
+		ArxiuDto arxiu = tascaService.getArxiuPerDocumentCodi(
 			tascaId,
-			documentId,
 			documentCodi);
 		model.addAttribute(
 				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
@@ -496,12 +499,12 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "arxiuView";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{docId}/esborrar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/esborrar", method = RequestMethod.GET)
 	public String documentEsborrar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
-			@PathVariable Long docId,	
+			@PathVariable String documentCodi,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
@@ -511,10 +514,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			accioDocumentEsborrar(
 					request,
 					tascaId,
-					docId,
-					(data == null) ? new Date() : data);
+					documentCodi);
 		}
-
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				tascaId,
@@ -1092,14 +1093,13 @@ public class TascaTramitacioController extends BaseTascaController {
 	private Long accioDocumentAdjuntar(
 			HttpServletRequest request,
 			String tascaId,
-			Long docId,
+			String documentCodi,
 			String nomArxiu,
 			byte[] contingutArxiu,
 			Date data) {
 		Long documentStoreId = null;
 		
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		TascaDocumentDto document = tascaService.findDocument(tascaId, docId);
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			try {				
@@ -1108,7 +1108,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				documentStoreId = tascaService.guardarDocumentTasca(
 						entorn.getId(),
 						tascaId,
-						document.getDocumentCodi(),
+						documentCodi,
 						(data == null) ? new Date() : data,
 						nomArxiu,
 						contingutArxiu,
@@ -1124,7 +1124,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam1("DocGuardar");
 				Object[] params = new Object[7];
 				params[0] = entorn.getId();				
-				params[1] = document.getDocumentCodi();
+				params[1] = documentCodi;
 				params[2] = (data == null) ? (data == null) ? new Date() : data : data;
 				params[3] = contingutArxiu;
 				params[4] = nomArxiu;
@@ -1147,7 +1147,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				documentStoreId = tascaService.guardarDocumentTasca(
 					entorn.getId(),
 					tascaId,
-					document.getDocumentCodi(),
+					documentCodi,
 					data,
 					nomArxiu,
 					contingutArxiu,
@@ -1167,10 +1167,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	private boolean accioDocumentEsborrar(
 			HttpServletRequest request,
 			String tascaId,
-			Long docId,
-			Date data) {
+			String documentCodi) {
 		boolean resposta = false;
-		TascaDocumentDto document = tascaService.findDocument(tascaId, docId);
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			try {
@@ -1186,7 +1184,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam1("DocEsborrar");
 				Object[] params = new Object[4];
 				params[0] = entorn.getId();				
-				params[1] = document.getDocumentCodi();
+				params[1] = documentCodi;
 				params[2] = auth.getCredentials();
 				List<String> rols = new ArrayList<String>();
 				for (GrantedAuthority gauth : auth.getAuthorities()) {
@@ -1198,7 +1196,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				
 				tascaService.esborrarDocument(
 						tascaId,
-						document.getDocumentCodi(),
+						documentCodi,
 						null);
 				
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.esborrar", new Object[] {tascaIds.length}));
@@ -1206,13 +1204,13 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
-				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
+				logger.error("No s'ha pogut guardar les dades del formulari massiu a la tasca " + tascaId, ex);
 			}
 		} else {
 			try {
 				tascaService.esborrarDocument(
 						tascaId,
-						document.getDocumentCodi(),
+						documentCodi,
 						null);
 				MissatgesHelper.success(request, getMessage(request, "info.document.esborrat"));
 				resposta = true;
@@ -1222,7 +1220,9 @@ public class TascaTramitacioController extends BaseTascaController {
 	        			request,
 	        			getMessage(request, "error.esborrar.document") + " " + descripcioTasca + ": " + 
 	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-				logger.error("No s'ha pogut esborrar el document '" + docId + "' a la tasca " + tascaId, ex);
+				logger.error("No s'ha pogut esborrar el document de la tasca (" +
+						"tascaId=" + tascaId + ", " +
+						"documentCodi=" + documentCodi + ")", ex);
 	        }
 		}
 		return resposta;
@@ -1231,7 +1231,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	private DocumentDto accioDocumentGenerar(
 			HttpServletRequest request,
 			String tascaId,
-			Long docId,
+			String documentCodi,
 			Date data) {
 		DocumentDto generat = null;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
@@ -1249,12 +1249,11 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam1("DocGuardar");
 				Object[] params = new Object[7];
 				params[0] = entorn.getId();
-				TascaDocumentDto document = tascaService.findDocument(tascaId, docId);
-				params[1] = document.getDocumentCodi();
+				params[1] = documentCodi;
 				params[2] = (data == null) ? new Date() : data;
 				generat = expedientService.generarDocumentAmbPlantillaTasca(
 						tascaId,
-						docId);
+						documentCodi);
 				params[3] = generat.getArxiuContingut();
 				params[4] = generat.getArxiuNom();
 				params[5] = auth.getCredentials();
@@ -1275,7 +1274,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			try {
 				generat = expedientService.generarDocumentAmbPlantillaTasca(
 						tascaId,
-						docId);
+						documentCodi);
 				MissatgesHelper.success(request, getMessage(request, "info.document.generat"));
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);

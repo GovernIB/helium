@@ -24,16 +24,15 @@ public class TascaConsultaCommand {
 	private Integer prioritat;
 	private Long estatId;
 	private String responsable;
-	
+
 	private Date dataCreacioInicial;
 	private Date dataCreacioFinal;
 	private Date dataLimitInicial;
 	private Date dataLimitFinal;
-	
-	private boolean nomesMeves;
+
 	private boolean nomesTasquesPersonals;
 	private boolean nomesTasquesGrup;
-	
+
 	private boolean filtreDesplegat = false;
 	private boolean consultaRealitzada = false;
 	private String consultaTramitacioMassivaTascaId;
@@ -87,12 +86,6 @@ public class TascaConsultaCommand {
 	}
 	public void setPrioritat(Integer prioritat) {
 		this.prioritat = prioritat;
-	}
-	public boolean isNomesMeves() {
-		return nomesMeves;
-	}
-	public void setNomesMeves(boolean nomesMeves) {
-		this.nomesMeves = nomesMeves;
 	}
 	public boolean isNomesTasquesPersonals() {
 		return nomesTasquesPersonals;

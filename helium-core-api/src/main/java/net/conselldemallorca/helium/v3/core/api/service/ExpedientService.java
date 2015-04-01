@@ -426,7 +426,7 @@ public interface ExpedientService {
 	 * Retorna la llista de documents d'una instància de procés de
 	 * l'expedient.
 	 * 
-	 * @param id
+	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @param processInstanceId
 	 *            Atribut processInstanceId que es vol consultar. Si no
@@ -438,8 +438,57 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
-			Long id,
+			Long expedientId,
 			String processInstanceId);
+
+	/**
+	 * Retorna un document d'una instància de procés de
+	 * l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId que es vol consultar. Si no
+	 *            s'especifica s'agafa l'instància de procés arrel.
+	 * @param documentStoreId
+	 *            Atribut id de la taula document_store del document que
+	 *            es vol consultar.
+	 * @param documentCodi
+	 *            Codi del document que es vol consultar.
+	 * @return El document.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientDocumentDto findDocumentPerInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String documentCodi);
+
+	/**
+	 * Esborra un document d'una instància de procés de
+	 * l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId que es vol consultar. Si no
+	 *            s'especifica s'agafa l'instància de procés arrel.
+	 * @param documentStoreId
+	 *            Atribut id de la taula document_store del document que
+	 *            es vol esborrar.
+	 * @return El document.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void esborrarDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId);
 
 	/**
 	 * Retorna l'arxiu del document.
@@ -646,12 +695,13 @@ public interface ExpedientService {
 	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception;
 
 	public DocumentDto generarDocumentAmbPlantillaProces(
+			Long expedientId,
 			String processInstanceId,
-			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
+			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
 
 	public DocumentDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
-			Long documentId) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
+			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
 
 	public boolean isExtensioDocumentPermesa(String extensio);
 
@@ -663,11 +713,9 @@ public interface ExpedientService {
 
 	public void deleteVariable(Long expedientId, String processInstanceId, String varName);
 
-	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi);
+	//public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi);
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
-
-	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception;
 
 	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception;
 

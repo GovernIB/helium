@@ -44,4 +44,5 @@ public class BaseExpedientController extends BaseController {
 			model.addAttribute("pipellaActiva", "dades");
 		return "v3/expedientPipelles";
 	}
+
 }

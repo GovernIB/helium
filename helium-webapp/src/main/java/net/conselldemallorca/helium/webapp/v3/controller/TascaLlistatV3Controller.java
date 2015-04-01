@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
@@ -52,12 +53,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @Controller
 @RequestMapping("/v3/tasca")
-public class TascaLlistatV3Controller extends BaseExpedientController {
-	
+public class TascaLlistatV3Controller extends BaseController {
+
 	@Autowired
 	private AdminService adminService;
 	@Autowired
 	private TascaService tascaService;
+	@Autowired
+	private DissenyService dissenyService;
+
+
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -71,6 +76,13 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
 		} else {
 			model.addAttribute("entornId", entornActual.getId());
+		}
+		if (filtreCommand.getExpedientTipusId() != null) {
+			model.addAttribute(
+					"expedientTipus",
+					dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
+							entornActual.getId(),
+							filtreCommand.getExpedientTipusId()));
 		}
 		return "v3/tascaLlistat";
 	}
@@ -107,7 +119,7 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 		return "v3/tascaLlistat";
 	}
-	
+
 	@RequestMapping(value = "/filtre", method = RequestMethod.POST)
 	@ResponseStatus(value = HttpStatus.OK)
 	public void filtre(
@@ -148,7 +160,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 							filtreCommand.getDataLimitInicial(),
 							filtreCommand.getDataLimitFinal(),
 							filtreCommand.getPrioritat(),
-							filtreCommand.isNomesMeves(),
 							filtreCommand.isNomesTasquesPersonals(),
 							filtreCommand.isNomesTasquesGrup(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
@@ -193,7 +204,6 @@ public class TascaLlistatV3Controller extends BaseExpedientController {
 			filtreCommand.getDataLimitInicial(),
 			filtreCommand.getDataLimitFinal(),
 			filtreCommand.getPrioritat(),
-			filtreCommand.isNomesMeves(),
 			filtreCommand.isNomesTasquesPersonals(),
 			filtreCommand.isNomesTasquesGrup());
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);

@@ -145,11 +145,11 @@ function actualizarBotonesFiltros(id) {
 }
 function recarregarTaula(tableId, correcte) {
 	if (correcte) {
-		refrescarAlertas($("#"+tableId));
+		refrescarAlertes($("#"+tableId));
 		$("#"+tableId).dataTable().fnDraw();
 	}
 }
-function refrescarAlertas(e) {
+function refrescarAlertes(e) {
 	$.ajax({
 		url: "<c:url value="/nodeco/v3/missatges"/>",
 		async: false,

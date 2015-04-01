@@ -286,6 +286,8 @@
 							dataTable: settings.dataTable,
 							/*modalCloseFunction: modalCloseFunction,*/
 							refrescarTaula: settings.refrescarTaula,
+							dataTable: settings.dataTable,
+							refrescarTaula: settings.refrescarTaula,
 							refrescarPagina: settings.refrescarPagina,
 							refrescarAlertes: settings.refrescarAlertes,
 							alertesRefreshUrl: settings.alertesRefreshUrl

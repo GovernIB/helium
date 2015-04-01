@@ -83,10 +83,10 @@ public interface TascaService {
 	 *            Data límit final.
 	 * @param prioritat
 	 *            Prioritat de l atasca.
-	 * @param mostrarTasquesPersonals
-	 *            Check de mostrar tasques personals.
-	 * @param mostrarTasquesGrup
-	 *            Check de mostrar tasques de grup.
+	 * @param nomesTasquesPersonals
+	 *            Check de mostrar només les tasques personals.
+	 * @param nomesTasquesGrup
+	 *            Check de mostrar només les tasques de grup.
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat de tasques.
@@ -112,8 +112,7 @@ public interface TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesMeves, 
-			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			PaginacioParamsDto paginacioParams) throws Exception;
 
@@ -330,26 +329,24 @@ public interface TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesMeves, 
-			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 
 	/**
-	 * Retorna l'arxiu del document.
+	 * Retorna l'arxiu corresponent a un document de la tasca.
+	 * 
 	 * @param tascaId
-	 *            Atribut id de l'tasca que es vol consultar.
-	 * @param documentId
-	 *            Atribut id del document que es vol descarregar.
+	 *            Atribut id de la tasca que es vol consultar.
 	 * @param documentCodi
+	 *            Codi del document de la tasca que es vol descarregar.
 	 * @return L'arxiu del document.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public ArxiuDto getArxiuPerDocumentIdCodi(
+	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
-			Long documentId, 
 			String documentCodi);
 	
 	public TascaDocumentDto findDocument(String tascaId, Long docId);

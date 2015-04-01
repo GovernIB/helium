@@ -308,7 +308,6 @@ public class TascaHelper {
 				null, 
 				null, 
 				paginacioParams,
-				false,
 				true,
 				true,
 				false);
@@ -605,7 +604,11 @@ public class TascaHelper {
 					adminService.findPersonaAmbCodi(task.getAssignee()));
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (task.getPooledActors() != null && task.getPooledActors().size() > 0) {
+		if (task.getAssignee() != null) {
+			if (auth != null) {
+				dto.setAssignadaUsuariActual(task.getAssignee().equals(auth.getName()));
+			}
+		} else if (task.getPooledActors() != null && !task.getPooledActors().isEmpty()) {
 			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
 			for (String pooledActor: task.getPooledActors()) {
 				PersonaDto persona = adminService.findPersonaAmbCodi(pooledActor);
@@ -617,9 +620,6 @@ public class TascaHelper {
 			}
 			dto.setResponsables(responsables);
 		}
-		if (auth != null && task.getPooledActors().isEmpty() && task.getAssignee() != null) {
-			dto.setAssignadaUsuariActual(task.getAssignee().equals(auth.getName()));
-		} 
 		return dto;
 	}
 

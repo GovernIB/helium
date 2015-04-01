@@ -45,7 +45,7 @@
 </c:if>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-		<form id="form${document.id}" class="form-horizontal form-tasca" action="" enctype="multipart/form-data" method="post"">
+		<form class="form-horizontal form-tasca" action="${tasca.id}/document/${document.documentCodi}/adjuntar" enctype="multipart/form-data" method="post">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
@@ -53,7 +53,7 @@
 		 			<c:if test="${document.plantilla and tasca.validada}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/generar'/>"
+							href="<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>"
 							<c:if test="${document.adjuntarAuto}">data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"</c:if>
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />">
 							<i class="fa fa-file-text-o"></i>
@@ -64,7 +64,7 @@
 					</a>
 					<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
 						id="removeUrl${document.id}" 
-						href="<c:url value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.id}/esborrar"></c:url>"
+						href="<c:url value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"></c:url>"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
 						<i class="fa fa-trash-o"></i>
@@ -74,7 +74,7 @@
 						<p><label><spring:message code='tasca.doc.adjunt.adjuntat.el' /></label>: <label id="docDataAdj${document.id}"><fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></label></p>
 						<p><label><spring:message code='tasca.doc.adjunt.data.document' /></label>: <label id="docData${document.id}"><fmt:formatDate value="${document.dataDocument}" pattern="dd/MM/yyyy"/></label></p>
 					</div>
-				</h4>				
+				</h4>
 			</div>
 			<c:if test="${tasca.validada}">
 				<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
@@ -84,7 +84,7 @@
 			                <input  id="contingut${document.id}" name="contingut" class="form-control" />
 			                <span class="input-group-btn">
 			                    <span class="btn btn-default btn-file">
-			                        <spring:message code='expedient.document.arxiu' />… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
+			                        <spring:message code="expedient.document.arxiu"/>… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
 			                    </span>
 			                </span>
 			            </div>
@@ -100,14 +100,12 @@
 					</div>
 				</div>
 				<div id="modal-botons${document.id}" class="modal-botons <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-					<button class="pull-right btn btn-primary right" name="accio" onclick="documentGuardar(${document.id});" value="document_guardar">
-						<spring:message code='comuns.guardar' />
-					</button>
+					<button type="submit" class="btn btn-primary pull-right"><span class="fa fa-floppy-o"></span>&nbsp;<spring:message code="comuns.guardar"/></button>
 				</div>
 			</c:if>
 		</form>
 	</div>
-</c:forEach>	        
+</c:forEach>
 
 <script type="text/javascript">
 	// <![CDATA[	
@@ -162,13 +160,5 @@
         }
         return true;
     }
-	
-	function documentGuardar(docId) {
-		if (!checkFile(docId))
-			return false;
-		var url = "<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/adjuntar'/>";
-		$("#form"+docId).attr('action', url);
-		$("#form"+docId).submit();
-	}
 	// ]]>
 </script>
