@@ -21,7 +21,7 @@ import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.command.Command;
 
 /**
- * Command per obtenir la llista de tasques personals
+ * Command per obtenir la llista de tasques personals 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
