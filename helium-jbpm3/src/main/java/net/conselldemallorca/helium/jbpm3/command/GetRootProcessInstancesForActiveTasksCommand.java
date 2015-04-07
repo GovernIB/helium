@@ -120,10 +120,10 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		
+
 		setJbpmContext(jbpmContext);
 		
-		String hqlNoUserLlistatTasques =
+		String hqlSenseActorId =
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
@@ -136,8 +136,26 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true " : " ") +
 			((!mostrarTasquesTots && mostrarTasquesNomesGroup) ? "and ti.actorId is null " : " ") +
 			((!mostrarTasquesTots && mostrarTasquesNomesPersonals) ? "and ti.actorId is not null " : " ");
+
+		boolean condicioPersonals = !mostrarTasquesTots && mostrarTasquesNomesPersonals;
+		boolean condicioGrup = !mostrarTasquesTots && mostrarTasquesNomesGroup;
+		boolean condicioPersonalsIGrup = mostrarTasquesTots && !mostrarTasquesNomesPersonals && !mostrarTasquesNomesGroup;
+		String hqlAmbActorId =
+				"select  " + 
+				"    ti.processInstance.id, " +
+				"    ti.processInstance.superProcessToken.id, " +
+				"    ti.id," +
+				" 	 ti.name" +
+				"  from " +
+				"    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+				"  left join ti.pooledActors pooledActor " +
+				"  where " +
+				((condicioPersonals) ? "ti.actorId is not null and ti.actorId = :actorId " : "") +
+				((condicioGrup) ? "ti.actorId is null and pooledActor.actorId = :actorId " : "") +
+				((condicioPersonalsIGrup) ? "((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pooledActor.actorId = :actorId)) " : "") +
+				((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true" : "");
 		
-		String hqlPersonal =
+		/*String hqlPersonal =
 		    "select  " + 
 		    "    ti.processInstance.id, " +
 		    "    ti.processInstance.superProcessToken.id, " +
@@ -145,6 +163,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    " 	 ti.name" +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+		    "  left join ti.pooledActors pooledActor " +
 		    "  where " +
 		    "    ti.actorId = :actorId " + 
 		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true" : "");
@@ -157,11 +176,11 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		    " 	 ti.name" +
 		    "  from " +
 		    "    org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-		    "  join ti.pooledActors pooledActor " +
+		    "  left join ti.pooledActors pooledActor " +
 		    "  where " +
 		    "  pooledActor.actorId = :actorId " +
 		    "and ti.actorId is null " + 
-		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true" : "");
+		    ((nomesActives) ? "and ti.isSuspended = false and ti.isOpen = true" : "");*/
 		  
 		String hql = "";
 		
@@ -204,36 +223,44 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 		} 
 		
 		List<Object[]> llistaActorId = new ArrayList<Object[]>();
-		
 		if (actorId == null || "".equals(actorId)) {
-			Query query = jbpmContext.getSession().createQuery(hqlNoUserLlistatTasques + hql);
-			
+			Query query = jbpmContext.getSession().createQuery(hqlSenseActorId + hql);
 			if (dataCreacioInici != null) 
 				query.setDate("dataCreacioInici", dataCreacioInici);
-			
 			if (dataCreacioFi != null) 
 				query.setDate("dataCreacioFi", dataCreacioFi);
-			
 			if (dataLimitInici != null) 
 				query.setDate("dataLimitInici", dataLimitInici);
-			
 			if (dataLimitFi != null) 
 				query.setDate("dataLimitFi", dataLimitFi);
-			
 			if (prioritat != null) 
 				query.setInteger("prioritat",3-prioritat);
-			
 			if (tascaSel != null && !"".equals(tascaSel))
 				query.setString("tascaSel", tascaSel);
-			
 			if (titol != null && !"".equals(titol))
 				query.setString("titol", titol.toUpperCase());
-			
-			if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup) {
-				llistaActorId.addAll(query.list());		
-			}
+			if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup)
+				llistaActorId.addAll(query.list());
 		} else {
-			Query queryPersonal = jbpmContext.getSession().createQuery(hqlPersonal + hql);
+			Query query = jbpmContext.getSession().createQuery(hqlAmbActorId + hql);
+			query.setString("actorId", actorId);
+			if (dataCreacioInici != null)
+				query.setDate("dataCreacioInici", dataCreacioInici);
+			if (dataCreacioFi != null)
+				query.setDate("dataCreacioFi", dataCreacioFi);
+			if (dataLimitInici != null)
+				query.setDate("dataLimitInici", dataLimitInici);
+			if (dataLimitFi != null)
+				query.setDate("dataLimitFi", dataLimitFi);
+			if (prioritat != null)
+				query.setInteger("prioritat",3-prioritat);
+			if (tascaSel != null && !"".equals(tascaSel))
+				query.setString("tascaSel", tascaSel);
+			if (titol != null && !"".equals(titol))
+				query.setString("titol", titol.toUpperCase());
+			if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup)
+				llistaActorId.addAll(query.list());
+			/*Query queryPersonal = jbpmContext.getSession().createQuery(hqlPersonal + hql);
 			queryPersonal.setString("actorId", actorId);
 		
 			Query queryPooled = jbpmContext.getSession().createQuery(hqlPooled + hql);
@@ -280,7 +307,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			
 			if (mostrarTasquesTots || mostrarTasquesNomesGroup) {
 				llistaActorId.addAll(queryPooled.list());
-			}
+			}*/
 		}
 		
 		Set<Long> superProcessTokenIds = new HashSet<Long>();
