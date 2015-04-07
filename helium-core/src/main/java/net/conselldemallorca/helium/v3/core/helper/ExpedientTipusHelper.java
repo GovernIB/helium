@@ -118,10 +118,7 @@ public class ExpedientTipusHelper {
 					ExtendedPermission.REASSIGNMENT,
 					ExtendedPermission.ADMINISTRATION},
 				auth)) {
-			throw new NotAllowedException(
-					id,
-					ExpedientTipus.class,
-					PermisTipusEnumDto.WRITE);
+			return null;
 		}
 		
 		return expedientTipus;

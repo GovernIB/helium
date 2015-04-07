@@ -308,6 +308,7 @@ public class TascaLlistatV3Controller extends BaseController {
 		if (filtreCommand == null) {
 			filtreCommand = new TascaConsultaCommand();
 			filtreCommand.setConsultaRealitzada(true);
+			filtreCommand.setResponsable(request.getUserPrincipal().getName());
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 		}
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();

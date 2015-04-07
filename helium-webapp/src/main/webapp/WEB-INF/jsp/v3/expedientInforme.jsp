@@ -179,9 +179,6 @@ function actualizarBotonesFiltros(id) {
 				<div class="row">
 					<div class="col-md-6">
 						<div class="btn-group">
-							<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
-								<button id="nomesMevesCheck" data-path="nomesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-male"></span></button>
-							</c:if>
 							<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientInformeCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 						</div>
