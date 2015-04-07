@@ -193,7 +193,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 			hql += " and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ";
 		}	
 
-		if ("createTime".equals(sort)) {
+		if ("createTime".equals(sort) || "dataCreacio".equals(sort)) {
 			hql += " order by ti.create " + (asc ? "asc" : "desc");
 		} else if ("prioritat".equals(sort)) {
 			hql += " order by ti.priority " + (asc ? "asc" : "desc");
