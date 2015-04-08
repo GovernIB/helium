@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
@@ -164,20 +165,21 @@ public class LuceneHelper extends LuceneIndexSupport {
 		boolean indexarExpedient = true;
 		if (comprovarIniciant) {
 			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
-			// La versió 3 empra un altre ExpedientIniciantDto
-			if (expedientIniciant == null) {
-				net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedientIniciant3 = net.conselldemallorca.helium.v3.core.api.dto.ExpedientIniciantDto.getExpedient();
-				indexarExpedient = (expedientIniciant3 == null || !expedientIniciant3.getId().equals(expedient.getId()));
-			} else {
-				indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
-			}
+			logger.debug("Creant expedient a l'index Lucene: mirant si indexar (" +
+					"id=" + expedient.getId() + ", " +
+					"expedientIniciant=" + expedientIniciant + ", " +
+					"expedientIniciant.id=" + ((expedientIniciant != null) ? expedientIniciant.getId() : null) + ")");
+			indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
 		}
 		if (indexarExpedient) {
+			logger.debug("Creant expedient a l'index Lucene: indexació realitzada (id=" + expedient.getId() + ")");
 			mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
 			checkIndexOk();
 			Document document = updateDocumentFromExpedient(null, expedient, definicionsProces, camps, valors, textDominis, finalitzat);
 			getLuceneIndexTemplate().addDocument(document);
 			mesuresTemporalsHelper.mesuraCalcular("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
+		} else {
+			logger.debug("Creant expedient a l'index Lucene: indexació abortada (id=" + expedient.getId() + ")");
 		}
 	}
 

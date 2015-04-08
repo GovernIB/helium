@@ -250,7 +250,7 @@ public class TascaLlistatV3Controller extends BaseController {
 		ids.clear();
 		return ids;
 	}
-	
+
 	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
 	public Set<Long> seleccio(
@@ -283,7 +283,7 @@ public class TascaLlistatV3Controller extends BaseController {
 		SessionHelper.getSessionManager(request).removeFiltreConsultaTasca();
 		return "redirect:/v3/tasca";
 	}
-	
+
 	@RequestMapping(value = "/pendentsCompletar", method = RequestMethod.GET)
 	public String tasquesCompletar(HttpServletRequest request, 
 			Model model) {		
@@ -316,6 +316,7 @@ public class TascaLlistatV3Controller extends BaseController {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
 		return filtreCommand;
 	}
-	
+
 	protected static final Log logger = LogFactory.getLog(TascaLlistatV3Controller.class);
+
 }
