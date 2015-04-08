@@ -164,7 +164,13 @@ public class LuceneHelper extends LuceneIndexSupport {
 		boolean indexarExpedient = true;
 		if (comprovarIniciant) {
 			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
-			indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
+			// La versió 3 empra un altre ExpedientIniciantDto
+			if (expedientIniciant == null) {
+				net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedientIniciant3 = net.conselldemallorca.helium.v3.core.api.dto.ExpedientIniciantDto.getExpedient();
+				indexarExpedient = (expedientIniciant3 == null || !expedientIniciant3.getId().equals(expedient.getId()));
+			} else {
+				indexarExpedient = (expedientIniciant == null || !expedientIniciant.getId().equals(expedient.getId()));
+			}
 		}
 		if (indexarExpedient) {
 			mesuresTemporalsHelper.mesuraIniciar("Lucene: createExpedient", "lucene", expedient.getTipus().getNom());
