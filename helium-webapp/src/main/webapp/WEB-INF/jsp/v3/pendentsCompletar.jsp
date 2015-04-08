@@ -12,12 +12,17 @@
 	<script type="text/javascript">
 	    $(document).ready(function(){
 			$('#refrescarPendentsCompletar').click(function() {
-				$('#refrescarPendentsCompletar > span',parent.document).remove();
-				$('#refrescarPendentsCompletar',parent.document).prepend('<i class="fa fa-refresh fa-spin"></i>');
+				accionsBotons();
 				location.reload();
 			});
 		});
-
+		
+		function accionsBotons(){
+			$('#refrescarPendentsCompletar',parent.document).prop('disabled',true);
+			$('button[name="submit"]',parent.document).prop('disabled',true);
+			$('#refrescarPendentsCompletar > span',parent.document).remove();
+			$('#refrescarPendentsCompletar',parent.document).prepend('<i class="fa fa-refresh fa-spin"></i>');
+		}
 	</script>
 </head>
 <body>

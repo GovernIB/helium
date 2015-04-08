@@ -134,6 +134,10 @@
 	        }
 	    }
 		function carregaMesuresTemps() {
+			$('button[name="submit"]',parent.document).prop('disabled',true);
+            $('button[name="export"]',parent.document).prop('disabled',true);
+            $('button[name="refrescar"]',parent.document).prop('disabled',true);
+			
 			$('button[name="refrescar"] > span',parent.document).remove();
 			$('button[name="refrescar"]',parent.document).prepend('<i class="fa fa-refresh fa-spin"></i>');
 	        $.ajax({
@@ -245,6 +249,11 @@
 	        })
 	        .always(function() {
 	            $("body").removeClass("loading");
+
+	            $('button[name="submit"]',parent.document).prop('disabled',false);
+	            $('button[name="export"]',parent.document).prop('disabled',false);
+	            $('button[name="refrescar"]',parent.document).prop('disabled',false);
+	            
 	            $('button[name="refrescar"] > i',parent.document).remove();
 				$('button[name="refrescar"]',parent.document).prepend('<span class="fa fa-refresh"></span>');
 	        });
