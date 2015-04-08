@@ -134,6 +134,8 @@
 	        }
 	    }
 		function carregaMesuresTemps() {
+			$('button[name="refrescar"] > span',parent.document).remove();
+			$('button[name="refrescar"]',parent.document).prepend('<i class="fa fa-refresh fa-spin"></i>');
 	        $.ajax({
 	            url: "mesuresTemps/all",
 	            dataType: 'json',
@@ -243,6 +245,8 @@
 	        })
 	        .always(function() {
 	            $("body").removeClass("loading");
+	            $('button[name="refrescar"] > i',parent.document).remove();
+				$('button[name="refrescar"]',parent.document).prepend('<span class="fa fa-refresh"></span>');
 	        });
 	    }
 	</script>

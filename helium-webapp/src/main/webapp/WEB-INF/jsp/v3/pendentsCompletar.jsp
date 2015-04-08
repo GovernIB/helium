@@ -9,37 +9,50 @@
 <head>
 	<title><spring:message code='decorator.menu.administracio.tasques.execucio' /></title>
 	<hel:modalHead/>
+	<script type="text/javascript">
+	    $(document).ready(function(){
+			$('#refrescarPendentsCompletar').click(function() {
+				$('#refrescarPendentsCompletar > span',parent.document).remove();
+				$('#refrescarPendentsCompletar',parent.document).prepend('<i class="fa fa-refresh fa-spin"></i>');
+				location.reload();
+			});
+		});
+
+	</script>
 </head>
 <body>
-	<c:choose>
-		<c:when test="${not empty tasques}">
-			<table class="table table-bordered">
-				<tr class="table-pendents header">
-					<td class="datacol"><spring:message code="tasca.llistat.columna.tipexp"/></td>
-					<td class="datacol"><spring:message code="tasca.llistat.columna.expedient"/></td>
-					<td class="datacol"><spring:message code="expedient.tasca.columna.id"/></td>
-					<td class="maxcols"><spring:message code="expedient.tasca.columna.tasca"/></td>
-					<td class="datacol"><spring:message code="expedient.tasca.iniciat.el"/></td>
-					<td class="datacol"><spring:message code="expedient.tasca.temps.execucio"/></td>
-				</tr>
-				<c:forEach var="tasca" items="${tasques}" varStatus="index">
-					<tr>
-						<td>${tasca.tipusExpedient}</td>
-						<td>${tasca.expedient}</td>
-						<td>${tasca.tascaId}</td>
-						<td>${tasca.tasca}</td>
-						<td><fmt:formatDate value="${tasca.inici}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
-						<td><fmt:formatNumber type="number" value="${tasca.tempsExecucio}" pattern="#,##0.00;-#,##0.00" /> s</td> 
+	<div id="contingut">
+		<c:choose>
+			<c:when test="${not empty tasques}">
+				<table class="table table-bordered">
+					<tr class="table-pendents header">
+						<td class="datacol"><spring:message code="tasca.llistat.columna.tipexp"/></td>
+						<td class="datacol"><spring:message code="tasca.llistat.columna.expedient"/></td>
+						<td class="datacol"><spring:message code="expedient.tasca.columna.id"/></td>
+						<td class="maxcols"><spring:message code="expedient.tasca.columna.tasca"/></td>
+						<td class="datacol"><spring:message code="expedient.tasca.iniciat.el"/></td>
+						<td class="datacol"><spring:message code="expedient.tasca.temps.execucio"/></td>
 					</tr>
-				</c:forEach>
-			</table>
-		</c:when>
-		<c:otherwise>
-			<div class="well-small"><spring:message code="expedient.tasca.pendents"/></div>
-		</c:otherwise>
-	</c:choose>
+					<c:forEach var="tasca" items="${tasques}" varStatus="index">
+						<tr>
+							<td>${tasca.tipusExpedient}</td>
+							<td>${tasca.expedient}</td>
+							<td>${tasca.tascaId}</td>
+							<td>${tasca.tasca}</td>
+							<td><fmt:formatDate value="${tasca.inici}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
+							<td><fmt:formatNumber type="number" value="${tasca.tempsExecucio}" pattern="#,##0.00;-#,##0.00" /> s</td> 
+						</tr>
+					</c:forEach>
+				</table>
+			</c:when>
+			<c:otherwise>
+				<div class="well-small"><spring:message code="expedient.tasca.pendents"/></div>
+			</c:otherwise>
+		</c:choose>
+	</div>
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
+		<button id="refrescarPendentsCompletar" type="button" class="btn btn-primary" name="refrescar" value="refrescar"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="comuns.refrescar"/></button>
 	</div>
 </body>
 </html>
