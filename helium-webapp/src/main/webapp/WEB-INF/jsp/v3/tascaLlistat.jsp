@@ -46,11 +46,6 @@
 					</c:if>
 				}
 			});	
-			$("button[data-toggle=button]").click(function() {
-				$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
-				$(this).blur();
-				$("button[value=consultar]").click();
-			});
 			$('.date_time').datetimepicker({
 				locale: moment.locale('${idioma}'),
 				minDate: new Date(),
@@ -93,8 +88,8 @@
 								$('#responsableDiv').show();
 							}else{
 								$('#responsableDiv').hide();
-								if($('#responsable').data('select2'))
-									$('#responsable').data('select2').clear();
+// 								if($('#responsable').data('select2'))
+// 									$('#responsable').data('select2').clear();
 							}
 						})
 						.fail(function() {
@@ -102,8 +97,8 @@
 						});
 					}else{
 						$('#responsableDiv').hide();
-						if($('#responsable').data('select2'))
-							$('#responsable').data('select2').clear();
+// 						if($('#responsable').data('select2'))
+// 							$('#responsable').data('select2').clear();
 					}
 					
 				});
