@@ -241,7 +241,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				query.setString("titol", titol.toUpperCase());
 			if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup)
 				llistaActorId.addAll(query.list());
-		} else {
+		} else if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup) {
 			Query query = jbpmContext.getSession().createQuery(hqlAmbActorId + hql);
 			query.setString("actorId", actorId);
 			if (dataCreacioInici != null)
@@ -258,8 +258,7 @@ public class GetRootProcessInstancesForActiveTasksCommand extends AbstractGetObj
 				query.setString("tascaSel", tascaSel);
 			if (titol != null && !"".equals(titol))
 				query.setString("titol", titol.toUpperCase());
-			if (mostrarTasquesTots || mostrarTasquesNomesPersonals || mostrarTasquesNomesGroup)
-				llistaActorId.addAll(query.list());
+			llistaActorId.addAll(query.list());
 			/*Query queryPersonal = jbpmContext.getSession().createQuery(hqlPersonal + hql);
 			queryPersonal.setString("actorId", actorId);
 		
