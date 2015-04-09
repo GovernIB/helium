@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -108,7 +109,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							filtreCommand.getGeoReferencia(),
 							filtreCommand.isNomesMeves(),
 							filtreCommand.isNomesAlertes(),
-							filtreCommand.isMostrarAnulats(),
+							filtreCommand.getMostrarAnulats(),
 							filtreCommand.isNomesTasquesPersonals(),
 							filtreCommand.isNomesTasquesGrup(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
@@ -174,7 +175,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.getGeoReferencia(),
 						filtreCommand.isNomesMeves(),
 						filtreCommand.isNomesAlertes(),
-						filtreCommand.isMostrarAnulats(),
+						filtreCommand.getMostrarAnulats(),
 						filtreCommand.isNomesTasquesPersonals(),
 						filtreCommand.isNomesTasquesGrup());		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
@@ -206,8 +207,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	@ModelAttribute("anulats")
 	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), false));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), true));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
 		return resposta;
 	}
 	

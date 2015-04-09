@@ -7,6 +7,7 @@ import java.util.Date;
 
 import javax.validation.constraints.AssertTrue;
 
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -38,7 +39,7 @@ public class ExpedientConsultaCommand {
 	
 	private boolean nomesMeves;
 	private boolean nomesAlertes;
-	private boolean mostrarAnulats;
+	private MostrarAnulatsDto mostrarAnulats;
 	
 	private boolean nomesTasquesPersonals = false;
 	private boolean nomesTasquesGrup = false;
@@ -142,12 +143,6 @@ public class ExpedientConsultaCommand {
 	public void setNomesAlertes(boolean nomesAlertes) {
 		this.nomesAlertes = nomesAlertes;
 	}
-	public boolean isMostrarAnulats() {
-		return mostrarAnulats;
-	}
-	public void setMostrarAnulats(boolean mostrarAnulats) {
-		this.mostrarAnulats = mostrarAnulats;
-	}
 	public boolean isFiltreDesplegat() {
 		return filtreDesplegat;
 	}
@@ -165,6 +160,12 @@ public class ExpedientConsultaCommand {
 	}
 	public void setConsultaRealitzada(boolean consultaRealitzada) {
 		this.consultaRealitzada = consultaRealitzada;
+	}
+	public MostrarAnulatsDto getMostrarAnulats() {
+		return mostrarAnulats;
+	}
+	public void setMostrarAnulats(MostrarAnulatsDto mostrarAnulats) {
+		this.mostrarAnulats = mostrarAnulats;
 	}
 
 	public String getEstatText() {

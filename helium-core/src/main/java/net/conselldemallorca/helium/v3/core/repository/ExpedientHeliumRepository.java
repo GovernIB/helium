@@ -46,7 +46,7 @@ public interface ExpedientHeliumRepository extends JpaRepository<ExpedientHelium
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives3) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
-			"and (:mostrarAnulats = true or e.anulat = false) " +
+			"and (((:mostrarAnulats = true or e.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and e.anulat = true)) " +
 			"and (:nomesAlertes = false or e.errorDesc is not null)")
 	Page<ExpedientHelium> findByFiltreGeneralPaginat(
 			@Param("entorn") Entorn entorn,
@@ -78,6 +78,7 @@ public interface ExpedientHeliumRepository extends JpaRepository<ExpedientHelium
 			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
+			@Param("mostrarNomesAnulats") boolean mostrarNomesAnulats,
 			@Param("nomesAlertes") boolean nomesAlertes,			
 			Pageable pageable);
 

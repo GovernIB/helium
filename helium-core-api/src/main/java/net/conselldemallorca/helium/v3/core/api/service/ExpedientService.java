@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
@@ -263,7 +264,7 @@ public interface ExpedientService {
 			String geoReferencia,
 			boolean nomesMeves,
 			boolean nomesAlertes,
-			boolean mostrarAnulats,
+			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			PaginacioParamsDto paginacioParams) throws Exception;
@@ -322,7 +323,7 @@ public interface ExpedientService {
 			String geoReferencia,
 			boolean nomesMeves,
 			boolean nomesAlertes,
-			boolean mostrarAnulats,
+			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 

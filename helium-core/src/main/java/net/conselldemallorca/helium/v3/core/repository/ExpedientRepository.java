@@ -139,7 +139,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives3) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives4) " +
 			"        or e.processInstanceId in (:rootProcessInstanceIdsAmbTasquesActives5)) " +
-			"and (:mostrarAnulats = true or e.anulat = false)")
+			"and (((:mostrarAnulats = true or e.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and e.anulat = true)) ")
 	List<Long> findIdsByFiltreGeneral(
 			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesos") Collection<ExpedientTipus> tipusPermesos,
@@ -169,7 +169,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("rootProcessInstanceIdsAmbTasquesActives3") Collection<String> rootProcessInstanceIdsAmbTasquesActives3,
 			@Param("rootProcessInstanceIdsAmbTasquesActives4") Collection<String> rootProcessInstanceIdsAmbTasquesActives4,
 			@Param("rootProcessInstanceIdsAmbTasquesActives5") Collection<String> rootProcessInstanceIdsAmbTasquesActives5,
-			@Param("mostrarAnulats") boolean mostrarAnulats);
+			@Param("mostrarAnulats") boolean mostrarAnulats,
+			@Param("mostrarNomesAnulats") boolean mostrarNomesAnulats);
 
 	@Query(	"select e.processInstanceId " +
 			"from Expedient e " +
@@ -187,7 +188,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"and (:esNullGeoPosX = true or e.geoPosX = :geoPosX) " +
 			"and (:esNullGeoPosY = true or e.geoPosY = :geoPosY) " +
 			"and (:esNullGeoReferencia = true or e.geoReferencia = :geoReferencia) " +
-			"and (:mostrarAnulats = true or e.anulat = false) " +
+			"and (((:mostrarAnulats = true or e.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and e.anulat = true)) " +
 			"and (:nomesAlertes = false or e.errorDesc is not null)")
 	List<String> findProcessInstanceIdsByFiltreGeneral(
 			@Param("entorn") Entorn entorn,
@@ -213,6 +214,7 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("esNullGeoReferencia") boolean esNullGeoReferencia,
 			@Param("geoReferencia") String geoReferencia,
 			@Param("mostrarAnulats") boolean mostrarAnulats,
+			@Param("mostrarNomesAnulats") boolean mostrarNomesAnulats,
 			@Param("nomesAlertes") boolean nomesAlertes);
 
 	@Query("select e.id, e.processInstanceId from Expedient e where " +

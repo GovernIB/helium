@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
@@ -924,7 +925,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String geoReferencia,
 			boolean nomesMeves,
 			boolean nomesAlertes,
-			boolean mostrarAnulats,
+			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup, 
 			PaginacioParamsDto paginacioParams) throws Exception {
@@ -1042,7 +1043,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					geoPosY,
 					(geoReferencia == null),
 					geoReferencia,
-					mostrarAnulats,
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 					nomesAlertes);
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 					auth.getName(),
@@ -1105,7 +1107,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				rootProcessInstanceIdsAmbTasques3,
 				rootProcessInstanceIdsAmbTasques4,
 				rootProcessInstanceIdsAmbTasques5,
-				mostrarAnulats,
+				MostrarAnulatsDto.SI.equals(mostrarAnulats),
+				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
 				paginacioHelper.toSpringDataPageable(paginacioParams));			
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
@@ -1137,7 +1140,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String geoReferencia,
 			boolean nomesMeves,
 			boolean nomesAlertes,
-			boolean mostrarAnulats,
+			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
@@ -1250,7 +1253,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					geoPosY,
 					(geoReferencia == null),
 					geoReferencia,
-					mostrarAnulats,
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 					nomesAlertes);
 			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 					auth.getName(),
@@ -1313,7 +1317,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				rootProcessInstanceIdsAmbTasques3,
 				rootProcessInstanceIdsAmbTasques4,
 				rootProcessInstanceIdsAmbTasques5,
-				mostrarAnulats);
+				MostrarAnulatsDto.SI.equals(mostrarAnulats),
+				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats)
+				);
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
 		return listaIds;
