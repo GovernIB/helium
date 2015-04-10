@@ -325,7 +325,7 @@
 					<label>${definicioProces.jbpmKey}</label>					
 					<select name="definicioProcesId" id="definicioProcesId">
 						<c:forEach var="df" items="${definicioProces.listIdAmbEtiqueta}" varStatus="status">
-							<option value="${df.jbpmId}">${df.etiqueta}</option>
+							<option value="${df.id}">${df.etiqueta}</option>
 						</c:forEach>
 					</select>
 					<script>
