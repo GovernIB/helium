@@ -174,8 +174,9 @@
 									refrescat = true;
 								}
 							});
-							if (!refrescat)
+							if (!refrescat) {
 								taula.dataTable().fnDraw();
+							}
 						}
 					}
 				}
@@ -216,11 +217,9 @@
 				var modal = ($(this).data("rdt-link-modal") != undefined) ? $(this).data("rdt-link-modal") === true : false;
 				var callback = ($(this).data("rdt-link-callback") != undefined) ? $(this).data("rdt-link-callback") : false;
 				var refrescarPaginaFunction = function() {
-					//alert('REF. PAGINA');
 					window.parent.location.reload();
 				};
 				var refrescarAlertesFunction = function() {
-					//alert('REF. ALERTES');
 					$.ajax({
 						url: settings.alertesRefreshUrl,
 						async: false,
@@ -233,7 +232,6 @@
 				    });
 				};
 				var executeCallbackFunction = function(data) {
-					//alert('REF. CALLBACK');
 					var scb = callback;
 					var sep = scb.indexOf('(');
 					if ( sep != -1) {

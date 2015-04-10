@@ -113,9 +113,26 @@ public class TascaTramitacioController extends BaseTascaController {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				"form");
+	}
+	
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/{pipellaActiva}", method = RequestMethod.GET)
+	public String pipellesActiva(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable String pipellaActiva,
+			Model model) {
+		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				expedientId,
+				tascaId,
+				model,
+				pipellaActiva);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.GET)
@@ -127,6 +144,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
+					expedientId,
 					tascaId,
 					model,
 					"form");
@@ -167,6 +185,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		status.setComplete();
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				null);
@@ -184,6 +203,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (tascaService.isTascaValidada(tascaId)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
+					expedientId,
 					tascaId,
 					model,
 					null);
@@ -228,6 +248,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId, result);
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				result.hasErrors() ? "form" : null);
@@ -247,12 +268,13 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (result.hasErrors() || !accioCompletarForm(request, tascaId, expedientId, transicio)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
+					expedientId,
 					tascaId,
 					model,
 					result.hasErrors() ? "form" : null);
 		}
 		status.setComplete();
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/restaurar", method = RequestMethod.POST)
@@ -271,6 +293,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		status.setComplete();
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				"form");
@@ -312,6 +335,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				"form");
@@ -326,6 +350,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
+					expedientId,
 					tascaId,
 					model,
 					"document");
@@ -388,6 +413,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
+					expedientId,
 					tascaId,
 					model,
 					"signatura");
@@ -435,6 +461,51 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
+				tascaId,
+				model,
+				"document");
+	}
+	
+	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/{tascaId2}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
+	public String documentAdjuntar2(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			@PathVariable String tascaId2,
+			@PathVariable String documentCodi,
+			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
+			@RequestParam(value = "data", required = false) Date data,
+			Model model) {
+		try {
+			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
+			String nomArxiu = arxiu.getOriginalFilename();
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			if (!tasca.isValidada()) {
+				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
+			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
+				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
+			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
+				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
+			} else {
+				accioDocumentAdjuntar(
+						request,
+						tascaId,
+						documentCodi,
+						nomArxiu,
+						contingutArxiu,
+						(data == null) ? new Date() : data).toString();
+			}
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
+			logger.error("Error al adjuntar el document a la tasca(" +
+					"tascaId=" + tascaId + ", " +
+					"documentCodi=" + documentCodi + ")",
+					ex);
+		}
+		return mostrarInformacioTascaPerPipelles(
+				request,
+				expedientId,
 				tascaId,
 				model,
 				"document");
@@ -475,6 +546,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				"document");
@@ -518,6 +590,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				"document");
@@ -565,6 +638,7 @@ public class TascaTramitacioController extends BaseTascaController {
 
 		return mostrarInformacioTascaPerPipelles(
 				request,
+				expedientId,
 				tascaId,
 				model,
 				"signatura");

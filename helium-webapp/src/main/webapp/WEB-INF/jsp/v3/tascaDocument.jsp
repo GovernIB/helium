@@ -8,6 +8,11 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
+
+<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+
 <style type="text/css">
 	#tasca-document .well.well-small {margin: 0 0 15px;}
 	#tasca-document .form-tasca .modal-botons {padding-bottom: 25px;}
@@ -45,7 +50,7 @@
 </c:if>
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-		<form class="form-horizontal form-tasca" action="${tasca.id}/document/${document.documentCodi}/adjuntar" enctype="multipart/form-data" method="post">
+		<form id="documentsForm" class="form-horizontal form-tasca" action="${tasca.id}/document/${document.documentCodi}/adjuntar" enctype="multipart/form-data" method="post">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
@@ -132,20 +137,13 @@
 					alert(log);
 			}
 		});	
-		$('.date').mask("99/99/9999").datepicker({language: '${idioma}', autoclose: true, dateFormat: "dd/mm/yyyy"});
-// 		$('.datetimepicker').datetimepicker({
-//     			locale: moment.locale('${idioma}'),
-// 				minDate: new Date(),
-// 				format: "DD/MM/YYYY"
-//     	}).on('show', function() {
-//     		var iframe = $('.modal-body iframe', window.parent.document);
-//     		var height = $('html').height() + 190;
-//     		iframe.height(height + 'px');
-//     	}).on('hide', function() {
-//     		var iframe = $('.modal-body iframe', window.parent.document);
-//     		var height = $('html').height();
-//     		iframe.height(height + 'px');
-//     	});
+		$('.date').datepicker({
+    		format: 'dd/mm/yyyy',
+    		weekStart: 1,
+    		autoclose: true,
+    		language: '${idioma}'
+    	});
+
 	});
 	
 	function checkFile(docId) {
