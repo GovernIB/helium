@@ -21,5 +21,5 @@ public interface ExecucioMassivaService {
 
 	public void cancelarExecucio(Long id) throws Exception;
 
-	public String getJsonExecucionsMassivesByUser(int numResults);
+	public String getJsonExecucionsMassivesByUser(int numResults, boolean isUserAdmin);
 }

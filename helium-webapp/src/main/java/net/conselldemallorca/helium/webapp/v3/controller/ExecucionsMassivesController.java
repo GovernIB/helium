@@ -46,7 +46,7 @@ public class ExecucionsMassivesController extends BaseController {
 			HttpServletResponse response,
 			ModelMap model, 
 			HttpSession session)  throws ServletException, IOException {
-		return execucioMassivaService.getJsonExecucionsMassivesByUser(numResults);
+		return execucioMassivaService.getJsonExecucionsMassivesByUser(numResults,request.isUserInRole("HEL_ADMIN"));
 	}
 	
 	/**

@@ -169,11 +169,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
-	public String getJsonExecucionsMassivesByUser(int results) {		
+	public String getJsonExecucionsMassivesByUser(int results, boolean isUserAdmin) {		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		Pageable paginacio = new PageRequest(0,results, Direction.DESC, "dataInici");		
-		List<ExecucioMassiva> execucions = execucioMassivaRepository.findByUsuariAndEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
+		List<ExecucioMassiva> execucions = null;
+		
+		if (isUserAdmin){
+			execucions = execucioMassivaRepository.findByEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
+		}else{
+			execucions = execucioMassivaRepository.findByUsuariAndEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
+		}
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");		
 		JSONArray ljson = new JSONArray();	
 		for (ExecucioMassiva execucio: execucions) {
@@ -212,6 +219,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					mjson_exp.put("id", expedient.getId());
 					mjson_exp.put("titol", titol);
 					mjson_exp.put("estat", expedient.getEstat().name());
+					
+					if (expedient.getDataFi() != null){
+						mjson_exp.put("dataFi", sdf.format(expedient.getDataFi()));
+					}
+					
 					String error = expedient.getError();
 					if (error != null) {
 						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
@@ -232,6 +244,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			mjson.put("pendent", getPercent(pendent, expedients.size()));
 			mjson.put("danger", getPercent(danger, expedients.size()));
 			mjson.put("data", sdf.format(execucio.getDataInici()));
+			if (execucio.getDataFi() != null)
+				mjson.put("dataFi", sdf.format(execucio.getDataFi()));
 			mjson.put("tasca", tasca);
 			mjson.put("expedients", ljson_exp);
 			ljson.add(mjson);

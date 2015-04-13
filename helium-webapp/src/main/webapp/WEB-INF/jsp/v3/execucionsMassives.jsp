@@ -51,8 +51,8 @@
 		.massiu-progres {
 			float: left; width: calc(100% - 120px - 50% - 45px);
 		}
-		.massiu-data {
-			float: left; width: 120px;
+		.massiu-dades {
+			width: 100%;
 		}
 		.massiu-accio {
 			float: left; width: 50%;padding-left: 10px;
@@ -65,6 +65,17 @@
 		}
 		.panel-group .panel {
 		    margin-bottom: 5px;
+		}
+		.desc-limit{
+			display: inline-block;
+		    white-space: nowrap;
+		    overflow: hidden !important;
+		    text-overflow: ellipsis;
+		    max-width: 425px;
+		    margin-bottom: -5px;
+		}
+		.special-margin{
+			margin-bottom: 10px;
 		}
 	</style>
 	<script type="text/javascript">	
@@ -151,10 +162,11 @@
 	    function createTit(execucio) {
 	    	var text =	
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
-				'<div class="massiu-data">' + execucio.data + '</div>' +
-				'<div class="massiu-progres" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
-				'<div class="massiu-accio">' + execucio.text +
-				'<span class="badge">'+execucio.expedients.length+'</span>' +
+	    		'<div class="row pull-left massiu-dades">' +
+				'<div class="col-md-4"><span class="badge">' + execucio.expedients.length + '</span> <span class="desc-limit" title="' + execucio.text + '">' + execucio.text + '</span></div>' +
+				'<div class="col-md-5" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
+				'<div class="col-md-3">' + execucio.data + (execucio.dataFi != undefined ? (' - ' + execucio.dataFi) : '') +
+				'</div>' +
 				'</div>';
 			if (execucio.expedients.length > 0) {
 				text +=	'<div class="pull-right">' +
@@ -175,7 +187,7 @@
 			} else if (expedient.estat == "ESTAT_ERROR"){
 				estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";
 			} else if (expedient.estat == "ESTAT_FINALITZAT"){
-				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.finalizat'/></label>";
+				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.finalizat'/>" + (expedient.dataFi != undefined ? (' el ' + expedient.dataFi) : '') + "</label>";
 			} else if (expedient.estat == "ESTAT_PENDENT"){
 				estat = "<span class='fa fa-circle-o-notch fa-spin'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.pendent_solament'/>";
 				if (expedient.tasca == "") {
@@ -216,7 +228,17 @@
 					if (length == 0) {
 						content = "<h4><spring:message code='execucions.massives.no'/></h4>";
 					} else {
-						content = '<div id="accordio_massiva">';
+						content = '<div class="panel panel-default panel-heading special-margin">' +
+							'<div class="row massiu-dades">' +
+								'<div class="col-md-4"><strong><spring:message code="expedient.tramitacio.massiva.header.nom"/></strong></div>' +
+								'<div class="col-md-5"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
+								'<div class="col-md-3"><strong><spring:message code="expedient.tramitacio.massiva.header.dates"/></strong></div>' + 
+							'</div>'+ 
+							'<div class="pull-right">' +
+								'<span>&nbsp;</span>' +
+							'</div>'+ 
+						'</div>';
+						content += '<div id="accordio_massiva">';
 						for (var i = 0; i < length; i++) {
 							execucio = data[i];
 							content +=	'<div class="panel-group"><div class="panel panel-default">';

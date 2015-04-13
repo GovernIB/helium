@@ -18,4 +18,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ExecucioMassivaRepository extends JpaRepository<ExecucioMassiva, Long> {
 
 	List<ExecucioMassiva> findByUsuariAndEntorn(String usuari, Long entorn, Pageable pageable);
+	List<ExecucioMassiva> findByEntorn(String usuari, Long entorn, Pageable pageable);
 }
