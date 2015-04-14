@@ -157,9 +157,17 @@
 								<span class="fa fa-user"></span> ${dadesPersona.nom} ${dadesPersona.llinatge1} 
 								<b class="caret caret-white"></b>
 							</a>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+							<ul id="ul-perfil" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<li><a href="<c:url value="/v3/perfil"/>"><spring:message code='perfil.info.meu_perfil' /></a></li>
+								<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives/user"/>"><spring:message code='comuns.massiu' /></a></li>
 			    			</ul>
+			    			<script type="text/javascript">
+								$('#ul-perfil a').heliumEvalLink({
+									alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+									refrescarAlertes: false,
+									refrescarPagina: false
+								});
+							</script>
 						</li>
 					</ul>
 					<div class="clearfix"></div>
@@ -192,7 +200,7 @@
 										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
 									<li><a data-rdt-link-modal="true" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
-									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives"/>"><spring:message code='comuns.massiu' /></a></li>
+									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
 									<c:if test="${globalProperties['app.jbpm.identity.source'] == 'jbpm'}">
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>

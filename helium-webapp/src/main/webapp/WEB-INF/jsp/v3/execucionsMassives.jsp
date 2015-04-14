@@ -10,7 +10,16 @@
 
 <html>
 <head>
-	<title><spring:message code='comuns.massiu' /></title>
+	<title>
+		<c:choose>
+			<c:when test="${nivell == 'admin'}">
+				<spring:message code='comuns.massiu.entorn' />
+			</c:when>
+			<c:otherwise>
+				<spring:message code='comuns.massiu.usuari' />
+			</c:otherwise>
+		</c:choose>
+	</title>
 	<hel:modalHead/>
 	
 	<style type="text/css">	
@@ -77,9 +86,25 @@
 		.special-margin{
 			margin-bottom: 10px;
 		}
+		.no-padding{
+			padding:0px;
+		}
+		.in-line-badge{
+			margin-left: 0px;
+			margin-right: 5px;
+		}
+		.one-line{
+			display: inline-flex;
+		}
 	</style>
 	<script type="text/javascript">	
 		var numResults = 10;
+		var nivell = "${nivell}";
+		var col_span = "col-md-2";
+		
+		if (nivell == "admin"){
+			col_span = "col-md-1 no-padding";
+		}
 
 	    $(document).ready(function(){
 			$("button[name=refrescar]").click(function() {
@@ -90,6 +115,7 @@
 				carregaExecucionsMassives(numFiles + 10);
 			});
 			carregaExecucionsMassives(numResults);
+			
 		});
 	    
 		var changeTooltipPosition = function(event) {
@@ -163,9 +189,11 @@
 	    	var text =	
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
 	    		'<div class="row pull-left massiu-dades">' +
-				'<div class="col-md-4"><span class="badge">' + execucio.expedients.length + '</span> <span class="desc-limit" title="' + execucio.text + '">' + execucio.text + '</span></div>' +
-				'<div class="col-md-5" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div>' +
-				'<div class="col-md-3">' + execucio.data + (execucio.dataFi != undefined ? (' - ' + execucio.dataFi) : '') +
+				'<div class="col-md-4"><span class="desc-limit" title="' + execucio.text + '">' + execucio.text + '</span></div>' +
+				'<div class="col-md-4 one-line"><div><span class="badge in-line-badge">' + execucio.expedients.length + '</span></div> <div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div></div>' +
+				'<div class="' + col_span + '">' + execucio.data + '</div>' + 
+				'<div class="' + col_span + '">' + (execucio.dataFi != undefined ? execucio.dataFi : '') +
+				(nivell == "admin" ? ('</div><div class="col-md-2">' + execucio.usuari) : '') + 
 				'</div>' +
 				'</div>';
 			if (execucio.expedients.length > 0) {
@@ -218,7 +246,7 @@
 		function carregaExecucionsMassives(numResultats) {
 			numResults = numResultats;
 			$.ajax({
-				url: "execucionsMassives/refreshBarsExpedientMassive",
+				url: nivell + "/refreshBarsExpedientMassive",
 				dataType: 'json',
 				data: {results: numResultats},
 				async: false,
@@ -231,8 +259,10 @@
 						content = '<div class="panel panel-default panel-heading special-margin">' +
 							'<div class="row massiu-dades">' +
 								'<div class="col-md-4"><strong><spring:message code="expedient.tramitacio.massiva.header.nom"/></strong></div>' +
-								'<div class="col-md-5"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
-								'<div class="col-md-3"><strong><spring:message code="expedient.tramitacio.massiva.header.dates"/></strong></div>' + 
+								'<div class="col-md-4"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
+								'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataInici"/></strong></div>' +
+								'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataFi"/></strong></div>' +
+								(nivell =="admin" ? ('<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.usuari"/></strong></div>') : '') + 
 							'</div>'+ 
 							'<div class="pull-right">' +
 								'<span>&nbsp;</span>' +
@@ -295,7 +325,7 @@
 		
 		function refreshExecucionsMassives() {
 			$.ajax({
-				url: "execucionsMassives/refreshBarsExpedientMassive",
+				url: nivell + "/refreshBarsExpedientMassive",
 				dataType: 'json',
 				data: {results: numResults},
 				async: false,

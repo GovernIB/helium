@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,22 +32,25 @@ public class ExecucionsMassivesController extends BaseController {
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
 	
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(value = "/{nivell}", method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
+			@PathVariable String nivell, 
 			Model model) {
+		model.addAttribute("nivell",nivell);
 		return "v3/execucionsMassives";
 	}
 	
-	@RequestMapping(value="refreshBarsExpedientMassive", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value="{nivell}/refreshBarsExpedientMassive", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String refreshBarsExpedientMassiveAct(
 			@RequestParam(value = "results", required = false) int numResults, 
 			HttpServletRequest request,
 			HttpServletResponse response,
+			@PathVariable String nivell, 
 			ModelMap model, 
 			HttpSession session)  throws ServletException, IOException {
-		return execucioMassivaService.getJsonExecucionsMassivesByUser(numResults,request.isUserInRole("HEL_ADMIN"));
+		return execucioMassivaService.getJsonExecucionsMassivesByUser(numResults,(nivell.equalsIgnoreCase("admin") && request.isUserInRole("ROLE_ADMIN")));
 	}
 	
 	/**

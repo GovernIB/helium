@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
+import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
@@ -72,6 +73,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 	
 	@Transactional
 	@Override
@@ -169,14 +172,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
-	public String getJsonExecucionsMassivesByUser(int results, boolean isUserAdmin) {		
+	public String getJsonExecucionsMassivesByUser(int results, boolean viewAll) {		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
 		Pageable paginacio = new PageRequest(0,results, Direction.DESC, "dataInici");		
 		List<ExecucioMassiva> execucions = null;
 		
-		if (isUserAdmin){
-			execucions = execucioMassivaRepository.findByEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
+		if (viewAll){
+			execucions = execucioMassivaRepository.findByEntorn(EntornActual.getEntornId(), paginacio);
 		}else{
 			execucions = execucioMassivaRepository.findByUsuariAndEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
 		}
@@ -248,6 +251,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mjson.put("dataFi", sdf.format(execucio.getDataFi()));
 			mjson.put("tasca", tasca);
 			mjson.put("expedients", ljson_exp);
+			String nomSencer = "";
+			try {
+				nomSencer = pluginHelper.findPersonaAmbCodi(execucio.getUsuari()).getNomSencer();
+			} catch (Exception e) {
+				logger.error(e);
+				e.printStackTrace();
+			}
+			mjson.put("usuari", nomSencer);
 			ljson.add(mjson);
 		}
 		String ojson = JSONValue.toJSONString(ljson);
