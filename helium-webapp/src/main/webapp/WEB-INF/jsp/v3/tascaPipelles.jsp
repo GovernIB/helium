@@ -76,7 +76,7 @@ $(document).ready(function() {
 								buttonContainerId: "modal-botons",
 								buttonCloseClass: "modal-tancar"
 							});
-					$(".modal-title",parent.document).html('<a href="<c:url value="/v3/expedient/${tasca.expedientId}"/>">${fn:replace(tasca.expedientIdentificador, "'", "\\'")}</a>: ${fn:replace(tasca.titol, "'", "\\'")}');
+					$(".modal-title", parent.document).html('<a href="<c:url value="/v3/expedient/${tasca.expedientId}"/>">${fn:replace(fn:replace(tasca.expedientIdentificador, "'", "\\'"), "\\n", """)}</a>: ${fn:replace(fn:replace(tasca.titol, "'", "\\'"), "\\n", """)}');
 				}
 			}
 		);
