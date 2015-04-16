@@ -27,148 +27,132 @@
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$("#taulaDades").heliumDataTable({
-				ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
-				localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
-				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
-				rowClickCallback: function(row) {
-					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
-						if ($('a.consultar-tasca', $(row)).length > 0)
-							$('a.consultar-tasca', $(row))[0].click();
-					</c:if>
-				},
-				seleccioCallback: function(seleccio) {
-					$('#reasignacioMassivaCount').html(seleccio.length);
-					<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">
-						$('#tramitacioMassivaCount').html(seleccio.length);
-					</c:if>
+<script type="text/javascript">
+	var tascaIdPerAgafar;
+	$(document).ready(function() {
+		$("#taulaDades").heliumDataTable({
+			ajaxSourceUrl: "<c:url value="/v3/tasca/datatable"/>",
+			localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
+			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+			rowClickCallback: function(row) {
+				<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
+					if ($('a.consultar-tasca', $(row)).length > 0)
+						$('a.consultar-tasca', $(row))[0].click();
+				</c:if>
+			},
+			seleccioCallback: function(seleccio) {
+				$('#reasignacioMassivaCount').html(seleccio.length);
+				<c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}">
+					$('#tramitacioMassivaCount').html(seleccio.length);
+				</c:if>
+			},
+			drawCallback: function() {
+				$('.tasca-accio-agafar').click(function() {
+					tascaIdPerAgafar = $(this).data('tasca-id');
+				});
+				if (tascaIdPerAgafar) {
+					$('#tramitar-tasca-' + tascaIdPerAgafar).click();
 				}
-			});	
-			$('.date_time').datetimepicker({
-				locale: moment.locale('${idioma}'),
-				minDate: new Date(),
-				format: "DD/MM/YYYY HH:mm"
-		    });
-			$("button[data-toggle=button]").click(function() {
-				$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
-				$(this).blur();
-				actualizarBotonesFiltros($(this).attr('id'));
-				$("button[value=consultar]").click();
-			});
-						
-			<c:if test="${entornId != null}">
-				$('#expedientTipusId').on('change', function() {
-					var tipus = $(this).val();
-					$('#tasca').select2('val', '', true);
-					$('#tasca option[value!=""]').remove();
-					
-					var value = -1;
-					var entornId = ${entornId};
-					if ($(this).val())
-						value = $(this).val();
-					
-					//tasques per expedientTipus
-					$.get('tasca/tasques/${entornId}/' + value)				
+				tascaIdPerAgafar = null;
+			}
+		});	
+		$('.date_time').datetimepicker({
+			locale: moment.locale('${idioma}'),
+			minDate: new Date(),
+			format: "DD/MM/YYYY HH:mm"
+	    });
+		$("button[data-toggle=button]").click(function() {
+			$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
+			$(this).blur();
+			actualizarBotonesFiltros($(this).attr('id'));
+			$("button[value=consultar]").click();
+		});
+		<c:if test="${entornId != null}">
+			$('#expedientTipusId').on('change', function() {
+				var tipus = $(this).val();
+				$('#tasca').select2('val', '', true);
+				$('#tasca option[value!=""]').remove();
+				var value = -1;
+				var entornId = ${entornId};
+				if ($(this).val())
+					value = $(this).val();
+				//tasques per expedientTipus
+				$.get('tasca/tasques/${entornId}/' + value)				
+				.done(function(data) {
+					for (var i = 0; i < data.length; i++) {
+						$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+					}
+				})
+				.fail(function() {
+					alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
+				});
+				//permisos d'expedientTipus
+				if (value != undefined && value != "-1"){
+					$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)				
 					.done(function(data) {
-						for (var i = 0; i < data.length; i++) {
-							$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
+						if(data != undefined && data.permisReassignment){
+							$('#responsableDiv').show();
+						}else{
+							$('#responsableDiv').hide();
 						}
 					})
 					.fail(function() {
-						alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
+						alert("<spring:message code="expedient.llistat.expedientTipusPermis.ajax.error"/>");
 					});
-
-					//permisos d'expedientTipus
-					if (value != undefined && value != "-1"){
-						$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)				
-						.done(function(data) {
-							if(data != undefined && data.permisReassignment){
-								$('#responsableDiv').show();
-							}else{
-								$('#responsableDiv').hide();
-// 								if($('#responsable').data('select2'))
-// 									$('#responsable').data('select2').clear();
-							}
-						})
-						.fail(function() {
-							alert("<spring:message code="expedient.llistat.expedientTipusPermis.ajax.error"/>");
-						});
-					}else{
-						$('#responsableDiv').hide();
-// 						if($('#responsable').data('select2'))
-// 							$('#responsable').data('select2').clear();
-					}
-					
-				});
-	
-				$('#expedientTipusId').trigger('change');
-			</c:if>
-			actualizarBotonesFiltros();
-		});
-		function massivaTasca(element, tipo) {
-			var href = null;
-			
-			if (tipo === 'reassignacio') href = "<c:url value='/modal/v3/tasca/massivaReassignacioTasca'/>";
-			else if (tipo === 'tramitacio') href = "<c:url value='/modal/v3/expedient/massivaTramitacioTasca'/>";
-			else return false;
-			
-			$(element).attr('href', href + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
-		}	
-		function actualizarBotonesFiltros(id) {
-			$('#nomesTasquesPersonalsCheck').attr('disabled', false);
-			$('#nomesTasquesGrupCheck').attr('disabled', false);
-			$('#responsable').select2("val", "", true);
-			$('#responsable').attr('disabled', false);
-			var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
-			var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
-			if (nomesTasquesPersonals) {
-				$('#nomesTasquesGrupCheck').attr('disabled', true);
-			}
-			if (nomesTasquesGrup) {
-				$('#nomesTasquesPersonalsCheck').attr('disabled', true);
-			}
+				}else{
+					$('#responsableDiv').hide();
+				}
+				
+			});
+			$('#expedientTipusId').trigger('change');
+		</c:if>
+		actualizarBotonesFiltros();
+	});
+	function massivaTasca(element, tipo) {
+		var href = null;
+		
+		if (tipo === 'reassignacio') href = "<c:url value='/modal/v3/tasca/massivaReassignacioTasca'/>";
+		else if (tipo === 'tramitacio') href = "<c:url value='/modal/v3/expedient/massivaTramitacioTasca'/>";
+		else return false;
+		
+		$(element).attr('href', href + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
+	}	
+	function actualizarBotonesFiltros(id) {
+		$('#nomesTasquesPersonalsCheck').attr('disabled', false);
+		$('#nomesTasquesGrupCheck').attr('disabled', false);
+		$('#responsable').select2("val", "", true);
+		$('#responsable').attr('disabled', false);
+		var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
+		var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
+		if (nomesTasquesPersonals) {
+			$('#nomesTasquesGrupCheck').attr('disabled', true);
 		}
-		function agafar(tascaId, correcte) {
-			if (correcte) {
- 				var start = new Date().getTime();	
-				$("#taulaDades").dataTable().fnDraw();
-				setTimeout(function (){					   
-	 				do {
-	 					while (new Date().getTime() < start + 500);
-	 				} while ($('.datatable-dades-carregant', $("#taulaDades")).is(':visible'));
-			    	$('#dropdown-menu-'+tascaId+' #tramitar-tasca-'+tascaId).click();
-				}, 1000);
-			}
+		if (nomesTasquesGrup) {
+			$('#nomesTasquesPersonalsCheck').attr('disabled', true);
 		}
-		function alliberar(tascaId, correcte) {
-			if (correcte) {
-				$("#taulaDades").dataTable().fnDraw();
-			}
+	}
+	function seleccionarMassivaTodos() {
+		var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
+		if ($('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
+			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = false;
 		}
-		function seleccionarMassivaTodos() {
-			var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
-			if ($('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
-				$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = false;
-			}
-			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
+		$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
+	}
+	function deseleccionarMassivaTodos() {
+		var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
+		if (!$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
+			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = true;
 		}
-		function deseleccionarMassivaTodos() {
-			var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
-			if (!$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked) {
-				$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = true;
-			}
-			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
-		}
-	</script>
-	<style type="text/css">
-		#opciones .label-titol {padding-bottom: 0px;} 
- 		.control-group {width: 100%;display: inline-block;} 
- 		.control-group-mid {width: 48%;} 
-  		.control-group.left {float: left; margin-right:1%;} 
-  		#div_timer label {float:left;} 
-	</style>
+		$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
+	}
+</script>
+<style type="text/css">
+	#opciones .label-titol {padding-bottom: 0px;} 
+	.control-group {width: 100%;display: inline-block;} 
+	.control-group-mid {width: 48%;} 
+	.control-group.left {float: left; margin-right:1%;} 
+	#div_timer label {float:left;} 
+</style>
 </head>
 <body>
 	<form:form action="" method="post" cssClass="well formbox" commandName="tascaConsultaCommand">
@@ -332,7 +316,7 @@
 										{{/if}}
 									{{/if}}
 									{{if !agafada && responsables != null && assignadaUsuariActual}}
- 										<li><a data-rdt-link-ajax=true data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" data-rdt-link-ajax="true"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
+ 										<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
@@ -346,8 +330,8 @@
 								{{if !cancelled}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 								{{/if}}
-								{{if responsables != null && agafada && assignee == "${dadesPersona.codi}" && open}}
-									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-callback="alliberar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
+								{{if agafada && open && assignee == "${dadesPersona.codi}"}}
+									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
  							</ul>
  						</div>

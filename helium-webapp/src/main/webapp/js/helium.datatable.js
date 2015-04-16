@@ -361,7 +361,6 @@
 					}
 					if (settings.drawCallback)
 						settings.drawCallback(oSettings);
-					
 					$('[title]').tooltip({container: 'body'});
 				},
 				"fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
