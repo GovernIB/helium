@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -178,7 +180,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String varCodi,
 			Model model) {
 		try {
-			expedientService.deleteVariable(expedientId, procesId, varCodi);
+			expedientService.deleteVariable(expedientId, procesId, URLDecoder.decode(varCodi,"UTF-8"));
 			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.esborrada") );
 			return true;
 		} catch (NotAllowedException ex) {
@@ -237,8 +239,14 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
 			Model model) {
-		Object command = populateCommand(request, procesId, varCodi, model);
-		model.addAttribute("modificarVariableCommand", command);
+		Object command;
+		try {
+			command = populateCommand(request, procesId, URLDecoder.decode(varCodi,"UTF-8"), model);
+			model.addAttribute("modificarVariableCommand", command);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
 		return "v3/expedientDadaModificar";
 	}
 
@@ -397,7 +405,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 					}
 					if (codi.contains(".")) {
 						result.rejectValue("codi", "error.camp.codi.char.nok");
-					}					
+					}	
+					if (codi.contains(" ")) {
+						result.rejectValue("codi", "error.camp.codi.char.espai");
+					}	
 					if (!result.hasErrors()) {
 						expedientService.createVariable(expedientId, procesId, codi, valor);
 					}
