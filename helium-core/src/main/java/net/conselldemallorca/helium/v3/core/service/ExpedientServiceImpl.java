@@ -775,6 +775,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} else {
 			documentStore = documentStoreRepository.findById(documentStoreId);
 			arxiuNomAntic = documentStore.getArxiuNom();
+			adjunt = documentStore.isAdjunt();
 		}
 		DocumentDto document = null;
 		String codi = null;
@@ -818,15 +819,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 					codi);
 		}
-		documentStoreId = documentHelper.actualitzarDocument(
-				null,
-				processInstanceId,
-				codi,
-				nom,
-				data,
-				nomArxiu,
-				arxiu,
-				adjunt);
+		if (documentStoreId != null && adjunt) {
+			documentStoreId = documentHelper.actualitzarAdjunt(
+					documentStoreId,
+					processInstanceId,
+					codi,
+					nom,
+					data,
+					nomArxiu,
+					arxiu,
+					adjunt);
+		} else {
+			documentStoreId = documentHelper.actualitzarDocument(
+					null,
+					processInstanceId,
+					codi,
+					nom,
+					data,
+					nomArxiu,
+					arxiu,
+					adjunt);
+		}
+		
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		
 		// Registra l'acció
@@ -1727,6 +1741,33 @@ public class ExpedientServiceImpl implements ExpedientService {
 					documentCodi);
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		logger.debug("Consulta un document de l'instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		if (processInstanceId == null) {
+			return documentHelper.findDocumentPerDocumentStoreId(
+					expedient.getProcessInstanceId(),
+					documentStoreId);
+		} else {
+			return documentHelper.findDocumentPerDocumentStoreId(
+					processInstanceId,
+					documentStoreId);
+		}
+	}
 
 	@Override
 	@Transactional
@@ -1740,8 +1781,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"documentStoreId=" + documentStoreId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				true,
 				false,
+				true,
 				false,
 				false);
 		if (processInstanceId == null) {

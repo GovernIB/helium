@@ -467,6 +467,29 @@ public interface ExpedientService {
 			String processInstanceId,
 			Long documentStoreId,
 			String documentCodi);
+	
+	/**
+	 * Retorna un document d'una instància de procés de
+	 * l'expedient, per documentStoreId
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId que es vol consultar. Si no
+	 *            s'especifica s'agafa l'instància de procés arrel.
+	 * @param documentStoreId
+	 *            Atribut id de la taula document_store del document que
+	 *            es vol consultar.
+	 * @return El document.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId);
 
 	/**
 	 * Esborra un document d'una instància de procés de

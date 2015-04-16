@@ -30,7 +30,7 @@
 </style>
 </head>
 <body>		
-	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.tokenSignatura}"/></c:url>
+	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.signaturaPortasignaturesId}"/></c:url>
 	<form:form cssClass="form-horizontal form-tasca" action="modificar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
 			<form:hidden path="docId"/>
@@ -38,12 +38,12 @@
 			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${document.processInstanceId}"/>
 			<input type="hidden" id="modificarArxiu" name="modificarArxiu" value="false"/>
 			<h4 class="titol-missatge">
-	 			<c:if test="${document.plantilla}"> 
-	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="../../../../expedient/${expedientId}/documentGenerar"><c:param name="docId" value="${documentExpedientCommand.docId}"/></c:url>">
-	 					<i class="fa fa-file-text-o"></i>
-	 				</a>
-	 			</c:if> 
- 				<c:if test="${not empty document.tokenSignatura}">
+<%-- 	 			<c:if test="${document.plantilla}">  --%>
+<%-- 	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="../../../../expedient/${expedientId}/documentGenerar"><c:param name="docId" value="${documentExpedientCommand.docId}"/></c:url>"> --%>
+<!-- 	 					<i class="fa fa-file-text-o"></i> -->
+<!-- 	 				</a> -->
+<%-- 	 			</c:if>  --%>
+ 				<c:if test="${not empty document.signaturaPortasignaturesId && document.signat}">
 					<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
 						<i class="fa fa-download"></i>
 					</a>

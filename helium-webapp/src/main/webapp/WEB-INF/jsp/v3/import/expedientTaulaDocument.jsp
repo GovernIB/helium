@@ -31,12 +31,12 @@
 										<tr>
 											<td class="tableDocumentsTd">
 												<c:if test="${!document.signat}">
-													<a 	data-rdt-link-modal="true" 
+													<a 	href="../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/modificar"
+														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="190" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
-														class="icon modificar" 
-														href="<c:url value='../../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/${document.id}/modificar'/>">
-														<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
+														class="icon modificar" >
+															<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
 													</a>
 												</c:if>
 												<c:if test="${document.signat}">																					
@@ -66,7 +66,7 @@
 												<a 	class="icon fa fa-trash-o fa-2x" 
 													data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 													data-rdt-link-ajax=true
-													href='<c:url value="../../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/${document.id}/esborrar"/>' 
+													href='<c:url value="../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/esborrar"/>' 
 													data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 													title="<spring:message code='expedient.document.esborrar'/>">
 												</a>																				

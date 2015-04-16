@@ -321,6 +321,18 @@ public class ExpedientServiceBean implements ExpedientService {
 				documentStoreId,
 				documentCodi);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		return delegate.findDocumentPerDocumentStoreId(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

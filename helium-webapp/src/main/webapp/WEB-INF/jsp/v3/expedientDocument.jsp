@@ -51,7 +51,7 @@ $(document).ready(function() {
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/documents/"/>' + processInstanceId;
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/document/"/>' + processInstanceId;
 		var panell = $("#dataTable_documents_"+processInstanceId);
 		panell.load(url);
 	}

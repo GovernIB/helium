@@ -73,11 +73,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		// Per a cada instància de procés ordenem les dades per agrupació  
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			List<ExpedientDocumentDto> dadesInstancia = null;
+			List<ExpedientDocumentDto> documentsInstancia = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
+				documentsInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
 			}
-			documents.put(instanciaProces, dadesInstancia);
+			documents.put(instanciaProces, documentsInstancia);
 		}
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
@@ -230,35 +230,36 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 	
-	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}/{documentCodi}/{documentStoreId}/modificar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}/{documentStoreId}/modificar", method = RequestMethod.GET)
 	public String documentModificarGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
-			@PathVariable String documentCodi,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		ExpedientDocumentDto document = expedientService.findDocumentPerInstanciaProces(
+		ExpedientDocumentDto document = expedientService.findDocumentPerDocumentStoreId(
 				expedientId,
 				processInstanceId,
-				documentStoreId,
-				documentCodi);
+				documentStoreId);
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setDocId(document.getDocumentId());
-		command.setNom(document.getDocumentNom());
+		if (document.isAdjunt())
+			command.setNom(document.getAdjuntTitol());
+		else
+			command.setNom(document.getDocumentNom());
 		command.setCodi(document.getDocumentCodi());
 		command.setData(document.getDataDocument());
 		model.addAttribute("documentExpedientCommand", command);
 		model.addAttribute("document", document);		
 		return "v3/expedientDocumentModificar";
 	}
+	
 
-	@RequestMapping(value="/{expedientId}/document/{processInstanceId}/{documentCodi}/{documentStoreId}/modificar", method = RequestMethod.POST)
+	@RequestMapping(value="/{expedientId}/document/{processInstanceId}/{documentStoreId}/modificar", method = RequestMethod.POST)
 	public String documentModificarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
-			@PathVariable String documentCodi,
 			@PathVariable Long documentStoreId,
 			@ModelAttribute DocumentExpedientCommand command, 
 			@RequestParam(value = "modificarArxiu", required = true) boolean modificarArxiu,
@@ -308,13 +309,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 	
-	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}/{documentCodi}/{documentStoreId}/esborrar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}/{documentStoreId}/esborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentProcesEsborrar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
-			@PathVariable String documentCodi,
 			@PathVariable Long documentStoreId,	
 			ModelMap model) throws ServletException {
 		boolean response = false; 
