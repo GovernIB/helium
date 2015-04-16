@@ -352,6 +352,9 @@ public class DefinicioProcesCampController extends BaseController {
 			if (camp.getCodi().contains(".")) {
 				errors.rejectValue("codi", "error.camp.codi.char.nok");
 			}
+			if (camp.getCodi().contains(" ")) {
+				errors.rejectValue("codi", "error.camp.codi.char.espai");
+			}
 			if (camp.getTipus() != null) {
 				if (camp.getTipus().equals(TipusCamp.ACCIO)) {
 					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
