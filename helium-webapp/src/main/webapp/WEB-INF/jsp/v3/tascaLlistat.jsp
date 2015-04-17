@@ -147,11 +147,11 @@
 	}
 </script>
 <style type="text/css">
-	#opciones .label-titol {padding-bottom: 0px;} 
-	.control-group {width: 100%;display: inline-block;} 
-	.control-group-mid {width: 48%;} 
-	.control-group.left {float: left; margin-right:1%;} 
-	#div_timer label {float:left;} 
+	#opciones .label-titol {padding-bottom: 0px;}
+	.control-group {width: 100%;display: inline-block;}
+	.control-group-mid {width: 48%;}
+	.control-group.left {float: left; margin-right:1%;}
+	#div_timer label {float:left;}
 </style>
 </head>
 <body>
@@ -194,7 +194,7 @@
 						</div>
 						<div class="col-md-3">
 							<hel:inputSelect emptyOption="true" name="expedientTipusId" textKey="tasca.llistat.filtre.camp.tipexp" placeholderKey="tasca.llistat.filtre.camp.tipexp" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom"  disabled="${not empty expedientTipusActual}" inline="true"/>
-						</div>		
+						</div>
 						<div class="col-md-3">
 							<hel:inputSelect emptyOption="true" inline="true" name="tasca" textKey="tasca.llistat.filtre.camp.tasca" placeholderKey="tasca.llistat.filtre.camp.tasca"/>
 						</div>
