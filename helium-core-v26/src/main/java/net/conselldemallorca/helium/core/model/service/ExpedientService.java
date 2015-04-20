@@ -732,20 +732,25 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		if (expedient != null) {
 			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
-			for (JbpmProcessInstance pi: processInstancesTree)
+			for (JbpmProcessInstance pi: processInstancesTree){
 				for (TerminiIniciat ti: terminiIniciatDao.findAmbProcessInstanceId(pi.getId()))
 					terminiIniciatDao.delete(ti);
-			jbpmHelper.deleteProcessInstance(expedient.getProcessInstanceId());
-			for (DocumentStore documentStore: documentStoreDao.findAmbProcessInstanceId(expedient.getProcessInstanceId())) {
-				if (documentStore.isSignat()) {
-					try {
-						pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
-					} catch (Exception ignored) {}
+				
+				jbpmHelper.deleteProcessInstance(pi.getId());
+				
+				for (DocumentStore documentStore: documentStoreDao.findAmbProcessInstanceId(pi.getId())) {
+					if (documentStore.isSignat()) {
+						try {
+							pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+						} catch (Exception ignored) {}
+					}
+					if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
+						pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
+					documentStoreDao.delete(documentStore.getId());
 				}
-				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
-				documentStoreDao.delete(documentStore.getId());
 			}
+				
+			
 			for (Portasignatures psigna: expedient.getPortasignatures()) {
 				psigna.setEstat(TipusEstat.ESBORRAT);
 			}

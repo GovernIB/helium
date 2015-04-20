@@ -60,8 +60,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	}
 
 	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
-	@ResponseBody
-	public boolean delete(
+	public String delete(
 			HttpServletRequest request,
 			@PathVariable Long expedientId) {
 		expedientService.delete(expedientId);
@@ -71,7 +70,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 						request,
 						"info.expedient.esborrat"));
 			
-		return true;
+		return "redirect:/v3/expedient/";
 	}
 
 	@RequestMapping(value = "/{expedientId}/reindexa", method = RequestMethod.GET)
