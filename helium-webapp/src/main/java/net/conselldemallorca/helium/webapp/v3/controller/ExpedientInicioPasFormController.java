@@ -157,7 +157,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex instanceof ValidationException) {
+				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());

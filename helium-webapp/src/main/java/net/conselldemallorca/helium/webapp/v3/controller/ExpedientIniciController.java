@@ -169,7 +169,7 @@ public class ExpedientIniciController extends BaseExpedientController {
 				ExpedientIniciController.netejarSessio(request);
 				return modalUrlTancar();
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex instanceof ValidationException) {
+				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());

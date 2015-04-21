@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -71,8 +72,23 @@ public class ExpedientAccioController extends BaseExpedientController {
 			dissenyService.executarAccio(accioId, expedientId);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage());
-        	logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
+			String nomAccio = accioId.toString();
+			try {
+				AccioDto accio = dissenyService.findAccioAmbId(accioId);
+				nomAccio = accio.getNom();
+			} catch (Exception e) {}
+			if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
+				MissatgesHelper.error(
+		    			request,
+		    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getCause().getMessage());
+			} else {
+				MissatgesHelper.error(
+		    			request,
+		    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + 
+		    					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+//				MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage());
+				logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
+			}
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

@@ -1067,7 +1067,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				if (ex.getCause() != null && ex instanceof ValidationException) {
+				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
@@ -1130,7 +1130,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
-				} else if (ex.getCause() != null && ex instanceof ValidationException) {
+				} else if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
@@ -1148,7 +1148,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.completat"));
 				resposta = true;
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex instanceof ValidationException) {
+				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
