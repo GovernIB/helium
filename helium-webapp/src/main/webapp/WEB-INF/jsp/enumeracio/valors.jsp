@@ -143,6 +143,11 @@ function confirmar(e) {
 						<c:param name="label"><fmt:message key="enumeracio.valors.arxiu_exp"/></c:param>
 					</c:import>
 					<c:import url="../common/formElement.jsp">
+						<c:param name="property" value="eliminarValorsAntics"/>
+						<c:param name="type" value="checkbox"/>
+						<c:param name="label"><fmt:message key='defproc.deploy.expedients.actualitzar.eliminar' /></c:param>
+					</c:import>
+					<c:import url="../common/formElement.jsp">
 						<c:param name="type" value="buttons"/>
 						<c:param name="values">submit</c:param>
 						<c:param name="titles"><fmt:message key="enumeracio.valors.importar"/></c:param>
