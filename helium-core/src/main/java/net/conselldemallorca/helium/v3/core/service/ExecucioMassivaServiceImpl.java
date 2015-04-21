@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.Execuci
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -75,6 +76,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MessageHelper messageHelper;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private ExpedientService expedientService;
 	
 	@Transactional
 	@Override
@@ -215,6 +218,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			    		if (titol.length() == 0)
 			    			titol = exp.getNumeroDefault();
 					} else {
+//						if (expedient.getProcessInstanceId() != null) {
+//							exp = expedientService.findExpedientAmbProcessInstanceId(expedient.getProcessInstanceId());
+//							if (exp != null) {
+//								titol = exp.getIdentificador();
+//							} else {
+//								titol = messageHelper.getMessage("expedient.massiva.error.expedient") + " " + expedient.getProcessInstanceId();
+//							}
+//						} else {
+//							titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
+//						}
+						
 						titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
 					}
 					

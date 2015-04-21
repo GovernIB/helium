@@ -307,14 +307,18 @@ public class JbpmHelper {
 		adminService.mesuraIniciar("jBPM getRootProcessInstance", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(Long.parseLong(processInstanceId));
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
-		while (processInstance.getSuperProcessToken() != null) {
-			final long id = processInstance.getSuperProcessToken().getProcessInstance().getId();
-			command.setProcessInstanceId(id);
-			processInstance = (ProcessInstance)commandService.execute(command);
+		if (processInstance != null) {
+			while (processInstance.getSuperProcessToken() != null) {
+				final long id = processInstance.getSuperProcessToken().getProcessInstance().getId();
+				command.setProcessInstanceId(id);
+				processInstance = (ProcessInstance)commandService.execute(command);
+			}
+			JbpmProcessInstance resultat = new JbpmProcessInstance(processInstance);
+			adminService.mesuraCalcular("jBPM getRootProcessInstance", "jbpmDao");
+			return resultat;
+		} else {
+			return null;
 		}
-		JbpmProcessInstance resultat = new JbpmProcessInstance(processInstance);
-		adminService.mesuraCalcular("jBPM getRootProcessInstance", "jbpmDao");
-		return resultat;
 	}
 	
 	
