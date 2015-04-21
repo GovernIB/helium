@@ -956,6 +956,16 @@ public class DissenyService {
 			reordenarEnumeracioValors(vell.getEnumeracio().getId());
 		}
 	}
+	
+	public void deleteValorsByEnumeracio(Long id) {
+		Enumeracio enumeracio = getEnumeracioById(id);
+		if (enumeracio != null) {
+			for (EnumeracioValors valor: this.findEnumeracioValorsAmbEnumeracio(id)) {
+				enumeracioValorsDao.delete(valor.getId());
+			}
+		}
+	}
+	
 	public List<EnumeracioValors> findEnumeracioValorsAmbEnumeracio(Long enumeracioId) {
 		return enumeracioValorsDao.findAmbEnumeracioOrdenat(enumeracioId);
 	}

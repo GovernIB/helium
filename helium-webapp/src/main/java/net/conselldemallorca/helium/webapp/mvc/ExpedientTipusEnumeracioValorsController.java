@@ -318,13 +318,19 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 	public String importar(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
-			@RequestParam(value = "arxiu", required = true) final MultipartFile multipartFile) {
+			@RequestParam(value = "arxiu", required = true) final MultipartFile multipartFile,
+			@RequestParam(value = "eliminarValorsAntics", required = false) Boolean eliminarValorsAntics) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
 				if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
 					missatgeError(request, getMessage("error.especificar.arxiu.importar"));
 				} else {
+					
+					if (eliminarValorsAntics != null && eliminarValorsAntics) {
+						dissenyService.deleteValorsByEnumeracio(id);
+					}
+					
 					Enumeracio enumeracio = dissenyService.getEnumeracioById(id);
 					BufferedReader br = new BufferedReader(
 							new InputStreamReader(multipartFile.getInputStream()));
@@ -365,12 +371,19 @@ public class ExpedientTipusEnumeracioValorsController extends BaseController {
 
 	public class ImportCommand {
 		private Long enumeracioId;
+		private boolean eliminarValorsAntics;
 		private byte[] arxiu;
 		public Long getEnumeracioId() {
 			return enumeracioId;
 		}
 		public void setEnumeracioId(Long enumeracioId) {
 			this.enumeracioId = enumeracioId;
+		}
+		public boolean isEliminarValorsAntics() {
+			return eliminarValorsAntics;
+		}
+		public void setEliminarValorsAntics(boolean eliminarValorsAntics) {
+			this.eliminarValorsAntics = eliminarValorsAntics;
 		}
 		public byte[] getArxiu() {
 			return arxiu;
