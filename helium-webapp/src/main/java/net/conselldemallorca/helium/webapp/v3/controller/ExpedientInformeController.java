@@ -268,7 +268,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"));
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
+				null);
 		
 		exportXLS(request, response, session, expedientsConsultaDissenyDto);
 	}
@@ -319,6 +320,10 @@ public class ExpedientInformeController extends BaseExpedientController {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
 		
+		// Només volem mostrar els expedients seleccionats (o tots si no se n'ha seleccionat cap)
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> expedientsIds = sessionManager.getSeleccioInforme(consultaId);
+		
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -330,7 +335,8 @@ public class ExpedientInformeController extends BaseExpedientController {
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "mostrarAnulats"),
 				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
-				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"));
+				(Boolean) PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
+				expedientsIds);
 		
 		if (expedientsConsultaDissenyDto.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.consulta.informe.expedients.nonhiha"));
@@ -418,9 +424,10 @@ public class ExpedientInformeController extends BaseExpedientController {
 			Map<String, FieldValue> mapFila = new HashMap<String, FieldValue>();
 			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
 				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
-				mapFila.put(
-						dada.getReportFieldName(),
-						toReportField(request, expedient, dada));
+				String fieldName = dada.getReportFieldName();
+				if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(clau)) 
+					fieldName = ExpedientCamps.EXPEDIENT_CAMP_ESTAT.replace('$', '%');
+				mapFila.put(fieldName, toReportField(request, expedient, dada));
 			}
 			dadesDataSource.add(mapFila);
 		}

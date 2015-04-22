@@ -142,6 +142,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 /**
  * Servei per a gestionar expedients.
  * 
@@ -2212,7 +2213,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			nomesAlertes, 
 			mostrarAnulats,
 			nomesTasquesPersonals,
-			nomesTasquesGrup
+			nomesTasquesGrup,
+			null
 		);
 		
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
@@ -2591,7 +2593,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) {
+			boolean nomesTasquesGrup,
+			Set<Long> ids) {
 		Consulta consulta = consultaRepository.findById(consultaId);		
 		
 		List<Camp> campsFiltre = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(
@@ -2604,7 +2607,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		
-		String sort = ExpedientCamps.EXPEDIENT_CAMP_ID;
+		String sort = "expedient$identificador"; //ExpedientCamps.EXPEDIENT_CAMP_ID;
 		boolean asc = false;
 		int firstRow = 0;
 		int maxResults = -1;
@@ -2623,17 +2626,21 @@ public class ExpedientServiceImpl implements ExpedientService {
 			firstRow = paginacioParams.getPaginaNum()*paginacioParams.getPaginaTamany();
 			maxResults = paginacioParams.getPaginaTamany();
 		}
-		
-		List<Long> llistaExpedientIds = luceneHelper.findIdsAmbDadesExpedientPaginatV3(
-				consulta.getEntorn().getCodi(),
-				consulta.getExpedientTipus().getCodi(),
-				campsFiltre,
-				campsInforme,
-				valors,
-				sort,
-				asc,
-				0,
-				-1);
+		List<Long> llistaExpedientIds = new ArrayList<Long>();
+		if (ids == null || ids.isEmpty()) {
+			llistaExpedientIds = luceneHelper.findIdsAmbDadesExpedientPaginatV3(
+					consulta.getEntorn().getCodi(),
+					consulta.getExpedientTipus().getCodi(),
+					campsFiltre,
+					campsInforme,
+					valors,
+					sort,
+					asc,
+					0,
+					-1);
+		} else {
+			llistaExpedientIds.addAll(ids);
+		}
 		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
 		if (filtreTasques) {
 			filtrarExpedientsAmbTasques(

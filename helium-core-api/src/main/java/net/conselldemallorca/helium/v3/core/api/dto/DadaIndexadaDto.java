@@ -137,7 +137,7 @@ public class DadaIndexadaDto {
 		if (definicioProcesCodi != null) {
 			return definicioProcesCodi + "/" + campCodi;
 		} else {
-			return campCodi;
+			return campCodi.replace('$', '%');
 		}
 	}
 

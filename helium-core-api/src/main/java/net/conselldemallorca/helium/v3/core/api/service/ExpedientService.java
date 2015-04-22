@@ -666,7 +666,8 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup);
+			boolean nomesTasquesGrup,
+			Set<Long> ids);
 	
 	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, 
 			boolean nomesMeves,
