@@ -71,7 +71,7 @@ function initSuggest(element) {
 	        }
 	    },
 	    initSelection: function(element, callback) {
-	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + $(element).val();
+	    	var ajaxUrl = encodeURI(input.data("urlconsultainicial") + "/" + $(element).val());
 	    	desplegableInitSeleccio(ajaxUrl, element, callback);
 	    },
 	}).on('change', function() {
@@ -136,7 +136,7 @@ function initSeleccio(element) {
 	        }
 	    },*/
 	    initSelection: function (element, callback) {
-	    	var ajaxUrl = input.data("urlconsultainicial") + "/" + $(element).val();
+	    	var ajaxUrl = encodeURI(input.data("urlconsultainicial") + "/" + $(element).val());
 	    	desplegableInitSeleccio(ajaxUrl, element, callback);
 	    },
 	}).on('change', function () {

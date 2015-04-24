@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,6 +212,9 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
+		
+		valor = decodeValor(request);
+		
 		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
 				null,
@@ -220,7 +225,7 @@ public class CampValorsController extends BaseExpedientController {
 				registreIndex,
 				getMapDelsValors(valors));
 	}
-
+	
 	@RequestMapping(value = "/{campId}/valor/{valor}", method = RequestMethod.GET)
 	@ResponseBody
 	public List<SeleccioOpcioDto> consultaValor(
@@ -230,6 +235,9 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "q", required = false) String textFiltre,
 			@RequestParam(value = "valors", required = false) String valors,
 			ModelMap model) {
+		
+		valor = decodeValor(request);
+		
 		return tascaService.findValorsPerCampDesplegable(
 				null,
 				null,
@@ -252,6 +260,21 @@ public class CampValorsController extends BaseExpedientController {
 				resposta.put(parts[0], parts[1]);
 		}
 		return resposta;
+	}
+	
+	private String decodeValor (HttpServletRequest request){
+		// Procedim a fer un split de la URL per tal d'agafar el darrer paràmetre que és el valor del camp. Ho hem de 
+		// fer així perquè es pot donar el cas que un d'aquests valors sigui el codi d'un valor de SELECCIÓ en la pantalla de tramitació 
+		// d'una tasca, i pot ser que aquest codi acabi amb un espai en blanc, cosa que causa problemes a l'hora de recuperar el valor per codi
+		
+		String[] splitValor = request.getRequestURI().split("/");
+		String valorFinal = "";
+		try {
+			valorFinal = URLDecoder.decode(splitValor[splitValor.length - 1],"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return valorFinal;
 	}
 
 }
