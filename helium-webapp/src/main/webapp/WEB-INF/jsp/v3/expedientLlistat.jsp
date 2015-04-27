@@ -124,6 +124,11 @@ $(document).ready(function() {
 			//$('#consultar').trigger('click');
 		}
 	});
+
+	$('#expedientTipusId').select2().on("select2-removed", function(e) {
+		$('#consultar').trigger('click');
+    })
+	
 	$('#expedientTipusId').trigger('change');
 	actualizarBotonesFiltros();
 });
