@@ -31,9 +31,9 @@
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
-<!-- 	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script> -->
-<!-- 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css"> -->
+
+	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 	<script src="https://www.java.com/js/deployJava.js"></script>
 	
 	<c:choose>

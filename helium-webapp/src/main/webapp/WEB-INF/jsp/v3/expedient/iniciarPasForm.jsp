@@ -22,6 +22,12 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+	<script src="https://www.java.com/js/deployJava.js"></script>
+	
+	
 	<hel:modalHead/>
 	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
 </head>
@@ -29,55 +35,26 @@
 	<c:if test="${not empty tasca.tascaFormExternCodi}">
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-		<script type="text/javascript">
-		// <![CDATA[
-			function clickFormExtern(form) {
-				formulariExternDwrService.dadesIniciFormulariInicial(
-						form.id.value,
-						'${expedientTipus.id}',
-						<c:choose><c:when test="${not empty definicioProces.id}">'${definicioProces.id}'</c:when><c:otherwise>null</c:otherwise></c:choose>,
-						{
-							callback: function(retval) {
-								if (retval) {
-									$("#linkClickFormExtern").attr('href', '<c:url value='../../../v3/expedient/formExtern'/>?width='+retval[1]+'&height='+retval[2]+'&url='+retval[0]).click();
-								} else {
-									alert("<spring:message code='tasca.form.error_ini' />");
-								}
-							},
-							async: false
-						});
-				return false;
-			}
-		// ]]>
-		</script>
 		<div class="form-group">
-			<form id="formExtern" action="formExtern" class="form-horizontal form-tasca" onclick="return clickFormExtern(this)">
-				<input type="hidden" name="id" value="${tasca.id}"/>
-				<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
-				<div id="modal-botons-form-extern" class="pull-right form_extern">
-					<button type="submit" id="btn_formextern" name="accio" value="formextern" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></button>
-				</div>								
-				<a 	id="linkClickFormExtern" data-rdt-link-modal="true" data-rdt-link-modal-min-height="400" data-rdt-link-callback="recargarPanel(this);" href="#" class="hide"></a>
-						
-				<script type="text/javascript">
-					// <![CDATA[
-						$('#linkClickFormExtern').heliumEvalLink({
-							refrescarAlertes: true,
-							refrescarPagina: false,
-							alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
-						});
-
-						function recargarPanel (tag, correcte) {
-							if (correcte) {
-								location.reload();
-							}
+			
+			<div id="modal-botons-form-extern" class="pull-right form_extern">
+				<a id="boto-formext" href="<c:url value="/v3/expedient/tasca/${expedientTipus.id}/${definicioProces.id}/${tasca.id}/formExtern"/>" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></a>
+			</div>
+			
+			<script type="text/javascript">
+				// <![CDATA[
+					function recargarPanel (tag, correcte) {
+						if (correcte) {
+							location.reload();
 						}
-					//]]>
-				</script>
-			</form>
+					}
+				//]]>
+			</script>
+		
 		</div>
 	</c:if>
-	<form:form id="command" name="command" action="iniciarPasForm" cssClass="form-horizontal form-tasca" method="post">
+	<c:url value="/v3/expedient/iniciarPasForm" var="formAction"/>
+	<form:form id="command" name="command" action="${formAction}" cssClass="form-horizontal form-tasca" method="post">
 		<form:hidden path="id"/>
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>

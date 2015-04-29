@@ -311,6 +311,11 @@ public interface TascaService {
 	 */
 	public FormulariExternDto formulariExternIniciar(
 			String id);
+	
+	public FormulariExternDto iniciarFormulariExtern(
+			String taskId,
+			Long expedientTipusId,
+			Long definicioProcesId);
 
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 	

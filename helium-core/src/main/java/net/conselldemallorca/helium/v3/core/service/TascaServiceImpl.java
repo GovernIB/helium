@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +22,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
+import net.conselldemallorca.helium.core.model.hibernate.FormulariExtern;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
@@ -1247,15 +1250,37 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				true,
 				true);
-		FormulariExternDto dto = new FormulariExternDto();
-		dto.setFormulariId("1");
-		dto.setUrl("http://oficina.limit.es");
-		dto.setWidth(800);
-		dto.setHeight(600);
-		return dto;
-		/*return formulariExternHelper.iniciar(
+		FormulariExternDto dto = formulariExternHelper.iniciar(
 				id,
-				variableHelper.getVariablesJbpmTascaValor(id));*/
+				variableHelper.getVariablesJbpmTascaValor(id));
+		return dto;
+	}
+	
+	public FormulariExternDto iniciarFormulariExtern(
+			String taskId,
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		DefinicioProces definicioProces = null;
+		if (definicioProcesId != null) {
+			definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		} else {
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+					expedientTipus.getEntorn().getId(), 
+					expedientTipus.getJbpmProcessDefinitionKey());
+		}
+		if (definicioProcesId == null && definicioProces == null) {
+			logger.error("No s'ha trobat la definició de procés (entorn=" + expedientTipus.getEntorn().getCodi() + ", jbpmKey=" + expedientTipus.getJbpmProcessDefinitionKey() + ")");
+		}
+		
+		String starTaskName = jbpmHelper.getStartTaskName(definicioProces.getJbpmId());
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(starTaskName, definicioProces);
+		
+		FormulariExternDto dto = formulariExternHelper.iniciar(
+				taskId,
+				tasca,
+				expedientTipus);
+		return dto;
 	}
 
 	private void verificarFinalitzacioExpedient(

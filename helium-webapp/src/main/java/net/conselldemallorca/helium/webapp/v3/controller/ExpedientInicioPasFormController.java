@@ -119,6 +119,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		validator.setValidarExpresions(true);
 		validator.validate(command, result);
 		DefinicioProcesDto definicioProces = null;
+		
 		if (definicioProcesId != null) {
 			definicioProces = dissenyService.getById(definicioProcesId);
 		} else {
