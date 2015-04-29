@@ -321,4 +321,11 @@ public class TascaServiceBean implements TascaService {
 		return delegate.isSignaturesComplet(tascaId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public FormulariExternDto iniciarFormulariExtern(String taskId,
+			Long expedientTipusId, Long definicioProcesId) {
+		return delegate.iniciarFormulariExtern(taskId, expedientTipusId, definicioProcesId);
+	}
+
 }
