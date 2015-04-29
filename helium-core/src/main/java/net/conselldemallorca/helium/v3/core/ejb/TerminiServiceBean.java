@@ -7,6 +7,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
@@ -67,5 +68,23 @@ public class TerminiServiceBean implements TerminiService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TerminiDto> findTerminisAmbProcessInstanceId(String processInstanceId) {
 		return delegate.findTerminisAmbProcessInstanceId(processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<FestiuDto> findFestiuAmbAny(int any) {
+		return delegate.findFestiuAmbAny(any);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public void createFestiu(String data) throws Exception {
+		delegate.createFestiu(data);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public void deleteFestiu(String data) throws Exception {
+		delegate.deleteFestiu(data);
 	}
 }

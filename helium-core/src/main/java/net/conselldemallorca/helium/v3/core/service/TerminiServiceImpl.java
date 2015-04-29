@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -15,8 +16,10 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.exception.FestiuNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
@@ -36,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service
+@Service("terminiServiceV3")
 public class TerminiServiceImpl implements TerminiService {
 	@Resource
 	private TerminiRepository terminiRepository;	
@@ -388,6 +391,35 @@ public class TerminiServiceImpl implements TerminiService {
 				mesos,
 				dies,
 				equals);		
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
+	public List<FestiuDto> findFestiuAmbAny(int any) {
+		return conversioTipusHelper.convertirList(
+				festiuRepository.findByAny(any),
+				FestiuDto.class);
+	}
+	
+	@Transactional
+	@Override
+	public void createFestiu(String data) throws Exception {
+		Festiu festiu = new Festiu();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		festiu.setData(sdf.parse(data));
+		festiuRepository.save(festiu);
+	}
+	
+	@Transactional
+	@Override
+	public void deleteFestiu(String data) throws Exception {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Festiu festiu = festiuRepository.findByData(sdf.parse(data));
+		if (festiu != null) {
+			festiuRepository.delete(festiu);
+		} else {
+			throw new FestiuNotFoundException();
+		}
 	}
 	
 	private int[] getDiesNoLaborables() {

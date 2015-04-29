@@ -206,7 +206,7 @@
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/carrec/jbpmConfigurats.html"/>"><spring:message code='comuns.carrecs' /></a></li></c:if>
 										<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/area/jbpmConfigurats.html"/>"><spring:message code='comuns.arees' /></a></li></c:if>
 									</c:if>
-									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/festiu/calendari.html"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
+									<c:if test="${dadesPersona.admin}"><li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/configuracio/festius"/>"><spring:message code='decorators.superior.festius' /></a></li></c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({

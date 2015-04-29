@@ -705,6 +705,8 @@ public class ExecucioMassivaService {
 				}
 			} else {
 				Integer versio = (Integer)deserialize(dto.getParam2());
+				ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(dto.getProcessInstanceId());
+				eme.setExpedient(expedient);
 				expedientService.changeProcessInstanceVersion(dto.getProcessInstanceId(), versio);
 			}
 			
