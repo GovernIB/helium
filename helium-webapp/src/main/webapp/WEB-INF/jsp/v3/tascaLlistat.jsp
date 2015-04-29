@@ -82,6 +82,8 @@
 					for (var i = 0; i < data.length; i++) {
 						$('#tasca').append('<option value="' + data[i].codi + '">' + data[i].valor + '</option>');
 					}
+					//Es fa el submit del formulari per cercar automàticament per tipus de d'expedient
+					$('#consultar').trigger('click');
 				})
 				.fail(function() {
 					alert("<spring:message code="expedient.llistat.tasca.ajax.error"/>");
@@ -104,6 +106,11 @@
 				}
 				
 			});
+
+			$('#expedientTipusId').select2().on("select2-removed", function(e) {
+				$('#consultar').trigger('click');
+		    })
+			
 			$('#expedientTipusId').trigger('change');
 		</c:if>
 		actualizarBotonesFiltros();
@@ -255,7 +262,7 @@
 							<div class="pull-right">
 								<input type="hidden" name="consultaRealitzada" value="true"/>
 								<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-								<button type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+								<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 							</div>
 							</div>
 						</div>
