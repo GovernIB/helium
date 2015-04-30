@@ -53,8 +53,8 @@
 		
 		</div>
 	</c:if>
-	<c:url value="/v3/expedient/iniciarPasForm" var="formAction"/>
-	<form:form id="command" name="command" action="${formAction}" cssClass="form-horizontal form-tasca" method="post">
+	
+	<form:form id="command" name="command" action="../../iniciarForm/${expedientTipus.id}/${definicioProces.id}" cssClass="form-horizontal form-tasca" method="post">
 		<form:hidden path="id"/>
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>

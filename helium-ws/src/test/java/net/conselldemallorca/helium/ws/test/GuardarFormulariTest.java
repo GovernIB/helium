@@ -32,7 +32,7 @@ public class GuardarFormulariTest {
 		List<ParellaCodiValor> valors = new ArrayList<ParellaCodiValor>();
 		valors.add(newParellaCodiValor("text", "hola que tal"));
 		getClientFormulariExtern().guardar(
-				"TIE_1430300502860",
+				"TIE_1430304435516",
 				valors);
 	}
 

@@ -44,6 +44,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -96,12 +97,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		return null;
 	}
 
-	@RequestMapping(value = "/iniciarPasForm", method = RequestMethod.POST)
-	public String iniciarPasFormPost(
+	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
+	public String iniciarFormPost(
 			HttpServletRequest request, 
 			@RequestParam(value = "id", required = false) String id, 
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, 
-			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId, 
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
 			@Valid @ModelAttribute("command") Object command,
 			BindingResult result, 
 			SessionStatus status, 

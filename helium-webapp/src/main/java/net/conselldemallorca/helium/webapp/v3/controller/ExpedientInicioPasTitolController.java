@@ -59,11 +59,11 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 	@Autowired
 	protected ExpedientService expedientService;
 
-	@RequestMapping(value = "form", method = RequestMethod.POST)
-	public String iniciarPasTitolPost(
+	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
+	public String iniciarTitolPost(
 			HttpServletRequest request, 
-			@RequestParam(value = "definicioProcesId", required = false) 
-			Long definicioProcesId, 
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
 			@RequestParam(value = "accio", required = false) String accio, 
 			@Valid @ModelAttribute ExpedientInicioPasTitolCommand expedientInicioPasTitolCommand, 
 			BindingResult result, 

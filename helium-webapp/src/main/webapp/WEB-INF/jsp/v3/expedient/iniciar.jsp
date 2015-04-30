@@ -56,7 +56,7 @@ function confirmar(e, form) {
 		<display:column property="codi" title="Codi"/>
 		<display:column property="nom" title="Nom"/>
 		<display:column>
-			<form class="form-init-exedient" action="<c:url value="/modal/v3/expedient/iniciar/netejar"/>" method="post" onsubmit="return confirmar(event, this)">
+			<form class="form-init-exedient" action="<c:url value="/modal/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
 				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
 				<select name="definicioProcesId" id="definicioProcesId" class="span9">
 					<option value="">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
