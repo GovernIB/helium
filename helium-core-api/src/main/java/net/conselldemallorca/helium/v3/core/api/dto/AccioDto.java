@@ -47,8 +47,7 @@ public class AccioDto implements Serializable {
 	}
 
 	public String getNom() {
-//		return nom;
-		return nom.substring(0, 1).toUpperCase() + nom.substring(1).toLowerCase();
+		return nom;
 	}
 
 	public void setNom(String nom) {

@@ -35,11 +35,19 @@
 		}
 		
 		.monitor_hilo {
-			width: 400px;
+			width: 650px;
 		}
+		
 		.contingut-carregant {
 			text-align: center;
 			padding: 8px;
+		}
+		
+		.min_width {
+			width: 120px;
+		}
+		.mid_width {
+			width: 240px;
 		}
 	</style>
 	<script type="text/javascript">
@@ -74,15 +82,15 @@
 			                        '<table class="table-monitor table table-striped table-bordered dataTable">' +
 			                        '<thead><tr>' +
 			                        '<th class="monitor_hilo"><spring:message code="expedient.monitor.hilo"/></th>' +
-			                        '<th><spring:message code="expedient.monitor.cputime"/></th>' +
-			                        '<th><spring:message code="expedient.monitor.estado"/></th>' +
-			                        '<th><spring:message code="expedient.monitor.espera"/></th>' +
-			                        '<th><spring:message code="expedient.monitor.blockedtime"/></th>' +
+			                        '<th class="min_width"><spring:message code="expedient.monitor.cputime"/></th>' +
+			                        '<th class="mid_width"><spring:message code="expedient.monitor.estado"/></th>' +
+			                        '<th class="min_width"><spring:message code="expedient.monitor.espera"/></th>' +
+			                        '<th class="min_width"><spring:message code="expedient.monitor.blockedtime"/></th>' +
 			                        '</thead></tr>';
 			            for (var i = 0; i < data.hilo.length; i++) {
 			                content +=  '<tr class="monitor_fila">' +
 			                            '<td class="monitor_hilo">' + data.hilo[i] + '</td>' +
-			                            '<td>' + data.cputime[i] + '</td>' +
+			                            '<td class="min_width">' + data.cputime[i] + '</td>' +
 			                            '<td>' + data.estado[i] + '</td>' +
 			                            '<td>' + data.espera[i] + '</td>' +
 			                            '<td>' + data.blockedtime[i] + '</td>' +
