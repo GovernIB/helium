@@ -20,7 +20,6 @@
 <link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	
 <style type="text/css">
 	.carregant {margin: 1em 0 2em 0;text-align: center;}
@@ -143,7 +142,7 @@
 		</c:if>
 	</div>
 </form:form>
-	
+
 <script type="text/javascript">
 	var codi = "${varCodi}";
 	var procesId = "${procesId}";
@@ -180,7 +179,7 @@
 				$("#valordada").removeClass("hide");
 				$("#nova").addClass("hide");
 				if (e.val != codi)
-					$("#formulari").load('<c:url value="/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + e.val);
+					window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + e.val);
 			}
 			codi = e.val;
 		});

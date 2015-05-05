@@ -375,7 +375,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("addVariableCommand", populateAddCommand(request, procesId, varCodi, null, null, model));
 		if (varCodi == null)
 			return "v3/expedientDadaNova";
-		return "v3/procesDadaNova";
+		return "v3/expedientDadaNova";
 	}
 
 	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.POST)
