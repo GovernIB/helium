@@ -11,7 +11,7 @@
 <html>
 <head>
 	<title><spring:message code="expedient.info.titol"/></title>
-	<meta name="title" content="${expedient.identificador}"/>
+	<meta name="title" content="${fn:escapeXml(expedient.identificador)}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
