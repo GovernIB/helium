@@ -58,7 +58,7 @@
 				<ul id="dropdown-menu-${tasca.id}" class="dropdown-menu">
 					<c:if test="${tasca.open and not tasca.suspended}">
 						<c:if test="${tasca.assignee == dadesPersona.codi}">
-							<li><a id="tramitar-tasca-${tasca.id}" href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+							<li><a id="tramitar-tasca-${tasca.id}" href="../../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-callback="recargarPanelTasca(${procesId},${tasca.id});" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 							<c:if test="${tasca.tascaTramitacioMassiva}">
 								<li><a href="../../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 							</c:if>

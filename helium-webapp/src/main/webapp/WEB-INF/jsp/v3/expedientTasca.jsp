@@ -54,5 +54,14 @@ function alliberar(procesId, tascaId, correcte) {
 		panell.load(url);
 	}
 }
+
+function recargarPanelTasca(procesId, tascaId, correcte) {
+	alert(procesId + " ### " + tascaId + " ### " + correcte);
+	if (correcte) {
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/'+tascaId+'/refrescarPanel/"/>' + procesId;
+		var panell = $("#dataTable_tasca_"+procesId);
+		panell.load(url);
+	}
+}
 //]]>
 </script>
