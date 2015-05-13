@@ -130,7 +130,7 @@ public class TascaFormHelper {
 		    			if (camp.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
 			    			valor = Boolean.FALSE;
 			    		}
-		    			valor = compatibilitat26(camp, valor);
+//		    			valor = compatibilitat26(camp, valor);
 		    			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE) || valor != null) {
 			    			resposta.put(
 			    					camp.getVarCodi(),
