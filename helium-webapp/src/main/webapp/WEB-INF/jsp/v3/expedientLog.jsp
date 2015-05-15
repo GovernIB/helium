@@ -99,6 +99,7 @@ function recargarPanelesLog (tipus_retroces, correcte) {
 		else
 			$('#tipus_retroces').val(0);
 		recargarRegistro();
+		$('#contingut-tasques').data('loaded', false);
 	}
 }
 //]]>

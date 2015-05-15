@@ -55,10 +55,11 @@ function alliberar(procesId, tascaId, correcte) {
 	}
 }
 
-function recargarPanelTasca(procesId, tascaId, correcte) {
+//recarregam el llistat de tasques d'aquesta pipella, tenint en compte procés i subprocessos.
+function recarregarLlistatTasques(procesId, tascaId, correcte) {
 	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/'+tascaId+'/refrescarPanel/"/>' + procesId;
-		var panell = $("#dataTable_tasca_"+procesId);
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/refrescarLlistat"/>';
+		var panell = $("#llistat_tasques");
 		panell.load(url);
 	}
 }

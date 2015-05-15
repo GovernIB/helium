@@ -79,6 +79,26 @@ public class ExpedientTascaController extends BaseExpedientController {
 		model.addAttribute("tasques", tasques);	
 		return "v3/procesTasques";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/refrescarLlistat", method = RequestMethod.GET)
+	public String refrescarLlistat(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			model.addAttribute("expedient", expedient);
+			boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios));
+			}
+			model.addAttribute("tasques", tasques);	
+		}
+		return "v3/procesTasques";
+	}
 
 	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesMeves}/{nomesTasquesPersonals}/{nomesTasquesGrup}", method = RequestMethod.GET)
 	public String tasquesPendents(
