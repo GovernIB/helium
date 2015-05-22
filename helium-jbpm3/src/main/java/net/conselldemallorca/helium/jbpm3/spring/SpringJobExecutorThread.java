@@ -66,20 +66,23 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void executeJob(final Job job) {
-		
-		String jobName = "JOB";
-		if (job instanceof Timer) {
-			if (((Timer) job).getName() != null)
-				jobName += " " + ((Timer) job).getName();
-		} else if (job instanceof ExecuteActionJob) {
-			if (((ExecuteActionJob) job).getAction() != null && ((ExecuteActionJob) job).getAction().getName() != null)
-				jobName += " " + ((ExecuteActionJob) job).getAction().getName();
-		} else if (job instanceof ExecuteNodeJob) {
-			if (((ExecuteNodeJob) job).getNode() != null && ((ExecuteNodeJob) job).getNode().getName() != null)
-				jobName += " " + ((ExecuteNodeJob) job).getNode().getName();
-		}
-		
-		final String jName = jobName;
+
+		final String jName = transactionTemplate.execute(new TransactionCallback() {
+			public Object doInTransaction(TransactionStatus transactionStatus) {
+				String jobName = "JOB";
+				if (job instanceof Timer) {
+					if (((Timer) job).getName() != null)
+						jobName += " " + ((Timer) job).getName();
+				} else if (job instanceof ExecuteActionJob) {
+					if (((ExecuteActionJob) job).getAction() != null && ((ExecuteActionJob) job).getAction().getName() != null)
+						jobName += " " + ((ExecuteActionJob) job).getAction().getName();
+				} else if (job instanceof ExecuteNodeJob) {
+					if (((ExecuteNodeJob) job).getNode() != null && ((ExecuteNodeJob) job).getNode().getName() != null)
+						jobName += " " + ((ExecuteNodeJob) job).getNode().getName();
+				}
+				return jobName;
+			}
+		});
 		
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
