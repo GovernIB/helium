@@ -66,8 +66,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void executeJob(final Job job) {
-
-		final String jName = transactionTemplate.execute(new TransactionCallback() {
+		final String jName = (String) transactionTemplate.execute(new TransactionCallback() {
 			public Object doInTransaction(TransactionStatus transactionStatus) {
 				String jobName = "JOB";
 				if (job instanceof Timer) {
@@ -83,7 +82,6 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				return jobName;
 			}
 		});
-		
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
