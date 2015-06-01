@@ -174,7 +174,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		}		
 		return "redirect:/v3/expedient/" + expedientId;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/agafar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean agafar(
@@ -190,7 +190,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.agafar.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut agafar la tasca " + tascaId, ex);
-		}		
+		}
 		return resultado;
 	}
 
@@ -212,10 +212,11 @@ public class ExpedientTascaController extends BaseExpedientController {
 		}
 		return resultado;
 	}
-	
+
 	private boolean veureTasquesAltresUsuaris(HttpServletRequest request, ExpedientDto expedient) {
 		return (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);
+
 }

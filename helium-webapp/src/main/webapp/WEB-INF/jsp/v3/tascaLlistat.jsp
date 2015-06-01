@@ -315,30 +315,30 @@
  						<div id="dropdown-menu-{{:id}}" class="dropdown navbar-right">
  							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								{{if open and !suspended}}
-									{{if assignee == "${dadesPersona.codi}" && assignadaUsuariActual}}
-										<li><a id="tramitar-tasca-{{:id}}" class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
-										{{if tascaTramitacioMassiva}}
-											<li><a href="../v3/tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
-										{{/if}}
+								{{if open && !suspended && assignee == "${dadesPersona.codi}" && assignadaUsuariActual}}
+									<li><a id="tramitar-tasca-{{:id}}" class="consultar-tasca" href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}"/>" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-external-link"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+									{{if tascaTramitacioMassiva}}
+										<li><a href="../v3/tasca/{{:id}}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 									{{/if}}
-									{{if !agafada && responsables != null && assignadaUsuariActual}}
+								{{/if}}
+								{{if open && !suspended && !agafada && responsables != null && assignadaUsuariActual}}
  										<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
-									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
+								{{if open && !suspended && agafada && assignee == "${dadesPersona.codi}"}}
+									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
 								<li><a href="../v3/expedient/{{:expedientId}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
 								{{if open}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
+								{{/if}}
+								{{if open && !suspended}}
+									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
 								{{if suspended}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 								{{/if}}
 								{{if !cancelled}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
-								{{/if}}
-								{{if agafada && open && assignee == "${dadesPersona.codi}"}}
-									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
  							</ul>
  						</div>
