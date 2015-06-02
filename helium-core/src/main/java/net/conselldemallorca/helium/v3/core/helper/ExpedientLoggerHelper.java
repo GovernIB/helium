@@ -1302,9 +1302,9 @@ public class ExpedientLoggerHelper {
 		long jbpmLogId = jbpmHelper.addTaskInstanceMessageLog(
 				taskInstanceId,
 				getMessageLogPerTipus(tipus));
+		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 		Expedient expedient = null;
 		if (expedientId == null) {
-			JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		} else {
 			expedient = expedientRepository.findOne(expedientId);
@@ -1321,7 +1321,7 @@ public class ExpedientLoggerHelper {
 				usuari,
 				taskInstanceId,
 				tipus);
-		expedientLog.setProcessInstanceId(new Long(expedient.getProcessInstanceId()));
+		expedientLog.setProcessInstanceId(new Long(task.getProcessInstanceId()));
 		expedientLog.setJbpmLogId(jbpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
