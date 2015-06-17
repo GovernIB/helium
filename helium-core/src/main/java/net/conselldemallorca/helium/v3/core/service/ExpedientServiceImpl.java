@@ -2410,7 +2410,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly=true)
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(
+			ExpedientDto expedient,
+			boolean detall) {
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
 		List<InstanciaProcesDto> arbre = getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
@@ -2421,13 +2423,26 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (InstanciaProcesDto ip : arbre) {
 			resposta.put(ip, new ArrayList<ExpedientLogDto>());
 			for (ExpedientLog log: logs) {
-				if (detall || (!log.isTargetTasca() || !taskIds.contains(log.getTargetId()))) {
-					taskIds.add(log.getTargetId());				
-					resposta.get(ip).addAll(getLogs(processos, log, parentProcessInstanceId, expedient, ip.getId(), detall));
+				if (log.getProcessInstanceId().toString().equals(ip.getId())) {
+					// Inclourem el log si:
+					//    - Estam mostrant el log detallat
+					//    - El log no se correspon a una tasca
+					//    - Si el log pertany a una tasca i encara
+					//      no s'ha afegit cap log d'aquesta tasca 
+					if (detall || !log.isTargetTasca() || !taskIds.contains(log.getTargetId())) {
+						taskIds.add(log.getTargetId());				
+						resposta.get(ip).addAll(
+								getLogs(
+										processos,
+										log,
+										parentProcessInstanceId,
+										expedient,
+										ip.getId(),
+										detall));
+					}
 				}
-			}				
-		}		
-		
+			}
+		}
 		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
 			@Override
 			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
@@ -2442,7 +2457,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		});
 		sortedEntries.addAll(resposta.entrySet());
-		
 		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
 		return sortedEntries;
 	}	
