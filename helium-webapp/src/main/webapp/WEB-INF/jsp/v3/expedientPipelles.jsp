@@ -72,7 +72,13 @@
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
 			var loaded = $(targetHref).data('loaded')
-			if (!loaded) {
+			//if (!loaded) {	//Condició per carregar només un cop cada pipella
+			if (true) {			//Condició per carregar cada vegada les pipelles
+				
+				//mostrem cada cop l'icona de càrrega
+				$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
+				///////////////
+				
 				$(targetHref).load(
 					$(targetHref).data('href'),
 					function (responseText, textStatus, jqXHR) {
