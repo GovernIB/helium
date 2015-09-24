@@ -25,7 +25,8 @@ public class ExecucioMassivaDto {
 		REINDEXAR,
 		REASSIGNAR,
 		BUIDARLOG,
-		REPRENDRE_EXPEDIENT
+		REPRENDRE_EXPEDIENT,
+		REPRENDRE
 	}
 
 	private Long id;
