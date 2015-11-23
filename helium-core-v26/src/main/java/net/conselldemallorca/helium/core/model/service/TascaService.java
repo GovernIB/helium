@@ -259,7 +259,8 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-
+		// Llista d'expedients de l'entorn
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA 1", "consulta");
 		List<Long> idsExpedients = expedientDao.findListExpedients(
 				entornId, 
 				usuariBo,
@@ -269,7 +270,9 @@ public class TascaService {
 				sort,
 				asc
 				);
-
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA 1", "consulta");
+		// Ids de tasques personals
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA 2", "consulta");
 		LlistatIds ids = jbpmDao.findListPersonalTasks(
 				usuariBo, 
 				tasca, 
@@ -279,9 +282,13 @@ public class TascaService {
 				prioritat, 
 				dataLimitInici, 
 				dataLimitFi, firstRow, maxResults, sort, asc);
-
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA 2", "consulta");
+		// Llistat de tasques
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA 3", "consulta");
 		List<JbpmTask> tasques = jbpmDao.findPersonalTasks(ids.getIds(), usuariBo);
-		
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA 3", "consulta");
+		// Llistat filtrat
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA 4", "consulta");
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
@@ -298,6 +305,7 @@ public class TascaService {
 				sort,
 				asc);
 		resposta.setCount(ids.getCount());
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA 4", "consulta");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA", "consulta");
 		return resposta;
 	}
@@ -389,6 +397,7 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP 1", "consulta");
 		List<Long> idsExpedients = expedientDao.findListExpedients(
 				entornId, 
 				usuariBo,
@@ -397,7 +406,8 @@ public class TascaService {
 				tipusExpedient,
 				sort,
 				asc);
-		
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP 1", "consulta");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP 2", "consulta");
 		LlistatIds ids = jbpmDao.findListGroupTasks(
 				usuariBo, 
 				tasca, 
@@ -407,9 +417,11 @@ public class TascaService {
 				prioritat, 
 				dataLimitInici, 
 				dataLimitFi, firstRow, maxResults, sort, asc);
-
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP 2", "consulta");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP 3", "consulta");
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(ids.getIds(), usuariBo);
-
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP 3", "consulta");
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP 4", "consulta");
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
@@ -426,6 +438,7 @@ public class TascaService {
 				sort,
 				asc);	
 		resposta.setCount(ids.getCount());
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP 4", "consulta");
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP", "consulta");
 		return resposta;
 	}
