@@ -16,6 +16,7 @@
 		<pattern>/expedient/logAccionsTasca*</pattern>
 		<pattern>/signatura/verificar*</pattern>
 		<pattern>/nodeco/*</pattern>
+		<pattern>/v3/metrics*</pattern>
 	</excludes>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>

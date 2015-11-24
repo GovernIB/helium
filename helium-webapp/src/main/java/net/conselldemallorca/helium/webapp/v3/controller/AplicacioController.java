@@ -5,14 +5,15 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la pàgina inicial (index).
@@ -20,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-public class IndexV3Controller {
+public class AplicacioController {
 
 	@Autowired
-	private AdminService adminService;
+	private AplicacioService aplicacioService;
+
+
 
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)
 	public String get(HttpServletRequest request) {
@@ -55,4 +58,12 @@ public class IndexV3Controller {
 		// Expedientes
 		return "redirect:/v3/expedient";
 	}
+
+	@RequestMapping(value = "/v3/metrics", method = RequestMethod.GET)
+	@ResponseBody
+	public String metrics(
+			HttpServletRequest request) {
+		return aplicacioService.metrics();
+	}
+
 }
