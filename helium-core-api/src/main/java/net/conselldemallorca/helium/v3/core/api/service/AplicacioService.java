@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.service;
 
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+
 /**
  * Servei amb funcionalitat a nivell d'aplicació.
  * 
@@ -11,10 +13,10 @@ package net.conselldemallorca.helium.v3.core.api.service;
 public interface AplicacioService {
 
 	/**
-	 * Retorna un string en format JSON amb les mètriques de l'aplicació.
+	 * Retorna les preferències de l'usuari actual.
 	 * 
-	 * @return l'string amb les mètriques
+	 * @return Les preferències.
 	 */
-	public String metrics();
+	public UsuariPreferenciesDto getUsuariPreferencies();
 
 }

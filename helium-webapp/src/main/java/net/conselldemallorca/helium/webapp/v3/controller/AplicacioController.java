@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
@@ -24,7 +24,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 public class AplicacioController {
 
 	@Autowired
-	private AplicacioService aplicacioService;
+	private AdminService adminService;
 
 
 
@@ -63,7 +63,7 @@ public class AplicacioController {
 	@ResponseBody
 	public String metrics(
 			HttpServletRequest request) {
-		return aplicacioService.metrics();
+		return adminService.getMetrics();
 	}
 
 }

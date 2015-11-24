@@ -55,6 +55,11 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	private String transicioKO;
 	private Date dataCallbackPrimer;
 	private Date dataCallbackDarrer;
+	private Date dataSignatRebutjat;
+	private Date dataCustodiaIntent;
+	private Date dataCustodiaOk;
+	private Date dataSignalIntent;
+	private Date dataSignalOk;
 	private String errorCallbackProcessant;
 	private String processInstanceId;
 	private Expedient expedient;
@@ -178,6 +183,46 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	}
 	public void setDataCallbackDarrer(Date dataCallbackDarrer) {
 		this.dataCallbackDarrer = dataCallbackDarrer;
+	}
+
+	@Column(name="data_signat_rebutjat")
+	public Date getDataSignatRebutjat() {
+		return dataSignatRebutjat;
+	}
+	public void setDataSignatRebutjat(Date dataSignatRebutjat) {
+		this.dataSignatRebutjat = dataSignatRebutjat;
+	}
+
+	@Column(name="data_custodia_intent")
+	public Date getDataCustodiaIntent() {
+		return dataCustodiaIntent;
+	}
+	public void setDataCustodiaIntent(Date dataCustodiaIntent) {
+		this.dataCustodiaIntent = dataCustodiaIntent;
+	}
+
+	@Column(name="data_custodia_ok")
+	public Date getDataCustodiaOk() {
+		return dataCustodiaOk;
+	}
+	public void setDataCustodiaOk(Date dataCustodiaOk) {
+		this.dataCustodiaOk = dataCustodiaOk;
+	}
+
+	@Column(name="data_signal_intent")
+	public Date getDataSignalIntent() {
+		return dataSignalIntent;
+	}
+	public void setDataSignalIntent(Date dataSignalIntent) {
+		this.dataSignalIntent = dataSignalIntent;
+	}
+
+	@Column(name="data_signal_ok")
+	public Date getDataSignalOk() {
+		return dataSignalOk;
+	}
+	public void setDataSignalOk(Date dataSignalOk) {
+		this.dataSignalOk = dataSignalOk;
 	}
 
 	@Lob

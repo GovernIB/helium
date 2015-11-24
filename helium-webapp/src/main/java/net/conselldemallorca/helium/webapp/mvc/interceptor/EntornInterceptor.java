@@ -10,6 +10,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
@@ -19,16 +25,11 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.webapp.v3.controller.BaseController;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
@@ -41,8 +42,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	public static final String VARIABLE_REQUEST_CANVI_EXPTIP = "expedientTipusCanviarAmbId";
 	public static final String VARIABLE_REQUEST_ALERTES_NOLLEGIDES = "hiHaAlertesNollegides";
 
+	@Resource(name="entornServiceV3")
+	private EntornService entornService;
 	@Resource
-	private AdminService adminService;
+	private AplicacioService aplicacioService;
 	@Resource(name="dissenyServiceV3")
 	private DissenyService dissenyService;
 	@Resource
@@ -68,7 +71,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			EntornDto entornActual = null;
 			String canviEntorn = request.getParameter(VARIABLE_REQUEST_CANVI_ENTORN);
-			List<EntornDto> entorns = adminService.findEntornAmbPermisReadUsuariActual();
+			List<EntornDto> entorns = entornService.findAmbPermisAcces();
 			request.setAttribute("entorns", entorns);
 			// Si en el request existeix el paràmetre de selecció d'entorn
 			// canvia l'entorn actual
@@ -86,7 +89,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					entornActual = entorns.get(0);
 					setEntornActual(request, entornActual);
 				} else {
-					UsuariPreferenciesDto prefs = adminService.getPreferenciesUsuariActual();
+					UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
 					if (prefs != null) {
 						if (prefs.getDefaultEntornCodi() != null) {
 							for (EntornDto entorn: entorns) {
@@ -264,7 +267,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_PREFERENCIES_USUARI,
-				adminService.getPreferenciesUsuariActual());
+				aplicacioService.getUsuariPreferencies());
 		List<ExpedientTipusDto> expedientsTipusAmbPermisGestio = dissenyService.findExpedientTipusAmbPermisGestioUsuariActual(
 				entorn.getId());
 		SessionHelper.setAttribute(

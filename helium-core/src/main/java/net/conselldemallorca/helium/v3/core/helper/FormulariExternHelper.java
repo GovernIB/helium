@@ -146,7 +146,6 @@ public class FormulariExternHelper {
 			}
 			
 			/*
-			Tasca tasca = tascaHelper.findTascaByJbpmTaskId(taskId);
 			IniciFormulari service = getIniciFormulariService(
 					url,
 					username,

@@ -11,14 +11,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.QueryStatistics;
+import org.hibernate.stat.Statistics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.json.MetricsModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -29,21 +43,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
-import net.conselldemallorca.helium.v3.core.helper.UsuariActualCacheHelper;
+import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.hibernate.SessionFactory;
-import org.hibernate.stat.QueryStatistics;
-import org.hibernate.stat.Statistics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.
@@ -54,55 +57,57 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminServiceImpl implements AdminService {
 
 	@Resource
+	private ReassignacioRepository reassignacioRepository;
+	@Resource
 	private UsuariPreferenciesRepository usuariPreferenciesRepository;
+	@Resource
+	private PersonaRepository personaRepository;
+
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
-	private UsuariActualCacheHelper usuariActualCacheHelper;
+	private UsuariActualHelper usuariActualCacheHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
-	private PersonaRepository personaRepository;
-	@Resource
 	private PersonaHelper personaHelper;
+
 	@Resource
 	private SessionFactory sessionFactory;
-	@Resource
-	private ReassignacioRepository reassignacioRepository;
-	
+	@Autowired
+	private MetricRegistry metricRegistry;
+
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getMetrics() {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.registerModule(
+					new MetricsModule(
+							TimeUnit.SECONDS,
+							TimeUnit.MILLISECONDS,
+							false));
+			return mapper.writeValueAsString(metricRegistry);
+		} catch (Exception ex) {
+			logger.error("Error al generar les mètriques de l'aplicació", ex);
+			return "ERR";
+		}
+	}
+
 	@Transactional(readOnly = true)
 	@Override
 	public PersonaDto findPersonaAmbCodi(String codi) {
 		return personaHelper.findAmbCodi(codi);
 	}
-	
+
 	@Transactional(readOnly = true)
 	@Override
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
 		return personaHelper.findLikeNomSencer(text);
-	}
-
-	@Override
-	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth == null)
-			return new ArrayList<EntornDto>();
-		String usuariActual = auth.getName();
-		logger.debug("Cercant entorns permesos per a l'usuari actual (codi=" + usuariActual + ")");
-		return usuariActualCacheHelper.findEntornsPermesosUsuariActual(auth.getName());
-	}
-
-	@Override
-	public UsuariPreferenciesDto getPreferenciesUsuariActual() {
-		logger.debug("Obtenint preferències per a l'usuari actual");
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth == null)
-			return null;
-		String usuariActual = auth.getName();
-		logger.debug("Obtenint preferències per a l'usuari actual (codi=" + usuariActual + ")");
-		return conversioTipusHelper.convertir(
-				usuariPreferenciesRepository.findByCodi(usuariActual),
-				UsuariPreferenciesDto.class);
 	}
 
 	@Override

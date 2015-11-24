@@ -219,7 +219,11 @@ public class PluginService {
 		try {
 			Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
 			if (portasignatures != null) {
+				if (portasignatures.getDataCallbackPrimer() == null)
+					portasignatures.setDataCallbackPrimer(new Date());
+				portasignatures.setDataCallbackDarrer(new Date());
 				if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
+					portasignatures.setDataSignatRebutjat(new Date());
 					if (!rebujat) {
 						portasignatures.setEstat(TipusEstat.SIGNAT);
 						portasignatures.setTransition(Transicio.SIGNAT);
@@ -228,8 +232,8 @@ public class PluginService {
 						portasignatures.setTransition(Transicio.REBUTJAT);
 						portasignatures.setMotiuRebuig(motiuRebuig);
 					}
-					processarDocumentPendentPortasignatures(id);
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+					processarDocumentPendentPortasignatures(id, portasignatures);
 					return true;
 				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
 					return true;
@@ -249,94 +253,9 @@ public class PluginService {
 	}
 
 	public boolean processarDocumentPendentPortasignatures(Integer id) {
-		boolean resposta = false;
-		Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
-		if (portasignatures != null) {
-			if (portasignatures.getDataCallbackPrimer() == null)
-				portasignatures.setDataCallbackPrimer(new Date());
-			else
-				portasignatures.setDataCallbackDarrer(new Date());
-			Long tokenId = portasignatures.getTokenId();
-			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
-			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
-			if (documentStore != null) {
-				if (	TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
-						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
-					// Processa els documents signats
-					try {
-						expedientLogHelper.afegirLogExpedientPerProces(
-								token.getProcessInstanceId(),
-								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
-								new Boolean(true).toString());
-						if (documentStore.getReferenciaCustodia() == null) {
-							afegirDocumentCustodia(
-									portasignatures.getDocumentId(),
-									portasignatures.getDocumentStoreId());
-						}
-						jbpmDao.signalToken(
-								tokenId.longValue(),
-								portasignatures.getTransicioOK());
-						portasignatures.setEstat(TipusEstat.PROCESSAT);
-						getServiceUtils().expedientIndexLuceneUpdate(
-								jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
-						resposta = true;
-					} catch (PluginException pex) {
-						errorProcesPsigna(
-								portasignatures,
-								getMissageFinalCadenaExcepcions(pex));
-						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
-					} catch (Exception ex) {
-						errorProcesPsigna(
-								portasignatures,
-								getMissageFinalCadenaExcepcions(ex));
-						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
-					}
-					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat()) ||
-						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
-					// Processa els documents rebujats
-					try {
-						expedientLogHelper.afegirLogExpedientPerProces(
-								token.getProcessInstanceId(),
-								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
-								new Boolean(false).toString());
-						jbpmDao.signalToken(
-								tokenId.longValue(),
-								portasignatures.getTransicioKO());
-						portasignatures.setEstat(TipusEstat.PROCESSAT);
-						getServiceUtils().expedientIndexLuceneUpdate(
-								token.getProcessInstanceId());
-						resposta = true;
-					} catch (Exception ex) {
-						errorProcesPsigna(
-								portasignatures,
-								getMissageFinalCadenaExcepcions(ex));
-						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
-					}
-					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-				} else {
-					String error = "El document de portasignatures (id=" + portasignatures.getDocumentId() + ") no està pendent de processar, està en estat " + portasignatures.getEstat().toString();
-					errorProcesPsigna(
-							portasignatures,
-							error);
-					logger.error(error);
-				}
-			} else {
-				String error = "El document rebut al callback (id=" + portasignatures.getDocumentId() + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")";
-				errorProcesPsigna(
-						portasignatures,
-						error);
-				logger.error(error);
-			}
-			List<Portasignatures> ambErrors = pluginPortasignaturesDao.findAmbErrorsPerExpedientId(portasignatures.getExpedient().getId());
-			if (ambErrors.size() > 0)
-				portasignatures.getExpedient().setErrorsIntegracions(true);
-			else
-				portasignatures.getExpedient().setErrorsIntegracions(false);
-		} else {
-			logger.error("El document de portasignatures (id=" + id + ") no s'ha trobat");
-		}
-		return resposta;
+		return processarDocumentPendentPortasignatures(
+				id,
+				pluginPortasignaturesDao.findByDocument(id));
 	}
 
 	/*public Double processarDocumentSignatPortasignatures(Integer id) {
@@ -538,6 +457,99 @@ public class PluginService {
 
 
 
+	private boolean processarDocumentPendentPortasignatures(
+			Integer id,
+			Portasignatures portasignatures) {
+		boolean resposta = false;
+		if (portasignatures != null) {
+			Long tokenId = portasignatures.getTokenId();
+			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
+			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
+			if (documentStore != null) {
+				if (	TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
+						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
+					// Processa els documents signats
+					try {
+						expedientLogHelper.afegirLogExpedientPerProces(
+								token.getProcessInstanceId(),
+								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+								new Boolean(true).toString());
+						if (documentStore.getReferenciaCustodia() == null) {
+							if (portasignatures.getDataCustodiaIntent() == null)
+								portasignatures.setDataCustodiaIntent(new Date());
+							afegirDocumentCustodia(
+									portasignatures.getDocumentId(),
+									portasignatures.getDocumentStoreId());
+							portasignatures.setDataCustodiaOk(new Date());
+						}
+						if (portasignatures.getDataSignalIntent() == null)
+							portasignatures.setDataSignalIntent(new Date());
+						jbpmDao.signalToken(
+								tokenId.longValue(),
+								portasignatures.getTransicioOK());
+						portasignatures.setDataSignalOk(new Date());
+						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						getServiceUtils().expedientIndexLuceneUpdate(
+								jbpmDao.getTokenById(tokenId.toString()).getProcessInstanceId());
+						resposta = true;
+					} catch (PluginException pex) {
+						errorProcesPsigna(
+								portasignatures,
+								getMissageFinalCadenaExcepcions(pex));
+						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
+					} catch (Exception ex) {
+						errorProcesPsigna(
+								portasignatures,
+								getMissageFinalCadenaExcepcions(ex));
+						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+					}
+					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat()) ||
+						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
+					// Processa els documents rebujats
+					try {
+						expedientLogHelper.afegirLogExpedientPerProces(
+								token.getProcessInstanceId(),
+								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+								new Boolean(false).toString());
+						jbpmDao.signalToken(
+								tokenId.longValue(),
+								portasignatures.getTransicioKO());
+						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						getServiceUtils().expedientIndexLuceneUpdate(
+								token.getProcessInstanceId());
+						resposta = true;
+					} catch (Exception ex) {
+						errorProcesPsigna(
+								portasignatures,
+								getMissageFinalCadenaExcepcions(ex));
+						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+					}
+					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
+				} else {
+					String error = "El document de portasignatures (id=" + portasignatures.getDocumentId() + ") no està pendent de processar, està en estat " + portasignatures.getEstat().toString();
+					errorProcesPsigna(
+							portasignatures,
+							error);
+					logger.error(error);
+				}
+			} else {
+				String error = "El document rebut al callback (id=" + portasignatures.getDocumentId() + ") fa referència a un documentStore inexistent (id=" + portasignatures.getDocumentStoreId() + ")";
+				errorProcesPsigna(
+						portasignatures,
+						error);
+				logger.error(error);
+			}
+			List<Portasignatures> ambErrors = pluginPortasignaturesDao.findAmbErrorsPerExpedientId(portasignatures.getExpedient().getId());
+			if (ambErrors.size() > 0)
+				portasignatures.getExpedient().setErrorsIntegracions(true);
+			else
+				portasignatures.getExpedient().setErrorsIntegracions(false);
+		} else {
+			logger.error("El document de portasignatures (id=" + id + ") no s'ha trobat");
+		}
+		return resposta;
+	}
 	private void afegirDocumentCustodia(
 			Integer documentId,
 			Long documentStoreId) throws Exception {

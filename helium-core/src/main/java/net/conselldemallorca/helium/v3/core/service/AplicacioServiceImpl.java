@@ -3,18 +3,16 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.json.MetricsModule;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 /**
  * Implementació dels mètodes de AplicacioService.
@@ -25,25 +23,26 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 public class AplicacioServiceImpl implements AplicacioService {
 
 	@Autowired
-	private MetricRegistry metricRegistry;
+	private UsuariPreferenciesRepository usuariPreferenciesRepository;
+
+	@Autowired
+	private UsuariActualHelper usuariActualHelper;
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
+
+
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String metrics() {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.registerModule(
-					new MetricsModule(
-							TimeUnit.SECONDS,
-							TimeUnit.MILLISECONDS,
-							false));
-			return mapper.writeValueAsString(metricRegistry);
-		} catch (Exception ex) {
-			logger.error("Error al generar les mètriques de l'aplicació", ex);
-			return "ERR";
-		}
+	public UsuariPreferenciesDto getUsuariPreferencies() {
+		String usuariActual = usuariActualHelper.getUsuariActual();
+		logger.debug("Consulta de les preferències per a l'usuari actual ("
+				+ "usuariActual=" + usuariActual + ")");
+		return conversioTipusHelper.convertir(
+				usuariPreferenciesRepository.findByCodi(usuariActual),
+				UsuariPreferenciesDto.class);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);

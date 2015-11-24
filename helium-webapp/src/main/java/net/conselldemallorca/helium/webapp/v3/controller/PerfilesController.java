@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -16,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.webapp.v3.command.PersonaUsuariCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -41,7 +43,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/v3/perfil")
 public class PerfilesController extends BaseController {
-	
+
+	@Resource(name="entornServiceV3")
+	private EntornService entornService;
 	@Autowired
 	private AdminService adminService;
 	
@@ -61,7 +65,7 @@ public class PerfilesController extends BaseController {
 	public List<ExpedientTipusDto> getExpedientTipus(
 			HttpServletRequest request,
 			@PathVariable String entornCodi) {
-		for (EntornDto entorn: adminService.findEntornAmbPermisReadUsuariActual()) {
+		for (EntornDto entorn: entornService.findAmbPermisAcces()) {
 			if (entorn.getCodi().equals(entornCodi)) {
 				List<ExpedientTipusDto> expedientTipusConConsultas = dissenyService.findExpedientTipusAmbPermisDissenyUsuariActual(entorn.getId());
 				Iterator<ExpedientTipusDto> it = expedientTipusConConsultas.iterator();
@@ -83,7 +87,7 @@ public class PerfilesController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable String entornCodi) {
-		for (EntornDto entorn: adminService.findEntornAmbPermisReadUsuariActual()) {
+		for (EntornDto entorn: entornService.findAmbPermisAcces()) {
 			if (entorn.getCodi().equals(entornCodi)) {
 				return dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entorn.getId(),expedientTipusId);
 			}
@@ -131,8 +135,7 @@ public class PerfilesController extends BaseController {
 		if (preferencies == null)
 			preferencies = new UsuariPreferenciesDto();
 		EntornDto entornUsuari = null;
-		List<EntornDto> entorns = adminService.findEntornAmbPermisReadUsuariActual();
-		
+		List<EntornDto> entorns = entornService.findAmbPermisAcces();
 		for (EntornDto entorn: entorns) {
 			if (entorn.getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				entornUsuari = entorn;

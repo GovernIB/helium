@@ -107,7 +107,7 @@
 					<c:if test="${condicioValor}">
 						<c:if test="${posicioActual == 0}"><tr></c:if>
 						<c:set var="dadaTipusRegistre" value="${false}"/>
-						<c:if test="${fn:endsWith(dada.class.name, 'DadaDto')}">
+						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
 							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
 						</c:if>
 						<c:if test="${dadaTipusRegistre}">
@@ -116,28 +116,28 @@
 							<c:set var="posicioActual" value="${0}"/>
 						</c:if>
 						<c:choose>
-							<c:when test="${fn:endsWith(dada.class.name, 'DadaDto')}">
+							<c:when test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
 								<%@ include file="expedientTaulaDades.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'TascaDocumentDto')}">
+							<c:when test="${fn:endsWith(dada['class'].name, 'TascaDocumentDto')}">
 								<%@ include file="expedientTaulaTascaDocument.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'DocumentDto')}">
+							<c:when test="${fn:endsWith(dada['class'].name, 'DocumentDto')}">
 								<%@ include file="expedientTaulaDocument.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'TerminiDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'TerminiDto')}">								
 								<%@ include file="expedientTaulaTermini.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'ExpedientLogDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientLogDto')}">								
 								<%@ include file="expedientTaulaLog.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'ExpedientTascaDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'ExpedientTascaDto')}">								
 								<%@ include file="expedientTaulaTasca.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'TokenDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'TokenDto')}">								
 								<%@ include file="expedientTaulaToken.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada.class.name, 'AccioDto')}">								
+							<c:when test="${fn:endsWith(dada['class'].name, 'AccioDto')}">								
 								<%@ include file="expedientTaulaAccio.jsp" %>
 							</c:when>
 							<c:otherwise>[Tipus desconegut]</c:otherwise>

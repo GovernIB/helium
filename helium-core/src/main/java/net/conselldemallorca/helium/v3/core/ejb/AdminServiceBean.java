@@ -11,7 +11,9 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -19,46 +21,29 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat de Helium.
+ * EJB per a AdminService.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class AdminServiceBean implements AdminService {
+
 	@Autowired
 	AdminService delegate;
 
 	/**
-	 * Retorna una llista d'entorns per als quals l'usuari actual te permis de lectura.
-	 * 
-	 * @return El llistat d'entorns.
+	 * {@inheritDoc}
 	 */
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EntornDto> findEntornAmbPermisReadUsuariActual() {
-		return delegate.findEntornAmbPermisReadUsuariActual();
+	@RolesAllowed({"HEL_ADMIN"})
+	public String getMetrics() {
+		return delegate.getMetrics();
 	}
 
 	/**
-	 * Retorna les preferències de l'usuari actual.
-	 * 
-	 * @return Les preferències.
-	 */
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public UsuariPreferenciesDto getPreferenciesUsuariActual() {
-		return delegate.getPreferenciesUsuariActual();
-	}
-
-	/**
-	 * Obté les mesures temporals per a evaluar el rendiment de l'aplicació al efectuar determinades tasques.
-	 * 
-	 * @return El llistat de mesures.
+	 * {@inheritDoc}
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

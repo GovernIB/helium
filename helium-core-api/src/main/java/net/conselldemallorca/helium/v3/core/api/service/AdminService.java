@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -23,19 +22,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 public interface AdminService {
 
 	/**
-	 * Retorna una llista d'entorns per als quals l'usuari actual
-	 * te permis de lectura.
+	 * Retorna un string en format JSON amb les mètriques de l'aplicació.
 	 * 
-	 * @return El llistat d'entorns.
+	 * @return l'string amb les mètriques
 	 */
-	public List<EntornDto> findEntornAmbPermisReadUsuariActual();
-
-	/**
-	 * Retorna les preferències de l'usuari actual.
-	 * 
-	 * @return Les preferències.
-	 */
-	public UsuariPreferenciesDto getPreferenciesUsuariActual();
+	public String getMetrics();
+	
 
 	/**
 	 * Obté les mesures temporals per a evaluar el rendiment

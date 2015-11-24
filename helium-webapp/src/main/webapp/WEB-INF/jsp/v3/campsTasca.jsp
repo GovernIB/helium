@@ -51,7 +51,7 @@
 					<c:choose>
 						<c:when test='${dada.campMultiple or isMultiple}'>
 							<c:choose>
-								<c:when test='${command[campNom][campIndex].class.name == "java.util.Date"}' ><fmt:formatDate value="${command[campNom][campIndex]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" /></c:when>
+								<c:when test='${command[campNom][campIndex]["class"].name == "java.util.Date"}' ><fmt:formatDate value="${command[campNom][campIndex]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" /></c:when>
 								<c:otherwise><c:set var="formattedDate" value="${command[campNom][campIndex]}"/></c:otherwise>
 							</c:choose>
 							
