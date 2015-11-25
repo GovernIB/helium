@@ -35,11 +35,11 @@
 			<dt><fmt:message key="common.icones.doc.psigna.id"/></dt><dd>${psignaPendentActual.documentId}&nbsp;</dd>
 			<dt><fmt:message key="common.icones.doc.psigna.data.enviat"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
 			<dt><fmt:message key="common.icones.doc.psigna.estat"/></dt><dd>${psignaPendentActual.estat}&nbsp;</dd>
-			<c:if test="${not empty psignaPendentActual.dataProcesPrimer}">
-				<dt><fmt:message key="common.icones.doc.psigna.data.proces.primer"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataProcesPrimer}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
+			<c:if test="${not empty psignaPendentActual.dataProcessamentPrimer}">
+				<dt><fmt:message key="common.icones.doc.psigna.data.proces.primer"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
 			</c:if>
-			<c:if test="${not empty psignaPendentActual.dataProcesDarrer}">
-				<dt><fmt:message key="common.icones.doc.psigna.data.proces.darrer"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataProcesDarrer}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
+			<c:if test="${not empty psignaPendentActual.dataProcessamentDarrer}">
+				<dt><fmt:message key="common.icones.doc.psigna.data.proces.darrer"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
 			</c:if>
 			<c:if test="${psignaPendentActual.error}">
 				<dt><fmt:message key="common.icones.doc.psigna.error.processant"/></dt><dd>${psignaPendentActual.errorProcessant}&nbsp;</dd>

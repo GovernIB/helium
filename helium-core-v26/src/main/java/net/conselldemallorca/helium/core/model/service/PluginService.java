@@ -219,9 +219,6 @@ public class PluginService {
 		try {
 			Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
 			if (portasignatures != null) {
-				if (portasignatures.getDataCallbackPrimer() == null)
-					portasignatures.setDataCallbackPrimer(new Date());
-				portasignatures.setDataCallbackDarrer(new Date());
 				if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
 					portasignatures.setDataSignatRebutjat(new Date());
 					if (!rebujat) {
@@ -462,12 +459,15 @@ public class PluginService {
 			Portasignatures portasignatures) {
 		boolean resposta = false;
 		if (portasignatures != null) {
+			if (portasignatures.getDataProcessamentPrimer() == null)
+				portasignatures.setDataProcessamentPrimer(new Date());
+			portasignatures.setDataProcessamentDarrer(new Date());
 			Long tokenId = portasignatures.getTokenId();
 			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
 			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
 			if (documentStore != null) {
-				if (	TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
-						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
+				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
+					(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
 					// Processa els documents signats
 					try {
 						expedientLogHelper.afegirLogExpedientPerProces(
@@ -479,7 +479,7 @@ public class PluginService {
 								portasignatures.setDataCustodiaIntent(new Date());
 							afegirDocumentCustodia(
 									portasignatures.getDocumentId(),
-									portasignatures.getDocumentStoreId());
+									documentStore);
 							portasignatures.setDataCustodiaOk(new Date());
 						}
 						if (portasignatures.getDataSignalIntent() == null)
@@ -496,12 +496,12 @@ public class PluginService {
 						errorProcesPsigna(
 								portasignatures,
 								getMissageFinalCadenaExcepcions(pex));
-						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
+						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + "): " + getMissageFinalCadenaExcepcions(pex), pex);
 					} catch (Exception ex) {
 						errorProcesPsigna(
 								portasignatures,
 								getMissageFinalCadenaExcepcions(ex));
-						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat()) ||
@@ -523,7 +523,7 @@ public class PluginService {
 						errorProcesPsigna(
 								portasignatures,
 								getMissageFinalCadenaExcepcions(ex));
-						logger.error("Error al processar el document pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
+						logger.error("Error al processar el document rebutjat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
 				} else {
@@ -552,19 +552,19 @@ public class PluginService {
 	}
 	private void afegirDocumentCustodia(
 			Integer documentId,
-			Long documentStoreId) throws Exception {
+			DocumentStore documentStore) throws Exception {
+		Long documentStoreId = documentStore.getId();
 		DocumentDto document = documentHelper.getDocumentSenseContingut(documentStoreId);
 		if (document != null) {
-			DocumentStore docst = documentStoreDao.getById(documentStoreId, false);
-			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(docst.getProcessInstanceId());
+			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(documentStore.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-			String varDocumentCodi = docst.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
+			String varDocumentCodi = documentStore.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
 			if (signatures != null) {
 				//logger.info(">>> [PSIGN] Té signatures i comença custòdia (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-				if (docst.getReferenciaCustodia() != null) {
+				if (documentStore.getReferenciaCustodia() != null) {
 					//logger.info(">>> [PSIGN] Abans esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
-					pluginCustodiaDao.esborrarSignatures(docst.getReferenciaCustodia());
+					pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
 					//logger.info(">>> [PSIGN] Després esborrar signatures (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");
 				}
 				String referenciaCustodia = null;
@@ -573,7 +573,7 @@ public class PluginService {
 						//logger.info(">>> [PSIGN] Abans cridada custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ")");
 						referenciaCustodia = pluginCustodiaDao.afegirSignatura(
 								documentStoreId,
-								docst.getReferenciaFont(),
+								documentStore.getReferenciaFont(),
 								document.getArxiuNom(),
 								document.getCustodiaCodi(),
 								signatura);
@@ -606,11 +606,11 @@ public class PluginService {
 					}
 				}
 				//logger.info(">>> [PSIGN] Fi procés custòdia 1 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");
-				docst.setReferenciaCustodia(referenciaCustodia);
-				docst.setSignat(true);
+				documentStore.setReferenciaCustodia(referenciaCustodia);
+				documentStore.setSignat(true);
 				registreDao.crearRegistreSignarDocument(
 						expedient.getId(),
-						docst.getProcessInstanceId(),
+						documentStore.getProcessInstanceId(),
 						SecurityContextHolder.getContext().getAuthentication().getName(),
 						varDocumentCodi);
 				//logger.info(">>> [PSIGN] Fi procés custòdia 2 (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + referenciaCustodia + ")");

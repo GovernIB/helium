@@ -22,6 +22,14 @@ public class PortasignaturesPendentDto {
 	private Date dataEnviat;
 	private Date dataCallbackPrimer;
 	private Date dataCallbackDarrer;
+	private String motiuRebuig;
+	private Date dataProcessamentPrimer;
+	private Date dataProcessamentDarrer;
+	private Date dataSignatRebutjat;
+	private Date dataCustodiaIntent;
+	private Date dataCustodiaOk;
+	private Date dataSignalIntent;
+	private Date dataSignalOk;
 	private String errorCallback;
 
 	public Long getId() {
@@ -71,6 +79,54 @@ public class PortasignaturesPendentDto {
 	}
 	public void setDataCallbackDarrer(Date dataCallbackDarrer) {
 		this.dataCallbackDarrer = dataCallbackDarrer;
+	}
+	public String getMotiuRebuig() {
+		return motiuRebuig;
+	}
+	public void setMotiuRebuig(String motiuRebuig) {
+		this.motiuRebuig = motiuRebuig;
+	}
+	public Date getDataProcessamentPrimer() {
+		return dataProcessamentPrimer;
+	}
+	public void setDataProcessamentPrimer(Date dataProcessamentPrimer) {
+		this.dataProcessamentPrimer = dataProcessamentPrimer;
+	}
+	public Date getDataProcessamentDarrer() {
+		return dataProcessamentDarrer;
+	}
+	public void setDataProcessamentDarrer(Date dataProcessamentDarrer) {
+		this.dataProcessamentDarrer = dataProcessamentDarrer;
+	}
+	public Date getDataSignatRebutjat() {
+		return dataSignatRebutjat;
+	}
+	public void setDataSignatRebutjat(Date dataSignatRebutjat) {
+		this.dataSignatRebutjat = dataSignatRebutjat;
+	}
+	public Date getDataCustodiaIntent() {
+		return dataCustodiaIntent;
+	}
+	public void setDataCustodiaIntent(Date dataCustodiaIntent) {
+		this.dataCustodiaIntent = dataCustodiaIntent;
+	}
+	public Date getDataCustodiaOk() {
+		return dataCustodiaOk;
+	}
+	public void setDataCustodiaOk(Date dataCustodiaOk) {
+		this.dataCustodiaOk = dataCustodiaOk;
+	}
+	public Date getDataSignalIntent() {
+		return dataSignalIntent;
+	}
+	public void setDataSignalIntent(Date dataSignalIntent) {
+		this.dataSignalIntent = dataSignalIntent;
+	}
+	public Date getDataSignalOk() {
+		return dataSignalOk;
+	}
+	public void setDataSignalOk(Date dataSignalOk) {
+		this.dataSignalOk = dataSignalOk;
 	}
 	public String getErrorCallback() {
 		return errorCallback;

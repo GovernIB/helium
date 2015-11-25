@@ -26,8 +26,13 @@ public class PortasignaturesDto {
 	private String motiuRebuig;
 	private String transicioOK;
 	private String transicioKO;
-	private Date dataProcesPrimer;
-	private Date dataProcesDarrer;
+	private Date dataProcessamentPrimer;
+	private Date dataProcessamentDarrer;
+	private Date dataSignatRebutjat;
+	private Date dataCustodiaIntent;
+	private Date dataCustodiaOk;
+	private Date dataSignalIntent;
+	private Date dataSignalOk;
 	private String processInstanceId;
 	private boolean error;
 	private String errorProcessant;
@@ -92,17 +97,47 @@ public class PortasignaturesDto {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
-	public Date getDataProcesPrimer() {
-		return dataProcesPrimer;
+	public Date getDataProcessamentPrimer() {
+		return dataProcessamentPrimer;
 	}
-	public void setDataProcesPrimer(Date dataProcesPrimer) {
-		this.dataProcesPrimer = dataProcesPrimer;
+	public void setDataProcessamentPrimer(Date dataProcessamentPrimer) {
+		this.dataProcessamentPrimer = dataProcessamentPrimer;
 	}
-	public Date getDataProcesDarrer() {
-		return dataProcesDarrer;
+	public Date getDataProcessamentDarrer() {
+		return dataProcessamentDarrer;
 	}
-	public void setDataProcesDarrer(Date dataProcesDarrer) {
-		this.dataProcesDarrer = dataProcesDarrer;
+	public void setDataProcessamentDarrer(Date dataProcessamentDarrer) {
+		this.dataProcessamentDarrer = dataProcessamentDarrer;
+	}
+	public Date getDataSignatRebutjat() {
+		return dataSignatRebutjat;
+	}
+	public void setDataSignatRebutjat(Date dataSignatRebutjat) {
+		this.dataSignatRebutjat = dataSignatRebutjat;
+	}
+	public Date getDataCustodiaIntent() {
+		return dataCustodiaIntent;
+	}
+	public void setDataCustodiaIntent(Date dataCustodiaIntent) {
+		this.dataCustodiaIntent = dataCustodiaIntent;
+	}
+	public Date getDataCustodiaOk() {
+		return dataCustodiaOk;
+	}
+	public void setDataCustodiaOk(Date dataCustodiaOk) {
+		this.dataCustodiaOk = dataCustodiaOk;
+	}
+	public Date getDataSignalIntent() {
+		return dataSignalIntent;
+	}
+	public void setDataSignalIntent(Date dataSignalIntent) {
+		this.dataSignalIntent = dataSignalIntent;
+	}
+	public Date getDataSignalOk() {
+		return dataSignalOk;
+	}
+	public void setDataSignalOk(Date dataSignalOk) {
+		this.dataSignalOk = dataSignalOk;
 	}
 	public String getProcessInstanceId() {
 		return processInstanceId;

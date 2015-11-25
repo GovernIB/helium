@@ -20,7 +20,7 @@
 		<display:column property="portasignaturesId" title="Id psigna." sortable="true"/>
 		<display:column property="estat" title="Estat" sortable="true"/>
 		<display:column property="dataEnviat" title="Enviat" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
-		<display:column property="dataCallbackDarrer" title="Darrer cb" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
+		<display:column property="dataProcessamentDarrer" title="Darrer cb" format="{0,date,dd/MM/yyyy HH:mm}" sortable="true"/>
 		<display:column title="Error cb">
 			<c:if test="${not empty registre.errorCallback}"><img src="<c:url value="/img/error.png"/>" border="0" title="${registre.errorCallback}"/></c:if>
 		</display:column>
