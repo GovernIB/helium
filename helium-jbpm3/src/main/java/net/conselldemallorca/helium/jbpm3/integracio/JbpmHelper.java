@@ -96,7 +96,6 @@ import net.conselldemallorca.helium.jbpm3.command.SuspendTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
-import net.conselldemallorca.helium.jbpm3.command.UpdateProcessInstanceExpedientAmbTokenCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 
 /**
