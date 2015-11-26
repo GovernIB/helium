@@ -9,15 +9,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -35,6 +26,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEditarCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
  * 
@@ -47,7 +47,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 	@Autowired
 	private ExpedientService expedientService;
 	@Autowired
-	private AdminService adminService;
+	private AplicacioService aplicacioService;
 
 	@RequestMapping(value = "/{expedientId}/modificar", method = RequestMethod.GET)
 	public String get(
@@ -126,7 +126,7 @@ public class ExpedientInformacioController extends BaseExpedientController {
 		expedientEditarCommand.setGeoReferencia(expedient.getGeoReferencia());
 		expedientEditarCommand.setGrupCodi(expedient.getGrupCodi());
 		expedientEditarCommand.setIniciadorCodi(expedient.getIniciadorCodi());
-		PersonaDto personaResponsable = adminService.findPersonaAmbCodi(expedient.getResponsableCodi());
+		PersonaDto personaResponsable = aplicacioService.findPersonaAmbCodi(expedient.getResponsableCodi());
 		expedient.setResponsablePersona(personaResponsable);
 		if (personaResponsable != null) {
 			expedientEditarCommand.setResponsableCodi(personaResponsable.getCodi());

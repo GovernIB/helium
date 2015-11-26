@@ -75,6 +75,7 @@ public class ProcessInstance implements Identifiable, Serializable
   protected List runtimeActions;
   /** not persisted */
   protected List cascadeProcessInstances;
+  protected ProcessInstanceExpedient expedient;
 
   // constructors /////////////////////////////////////////////////////////////
 
@@ -613,6 +614,14 @@ public class ProcessInstance implements Identifiable, Serializable
   public void setKey(String key)
   {
     this.key = key;
+  }
+
+  public ProcessInstanceExpedient getExpedient() {
+	return expedient;
+  }
+
+  public void setExpedient(ProcessInstanceExpedient expedient) {
+	this.expedient = expedient;
   }
 
   // private static Log log = LogFactory.getLog(ProcessInstance.class);

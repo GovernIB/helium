@@ -47,68 +47,64 @@ public class AdminServiceBean implements AdminService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<MesuraTemporalDto> findMesuresTemporals(String familia, boolean ambDetall) {
-		return delegate.findMesuresTemporals(familia, ambDetall);
+	public List<MesuraTemporalDto> mesuraTemporalFindByFamilia(
+			String familia,
+			boolean ambDetall) {
+		return delegate.mesuraTemporalFindByFamilia(familia, ambDetall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient() {
-		return delegate.findMesuresTemporalsTipusExpedient();
+	public List<MesuraTemporalDto> mesuraTemporalFindByTipusExpedient() {
+		return delegate.mesuraTemporalFindByTipusExpedient();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<MesuraTemporalDto> findMesuresTemporalsTasca() {
-		return delegate.findMesuresTemporalsTasca();
+	public List<MesuraTemporalDto> mesuraTemporalFindByTasca() {
+		return delegate.mesuraTemporalFindByTasca();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Set<String> findFamiliesMesuresTemporals() {
-		return delegate.findFamiliesMesuresTemporals();
+	public Set<String> mesuraTemporalFindFamiliesAll() {
+		return delegate.mesuraTemporalFindFamiliesAll();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Object getMesuresTemporalsHelper() {
-		return delegate.getMesuresTemporalsHelper();
+	public void mesuraTemporalIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall) {
+		delegate.mesuraTemporalIniciar(nom, familia, tipusExpedient, tasca, detall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void mesuraIniciar(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-		delegate.mesuraIniciar(nom, familia, tipusExpedient, tasca, detall);
+	public void mesuraTemporalIniciar(String nom, String familia, String tipusExpedient) {
+		delegate.mesuraTemporalIniciar(nom, familia, tipusExpedient);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void mesuraIniciar(String nom, String familia, String tipusExpedient) {
-		delegate.mesuraIniciar(nom, familia, tipusExpedient);
+	public void mesuraTemporalIniciar(String clau, String familia) {
+		delegate.mesuraTemporalIniciar(clau, familia);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void mesuraIniciar(String clau, String familia) {
-		delegate.mesuraIniciar(clau, familia);
+	public void mesuraTemporalCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall) {
+		delegate.mesuraTemporalCalcular(nom, familia, tipusExpedient, tasca, detall);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void mesuraCalcular(String nom, String familia, String tipusExpedient, String tasca, String detall) {
-		delegate.mesuraCalcular(nom, familia, tipusExpedient, tasca, detall);
+	public void mesuraTemporalCalcular(String nom, String familia, String tipusExpedient) {
+		delegate.mesuraTemporalCalcular(nom, familia, tipusExpedient);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void mesuraCalcular(String nom, String familia, String tipusExpedient) {
-		delegate.mesuraCalcular(nom, familia, tipusExpedient);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void mesuraCalcular(String clau, String familia) {
-		delegate.mesuraCalcular(clau, familia);
+	public void mesuraTemporalCalcular(String clau, String familia) {
+		delegate.mesuraTemporalCalcular(clau, familia);
 	}
 
 	@Override
@@ -171,15 +167,4 @@ public class AdminServiceBean implements AdminService {
 		return delegate.findReassignacioById(id);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PersonaDto findPersonaAmbCodi(String codi) {
-		return delegate.findPersonaAmbCodi(codi);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return delegate.findPersonaLikeNomSencer(text);
-	}
 }

@@ -64,13 +64,13 @@ public class IndexController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (entorn != null) {
-			adminService.mesuraIniciar("Index", "general");
+			adminService.mesuraTemporalIniciar("Index", "general");
 			model.addAttribute("countPersonaLlistat", tascaService.findCountTasquesPersonalsIndex(entorn.getId()));
 			model.addAttribute("countGrupLlistat", tascaService.findCountTasquesGrupIndex(entorn.getId()));
 			model.addAttribute("alertesCountLlistat", alertaService.countActivesAmbEntornIUsuari(entorn.getId(), auth.getName(), AlertaService.ALERTAS_TODAS));
-			adminService.mesuraCalcular("Index", "general");
+			adminService.mesuraTemporalCalcular("Index", "general");
 		} else {
-			adminService.mesuraIniciar("Index sense entorn actiu", "general");
+			adminService.mesuraTemporalIniciar("Index sense entorn actiu", "general");
 			Map<Entorn, List<TascaLlistatDto>> tasquesPersonaEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();
 			Map<Entorn, List<TascaLlistatDto>> tasquesGrupEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();
 			Map<Entorn, Object> alertesEntorn = new HashMap<Entorn, Object>();
@@ -90,7 +90,7 @@ public class IndexController extends BaseController {
 			model.addAttribute("tasquesPersonaEntorn", tasquesPersonaEntorn);
 			model.addAttribute("tasquesGrupEntorn", tasquesGrupEntorn);
 			model.addAttribute("alertesCountEntorn", alertesEntorn);
-			adminService.mesuraCalcular("Index sense entorn actiu", "general");
+			adminService.mesuraTemporalCalcular("Index sense entorn actiu", "general");
 		}
 		return "index";
 	}

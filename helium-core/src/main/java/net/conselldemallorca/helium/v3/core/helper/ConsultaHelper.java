@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -21,12 +23,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els consultes.
@@ -39,8 +38,6 @@ public class ConsultaHelper {
 	private VariableHelper variableHelper;	
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private AdminService adminService;
 	@Resource(name="serviceUtilsV3")
 	private ServiceUtils serviceUtils;
 	@Resource
@@ -51,6 +48,8 @@ public class ConsultaHelper {
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private PersonaHelper personaHelper;
 
 	/**
 	 * Mètodes per a obtenir els camps de les consultes per tipus
@@ -124,13 +123,13 @@ public class ConsultaHelper {
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(campCodi)) {
 			text = expedient.getComentari();
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(campCodi)) {
-			PersonaDto persona = adminService.findPersonaAmbCodi(expedient.getIniciadorCodi());
+			PersonaDto persona = personaHelper.findAmbCodi(expedient.getIniciadorCodi());
 			if (persona != null)
 				text = persona.getNomSencer();
 			else
 				text = expedient.getIniciadorCodi();
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(campCodi)) {
-			PersonaDto persona = adminService.findPersonaAmbCodi(expedient.getResponsableCodi());
+			PersonaDto persona = personaHelper.findAmbCodi(expedient.getResponsableCodi());
 			if (persona != null)
 				text = persona.getNomSencer();
 			else 

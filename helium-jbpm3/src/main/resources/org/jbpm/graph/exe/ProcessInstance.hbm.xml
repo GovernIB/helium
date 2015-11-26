@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping auto-import="false" default-access="field">
+  <class name="org.jbpm.graph.exe.ProcessInstance"
+         table="JBPM_PROCESSINSTANCE">
+    <id name="id" column="ID_"><generator class="native" /></id>
+    <version name="version" column="VERSION_" />
+    
+    <property name="key" column="KEY_" index="IDX_PROCIN_KEY" />
+    <property name="start" column="START_" />
+    <property name="end" column="END_" />
+    <property name="isSuspended" column="ISSUSPENDED_" />
+    <many-to-one name="processDefinition" 
+                 column="PROCESSDEFINITION_" 
+                 foreign-key="FK_PROCIN_PROCDEF" 
+                 index="IDX_PROCIN_PROCDEF" />
+    <many-to-one name="rootToken" 
+                 column="ROOTTOKEN_"
+                 cascade="all" 
+                 foreign-key="FK_PROCIN_ROOTTKN"
+                 index="IDX_PROCIN_ROOTTK" />
+    <many-to-one name="superProcessToken" 
+                 column="SUPERPROCESSTOKEN_"
+                 foreign-key="FK_PROCIN_SPROCTKN" 
+                 index="IDX_PROCIN_SPROCTK"/>
+    <list name="runtimeActions" cascade="all">
+      <key column="PROCESSINSTANCE_" />
+      <index column="PROCESSINSTANCEINDEX_" />
+      <one-to-many class="org.jbpm.graph.exe.RuntimeAction"/>
+    </list>
+    <map name="instances" cascade="all">
+      <key column="PROCESSINSTANCE_" />
+      <map-key column="NAME_" type="string"/>
+      <one-to-many class="org.jbpm.module.exe.ModuleInstance" />
+    </map>
+    <many-to-one name="expedient" 
+                 column="EXPEDIENT_ID_" />
+  </class>
+</hibernate-mapping>

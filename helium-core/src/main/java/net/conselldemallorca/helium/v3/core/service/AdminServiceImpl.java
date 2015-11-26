@@ -98,71 +98,96 @@ public class AdminServiceImpl implements AdminService {
 		}
 	}
 
-	@Transactional(readOnly = true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public PersonaDto findPersonaAmbCodi(String codi) {
-		return personaHelper.findAmbCodi(codi);
-	}
-
-	@Transactional(readOnly = true)
-	@Override
-	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return personaHelper.findLikeNomSencer(text);
-	}
-
-	@Override
-	public List<MesuraTemporalDto> findMesuresTemporals(String familia, boolean ambDetall) {
-		logger.debug("Consultant el llistat de les mesures temporals");
+	public List<MesuraTemporalDto> mesuraTemporalFindByFamilia(
+			String familia,
+			boolean ambDetall) {
+		logger.debug("Consultant el llistat de mesures temporals per família (" +
+				"familia=" + familia + ", " +
+				"ambDetall=" + ambDetall + ")");
 		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
 	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<MesuraTemporalDto> findMesuresTemporalsTipusExpedient() {
+	public List<MesuraTemporalDto> mesuraTemporalFindByTipusExpedient() {
+		logger.debug("Consultant el llistat de mesures temporals dels tipus d'expedient");
 		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
 	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<MesuraTemporalDto> findMesuresTemporalsTasca() {
+	public List<MesuraTemporalDto> mesuraTemporalFindByTasca() {
+		logger.debug("Consultant el llistat de mesures temporals de les tasques");
 		return mesuresTemporalsHelper.getEstadistiquesTasca();
 	}
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public Set<String> findFamiliesMesuresTemporals() {
+	public Set<String> mesuraTemporalFindFamiliesAll() {
+		logger.debug("Consultant el llistat de famílies de mesures temporals");
 		return mesuresTemporalsHelper.getIntervalsFamilia();
 	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public MesuresTemporalsHelper getMesuresTemporalsHelper() {
-		return mesuresTemporalsHelper;
+	public void mesuraTemporalIniciar(
+			String clau,
+			String familia) {
+		logger.debug("Consultant el llistat de famílies de mesures temporals");
+		mesuresTemporalsHelper.mesuraIniciar(
+				clau,
+				familia);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void mesuraTemporalIniciar(
+			String clau,
+			String familia,
+			String tipusExpedient) {
+		mesuresTemporalsHelper.mesuraIniciar(
+				clau,
+				familia,
+				tipusExpedient);
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void mesuraTemporalIniciar(
+			String clau,
+			String familia,
+			String tipusExpedient,
+			String tasca,
+			String detall) {
+		mesuresTemporalsHelper.mesuraIniciar(
+				clau,
+				familia,
+				tipusExpedient,
+				tasca,
+				detall);
 	}
 	
 	@Override
-	public void mesuraIniciar(String clau, String familia) {
-		mesuresTemporalsHelper.mesuraIniciar(clau, familia);
-	}
-	
-	@Override
-	public void mesuraIniciar(String clau, String familia, String tipusExpedient) {
-		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient);
-	}
-	
-	@Override
-	public void mesuraIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
-		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
-	}
-	
-	@Override
-	public void mesuraCalcular(String clau, String familia) {
+	public void mesuraTemporalCalcular(String clau, String familia) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia);
 	}
 	
 	@Override
-	public void mesuraCalcular(String clau, String familia, String tipusExpedient) {
+	public void mesuraTemporalCalcular(String clau, String familia, String tipusExpedient) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient);
 	}
-	
 	@Override
-	public void mesuraCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
+	public void mesuraTemporalCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
 		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
 	}
 	

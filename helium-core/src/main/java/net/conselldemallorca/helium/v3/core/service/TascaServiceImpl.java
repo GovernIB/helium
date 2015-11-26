@@ -372,7 +372,7 @@ public class TascaServiceImpl implements TascaService {
 				} else {
 					order.setCamp("tipus.nom");
 				}
-				paginacio=new PageRequest(0,99999999, order.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, order.getCamp());
+				paginacio = new PageRequest(0,99999999, order.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, order.getCamp());
 			}
 		}
 

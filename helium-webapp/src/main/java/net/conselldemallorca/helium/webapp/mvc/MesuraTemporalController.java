@@ -71,9 +71,9 @@ public class MesuraTemporalController extends BaseController {
 		DecimalFormat df2 = new DecimalFormat( "####0.000" );
 		Map mjson = new LinkedHashMap();
 		
-		List<MesuraTemporalDto> mesures = adminService.findMesuresTemporals(familia, false);
+		List<MesuraTemporalDto> mesures = adminService.mesuraTemporalFindByFamilia(familia, false);
 		Set<String> llistatFamilies = new HashSet<String>();
-		llistatFamilies.addAll(adminService.findFamiliesMesuresTemporals());
+		llistatFamilies.addAll(adminService.mesuraTemporalFindFamiliesAll());
 		
 		if (adminService.isStatisticActive()) {			
 			List<MesuraTemporalDto> listStatistics = adminService.getHibernateStatistics(familia, false);
@@ -153,7 +153,7 @@ public class MesuraTemporalController extends BaseController {
 		logger.debug("[TEMPS] >>>>> Inici generació de document Excel amb els temps d'execució.");
 		
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... ");
-		List<MesuraTemporalDto> mesures = adminService.findMesuresTemporals(null, true);
+		List<MesuraTemporalDto> mesures = adminService.mesuraTemporalFindByFamilia(null, true);
 		int numMesures = mesures.size();
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Helium... " + numMesures + " mesures.");
 		
@@ -326,7 +326,7 @@ public class MesuraTemporalController extends BaseController {
 		logger.debug("[TEMPS] >>>>>>>> Generant pestanya PER TIPUS EXPEDIENT ... ");
 
 		// PER TIPUS EXPEDIENT
-		List<MesuraTemporalDto> mesuresTipusExpedient = adminService.findMesuresTemporalsTipusExpedient();
+		List<MesuraTemporalDto> mesuresTipusExpedient = adminService.mesuraTemporalFindByTipusExpedient();
 		sheet = wb.createSheet("Mesures Tipus Expedient");
 		sheet.setColumnWidth(0, 15000);
 		sheet.setColumnWidth(1, 3000);
@@ -395,7 +395,7 @@ public class MesuraTemporalController extends BaseController {
 		logger.debug("[TEMPS] >>>>>>>> Generant pestanya PER TASCA ... ");
 		
 		// PER TASCA
-		List<MesuraTemporalDto> mesuresTasca = adminService.findMesuresTemporalsTasca();
+		List<MesuraTemporalDto> mesuresTasca = adminService.mesuraTemporalFindByTasca();
 		sheet = wb.createSheet("Mesures Tasca");
 		sheet.setColumnWidth(0, 20000);
 		sheet.setColumnWidth(1, 3000);

@@ -4,7 +4,7 @@
 package net.conselldemallorca.helium.core.util;
 
 /**
- * Emmagatzema el domini actual en un objecte de tipus ThreadLocal
+ * Emmagatzema l'entorn actual en un objecte de tipus ThreadLocal
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */

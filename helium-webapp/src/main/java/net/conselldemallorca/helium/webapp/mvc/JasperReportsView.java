@@ -69,7 +69,7 @@ public class JasperReportsView implements View {
 		if (model.get(MODEL_ATTRIBUTE_REPORTDATA) != null)
 			datasource = new JRBeanCollectionDataSource((List<Map<String, Object>>)model.get(MODEL_ATTRIBUTE_REPORTDATA));
 		if (datasource != null) {
-			adminService.mesuraIniciar("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");
+			adminService.mesuraTemporalIniciar("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");
 			JasperReport report = null;
 			report = JasperCompileManager.compileReport(new ByteArrayInputStream((byte[])model.get(MODEL_ATTRIBUTE_REPORTCONTENT)));
 			
@@ -184,7 +184,7 @@ public class JasperReportsView implements View {
 
 			}
 			
-			adminService.mesuraCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");			
+			adminService.mesuraTemporalCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");			
 		}
 	}
 

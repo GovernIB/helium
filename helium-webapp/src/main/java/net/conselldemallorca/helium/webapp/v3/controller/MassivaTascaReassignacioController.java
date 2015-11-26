@@ -9,19 +9,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.webapp.v3.command.ReassignacioTasquesCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +29,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.webapp.v3.command.ReassignacioTasquesCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+
 /**
  * Controlador per reassignacio massiva de tasques
  * 
@@ -52,7 +52,7 @@ import org.springframework.web.bind.support.SessionStatus;
 public class MassivaTascaReassignacioController extends BaseExpedientController {
 	
 	@Autowired
-	private AdminService adminService;
+	private AplicacioService aplicacioService;
 	
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
@@ -82,10 +82,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 
 	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String suggestAction(
+	public String personaSuggest(
 			@PathVariable String text,
 			Model model) {
-		List<PersonaDto> lista = adminService.findPersonaLikeNomSencer(text);
+		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(text);
 		String json = "[";
 		for (PersonaDto persona: lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
@@ -97,10 +97,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 
 	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String suggestIniciAction(
+	public String personaSuggestInici(
 			@PathVariable String text,
 			Model model) {
-		PersonaDto persona = adminService.findPersonaAmbCodi(text);
+		PersonaDto persona = aplicacioService.findPersonaAmbCodi(text);
 		if (persona != null) {
 			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
 		}

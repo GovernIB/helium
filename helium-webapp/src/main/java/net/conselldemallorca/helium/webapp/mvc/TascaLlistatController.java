@@ -383,7 +383,7 @@ public class TascaLlistatController extends BaseController {
 			Entorn entorn,
 			TascaFiltreCommand command,
 			String objectsPerPage) {
-		return tascaService.findCountTasquesPersonalsFiltre(
+		return tascaService.countTasquesPersonalsFiltre(
 				entorn.getId(),
 				null,
 				command.getNom(),
@@ -448,7 +448,7 @@ public class TascaLlistatController extends BaseController {
 			Entorn entorn,
 			TascaFiltreCommand command,
 			String objectsPerPage) {		
-		return tascaService.findCountTasquesGrupFiltre(
+		return tascaService.countTasquesGrupFiltre(
 				entorn.getId(),
 				null,
 				command.getNom(),

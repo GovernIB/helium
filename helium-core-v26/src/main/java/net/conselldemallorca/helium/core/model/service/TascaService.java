@@ -4,18 +4,14 @@
 package net.conselldemallorca.helium.core.model.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections.comparators.NullComparator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,30 +177,54 @@ public class TascaService {
 	public int countTasquesPersonalsEntorn(
 			Long entornId,
 			String usuari) {
-		mesuresTemporalsHelper.mesuraIniciar("Recompte tasques personals", "consulta");
-		int count = 0;
+		mesuresTemporalsHelper.mesuraIniciar(
+				"Recompte tasques personals",
+				"consulta");
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		
-		List<Long> idsExpedients = expedientDao.findListExpedients(
+		LlistatIds taskIds = jbpmDao.tascaFindByFiltre(
+				entornId,
+				usuariBo,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				true, // tasquesPersona
+				false, // tasquesGrup
+				true, // nomesPendents
+				0,
+				-1,
+				null,
+				true,
+				false);
+		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
-				usuariBo);
-		
-		LlistatIds lista = jbpmDao.findListIdsPersonalTasks(usuariBo,idsExpedients);
-		count = lista.getCount();
-		mesuresTemporalsHelper.mesuraCalcular("Recompte tasques personals", "consulta");		
-		return count;
+				usuariBo, null, null, null, null, false);
+		LlistatIds lista = jbpmDao.findListIdsPersonalTasks(
+				usuariBo,
+				idsExpedients);
+		count = lista.getCount();*/
+		mesuresTemporalsHelper.mesuraCalcular(
+				"Recompte tasques personals",
+				"consulta");
+		return taskIds.getCount();
 	}
-	public int findCountTasquesPersonalsFiltre(
+	public int countTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
-			String tasca,
-			String expedient,
-			String numeroExpedient,
-			Long tipusExpedient,
+			String titol,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Integer prioritat,
@@ -220,61 +240,86 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-
-		List<Long> idsExpedients = expedientDao.findListExpedients(
+		LlistatIds taskIds = jbpmDao.tascaFindByFiltre(
+				entornId,
+				usuariBo,
+				null,
+				titol,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				true, // tasquesPersona
+				false, // tasquesGrup
+				true, // nomesPendents
+				0,
+				-1,
+				null,
+				true,
+				false);
+		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
 				usuariBo,
-				expedient, 
-				numeroExpedient,
-				tipusExpedient,
+				expedientTitol, 
+				expedientNumero,
+				expedientTipusId,
 				sort,
-				asc
-				);
-
+				asc);
 		LlistatIds ids = jbpmDao.findListPersonalTasks(
 				usuariBo, 
-				tasca, 
+				titol, 
 				idsExpedients, 
 				dataCreacioInici, 
 				dataCreacioFi, 
 				prioritat, 
 				dataLimitInici, 
-				dataLimitFi, firstRow, maxResults, sort, asc);
-
+				dataLimitFi, firstRow, maxResults, sort, asc);*/
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES COUNT PERSONA", "consulta");
-		return ids.getCount();
+		return taskIds.getCount();
 	}
 	@Timed
 	public PaginaLlistatDto findTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
-			String tasca,
-			String expedient,
-			String numeroExpedient,
-			Long tipusExpedient,
+			String titol,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Integer prioritat,
 			Date dataLimitInici,
 			Date dataLimitFi,
-			int firstRow,
+			int firstResult,
 			int maxResults,
 			String sort,
 			boolean asc) {
-		PaginaLlistatDto resposta;
-		final Timer timerTotal = metricRegistry.timer(
-				MetricRegistry.name(
-						TascaService.class,
-						"findTasquesPersonalsFiltre",
-						entornId.toString()));
-		final Timer.Context contextTotal = timerTotal.time();
-		try {
-			mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA", "consulta");
-			String usuariBo = usuari;
-			if (usuariBo == null) {
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				usuariBo = auth.getName();
-			}
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA", "consulta");
+		PaginaLlistatDto resposta = findTasquesFiltre(
+				entornId,
+				usuari,
+				null,
+				titol,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				firstResult,
+				maxResults,
+				sort,
+				asc,
+				true, // incloureTasquesPersona
+				false, // incloureTasquesGrup
+				true); // nomesPendents
+			/*
 			final Timer timerExpedientIds = metricRegistry.timer(
 					MetricRegistry.name(
 							TascaService.class,
@@ -302,8 +347,10 @@ public class TascaService {
 			final Timer.Context contextExpedientIds = timerExpedientIds.time();
 			List<Long> expedientIds;
 			try {
+				// Consulta els expedients de l'entorn que compleixen el filtre
 				expedientIds = expedientDao.findListExpedients(
-						entornId, 
+						entornId,
+						null,
 						usuariBo,
 						expedient, 
 						numeroExpedient,
@@ -316,14 +363,15 @@ public class TascaService {
 			final Timer.Context contextTascaIds = timerTascaIds.time();
 			LlistatIds tascaIds;
 			try {
+				// Consulta els expedients de l'entorn que compleixen el filtre
 				tascaIds = jbpmDao.findListPersonalTasks(
-						usuariBo, 
-						tasca, 
-						expedientIds, 
-						dataCreacioInici, 
-						dataCreacioFi, 
-						prioritat, 
-						dataLimitInici, 
+						usuariBo,
+						tasca,
+						expedientIds,
+						dataCreacioInici,
+						dataCreacioFi,
+						prioritat,
+						dataLimitInici,
 						dataLimitFi, firstRow, maxResults, sort, asc);
 			} finally {
 				contextTascaIds.stop();
@@ -357,11 +405,8 @@ public class TascaService {
 				resposta.setCount(tascaIds.getCount());
 			} finally {
 				contextResposta.stop();
-			}
-			mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA", "consulta");
-		} finally {
-			contextTotal.stop();
-		}
+			}*/
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES PERSONA", "consulta");
 		return resposta;
 	}
 
@@ -369,29 +414,51 @@ public class TascaService {
 			Long entornId,
 			String usuari) {
 		mesuresTemporalsHelper.mesuraIniciar("Recompte tasques grup", "consulta");
-		int count = 0;
+		//int count = 0;
 		String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		
-		List<Long> idsExpedients = expedientDao.findListExpedients(
+		LlistatIds taskIds = jbpmDao.tascaFindByFiltre(
+				entornId,
+				usuariBo,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false, // tasquesPersona
+				true, // tasquesGrup
+				true, // nomesPendents
+				0,
+				-1,
+				null,
+				true,
+				false);
+		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
-				usuariBo);
-		
-		LlistatIds lista = jbpmDao.findListIdsGroupTasks(usuariBo, idsExpedients);
-		count = lista.getCount();
+				usuariBo, null, null, null, null, false);*/
+		/*List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo, null, null, null, null, false);*/
+		/*LlistatIds lista = jbpmDao.findListIdsGroupTasks(usuariBo, idsExpedients);
+		count = lista.getCount();*/
 		mesuresTemporalsHelper.mesuraCalcular("Recompte tasques grup", "consulta");
-		return count;
+		return taskIds.getCount();
 	}
-	public int findCountTasquesGrupFiltre(
+	public int countTasquesGrupFiltre(
 			Long entornId,
 			String usuari,
-			String tasca,
-			String expedient,
-			String numeroExpedient,
-			Long tipusExpedient,
+			String titol,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Integer prioritat,
@@ -407,16 +474,44 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<Long> idsExpedients = expedientDao.findListExpedients(
+		LlistatIds taskIds = jbpmDao.tascaFindByFiltre(
+				entornId,
+				usuariBo,
+				null,
+				titol,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				false, // tasquesPersona
+				true, // tasquesGrup
+				true, // nomesPendents
+				0,
+				-1,
+				null,
+				true,
+				false);
+		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
 				usuariBo,
 				expedient, 
 				numeroExpedient,
 				tipusExpedient,
 				sort,
-				asc);
-		
-		int count = jbpmDao.findListGroupTasks(
+				asc);*/
+		/*List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId, 
+				usuariBo,
+				expedient, 
+				numeroExpedient,
+				tipusExpedient,
+				sort,
+				asc);*/
+		/*int count = jbpmDao.findListGroupTasks(
 				usuariBo, 
 				tasca, 
 				idsExpedients, 
@@ -424,30 +519,50 @@ public class TascaService {
 				dataCreacioFi, 
 				prioritat, 
 				dataLimitInici, 
-				dataLimitFi, firstRow, maxResults, sort, asc).getCount();
-		
+				dataLimitFi, firstRow, maxResults, sort, asc).getCount();*/
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP COUNT", "consulta");
-		return count;
+		return taskIds.getCount();
 	}
 
 	@Timed
 	public PaginaLlistatDto findTasquesGrupFiltre(
 			Long entornId,
 			String usuari,
-			String tasca,
-			String expedient,
-			String numeroExpedient,
-			Long tipusExpedient,
+			String titol,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			Integer prioritat,
 			Date dataLimitInici,
 			Date dataLimitFi,
-			int firstRow,
+			int firstResult,
 			int maxResults,
 			String sort,
 			boolean asc) {
-		PaginaLlistatDto resposta;
+		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP", "consulta");
+		PaginaLlistatDto resposta = findTasquesFiltre(
+				entornId,
+				usuari,
+				null,
+				titol,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				firstResult,
+				maxResults,
+				sort,
+				asc,
+				false, // incloureTasquesPersona
+				true, // incloureTasquesGrup
+				true); // nomesPendents
+		/*PaginaLlistatDto resposta;
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
 						TascaService.class,
@@ -488,8 +603,8 @@ public class TascaService {
 			final Timer.Context contextExpedientIds = timerExpedientIds.time();
 			List<Long> expedientIds;
 			try {
-				expedientIds = expedientDao.findListExpedients(
-						entornId, 
+				expedientIds = getExpedientIdsPerConsultaTasques(
+						entornId,
 						usuariBo,
 						expedient, 
 						numeroExpedient,
@@ -544,36 +659,55 @@ public class TascaService {
 			} finally {
 				contextResposta.stop();
 			}
-			mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP", "consulta");
-		} finally {
-			contextTotal.stop();
-		}
+			mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP", "consulta");*/
+		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES GRUP", "consulta");
 		return resposta;
 	}
 
 	public PaginaLlistatDto findTasquesConsultaFiltre(
 			Long entornId,
-			Long tipusExpedient,
+			Long expedientTipusId,
 			String responsable,
-			String jbpmName,
+			String taskName,
 			String titol,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
 			MostrarTasquesDto mostrarTasques, 
-			int firstRow,
+			int firstResult,
 			int maxResults,
 			String sort,
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
-		List<Long> idsExpedients = expedientDao.findListExpedients(
-				entornId, 
+		boolean incloureTasquesPersona = true;
+		boolean incloureTasquesGrup = true;
+		PaginaLlistatDto resposta = findTasquesFiltre(
+				entornId,
+				(responsable != null && !responsable.isEmpty()) ? responsable : null,
+				(taskName != null && !taskName.isEmpty()) ? taskName : null,
+				(titol != null && !titol.isEmpty()) ? titol : null,
+				null,
+				null,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				null,
+				null,
+				null,
+				firstResult,
+				maxResults,
+				sort,
+				asc,
+				incloureTasquesPersona,
+				incloureTasquesGrup,
+				true); // nomesPendents
+		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
+				entornId,
 				responsable,
 				titol, 
 				null,
-				tipusExpedient,
+				expedientTipusId,
 				sort,
 				asc);
-			
 		LlistatIds ids = jbpmDao.findListTasks(
 				responsable, 
 				jbpmName, 
@@ -589,9 +723,7 @@ public class TascaService {
 				sort, 
 				asc,
 				mostrarTasques);
-
 		List<JbpmTask> tasques = jbpmDao.findGroupTasks(ids.getIds(), responsable);
-
 		PaginaLlistatDto resposta = tasquesLlistatFiltradesValors(
 				entornId,
 				tasques, 
@@ -608,7 +740,7 @@ public class TascaService {
 				sort,
 				asc,
 				true);	
-		resposta.setCount(ids.getCount());
+		resposta.setCount(ids.getCount());*/
 		mesuresTemporalsHelper.mesuraCalcular("CONSULTA TASQUES LLISTAT", "consulta");
 		return resposta;
 	}
@@ -649,9 +781,14 @@ public class TascaService {
 		if (usuari == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuari = auth.getName();
-		}		
-		List<Long> idsExpedients = expedientDao.findListExpedients(entornId,usuari);
-		LlistatIds llistatIds = jbpmDao.findListIdsGroupTasks(usuari,idsExpedients);
+		}
+		List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
+				entornId,
+				usuari, null, null, null, null, false);
+		/*List<Long> idsExpedients = expedientDao.findListExpedients(
+				entornId,
+				usuari, null, null, null, null, false);*/
+		LlistatIds llistatIds = jbpmDao.findListIdsGroupTasks(usuari, idsExpedients);
 		if (llistatIds.getIds().contains(Long.valueOf(tascaId))) {
 			res = true;
 		} else {
@@ -1594,7 +1731,145 @@ public class TascaService {
 				isDocumentsComplet(task),
 				isSignaturesComplet(task));
 	}
-	
+
+	private List<Long> getExpedientIdsPerConsultaTasques(
+			Long entornId,
+			String usuariCodi,
+			String expedient,
+			String numeroExpedient,
+			Long tipusExpedient,
+			String sort,
+			boolean asc) {
+		return expedientDao.findListExpedients(
+				entornId,
+				usuariCodi,
+				expedient,
+				numeroExpedient,
+				tipusExpedient,
+				sort,
+				asc);
+	}
+
+	private PaginaLlistatDto findTasquesFiltre(
+			Long entornId,
+			String usuari,
+			String taskName,
+			String titol,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Integer prioritat,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			int firstResult,
+			int maxResults,
+			String sort,
+			boolean asc,
+			boolean mostrarAssignadesUsuari,
+			boolean mostrarAssignadesGrup,
+			boolean nomesPendents) {
+		PaginaLlistatDto resposta;
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TascaService.class,
+						"findTasquesFiltre",
+						entornId.toString()));
+		final Timer.Context contextTotal = timerTotal.time();
+		try {
+			String usuariBo = usuari;
+			if (usuariBo == null) {
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				usuariBo = auth.getName();
+			}
+			final Timer timerTascaIds = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"findTasquesFiltre",
+							entornId.toString(),
+							"1_tascaIds"));
+			final Timer.Context contextTascaIds = timerTascaIds.time();
+			LlistatIds taskIds;
+			try {
+				// Consulta els expedients de l'entorn que compleixen el filtre
+				taskIds = jbpmDao.tascaFindByFiltre(
+						entornId,
+						usuariBo,
+						taskName,
+						titol,
+						expedientTitol,
+						expedientNumero,
+						expedientTipusId,
+						dataCreacioInici,
+						dataCreacioFi,
+						prioritat,
+						dataLimitInici,
+						dataLimitFi,
+						mostrarAssignadesUsuari,
+						mostrarAssignadesGrup,
+						nomesPendents,
+						firstResult,
+						maxResults,
+						sort,
+						asc,
+						false);
+			} finally {
+				contextTascaIds.stop();
+			}
+			final Timer timerTasques = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"findTasquesFiltre",
+							entornId.toString(),
+							"2_tasques"));
+			final Timer.Context contextTasques = timerTasques.time();
+			List<JbpmTask> tasks;
+			try {
+				tasks = jbpmDao.findTasks(
+						taskIds.getIds());
+			} finally {
+				contextTasques.stop();
+			}
+			final Timer timerResposta = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"findTasquesFiltre",
+							entornId.toString(),
+							"3_resposta"));
+			final Timer.Context contextResposta = timerResposta.time();
+			List<TascaLlistatDto> tasques = new ArrayList<TascaLlistatDto>();
+			try {
+				for (Long taskId: taskIds.getIds()) {
+					for (JbpmTask task: tasks) {
+						if (task.getId().equals(taskId.toString())) {
+							tasques.add(
+									toTascaLlistatDto(
+											task,
+											getDadesCacheTasca(task),
+											false));
+							break;
+						}
+					}
+				}
+				/*for (JbpmTask task: tasks) {
+					tasques.add(
+							toTascaLlistatDto(
+									task,
+									getDadesCacheTasca(task),
+									false));
+				}*/
+				resposta = new PaginaLlistatDto(
+						taskIds.getCount(),
+						tasques);
+			} finally {
+				contextResposta.stop();
+			}
+		} finally {
+			contextTotal.stop();
+		}
+		return resposta;
+	}
 	private List<TascaLlistatDto> tasquesFiltradesPerEntorn(
 			Long entornId,
 			List<JbpmTask> tasques,
@@ -1621,7 +1896,7 @@ public class TascaService {
 		}
 		return filtrades;
 	}
-	private PaginaLlistatDto tasquesLlistatFiltradesValors(
+	/*private PaginaLlistatDto tasquesLlistatFiltradesValors(
 			Long entornId,
 			List<JbpmTask> tasques,
 			String tasca,
@@ -1652,8 +1927,8 @@ public class TascaService {
 				sort,
 				asc, 
 				false);
-	}
-	private PaginaLlistatDto tasquesLlistatFiltradesValors(
+	}*/
+	/*private PaginaLlistatDto tasquesLlistatFiltradesValors(
 			Long entornId,
 			List<JbpmTask> tasques,
 			String tasca,
@@ -1790,7 +2065,7 @@ public class TascaService {
 		return new PaginaLlistatDto(
 				filtrades.size(),
 				respostaLlistat);
-	}
+	}*/
 	private List<TascaLlistatDto> tasquesPerTramitacioMasiva(
 			Long entornId,
 			List<JbpmTask> tasques,
@@ -1811,7 +2086,7 @@ public class TascaService {
 		return resposta;
 	}
 
-	private String normalitzaText(String text) {
+	/*private String normalitzaText(String text) {
 		return text
 			.toUpperCase().trim()
 			.replaceAll("Á", "A")
@@ -1824,7 +2099,7 @@ public class TascaService {
 			.replaceAll("Ò", "O")
 			.replaceAll("Ú", "U")
 			.replaceAll("Ü", "U");
-	}
+	}*/
 
 	private void validarTasca(String taskId) {
 		jbpmDao.setTaskInstanceVariable(
@@ -2216,7 +2491,7 @@ public class TascaService {
 			return definicioProcesJbpmKey;
 		}
 	}
-	private class DadesTascaOrdenacio {
+	/*private class DadesTascaOrdenacio {
 		private String taskId;
 		private String titol;
 		private String expedientTitol;
@@ -2261,7 +2536,7 @@ public class TascaService {
 		public Date getDataLimit() {
 			return dataLimit;
 		}
-	}
+	}*/
 
 	private static final Log logger = LogFactory.getLog(TascaService.class);
 

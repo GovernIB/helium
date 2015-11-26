@@ -84,6 +84,7 @@
    <!-- graph.exe mapping files -->
    <mapping resource="org/jbpm/graph/exe/Comment.hbm.xml"/>
    <mapping resource="org/jbpm/graph/exe/ProcessInstance.hbm.xml"/>
+   <mapping resource="org/jbpm/graph/exe/ProcessInstanceExpedient.hbm.xml"/>
    <mapping resource="org/jbpm/graph/exe/Token.hbm.xml"/>
    <mapping resource="org/jbpm/graph/exe/RuntimeAction.hbm.xml"/>
 

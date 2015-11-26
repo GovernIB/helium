@@ -13,6 +13,14 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -38,19 +46,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -66,8 +64,6 @@ public class TascaHelper {
 	@Resource
 	private TascaRepository tascaRepository;
 	@Resource
-	private AdminService adminService;
-	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private VariableHelper variableHelper;
@@ -81,6 +77,8 @@ public class TascaHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
+	@Resource
+	private PersonaHelper personaHelper;
 
 	public JbpmTask getTascaComprovacionsTramitacio(
 			String id,
@@ -582,7 +580,7 @@ public class TascaHelper {
 				} else {
 					tascaDelegacio = jbpmHelper.getTaskById(delegationInfo.getSourceTaskId());
 				}			
-				dto.setDelegacioPersona(adminService.findPersonaAmbCodi(tascaDelegacio.getAssignee()));
+				dto.setDelegacioPersona(personaHelper.findAmbCodi(tascaDelegacio.getAssignee()));
 			}
 			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(task.getProcessDefinitionId());
 			if (definicioProces != null) {
@@ -601,7 +599,7 @@ public class TascaHelper {
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
 		if (task.getAssignee() != null) {
 			dto.setResponsable(
-					adminService.findPersonaAmbCodi(task.getAssignee()));
+					personaHelper.findAmbCodi(task.getAssignee()));
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (task.getAssignee() != null) {
@@ -611,7 +609,7 @@ public class TascaHelper {
 		} else if (task.getPooledActors() != null && !task.getPooledActors().isEmpty()) {
 			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
 			for (String pooledActor: task.getPooledActors()) {
-				PersonaDto persona = adminService.findPersonaAmbCodi(pooledActor);
+				PersonaDto persona = personaHelper.findAmbCodi(pooledActor);
 				if (persona != null) {
 					if (auth.getName().equals(pooledActor))
 						dto.setAssignadaUsuariActual(true);

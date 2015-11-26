@@ -234,7 +234,12 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				Consulta consulta = null;
 				if (MesuresTemporalsHelper.isActiu()) {
 					consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-					adminService.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", null, null, "LLISTAT");
+					adminService.mesuraTemporalIniciar(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							null,
+							null,
+							"LLISTAT");
 				}
 				model.addAttribute("expedientTipusId", commandSeleccio.getExpedientTipusId());
 				List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
@@ -265,7 +270,12 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								objectsPerPage,
 								export));
 				if (MesuresTemporalsHelper.isActiu())
-					adminService.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", null, null, "LLISTAT");
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							null,
+							null,
+							"LLISTAT");
 			}
 			return "expedient/consultaDisseny";
 		} else {
@@ -410,30 +420,72 @@ public class ExpedientConsultaDissenyController extends BaseController {
 				(ExpedientConsultaDissenyCommand)model.get("commandSeleccioConsulta");
 			populateModelCommon(entorn, model, commandSeleccio);
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
-			if(commandSeleccio.getExpedientTipusId()==null){commandSeleccio.setExpedientTipusId(expedientTipId);}
+			if (commandSeleccio.getExpedientTipusId() == null){
+				commandSeleccio.setExpedientTipusId(expedientTipId);
+			}
 			if (commandFiltre != null) {
 				populateModelCommon(entorn, model, commandSeleccio);
 				Consulta consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
-				((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null);
+				adminService.mesuraTemporalIniciar(
+						"INFORME: " + consulta.getCodi(),
+						"report",
+						consulta.getExpedientTipus().getNom(),
+						null,
+						null);
 				if (consulta.getInformeNom() != null) {
 					model.addAttribute("commandFiltre", commandFiltre);
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Camps");
+					adminService.mesuraTemporalIniciar(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Camps");
 					List<Camp> camps = dissenyService.findCampsPerCampsConsulta(
 							commandSeleccio.getConsultaId(),
 							TipusConsultaCamp.FILTRE,
 							true);
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Camps");
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors");
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Camps");
+					adminService.mesuraTemporalIniciar(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Valors");
 					Map<String, Object> valors = TascaFormUtil.getValorsFromCommand(
 							camps,
 							commandFiltre,
 							true,
 							true);
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors");
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors per service");
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Valors");
+					adminService.mesuraTemporalIniciar(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Valors per service");
 					Map<String, Object> valoresConsulta = getValorsPerService(camps, valors);
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Valors per service");
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny");
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Valors per service");
+					adminService.mesuraTemporalIniciar(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Recuperar consulta disseny");
 					List<ExpedientConsultaDissenyDto> expedients = expedientService.findAmbEntornConsultaDisseny(
 							entorn.getId(),
 							commandSeleccio.getConsultaId(),
@@ -442,8 +494,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 							true, 
 							ids);
 					List<ExpedientConsultaDissenyDto> expedientsTE = new ArrayList<ExpedientConsultaDissenyDto>();
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny");
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Generar datos datasource");
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Recuperar consulta disseny");
+					adminService.mesuraTemporalIniciar(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Generar datos datasource");
 					if (expedientsTE.size() > 0) {
 						model.addAttribute(
 								JasperReportsView.MODEL_ATTRIBUTE_REPORTDATA,
@@ -485,8 +547,18 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								JasperReportsView.MODEL_ATTRIBUTE_PARAMS,
 								session.getAttribute(VARIABLE_SESSIO_PARAMS));
 					}
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Generar datos datasource");
-					((MesuresTemporalsHelper) adminService.getMesuresTemporalsHelper()).mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null);
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							"Generar datos datasource");
+					adminService.mesuraTemporalCalcular(
+							"INFORME: " + consulta.getCodi(),
+							"report",
+							consulta.getExpedientTipus().getNom(),
+							null,
+							null);
 					return "jasperReportsView";
 				} else {
 					missatgeError(request, getMessage("error.consulta.informe.nonhiha"));
