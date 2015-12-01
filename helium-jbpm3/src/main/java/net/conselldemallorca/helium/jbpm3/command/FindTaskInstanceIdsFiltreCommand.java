@@ -104,17 +104,26 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 		if (nomesPendents) {
 			taskQuerySb.append("and ti.isSuspended = false and ti.isOpen = true ");
 		}
-		if (taskName != null) {
+		if (taskName != null && !taskName.isEmpty()) {
 			taskQuerySb.append("and ti.name = :taskName ");
 		}
-		if (titol != null) {
+		if (titol != null && !titol.isEmpty()) {
 			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
 		}
-		if (expedientTitol != null) {
-			taskQuerySb.append("and ti.processInstance.expedient.titol = :expedientTitol ");
+		if (expedientTitol != null && !expedientTitol.isEmpty()) {
+			taskQuerySb.append(
+					"and (upper(case " +
+					"     when (ti.processInstance.expedient.numero is not null and ti.processInstance.expedient.titol is not null) then ('['||ti.processInstance.expedient.numero||'] ' || ti.processInstance.expedient.titol) " +
+					"     when (ti.processInstance.expedient.numero is not null and ti.processInstance.expedient.titol is null) then ti.processInstance.expedient.numero " +
+					"     when (ti.processInstance.expedient.numero is null and ti.processInstance.expedient.titol is not null) then ti.processInstance.expedient.titol " +
+					"     else ti.processInstance.expedient.numeroDefault end) like upper(:expedientTitol))");
 		}
-		if (expedientNumero != null) {
-			taskQuerySb.append("and ti.processInstance.expedient.numero = :expedientNumero ");
+		if (expedientNumero != null && !expedientNumero.isEmpty()) {
+			taskQuerySb.append(
+					"and (upper(case " +
+					"    when (ti.processInstance.expedient.numero is not null AND ti.processInstance.expedient.titol is not null) then ('['||ti.processInstance.expedient.numero||']') " +
+					"    when (ti.processInstance.expedient.numero is not null AND ti.processInstance.expedient.titol is null) then ti.processInstance.expedient.numero " +
+					"    else ti.processInstance.expedient.numeroDefault END) like upper(:expedientNumero))");
 		}
 		if (entornId != null) {
 			taskQuerySb.append("and ti.processInstance.expedient.entornId = :entornId ");
@@ -243,17 +252,17 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 		if (mostrarAssignadesUsuari || mostrarAssignadesGrup) {
 			query.setParameter("actorId", actorId);
 		}
-		if (taskName != null) {
+		if (taskName != null && !taskName.isEmpty()) {
 			query.setParameter("taskName", taskName);
 		}
-		if (titol != null) {
+		if (titol != null && !titol.isEmpty()) {
 			query.setParameter("titol", titol);
 		}
-		if (expedientTitol != null) {
-			query.setParameter("expedientTitol", expedientTitol);
+		if (expedientTitol != null && !expedientTitol.isEmpty()) {
+			query.setParameter("expedientTitol", "%" + expedientTitol + "%");
 		}
-		if (expedientNumero != null) {
-			query.setParameter("expedientNumero", expedientNumero);
+		if (expedientNumero != null && !expedientNumero.isEmpty()) {
+			query.setParameter("expedientNumero", "%" + expedientNumero + "%");
 		}
 		if (entornId != null) {
 			query.setParameter("entornId", entornId);
