@@ -256,7 +256,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			query.setParameter("taskName", taskName);
 		}
 		if (titol != null && !titol.isEmpty()) {
-			query.setParameter("titol", titol);
+			query.setParameter("titol", titol.toUpperCase());
 		}
 		if (expedientTitol != null && !expedientTitol.isEmpty()) {
 			query.setParameter("expedientTitol", "%" + expedientTitol + "%");
