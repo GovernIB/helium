@@ -156,7 +156,31 @@ public class TascaService {
 			String codiExpedient,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques personals", "consulta");
-		String usuariBo = usuari;
+		PaginaLlistatDto resposta = findTasquesFiltre(
+				entornId,
+				usuari,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				0,
+				-1,
+				null,
+				true,
+				true, // incloureTasquesPersona
+				false, // incloureTasquesGrup
+				true); // nomesPendents
+		@SuppressWarnings("unchecked")
+		List<TascaLlistatDto> tasques = resposta.getLlistat();
+		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques personals", "consulta");
+		return tasques;
+		/*String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
@@ -171,7 +195,7 @@ public class TascaService {
 		}
 		List<TascaLlistatDto> list = tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques personals", "consulta");
-		return list;
+		return list;*/
 	}
 	
 	public int countTasquesPersonalsEntorn(
@@ -778,16 +802,44 @@ public class TascaService {
 	public boolean isTasquesGrupTramitacio(Long entornId, String tascaId, String usuari) {
 		boolean res = false;
 		mesuresTemporalsHelper.mesuraIniciar("is tasques grup", "consulta");
-		if (usuari == null) {
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		try {
+			Long tascaIdLong = new Long(tascaId);
+			LlistatIds taskIds = jbpmDao.tascaFindByFiltre(
+					entornId,
+					usuariBo,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false, // tasquesPersona
+					true, // tasquesGrup
+					true, // nomesPendents
+					0,
+					-1,
+					null,
+					true,
+					false);
+			List<Long> ids = taskIds.getIds();
+			res = ids.contains(tascaIdLong);
+		} catch (NumberFormatException ignored) {}
+		/*if (usuari == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuari = auth.getName();
 		}
 		List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId,
 				usuari, null, null, null, null, false);
-		/*List<Long> idsExpedients = expedientDao.findListExpedients(
-				entornId,
-				usuari, null, null, null, null, false);*/
 		LlistatIds llistatIds = jbpmDao.findListIdsGroupTasks(usuari, idsExpedients);
 		if (llistatIds.getIds().contains(Long.valueOf(tascaId))) {
 			res = true;
@@ -800,7 +852,7 @@ public class TascaService {
 					break;
 				}
 			}
-		}
+		}*/
 		mesuresTemporalsHelper.mesuraCalcular("is tasques grup", "consulta");
 		return res;
 	}
@@ -811,7 +863,31 @@ public class TascaService {
 			String codiExpedient,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques grup", "consulta");
-		String usuariBo = usuari;
+		PaginaLlistatDto resposta = findTasquesFiltre(
+				entornId,
+				usuari,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				0,
+				-1,
+				null,
+				true,
+				false, // incloureTasquesPersona
+				true, // incloureTasquesGrup
+				true); // nomesPendents
+		@SuppressWarnings("unchecked")
+		List<TascaLlistatDto> tasques = resposta.getLlistat();
+		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques grup", "consulta");
+		return tasques;
+		/*String usuariBo = usuari;
 		if (usuariBo == null) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
@@ -826,7 +902,7 @@ public class TascaService {
 		}
 		List<TascaLlistatDto> list = tasquesFiltradesPerEntorn(entornId, tasques, perTramitacio);
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques grup", "consulta");
-		return list;
+		return list;*/
 	}
 
 	public List<TascaLlistatDto> findTasquesAmbId(Long entornId, List<Long> ids) {
@@ -1732,7 +1808,7 @@ public class TascaService {
 				isSignaturesComplet(task));
 	}
 
-	private List<Long> getExpedientIdsPerConsultaTasques(
+	/*private List<Long> getExpedientIdsPerConsultaTasques(
 			Long entornId,
 			String usuariCodi,
 			String expedient,
@@ -1748,7 +1824,7 @@ public class TascaService {
 				tipusExpedient,
 				sort,
 				asc);
-	}
+	}*/
 
 	private PaginaLlistatDto findTasquesFiltre(
 			Long entornId,
@@ -1870,7 +1946,7 @@ public class TascaService {
 		}
 		return resposta;
 	}
-	private List<TascaLlistatDto> tasquesFiltradesPerEntorn(
+	/*private List<TascaLlistatDto> tasquesFiltradesPerEntorn(
 			Long entornId,
 			List<JbpmTask> tasques,
 			boolean complet) {
@@ -1895,7 +1971,7 @@ public class TascaService {
 			}
 		}
 		return filtrades;
-	}
+	}*/
 	/*private PaginaLlistatDto tasquesLlistatFiltradesValors(
 			Long entornId,
 			List<JbpmTask> tasques,
@@ -2472,6 +2548,7 @@ public class TascaService {
 		public String getIdentificadorOrdenacio() {
 			return identificadorOrdenacio;
 		}
+		@SuppressWarnings("unused")
 		public String getNumeroIdentificador() {
 			return numeroIdentificador;
 		}
