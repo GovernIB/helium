@@ -214,7 +214,7 @@ public class Token implements Identifiable, Serializable
     }
     if (isRoot() && processInstance.getExpedient() == null) {
 		ProcessInstance processInstanceArrel = processInstance;
-		while (processInstance.getSuperProcessToken() != null) {
+		while (processInstanceArrel.getSuperProcessToken() != null) {
 			processInstanceArrel = processInstance.getSuperProcessToken().getProcessInstance();
 		}
 		Query query = executionContext.getJbpmContext().getSession().createQuery(
