@@ -226,7 +226,7 @@ public class Token implements Identifiable, Serializable
 				"processInstanceId",
 				new Long(processInstanceArrel.getId()).toString());
 		ProcessInstanceExpedient expedient = (ProcessInstanceExpedient)query.uniqueResult();
-		processInstanceArrel.setExpedient(expedient);
+		processInstance.setExpedient(expedient);
     }
 
     startCompositeLog(new SignalLog(transition));
