@@ -35,6 +35,9 @@
 			<dt><fmt:message key="common.icones.doc.psigna.id"/></dt><dd>${psignaPendentActual.documentId}&nbsp;</dd>
 			<dt><fmt:message key="common.icones.doc.psigna.data.enviat"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
 			<dt><fmt:message key="common.icones.doc.psigna.estat"/></dt><dd>${psignaPendentActual.estat}&nbsp;</dd>
+			<c:if test="${not empty psignaPendentActual.motiuRebuig}">
+				<dt><fmt:message key="common.icones.doc.psigna.motiu.rebuig"/></dt><dd>${psignaPendentActual.motiuRebuig}&nbsp;</dd>
+			</c:if>
 			<c:if test="${not empty psignaPendentActual.dataProcessamentPrimer}">
 				<dt><fmt:message key="common.icones.doc.psigna.data.proces.primer"/></dt><dd><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/>&nbsp;</dd>
 			</c:if>
