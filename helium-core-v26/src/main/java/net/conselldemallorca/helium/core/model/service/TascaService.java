@@ -173,9 +173,10 @@ public class TascaService {
 				-1,
 				null,
 				true,
-				true, // incloureTasquesPersona
-				false, // incloureTasquesGrup
-				true); // nomesPendents
+				true, 	// incloureTasquesPersona
+				false, 	// incloureTasquesGrup
+				true, 	// nomesPendents
+				false);	// ambPersones
 		@SuppressWarnings("unchecked")
 		List<TascaLlistatDto> tasques = resposta.getLlistat();
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques personals", "consulta");
@@ -340,9 +341,10 @@ public class TascaService {
 				maxResults,
 				sort,
 				asc,
-				true, // incloureTasquesPersona
-				false, // incloureTasquesGrup
-				true); // nomesPendents
+				true, 	// incloureTasquesPersona
+				false, 	// incloureTasquesGrup
+				true, 	// nomesPendents
+				false);	// ambPersones
 			/*
 			final Timer timerExpedientIds = metricRegistry.timer(
 					MetricRegistry.name(
@@ -583,9 +585,10 @@ public class TascaService {
 				maxResults,
 				sort,
 				asc,
-				false, // incloureTasquesPersona
-				true, // incloureTasquesGrup
-				true); // nomesPendents
+				false, 	// incloureTasquesPersona
+				true, 	// incloureTasquesGrup
+				true, 	// nomesPendents
+				false);	// ambPersones
 		/*PaginaLlistatDto resposta;
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
@@ -723,7 +726,8 @@ public class TascaService {
 				asc,
 				incloureTasquesPersona,
 				incloureTasquesGrup,
-				true); // nomesPendents
+				true, 	// nomesPendents
+				true);	// ambPersones
 		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId,
 				responsable,
@@ -880,9 +884,10 @@ public class TascaService {
 				-1,
 				null,
 				true,
-				false, // incloureTasquesPersona
-				true, // incloureTasquesGrup
-				true); // nomesPendents
+				false, 	// incloureTasquesPersona
+				true, 	// incloureTasquesGrup
+				true, 	// nomesPendents
+				false);	// ambPersones
 		@SuppressWarnings("unchecked")
 		List<TascaLlistatDto> tasques = resposta.getLlistat();
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques grup", "consulta");
@@ -1845,7 +1850,8 @@ public class TascaService {
 			boolean asc,
 			boolean mostrarAssignadesUsuari,
 			boolean mostrarAssignadesGrup,
-			boolean nomesPendents) {
+			boolean nomesPendents,
+			boolean ambPersones) {
 		PaginaLlistatDto resposta;
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
@@ -1923,7 +1929,7 @@ public class TascaService {
 									toTascaLlistatDto(
 											task,
 											getDadesCacheTasca(task),
-											false));
+											ambPersones));
 							break;
 						}
 					}
