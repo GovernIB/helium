@@ -43,8 +43,6 @@ UPDATE 	JBPM_PROCESSINSTANCE JPI
 			SELECT ID FROM HEL_EXPEDIENT EXP WHERE EXP.PROCESS_INSTANCE_ID = JPI.ID_
 		);
 
--- Executar aquestes sentències fins que la del count retorni zero -- INICI
-
 -- SUBPROCESSOS nivell 1
 UPDATE  JBPM_PROCESSINSTANCE JPI 
    SET 	JPI.EXPEDIENT_ID_ = (
@@ -82,9 +80,12 @@ UPDATE  JBPM_PROCESSINSTANCE JPI
 --   AND 	JPI.SUPERPROCESSTOKEN_ IS NOT NULL;
 -- 
 -- Es pot repetir per tans de nivells de supbrocessos existeixin.
-   
--- Executar aquestes sentències fins que la del count retorni zero, 
--- o es repeteix el valor del count entre dues execucions 						-- FI
+
+CREATE INDEX HEL_PROCINST_EXPEDIENT_ID_I ON JBPM_PROCESSINSTANCE(EXPEDIENT_ID_);
+
+-- Per a permetre desar informació per a poder realitzar la retroacció de l'expedient
+ALTER TABLE HEL_EXPEDIENT_TIPUS ADD AMB_RETROACCIO NUMBER(1) DEFAULT 0 NOT NULL;
+ALTER TABLE HEL_EXPEDIENT ADD AMB_RETROACCIO NUMBER(1) DEFAULT 1 NOT NULL;
 
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
