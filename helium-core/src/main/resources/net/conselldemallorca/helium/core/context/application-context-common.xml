@@ -143,9 +143,6 @@
 		<property name="caches">
 			<set>
 				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
-					<property name="name" value="entornsUsuariActual"/>
-				</bean>
-				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
 					<property name="name" value="dominiCache"/>
 				</bean>
 				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
@@ -153,6 +150,12 @@
 				</bean>
 				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
 					<property name="name" value="consultaCache"/>
+				</bean>
+				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="entornsUsuariActual"/>
+				</bean>
+				<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+					<property name="name" value="personaPluginV26Cache"/>
 				</bean>
 			</set>
 		</property>

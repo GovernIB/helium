@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
-	<defaultCache eternal="true" maxElementsInMemory="1000" overflowToDisk="false" />
+	<defaultCache eternal="false" maxElementsInMemory="1000" overflowToDisk="false" />
 	<cache name="dominiCache" 
 		maxElementsInMemory="1000" 
 		eternal="false" 
@@ -15,10 +15,14 @@
 		timeToIdleSeconds="300" 
 		timeToLiveSeconds="300" 
 		eternal="false" 
-		overflowToDisk="false" />	
+		overflowToDisk="false" />
 	<cache name="entornsUsuariActual" 
 		maxElementsInMemory="1000" 
 		eternal="false" 
 		timeToLiveSeconds="3600" 
+		overflowToDisk="false" />
+	<cache name="personaPluginV26Cache" 
+		maxElementsInMemory="1000" 
+		eternal="true" 
 		overflowToDisk="false" />
 </ehcache>
