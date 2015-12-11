@@ -6,18 +6,20 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.service.CacheHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus persona
@@ -29,6 +31,9 @@ public class PluginPersonaDao extends PersonaDao {
 
 	private PersonesPlugin personesPlugin;
 	private boolean pluginEvaluat = false;
+
+	@Autowired
+	private CacheHelper cacheHelper;
 
 
 
@@ -68,7 +73,11 @@ public class PluginPersonaDao extends PersonaDao {
 			if (getPersonesPlugin() == null || isSyncActiu()) {
 				return toPersonaPlugin(findAmbCodi(codiPerConsulta));
 			} else {
-				return toPersonaPlugin(personesPlugin.findAmbCodi(codiPerConsulta));
+				return cacheHelper.getPersonaFromPlugin(
+						codiPerConsulta,
+						personesPlugin);
+				/*return toPersonaPlugin(
+						personesPlugin.findAmbCodi(codiPerConsulta));*/
 			}
 		} catch (PersonesPluginException ex) {
 			logger.error("Error al cercar les persones amb el codi " + codi, ex);

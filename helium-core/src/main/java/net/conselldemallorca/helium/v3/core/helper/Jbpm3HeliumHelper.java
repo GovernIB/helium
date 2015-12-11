@@ -154,8 +154,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private DefinicioProcesDao definicioProcesDao;
 	@Resource
-	private PluginPersonaDao pluginPersonaDao;
-	@Resource
 	private AreaDao areaDao;
 	@Resource
 	private CarrecDao carrecDao;
@@ -192,6 +190,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private PluginTramitacioDao pluginTramitacioDao;
 	@Resource
+	private PluginPersonaDao pluginPersonaDao;
+	@Resource
+	private PluginService pluginService;
+	@Resource
 	private AlertaDao alertaDao;
 	@Resource
 	private JbpmHelper jbpmHelper;
@@ -210,8 +212,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private ExpedientService expedientService;
 	@Resource
 	private DocumentService documentService;
-	@Resource
-	private PluginService pluginService;
 	@Resource
 	private ExecucioMassivaService execucioMassivaService;
 
@@ -871,7 +871,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (domini == null)
 			throw new DominiNotFoundException();
 		try {
-			List<FilaResultat> files = cacheHelper.getResultatDomini(
+			List<FilaResultat> files = cacheHelper.getResultatConsultaDomini(
 					expedient.getEntorn().getId(),
 					domini.getId(),
 					dominiId,
@@ -1402,7 +1402,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				transicioOK,
 				transicioKO);
 	}
-	
+
 	@Override
 	public void portasignaturesEliminar(
 			List<Integer> documentsId) throws PluginException {

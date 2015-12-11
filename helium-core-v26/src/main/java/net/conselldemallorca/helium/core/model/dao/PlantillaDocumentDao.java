@@ -543,7 +543,7 @@ public class PlantillaDocumentDao {
 												}
 											}
 										}
-										List<FilaResultat> files = cacheHelper.getResultatDomini(
+										List<FilaResultat> files = cacheHelper.getResultatConsultaDomini(
 												entornId,
 												domini.getId(),
 												arg1,

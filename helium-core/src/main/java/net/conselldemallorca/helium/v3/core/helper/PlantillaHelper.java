@@ -641,7 +641,7 @@ public class PlantillaHelper {
 												}
 											}
 										}
-										List<FilaResultat> files = cacheHelper.getResultatDomini(
+										List<FilaResultat> files = cacheHelper.getResultatConsultaDomini(
 												entorn.getId(),
 												domini.getId(),
 												arg1,

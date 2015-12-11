@@ -672,7 +672,7 @@ public class DtoConverter {
 				dominiId = domini.getId();
 			}	
 			try {
-				List<FilaResultat> resultat = cacheHelper.getResultatDomini(
+				List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
 						camp.getDefinicioProces().getEntorn().getId(),
 						dominiId,
 						camp.getDominiId(),
@@ -934,7 +934,7 @@ public class DtoConverter {
 							processInstanceId,
 							camp,
 							valorsAddicionals);
-					List<FilaResultat> resultat = cacheHelper.getResultatDomini(
+					List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
 							camp.getDefinicioProces().getEntorn().getId(),
 							dominiId,
 							camp.getDominiId(),

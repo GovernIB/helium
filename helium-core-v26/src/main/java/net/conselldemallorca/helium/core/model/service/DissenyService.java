@@ -1802,7 +1802,7 @@ public class DissenyService {
 	}
 	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, Map<String, Object> params) {
 		try {
-			return cacheHelper.getResultatDomini(entornId, dominiId, null, params);
+			return cacheHelper.getResultatConsultaDomini(entornId, dominiId, null, params);
 		} catch (Exception ex) {
 			throw new DominiException(
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
@@ -1815,7 +1815,7 @@ public class DissenyService {
 	
 	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId, Map<String, Object> params) {
 		try {
-			return cacheHelper.getResultatDomini(entornId, dominiId, dominiWsId, params);
+			return cacheHelper.getResultatConsultaDomini(entornId, dominiId, dominiWsId, params);
 		} catch (Exception ex) {
 			throw new DominiException(
 					getServiceUtils().getMessage("error.dissenyService.consultantDomini") + " : " + dominiWsId + " << parametros >> " + params, ex);
