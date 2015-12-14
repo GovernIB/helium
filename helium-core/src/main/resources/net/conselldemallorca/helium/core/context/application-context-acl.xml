@@ -1,196 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-<beans	xmlns="http://www.springframework.org/schema/beans"
-		xmlns:context="http://www.springframework.org/schema/context"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns:util="http://www.springframework.org/schema/util"
-		xsi:schemaLocation="
-				http://www.springframework.org/schema/beans
-				http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-				http://www.springframework.org/schema/context
-				http://www.springframework.org/schema/context/spring-context-2.5.xsd
-				http://www.springframework.org/schema/util
-				http://www.springframework.org/schema/util/spring-util-2.5.xsd"
-		default-autowire="byType">
-
-
-
-	<bean id="objectManagerSecurity" class="org.springframework.security.intercept.method.aopalliance.MethodSecurityInterceptor" autowire="byType">
-		<property name="accessDecisionManager" ref="businessAccessDecisionManager"/>
-		<property name="afterInvocationManager" ref="afterInvocationManager"/>
-		<property name="objectDefinitionSource" ref="objectDefinitionSource"/>
+	<bean id="aclService" class="net.conselldemallorca.helium.core.security.JdbcMutableAclService">
+		<constructor-arg ref="dataSource" />
+		<constructor-arg ref="lookupStrategy" />
+		<constructor-arg ref="aclCache" />
 	</bean>
-
-	<bean id="objectDefinitionSource" class="org.springframework.security.annotation.SecuredMethodDefinitionSource"/>
-
-	<bean id="businessAccessDecisionManager" class="org.springframework.security.vote.UnanimousBased">
-		<property name="allowIfAllAbstainDecisions" value="true"/>
-		<property name="decisionVoters">
-			<list>
-				<ref local="roleVoter"/>
-				<ref local="aclObjectReadVoter"/>
-				<ref local="aclObjectWriteVoter"/>
-				<ref local="aclObjectCreateVoter"/>
-				<ref local="aclObjectDeleteVoter"/>
-				<ref local="aclObjectAdministrationVoter"/>
-				<ref local="aclObjectDesignVoter"/>
-				<ref local="aclObjectOrganizationVoter"/>
-			</list>
-		</property>
+	<bean id="lookupStrategy" class="net.conselldemallorca.helium.core.security.BasicLookupStrategy">
+		<constructor-arg ref="dataSource" />
+		<constructor-arg ref="aclCache" />
+		<constructor-arg ref="aclAuthorizationStrategy" />
+		<constructor-arg ref="auditLogger" />
 	</bean>
-
-	<bean id="roleVoter" class="org.springframework.security.vote.RoleVoter"/>
-	<bean id="aclObjectReadVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_READ"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="readPermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<bean id="aclObjectWriteVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_WRITE"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="writePermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<bean id="aclObjectCreateVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_CREATE"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="createPermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<bean id="aclObjectDeleteVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_DELETE"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="deletePermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<bean id="aclObjectAdministrationVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_ADMINISTRATION"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<bean id="aclObjectDesignVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_DESIGN"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="designPermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<bean id="aclObjectOrganizationVoter" class="org.springframework.security.vote.AclEntryVoter">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg value="ACL_OBJECT_ORGANIZATION"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="organizationPermission"/>
-			</list>
-		</constructor-arg>
-		<property name="processDomainObjectClass" value="net.conselldemallorca.helium.core.security.acl.SecureObject"/>
-	</bean>
-	<util:constant id="readPermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.READ"/>
-	<util:constant id="writePermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.WRITE"/>
-	<util:constant id="createPermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.CREATE"/>
-	<util:constant id="deletePermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.DELETE"/>
-	<util:constant id="admininstrationPermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.ADMINISTRATION"/>
-	<util:constant id="designPermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.DESIGN"/>
-	<util:constant id="organizationPermission" static-field="net.conselldemallorca.helium.core.security.permission.ExtendedPermission.ORGANIZATION"/>
-
-
-
-	<bean id="aclService" class="net.conselldemallorca.helium.core.security.acl.HibernateMutableAclService">
-		<constructor-arg ref="sessionFactory"/>
-		<constructor-arg ref="lookupStrategy"/>
-        <constructor-arg ref="aclCache"/>
-	</bean>
-
-	<bean id="lookupStrategy" class="net.conselldemallorca.helium.core.security.acl.BasicLookupStrategy">
-		<constructor-arg ref="dataSource"/>
-		<constructor-arg ref="aclCache"/>
-		<constructor-arg ref="aclAuthorizationStrategy"/>
-		<constructor-arg>
-			<bean class="org.springframework.security.acls.domain.ConsoleAuditLogger"/>
-		</constructor-arg>
-	</bean>
-	<bean id="aclCache" class="org.springframework.security.acls.jdbc.EhCacheBasedAclCache">
+	<bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
 		<constructor-arg>
 			<bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
 				<property name="cacheManager">
-					<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"/>
+					<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
 				</property>
-				<property name="cacheName" value="aclCache"/>
+				<property name="cacheName" value="aclCache" />
 			</bean>
 		</constructor-arg>
 	</bean>
 	<bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
 		<constructor-arg>
 			<list>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMIN"/>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMIN" />
 				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMIN"/>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMIN" />
 				</bean>
-				<bean class="org.springframework.security.GrantedAuthorityImpl">
-					<constructor-arg value="ROLE_ADMIN"/>
+				<bean class="org.springframework.security.core.authority.GrantedAuthorityImpl">
+					<constructor-arg value="ROLE_ADMIN" />
 				</bean>
 			</list>
 		</constructor-arg>
 	</bean>
+	<bean id="auditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" />
 
-	<bean id="afterAclRead" class="org.springframework.security.afterinvocation.AclEntryAfterInvocationProvider">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="readPermission"/>
-			</list>
-		</constructor-arg>
-	</bean>
-	<bean id="afterAclCollectionRead" class="org.springframework.security.afterinvocation.AclEntryAfterInvocationCollectionFilteringProvider">
-		<constructor-arg ref="aclService"/>
-		<constructor-arg>
-			<list>
-				<ref local="admininstrationPermission"/>
-				<ref local="readPermission"/>
-			</list>
-		</constructor-arg>
-	</bean>
-	<bean id="afterInvocationManager" class="org.springframework.security.afterinvocation.AfterInvocationProviderManager">
-		<property name="providers">
-			<list>
-				<ref local="afterAclRead"/>
-				<ref local="afterAclCollectionRead"/>
-			</list>
-		</property>
-	</bean>
+	<bean id="permissionFactory" class="net.conselldemallorca.helium.core.security.ExtendedPermissionFactory"/>
 
 </beans>

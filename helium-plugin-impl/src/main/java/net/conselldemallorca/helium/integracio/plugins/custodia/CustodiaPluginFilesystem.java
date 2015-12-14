@@ -43,7 +43,7 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 			ObjectOutputStream oout = new ObjectOutputStream(fos);
 			oout.writeObject(signatura);
 			fos.close();
-			return gesdocId;
+			return id;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut custodiar la signatura", ex);
 			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
@@ -58,6 +58,7 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 				FileInputStream fis = new FileInputStream(f);
 				ObjectInputStream inputFromApplet = new ObjectInputStream(fis);
 				resposta.add((byte[])inputFromApplet.readObject());
+				inputFromApplet.close();
 			}
 			return resposta;
 		} catch (Exception ex) {
@@ -67,13 +68,15 @@ public class CustodiaPluginFilesystem implements CustodiaPlugin {
 
 	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException {
 		try {
+			byte[] resposta = null;
 			File f = new File(getBaseDir() + ID_PREFIX + id);
 			if (f.exists()) {
 				FileInputStream fis = new FileInputStream(f);
 				ObjectInputStream inputFromApplet = new ObjectInputStream(fis);
-				return (byte[])inputFromApplet.readObject();
+				resposta = (byte[])inputFromApplet.readObject();
+				inputFromApplet.close();
 			}
-			return null;
+			return resposta;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
 			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);

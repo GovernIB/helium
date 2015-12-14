@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -23,12 +24,11 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -90,7 +90,8 @@ public class ExpedientDadaModificarController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) String id,
 			@RequestParam(value = "taskId", required = false) String taskId,
-			@RequestParam(value = "var", required = true) String var) {
+			@RequestParam(value = "var", required = true) String var,
+			@RequestParam(value = "varValor", required = false) String varValor) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
@@ -106,7 +107,7 @@ public class ExpedientDadaModificarController extends BaseController {
 			campsAddicionals.put("var", var);
 			campsAddicionalsClasses.put("var", String.class);
 			Object command = TascaFormUtil.getCommandForTasca(
-					createTascaAmbVar(entorn.getId(), id, taskId, var),
+					createTascaAmbVar(entorn.getId(), id, taskId, var, false,varValor),
 					campsAddicionals,
 					campsAddicionalsClasses);
 			return command;
@@ -120,13 +121,14 @@ public class ExpedientDadaModificarController extends BaseController {
 			@RequestParam(value = "id", required = false) String id,
 			@RequestParam(value = "taskId", required = false) String taskId,
 			@RequestParam(value = "var", required = true) String var,
+			@RequestParam(value = "varVal", required = false) Object varVal,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
 			if (potModificarExpedient(expedient)) {
 				model.addAttribute("expedient", expedient);
-				TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var);
+				TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var, false, varVal);
 				model.addAttribute("tasca", tasca);
 				Object command = model.get("command");
 				model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
@@ -152,22 +154,47 @@ public class ExpedientDadaModificarController extends BaseController {
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
-			ModelMap model) {
+			ModelMap model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			@SuppressWarnings("unchecked")
+			Map<String, Object> llista =  PropertyUtils.describe(command);
+			Object varValor = llista.get(var);
 			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
 			if (potModificarExpedient(expedient)) {
-				TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var);
-				List<Camp> camps = new ArrayList<Camp>();
-	    		for (CampTasca campTasca: tasca.getCamps())
-	    			camps.add(campTasca.getCamp());
 				if ("submit".equals(submit) || submit.length() == 0) {
+					TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var, true, varValor);
 					((TascaFormValidator)validator).setTasca(tasca);
-					validator.validate(command, result);
+					Object commandPerValidacio = TascaFormUtil.getCommandForTasca(
+							tasca,
+							null,
+							null);
+					PropertyUtils.setSimpleProperty(
+							commandPerValidacio,
+							var,
+							PropertyUtils.getSimpleProperty(commandPerValidacio, var));
+					List<Camp> camps = new ArrayList<Camp>();
+					for(CampTasca camp:tasca.getCamps()){
+						camps.add(camp.getCamp());
+					}
+					InstanciaProcesDto instanciaProces =  expedientService.getInstanciaProcesById(
+														id,
+														false,
+														true,
+														false);
+					Camp campVal = dissenyService.findCampAmbDefinicioProcesICodi(
+							instanciaProces.getDefinicioProces().getId(),
+							var);
+					List<Camp> campsValidar = new ArrayList<Camp>();
+					for(Camp camp:camps){
+						if(camp.equals(campVal))
+							campsValidar.add(camp);
+					}
+					TascaFormUtil.getBeanValidatorForCommand(campsValidar).validate(commandPerValidacio,result);
 					if (result.hasErrors()) {
 						model.addAttribute("expedient", expedient);
-						model.addAttribute("tasca", tasca);
-			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
+						model.addAttribute("tasca", createTascaAmbVar(entorn.getId(), id, taskId, var, false, varValor));
+			        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(createTascaAmbVar(entorn.getId(), id, taskId, var, false, varValor), commandPerValidacio));
 			        	return "expedient/dadaForm";
 			        }
 					try {
@@ -185,11 +212,17 @@ public class ExpedientDadaModificarController extends BaseController {
 						}
 				        missatgeInfo(request, getMessage("info.dada.modificat") );
 			        } catch (Exception ex) {
+			        	Long entornId = entorn.getId();
+						String numeroExpedient = expedient.getIdentificador();
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut modificat la dada", ex);
 						missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut modificat la dada", ex);
 			        	return "expedient/dadaForm";
 					}
 				} else if ("multipleAdd".equals(submit)) {
+					TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var, false, varValor);
+					List<Camp> camps = new ArrayList<Camp>();
+		    		for (CampTasca campTasca: tasca.getCamps())
+		    			camps.add(campTasca.getCamp());
 					try {
 						if (field != null)
 							PropertyUtils.setSimpleProperty(
@@ -205,6 +238,10 @@ public class ExpedientDadaModificarController extends BaseController {
 		        	model.addAttribute("valorsPerSuggest", TascaFormUtil.getValorsPerSuggest(tasca, command));
 		        	return "expedient/dadaForm";
 				} else if ("multipleRemove".equals(submit)) {
+					TascaDto tasca = createTascaAmbVar(entorn.getId(), id, taskId, var, false, varValor);
+					List<Camp> camps = new ArrayList<Camp>();
+		    		for (CampTasca campTasca: tasca.getCamps())
+		    			camps.add(campTasca.getCamp());
 					try {
 						if (field != null && index != null)
 							PropertyUtils.setSimpleProperty(
@@ -243,7 +280,7 @@ public class ExpedientDadaModificarController extends BaseController {
 				BigDecimal.class,
 				new CustomNumberEditor(
 						BigDecimal.class,
-						new DecimalFormat("#,###.00"),
+						new DecimalFormat("#,##0.00"),
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
@@ -251,9 +288,6 @@ public class ExpedientDadaModificarController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-		binder.registerCustomEditor(
-				Termini.class,
-				new TerminiTypeEditor());
 	}
 
 
@@ -271,19 +305,45 @@ public class ExpedientDadaModificarController extends BaseController {
 			Long entornId,
 			String id,
 			String taskId,
-			String var) {
-		Camp camp = null;
-		Object valor = null;
+			String var,
+			boolean afegirCampsProces,
+			Object varValor) {
+		List<Camp> camps = new ArrayList<Camp>();
+		List<Object> valors = new ArrayList<Object>();
 		InstanciaProcesDto instanciaProces = null;
 		TascaDto tasca = null;
 		if (taskId == null) {
 			instanciaProces = expedientService.getInstanciaProcesById(
 					id,
-					true);
-			camp = dissenyService.findCampAmbDefinicioProcesICodi(
-					instanciaProces.getDefinicioProces().getId(),
-					var);
-			valor = instanciaProces.getVariables().get(var);
+					false,
+					true,
+					false);
+			if (afegirCampsProces) {
+				camps.addAll(instanciaProces.getCamps());
+				for (Camp camp: camps) {
+					valors.add(instanciaProces.getVariable(camp.getCodi()));
+				}
+			}
+			boolean afegit = false;
+			for (Camp camp: camps) {
+				if (camp.getCodi().equals(var)) {
+					afegit = true;
+					break;
+				}
+			}
+			if (!afegit) {
+				Camp camp = dissenyService.findCampAmbDefinicioProcesICodi(
+						instanciaProces.getDefinicioProces().getId(),
+						var);
+				if (camp == null) {
+					camp = new Camp();
+					camp.setTipus(TipusCamp.STRING);
+					camp.setCodi(var);
+					camp.setEtiqueta(var);
+				}
+				camps.add(camp);
+				valors.add(instanciaProces.getVariable(var));
+			}
 		} else {
 			tasca = tascaService.getById(
 					entornId,
@@ -294,37 +354,54 @@ public class ExpedientDadaModificarController extends BaseController {
 					true);
 			instanciaProces = expedientService.getInstanciaProcesById(
 					tasca.getProcessInstanceId(),
-					true);
+					false,
+					true,
+					false);
 			for (CampTasca campTasca: tasca.getCamps()) {
 				if (campTasca.getCamp().getCodi().equals(var)) {
-					camp = campTasca.getCamp();
+					Camp camp = campTasca.getCamp();
+					camps.add(camp);
 					break;
 				}
 			}
-			valor = tasca.getVariable(var);
+			valors.add(tasca.getVariable(var));
 		}
-		if (camp == null) {
-			camp = new Camp();
+		if (camps.isEmpty()) {
+			Camp camp = new Camp();
 			camp.setTipus(TipusCamp.STRING);
 			camp.setCodi(var);
 			camp.setEtiqueta(var);
+			camps.add(camp);
+			valors.add(tasca.getVariable(var));
 		}
 		TascaDto tascaNova = new TascaDto();
 		tascaNova.setId(taskId);
 		tascaNova.setTipus(TipusTasca.FORM);
 		tascaNova.setProcessInstanceId(instanciaProces.getId());
-		List<CampTasca> camps = new ArrayList<CampTasca>();
-		CampTasca campTasca = new CampTasca();
-		campTasca.setCamp(camp);
-		camps.add(campTasca);
-		tascaNova.setCamps(camps);
+		List<CampTasca> campsTasca = new ArrayList<CampTasca>();
+		for (Camp camp: camps) {
+			CampTasca campTasca = new CampTasca();
+			campTasca.setCamp(camp);
+			campsTasca.add(campTasca);
+		}
+		tascaNova.setCamps(campsTasca);
 		if (taskId == null)
 			tascaNova.setDefinicioProces(instanciaProces.getDefinicioProces());
 		else
 			tascaNova.setDefinicioProces(tasca.getDefinicioProces());
-		if (valor != null) {
+		if (!valors.isEmpty()) {
 			Map<String, Object> variables = new HashMap<String, Object>();
-			variables.put(camp.getCodi(), valor);
+			for (int i = 0; i < camps.size(); i++) {
+				if(camps.get(i).getCodi().equals(var) && afegirCampsProces){
+					variables.put(
+							camps.get(i).getCodi(),
+							varValor);
+				}else{
+					variables.put(
+							camps.get(i).getCodi(),
+							valors.get(i));
+				}
+			}
 			tascaNova.setVariables(variables);
 			if (taskId == null) {
 				tascaNova.setValorsDomini(instanciaProces.getValorsDomini());

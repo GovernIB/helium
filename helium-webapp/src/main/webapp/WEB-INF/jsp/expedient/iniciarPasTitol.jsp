@@ -11,12 +11,21 @@
 <script type="text/javascript">
 // <![CDATA[
 function confirmar(e) {
+	if ($('#nomesRefrescar').val() == 'true') {
+		$('button.submitButton').remove();
+		return true;
+	}
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	if ("cancel" == submitAction)
-		return true;
+		return confirm("<fmt:message key='tasca.form.cancelar' />");
 	return confirm("<fmt:message key='expedient.iniciar.confirm_iniciar' />");
+}
+function canviAny(element) {
+	//alert(element.value);
+	$('#nomesRefrescar').val('true');
+	$('#command').submit();
 }
 // ]]>
 </script>
@@ -49,6 +58,17 @@ function confirmar(e) {
 					<c:param name="required" value="true"/>
 					<c:param name="label"><fmt:message key='expedient.consulta.titol' /></c:param>
 				</c:import>
+			</c:if>
+			<c:if test="${expedientTipus.seleccionarAny}">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="any"/>
+					<c:param name="required" value="true"/>
+					<c:param name="type" value="select"/>
+					<c:param name="items" value="anysSeleccionables"/>
+					<c:param name="label"><fmt:message key="expedient.iniciar.canvi_any"/></c:param>
+					<c:param name="onchange">canviAny(this)</c:param>
+				</c:import>
+				<input type="hidden" id="nomesRefrescar" name="nomesRefrescar"/>
 			</c:if>
 		</div>
 		<c:import url="../common/formElement.jsp">

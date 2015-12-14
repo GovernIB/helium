@@ -15,9 +15,62 @@
 	<script type="text/javascript" src="<c:url value="/js/selectable.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/util.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/dwr/interface/campsProcesDwrService.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.DOMWindow.js"/>"></script>
 <script type="text/javascript">
+	$(document).ready(function() {
+	    // Inicialitza la taula
+	    $("#consultaCamp").tableDnD({
+	        onDragClass: "drag",
+	    	onDrop: function(table, row) {
+	        	$("#consultaCamp tr:even").removeClass("odd");
+	        	$("#consultaCamp tr:not(:first)").addClass("even");
+	        	$("#consultaCamp tr:odd").removeClass("even");
+	        	$("#consultaCamp tr:odd").addClass("odd");
+	
+	        	var pos = row.rowIndex - 1;
+	        	var id= obtenirId(pos);
+	                
+	        	campsProcesDwrService.goToConsultaCamp(id, pos, {
+					async: false
+				});
+	    	},
+	    	onDragStart: function(table, row) {
+				filaMovem = row.rowIndex-1;
+		}
+	    });
+	    $("#consultaCamp tr").hover(function() {
+	        $(this.cells[0]).addClass('showDragHandle');
+	    }, function() {
+	        $(this.cells[0]).removeClass('showDragHandle');
+	    });	
+	  	$("#consultaCamp tr").each(function(){
+	  	  	$(this).find("td:first").css("padding-left", "22px");
+	  	});
+	});
+
+	function obtenirId(pos){
+		if(filaMovem==pos){
+			
+			var fila = filaMovem + 1;
+			id = $("#consultaCamp tr:eq("+fila+") td:last div").attr("id");
+	
+		}
+		else{
+		
+			if( filaMovem < pos){	//baixam elements
+				var fila = filaMovem + (pos-filaMovem)+1;
+				id = $("#consultaCamp tr:eq("+fila+") td:last div").attr("id");
+			}else{					//pujam elements
+				var fila = filaMovem - (filaMovem-pos)+1;
+				id = $("#consultaCamp tr:eq("+fila+") td:last div").attr("id");	
+			}
+		}
+		id2 = id.split("_");
+		return id2[1] ;
+	}
+
 	// <![CDATA[
 	var info = null;
 	function carregarCamps(obj) {
@@ -26,6 +79,7 @@
     	campsProcesDwrService.llistaCampsPerProces(
     		document.getElementById("id").value,
 			obj.value,
+			document.getElementById("tipus").value,
 			{
 				callback: function(dades) {
 					DWRUtil.addOptions("campCodi0", dades, "0", "1");
@@ -80,15 +134,16 @@
 			${camps[consultaCamp_rowNum - 1].definicioProces.jbpmKey} v.${camps[consultaCamp_rowNum - 1].definicioProces.versio}
 			</c:if>
 		</display:column>
+<%-- 		<display:column> --%>
+<%-- 			<a href="<c:url value="/consulta/campFiltrePujar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>"> --%>
+<%-- 				<img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/> --%>
+<!-- 			</a> -->
+<%-- 			<a href="<c:url value="/consulta/campFiltreBaixar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>"> --%>
+<%-- 				<img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/> --%>
+<!-- 			</a> -->
+<%-- 		</display:column> --%>
 		<display:column>
-			<a href="<c:url value="/consulta/campFiltrePujar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>">
-				<img src="<c:url value="/img/famarrow_up.png"/>" alt="<fmt:message key='comuns.amunt' />" title="<fmt:message key='comuns.amunt' />" border="0"/>
-			</a>
-			<a href="<c:url value="/consulta/campFiltreBaixar.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>">
-				<img src="<c:url value="/img/famarrow_down.png"/>" alt="<fmt:message key='comuns.avall' />" title="<fmt:message key='comuns.avall' />" border="0"/>
-			</a>
-		</display:column>
-		<display:column>
+			<div id="consultaCamps_${consultaCamp.id}"></div>
 			<a href="<c:url value="/consulta/campDelete.html"><c:param name="consultaId" value="${param.id}"/><c:param name="id" value="${consultaCamp.id}"/><c:param name="tipus" value="${param.tipus}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		</display:column>
 	</display:table>

@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,12 +18,16 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
@@ -31,6 +37,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -53,15 +62,20 @@ public class TascaDocumentsController extends BaseController {
 
 	private TascaService tascaService;
 	private DocumentService documentService;
-
+	private ExecucioMassivaService execucioMassivaService;
+	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 
 	@Autowired
 	public TascaDocumentsController(
 			TascaService tascaService,
-			DocumentService documentService) {
+			DocumentService documentService,
+			ExecucioMassivaService execucioMassivaService,
+			MesuresTemporalsHelper mesuresTemporalsHelper) {
 		this.tascaService = tascaService;
 		this.documentService = documentService;
+		this.execucioMassivaService = execucioMassivaService;
+		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
 	}
 
 	@ModelAttribute("seleccioMassiva")
@@ -104,13 +118,18 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
-				TascaDto tasca = tascaService.getById(
+				TascaDto tasca = null;
+				try {
+					tasca = tascaService.getById(
 						entorn.getId(),
 						id,
 						null,
 						null,
 						true,
 						false);
+				} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+					return null;
+				}
 				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 				campsAddicionals.put("id", id);
 				campsAddicionals.put("entornId", entorn.getId());
@@ -147,6 +166,8 @@ public class TascaDocumentsController extends BaseController {
 					null,
 					true,
 					true);
+			if (MesuresTemporalsHelper.isActiu())
+				mesuresTemporalsHelper.mesuraIniciar("Tasca DOCUMENTS", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				DocumentExpedientCommand command = new DocumentExpedientCommand();
@@ -155,6 +176,8 @@ public class TascaDocumentsController extends BaseController {
 						"documentCommand_" + document.getDocument().getCodi(),
 						command);
 			}
+			if (MesuresTemporalsHelper.isActiu())
+				mesuresTemporalsHelper.mesuraCalcular("Tasca DOCUMENTS", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
 			return "tasca/documents";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -300,26 +323,29 @@ public class TascaDocumentsController extends BaseController {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					ZipOutputStream out = new ZipOutputStream(baos);
 					for (String tascaId: tascaIds) {
+						
 						DocumentDto document = documentService.documentPerTasca(
 								tascaId,
 								codi,
-								false);
-						int indexPunt = document.getArxiuNom().lastIndexOf(".");
-						StringBuilder nomEntrada = new StringBuilder();
-						nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
-						TascaDto tascaActual = tascaService.getById(
-								entorn.getId(),
-								tascaId,
-								null,
-								null,
-								true,
-								false);
-						nomEntrada.append("(" + tascaActual.getExpedient().getIdentificador().replace("/", "|") + ")");
-						nomEntrada.append(document.getArxiuNom().substring(indexPunt));
-						ZipEntry ze = new ZipEntry(nomEntrada.toString());
-						out.putNextEntry(ze);
-						out.write(document.getArxiuContingut());
-						out.closeEntry();
+								true);
+						if (document != null) {
+							int indexPunt = document.getArxiuNom().lastIndexOf(".");
+							StringBuilder nomEntrada = new StringBuilder();
+							nomEntrada.append(document.getArxiuNom().substring(0, indexPunt));
+							TascaDto tascaActual = tascaService.getById(
+									entorn.getId(),
+									tascaId,
+									null,
+									null,
+									true,
+									false);
+							nomEntrada.append("(" + tascaActual.getExpedient().getIdentificador().replace("/", "|") + ")");
+							nomEntrada.append(document.getArxiuNom().substring(indexPunt));
+							ZipEntry ze = new ZipEntry(nomEntrada.toString());
+							out.putNextEntry(ze);
+							out.write(document.getArxiuContingut());
+							out.closeEntry();
+						}
 					}
 					out.close();
 					model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, "documents.zip");
@@ -349,13 +375,20 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			boolean adjuntarAuto = false;
-			TascaDto tasca = tascaService.getById(
-					entorn.getId(),
-					id,
-					null,
-					null,
-					true,
-					false);
+			TascaDto tasca;
+			try {
+				tasca = tascaService.getById(
+						entorn.getId(),
+						id,
+						null,
+						null,
+						true,
+						false);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
+				logger.error(getMessage("error.tascaService.noDisponible"), ex);
+				return "redirect:/index.html";
+			}
 			for (DocumentTasca document: tasca.getDocuments()) {
 				if (document.getDocument().getId().longValue() == documentId.longValue()) {
 					adjuntarAuto = document.getDocument().isAdjuntarAuto();
@@ -399,7 +432,6 @@ public class TascaDocumentsController extends BaseController {
 	}
 
 
-
 	private boolean accioDocumentGuardar(
 			HttpServletRequest request,
 			Long entornId,
@@ -410,38 +442,94 @@ public class TascaDocumentsController extends BaseController {
 			byte[] contingut) {
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		if (massivaActiu)
+		if (massivaActiu) {
+			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
-		else
-			tascaIds = new String[]{id};
-		boolean error = false;
-		for (String tascaId: tascaIds) {
 			try {
-				tascaService.comprovarTascaAssignadaIValidada(entornId, tascaId, null);
+				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+				Long expTipusId = task.getExpedient().getTipus().getId();
+				
+				// Restauram la primera tasca
+				// ------------------------------------------
+				tascaService.comprovarTascaAssignadaIValidada(entornId, id, null);
 				documentService.guardarDocumentTasca(
 						entornId,
-						tascaId,
+						id,
+						codi,
+						data,
+						nomArxiu,
+						contingut);
+				
+				// Programam massivament la resta de tasques
+				// ------------------------------------------
+				String[] tIds = new String[tascaIds.length - 1];
+				int j = 0;
+				for (int i = 0; i < tascaIds.length; i++) {
+					if (!tascaIds[i].equals(id)) {
+						tIds[j++] = tascaIds[i];
+					}
+				}
+				// Obtenim informació de l'execució massiva
+				// Data d'inici
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date dInici = new Date();
+				if (parametresTram[0] != null) {
+					try { dInici = sdf.parse(parametresTram[0]); } catch (ParseException pe) {};
+				}
+				// Enviar correu
+				Boolean bCorreu = false;
+				if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
+				
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(dInici);
+				dto.setEnviarCorreu(bCorreu);
+				dto.setTascaIds(tIds);
+				dto.setExpedientTipusId(expTipusId);
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+				dto.setParam1("DocGuardar");
+				Object[] params = new Object[7];
+				params[0] = entornId;
+				params[1] = codi;
+				params[2] = data;
+				params[3] = contingut;
+				params[4] = nomArxiu;
+				params[5] = auth.getCredentials();
+				List<String> rols = new ArrayList<String>();
+				for (GrantedAuthority gauth : auth.getAuthorities()) {
+					rols.add(gauth.getAuthority());
+				}
+				params[6] = rols;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				
+				missatgeInfo(request, getMessage("info.tasca.massiu.document.guardar", new Object[] {tIds.length}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+				return false;
+			}
+		} else {
+			try {
+				tascaService.comprovarTascaAssignadaIValidada(entornId, id, null);
+				documentService.guardarDocumentTasca(
+						entornId,
+						id,
 						codi,
 						data,
 						nomArxiu,
 						contingut);
 	        } catch (Exception ex) {
-	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				missatgeError(
 		    			request,
 		    			getMessage("error.guardar.document") + " " + tascaIdLog,
 		    			ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut guardar el document '" + codi + "' a la tasca " + tascaIdLog, ex);
-	        	error = true;
+	        	return false;
 	        }
+			missatgeInfo(request, getMessage("info.document.guardat"));
 		}
-		if (!error) {
-			if (massivaActiu)
-				missatgeInfo(request, getMessage("info.document.guardats"));
-			else
-				missatgeInfo(request, getMessage("info.document.guardat"));
-		}
-		return !error;
+		return true;
 	}
 	private boolean accioDocumentEsborrar(
 			HttpServletRequest request,
@@ -450,35 +538,85 @@ public class TascaDocumentsController extends BaseController {
 			String codi) {
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		if (massivaActiu)
+		if (massivaActiu) {
+			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
-		else
-			tascaIds = new String[]{id};
-		boolean error = false;
-		for (String tascaId: tascaIds) {
 			try {
-				tascaService.comprovarTascaAssignadaIValidada(entornId, tascaId, null);
+				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+				Long expTipusId = task.getExpedient().getTipus().getId();
+				
+				// Restauram la primera tasca
+				// ------------------------------------------
+				tascaService.comprovarTascaAssignadaIValidada(entornId, id, null);
 				documentService.esborrarDocument(
-						tascaId,
+						id,
+						null,
+						codi);
+				
+				// Programam massivament la resta de tasques
+				// ------------------------------------------
+				String[] tIds = new String[tascaIds.length - 1];
+				int j = 0;
+				for (int i = 0; i < tascaIds.length; i++) {
+					if (!tascaIds[i].equals(id)) {
+						tIds[j++] = tascaIds[i];
+					}
+				}
+				// Obtenim informació de l'execució massiva
+				// Data d'inici
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date dInici = new Date();
+				if (parametresTram[0] != null) {
+					try { dInici = sdf.parse(parametresTram[0]); } catch (ParseException pe) {};
+				}
+				// Enviar correu
+				Boolean bCorreu = false;
+				if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
+				
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(dInici);
+				dto.setEnviarCorreu(bCorreu);
+				dto.setTascaIds(tIds);
+				dto.setExpedientTipusId(expTipusId);
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+				dto.setParam1("DocEsborrar");
+				Object[] params = new Object[4];
+				params[0] = entornId;
+				params[1] = codi;
+				params[2] = auth.getCredentials();
+				List<String> rols = new ArrayList<String>();
+				for (GrantedAuthority gauth : auth.getAuthorities()) {
+					rols.add(gauth.getAuthority());
+				}
+				params[3] = rols;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				
+				missatgeInfo(request, getMessage("info.tasca.massiu.document.esborrar", new Object[] {tIds.length}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+				return false;
+			}
+		} else {
+			try {
+				tascaService.comprovarTascaAssignadaIValidada(entornId, id, null);
+				documentService.esborrarDocument(
+						id,
 						null,
 						codi);
 	        } catch (Exception ex) {
-	        	String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				missatgeError(
 		    			request,
 		    			getMessage("error.esborrar.document") + " " + tascaIdLog,
 		    			ex.getLocalizedMessage());
 	        	logger.error("No s'ha pogut esborrar el document '" + codi + "' a la tasca " + tascaIdLog, ex);
-	        	error = true;
+	        	return false;
 	        }
+			missatgeInfo(request, getMessage("info.document.esborrat"));
 		}
-		if (!error) {
-			if (massivaActiu)
-				missatgeInfo(request, getMessage("info.document.esborrats"));
-			else
-				missatgeInfo(request, getMessage("info.document.esborrat"));
-		}
-		return !error;
+		return true;
 	}
 	private boolean accioDocumentGenerar(
 			HttpServletRequest request,
@@ -488,37 +626,91 @@ public class TascaDocumentsController extends BaseController {
 			Date data) {
 		boolean massivaActiu = TramitacioMassiva.isTramitacioMassivaActiu(request, id);
 		String[] tascaIds;
-		if (massivaActiu)
+		if (massivaActiu) {
+			String[] parametresTram = TramitacioMassiva.getParamsTramitacioMassiva(request, id);
 			tascaIds = TramitacioMassiva.getTasquesTramitacioMassiva(request, id);
-		else
-			tascaIds = new String[]{id};
-		boolean error = false;
-		for (String tascaId: tascaIds) {
+			try {
+				TascaDto task = tascaService.getByIdSenseComprovacio(id);
+				Long expTipusId = task.getExpedient().getTipus().getId();
+				if (data == null) data = new Date();
+				
+				// Restauram la primera tasca
+				// ------------------------------------------
+				documentService.generarDocumentPlantilla(
+						entornId,
+						documentId,
+						id,
+						null,
+						data,
+						false);
+				
+				// Programam massivament la resta de tasques
+				// ------------------------------------------
+				String[] tIds = new String[tascaIds.length - 1];
+				int j = 0;
+				for (int i = 0; i < tascaIds.length; i++) {
+					if (!tascaIds[i].equals(id)) {
+						tIds[j++] = tascaIds[i];
+					}
+				}
+				// Obtenim informació de l'execució massiva
+				// Data d'inici
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+				Date dInici = new Date();
+				if (parametresTram[0] != null) {
+					try { dInici = sdf.parse(parametresTram[0]); } catch (ParseException pe) {};
+				}
+				// Enviar correu
+				Boolean bCorreu = false;
+				if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
+				
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(dInici);
+				dto.setEnviarCorreu(bCorreu);
+				dto.setTascaIds(tIds);
+				dto.setExpedientTipusId(expTipusId);
+				dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
+				dto.setParam1("DocGenerar");
+				Object[] params = new Object[5];
+				params[0] = entornId;
+				params[1] = documentId;
+				params[2] = data;
+				params[3] = auth.getCredentials();
+				List<String> rols = new ArrayList<String>();
+				for (GrantedAuthority gauth : auth.getAuthorities()) {
+					rols.add(gauth.getAuthority());
+				}
+				params[4] = rols;
+				dto.setParam2(execucioMassivaService.serialize(params));
+				execucioMassivaService.crearExecucioMassiva(dto);
+				
+				missatgeInfo(request, getMessage("info.tasca.massiu.document.generar", new Object[] {tIds.length}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+				return false;
+			}
+		} else {
 			try {
 				documentService.generarDocumentPlantilla(
 						entornId,
 						documentId,
-						tascaId,
+						id,
 						null,
 						(data != null) ? data : new Date(),
 						false);
 			} catch (Exception ex) {
-				String tascaIdLog = getIdTascaPerLogs(entornId, tascaId);
+				String tascaIdLog = getIdTascaPerLogs(entornId, id);
 				missatgeError(
 		    			request,
 		    			getMessage("error.generar.document") + " " + tascaIdLog,
 		    			ex.getLocalizedMessage());
 	        	logger.error("Error al generar el document (documentId=" + documentId + ") a la tasca " + tascaIdLog, ex);
-	        	error = true;
+	        	return false;
 			}
+			missatgeInfo(request, getMessage("info.document.adjuntat"));
 		}
-		if (!error) {
-			if (massivaActiu)
-				missatgeInfo(request, getMessage("info.document.adjuntats"));
-			else
-				missatgeInfo(request, getMessage("info.document.adjuntat"));
-		}
-		return !error;
+		return true;
 	}
 
 	private String getIdTascaPerLogs(Long entornId, String tascaId) {

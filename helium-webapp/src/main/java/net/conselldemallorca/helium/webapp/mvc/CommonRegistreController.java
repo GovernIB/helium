@@ -15,7 +15,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
@@ -23,6 +22,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +51,6 @@ public abstract class CommonRegistreController extends BaseController {
 
 	protected DissenyService dissenyService;
 	private Validator validator;
-
 
 
 	@Autowired
@@ -98,18 +97,38 @@ public abstract class CommonRegistreController extends BaseController {
 			campsAddicionalsClasses.put("procesScope", Map.class);
 			Map<String, Object> valors = null;
 			if (index != null) {
-				Object[] valorRegistre = getValorRegistre(
-						request,
-						entorn.getId(),
-						id,
-						camp.getCodi());
-				if (index < valorRegistre.length) {
+				Object[] valorRegistre = ExpedientMassivaRegistreController.getRegistreMassiuSessio(request, id, camp.getCodi());
+				if (valorRegistre == null) {
+					valorRegistre = getValorRegistre(
+							request,
+							entorn.getId(),
+							id,
+							camp.getCodi());
+				}
+				if (camp.isMultiple()) {
+					if (index < valorRegistre.length) {
+						valors = new HashMap<String, Object>();
+						for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
+							CampRegistre campRegistre = camp.getRegistreMembres().get(i);
+							valors.put(
+									campRegistre.getMembre().getCodi(),
+									Array.get(valorRegistre[index], i));
+						}
+					}
+				} else {
 					valors = new HashMap<String, Object>();
+					
+					Object[] valorRegistreTmp = new Object[camp.getRegistreMembres().size()];
+					for (int i = 0; i < valorRegistre.length; i++) {
+						valorRegistreTmp[i] =  valorRegistre[i];
+					}
+					valorRegistre = valorRegistreTmp;
+					
 					for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
 						CampRegistre campRegistre = camp.getRegistreMembres().get(i);
 						valors.put(
 								campRegistre.getMembre().getCodi(),
-								Array.get(valorRegistre[index], i));
+								valorRegistre[i]);
 					}
 				}
 			}
@@ -174,6 +193,17 @@ public abstract class CommonRegistreController extends BaseController {
 	        					command,
 	        					true,
 	    						false);
+			        	if (logger.isDebugEnabled()) {
+							logger.debug("Guardant dades del registre (id=" + id + ")");
+							for (String var: valorsCommand.keySet()) {
+								Object valor = valorsCommand.get(var);
+								String valorComString = TascaFormHelper.varValorToString(valor);
+								logger.debug("    Variable (" +
+										"varCodi=" + var + ", " +
+										"class=" + ((valor != null) ? valor.getClass().getName() : "null") + ", " +
+										"valor=" + valorComString + ")");
+							}
+						}
 			        	List<CampRegistre> membres = camp.getRegistreMembres();
 			        	Object[] valors = new Object[membres.size()];
 			        	for (int i = 0; i < membres.size(); i++) {
@@ -185,6 +215,7 @@ public abstract class CommonRegistreController extends BaseController {
 									request,
 				        			id,
 				        			camp.getCodi(),
+				        			camp.isMultiple(),
 				        			valors,
 				        			index.intValue());
 			        	} else {
@@ -192,6 +223,7 @@ public abstract class CommonRegistreController extends BaseController {
 									request,
 				        			id,
 				        			camp.getCodi(),
+				        			camp.isMultiple(),
 				        			valors);
 			        	}
 			        	status.setComplete();
@@ -224,6 +256,7 @@ public abstract class CommonRegistreController extends BaseController {
 						request,
 						id,
 						camp.getCodi(),
+						camp.isMultiple(),
 						index);
 			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
@@ -234,6 +267,14 @@ public abstract class CommonRegistreController extends BaseController {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
 		}
+	}
+	
+	protected Object[] getValorRegistre(
+			HttpServletRequest request,
+			String campCodi,
+			String id) {
+		Entorn entorn = getEntornActiu(request);
+		return getValorRegistre(request, entorn.getId(), id, campCodi);//camp.getCodi());
 	}
 
 	@InitBinder
@@ -248,7 +289,7 @@ public abstract class CommonRegistreController extends BaseController {
 				BigDecimal.class,
 				new CustomNumberEditor(
 						BigDecimal.class,
-						new DecimalFormat("#,###.00"),
+						new DecimalFormat("#,##0.00"),
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
@@ -256,9 +297,6 @@ public abstract class CommonRegistreController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-		binder.registerCustomEditor(
-				Termini.class,
-				new TerminiTypeEditor());
 	}
 
 	public void populateOthers(
@@ -268,11 +306,33 @@ public abstract class CommonRegistreController extends BaseController {
 			ModelMap model) {
 	}
 
-	public abstract Object[] getValorRegistre(HttpServletRequest request,Long entornId, String id, String campCodi);
-	public abstract void guardarRegistre(HttpServletRequest request,String id, String campCodi, Object[] valors, int index);
-	public abstract void guardarRegistre(HttpServletRequest request,String id, String campCodi, Object[] valors);
-	public abstract void esborrarRegistre(HttpServletRequest request,String id, String campCodi, int index);
-	public abstract String redirectUrl(String id, String campCodi);
+	public abstract Object[] getValorRegistre(
+			HttpServletRequest request,
+			Long entornId,
+			String id,
+			String campCodi);
+	public abstract void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors,
+			int index);
+	public abstract void guardarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			Object[] valors);
+	public abstract void esborrarRegistre(
+			HttpServletRequest request,
+			String id,
+			String campCodi,
+			boolean multiple,
+			int index);
+	public abstract String redirectUrl(
+			String id,
+			String campCodi);
 	public abstract String registreUrl();
 
 

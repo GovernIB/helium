@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -26,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -41,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
-
-
 /**
  * Controlador per a editar la informació d'un expedient
  * 
@@ -55,8 +54,6 @@ public class ExpedientEditarController extends BaseController {
 	private ExpedientService expedientService;
 	private PermissionService permissionService;
 	private PluginService pluginService;
-
-
 
 	@Autowired
 	public ExpedientEditarController(
@@ -74,7 +71,9 @@ public class ExpedientEditarController extends BaseController {
 	public List<Estat> populateEntorn(
 			@RequestParam(value = "id", required = true) String id) {
 		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-		return dissenyService.findEstatAmbExpedientTipus(expedient.getTipus().getId());
+		List<Estat> estats = dissenyService.findEstatAmbExpedientTipus(expedient.getTipus().getId());
+		estats.addAll(getEstatIniciatFinalizat(expedient.getTipus()));
+		return estats;
 	}
 
 	@RequestMapping(value = "/expedient/editar", method = RequestMethod.GET)
@@ -136,8 +135,10 @@ public class ExpedientEditarController extends BaseController {
 								command.getGrupCodi());
 						missatgeInfo(request, getMessage("info.informacio.modificat") );
 					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = expedient.getIdentificador();
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'han pogut modificar les dades de l'expedient", ex);
 						missatgeError(request, getMessage("error.modificar.dades.exp"), ex.getLocalizedMessage());
-			        	logger.error("No s'han pogut modificar les dades de l'expedient", ex);
 			        	dadesPaginaEditar(id, expedient, model);
 			        	return "expedient/editar";
 					}
@@ -176,10 +177,14 @@ public class ExpedientEditarController extends BaseController {
 			if (expedient.getTipus().getTeNumero())
 				ValidationUtils.rejectIfEmpty(errors, "numero", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "dataInici", "not.blank");
+			if (command.getTitol() != null && command.getTitol().length() > 255)
+				errors.rejectValue("titol", "max.length");
+			if (command.getNumero() != null && command.getNumero().length() > 64)
+				errors.rejectValue("numero", "max.length");
+			if (command.getComentari() != null && command.getComentari().length() > 255)
+				errors.rejectValue("comentari", "max.length");
 		}
 	}
-
-
 
 	private ExpedientEditarCommand initCommand(ExpedientDto expedient) {
 		ExpedientEditarCommand command = new ExpedientEditarCommand();
@@ -190,8 +195,16 @@ public class ExpedientEditarController extends BaseController {
 		command.setDataInici(expedient.getDataInici());
 		command.setIniciadorCodi(expedient.getIniciadorCodi());
 		command.setResponsableCodi(expedient.getResponsableCodi());
+		
 		if (expedient.getEstat() != null)
 			command.setEstatId(expedient.getEstat().getId());
+		else {
+			if (expedient.getDataFi() != null)
+				command.setEstatId(-1L);
+			else
+				command.setEstatId(0L);
+		}
+		
 		command.setGeoPosX(expedient.getGeoPosX());
 		command.setGeoPosY(expedient.getGeoPosY());
 		command.setGeoReferencia(expedient.getGeoReferencia());
@@ -207,6 +220,17 @@ public class ExpedientEditarController extends BaseController {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
 	}
+	
+	private List<Estat> getEstatIniciatFinalizat(ExpedientTipus expedientTipus) {
+		List<Estat> estats = new ArrayList<Estat>();
+		Estat eIniciat = new Estat(expedientTipus, "0", getMessage("expedient.consulta.iniciat"));
+		eIniciat.setId(0L);
+		Estat eFinalitzat = new Estat(expedientTipus, "-1", getMessage("expedient.consulta.finalitzat"));
+		eFinalitzat.setId(-1L);
+		estats.add(eIniciat);
+		estats.add(eFinalitzat);
+		return estats;
+	}
 
 	private void dadesPaginaEditar(
 			String id,
@@ -219,7 +243,7 @@ public class ExpedientEditarController extends BaseController {
 		model.addAttribute(
 				"arbreProcessos",
 				expedientService.getArbreInstanciesProces(id));
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 		model.addAttribute(
 				"instanciaProces",
 				instanciaProces);

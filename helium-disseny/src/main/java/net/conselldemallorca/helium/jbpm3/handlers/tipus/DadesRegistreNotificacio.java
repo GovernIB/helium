@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers.tipus;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -13,8 +14,10 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DadesRegistreNotificacio {
+public class DadesRegistreNotificacio implements Serializable{
 
+	private static final long serialVersionUID = 1L;
+	
 	private String numero;
 	private Date data;
 

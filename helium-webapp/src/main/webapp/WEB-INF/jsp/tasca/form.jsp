@@ -30,18 +30,21 @@
 function mostrarOcultar(img, objid) {
 	var obj = document.getElementById(objid);
 	if (obj.style.display=="none") {
-		obj.style.display = "block";
+		$('#' + objid).slideDown();
+		//obj.style.display = "block";
 		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
 	} else {
-		obj.style.display = "none";
+		$('#' + objid).slideUp();
+		//obj.style.display = "none";
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
 }
 function confirmar(form) {
-	if ( submitAction == "validate")
+	/*if ( submitAction == "validate")
 		return confirm("<fmt:message key='tasca.form.confirmacio' />");
 	else
-		return true;
+		return true;*/
+	return true;
 }
 // ]]>
 </script>
@@ -158,6 +161,7 @@ function confirmar(form) {
 </head>
 <body>
 	<c:if test="${not isIframe}">
+		<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
 		<c:import url="../common/tabsTasca.jsp">
 			<c:param name="tabActiu" value="form"/>
 		</c:import>
@@ -174,11 +178,11 @@ function confirmar(form) {
 			</div>
 		</c:if>
 		<c:import url="../common/tascaReadOnly.jsp"/>
-		<c:if test="${tasca.campsNotReadOnly}">
+		<%--c:if test="${tasca.campsNotReadOnly}">
 			<h3 class="titol-tab titol-dades-tasca">
 				<fmt:message key='tasca.form.form_tasca' />
 			</h3>
-		</c:if>
+		</c:if--%>
 	</c:if>
 
 	<c:if test="${tasca.campsNotReadOnly}">
@@ -208,7 +212,8 @@ function confirmar(form) {
 					<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 						<form:hidden path="id"/>
 						<form:hidden path="entornId"/>
-						<input type="hidden" name="helCampFocus"/>
+						<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
+						<input type="hidden" id="helCampFocus" name="helCampFocus"/>
 						<div class="inlineLabels">
 							<c:if test="${not empty tasca.camps}">
 								<c:forEach var="camp" items="${tasca.camps}">
@@ -235,6 +240,7 @@ function confirmar(form) {
 								<form:form action="form.html" cssClass="uniForm tascaForm zebraForm" onsubmit="return confirmar(this)">
 									<form:hidden path="id"/>
 									<form:hidden path="entornId"/>
+									<input type="hidden" id="helFinalitzarAmbOutcome" name="helFinalitzarAmbOutcome" value="@#@"/>
 									<input type="hidden" name="helCampFocus"/>
 									<div class="inlineLabels">
 										<c:if test="${not empty tasca.camps}">

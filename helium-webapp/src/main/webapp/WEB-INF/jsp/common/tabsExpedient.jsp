@@ -34,16 +34,14 @@
 				<c:otherwise>
 				</c:otherwise>
 			</c:choose>
-			<c:if test="${not proces.finalitzat}">
-				<option value="${proces.id}"<c:if test="${param.id == proces.id}"> selected="selected"</c:if>>
-					<c:choose>
-						<c:when test="${proces.id == expedient.processInstanceId}">&lt;&lt; <fmt:message key='common.tabsexp.proc_princip' /> &gt;&gt;</c:when>
-						<c:otherwise>
-							<c:forEach begin="0" end="${nivell}">&nbsp;&nbsp;</c:forEach>${proces.titol}
-						</c:otherwise>
-					</c:choose>
-				</option>
-			</c:if>
+			<option value="${proces.id}"<c:if test="${param.id == proces.id}"> selected="selected"</c:if>>
+				<c:choose>
+					<c:when test="${proces.id == expedient.processInstanceId}">&lt;&lt; <fmt:message key='common.tabsexp.proc_princip' /> &gt;&gt;</c:when>
+					<c:otherwise>
+						<c:forEach begin="0" end="${nivell}">&nbsp;&nbsp;</c:forEach>${proces.titol}
+					</c:otherwise>
+				</c:choose>
+			</option>
 		</c:forEach>
 	</select>
 </form>
@@ -56,13 +54,13 @@
 	<li<c:if test="${param.tabActiu == 'documents'}"> class="active"</c:if>><a href="<c:url value="/expedient/documents.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='comuns.documents' /></a></li>
 	<li<c:if test="${param.tabActiu == 'timeline'}"> class="active"</c:if>><a href="<c:url value="/expedient/timeline.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='common.tabsexp.cronograma' /></a></li>
 	<li<c:if test="${param.tabActiu == 'terminis'}"> class="active"</c:if>><a href="<c:url value="/expedient/terminis.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='comuns.terminis' /></a></li>
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="2,16,128">
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="1,16,128">
 		<li<c:if test="${param.tabActiu == 'tasques'}"> class="active"</c:if>><a href="<c:url value="/expedient/tasques.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='comuns.tasques' /></a></li>
 	</security:accesscontrollist>
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="2,16">
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16">
 		<li<c:if test="${param.tabActiu == 'tokens'}"> class="active"</c:if>><a href="<c:url value="/expedient/tokens.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='common.tabsexp.tokens' /></a></li>
 	</security:accesscontrollist>
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,128">
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="128,16">
 		<li<c:if test="${param.tabActiu == 'registre'}"> class="active"</c:if>><a href="<c:url value="/expedient/registre.html"><c:param name="id" value="${param.id}"/></c:url>"><fmt:message key='common.tabsexp.registre' /></a></li>
 	</security:accesscontrollist>
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="2,16">

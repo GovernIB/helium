@@ -41,6 +41,7 @@ function confirmar(e) {
 			</c:choose>
 		</display:column>
 		<display:column property="numIdsWithSameKey" title="Versions" sortable="true"/>
+		<display:column property="dataCreacio" format="{0,date,dd/MM/yyyy HH:mm}" title="Data de versió" sortable="true"/>
 		<display:column title="Inicial?" sortable="true">
 			<c:choose>
 				<c:when test="${expedientTipus.jbpmProcessDefinitionKey == registre.jbpmKey}">Si</c:when>

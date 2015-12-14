@@ -10,20 +10,20 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -78,31 +78,20 @@ public class DefinicioProcesDocumentController extends BaseController {
 			@RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
 			@RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+		DefinicioProcesDto defpro = null;
+		if (definicioProcesId != null)
+			defpro = dissenyService.getById(definicioProcesId, false);
+		else if (definicioProces != null)
+			defpro = dissenyService.getById(definicioProces, false);
+		
 		if (id != null) {
-			Document vell = dissenyService.getDocumentById(id);
-			Document document = new Document();
-			document.setId(id);
-			document.setCodi(vell.getCodi());
-			document.setNom(vell.getNom());
-			document.setArxiuNom(vell.getArxiuNom());
-			document.setDescripcio(vell.getDescripcio());
-			document.setPlantilla(vell.isPlantilla());
-			document.setAdjuntarAuto(vell.isAdjuntarAuto());
-			document.setContentType(vell.getContentType());
-			document.setCustodiaCodi(vell.getCustodiaCodi());
-			document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());
-			document.setDefinicioProces(vell.getDefinicioProces());
-			document.setCampData(vell.getCampData());
-			document.setExtensionsPermeses(vell.getExtensionsPermeses());
-			document.setConvertirExtensio(vell.getConvertirExtensio());
+			Document document = dissenyService.getDocumentById(id);
+			document.setDefinicioProces(defpro);			
 			return document;
 		}
 		Document nou = new Document();
 		nou.setAdjuntarAuto(true);
-		if (definicioProcesId != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
-		if (definicioProces != null)
-			nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
+		nou.setDefinicioProces(defpro);
 		return nou;
 	}
 

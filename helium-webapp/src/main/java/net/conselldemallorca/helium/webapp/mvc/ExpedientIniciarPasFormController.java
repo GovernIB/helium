@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -24,8 +25,7 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.Termini;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -220,7 +220,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 			        }
 					// Si l'expedient ha de demanar titol i/o número redirigeix al pas per demanar
 					// aquestes dades
-					if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
+					if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue() || tipus.isSeleccionarAny()) {
 						guardarCommandSessio(request, command);
 						if (definicioProcesId != null)
 							return "redirect:/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
@@ -231,14 +231,19 @@ public class ExpedientIniciarPasFormController extends BaseController {
 							Map<String, Object> valors = new HashMap<String, Object>();
 							valors.putAll(obtenirValorsSessio(request));
 							valors.putAll(TascaFormUtil.getValorsFromCommand(camps, command, true, false));
-							iniciarExpedient(
+							ExpedientDto iniciat = iniciarExpedient(
 									entorn.getId(),
 									expedientTipusId,
 									definicioProcesId,
 									(String)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_NUMERO),
 									(String)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_TITOL),
+									(Integer)request.getSession().getAttribute(ExpedientIniciarController.CLAU_SESSIO_ANY),
 									valors);
-							missatgeInfo(request, getMessage("info.expedient.iniciat"));
+							missatgeInfo(
+									request,
+									getMessage(
+											"info.expedient.iniciat",
+											new Object[] {iniciat.getIdentificador()}));
 							ExpedientIniciarController.netejarSessio(request);
 							return "redirect:/expedient/iniciar.html";
 						} catch (Exception ex) {
@@ -286,7 +291,11 @@ public class ExpedientIniciarPasFormController extends BaseController {
 					if (registreEsborrarId != null && registreEsborrarIndex != null) {
 						Camp camp = dissenyService.getCampById(registreEsborrarId);
 						try {
-							esborrarRegistre(request, camp.getCodi(), registreEsborrarIndex.intValue());
+							esborrarRegistre(
+									request,
+									camp.getCodi(),
+									camp.isMultiple(),
+									registreEsborrarIndex.intValue());
 						} catch (Exception ex) {
 				        	missatgeError(request, getMessage("error.esborrar.registre"), ex.getLocalizedMessage());
 				        	logger.error("No s'ha pogut esborrar el registre", ex);
@@ -317,7 +326,7 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				BigDecimal.class,
 				new CustomNumberEditor(
 						BigDecimal.class,
-						new DecimalFormat("#,###.00"),
+						new DecimalFormat("#,##0.00"),
 						true));
 		binder.registerCustomEditor(
 				Boolean.class,
@@ -325,9 +334,6 @@ public class ExpedientIniciarPasFormController extends BaseController {
 		binder.registerCustomEditor(
 				Date.class,
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
-		binder.registerCustomEditor(
-				Termini.class,
-				new TerminiTypeEditor());
 	}
 
 
@@ -355,19 +361,25 @@ public class ExpedientIniciarPasFormController extends BaseController {
 	private void esborrarRegistre(
 			HttpServletRequest request,
 			String campCodi,
+			boolean multiple,
 			int index) {
-		Object valor = request.getSession().getAttribute(
-				ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
-		if (valor != null) {
-			Object[] valorMultiple = (Object[])valor;
-			if (valorMultiple.length > 0) {
-				Object[] valorNou = new Object[valorMultiple.length - 1];
-				for (int i = 0; i < valorNou.length; i++)
-					valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
-					request.getSession().setAttribute(
-							ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
-							valorNou);
+		if (multiple) {
+			Object valor = request.getSession().getAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
+			if (valor != null) {
+				Object[] valorMultiple = (Object[])valor;
+				if (valorMultiple.length > 0) {
+					Object[] valorNou = new Object[valorMultiple.length - 1];
+					for (int i = 0; i < valorNou.length; i++)
+						valorNou[i] = (i < index) ? valorMultiple[i] : valorMultiple[i + 1];
+						request.getSession().setAttribute(
+								ExpedientIniciarController.getClauSessioCampRegistre(campCodi),
+								valorNou);
+				}
 			}
+		} else {
+			request.getSession().removeAttribute(
+					ExpedientIniciarController.getClauSessioCampRegistre(campCodi));
 		}
 	}
 
@@ -431,18 +443,20 @@ public class ExpedientIniciarPasFormController extends BaseController {
 				valors);
 	}
 
-	private synchronized void iniciarExpedient(
+	private synchronized ExpedientDto iniciarExpedient(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
 			String numero,
 			String titol,
+			Integer any,
 			Map<String, Object> valors) {
-		expedientService.iniciar(
+		return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
 				definicioProcesId,
+				any,
 				numero,
 				titol,
 				null,

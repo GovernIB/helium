@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:es:caib:zonaper:ws:v2:model:EstadoPago" targetNamespace="urn:es:caib:zonaper:ws:v2:model:EstadoPago" version="1.0">
+	<xs:complexType name="EstadoPago">
+		<xs:sequence>
+			<xs:element name="idDocumento" type="xs:string"/>
+			<xs:element name="estado" type="tns:TipoEstadoPago"/>			
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="TipoEstadoPago">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="PAGADO"/>
+	    <xs:enumeration value="PENDIENTE_CONFIRMAR"/>
+	    <xs:enumeration value="NO_PAGADO"/>
+	  </xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TipoEstadoTramite">
+	  <xs:restriction base="xs:string">
+	    <xs:enumeration value="PENDIENTE_ENVIAR"/>
+	    <xs:enumeration value="ENVIADO"/>
+	    <xs:enumeration value="NO_EXISTE"/>
+	  </xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="EstadoPagos">
+		<xs:sequence>
+			<xs:element name="estadoTramite" type="tns:TipoEstadoTramite"/>
+			<xs:element maxOccurs="unbounded" minOccurs="0" name="estadoPago" type="tns:EstadoPago"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

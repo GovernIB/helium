@@ -41,13 +41,13 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 			request.setNumero(referenciaEntrada.getNumeroEntrada());
 			request.setClau(referenciaEntrada.getClaveAcceso());
 			boolean error = false;
+			DadesTramit dadesTramit = null;
 			try {
-				DadesTramit dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
-				logger.info("Petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador());
+				dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
 				int numExpedients = processarTramit(dadesTramit);
 				logger.info("El tramit " + request + " ha creat " + numExpedients + " expedients");
 			} catch (Exception ex) {
-				logger.error("Error a l'hora de processar el tramit " + request, ex);
+				logger.error("Error petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador() + " --> " + dadesTramit, ex);
 				error = true;
 			}
 			try {
@@ -79,6 +79,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 		try {
 			return ServiceProxy.getInstance().getPluginService().obtenirVistaDocument(request);
 		} catch (Exception ex) {
+			logger.error("Error al obtenir el document del tramit " + request, ex);
 			return null;
 		}
 	}

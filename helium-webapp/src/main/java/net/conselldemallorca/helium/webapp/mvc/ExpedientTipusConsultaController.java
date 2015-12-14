@@ -14,13 +14,13 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -59,14 +59,46 @@ public class ExpedientTipusConsultaController extends BaseController {
 	}
 
 
+	@ModelAttribute("formatsExportacio")
+	public String[] formatsExportacio() {
+		String[] formatsExportacio = {"PDF","ODT","RTF","HTML","CSV","XLS","XML"};
+		return formatsExportacio;
+	}
+	
+
+//	@ModelAttribute("command")
+//	public Consulta populateCommand(
+//			HttpServletRequest request,
+//			@RequestParam(value = "id", required = false) Long id) {
+//		if (id != null)
+//			return dissenyService.getConsultaById(id);
+//		return new Consulta();
+//	}
+	
 	@ModelAttribute("command")
-	public Consulta populateCommand(
+	public ConsultaCommand populateCommand(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Long id) {
-		if (id != null)
-			return dissenyService.getConsultaById(id);
-		return new Consulta();
+		if (id != null) {
+			Consulta consulta = dissenyService.getConsultaById(id);
+			ConsultaCommand command = new ConsultaCommand();
+			command.setId(consulta.getId());
+			command.setEntorn(consulta.getEntorn());
+			command.setCodi(consulta.getCodi());
+			command.setDescripcio(consulta.getDescripcio());
+			command.setExpedientTipus(consulta.getExpedientTipus());
+			command.setNom(consulta.getNom());
+			command.setFormatExport(consulta.getFormatExport());
+			command.setInformeNom(consulta.getInformeNom());
+			command.setInformeContingut(consulta.getInformeContingut());
+			command.setValorsPredefinits(consulta.getValorsPredefinits());
+			command.setExportarActiu(consulta.isExportarActiu());
+			command.setOcultarActiu(consulta.isOcultarActiu());
+			return command;
+		}
+		return new ConsultaCommand();
 	}
+	
 	@ModelAttribute("expedientTipus")
 	public ExpedientTipus populateExpedientTipus(
 			@RequestParam(value = "expedientTipusId", required = false) Long id) {
@@ -85,7 +117,7 @@ public class ExpedientTipusConsultaController extends BaseController {
 		if (entorn != null) {
 			model.addAttribute(
 					"llistat",
-					dissenyService.findConsultesAmbEntornIExpedientTipus(
+					dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
 							entorn.getId(),
 							expedientTipusId));
 			model.addAttribute("tipusFiltre", ConsultaCamp.TipusConsultaCamp.FILTRE);
@@ -123,7 +155,8 @@ public class ExpedientTipusConsultaController extends BaseController {
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
 			@RequestParam(value = "informeContingut_deleted", required = false) final String deleted,
-			@ModelAttribute("command") Consulta command,
+			@RequestParam(value = "formatExport", required = false) String formatExport,
+			@ModelAttribute("command") ConsultaCommand command,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
@@ -131,15 +164,30 @@ public class ExpedientTipusConsultaController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				Consulta consulta = new Consulta();
+				if(command.getId() != null) consulta = dissenyService.getConsultaById(command.getId());
+				
+				consulta.setId(command.getId());
+				consulta.setEntorn(entorn);
+				consulta.setCodi(command.getCodi());
+				consulta.setNom(command.getNom());
+				consulta.setDescripcio(command.getDescripcio());
+				consulta.setExpedientTipus(expedientTipus);
+				consulta.setFormatExport(command.getFormatExport());
+				consulta.setValorsPredefinits(command.getValorsPredefinits());
+				consulta.setExportarActiu(command.isExportarActiu());
+				consulta.setOcultarActiu(command.isOcultarActiu());
+				
 				if ("submit".equals(submit) || submit.length() == 0) {
-					command.setEntorn(entorn);
-					command.setExpedientTipus(expedientTipus);
-					command.setInformeNom(null);
-					command.setInformeContingut(null);
+					if("deleted".equalsIgnoreCase(deleted)){
+						consulta.setInformeNom(null);
+						consulta.setInformeContingut(null);
+					}
+					consulta.setFormatExport(formatExport);
 					if (multipartFile != null && multipartFile.getSize() > 0) {
 						try {
-							command.setInformeContingut(multipartFile.getBytes());
-							command.setInformeNom(multipartFile.getOriginalFilename());
+							consulta.setInformeContingut(multipartFile.getBytes());
+							consulta.setInformeNom(multipartFile.getOriginalFilename());
 						} catch (Exception ignored) {}
 					}
 					annotationValidator.validate(command, result);
@@ -148,9 +196,9 @@ public class ExpedientTipusConsultaController extends BaseController {
 			        }
 			        try {
 			        	if (command.getId() == null)
-			        		dissenyService.createConsulta(command);
+			        		dissenyService.createConsulta(consulta);
 			        	else
-			        		dissenyService.updateConsulta(command, "deleted".equalsIgnoreCase(deleted));
+			        		dissenyService.updateConsulta(consulta, "deleted".equalsIgnoreCase(deleted));
 			        	missatgeInfo(request, getMessage("info.consulta.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {

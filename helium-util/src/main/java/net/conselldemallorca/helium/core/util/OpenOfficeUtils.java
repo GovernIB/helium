@@ -6,15 +6,24 @@ package net.conselldemallorca.helium.core.util;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import com.artofsolving.jodconverter.DefaultDocumentFormatRegistry;
 import com.artofsolving.jodconverter.DocumentConverter;
 import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.DocumentFormatRegistry;
+import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocumentConverter;
 
@@ -23,12 +32,10 @@ import com.artofsolving.jodconverter.openoffice.converter.StreamOpenOfficeDocume
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component
 public class OpenOfficeUtils {
 
-	private DocumentConverter documentConverter;
 	private DocumentFormatRegistry documentFormatRegistry;
-
-
 
 	public void convertir(
 			String arxiuNom,
@@ -46,7 +53,11 @@ public class OpenOfficeUtils {
 			InputStream arxiuContingut,
 			String extensioSortida,
 			OutputStream sortida) throws Exception {
-		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);
+		logger.info("Conversió OpenOffice (" +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut.available() + "bytes, " +
+				"extensioSortida=" + extensioSortida + ")");
+		DocumentFormat inputFormat = formatPerNomArxiu(arxiuNom);			
 		DocumentFormat outputFormat = getDocumentFormatRegistry().getFormatByFileExtension(extensioSortida);
 		if (!outputFormat.getFileExtension().equals(inputFormat.getFileExtension())) {
 			convert(
@@ -88,16 +99,43 @@ public class OpenOfficeUtils {
 
 
 	private void convert(
-			InputStream in,
-			DocumentFormat inputFormat,
-			OutputStream out,
-			DocumentFormat outputFormat) {
-		getDocumentConverter().convert(
-				in,
-				inputFormat,
-				out,
-				outputFormat);
+			final InputStream in,
+			final DocumentFormat inputFormat,
+			final OutputStream out,
+			final DocumentFormat outputFormat) throws Exception {
+		final String host = getPropertyHost();
+		final int port = getPropertyPort();
+		final OpenOfficeConnection connection = new SocketOpenOfficeConnection(host, port);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			Future<String> future = executor.submit(new Callable<String>() {
+				@Override
+				public String call() throws Exception {
+					connection.connect();
+					DocumentConverter converter = new StreamOpenOfficeDocumentConverter(
+							connection,
+							getDocumentFormatRegistry());
+					converter.convert(
+							in,
+							inputFormat,
+							out,
+							outputFormat);
+					return "Ok";
+			    }
+			});
+			if (getPropertyTimeout() != -1)
+				future.get(getPropertyTimeout(), TimeUnit.SECONDS);
+			else
+				future.get();
+		} catch (TimeoutException e) {
+			throw new RuntimeException("Conversió OpenOffice timeout");
+		} finally {
+			if (connection.isConnected())
+				connection.disconnect();
+		}
+		executor.shutdownNow();
 	}
+
 	private DocumentFormat formatPerNomArxiu(String fileName) {
 		int indexPunt = fileName.lastIndexOf(".");
 		if (indexPunt != -1) {
@@ -108,23 +146,9 @@ public class OpenOfficeUtils {
 	}
 
 	private DocumentFormatRegistry getDocumentFormatRegistry() {
-		initOpenOfficeConnection();
-		return documentFormatRegistry;
-	}
-	private DocumentConverter getDocumentConverter() {
-		initOpenOfficeConnection();
-		return documentConverter;
-	}
-	private void initOpenOfficeConnection() {
 		if (documentFormatRegistry == null)
 			documentFormatRegistry = new DefaultDocumentFormatRegistry();
-		if (documentConverter == null) {
-			String host = getPropertyHost();
-			int port = getPropertyPort();
-			documentConverter = new StreamOpenOfficeDocumentConverter(
-					new SocketOpenOfficeConnection(host, port),
-					documentFormatRegistry);
-		}
+		return documentFormatRegistry;
 	}
 
 	private String getPropertyHost() {
@@ -133,5 +157,12 @@ public class OpenOfficeUtils {
 	private int getPropertyPort() {
 		return Integer.parseInt(GlobalProperties.getInstance().getProperty("app.conversio.openoffice.port"));
 	}
-
+	private int getPropertyTimeout() {
+		String timeout = GlobalProperties.getInstance().getProperty("app.conversio.openoffice.timeout");
+		if (timeout == null)
+			return -1;
+		else
+			return Integer.parseInt(timeout);
+	}
+	private static final Logger logger = LoggerFactory.getLogger(OpenOfficeUtils.class);
 }

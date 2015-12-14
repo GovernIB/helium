@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
+<c:set var="usuaris" value="${sessionScope.usuaris}"/>
 <html>
 <head>
 	<title>${tasca.nomLimitat}</title>
@@ -15,12 +15,15 @@
 function mostrarOcultar(img, objid) {
 	var obj = document.getElementById(objid);
 	if (obj.style.display=="none") {
-		obj.style.display = "block";
+		$('#' + objid).slideDown();
+		//obj.style.display = "block";
 		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
 	} else {
-		obj.style.display = "none";
+		$('#' + objid).slideUp();
+		//obj.style.display = "none";
 		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
 	}
+	
 }
 function confirmarDelegar(e) {
 	var e = e || window.event;
@@ -32,6 +35,8 @@ function confirmarDelegar(e) {
 </script>
 </head>
 <body>
+
+	<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
 
 	<c:import url="../common/tabsTasca.jsp">
 		<c:param name="tabActiu" value="info"/>
@@ -48,7 +53,6 @@ function confirmarDelegar(e) {
 		</div>
 	</c:if>
 
-	<h3 class="titol-tab titol-info"><fmt:message key='tasca.info.info_tasca' /></h3>
 	<dl class="form-info">
 		<dt><fmt:message key='comuns.titol' /></dt><dd>${tasca.nom}</dd>
 		<c:if test="${empty seleccioMassiva}">
@@ -78,13 +82,19 @@ function confirmarDelegar(e) {
 					<form:form action="delegacioCrear.html" cssClass="uniForm" onsubmit="return confirmarDelegar(event)">
 						<div class="inlineLabels">
 							<form:hidden path="taskId"/>
+							
 							<c:import url="../common/formElement.jsp">
-								<c:param name="property" value="actorId"/>
 								<c:param name="required" value="true"/>
-								<c:param name="type" value="suggest"/>
-								<c:param name="label"><fmt:message key='tasca.info.destinatari' /></c:param>
-								<c:param name="suggestUrl"><c:url value="/persona/suggest.html"/></c:param>
+								<c:param name="property" value="actorId"/>
+								<c:param name="type" value="select"/>
+								<c:param name="items" value="destinataris"/>
+								<c:param name="itemLabel" value="nomSencer"/>
+								<c:param name="itemValue" value="codi"/>
+								<c:param name="itemBuit">&lt;&lt; <fmt:message key="tasca.delegar.select"/> &gt;&gt;</c:param>
+								<c:param name="label"><fmt:message key='tasca.info.destinatari'/></c:param>
 							</c:import>
+								
+							
 							<c:import url="../common/formElement.jsp">
 								<c:param name="property" value="comentari"/>
 								<c:param name="type" value="textarea"/>
@@ -94,6 +104,7 @@ function confirmarDelegar(e) {
 								<c:param name="property" value="supervisada"/>
 								<c:param name="type" value="checkbox"/>
 								<c:param name="label"><fmt:message key='tasca.info.supervisarq' /></c:param>
+								<c:param name="checkAsText" value="off"/>
 							</c:import>
 							<c:import url="../common/formElement.jsp">
 								<c:param name="type" value="buttons"/>

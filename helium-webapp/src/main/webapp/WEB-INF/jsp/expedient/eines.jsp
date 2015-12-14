@@ -30,12 +30,35 @@ function confirmarScript(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key='expedient.eines.confirm_executar_script_proces' />");
 }
-
 function confirmarCanviVersio(e) {
 	var e = e || window.event;
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("<fmt:message key='expedient.eines.confirm_canviar_versio_proces' />");
+}
+function confirmarReindexaExpedient(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.eines.confirm_reindexar_expedient' />")) {
+		document.getElementById("reindexaForm").submit();
+	}
+}
+function confirmarBuidarLogExpedient(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.eines.confirm_buidarlog_expedient' />")) {
+		document.getElementById("buidarlogForm").submit();
+	}
+}
+function confirmarReprendreExpedientExpedient(e) {
+	var e = e || window.event;
+	e.cancelBubble = true;
+	if (e.stopPropagation) e.stopPropagation();
+	if (confirm("<fmt:message key='expedient.eines.confirm_reprendre_expedient' />")) {
+		document.getElementById("reprendreExpedientForm").submit();
+	}
 }
 
 // ]]>
@@ -56,12 +79,12 @@ function confirmarCanviVersio(e) {
 				<script type="text/javascript">
 					$('.aturarLink').openDOMWindow({
 						eventType: 'click',
-						width: 600,
+						width: 620,
 						height: 260,
 						loader: 1,
 						loaderHeight: 32,
 						loaderWidth: 32,
-						windowPadding: 0,
+						windowPadding: 10,
 						draggable: 1});
 				</script>
 				<div id="aturarForm" style="display:none">
@@ -91,12 +114,12 @@ function confirmarCanviVersio(e) {
 				<script type="text/javascript">
 					$('.reprendreLink').openDOMWindow({
 						eventType: 'click',
-						width: 600,
+						width: 620,
 						height: 80,
 						loader: 1,
 						loaderHeight: 32,
 						loaderWidth: 32,
-						windowPadding: 0,
+						windowPadding: 10,
 						draggable: 1});
 				</script>
 				<div id="reprendreForm" style="display:none">
@@ -119,12 +142,12 @@ function confirmarCanviVersio(e) {
 		<script type="text/javascript">
 			$('.scriptLink').openDOMWindow({
 				eventType: 'click',
-				width: 600,
+				width: 620,
 				height: 260,
 				loader: 1,
 				loaderHeight: 32,
 				loaderWidth: 32,
-				windowPadding: 0,
+				windowPadding: 10,
 				draggable: 1});
 		</script>
 		<div id="scriptForm" style="display:none">
@@ -153,12 +176,12 @@ function confirmarCanviVersio(e) {
 		<script type="text/javascript">
 			$('.canviVersioLink').openDOMWindow({
 				eventType: 'click',
-				width: 600,
+				width: 620,
 				height: 80,
 				loader: 1,
 				loaderHeight: 32,
 				loaderWidth: 32,
-				windowPadding: 0,
+				windowPadding: 10,
 				draggable: 1});
 		</script>
 		<div id="canviVersioForm" style="display:none">
@@ -183,6 +206,25 @@ function confirmarCanviVersio(e) {
 			</form:form>
 		</div>
 	</div>
-
+	<h3 class="titol-tab titol-reindexar">
+		<a href="#" class="reindexaLink" onclick='javascript:confirmarReindexaExpedient(event);'><fmt:message key='expedient.eines.reindexa_proces' /></a>
+	</h3>
+	<form:form id="reindexaForm" action="reindexa.html">
+		<input type="hidden" name="id" value="${param.id}" />
+	</form:form>
+	<h3 class="titol-tab titol-buidarlog">
+		<a href="#" class="buidarlogLink" onclick='javascript:confirmarBuidarLogExpedient(event);'><fmt:message key='expedient.eines.buidarlog_proces' /></a>
+	</h3>
+	<c:if test="${expedient.dataFi != null}">
+		<h3 class="titol-tab titol-reprendre-expedient">
+			<a href="#" class="reprendreExpedientLink" onclick='javascript:confirmarReprendreExpedientExpedient(event);'><fmt:message key='expedient.eines.reprendre_expedient' /></a>
+		</h3>
+	</c:if>
+	<form:form id="buidarlogForm" action="buidarlog.html">
+		<input type="hidden" name="id" value="${param.id}" />
+	</form:form>
+	<form:form id="reprendreExpedientForm" action="reprendreExpedient.html">
+		<input type="hidden" name="id" value="${param.id}" />
+	</form:form>	
 </body>
 </html>

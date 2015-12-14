@@ -8,6 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 
 /**
@@ -30,7 +33,7 @@ public class SignaturaTest {
 		    }
 			if (certList != null) {
 				for (String cert: certList) {
-					System.out.println(">>> " + cert);
+					logger.info(">>> " + cert);
 				}
 			}
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -41,6 +44,7 @@ public class SignaturaTest {
 				buffer.write(tmp, 0, nRead);
 			}
 			buffer.flush();
+			is.close();
 			byte[] resposta = (byte[])signaturaPlugin.sign(
 					buffer.toByteArray(),
 					certList[0],
@@ -54,4 +58,5 @@ public class SignaturaTest {
 		}
 	}
 
+	private static final Log logger = LogFactory.getLog(SignaturaTest.class);
 }

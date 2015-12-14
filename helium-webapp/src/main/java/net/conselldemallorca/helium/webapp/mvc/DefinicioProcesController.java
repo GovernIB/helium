@@ -8,24 +8,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -113,9 +116,23 @@ public class DefinicioProcesController extends BaseController {
 			if (potDissenyarDefinicioProces(entorn, definicioProces)) {
 				try {
 					List<ExpedientDto> expedients = expedientService.findAmbDefinicioProcesId(definicioProcesId);
+					List<Consulta> consultes = dissenyService.findConsultesAmbEntorn(entorn.getId());
+					boolean esborrar = true;
 					if (expedients.size() == 0) {
-						dissenyService.undeploy(entorn.getId(), null, definicioProcesId);
-			        	missatgeInfo(request, getMessage("info.defproc.esborrat") );
+						for(Consulta consulta: consultes){
+							Set<ConsultaCamp> llistat = consulta.getCamps();
+							for(ConsultaCamp c: llistat){
+								if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
+									esborrar = false;
+								}
+							}
+						}
+						if(!esborrar){
+							missatgeError(request, getMessage("error.exist.cons") );
+						} else {
+							dissenyService.undeploy(entorn.getId(), null, definicioProcesId);
+			        		missatgeInfo(request, getMessage("info.defproc.esborrat") );
+						}
 					} else {
 						missatgeError(request, getMessage("error.exist.exp.defproc") );
 					}

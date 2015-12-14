@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.conselldemallorca</groupId>
+		<artifactId>helium</artifactId>
+		<version>3.0</version>
+	</parent>
+	<artifactId>helium-selenium</artifactId>
+	<properties>
+		<skipTests>true</skipTests>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>2.43.1</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.5</version>
+		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-selenium-integraciones</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-ws</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-plugin-impl</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-codec</artifactId>
+					<groupId>commons-codec</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<fork>true</fork>
+					<compilerVersion>${java.version}</compilerVersion>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- Per a executar els tests: mvn test -DskipTests=false (amb helium 
+					funcionant) -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<!-- Suites de proves a executar -->
+						<include>**/ConfiguracioAplicacioSuite.java</include>
+						<include>**/ConfiguracioDefinicioProcesSuite.java</include>
+						<include>**/ConfiguracioEntornSuite.java</include>
+						<include>**/ConsultaExpedientSuite.java</include>
+						<include>**/ExecucioMassivaSuite.java</include>
+						<include>**/InformesSuite.java</include>
+						<include>**/IntegracioSuite.java</include>
+						<include>**/TipusExpedientSuite.java</include>
+						<include>**/TramitacioSuite.java</include>
+					</includes>
+					<skipTests>${skipTests}</skipTests>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<!-- Per a generar el report: mvn surefire-report:report -DskipTests=false 
+					(amb helium funcionant) o -->
+				<!-- mvn surefire-report:report-only (amb tests ja executats) -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.3</version>
+			</plugin>
+		</plugins>
+	</reporting>
+</project>

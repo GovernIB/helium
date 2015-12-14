@@ -3,10 +3,10 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
-import net.conselldemallorca.helium.core.security.permission.PermissionUtil;
+import net.conselldemallorca.helium.core.security.PermissionUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.ModelTypeEditor;
 
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 
 /**
  * TypeEditor per als permisos

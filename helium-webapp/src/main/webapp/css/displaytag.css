@@ -1,3 +1,15 @@
+table.displaytag td.showDragHandle {
+    background-image: url(/helium/img/updown.png);
+    background-repeat: no-repeat;
+    background-position: left 3px; 
+    cursor: move;
+}
+
+table.displaytag tr.drag td {
+    color: yellow;
+    background-color: black;
+}
+
 table.displaytag {
 	border: 1px solid #ccc;
 	width: 100%;
@@ -239,4 +251,9 @@ table.simple td.textRed {color: #b11;}
 table tr.over td {
 	background: #ffffcc;
 	cursor: pointer;
+}
+
+table.displaytag tbody tr.registre_a_retrocedir {
+	background: #ffffcc;
+	color: #666;
 }

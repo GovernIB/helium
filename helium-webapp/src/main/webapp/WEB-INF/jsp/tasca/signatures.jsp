@@ -55,7 +55,23 @@ function infoRegistre(docId) {
 	}).width(amplada - 30).height(alcada - 30);
 	return false;
 }
+function mostrarOcultar(img, objid) {
+	var obj = document.getElementById(objid);
+	if (obj.style.display=="none") {
+		$('#' + objid).slideDown();
+		//obj.style.display = "block";
+		img.src = '<c:url value="/img/magnifier_zoom_out.png"/>';
+	} else {
+		$('#' + objid).slideUp();
+		//obj.style.display = "none";
+		img.src = '<c:url value="/img/magnifier_zoom_in.png"/>';
+	}
+}
+// ]]>
+</script>
 <c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
+<script type="text/javascript">
+//<![CDATA[
 var baseDownloadURL = "../signatura/aFirma";
 var base = "../signatura/aFirma";
 var signatureAlgorithm = "${globalProperties['app.signatura.afirma.signature.algorithm']}";
@@ -79,52 +95,40 @@ function signarAFirma(form, token) {
 		alert("<fmt:message key='tasca.signa.no_sa_pogut' />: " + clienteFirma.getErrorMessage());
 	}
 }
+//]]>
+</script>
 </c:if>
 <c:if test="${globalProperties['app.signatura.tipus'] == 'caib'}">
-var appletCaib;
+<script src="https://www.java.com/js/deployJava.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var attributes = {
+		id: 'signaturaApplet',
+		code: 'net.conselldemallorca.helium.applet.signatura.SignaturaCaibApplet',
+		archive: '<c:url value="/signatura/caib/helium-applet.jar"/>',
+		width: 1,
+		height: 1};
+var parameters = {};
+deployJava.runApplet(
+		attributes,
+		parameters,
+		'1.5');
+
 var certsCarregats = false;
-function initApplet(
-		id,
-		code,
-		archive,
-		width,
-		height,
-		contentType) {
-	if ($.browser.msie) {
-		document.write(
-				'<object id="' + id + '" width="' + width + '" height="' + height + '"' +
-				'        classid="clsid:CAFEEFAC-0015-0000-FFFF-ABCDEFFEDCBA">' +
-				'    <param name="code" value="' + code + '"/>' +
-				'    <param name="archive" value="' + archive + '"/>' +
-				'</object>');
-	} else {
-		document.write(
-				'<embed id="' + id + '" width="' + width + '" height="' + height + '" ' +
-				'        type="application/x-java-applet;version=1.5" ' +
-				'        code="' + code + '" ' +
-				'        archive="' + archive + '" ' +
-				'        cache_option="no"/>');
-	}
-	return document.getElementById(id);
-}
-function initSignaturaCaib(selectId, contentType) {
-	appletCaib = initApplet(
-			"signaturaCaibApplet",
-			"net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaCaibApplet",
-			"../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar",
-			1,
-			1,
-			contentType);
-}
 function obtenirCertificats(selectId, contentType) {
-	var certs = appletCaib.findCertificats(contentType);
-	if (!certs)
-		alert("<fmt:message key="tasca.signa.alert.certerr"/>");
-	var options = '';
-	for (var i = 0; i < certs.length; i++)
-		options += '<option value="' + certs[i] + '">' + certs[i] + '</option>';
-	$("select#" + selectId).html(options);
-	certsCarregats = true;
+	try {
+		signaturaApplet.findCertificats(contentType);
+		var certs = signaturaApplet.findCertificats(contentType);
+		if (!certs)
+			alert("<fmt:message key="tasca.signa.alert.certerr"/>");
+		var options = '';
+		for (var i = 0; i < certs.length; i++)
+			options += '<option value="' + certs[i] + '">' + certs[i] + '</option>';
+		$("select#" + selectId).html(options);
+		certsCarregats = true;
+	} catch (e) {
+		setTimeout("obtenirCertificats('" + selectId + "', '" + contentType + "')", 1000);
+	}
 }
 function signarCaib(token, form, contentType) {
 	if (!certsCarregats) {
@@ -134,29 +138,44 @@ function signarCaib(token, form, contentType) {
 		if (cert == null || cert.length == 0) {
 			alert("<fmt:message key="tasca.signa.alert.nosel"/>");
 		} else {
-			var signaturaB64 = appletCaib.signaturaPdf(
-					"${sourceUrl}?token=" + token,
-					cert,
-					form.passwd.value,
-					contentType);
-			if (signaturaB64 == null) {
-				alert("<fmt:message key="tasca.signa.alert.error"/>");
-			} else {
-				form.data.value = signaturaB64;
-				form.submit();
-			}
+			// Comprobar fichero
+			$.get("${sourceUrl}?token=" + token)
+			.done(function(data) {
+				try {
+	 				var signaturaB64 = signaturaApplet.signaturaPdf(
+	 						"${sourceUrl}?token=" + token,
+	 						cert,
+	 						form.passwd.value,
+	 						contentType);
+	 				if (signaturaB64 == null) {
+	 					alert("<fmt:message key="tasca.signa.alert.error"/>");
+	 				} else {
+	 					if (signaturaB64.length > 0) {
+		 					for (var i = 0; i < signaturaB64.length; i++) {
+		 						$(form).append( '<input type="hidden" id="data'+i+'" name="data" value="'+signaturaB64[i]+'"/>' );
+		 					}
+		 					form.submit();
+	 					} else {
+	 						alert("<fmt:message key="tasca.signa.alert.no.document.signar"/>: ${sourceUrl}?token=" + token);
+	 					}
+	 				}
+				} catch (e) {
+					alert(e);
+				}
+			})
+			.fail(function(xhr, status, error) {
+				alert("<fmt:message key="tasca.signa.alert.no.document"/>: " + xhr.responseText);
+			});
 		}
 	}
 }
-</c:if>
 // ]]>
 </script>
+</c:if>
 </head>
 <body>
 
-<c:if test="${globalProperties['app.signatura.tipus'] == 'caib'}">
-<script>initSignaturaCaib('certs${documentActual.id}', '1')</script>
-</c:if>
+	<h3 class="titol-tab titol-expedient">${tasca.expedient.identificadorLimitat}</h3>
 
 	<c:import url="../common/tabsTasca.jsp">
 		<c:param name="tabActiu" value="firmes"/>
@@ -164,6 +183,11 @@ function signarCaib(token, form, contentType) {
 
 	<c:if test="${globalProperties['app.signatura.tipus'] == 'afirma'}"><script type="text/javascript">cargarAppletFirma(base + '/${globalProperties['app.signatura.afirma.default.build']}');</script></c:if>
 
+	<c:if test="${not empty seleccioMassiva}">
+		<div class="missatgesWarn">
+			<p><fmt:message key='tasca.signa.massiu.no_es_podran' /></p>
+		</div>
+	</c:if>
 	<c:if test="${not tasca.documentsComplet}">
 		<div class="missatgesWarn">
 			<p><fmt:message key='tasca.signa.no_es_podran' /></p>
@@ -177,15 +201,11 @@ function signarCaib(token, form, contentType) {
 
 	<c:import url="../common/tascaReadOnly.jsp"/>
 
-	<h3 class="titol-tab titol-firmes-tasca">
-		<fmt:message key='tasca.signa.docs_signar' />
-	</h3>
-
 	<c:forEach var="firma" items="${tasca.signatures}">
 		<div class="missatgesDocumentGris">
 			<h4 class="titol-missatge">
 				<c:if test="${firma.required}"><img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='tasca.signa.signa_oblig' />" title="<fmt:message key='tasca.signa.signa_oblig' />" border="0"/></c:if>
-				${firma.document.nom}&nbsp;&nbsp;
+				<label>${firma.document.nom}</label>&nbsp;&nbsp;
 				<c:if test="${tasca.documentsComplet}">
 					<c:set var="tascaActual" value="${tasca}" scope="request"/>
 					<c:set var="documentActual" value="${tasca.varsDocumentsPerSignar[firma.document.codi]}" scope="request"/>
@@ -204,38 +224,9 @@ function signarCaib(token, form, contentType) {
 					&nbsp;&nbsp;
 					<c:choose>
 						<c:when test="${globalProperties['app.signatura.tipus'] == 'caib'}">
-							<%-- div>
-								<object classid="clsid:CAFEEFAC-0015-0000-FFFF-ABCDEFFEDCBA" width="294" height="110" align="baseline" codebase="http://java.sun.com/update/1.5.0/jinstall-1_5_0_12-windows-i586.cab" >
-									<param name="code" value="net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaAppletCaib">
-									<param name="archive" value="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar,../signatura/caib/swing-layout-1.0.3.jar">
-									<param name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
-									<param name="sourceUrl" value="${sourceUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}"/>
-									<param name="targetUrl" value="${targetUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultipleUrlEncoded}"/>
-									<param name="signaturaParams" value="${tasca.varsDocumentsPerSignar[firma.document.codi].contentType}"/>
-									<PARAM NAME="MAYSCRIPT" VALUE="true">
-									<comment>
-										<embed width="294" height="110" align="baseline" 
-											code="net.conselldemallorca.helium.integracio.plugins.signatura.applet.SignaturaAppletCaib"
-											archive="../signatura/caib/signatura-applet-caib.jar,../signatura/caib/signaturacaib.core-3.1.0-api-unsigned.jar,../signatura/caib/swing-layout-1.0.3.jar"
-											token="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"
-											sourceUrl="${sourceUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}"
-											targetUrl="${targetUrl}?token=${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultipleUrlEncoded}"
-											signaturaParams="${tasca.varsDocumentsPerSignar[firma.document.codi].contentType}"
-											MAYSCRIPT="true"
-											type="application/x-java-applet;version=1.5"
-											pluginspage="http://java.sun.com/j2se/1.5.0/download.html"
-											cache_option="No" />
-											<noembed>
-												<fmt:message key='tasca.signa.no_te_suport' />
-											</noembed>
-										</embed>
-									</comment>
-								</object>
-							</div--%>
 							<form:form action="../signatura/signarAmbToken.html" cssClass="uniForm" onsubmit="return false">
 								<input type="hidden" name="taskId" value="${tasca.id}"/>
 								<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
-								<input type="hidden" name="data"/>
 								<div class="inlineLabels col first">
 									<div class="ctrlHolder">
 										<label for="certs${documentActual.id}"><fmt:message key="tasca.signa.camp.cert"/></label>
@@ -248,18 +239,18 @@ function signarCaib(token, form, contentType) {
 										<input type="password" id="passwd${documentActual.id}" name="passwd" class="textInput"/>
 									</div>
 									<div class="buttonHolder">
-										<button class="submitButton" onclick="signarCaib('${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}', this.form, '1');return false"><fmt:message key="tasca.signa.signar"/></button>
+										<button class="submitButton" <c:if test="${not empty seleccioMassiva}">disabled </c:if>onclick="signarCaib('${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaUrlEncoded}', this.form, '1');return false"><fmt:message key="tasca.signa.signar"/></button>
 									</div>
 								</div>
 							</form:form>
-							<script>setTimeout("obtenirCertificats('certs${documentActual.id}', '1')", 1000);</script>
+							<script>obtenirCertificats("certs${documentActual.id}", "1");</script>
 						</c:when>
 						<c:when test="${globalProperties['app.signatura.tipus'] == 'afirma'}">
 							<form:form action="../signatura/signarAmbToken.html" cssClass="uniForm" cssStyle="display:inline" onsubmit="return false">
 								<input type="hidden" name="taskId" value="${tasca.id}"/>
 								<input type="hidden" name="token" value="${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignaturaMultiple}"/>
 								<input type="hidden" name="data"/>
-								<button class="submitButton" onclick="signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}');return false"><fmt:message key="tasca.signa.signar"/></button>
+								<button class="submitButton" <c:if test="${not empty seleccioMassiva}">disabled </c:if>onclick="signarAFirma(this.form, '${tasca.varsDocumentsPerSignar[firma.document.codi].tokenSignatura}');return false"><fmt:message key="tasca.signa.signar"/></button>
 							</form:form>
 						</c:when>
 						<c:otherwise>

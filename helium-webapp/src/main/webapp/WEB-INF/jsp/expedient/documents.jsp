@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
@@ -74,6 +75,18 @@ function infoRegistre(docId) {
 	}).width(amplada - 30).height(alcada - 30);
 	return false;
 }
+function infoPsigna(docId) {
+	var amplada = 700;
+	var alcada = 300;
+	$('<div>' + $("#psigna_" + docId).html() + '</div>').dialog({
+		title: "<fmt:message key='expedient.document.info_psigna' />",
+		autoOpen: true,
+		modal: true,
+		width: parseInt(amplada),
+		height: parseInt(alcada)
+	}).width(amplada - 30).height(alcada - 30);
+	return false;
+}
 // ]]>
 </script>
 </head>
@@ -88,6 +101,10 @@ function infoRegistre(docId) {
 	</h3>
 	<c:if test="${not empty instanciaProces.sortedDocumentKeys}">
 		<display:table name="instanciaProces.sortedDocumentKeys" id="codi" class="displaytag">
+			<c:set var="psignaPendentActual" value="${null}" scope="request"/>
+			<c:forEach var="pendent" items="${portasignaturesPendent}">
+				<c:if test="${pendent.documentStoreId == instanciaProces.varsDocuments[codi].id}"><c:set var="psignaPendentActual" value="${pendent}" scope="request"/></c:if>
+			</c:forEach>
 			<display:column titleKey="expedient.document.document">
 				<c:choose>
 					<c:when test="${instanciaProces.varsDocuments[codi].adjunt}">
@@ -119,7 +136,7 @@ function infoRegistre(docId) {
 			</display:column>
 			<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 				<display:column>
-					<c:if test="${not instanciaProces.varsDocuments[codi].signat}">
+					<c:if test="${not instanciaProces.varsDocuments[codi].signat and empty psignaPendentActual}">
 						<a href="<c:url value="/expedient/documentModificar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarModificar(event)"><img src="<c:url value="/img/page_white_edit.png"/>" alt="<fmt:message key='comuns.editar' />" title="<fmt:message key='comuns.editar' />" border="0"/></a>
 					</c:if>
 				</display:column>
@@ -129,7 +146,9 @@ function infoRegistre(docId) {
 							<a href="<c:url value="/expedient/signaturaEsborrar.html"><c:param name="processInstanceId" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarSignatura(event)"><img src="<c:url value="/img/rosette_delete.png"/>" alt="<fmt:message key='comuns.esborrar_signatura' />" title="<fmt:message key='comuns.esborrar_signatura' />" border="0"/></a>
 						</c:when>
 						<c:otherwise>
-							<a href="<c:url value="/expedient/documentEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+							<c:if test="${empty psignaPendentActual}">
+								<a href="<c:url value="/expedient/documentEsborrar.html"><c:param name="id" value="${instanciaProces.id}"/><c:param name="docId" value="${instanciaProces.varsDocuments[codi].id}"/></c:url>" onclick="return confirmarEsborrarProces(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
+							</c:if>
 						</c:otherwise>
 					</c:choose>
 				</display:column>
@@ -137,7 +156,7 @@ function infoRegistre(docId) {
 		</display:table><br/>
 	</c:if>
 
-	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2,512">
 		<form action="<c:url value="/expedient/documentAdjuntForm.html"/>">
 			<input type="hidden" name="id" value="${instanciaProces.id}"/>
 			<button class="submitButtonImage" type="submit">

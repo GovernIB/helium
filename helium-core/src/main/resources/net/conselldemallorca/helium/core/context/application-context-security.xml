@@ -5,9 +5,12 @@
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
-			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-			http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
+			http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context-3.1.xsd
+			http://www.springframework.org/schema/security
+			http://www.springframework.org/schema/security/spring-security-2.0.1.xsd">
 
 	<global-method-security secured-annotations="enabled"/>
 
@@ -21,9 +24,15 @@
 		<intercept-url pattern="/ws/" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/NotificacioEntradaV1" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/NotificacioEntradaV2" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/NotificacioEntradaV3" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/DominiIntern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/FormulariExtern" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/ws/TramitacioService" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<!-- Selenium-integraciones.begin -->
+		<intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/portafirmas" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/ws/IniciFormulari" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<!-- Selenium-integraciones.end -->
 		<intercept-url pattern="/services/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/rol/test.html" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/signatura/aFirma/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />

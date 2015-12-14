@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -31,7 +32,7 @@ public class CampsProcesDwrService implements MessageSourceAware {
 		this.dissenyService = dissenyService;
 	}
 	
-	public List<Object[]> llistaCampsPerProces(Long consultaId, String defprocJbpmKey) {
+	public List<Object[]> llistaCampsPerProces(Long consultaId, String defprocJbpmKey, String stipus) {
 		List<Object[]> llista = new ArrayList<Object[]>();
 		if (defprocJbpmKey == null || defprocJbpmKey.length() == 0) {
 			Object[] obj = new Object[3];
@@ -95,17 +96,29 @@ public class CampsProcesDwrService implements MessageSourceAware {
 				}
 			}
 		} else {
+			TipusConsultaCamp tipus = stipus.equals(TipusConsultaCamp.FILTRE.name()) ? TipusConsultaCamp.FILTRE : TipusConsultaCamp.INFORME;
 			List<Camp> list = dissenyService.findCampsProces(consultaId, defprocJbpmKey);
+			List<Camp> listExistents = dissenyService.findCampsPerCampsConsulta(consultaId, tipus, false);
+
 			for (Camp c : list) {
-				String text = c.getCodi() + " / " + c.getEtiqueta();
-				text += " (v." + c.getDefinicioProces().getVersio() + ")";
-				text += " - " + c.getTipus();
-				
-				Object[] obj = new Object[3];
-				obj[0] = c.getCodi();
-				obj[1] = text;
-				obj[2] = c.getDefinicioProces().getVersio();
-				llista.add(obj);
+				boolean exist = false;
+				for (Camp campExistent: listExistents) {
+					if (c.getCodi().equals(campExistent.getCodi())) { 
+						exist = true;
+						break;
+					}
+				}
+				if (!exist) {
+					String text = c.getCodi() + " / " + c.getEtiqueta();
+					text += " (v." + c.getDefinicioProces().getVersio() + ")";
+					text += " - " + c.getTipus();
+					
+					Object[] obj = new Object[3];
+					obj[0] = c.getCodi();
+					obj[1] = text;
+					obj[2] = c.getDefinicioProces().getVersio();
+					llista.add(obj);
+				}
 			}
 		}
 		return llista;
@@ -116,8 +129,64 @@ public class CampsProcesDwrService implements MessageSourceAware {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-
-
+	
+	
+	public void goToCampTasca(Long IdTasca, int pos) {
+		dissenyService.goToCampTasca(IdTasca, pos);		
+	}
+	
+	public void goToCampRegistreMembres(Long IdCampRegistre, int pos) {
+		dissenyService.goToCampRegistreMembres(IdCampRegistre, pos);		
+	}
+	
+	public void goToEnumeracioValors(Long IdTasca, int pos) {
+		dissenyService.goToEnumeracioValors(IdTasca, pos);		
+	}
+	
+	public void goToSignaturaTasca(Long signaturaId, int pos) {
+		dissenyService.goToSignaturaTasca(signaturaId, pos);		
+	}
+	
+	public void goToCampEstat(Long estatId, int pos) {
+		dissenyService.goToCampEstat(estatId, pos);		
+	}
+	
+	public void goToCampConsLlistat(Long consultaId, int pos) {
+		dissenyService.goToCampConsLlistat(consultaId, pos);		
+	}
+	
+	public void goToCampAgrupacio(Long tipusExpId, int pos) {
+		dissenyService.goToCampAgrupacio(tipusExpId, pos);		
+	}	
+	
+	public void goToCampAgrupacioLlista(Long estatId, int pos) {
+		dissenyService.goToCampAgrupacioLlista(estatId, pos);		
+	}
+	
+	public void goToConsultaCamp(Long consultaId, int pos) {
+		dissenyService.goToConsultaCamp(consultaId, pos);		
+	}
+	
+	public void goToCampValidacio(Long consultaId, int pos) {
+		dissenyService.goToCampValidacio(consultaId, pos);		
+	}
+	
+	public void goToValors(Long consultaId, int pos) {
+		dissenyService.goToValors(consultaId, pos);		
+	}
+	
+	public void goToDocumentTasca(Long documentId, int pos) {
+		dissenyService.goToDocumentTasca(documentId, pos);		
+	}
+	
+	public void updateCampTasca(Long IdTasca,Long campId, boolean readFrom, boolean writeTo, boolean required, boolean readOnly) {
+		dissenyService.addCampTasca(IdTasca, campId, readFrom, writeTo, required, readOnly);		
+	}
+	
+	public void updateDocumentsTasca(Long IdTasca,Long campId, boolean required, boolean readOnly) {
+		dissenyService.addDocumentTasca(IdTasca, campId, required, readOnly);		
+	}
+	
 
 	protected String getMessage(String key) {
 		return getMessage(key, null);

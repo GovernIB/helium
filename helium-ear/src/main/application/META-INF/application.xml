@@ -10,4 +10,7 @@
       <context-root>/helium</context-root>
     </web>
   </module>
+<!--   <module> -->
+<!--   	<ejb>helium.jar</ejb> -->
+<!--   </module> -->
 </application>

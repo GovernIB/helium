@@ -54,8 +54,9 @@
 				<c:param name="label"><fmt:message key="defproc.accform.oculta"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="cron"/>
-				<c:param name="label"><fmt:message key="defproc.accform.cron"/></c:param>
+				<c:param name="property" value="rols"/>
+				<c:param name="required" value="false"/>
+				<c:param name="label"><fmt:message key="defproc.accform.rols"/></c:param>
 			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">

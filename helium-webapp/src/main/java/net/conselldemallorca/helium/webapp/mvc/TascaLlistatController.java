@@ -20,14 +20,14 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 
 import org.displaytag.properties.SortOrderEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -44,13 +44,16 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 public class TascaLlistatController extends BaseController {
-
+	
+	private static final String SESSION_ATTRIBUTE_CURRENT_SORT_PERSONA = "TascaLlistatController.persona.current.sort";
+	private static final String SESSION_ATTRIBUTE_CURRENT_DIR_PERSONA = "TascaLlistatController.persona.current.dir";
+	private static final String SESSION_ATTRIBUTE_CURRENT_SORT_GRUP = "TascaLlistatController.grup.current.sort";
+	private static final String SESSION_ATTRIBUTE_CURRENT_DIR_GRUP = "TascaLlistatController.grup.current.dir";
+	
 	private TascaService tascaService;
 	private TerminiService terminiService;
 	private DissenyService dissenyService;
 	private PermissionService permissionService;
-
-
 
 	@Autowired
 	public TascaLlistatController(
@@ -107,7 +110,7 @@ public class TascaLlistatController extends BaseController {
 		else
 			return new TascaFiltreCommand();
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/tasca/personaLlistat", method = RequestMethod.GET)
 	public String personaLlistatGet(
@@ -119,30 +122,57 @@ public class TascaLlistatController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			String sortCalculat = sort;
+			if (sort != null && sort.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_SORT_PERSONA,
+						sort);
+			} else {
+				String sortSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_SORT_PERSONA);
+				if (sortSessio != null)
+					sortCalculat = sortSessio;
+			}
+			
+			String dirCalculat = dir;
+			if (dir != null && dir.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_DIR_PERSONA,
+						dir);
+			} else {
+				String dirSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_DIR_PERSONA);
+				if (dirSessio != null)
+					dirCalculat = dirSessio;
+			}
 			TascaFiltreCommand tascaPersonaFiltreCommand = (TascaFiltreCommand)model.get("commandPersonaFiltre");
 			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaPersonaFiltreCommand);
 			String expedient = request.getParameter("exp");
-			if (expedient != null) tascaPersonaFiltreCommand.setExpedient(expedient);
+			try{
+				byte[] exped = expedient.getBytes("ISO-8859-1");
+				String expeNT = new String(exped);
+				if (expedient != null) tascaPersonaFiltreCommand.setExpedient(expeNT);
+			}catch(Exception e){
+				e.getStackTrace();
+			}
 			PaginatedList pagina = getPaginaTasquesPersonals(
 					entorn,
 					tascaPersonaFiltreCommand,
 					page,
-					sort,
-					dir,
+					sortCalculat,
+					dirCalculat,
 					objectsPerPage);
 			model.addAttribute("personaLlistat", pagina);
 			model.addAttribute("personaLlistatCount", pagina.getFullListSize());
-			model.addAttribute(
-					"grupLlistatCount",
-					tascaService.countTasquesGrupEntorn(
-							entorn.getId(),
-							null));
 			model.addAttribute(
 					"terminisIniciats",
 					findTerminisIniciatsPerTasques(
 							(List<TascaLlistatDto>)pagina.getList()));
 			model.addAttribute("command", tascaPersonaFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
+			
+			// Asignamos los valores del filtro a la pestaña de grup
+			model.addAttribute("grupLlistatCount", getPaginaTasquesCountGrup(entorn,tascaPersonaFiltreCommand,objectsPerPage));
+			request.getSession().setAttribute("commandTascaGrupFiltre", tascaPersonaFiltreCommand);
+			
 			return "tasca/personaLlistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -174,28 +204,49 @@ public class TascaLlistatController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
+			String sortCalculat = sort;
+			if (sort != null && sort.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_SORT_GRUP,
+						sort);
+			} else {
+				String sortSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_SORT_GRUP);
+				if (sortSessio != null)
+					sortCalculat = sortSessio;
+			}
+			
+			String dirCalculat = dir;
+			if (dir != null && dir.length() > 0) {
+				request.getSession().setAttribute(
+						SESSION_ATTRIBUTE_CURRENT_DIR_GRUP,
+						dir);
+			} else {
+				String dirSessio = (String)request.getSession().getAttribute(SESSION_ATTRIBUTE_CURRENT_DIR_GRUP);
+				if (dirSessio != null)
+					dirCalculat = dirSessio;
+			}
 			TascaFiltreCommand tascaGrupFiltreCommand = (TascaFiltreCommand)model.get("commandGrupFiltre");
 			request.getSession().setAttribute("commandTascaGrupFiltre", tascaGrupFiltreCommand);
 			PaginatedList pagina = getPaginaTasquesGrup(
 					entorn,
 					tascaGrupFiltreCommand,
 					page,
-					sort,
-					dir,
+					sortCalculat,
+					dirCalculat,
 					objectsPerPage);
 			model.addAttribute("grupLlistat", pagina);
 			model.addAttribute("grupLlistatCount", pagina.getFullListSize());
-			model.addAttribute(
-					"personaLlistatCount",
-					tascaService.countTasquesPersonalsEntorn(
-							entorn.getId(),
-							null));
 			model.addAttribute(
 					"terminisIniciats",
 					findTerminisIniciatsPerTasques(
 							(List<TascaLlistatDto>)pagina.getList()));
 			model.addAttribute("command", tascaGrupFiltreCommand);
 			model.addAttribute("tipusExp", llistatExpedientTipusAmbPermisos(entorn));
+			
+			// Asignamos los valores del filtro a la pestaña de personals
+			model.addAttribute("personaLlistatCount", getPaginaTasquesPersonalsCount(entorn,tascaGrupFiltreCommand,objectsPerPage));
+			request.getSession().setAttribute("commandTascaPersonaFiltre", tascaGrupFiltreCommand);
+			
 			return "tasca/grupLlistat";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -217,27 +268,21 @@ public class TascaLlistatController extends BaseController {
 	}
 
 	private List<ExpedientTipus> llistatExpedientTipusAmbPermisos(Entorn entorn) {
-		List<ExpedientTipus> resposta = new ArrayList<ExpedientTipus>();
 		List<ExpedientTipus> llistat = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
-		for (ExpedientTipus expedientTipus: llistat) {
-			if (potDissenyarExpedientTipus(entorn, expedientTipus))
-				resposta.add(expedientTipus);
-		}
-		return resposta;
-	}
-
-	private boolean potDissenyarExpedientTipus(Entorn entorn, ExpedientTipus expedientTipus) {
-		return permissionService.filterAllowed(
-				expedientTipus,
+		permissionService.filterAllowed(
+				llistat,
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.DESIGN}) != null;
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.READ});
+		return llistat;
 	}
 
 	public class TascaFiltreCommand {
 		private String nom;
 		private String expedient;
+		private String numeroExpedient;
 		private Long tipusExpedient;
 		private Date dataCreacioInici;
 		private Date dataCreacioFi;
@@ -293,6 +338,12 @@ public class TascaLlistatController extends BaseController {
 		public void setDataLimitFi(Date dataLimitFi) {
 			this.dataLimitFi = dataLimitFi;
 		}
+		public String getNumeroExpedient() {
+			return numeroExpedient;
+		}
+		public void setNumeroExpedient(String numeroExpedient) {
+			this.numeroExpedient = numeroExpedient;
+		}
 	}
 
 	@InitBinder
@@ -328,6 +379,28 @@ public class TascaLlistatController extends BaseController {
 		return resposta;
 	}
 
+	private int getPaginaTasquesPersonalsCount(
+			Entorn entorn,
+			TascaFiltreCommand command,
+			String objectsPerPage) {
+		return tascaService.countTasquesPersonalsFiltre(
+				entorn.getId(),
+				null,
+				command.getNom(),
+				command.getExpedient(),
+				command.getNumeroExpedient(),
+				command.getTipusExpedient(),
+				command.getDataCreacioInici(),
+				command.getDataCreacioFi(),
+				command.getPrioritat(),
+				command.getDataLimitInici(),
+				command.getDataLimitFi(),
+				0,
+				-1,
+				null,
+				false);
+	}
+
 	private PaginatedList getPaginaTasquesPersonals(
 			Entorn entorn,
 			TascaFiltreCommand command,
@@ -336,7 +409,7 @@ public class TascaLlistatController extends BaseController {
 			String dir,
 			String objectsPerPage) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1: Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Ordenació per defecte
@@ -355,6 +428,7 @@ public class TascaLlistatController extends BaseController {
 				null,
 				command.getNom(),
 				command.getExpedient(),
+				command.getNumeroExpedient(),
 				command.getTipusExpedient(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),
@@ -369,6 +443,28 @@ public class TascaLlistatController extends BaseController {
 		paginatedList.setList(dadesLlistat.getLlistat());
 		return paginatedList;
 	}
+	
+	private int getPaginaTasquesCountGrup(
+			Entorn entorn,
+			TascaFiltreCommand command,
+			String objectsPerPage) {		
+		return tascaService.countTasquesGrupFiltre(
+				entorn.getId(),
+				null,
+				command.getNom(),
+				command.getExpedient(),
+				command.getNumeroExpedient(),
+				command.getTipusExpedient(),
+				command.getDataCreacioInici(),
+				command.getDataCreacioFi(),
+				command.getPrioritat(),
+				command.getDataLimitInici(),
+				command.getDataLimitFi(),
+				0,
+				-1,
+				null,
+				false);
+	}
 	private PaginatedList getPaginaTasquesGrup(
 			Entorn entorn,
 			TascaFiltreCommand command,
@@ -377,7 +473,7 @@ public class TascaLlistatController extends BaseController {
 			String dir,
 			String objectsPerPage) {
 		int maxResults = getObjectsPerPage(objectsPerPage);
-		int pagina = (page != null) ? new Integer(page).intValue() : 1;
+		int pagina = (page == null) ? 1 : Integer.valueOf(page);
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
 		// Ordenació per defecte
@@ -396,6 +492,7 @@ public class TascaLlistatController extends BaseController {
 				null,
 				command.getNom(),
 				command.getExpedient(),
+				command.getNumeroExpedient(),
 				command.getTipusExpedient(),
 				command.getDataCreacioInici(),
 				command.getDataCreacioFi(),

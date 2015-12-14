@@ -279,6 +279,7 @@ public class PdfUtils {
 			FileOutputStream fos = new FileOutputStream("c:\\tmp\\out.pdf");
 			fos.write(baos.toByteArray());
 			fos.close();
+			fin.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

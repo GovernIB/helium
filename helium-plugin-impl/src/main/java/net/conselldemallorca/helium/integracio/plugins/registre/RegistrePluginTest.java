@@ -5,13 +5,19 @@ package net.conselldemallorca.helium.integracio.plugins.registre;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Test plugin registre
@@ -22,7 +28,7 @@ public class RegistrePluginTest {
 
 	public static void main(String[] args) throws Exception {
 		try {
-			new GlobalProperties(new FileSystemResource("c:/tmp/helium/global.properties"));
+			new GlobalProperties(new FileSystemResource("/home/likewise-open/LIMIT_CECOMASA/josepg/Feina/config/helium.properties"));
 			RegistrePluginTest test = new RegistrePluginTest();
 			//test.notificacio();
 			//test.nomOficina();
@@ -33,6 +39,7 @@ public class RegistrePluginTest {
 	}
 
 	public void entrada() throws Exception {
+		establirUsuariAutenticat();
 		RegistreEntrada registreEntrada = new RegistreEntrada();
 		DadesOficina dadesOficina = new DadesOficina();
 		dadesOficina.setOficinaCodi("1-1");
@@ -47,8 +54,17 @@ public class RegistrePluginTest {
 		dadesAssumpte.setTipus("OF");
 		dadesAssumpte.setAssumpte("123 provant 123");
 		registreEntrada.setDadesAssumpte(dadesAssumpte);
+		List<DocumentRegistre> documents = new ArrayList<DocumentRegistre>();
+		DocumentRegistre doc = new DocumentRegistre();
+		doc.setNom("Notificació correcció deficiències documentació");
+		doc.setData(new Date());
+		doc.setIdiomaCodi("ca");
+		doc.setArxiuNom("Notificació correcció deficiències documentació(10).doc");
+		doc.setArxiuContingut("Bon dia".getBytes());
+		documents.add(doc);
+		registreEntrada.setDocuments(documents);
 		RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarEntrada(registreEntrada);
-		System.out.println(">>> num: " + resposta.getNumero());
+		logger.debug(">>> num: " + resposta.getNumero());
 	}
 
 	public void notificacio() throws Exception {
@@ -94,17 +110,28 @@ public class RegistrePluginTest {
 		documents.add(doc);
 		registreNotificacio.setDocuments(documents);
 		RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarNotificacio(registreNotificacio);
-		System.out.println(">>> num: " + resposta.getNumero());
+		logger.debug(">>> num: " + resposta.getNumero());
 	}
 
 	public void nomOficina() throws Exception {
-		System.out.println(">>> oficina: " + getRegistrePlugin().obtenirNomOficina("3-1"));
+		logger.debug(">>> oficina: " + getRegistrePlugin().obtenirNomOficina("3-1"));
 	}
 
 
 
 	private RegistrePlugin getRegistrePlugin() {
-		return new RegistrePluginRegwebCaib();
+		return new RegistrePluginRegwebWs();
+	}
+
+	private void establirUsuariAutenticat() {
+		Authentication authentication =  new UsernamePasswordAuthenticationToken(
+				new Principal() {
+					public String getName() {
+						return "josepg";
+					}
+				},
+				null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 	}
 
 	private byte[] getResourceContent(String resourceName) throws Exception {
@@ -119,4 +146,5 @@ public class RegistrePluginTest {
 		return buffer.toByteArray();
 	}
 
+	private static final Log logger = LogFactory.getLog(RegistrePluginTest.class);
 }

@@ -33,6 +33,8 @@ public class DadesRegistreSortida {
 	private String anotacioIdiomaCodi;
 	private String anotacioTipusAssumpte;
 	private String anotacioAssumpte;
+	private String anotacioRegistreNumero;
+	private Date anotacioRegistreAny;
 
 
 
@@ -149,6 +151,18 @@ public class DadesRegistreSortida {
 	}
 	public void setAnotacioAssumpte(String anotacioAssumpte) {
 		this.anotacioAssumpte = anotacioAssumpte;
+	}
+	public String getAnotacioRegistreNumero() {
+		return anotacioRegistreNumero;
+	}
+	public void setAnotacioRegistreNumero(String anotacioRegistreNumero) {
+		this.anotacioRegistreNumero = anotacioRegistreNumero;
+	}
+	public Date getAnotacioRegistreAny() {
+		return anotacioRegistreAny;
+	}
+	public void setAnotacioRegistreAny(Date anotacioRegistreAny) {
+		this.anotacioRegistreAny = anotacioRegistreAny;
 	}
 
 }

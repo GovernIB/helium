@@ -13,6 +13,10 @@ import javax.xml.namespace.QName;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -157,6 +161,21 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 		}
 	}
 
+	@Override
+	public RespostaJustificantRecepcio obtenirJustificantRecepcio(String numeroRegistre) throws TramitacioPluginException {
+		throw new TramitacioPluginException("Error al obtenir justificant de recepció: petició no suportada");
+	}
+
+	@Override
+	public RespostaAnotacioRegistre registrarNotificacio(RegistreNotificacio registreNotificacio) throws TramitacioPluginException {
+		throw new TramitacioPluginException("Error al registrar notificació: petició no suportada");
+		}
+
+	@Override
+	public RespostaJustificantDetallRecepcio obtenirJustificantDetallRecepcio(String numeroRegistre) throws TramitacioPluginException {
+		throw new TramitacioPluginException("Error al obtenir justificant detall de recepció: petició no suportada");
+	}
+
 	public DadesVistaDocument obtenirVistaDocument(ObtenirVistaDocumentRequest request) throws TramitacioPluginException {
 		try {
 			ReferenciaRDS referencia = new ReferenciaRDS();
@@ -208,18 +227,24 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 			if ("C".equalsIgnoreCase(entrada.getNivelAutenticacion()))
 				tramit.setAutenticacioTipus(AutenticacioTipus.CERTIFICAT);
 		}
-		if (entrada.getUsuarioNif() != null) {
+		if (entrada.getUsuarioNif() != null)
 			tramit.setTramitadorNif(entrada.getUsuarioNif().getValue());
-		}
-		if (entrada.getUsuarioNombre() != null) {
+		if (entrada.getUsuarioNombre() != null)
 			tramit.setTramitadorNom(entrada.getUsuarioNombre().getValue());
-		}
-		if (entrada.getRepresentadoNif() != null)
+		if (entrada.getRepresentadoNif() != null) {
 			tramit.setInteressatNif(entrada.getRepresentadoNif().getValue());
-		if (entrada.getRepresentadoNombre() != null)
+		} else {
+			tramit.setInteressatNif(entrada.getUsuarioNif().getValue());
+		}
+		if (entrada.getRepresentadoNombre() != null) {
 			tramit.setInteressatNom(entrada.getRepresentadoNombre().getValue());
-		tramit.setRepresentantNif(tramit.getTramitadorNif());
-		tramit.setRepresentantNom(tramit.getTramitadorNom());
+		} else {
+			tramit.setInteressatNom(entrada.getUsuarioNombre().getValue());
+		}
+		if (entrada.getUsuarioNif() != null)
+			tramit.setRepresentantNif(entrada.getUsuarioNif().getValue());
+		if (entrada.getUsuarioNombre() != null)
+			tramit.setRepresentantNom(entrada.getUsuarioNombre().getValue());
 		tramit.setSignat(entrada.isFirmadaDigitalmente());
 		if (entrada.getHabilitarAvisos() != null)
 			tramit.setAvisosHabilitats(
@@ -430,5 +455,4 @@ public class TramitacioPluginSistrav1 implements TramitacioPlugin {
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioPluginSistrav1.class);
-
 }

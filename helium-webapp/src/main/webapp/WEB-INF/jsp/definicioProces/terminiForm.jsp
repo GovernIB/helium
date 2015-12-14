@@ -13,10 +13,10 @@
 <script type="text/javascript">
 // <![CDATA[
 function disable(blocid) {
-	$("#" + blocid).find("input,select,textarea").attr("disabled", "disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', true);
 }
 function enable(blocid) {
-	$("#" + blocid).find("input,select,textarea").removeAttr("disabled");
+	$("#" + blocid).find("input,select,textarea").prop('disabled', false);
 }
 function canviPredef(input) {
 	if (input.checked)
@@ -70,7 +70,7 @@ function canviPredef(input) {
 							<li>
 								<label for="anys" class="blockLabel">
 									<span><fmt:message key='defproc.termform.anys' /></span>
-									<select id="anys" name="anys">
+									<select id="anys" name="anys" style="min-width:36px;">
 										<c:forEach var="index" begin="0" end="12">
 											<option value="${index}"<c:if test="${status.value==index}"> selected="selected"</c:if>>${index}</option>
 										</c:forEach>
@@ -82,7 +82,7 @@ function canviPredef(input) {
 							<li>
 								<label for="mesos" class="blockLabel">
 									<span><fmt:message key='defproc.termform.mesos' /></span>
-									<select id="mesos" name="mesos">
+									<select id="mesos" name="mesos" style="min-width:36px;">
 										<c:forEach var="index" begin="0" end="12">
 											<option value="${index}"<c:if test="${status.value==index}"> selected="selected"</c:if>>${index}</option>
 										</c:forEach>
@@ -94,7 +94,7 @@ function canviPredef(input) {
 							<li>
 								<label for="dies" class="blockLabel">
 									<span><fmt:message key='defproc.termform.dies' /></span>
-									<input id="dies" name="dies" value="${status.value}" class="textInput"/>
+									<input id="dies" name="dies" value="${status.value}" class="textInput" style="min-width:36px;"/>
 								</label>
 							</li>
 						</spring:bind>

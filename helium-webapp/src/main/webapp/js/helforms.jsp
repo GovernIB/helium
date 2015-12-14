@@ -7,7 +7,7 @@ function findValue(li, input) {
 	var codi = input.id.substring(input.id.indexOf("_") + 1);
 	if (!!li.extra ) var sValue = li.extra[0];
 	else var sValue = li.selectValue;
-	$("#suggest_" + codi).attr("disabled", "disabled");
+	$("#suggest_" + codi).prop('disabled', true);
 	$("#suggest_" + codi + "_info").css("display", "none");
 	$("#suggest_" + codi + "_delete").css("display", "");
 	$("#" + codi).val(li.extra[0]);
@@ -26,18 +26,18 @@ function initSuggest(codi, url, callback, extraParams) {
 	if ($("#" + codi).val() == null || $("#" + codi).val() == '') {
 		$("#suggest_" + codi + "_info").css("display", "");
 		$("#suggest_" + codi + "_delete").css("display", "none");
-		$("#suggest_" + codi).attr("disabled", "");
+		$("#suggest_" + codi).prop('disabled', false);
 	} else {
 		$("#suggest_" + codi + "_info").css("display", "none");
 		$("#suggest_" + codi + "_delete").css("display", "");
-		$("#suggest_" + codi).attr("disabled", "disabled");
+		$("#suggest_" + codi).prop('disabled', true);
 	}
 	$("#suggest_" + codi + "_delete").click(function(){
 		$("#" + codi).val(null);
 		$("#suggest_" + codi).val("");
 		$("#suggest_" + codi + "_info").css("display", "");
 		$("#suggest_" + codi + "_delete").css("display", "none");
-		$("#suggest_" + codi).attr("disabled", "");
+		$("#suggest_" + codi).prop('disabled', false);
 	});
 }
 
@@ -60,8 +60,7 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 	var valorActual = $("select#" + selectId).val();
 	$("select#" + selectId).html(
 			'<option><fmt:message key="js.helforms.carregant" /></option>');
-    $.getJSON(
-    		url,
+    $.getJSON(url,
     		extraParams,
     		function(j) {
 			    var options = '';
@@ -85,14 +84,21 @@ function initSelect(selectId, valor, url, extraParams, dominiParams) {
 		        $("select#" + selectId).html(options);
 		        if (canvisSelectInicialitzat)
 		        	$("select#" + selectId).val(valorActual);
+			})
+			.fail(function( jqxhr, textStatus, error ) {
+				var err = textStatus + ', ' + error;
+				console.log( "Request failed: " + err);
+				console.log( "Request extra params: " + JSON.stringify(extraParams));
 			});
 }
 
 var canvisSelectValorsAddicionals;
 var canvisSelectInicialitzat = false;
 var canvisSelectTasca = new Array();
-function canviSelectTasca(selectId, camp, prefix) {
-	var valor = $("select#" + selectId).val();
+function canviSelectTasca(selectId, camp, prefix, tipus) {
+	if(tipus!="string"){
+		valor = $("select#" + selectId).val();
+	}else{valor = $("#"+selectId).val();}
 	var campSensePrefix = camp;
 	if (prefix) campSensePrefix = camp.substring(prefix.length);
 	updateValorAddicionalSelect(campSensePrefix, valor);
@@ -181,7 +187,8 @@ function accioCampExecutar(elem, field) {
 var submitAction;
 function saveAction(element, action) {
 	submitAction = action;
-	if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
+// 	if ($.browser.msie && $.browser.version.substr(0,1) <= 7) {
+	if($.browser.msie && parseInt(jQuery.browser.version.substring(0,1))<=7){
 		element.innerHTML = action;
 		var $submits = document.getElementsByName("submit");
 		for (var i = 0; i < $submits.length; i++) {

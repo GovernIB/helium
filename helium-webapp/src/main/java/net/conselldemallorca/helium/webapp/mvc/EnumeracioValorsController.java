@@ -94,6 +94,9 @@ public class EnumeracioValorsController extends BaseController {
 				new EnumeracioValorsValidator(dissenyService).validate(command, result);
 		        if (result.hasErrors()) {
 		        	model.addAttribute("llistat", dissenyService.findEnumeracioValorsAmbEnumeracio(command.getEnumeracioId()));
+		        	ImportCommand commandImportacio = new ImportCommand();
+					commandImportacio.setEnumeracioId(command.getEnumeracioId());
+					model.addAttribute("commandImportacio", commandImportacio);
 		        	return "enumeracio/valors";
 		        }
 		        try {
@@ -117,6 +120,64 @@ public class EnumeracioValorsController extends BaseController {
 			} else {
 				return "redirect:/enumeracio/llistat.html";
 			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/enumeracio/valorsForm", method = RequestMethod.GET)
+	public String formValorsFormGet(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			@RequestParam(value = "enumeracioId", required = true) Long enumeracioId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			EnumeracioValors enumeracioValors = dissenyService.findEnumeracioValorsAmbId(enumeracioId, id);
+			model.addAttribute("command", enumeracioValors);
+			model.addAttribute("enumeracioId", enumeracioId);
+			return "enumeracio/valorsForm";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/enumeracio/valorsForm", method = RequestMethod.POST)
+	public String formValorsFormPost(
+			HttpServletRequest request,
+			@RequestParam(value = "submit", required = false) String submit,
+			@ModelAttribute("command") EnumeracioValorsCommand command,
+			BindingResult result,
+			SessionStatus status,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if ("submit".equals(submit) || submit.length() == 0) {
+				Enumeracio enumeracio = dissenyService.getEnumeracioById(command.getEnumeracioId());
+		        try {
+		        	EnumeracioValors enumeracioValors = new EnumeracioValors();
+		        	enumeracioValors.setId(command.getId());
+		        	enumeracioValors.setCodi(command.getCodi());
+		        	enumeracioValors.setNom(command.getNom());
+		        	enumeracioValors.setEnumeracio(enumeracio);
+		        	enumeracioValors.setOrdre(command.getOrdre());
+		        	if (command.getId() == null){
+		        		dissenyService.createEnumeracioValors(enumeracioValors);
+		        		missatgeInfo(request, getMessage("info.enum.creat") );		   
+		        	} else {
+		        		dissenyService.updateEnumeracioValors(enumeracioValors);
+		        		missatgeInfo(request, getMessage("info.enum.guardat"));		
+		        	}
+		        	status.setComplete();
+		        } catch (Exception ex) {
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut guardar el registre", ex);
+		        	return "enumeracio/valorsForm";
+		        }
+			}
+			return "redirect:/enumeracio/valors.html?id=" + command.getEnumeracioId();
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -187,28 +248,37 @@ public class EnumeracioValorsController extends BaseController {
 	public String importar(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
-			@RequestParam(value = "arxiu", required = true) final MultipartFile multipartFile) {
+			@RequestParam(value = "arxiu", required = true) final MultipartFile multipartFile,
+			@RequestParam(value = "eliminarValorsAntics", required = false) Boolean eliminarValorsAntics) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
 				if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
 					missatgeError(request, getMessage("error.especificar.arxiu.importar"));
 				} else {
+					
+					if (eliminarValorsAntics != null && eliminarValorsAntics) {
+						dissenyService.deleteValorsByEnumeracio(id);
+					}
+					
 					Enumeracio enumeracio = dissenyService.getEnumeracioById(id);
 					BufferedReader br = new BufferedReader(
 							new InputStreamReader(multipartFile.getInputStream()));
 					String linia = br.readLine();
 					while (linia != null) {
-						String[] columnes = linia.split(";");
-						if (columnes.length == 0)
-							columnes = linia.split(",");
+						String[] columnes = linia.contains(";") ? linia.split(";") : linia.split(",");
 						if (columnes.length > 1) {
 							EnumeracioValors enumeracioValors = new EnumeracioValors();
 				        	enumeracioValors.setId(null);
-				        	enumeracioValors.setCodi(columnes[0]);
+				        	// Per evitar caràcters estranys al codi de l'enumeració
+				        	String codi = columnes[0];
+				        	while (!codi.matches("^\\w.*")) {
+				        		codi = codi.substring(1);
+				        	}
+				        	enumeracioValors.setCodi(codi);
 				        	enumeracioValors.setNom(columnes[1]);
 				        	enumeracioValors.setEnumeracio(enumeracio);
-			        		dissenyService.createEnumeracioValors(enumeracioValors);
+			        		dissenyService.createOrUpdateEnumeracioValors(enumeracioValors);
 						}
 						linia = br.readLine();
 					}
@@ -234,12 +304,19 @@ public class EnumeracioValorsController extends BaseController {
 
 	public class ImportCommand {
 		private Long enumeracioId;
+		private boolean eliminarValorsAntics;
 		private byte[] arxiu;
 		public Long getEnumeracioId() {
 			return enumeracioId;
 		}
 		public void setEnumeracioId(Long enumeracioId) {
 			this.enumeracioId = enumeracioId;
+		}
+		public boolean isEliminarValorsAntics() {
+			return eliminarValorsAntics;
+		}
+		public void setEliminarValorsAntics(boolean eliminarValorsAntics) {
+			this.eliminarValorsAntics = eliminarValorsAntics;
 		}
 		public byte[] getArxiu() {
 			return arxiu;

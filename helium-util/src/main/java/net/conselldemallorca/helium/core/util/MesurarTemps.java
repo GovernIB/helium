@@ -6,6 +6,9 @@ package net.conselldemallorca.helium.core.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Camps relatius als expedients indexats
  * 
@@ -35,10 +38,10 @@ public class MesurarTemps {
 		diferenciaImprimirStdout(clau, null);
 	}
 	public static void diferenciaImprimirStdout(String clau, String text) {
-		String perAfegir = "";
+		/*String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text + " ";
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");
+		logger.debug("---> [" + clau + "]" + perAfegir + ": " + diferenciaCalcular(clau) + "ms");*/
 	}
 	public static void diferenciaImprimirStdoutIReiniciar(String clau) {
 		diferenciaImprimirStdout(clau, null);
@@ -58,8 +61,12 @@ public class MesurarTemps {
 				new Integer(0));
 	}
 	public static void mitjaCalcular(String clauMitja, String clauDiferencia) {
-		double mitjaAntiga = getMitjaValors().get(clauMitja).doubleValue();
-		int contador = getMitjaContadors().get(clauMitja).intValue();
+		double mitjaAntiga = 0;
+		if (getMitjaValors().get(clauMitja) != null)
+			mitjaAntiga = getMitjaValors().get(clauMitja).doubleValue();
+		int contador = 0;
+		if (getMitjaContadors().get(clauMitja) != null)
+			contador = getMitjaContadors().get(clauMitja).intValue();
 		long diferencia = diferenciaCalcular(clauDiferencia);
 		diferenciaReiniciar(clauDiferencia);
 		double mitja = (mitjaAntiga * contador + diferencia) / (contador + 1);
@@ -71,13 +78,13 @@ public class MesurarTemps {
 				new Integer(contador + 1));
 	}
 	public static void mitjaImprimirStdout(String clau) {
-		diferenciaImprimirStdout(clau, null);
+		mitjaImprimirStdout(clau, null);
 	}
 	public static void mitjaImprimirStdout(String clau, String text) {
 		String perAfegir = "";
 		if (text != null)
 			perAfegir += " " + text;
-		System.out.println("---> [" + clau + "]" + perAfegir + ": " + getMitjaValors().get(clau) + "ms (n=" + getMitjaContadors().get(clau) + ")");
+		logger.debug("---> [" + clau + "]" + perAfegir + ": " + getMitjaValors().get(clau) + "ms (n=" + getMitjaContadors().get(clau) + ")");
 	}
 
 
@@ -98,4 +105,5 @@ public class MesurarTemps {
 		return mitjaContadors;
 	}
 
+	private static final Log logger = LogFactory.getLog(MesurarTemps.class);
 }

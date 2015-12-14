@@ -5,8 +5,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
-<c:if test="${not empty campTascaActual}">
-	<c:set var="campActual" value="${campTascaActual.camp}" scope="request"/>
+<c:if test="${not empty campTascaActual}">	<c:set var="campActual" value="${campTascaActual.camp}" scope="request"/>
 	<c:set var="readOnly" value="${campTascaActual.readOnly}" scope="request"/>
 	<c:set var="required" value="${campTascaActual.required}" scope="request"/>
 </c:if>
@@ -26,7 +25,7 @@
 		<c:when test="${not empty tasca.id}">
 			<c:choose>
 				<c:when test="${fn:startsWith(tasca.id, 'TIE')}">
-					taskId:'${tasca.id}',definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
+					/*taskId:'${tasca.id}',*/definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
 				</c:when>
 				<c:otherwise>
 					taskId:${tasca.id},processInstanceId:${tasca.processInstanceId},definicioProcesId:${tasca.definicioProces.id},campCodi:'${codiActual}',valors:function(){return canvisSelectValorsAddicionals}
@@ -49,7 +48,10 @@
 					<c:param name="type" value="custom"/>
 					<c:param name="label">${campActual.etiqueta}</c:param>
 					<c:param name="content">
-						<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
+						<c:set var="registreFiles" value="${tasca.varsComText[codiActual]}" scope="request"/>
+						<c:set var="registreReadOnly" value="${true}" scope="request"/>
+						<c:import url="../common/taulaVarRegistre.jsp"/>
+						<%--c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
 						<c:if test="${not empty tasca.varsComText[codiActual]}">
 							<div style="overflow:auto">
 								<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
@@ -60,7 +62,7 @@
 									</c:forEach>
 								</display:table>
 							</div>
-						</c:if>
+						</c:if--%>
 					</c:param>
 				</c:import>
 			</c:when>
@@ -83,6 +85,7 @@
 			<c:param name="comment">${campActual.observacions}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
+			<c:param name="onchange">canviSelectTasca(this.id, this.name, false ,'string');</c:param>
 		</c:import>
 	</c:when>
 	<c:when test="${campActual.tipus == 'INTEGER'}">
@@ -129,7 +132,7 @@
 			<c:param name="type" value="number"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
-			<c:param name="mask">{mask:'99,999.999.999.999',type:'reverse'}</c:param>
+			<c:param name="mask">{mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'}</c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 		</c:import>
@@ -166,6 +169,7 @@
 			<c:param name="selectUrl"><c:url value="/domini/consultaExpedient.html"/></c:param>
 			<c:param name="selectExtraParams">${extraParams},tipus:'select'</c:param>
 			<c:param name="selectDominiParams"><%=toJavascript((String)request.getAttribute("dominiParamsActual"))%></c:param>
+			<c:param name="selectConsultaParams"><%=toJavascript((String)request.getAttribute("consultaParamsActual"))%></c:param>
 			<c:param name="iterateOn"><c:if test="${campActual.multiple}">valorActual</c:if></c:param>
 			<c:param name="multipleIcons"><c:if test="${campActual.multiple}">true</c:if></c:param>
 			<c:param name="onchange">canviSelectTasca(this.id, this.name);</c:param>
@@ -247,7 +251,10 @@
 			<c:param name="type" value="custom"/>
 			<c:param name="label">${campActual.etiqueta}</c:param>
 			<c:param name="content">
-				<c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
+				<c:set var="registreFiles" value="${tasca.varsComText[codiActual]}" scope="request"/>
+				<c:set var="registreReadOnly" value="${false}" scope="request"/>
+				<c:import url="../common/taulaVarRegistre.jsp"/>
+				<%--c:set var="files" scope="request" value="${tasca.varsComText[codiActual]}"/>
 				<c:if test="${not empty tasca.varsComText[codiActual]}">
 					<div style="overflow:auto">
 						<display:table name="files" id="registre" requestURI="" class="displaytag selectable">
@@ -269,7 +276,7 @@
 				<c:if test="${campActual.multiple || fn:length(files) < 1}">
 					<button style="font-size:11px;margin-top: 2px" type="submit" class="submitButton" onclick="return editarRegistre(${campActual.id}, '${codiActual}', '<%=toJavascript((String)request.getAttribute("etiquetaActual"))%>', ${fn:length(campActual.registreMembres)})"><fmt:message key='comuns.afegir' /></button>
 				</c:if>
-				<div style="clear:both"></div>
+				<div style="clear:both"></div--%>
 			</c:param>
 			<c:param name="comment">${campActual.observacions}</c:param>
 		</c:import>

@@ -231,11 +231,22 @@ form.accio-titol {
 	margin: 2px 0 0 4px;
 }
 
+button.right {
+	float: right;
+	margin: 20px 0 20px 4px;
+}
+
 h3.titol-tab {
 	padding: 8px 0 12px 0;
     color: #666;
     font-weight: bold;
     font-size: 16px;
+}
+h3.titol-expedient {
+	padding-left: 24px;
+	background-image: url(../img/folder.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
 }
 h3.titol-info {
 	padding-left: 24px;
@@ -315,6 +326,24 @@ h3.titol-script {
 h3.titol-canvi-versio {
 	padding-left: 24px;
 	background-image: url(../img/cog_go.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-reindexar {
+	padding-left: 24px;
+	background-image: url(../img/refresh.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-buidarlog {
+	padding-left: 24px;
+	background-image: url(../img/clear.png);
+	background-repeat: no-repeat;
+	background-position: 2px 6px;
+}
+h3.titol-reprendre-expedient {
+	padding-left: 24px;
+	background-image: url(../img/arrow_undo.png);
 	background-repeat: no-repeat;
 	background-position: 2px 6px;
 }
@@ -408,4 +437,29 @@ p.aclaracio {
 
 .missatgesOk p, .missatgesInfo p, .missatgesWarn p, .missatgesError p, .missatgesComment p, .missatgesAturat p {
 	margin-bottom: 8px;
+}
+
+.right {
+	float:	right;
+}
+.mass {
+	width: 96% !important;
+	padding-left: 24px !important;
+	padding-right: 0px !important;
+}
+
+/* css for timepicker */
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+.ui-timepicker-rtl{ direction: rtl; }
+.ui-timepicker-rtl dl { text-align: right; }
+.ui-timepicker-rtl dl dd { margin: 0 65px 10px 10px; }
+
+#ui-datepicker-div {
+	z-index: 2000;
 }

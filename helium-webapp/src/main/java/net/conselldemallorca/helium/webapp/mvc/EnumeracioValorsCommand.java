@@ -15,6 +15,7 @@ public class EnumeracioValorsCommand {
 	private String codi;
 	private String nom;
 	private Long enumeracioId;
+	private int ordre;
 
 	public EnumeracioValorsCommand() {}
 
@@ -44,5 +45,13 @@ public class EnumeracioValorsCommand {
 	}
 	public void setEnumeracioId(Long enumeracioId) {
 		this.enumeracioId = enumeracioId;
+	}
+
+	public int getOrdre() {
+		return ordre;
+	}
+
+	public void setOrdre(int ordre) {
+		this.ordre = ordre;
 	}
 }

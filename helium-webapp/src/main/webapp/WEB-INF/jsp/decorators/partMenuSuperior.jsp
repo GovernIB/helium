@@ -4,13 +4,21 @@
 <%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 
 <ul id="menu-superior" class="dropdown dropdown-horizontal">
-	<li class="image inici"><a href="<c:url value="/"/>"><fmt:message key='decorators.superior.inici' /></a></li>
-	<li class="image entorns"><a href="<c:url value="/entorn/seleccio.html"/>"><fmt:message key='decorators.superior.selec_entorn' /></a></li>
+	<li id="menuInici" class="image inici"><a href="<c:url value="/"/>"><fmt:message key='decorators.superior.inici' /></a></li>
+	<li id="menuEntorn" class="image entorns"><a href="<c:url value="/entorn/seleccio.html"/>"><fmt:message key='decorators.superior.selec_entorn' /></a>
+		 <ul class="llista-entorns">
+		 	<c:forEach var="list" items="${entorns}">
+				<li>
+					<a href="<c:url value="/index.html"><c:param name="entornCanviarAmbId" value="${list.id}"/></c:url>">${list.nom}</a>
+				</li>
+    		</c:forEach>
+    	</ul>		
+   	</li>
 	<c:if test="${globalProperties['app.persones.actiu']}">
-		<li class="image perfil"><a href="<c:url value="/perfil/info.html"/>"><fmt:message key='decorators.superior.meu_perfil' /></a></li>
+		<li id="menuPerfil" class="image perfil"><a href="<c:url value="/perfil/info.html"/>"><fmt:message key='decorators.superior.meu_perfil' /></a></li>
 	</c:if>
 	<security:authorize ifAllGranted="ROLE_ADMIN">
-		<li class="dir image configuracio"><a href="#" onclick="return false"><fmt:message key='comuns.configuracio' /></a>
+		<li id="menuConfiguracio" class="dir image configuracio"><a href="#" onclick="return false"><fmt:message key='comuns.configuracio' /></a>
 		<ul>
 			<c:if test="${globalProperties['app.persones.actiu']}">
 				<li class="image persones"><a href="<c:url value="/persona/consulta.html"/>"><fmt:message key='decorators.superior.persones' /></a></li>
@@ -30,5 +38,16 @@
 			<li class="image reassignar"><a href="<c:url value="/reassignar/llistat.html"/>"><fmt:message key='decorators.superior.reassignacions' /></a></li>
 		</ul>
 	</li>
+	<li id="menuMesures" class="dir image monitor"><a href="#" onclick="return false"><fmt:message key='comuns.mesures' /></a>
+			<ul class="mesures">
+				<c:if test="${globalProperties['app.mesura.temps.actiu']}">
+					<li class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></li>
+				</c:if>
+				<c:if test="${globalProperties['app.expedient.monitor']}">
+					<li class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></li>
+				</c:if>
+				<li class="image pendents"><a href="<c:url value="/tasca/pendentsCompletar.html"/>"><fmt:message key='tasca.pendents.completar' /></a></li>
+			</ul>
+		</li>
 	</security:authorize>
 </ul>

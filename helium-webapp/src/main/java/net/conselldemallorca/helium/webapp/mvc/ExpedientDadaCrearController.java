@@ -18,11 +18,11 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -92,7 +92,9 @@ public class ExpedientDadaCrearController extends BaseController {
 			if (taskId == null) {
 				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(
 						id,
-						true);
+						false, 
+						true,
+						false);
 				List<Camp> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
 				Iterator<Camp> it = camps.iterator();
 				while (it.hasNext()) {
@@ -130,9 +132,15 @@ public class ExpedientDadaCrearController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
+			ExpedientDto expedient = null;
+			try {
+				expedient = getExpedient(entorn.getId(), id, taskId);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
+				return "redirect:/index.html";
+			}
 			model.addAttribute("expedient", expedient);
-			return "expedient/dadaCrear";
+			return "expedient/dadaCrear";		
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -150,7 +158,13 @@ public class ExpedientDadaCrearController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			ExpedientDto expedient = getExpedient(entorn.getId(), id, taskId);
+			ExpedientDto expedient = null;
+			try {
+				expedient = getExpedient(entorn.getId(), id, taskId);
+			} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+				missatgeError(request, getMessage("error.tasca.no.disponible") );
+				return "redirect:/expedient/consulta.html";
+			}
 			if (potModificarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					validator.validate(command, result);
@@ -169,11 +183,16 @@ public class ExpedientDadaCrearController extends BaseController {
 				        		var,
 				        		null);
 					} else {
-						tascaService.createVariable(
-								entorn.getId(),
-								taskId,
-								var,
-								null);
+						try {
+							tascaService.createVariable(
+									entorn.getId(),
+									taskId,
+									var,
+									null);
+						} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
+							missatgeError(request, getMessage("error.tasca.no.disponible") );
+							return "redirect:/expedient/consulta.html";
+						}
 					}
 					missatgeInfo(request, getMessage("info.dada.creat") );
 					if (command.isModificar()) {

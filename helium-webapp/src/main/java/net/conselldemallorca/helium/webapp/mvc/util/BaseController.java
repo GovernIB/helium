@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.webapp.mvc.interceptor.EntornInterceptor;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.displaytag.properties.SortOrderEnum;
 import org.springframework.context.MessageSource;
@@ -26,7 +26,7 @@ public class BaseController implements MessageSourceAware {
 
 	protected static final String INFO_MSG_SESSION_KEY = "missatgesInfo";
 	protected static final String ERROR_MSG_SESSION_KEY = "missatgesError";
-	private static final int DEFAULT_OBJECTS_PER_PAGE = 20;
+	public static final int DEFAULT_OBJECTS_PER_PAGE = 20;
 
 	private MessageSource messageSource;
 
@@ -84,7 +84,8 @@ public class BaseController implements MessageSourceAware {
 
 	protected Entorn getEntornActiu(
 			HttpServletRequest request) {
-		return (Entorn)request.getSession().getAttribute(EntornInterceptor.VARIABLE_SESSIO_ENTORN_ACTUAL);
+		return (Entorn)request.getSession().getAttribute(
+				SessionHelper.VARIABLE_ENTORN_ACTUAL);
 	}
 
 	@SuppressWarnings("rawtypes")

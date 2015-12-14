@@ -13,6 +13,8 @@ import javax.servlet.jsp.JspException;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -146,9 +148,7 @@ public class HeliumHssfExportView implements BinaryExportView {
 
                     // Get the value to be displayed for the column
                     Object value = column.getValue(this.decorated);
-
                     HSSFCell cell = xlsRow.createCell(colNum++);
-
                     writeCell(value, cell, wb);
                 }
             }
@@ -164,6 +164,7 @@ public class HeliumHssfExportView implements BinaryExportView {
         }
         catch (Exception e)
         {
+        	logger.error("Error al exportar en format Excel", e);
             throw new ExcelGenerationException(e);
         }
     }
@@ -220,8 +221,27 @@ public class HeliumHssfExportView implements BinaryExportView {
 	        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\t", "    ");
 	        // remove the return, only newline valid in excel
 	        returnString = StringUtils.replace(StringUtils.trim(returnString), "\\r", " ");
+	        //si el camp és múltiple mostra una llista amb tots els valors
+	        if(returnString.contains("td")){
+	        	returnString = returnString.replaceAll("\\<.*?\\>", "");
+	        	returnString = StringUtils.replace(StringUtils.trim(returnString), "\\n", "");
+	        	returnString = StringUtils.stripToEmpty(returnString);
+	        	String[] dades =StringUtils.splitByWholeSeparator(returnString, null);
+	        	String sortida ="[";
+	        	for(int i=0;i<dades.length;i++){
+	        		if(i<dades.length && i>0){
+	        			sortida+=", ";
+	        		}
+	        		sortida+=dades[i];
+	        	}
+	        	sortida=sortida.trim();
+	        	sortida+="]";
+	        	returnString = sortida;
+	        }
 	        // unescape so that \n gets back to newline
 	        returnString = StringEscapeUtils.unescapeJava(returnString);
+	        
+	        
 		} else {
 			returnString = StringEscapeUtils.escapeJava(StringUtils.trimToEmpty(returnString));
 			returnString = StringUtils.replace(StringUtils.trim(returnString), "\\t", "");
@@ -290,5 +310,7 @@ public class HeliumHssfExportView implements BinaryExportView {
 			cell.setCellValue(new HSSFRichTextString(escapeColumnValue(value)));
 		}
 	}*/
+
+	private static final Log logger = LogFactory.getLog(HeliumHssfExportView.class);
 
 }

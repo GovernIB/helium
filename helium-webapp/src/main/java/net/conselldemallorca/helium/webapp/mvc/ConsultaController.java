@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,12 +63,27 @@ public class ConsultaController extends BaseController {
 	}
 
 	@ModelAttribute("command")
-	public Consulta populateCommand(
+	public ConsultaCommand populateCommand(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Long id) {
-		if (id != null)
-			return dissenyService.getConsultaById(id);
-		return new Consulta();
+		if (id != null) {
+			Consulta consulta = dissenyService.getConsultaById(id);
+			ConsultaCommand command = new ConsultaCommand();
+			command.setId(consulta.getId());
+			command.setEntorn(consulta.getEntorn());
+			command.setCodi(consulta.getCodi());
+			command.setDescripcio(consulta.getDescripcio());
+			command.setExpedientTipus(consulta.getExpedientTipus());
+			command.setNom(consulta.getNom());
+			command.setFormatExport(consulta.getFormatExport());
+			command.setInformeNom(consulta.getInformeNom());
+			command.setInformeContingut(consulta.getInformeContingut());
+			command.setValorsPredefinits(consulta.getValorsPredefinits());
+			command.setExportarActiu(consulta.isExportarActiu());
+			command.setOcultarActiu(consulta.isOcultarActiu());
+			return command;
+		}
+		return new ConsultaCommand();
 	}
 
 	@RequestMapping(value = "/consulta/llistat", method = RequestMethod.GET)
@@ -85,10 +101,20 @@ public class ConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	
+	@ModelAttribute("formatsExportacio")
+	public String[] formatsExportacio() {
+		String[] formatsExportacio = {"PDF","ODT","RTF","HTML","CSV","XLS","XML"};
+		return formatsExportacio;
+	}
+	
+	
 
 	@RequestMapping(value = "/consulta/form", method = RequestMethod.GET)
 	public String formGet(
 			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -101,37 +127,66 @@ public class ConsultaController extends BaseController {
 	@RequestMapping(value = "/consulta/form", method = RequestMethod.POST)
 	public String formPost(
 			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+//			@RequestParam(value = "informeContingut", required = true) byte[] informeContingut,
 			@RequestParam(value = "submit", required = false) String submit,
 			@RequestParam(value = "informeContingut", required = false) final MultipartFile multipartFile,
 			@RequestParam(value = "informeContingut_deleted", required = false) final String deleted,
-			@ModelAttribute("command") Consulta command,
+			@RequestParam(value = "formatExport", required = false) String formatExport,
+			@ModelAttribute("command") ConsultaCommand command,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		
 		if (entorn != null) {
+			Consulta consulta = new Consulta();
+			if(id != null) consulta = dissenyService.getConsultaById(id);
+			
+			consulta.setId(command.getId());
+			consulta.setEntorn(entorn);
+			consulta.setCodi(command.getCodi());
+			consulta.setNom(command.getNom());
+			consulta.setDescripcio(command.getDescripcio());
+			consulta.setExpedientTipus(command.getExpedientTipus());
+			consulta.setFormatExport(command.getFormatExport());
+			consulta.setValorsPredefinits(command.getValorsPredefinits());
+			consulta.setExportarActiu(command.isExportarActiu());
+			consulta.setOcultarActiu(command.isOcultarActiu());
+			
+			
+			
 			if ("submit".equals(submit) || submit.length() == 0) {
-				command.setEntorn(entorn);
-				command.setInformeNom(null);
-				command.setInformeContingut(null);
+				if("deleted".equalsIgnoreCase(deleted)){
+					consulta.setEntorn(entorn);
+					consulta.setInformeNom(null);
+					consulta.setInformeContingut(null);
+					consulta.setFormatExport(formatExport);
+				}
 				if (multipartFile != null && multipartFile.getSize() > 0) {
 					try {
-						command.setInformeContingut(multipartFile.getBytes());
-						command.setInformeNom(multipartFile.getOriginalFilename());
+						consulta.setEntorn(entorn);
+						consulta.setInformeContingut(multipartFile.getBytes());
+						consulta.setInformeNom(multipartFile.getOriginalFilename());
+						consulta.setFormatExport(formatExport);
 					} catch (Exception ignored) {}
 				}
+				
 				annotationValidator.validate(command, result);
 		        if (result.hasErrors()) {
 		        	return "consulta/form";
 		        }
 		        try {
 		        	if (command.getId() == null)
-		        		dissenyService.createConsulta(command);
-		        	else
-		        		dissenyService.updateConsulta(command, "deleted".equalsIgnoreCase(deleted));
+		        		dissenyService.createConsulta(consulta);
+		        	else {
+		        		dissenyService.updateConsulta(consulta, "deleted".equalsIgnoreCase(deleted));
+		        	}
 		        	missatgeInfo(request, getMessage("info.consulta.guardat") );
 		        	status.setComplete();
-		        } catch (Exception ex) {
+		        	
+					SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES);
+				} catch (Exception ex) {
 		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 		        	logger.error("No s'ha pogut guardar la consulta", ex);
 		        	return "consulta/form";
@@ -144,6 +199,7 @@ public class ConsultaController extends BaseController {
 		}
 	}
 
+	
 	@RequestMapping(value = "/consulta/delete")
 	public String deleteAction(
 			HttpServletRequest request,

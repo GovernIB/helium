@@ -6,12 +6,17 @@
 			<param name="ConversionPattern" value="%d{dd-MM-yyyy HH:mm:ss} %C %M(%L)%n%p: %m%n"/>
 		</layout>
 	</appender>
-	<logger name="org.hibernate.engine">
-		<level value="error"/>
-		<appender-ref ref="console"/>
+	<logger name="org.hibernate">
+		<level value="ERROR"/>
+	</logger>
+	<logger name="org.springframework.web">
+		<level value="WARN"/>
+	</logger>
+	<logger name="org.displaytag">
+		<level value="ERROR"/>
 	</logger>
 	<root>
-		<level value="info"/>
+		<level value="INFO"/>
 		<appender-ref ref="console"/>
 	</root>
 </log4j:configuration>

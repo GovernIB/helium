@@ -6,28 +6,34 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.PortasignaturesPendentDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -37,6 +43,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 
@@ -71,18 +78,70 @@ public class ExpedientConsultaController extends BaseController {
 			HttpServletRequest request) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn.getId());
+			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
 			permissionService.filterAllowed(
 					tipus,
 					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.ADMINISTRATION,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.READ});
 			return tipus;
 		}
 		return null;
 	}
 
+//	@ModelAttribute("expedientTipusAdmin")
+//	public Map<Long, Boolean> populateExpedientTipusAdmin(
+//			HttpServletRequest request) {
+//		Entorn entorn = getEntornActiu(request);
+//		Map<Long, Boolean> mExpedientTipusAdmin = new HashMap<Long, Boolean>();
+//		if (entorn != null) {
+//			List<ExpedientTipus> tipus = dissenyService.findExpedientTipusAmbEntornOrdenat(entorn.getId(), "nom");
+//			for (ExpedientTipus expedientTipus: tipus) {
+//				if (potAdministratExpedientTipus(expedientTipus))
+//					mExpedientTipusAdmin.put(expedientTipus.getId(), true);
+//				else 
+//					mExpedientTipusAdmin.put(expedientTipus.getId(), false);
+//			}
+//			return mExpedientTipusAdmin;
+//		}
+//		return null;
+//	}
+	
+	@ModelAttribute("filtreAnulats")
+	public FiltreAnulat[] populateFiltreAnulats() {
+		return FiltreAnulat.values();
+	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "/expedient/consultaPermis")
+	@ResponseBody
+	public String consultaPermis(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			ModelMap model) {
+		Map mjson = new LinkedHashMap();
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			if (permissionService.filterAllowed(
+					entorn,
+					Entorn.class,
+					new Permission[] {ExtendedPermission.ADMINISTRATION}) != null) {
+				mjson.put("permis", true);
+				return JSONValue.toJSONString(mjson);
+			}
+			if (id != null) {
+				ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(id);
+				if (potAdministratExpedientTipus(expedientTipus)) {
+					mjson.put("permis", true);
+					return JSONValue.toJSONString(mjson);
+				}
+			}
+		}
+		mjson.put("permis", false);
+		return JSONValue.toJSONString(mjson);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.GET)
 	public String consultaGet(
@@ -90,7 +149,6 @@ public class ExpedientConsultaController extends BaseController {
 			@RequestParam(value = "page", required = false) String page,
 			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "dir", required = false) String dir,
-			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			HttpSession session,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
@@ -102,16 +160,22 @@ public class ExpedientConsultaController extends BaseController {
 						command,
 						page,
 						sort,
-						dir,
-						objectsPerPage);
+						dir);
 				List<String> piis = new ArrayList<String>();
 				for (ExpedientDto expedient: (List<ExpedientDto>)pagina.getList())
 					piis.add(expedient.getProcessInstanceId());
+				if (command.getExpedientTipus() != null) {
+					command.setMassivaActiu(true);
+				} else {
+					command.setMassivaActiu(false);
+				}
+					
 				model.addAttribute("command", command);
 				model.addAttribute("llistat", pagina);
 				model.addAttribute("piis", piis);
 			} else {
-				model.addAttribute("command", new ExpedientConsultaGeneralCommand());
+				command = new ExpedientConsultaGeneralCommand();
+				model.addAttribute("command", command);
 			}
 			List<Estat> estats;
 			if (command != null && command.getExpedientTipus() != null)
@@ -126,35 +190,47 @@ public class ExpedientConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	
+	@RequestMapping(value = "/expedient/limpiarTrazaError.html", method = RequestMethod.POST)
+	public String limpiarTrazaError(
+			HttpServletRequest request,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
+			@RequestParam(value = "processInstanceId", required = false) String id,
+			ModelMap model) {
+		expedientService.updateExpedientError(id, null, null);
+		return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
+	}
+			
 	@RequestMapping(value = "/expedient/consulta", method = RequestMethod.POST)
 	public String consultaPost(
 			HttpServletRequest request,
 			HttpSession session,
 			@RequestParam(value = "submit", required = false) String submit,
+			@RequestParam(value = "objectsPerPage", required = false) String objectsPerPage,
 			@ModelAttribute("command") ExpedientConsultaGeneralCommand command,
 			BindingResult result,
 			SessionStatus status,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
-			if ("massiva".equals(submit)) {
-				command.setMassivaActiu(true);
-			} else if ("nomassiva".equals(submit)) {
-				command.setMassivaActiu(false);
-				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
-			}
+//			if ("massiva".equals(submit)) {
+//				command.setMassivaActiu(true);
+//			} else if ("nomassiva".equals(submit)) {
+//				command.setMassivaActiu(false);
+//				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
+//			}
 			if (command.isMassivaActiu() && command.getExpedientTipus() == null) {
-				command.setMassivaActiu(false);
+				//command.setMassivaActiu(false);
 				missatgeError(request, getMessage("error.no.tiexep.selec"));
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
-			if ("submit".equals(submit) || "massiva".equals(submit) || "nomassiva".equals(submit)) {
+			if ("submit".equals(submit)) { //|| "massiva".equals(submit) || "nomassiva".equals(submit)) {
 				session.setAttribute(VARIABLE_SESSIO_COMMAND, command);
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			} else if ("clean".equals(submit)) {
 				session.removeAttribute(VARIABLE_SESSIO_COMMAND);
 				request.getSession().removeAttribute(ExpedientMassivaController.VARIABLE_SESSIO_IDS_MASSIUS);
-				return "redirect:/expedient/consulta.html";
+				return "redirect:/expedient/consulta.html?objectsPerPage=" + objectsPerPage;
 			}
 			return "expedient/consulta";
 		} else {
@@ -162,6 +238,7 @@ public class ExpedientConsultaController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "/expedient/consultaEstats")
 	public String consultaEstats(
 			HttpServletRequest request,
@@ -170,13 +247,40 @@ public class ExpedientConsultaController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			List<Estat> estats;
+			JSONArray ljson = new JSONArray();
 			if (id != null)
 				estats = dissenyService.findEstatAmbExpedientTipus(id);
 			else
 				estats = new ArrayList<Estat>();
 			afegirEstatsInicialIFinal(estats);
-			model.addAttribute("estats", estats);
+			try {
+				for (Estat estat : estats) {
+					Map mjson = new LinkedHashMap();
+					mjson.put("id", estat.getId());
+					mjson.put("nom", JSONValue.escape(estat.getNom()));
+					ljson.add(mjson);
+				}
+			} catch (Exception ex) {
+				logger.error("Error al parsear la lista de estados como JSON. ID: " + id, ex);
+			}
+			model.addAttribute("estats", ljson);
 			return "expedient/consultaEstats";
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	@RequestMapping(value = "/expedient/pendentPsigna")
+	public String consultaPendentPsigna(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Long id,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			List<PortasignaturesPendentDto> pendents = expedientService.findAmbEntornPendentPsigna(
+					entorn.getId());
+			model.addAttribute("llistat", pendents);
+			return "expedient/pendentPsigna";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
 			return "redirect:/index.html";
@@ -211,8 +315,7 @@ public class ExpedientConsultaController extends BaseController {
 			ExpedientConsultaGeneralCommand command,
 			String page,
 			String sort,
-			String dir,
-			String objectsPerPage) {
+			String dir) {
 		boolean iniciat = false;
 		boolean finalitzat = false;
 		Long estatId = null;
@@ -221,7 +324,7 @@ public class ExpedientConsultaController extends BaseController {
 			finalitzat = (command.getEstat() == -1);
 			estatId = (!iniciat && !finalitzat) ? command.getEstat() : null;
 		}
-		int maxResults = getObjectsPerPage(objectsPerPage);
+		int maxResults = command.getObjectsPerPage();
 		int pagina = (page != null) ? new Integer(page).intValue() : 1;
 		int firstRow = (pagina - 1) * maxResults;
 		boolean isAsc = (dir == null) || "asc".equals(dir);
@@ -269,8 +372,15 @@ public class ExpedientConsultaController extends BaseController {
 		paginatedList.setList(expedients);
 		return paginatedList;
 	}
-
-	@SuppressWarnings("unused")
+	
+	private boolean potAdministratExpedientTipus(ExpedientTipus expedientTipus) {
+		return permissionService.filterAllowed(
+				expedientTipus,
+				ExpedientTipus.class,
+				new Permission[] {	ExtendedPermission.ADMINISTRATION,
+									ExtendedPermission.WRITE}) != null;
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExpedientConsultaController.class);
 
 }

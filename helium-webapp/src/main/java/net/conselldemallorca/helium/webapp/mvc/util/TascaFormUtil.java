@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.webapp.mvc.util;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.sf.cglib.beans.BeanGenerator;
 
@@ -87,6 +90,43 @@ public class TascaFormUtil {
 				campsAddicionalsClasses,
 				false);
 	}
+	@SuppressWarnings("rawtypes")
+	public static Object getCommandForParams(
+			List<ConsultaCamp> params,
+			Map<String, Object> valors,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class> campsAddicionalsClasses) {
+		List<Camp> camps = new ArrayList<Camp>();
+		for (ConsultaCamp param: params) {
+			Camp camp = new Camp();
+			camp.setCodi(param.getCampCodi());
+			camp.setEtiqueta(param.getCampDescripcio());
+			switch (param.getParamTipus()) {
+			case TEXT:
+				camp.setTipus(TipusCamp.STRING);
+				break;
+			case SENCER:
+				camp.setTipus(TipusCamp.INTEGER);
+				break;
+			case FLOTANT:
+				camp.setTipus(TipusCamp.FLOAT);
+				break;
+			case DATA:
+				camp.setTipus(TipusCamp.DATE);
+				break;
+			case BOOLEAN:
+				camp.setTipus(TipusCamp.BOOLEAN);
+				break;
+			}
+			camps.add(camp);
+		}
+		return getCommandForCamps(
+				camps,
+				valors,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false);
+	}
 
 	public static Map<String, Object> getValorsFromCommand(
 			List<Camp> camps,
@@ -95,11 +135,11 @@ public class TascaFormUtil {
 			boolean perFiltre) {
     	Map<String, Object> resposta = new HashMap<String, Object>();
     	for (Camp camp: camps) {
-    		if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
+    		if (!camp.getTipus().equals(TipusCamp.REGISTRE) && !camp.getTipus().equals(TipusCamp.ACCIO)) {
 	    		try {
-		    		String campCodi = getCampCodi(camp, perFiltre);
+		    		String campCodi = getCampCodi(camp, perFiltre, true);
 		    		Object valor = PropertyUtils.getSimpleProperty(command, campCodi);
-		    		if (camp.isMultiple() && revisarArrays) {
+		    		if (!perFiltre && camp.isMultiple() && revisarArrays) {
 	    				// Lleva els valors buits de l'array
 		    			int tamany = 0;
 		    			for (int i = 0; i < Array.getLength(valor); i++) {
@@ -119,11 +159,17 @@ public class TascaFormUtil {
 		    					Array.set(newArray, index++, va);
 		    			}
 		    			if (Array.getLength(newArray) > 0)
-		    				resposta.put(campCodi, newArray);
+		    				resposta.put(
+		    						getCampCodi(camp, perFiltre, false),
+		    						newArray);
 		    			else
-		    				resposta.put(campCodi, null);
+		    				resposta.put(
+		    						getCampCodi(camp, perFiltre, false),
+		    						null);
 		    		} else {
-		    			resposta.put(campCodi, valor);
+		    			resposta.put(
+		    					getCampCodi(camp, perFiltre, false),
+		    					valor);
 		    		}
 	    		} catch (Exception ignored) {}
     		}
@@ -152,27 +198,29 @@ public class TascaFormUtil {
 		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
 		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
 		for (Camp camp: camps) {
-			for (Validacio validacio: camp.getValidacions()) {
-				ExpressionValidationRule validationRule = new ExpressionValidationRule(
-						new ValangConditionExpressionParser(),
-						validacio.getExpressio());
-				String codiError = "error.camp." + camp.getCodi();
-				validationRule.setErrorCode(codiError);
-				validationRule.setDefaultErrorMessage(validacio.getMissatge());
-				beanValidationConfiguration.addPropertyRule(
-						camp.getCodi(),
-						validationRule);
-			}
-			if (	camp.getTipus().equals(TipusCamp.STRING) ||
-					camp.getTipus().equals(TipusCamp.TEXTAREA)) {
-				ExpressionValidationRule validationRule = new ExpressionValidationRule(
-						new ValangConditionExpressionParser(),
-						camp.getCodi() + " is null or length(" + camp.getCodi() + ") < 2049");
-				validationRule.setErrorCode("max.length");
-				validationRule.setDefaultErrorMessage("El contingut d'aquest camp excedeix la llargada màxima");
-				beanValidationConfiguration.addPropertyRule(
-						camp.getCodi(),
-						validationRule);
+			if (!camp.isMultiple()) {
+				for (Validacio validacio: camp.getValidacions()) {
+					ExpressionValidationRule validationRule = new ExpressionValidationRule(
+							new ValangConditionExpressionParser(),
+							validacio.getExpressio());
+					String codiError = "error.camp." + camp.getCodi();
+					validationRule.setErrorCode(codiError);
+					validationRule.setDefaultErrorMessage(validacio.getMissatge());
+					beanValidationConfiguration.addPropertyRule(
+							camp.getCodi(),
+							validationRule);
+				}
+				if (	camp.getTipus().equals(TipusCamp.STRING)) {// ||
+						//camp.getTipus().equals(TipusCamp.TEXTAREA)) {
+					ExpressionValidationRule validationRule = new ExpressionValidationRule(
+							new ValangConditionExpressionParser(),
+							camp.getCodi() + " is null or length(" + camp.getCodi() + ") < 2049");
+					validationRule.setErrorCode("max.length");
+					validationRule.setDefaultErrorMessage("El contingut d'aquest camp excedeix la llargada màxima");
+					beanValidationConfiguration.addPropertyRule(
+							camp.getCodi(),
+							validationRule);
+				}
 			}
 		}
 		validationConfigurationLoader.setClassValidation(
@@ -232,25 +280,31 @@ public class TascaFormUtil {
 				bg.addProperty(codi, campsAddicionalsClasses.get(codi));
 		}
 		for (Camp camp: camps) {
-			String campCodi = getCampCodi(camp, perFiltre);
+			String campCodi = getCampCodi(camp, perFiltre, true);
 			if (camp.getTipus() != null)  {
-				boolean ambArray;
 				if (!perFiltre) {
-					ambArray = camp.isMultiple();
+					if (camp.isMultiple())
+						bg.addProperty(
+								campCodi,
+								Array.newInstance(getJavaClass(camp.getTipus()), 1).getClass());
+					else
+						bg.addProperty(
+								campCodi,
+								getJavaClass(camp.getTipus()));
 				} else {
-					ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
+					boolean ambArray = 	camp.getTipus().equals(TipusCamp.DATE) ||
 								camp.getTipus().equals(TipusCamp.INTEGER) ||
 								camp.getTipus().equals(TipusCamp.FLOAT) ||
 								camp.getTipus().equals(TipusCamp.PRICE);
-				}
-				if (ambArray) {
-					bg.addProperty(
-							campCodi,
-							Array.newInstance(camp.getJavaClass(), 1).getClass());
-				} else {
-					bg.addProperty(
-							campCodi,
-							camp.getJavaClass());
+					if (ambArray) {
+						bg.addProperty(
+								campCodi,
+								Array.newInstance(getJavaClass(camp.getTipus()), 2).getClass());
+					} else {
+						bg.addProperty(
+								campCodi,
+								getJavaClass(camp.getTipus()));
+					}
 				}
 			} else {
 				bg.addProperty(
@@ -258,8 +312,8 @@ public class TascaFormUtil {
 						Object.class);
 			}
 		}
-		// Omplit el command amb els valors per defecte
 		Object command = bg.create();
+		// Omplit el command amb els valors per defecte
 		if (campsAddicionals != null) {
 			for (String codi: campsAddicionals.keySet()) {
 				String tipusCommand = null;
@@ -278,11 +332,13 @@ public class TascaFormUtil {
 		// Inicialitza els camps del command amb els valors de la tasca
 		for (Camp camp: camps) {
 			if (!camp.getTipus().equals(TipusCamp.REGISTRE)) {
-				String campCodi = getCampCodi(camp, perFiltre);
+				String campCodi = getCampCodi(camp, perFiltre, true);
+				String campCodiValors = getCampCodi(camp, perFiltre, false);
 				String tipusCommand = null;
-				String tipusCamp = (valors != null && valors.get(campCodi) != null) ? valors.get(campCodi).getClass().getName() : null;
+				String tipusCamp = (valors != null && valors.get(campCodiValors) != null) ? valors.get(campCodiValors).getClass().getName() : null;
 				try {
-					tipusCommand = PropertyUtils.getPropertyType(command, campCodi).getName();
+					Class propertyType = PropertyUtils.getPropertyType(command, campCodi);
+					tipusCommand = (propertyType != null) ? propertyType.getName() : null;
 					boolean ambArray;
 					if (!perFiltre) {
 						ambArray = camp.isMultiple();
@@ -293,24 +349,28 @@ public class TascaFormUtil {
 									camp.getTipus().equals(TipusCamp.PRICE);
 					}
 					if (ambArray) {
-						if (valors != null && valors.get(campCodi) != null) {
+						if (valors != null && valors.get(campCodiValors) != null) {
 							PropertyUtils.setSimpleProperty(
 									command,
 									campCodi,
-									valors.get(campCodi));
+									valors.get(campCodiValors));
 						} else {
 							PropertyUtils.setSimpleProperty(
 									command,
 									campCodi,
 									Array.newInstance(
-											camp.getJavaClass(),
+											getJavaClass(camp.getTipus()),
 											(perFiltre) ? 2 : 1));
 						}
 					} else {
+						Object valorCamp = (valors != null) ? valors.get(campCodiValors) : null;
+						if (valorCamp instanceof net.conselldemallorca.helium.jbpm3.integracio.Termini) {
+							valorCamp = net.conselldemallorca.helium.jbpm3.integracio.Termini.valueFromTermini((net.conselldemallorca.helium.jbpm3.integracio.Termini) valorCamp);
+						} 
 						PropertyUtils.setSimpleProperty(
 								command,
 								campCodi,
-								(valors != null) ? valors.get(campCodi) : null);
+								valorCamp);
 					}
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut afegir el camp '" + campCodi + "' al command (" + tipusCommand + ", " + tipusCamp + ")", ex);
@@ -318,6 +378,27 @@ public class TascaFormUtil {
 			}
 		}
 		return command;
+	}
+
+	public static String getCampCodi(
+			Camp camp,
+			boolean perFiltre,
+			boolean evitarProblema) {
+		if (perFiltre) {
+			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX) ||  camp.getDefinicioProces() == null) {
+				return camp.getCodi();
+			} else {
+				String definicioProcesKey = camp.getDefinicioProces().getJbpmKey();
+				// Per evitar el problema amb cglib quan la propietat
+				// comença amb majúscula+minúscula
+				if (evitarProblema && definicioProcesKey.matches("^[A-Z]{1}[a-z]{1}.*"))
+					definicioProcesKey = definicioProcesKey.substring(0, 1).toLowerCase() + definicioProcesKey.substring(1);
+				//
+				return definicioProcesKey + "_" + camp.getCodi();
+			}
+		} else {
+			return camp.getCodi();
+		}
 	}
 
 
@@ -333,27 +414,40 @@ public class TascaFormUtil {
 				if (value != null) {
 					int length = ((Object[])value).length;
 					return Array.newInstance(
-							camp.getJavaClass(),
+							getJavaClass(camp.getTipus()),
 							length + addTolength);
 				} else {
 					return Array.newInstance(
-							camp.getJavaClass(),
+							getJavaClass(camp.getTipus()),
 							1);
 				}
 			}
 		}
 		return null;
-	}
+	} 
 
-	private static String getCampCodi(Camp camp, boolean perFiltre) {
-		if (perFiltre) {
-			if (camp.getCodi().startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-				return camp.getCodi();
-			} else {
-				return camp.getDefinicioProces().getJbpmKey() + "_" + camp.getCodi();
-			}
+	@SuppressWarnings("rawtypes")
+	private static Class getJavaClass(TipusCamp tipusCamp){
+		if (TipusCamp.STRING.equals(tipusCamp)) {
+			return String.class;
+		} else if (TipusCamp.INTEGER.equals(tipusCamp)) {
+			return Long.class;
+		} else if (TipusCamp.FLOAT.equals(tipusCamp)) {
+			return Double.class;
+		} else if (TipusCamp.BOOLEAN.equals(tipusCamp)) {
+			return Boolean.class;
+		} else if (TipusCamp.TEXTAREA.equals(tipusCamp)) {
+			return String.class;
+		} else if (TipusCamp.DATE.equals(tipusCamp)) {
+			return Date.class;
+		} else if (TipusCamp.PRICE.equals(tipusCamp)) {
+			return BigDecimal.class;
+		} else if (TipusCamp.TERMINI.equals(tipusCamp)) {
+			return String.class; // Termini.class
+		} else if (TipusCamp.REGISTRE.equals(tipusCamp)) {
+			return Object[].class;
 		} else {
-			return camp.getCodi();
+			return String.class;
 		}
 	}
 

@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.4</version>
+		<version>3.0</version>
 	</parent>
 	<artifactId>helium-util</artifactId>
 	<properties>
@@ -94,9 +94,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
-					<compilerVersion>1.5</compilerVersion>
-					<source>1.5</source>
-					<target>1.5</target>
+					<compilerVersion>${java.version}</compilerVersion>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 		</plugins>

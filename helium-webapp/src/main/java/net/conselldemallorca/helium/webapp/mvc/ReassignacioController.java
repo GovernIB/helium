@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -96,7 +97,8 @@ public class ReassignacioController extends BaseController {
 	        				command.getUsuariDesti(),
 	        				command.getDataInici(),
 	        				command.getDataFi(),
-	        				command.getDataCancelacio());
+	        				command.getDataCancelacio(),
+	        				command.getTipusExpedientId());
 	        	} else {
 	        		reassignacioService.updateReassignacio(
 	        				command.getId(),
@@ -104,7 +106,8 @@ public class ReassignacioController extends BaseController {
 	        				command.getUsuariDesti(),
 	        				command.getDataInici(),
 	        				command.getDataFi(),
-	        				command.getDataCancelacio());
+	        				command.getDataCancelacio(),
+	        				command.getTipusExpedientId());
 	        	}
 	        	missatgeInfo(request, getMessage("info.reassignacio.produit") );
 	        	status.setComplete();
@@ -139,7 +142,14 @@ public class ReassignacioController extends BaseController {
 			return clazz.isAssignableFrom(ReassignacioCommand.class);
 		}
 		public void validate(Object target, Errors errors) {
-			Date avui = new Date();
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			Date avui = cal.getTime();
+			
 			ReassignacioCommand command = (ReassignacioCommand)target;
 			ValidationUtils.rejectIfEmpty(errors, "usuariOrigen", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "usuariDesti", "not.blank");
@@ -164,5 +174,5 @@ public class ReassignacioController extends BaseController {
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 	
-	private static final Log logger = LogFactory.getLog(PersonaController.class);
+	private static final Log logger = LogFactory.getLog(ReassignacioController.class);
 }

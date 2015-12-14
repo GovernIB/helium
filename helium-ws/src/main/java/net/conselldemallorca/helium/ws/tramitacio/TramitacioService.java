@@ -79,6 +79,19 @@ public interface TramitacioService {
 			String tascaId) throws TramitacioException;
 
 	/**
+	 * Mètode per a alliberar una tasca assignada a un grup de l'usuari
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param tascaId
+	 * @throws TramitacioException
+	 */
+	public void alliberarTasca(
+			String entorn,
+			String usuari,
+			String tascaId) throws TramitacioException;
+
+	/**
 	 * Mètode per a consultar els camps del formulari de la tasca
 	 * 
 	 * @param entorn
@@ -356,4 +369,45 @@ public interface TramitacioService {
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException;
 
+	/**
+	 * Mètode per a esborrar un expedient
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param processInstanceId
+	 * @throws TramitacioException
+	 */
+	public void deleteExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException;
+	
+	/**
+	 * Mètode per a obtenir el llistat de tasques personals amb codi
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param codi
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException;
+
+	/**
+	 * Mètode per a obtenir el llistat de tasques de grup amb codi
+	 * 
+	 * @param entorn
+	 * @param usuari
+	 * @param codi
+	 * @return El llistat de tasques
+	 * @throws TramitacioException
+	 */
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException;
+	
 }

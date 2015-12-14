@@ -21,6 +21,8 @@ public class PublicarExpedientRequest {
 	protected String representantNif;
 	protected String representatNif;
 	protected String representatNom;
+	protected String representatApe1;
+	protected String representatApe2;
 	protected String tramitNumero;
 	protected boolean avisosHabilitat;
 	protected String avisosSMS;
@@ -111,5 +113,20 @@ public class PublicarExpedientRequest {
 	public void setEvents(List<Event> events) {
 		this.events = events;
 	}
-
+	public String getRepresentatApe1() {
+		return representatApe1;
+	}
+	public void setRepresentatApe1(String representatApe1) {
+		this.representatApe1 = representatApe1;
+	}
+	public String getRepresentatApe2() {
+		return representatApe2;
+	}
+	public void setRepresentatApe2(String representatApe2) {
+		this.representatApe2 = representatApe2;
+	}
+	@Override
+	public String toString() {
+		return "PublicarExpedientRequest [expedientIdentificador=" + expedientIdentificador + ", expedientClau=" + expedientClau + ", unitatAdministrativa=" + unitatAdministrativa + ", idioma=" + idioma + ", descripcio=" + descripcio + ", autenticat=" + autenticat + ", representantNif=" + representantNif + ", representatNif=" + representatNif + ", representatNom=" + representatNom + ", representatApe1=" + representatApe1 + ", representatApe2=" + representatApe2 + ", tramitNumero=" + tramitNumero + ", avisosHabilitat=" + avisosHabilitat + ", avisosSMS=" + avisosSMS + ", avisosEmail=" + avisosEmail + ", events=" + events + "]";
+	}
 }

@@ -4,10 +4,13 @@
 package net.conselldemallorca.helium.webapp.mvc;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
@@ -57,16 +60,25 @@ public class ExpedientConsultaDominiController extends BaseController {
 			try {
 				model.addAttribute(
 						"camp",
-						dissenyService.findCampAmbDefinicioProcesICodi(definicioProcesId, campCodi));
-				model.addAttribute(
-						"resultat",
-						dissenyService.getResultatConsultaCamp(
-								taskId,
-								processInstanceId,
-								definicioProcesId,
-								campCodi,
-								textInicial,
-								getMapDelsValors(valors)));
+						dissenyService.findCampAmbDefinicioProcesICodiSimple(definicioProcesId, campCodi));
+				List<FilaResultat> resultat = dissenyService.getResultatConsultaCamp(
+						taskId,
+						processInstanceId,
+						definicioProcesId,
+						campCodi,
+						textInicial,
+						getMapDelsValors(valors));
+				for (FilaResultat filaResultat: resultat) {
+					for (ParellaCodiValor codiValor: filaResultat.getColumnes()) {
+						if (codiValor.getValor() instanceof String) {
+							String valor = (String)codiValor.getValor();
+							//codiValor.setValor(valor);
+							// Per a evitar problemes amb caràcters estranys al codi (EXSANCI)
+							codiValor.setValor(valor.replaceAll("\\p{Cntrl}", "").trim());
+						}
+					}
+				}
+				model.addAttribute("resultat", resultat);
 			} catch (Exception ex) {
 				logger.error("Error en la consulta de domini pel camp " + campCodi, ex);
 			}

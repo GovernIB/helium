@@ -12,13 +12,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,10 +63,18 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 				try {
 					DocumentDto doc = documentService.documentInfo(docId);
 					if (!doc.isSignat() && !doc.isRegistrat()) {
-						documentService.esborrarDocument(
-								null,
-								id,
-								doc.getDocumentCodi());
+						if(doc.isAdjunt()){
+							documentService.esborrarDocumentAdjunt(
+									id,
+									docId,
+									doc.getAdjuntId(),
+									doc.getAdjuntTitol());
+						} else {
+							documentService.esborrarDocument(
+									null,
+									id,
+									doc.getDocumentCodi());
+						}
 						missatgeInfo(request, getMessage("info.doc.proces.esborrat") );
 					} else if (doc.isSignat()) {
 						missatgeError(request, getMessage("error.esborrar.doc.signat") );
@@ -74,8 +82,10 @@ public class ExpedientDocumentEsborrarController extends BaseController {
 						missatgeError(request, getMessage("error.esborrar.doc.registrat") );
 					}
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = id;
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut esborrar el document del procés", ex);
 					missatgeError(request, getMessage("error.esborrar.doc.proces"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut esborrar el document del procés", ex);
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
 			} else {

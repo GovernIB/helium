@@ -7,19 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -91,10 +90,10 @@ public class ExpedientEinesController extends BaseController {
 				model.addAttribute(
 						"arbreProcessos",
 						expedientService.getArbreInstanciesProces(id));
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
-				model.addAttribute(
-						"instanciaProces",
-						instanciaProces);
+//				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, true);
+//				model.addAttribute(
+//						"instanciaProces",
+//						instanciaProces);
 				return "expedient/eines";
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
@@ -126,10 +125,12 @@ public class ExpedientEinesController extends BaseController {
 							id,
 							command.getScript(),
 							null);
-					missatgeInfo(request, getMessage("info.script.executat") );
+					missatgeInfo(request, getMessage("info.script.executat"));
 				} catch (Exception ex) {
-					missatgeError(request, getMessage("error.executar.script"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut executar l'script", ex);
+					Long entornId = entorn.getId();
+					String numeroExpedient = id;
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut executar l'script", ex);
+					missatgeError(request, getMessage("error.executar.script"), getMissageFinalCadenaExcepcions(ex));
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
@@ -166,8 +167,10 @@ public class ExpedientEinesController extends BaseController {
 								null);
 						missatgeInfo(request, getMessage("info.expedient.aturat") );
 					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut aturar l'expedient", ex);	
 						missatgeError(request, getMessage("error.aturar.expedient"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut aturar l'expedient", ex);
 			        	return "expedient/eines";
 					}
 				} else {
@@ -199,8 +202,10 @@ public class ExpedientEinesController extends BaseController {
 								null);
 						missatgeInfo(request, getMessage("info.expedient.repres") );
 					} catch (Exception ex) {
+						Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut reprendre l'expedient", ex);	
 						missatgeError(request, getMessage("error.reprendre.expedient"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut reprendre l'expedient", ex);
 			        	return "expedient/eines";
 					}
 				} else {
@@ -237,8 +242,10 @@ public class ExpedientEinesController extends BaseController {
 						missatgeError(request, getMessage("error.especificar.versio.proces") );
 					}
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = expedient.getIdentificador();
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut canviar la versió de procés", ex);
 					missatgeError(request, getMessage("error.canviar.versio.proces"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut canviar la versió de procés", ex);
 		        	return "expedient/eines";
 				}
 				return "redirect:/expedient/eines.html?id=" + instanciaProcesId;
@@ -251,8 +258,87 @@ public class ExpedientEinesController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}
-
-
+	
+	@RequestMapping(value = "/expedient/reindexa", method = RequestMethod.POST)
+	public String reindexa(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String instanciaProcesId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(instanciaProcesId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.luceneReindexarExpedient(instanciaProcesId);
+					missatgeInfo(request, getMessage("info.expedient.reindexat"));
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.reindexar.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut reindexar l'expedient", ex);
+				}
+				return "expedient/eines";
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/expedient/buidarlog", method = RequestMethod.POST)
+	public String buidarrlog(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String instanciaProcesId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(instanciaProcesId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.buidarLogExpedient(expedient.getProcessInstanceId());
+					missatgeInfo(request, getMessage("info.expedient.buidatlog"));
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.buidarlog.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut buidar el log de l'expedient", ex);
+				}
+				return "expedient/eines";
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+	
+	@RequestMapping(value = "/expedient/reprendreExpedient", method = RequestMethod.POST)
+	public String reprendreExpedient(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String instanciaProcesId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(instanciaProcesId);
+			if (potModificarExpedient(expedient)) {
+				try {
+					expedientService.reprendreExpedient(expedient.getProcessInstanceId());
+					missatgeInfo(request, getMessage("info.expedient.reprendre"));
+				} catch (Exception ex) {
+					missatgeError(request, getMessage("error.reprendre.expedient"), ex.getLocalizedMessage());
+		        	logger.error("No s'ha pogut reprendre l'expedient", ex);
+				}
+				return "expedient/eines";
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
 
 	private class ExpedientScriptValidator implements Validator {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -273,6 +359,13 @@ public class ExpedientEinesController extends BaseController {
 		}
 	}
 
+	private String getMissageFinalCadenaExcepcions(Throwable ex) {
+		if (ex.getCause() == null) {
+			return ex.getClass().getName() + ": " + ex.getMessage();
+		} else {
+			return getMissageFinalCadenaExcepcions(ex.getCause());
+		}
+	}
 
 	private boolean potModificarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(

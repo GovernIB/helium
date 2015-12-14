@@ -15,6 +15,7 @@ public class ReassignacioCommand {
 	private Date dataInici;
 	private Date dataFi;
 	private Date dataCancelacio;
+	private Long tipusExpedientId;
 	
 	public ReassignacioCommand() {}
 	
@@ -53,5 +54,11 @@ public class ReassignacioCommand {
 	}
 	public void setDataCancelacio(Date dataCancelacio) {
 		this.dataCancelacio = dataCancelacio;
+	}
+	public Long getTipusExpedientId() {
+		return tipusExpedientId;
+	}
+	public void setTipusExpedientId(Long tipusExpedientId) {
+		this.tipusExpedientId = tipusExpedientId;
 	}
 }

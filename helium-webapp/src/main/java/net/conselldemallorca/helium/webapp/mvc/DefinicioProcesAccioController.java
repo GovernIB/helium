@@ -15,13 +15,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -146,6 +146,16 @@ public class DefinicioProcesAccioController extends BaseController {
 			        	return "definicioProces/accioForm";
 			        }
 			        try {
+			        	// Limpiamos los rols
+			        	if (command.getRols() != null && command.getRols().length()>0) {
+				        	StringBuffer sbRols = new StringBuffer();
+							String[] rols = command.getRols().split(",");						
+							for (String rol : rols) {
+								sbRols.append(","+rol.trim());
+							}
+							command.setRols(sbRols.substring(1));
+			        	}			        	
+			        	
 			        	if (command.getId() == null)
 			        		dissenyService.createAccio(command);
 			        	else

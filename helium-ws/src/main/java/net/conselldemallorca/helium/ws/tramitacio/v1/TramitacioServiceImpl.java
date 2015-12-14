@@ -34,15 +34,17 @@ import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
+import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.Authentication;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -53,6 +55,8 @@ import org.springframework.security.context.SecurityContextHolder;
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.v1.TramitacioService",
 		targetNamespace = "http://conselldemallorca.net/helium/ws/tramitacio/v1")
 public class TramitacioServiceImpl implements TramitacioService {
+
+	private static final boolean PRINT_USUARI = false;
 
 	private EntornService entornService;
 	private DissenyService dissenyService;
@@ -103,6 +107,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					et.getId(),
 					null,
+					null,
 					numero,
 					titol,
 					null,
@@ -142,7 +147,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -161,7 +166,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -180,22 +185,44 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		boolean agafada = false;
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, false);
-			boolean agafada = false;
-			for (TascaLlistatDto tasca: tasques) {
-				if (tasca.getId().equals(tascaId)) {
-					tascaService.agafar(e.getId(), tascaId);
-					agafada = true;
-					break;
-				}
+			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, null)) {
+				tascaService.agafar(e.getId(), tascaId);
+				agafada = true;
 			}
-			if (!agafada)
-				throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut agafar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut agafar la tasca: " + ex.getMessage());
 		}
+		if (!agafada)
+			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
+	}
+
+	public void alliberarTasca(
+			String entorn,
+			String tascaId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		boolean alliberada = false;
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, null, false);
+			for (TascaLlistatDto tasca: tasques) {
+				if (tasca.getId().equals(tascaId)) {
+					tascaService.alliberar(e.getId(), tascaId, true);
+					alliberada = true;
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut alliberar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut alliberar la tasca: " + ex.getMessage());
+		}
+		if (!alliberada)
+			throw new TramitacioException("Aquest usuari no té la tasca " + tascaId + " assignada");
 	}
 
 	public List<CampTasca> consultaFormulariTasca(
@@ -234,14 +261,34 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				if (parella.getValor() instanceof XMLGregorianCalendar)
+				if (parella.getValor() instanceof XMLGregorianCalendar) {
 					variables.put(
 							parella.getCodi(),
 							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
-				else
+				} else if (parella.getValor() instanceof Object[]) {
+					Object[] multiple = (Object[])parella.getValor();
+					// Converteix les dates dins registres i vars múltiples
+					// al tipus corecte 
+					for (int i = 0; i < multiple.length; i++) {
+						if (multiple[i] instanceof Object[]) {
+							Object[] fila = (Object[])multiple[i];
+							for (int j = 0; j < fila.length; j++) {
+								if (fila[j] instanceof XMLGregorianCalendar) {
+									fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+								}
+							}
+						} else if (multiple[i] instanceof XMLGregorianCalendar) {
+							multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+						}
+					}
 					variables.put(
 							parella.getCodi(),
 							parella.getValor());
+				} else {
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
+				}
 			}
 		}
 		try {
@@ -360,7 +407,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No té permisos per llegir les dades del proces '" + processInstanceId + "'");
 		try {
 			List<CampProces> resposta = new ArrayList<CampProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			if (instanciaProces.getVariables() != null) {
 				for (String var: instanciaProces.getVariables().keySet()) {
 					Camp campVar = null;
@@ -401,17 +448,37 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			if (valor instanceof XMLGregorianCalendar)
+			if (valor instanceof XMLGregorianCalendar) {
 				expedientService.updateVariable(
 						processInstanceId,
 						varCodi,
 						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
-			else
+			} else if (valor instanceof Object[]) {
+				Object[] multiple = (Object[])valor;
+				// Converteix les dates dins registres i vars múltiples
+				// al tipus corecte 
+				for (int i = 0; i < multiple.length; i++) {
+					if (multiple[i] instanceof Object[]) {
+						Object[] fila = (Object[])multiple[i];
+						for (int j = 0; j < fila.length; j++) {
+							if (fila[j] instanceof XMLGregorianCalendar) {
+								fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+							}
+						}
+					} else if (multiple[i] instanceof XMLGregorianCalendar) {
+						multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+					}
+				}
 				expedientService.updateVariable(
 						processInstanceId,
 						varCodi,
 						valor);
-			
+			} else {
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
+			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
@@ -452,7 +519,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No té permisos per accedir a les dades del proces '" + processInstanceId + "'");
 		try {
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
 				resposta.add(convertirDocumentProces(document));
 			}
@@ -501,7 +568,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisExpedientTipusWrite(expedient.getTipus()))
 			throw new TramitacioException("No té permisos per modificar les dades del proces '" + processInstanceId + "'");
 		try {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
@@ -692,12 +759,29 @@ public class TramitacioServiceImpl implements TramitacioService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				false);
+				FiltreAnulat.ACTIUS);
 		// Construcció de la resposta
 		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		for (ExpedientDto dto: expedients)
 			resposta.add(toExpedientInfo(dto));
 		return resposta;
+	}
+
+	public void deleteExpedient(
+			String entorn,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(
+				processInstanceId);
+		if (!validarPermisExpedientTipusDelete(expedient.getTipus()))
+			throw new TramitacioException("No té permisos per a esborrar l'expedient del proces '" + processInstanceId + "'");
+		expedientService.delete(
+				e.getId(),
+				expedient.getId());
 	}
 
 
@@ -794,6 +878,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
 		dt.setArxiu(document.getArxiuNom());
 		dt.setData(document.getDataDocument());
+		if (document.isSignat()) {
+			dt.setUrlCustodia(document.getUrlVerificacioCustodia());
+		}
 		return dt;
 	}
 	private CampProces convertirCampProces(
@@ -911,9 +998,60 @@ public class TramitacioServiceImpl implements TramitacioService {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
 	}
+	private boolean validarPermisExpedientTipusDelete(ExpedientTipus expedientTipus) {
+		printUsuari();
+		return permissionService.filterAllowed(
+				expedientTipus,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION,
+					ExtendedPermission.DELETE}) != null;
+	}
 	private void printUsuari() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		System.out.println(">>> " + auth.getName());
+		if (PRINT_USUARI) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			logger.info(">>> " + auth.getName());
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn, 
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), codi, null, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn, 
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		if (!validarPermisEntornRead(e))
+			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), codi, null, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);

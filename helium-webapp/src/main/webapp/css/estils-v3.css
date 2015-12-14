@@ -1,0 +1,184 @@
+/* CAPÇALERA */
+/*********************************************/
+#govern-logo {
+	border-right: 1px solid #FFFFFF;
+	display: block;
+	margin-top: 11px;
+	padding: 5px 24px 12px 0;
+}
+#app-logo {
+	display: block;
+	padding: 0 0 0 12px;
+}
+
+/* NAVEGACIÓ */
+/*********************************************/
+.navbar-app {
+	background-color: #ff9523;
+	height: 126px;
+	color: white;
+}
+.navbar-app .container {
+	padding-right: 0;
+	padding-left: 0;
+}
+.navbar-app .list-inline li {
+	border-right: 1px solid white;
+}
+.navbar-app .list-inline li:last-child {
+	border: none;
+}
+.navbar-app .list-inline li.dropdown>a {
+	color: white;
+	text-decoration: none;
+	background-color: #ff9523;
+}
+.navbar-app .navbar-nav {
+	padding-top: 16px;
+}
+
+/* CONTINGUT */
+/*********************************************/
+.container-main, .container-foot {
+	padding-right: 0;
+	padding-left: 0;
+}
+.container-main .panel-heading h2 {
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+.container-main .panel-heading h2 {
+	margin-top: 4px;
+	margin-bottom: 0px;
+}
+
+.caret-white {
+	border-top-color: white !important;
+}
+
+.pagination-datatable {
+	margin-top: 4px !important;
+}
+
+.alert {
+	padding: 10px 15px !important;
+}
+button.close-alertes {
+    background: none repeat scroll 0 0 transparent;
+    border: 0 none;
+    cursor: pointer;
+    padding: 0;
+}
+.close-alertes {
+    color: #000000;
+    float: right;
+    font-weight: bold;
+    opacity: 0.2;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+.clicable  {
+	cursor: pointer;
+}
+address {
+	margin-bottom: 0px;
+}
+p.help-block {
+	font-size: 12px;
+	font-weight: normal;
+	padding-top: 0;	
+	margin-top: 4px !important;
+}
+
+.obligatori {
+  	background-image: url("../img/asterisk.png");
+  	background-repeat: no-repeat;
+  	background-position: right 12px;
+  	font-weight: bold !important;
+}
+/* MODALS */
+/*********************************************/
+.modal-dialog.modal-maximize {
+	width: 98%;
+	top: 1%;
+	margin: auto;
+}
+.modal-footer .outcomes {
+	margin-left: 5px;
+}
+
+.dropdown-menu > li.nav-header {
+    clear: both;
+    color: #999999;
+    display: block;
+    font-weight: bolder;
+    line-height: 1.42857;
+    padding: 3px 15px;
+    white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.btn-file {
+	background-color: #eee;
+    color: #555;
+    font-size: 14px;
+    padding: 6px 12px;
+    text-align: center;
+}
+
+.datatable-dades-carregant {
+	background-color: #e8e8e8;
+    border: 1px solid #c2c2c2;
+    border-radius: 25px;
+    height: 192px;
+    left: 50%;
+    margin-left: -96px;
+    margin-top: -96px;
+    opacity: 0.85;
+    position: fixed;
+    top: 50%;
+    width: 192px;
+    z-index: 99999;
+}
+
+.datatable-dades-carregant span {
+    left: 50%;
+    margin-left: -20px;
+    margin-top: -25px;
+    opacity: 0.85;
+    position: fixed;
+    top: 50%;
+}
+
+.dropdown-menu {
+	overflow: auto;
+}
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default {
+	background-color: #d3d3d3;
+	color: #000;
+	box-shadow: 0 3px 5px rgba(0, 0, 0, 0.125) inset;
+    outline: 0 none;
+}
+
+form .btn-group > .btn-default:hover:HOVER {
+	background-color: #a0a0a0;
+}
+
+.btn:active, .btn.active {
+/*     box-shadow: none; */
+}
+.tooltip-inner {
+/* 	background-color: #428bca !important; */
+}
+.tooltip-arrow {
+/* 	display: none; */
+}
+
+.tooltip-inner {  
+  background-color: #fff;
+	color: #333 !important;
+	border-color: #333;
+	border-width: 1px;
+	border-style: solid;
+}

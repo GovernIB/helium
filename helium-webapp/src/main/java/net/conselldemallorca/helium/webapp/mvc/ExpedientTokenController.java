@@ -5,20 +5,20 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.integracio.ValidationException;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.TokenDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -113,6 +113,34 @@ public class ExpedientTokenController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/expedient/tokenActivar", method = RequestMethod.GET)
+	public String tokenActivarGet(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) String id,
+			@RequestParam(value = "tokenId", required = true) String tokenId,
+			@RequestParam(value = "activar", required = true) Boolean activar,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
+			if (potModificarExpedient(expedient)) {
+				setArrivingNodeNames(id, tokenId, expedient, model);
+				
+				if (expedientService.tokenActivar(Long.parseLong(tokenId), activar))
+					missatgeInfo(request, getMessage("info.token.activar") );
+				else
+					missatgeError(request, getMessage("error.activar.token"));
+				return "redirect:/expedient/tokens.html?id=" + id;
+			} else {
+				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
+				return "redirect:/expedient/consulta.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}
+
 	@RequestMapping(value = "/expedient/tokenRetrocedir", method = RequestMethod.POST)
 	public String tokenRetrocedirPost(
 			HttpServletRequest request,
@@ -194,7 +222,7 @@ public class ExpedientTokenController extends BaseController {
 				expedientService.getArbreInstanciesProces(id));
 		model.addAttribute(
 				"instanciaProces",
-				expedientService.getInstanciaProcesById(id, true));
+				expedientService.getInstanciaProcesById(id, false, false, false));
 	}
 	
 	private void setArrivingNodeNames(

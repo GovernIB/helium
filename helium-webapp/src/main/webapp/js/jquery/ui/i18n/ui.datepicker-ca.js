@@ -16,4 +16,22 @@ jQuery(function($){
 		dateFormat: 'mm/dd/yy', firstDay: 0,
 		isRTL: false};
 	$.datepicker.setDefaults($.datepicker.regional['ca']);
+	
+	$.timepicker.regional['ca'] = {
+		timeOnlyTitle: 'Selecciona hora',
+		timeText: '',
+		hourText: 'Hora',
+		minuteText: 'Minut',
+		secondText: 'Segon',
+		millisecText: 'Milisegon',
+		timezoneText: 'Zona hor&agrave;ria',
+		currentText: 'Ara',
+		closeText: 'Fet',
+		dateFormat: 'dd/mm/yy',
+		timeFormat: 'HH:mm',
+		amNames: ['AM', 'A'],
+		pmNames: ['PM', 'P'],
+		isRTL: false
+	};
+	$.timepicker.setDefaults($.timepicker.regional['ca']);
 });

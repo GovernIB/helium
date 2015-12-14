@@ -11,6 +11,8 @@ import javax.xml.rpc.ServiceException;
 
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -370,10 +372,12 @@ public class AfirmaUtils {
 
 	private void logSiActivat(String missatge) {
 		if (logMissatges) {
-			System.out.println("-------------------------------------");
-			System.out.println(missatge);
-			System.out.println("-------------------------------------");
+			logger.info("-------------------------------------");
+			logger.info(missatge);
+			logger.info("-------------------------------------");
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(AfirmaUtils.class);
 
 }

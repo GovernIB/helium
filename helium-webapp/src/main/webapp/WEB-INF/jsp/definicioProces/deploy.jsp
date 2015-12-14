@@ -9,6 +9,23 @@
 	<meta name="titolcmp" content="<fmt:message key='comuns.disseny' />" />
     <link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<c:import url="../common/formIncludes.jsp"/>
+<script type="text/javascript">
+//<![CDATA[
+function actualitzaExps() {
+	var tipImp = $("#tipus0").val();
+	var tipExp = $("#expedientTipusId0").val();
+	if (tipImp == "JBPM") { //&& tipExp != "") {
+		$(".actualitza").show();
+	} else {
+		$(".actualitza").hide();
+	}
+}
+
+$(document).ready(function(){
+	actualitzaExps();
+});
+	// ]]>
+</script>
 </head>
 <body>
 
@@ -28,6 +45,7 @@
 				<c:param name="itemLabel" value="valor"/>
 				<c:param name="itemValue" value="codi"/>
 				<c:param name="label"><fmt:message key='defproc.deploy.tipus_despl' /></c:param>
+				<c:param name="onchange" value="actualitzaExps()"/>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="expedientTipusId"/>
@@ -37,6 +55,7 @@
 				<c:param name="itemValue" value="id"/>
 				<c:param name="itemBuit">&lt;&lt; <fmt:message key='defproc.deploy.item_buit' /> &gt;&gt;</c:param>
 				<c:param name="label"><fmt:message key='comuns.tipus_exp' /></c:param>
+				<c:param name="onchange" value="actualitzaExps()"/>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="arxiu"/>
@@ -47,6 +66,12 @@
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="etiqueta"/>
 				<c:param name="label"><fmt:message key='comuns.etiqueta' /></c:param>
+			</c:import>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="actualitzarProcessosActius"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label"><fmt:message key='defproc.deploy.expedients.actualitzar' /></c:param>
+				<c:param name="classHolder" value="actualitza"/>
 			</c:import>
 			<c:import url="../common/formElement.jsp">
 				<c:param name="type" value="buttons"/>

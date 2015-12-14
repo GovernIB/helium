@@ -8,23 +8,32 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -56,16 +65,22 @@ public class DefinicioProcesDeployController extends BaseController {
 	public static final String TIPUS_EXPORTACIO_TIPEXP = "EXPORTTIPEXP";
 
 	private DissenyService dissenyService;
+	private ExpedientService expedientService;
 	private PermissionService permissionService;
+	private ExecucioMassivaService execucioMassivaService;
 
 
 
 	@Autowired
 	public DefinicioProcesDeployController(
 			DissenyService dissenyService,
-			PermissionService permissionService) {
+			ExpedientService expedientService,
+			PermissionService permissionService,
+			ExecucioMassivaService execucioMassivaService) {
 		this.dissenyService = dissenyService;
+		this.expedientService = expedientService;
 		this.permissionService = permissionService;
+		this.execucioMassivaService = execucioMassivaService;
 	}
 
 	@ModelAttribute("desplegamentTipus")
@@ -125,14 +140,47 @@ public class DefinicioProcesDeployController extends BaseController {
 			        }
 		        	try {
 		        		if (command.getTipus().equals(TIPUS_EXPORTACIO_JBPM)) {
-		        			dissenyService.deploy(
+		        			DefinicioProces dp = dissenyService.deploy(
 				        			entorn.getId(),
 				        			command.getExpedientTipusId(),
 				        			multipartFile.getOriginalFilename(),
 				        			multipartFile.getBytes(),
 				        			command.getEtiqueta(),
 				        			true);
-				        	missatgeInfo(request, getMessage("info.arxiu.desplegat") );
+				        	missatgeInfo(request, getMessage("info.arxiu.desplegat"));
+//				        	if (command.getExpedientTipusId() != null && command.isActualitzarProcessosActius()) {
+				        	if (command.isActualitzarProcessosActius()) {
+				        		try {
+//					        		expedientService.actualitzarProcessInstancesADarreraVersio(
+//					        				dp.getJbpmKey());
+//					        		missatgeInfo(request, getMessage("info.arxiu.desplegat.actualitzat"));
+					        		
+					        		// Obtenim informació de l'execució massiva
+					    			
+				    				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				    				dto.setDataInici(new Date());
+				    				dto.setEnviarCorreu(false);
+				    				dto.setParam1(dp.getJbpmKey());
+				    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
+//				    				dto.setExpedientTipusId(command.getExpedientTipusId());
+				    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+				    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionNameAndEntorn(dp.getJbpmKey(), entorn.getId());
+				    				List<String> pi_ids = new ArrayList<String>();
+//				    				List<Long> exp_ids = new ArrayList<Long>();
+				    				for (JbpmProcessInstance pi: procInstances) {
+				    					pi_ids.add(pi.getId());
+//				    					exp_ids.add(expedientService.findExpedientAmbProcessInstanceId(pi.getId()).getId());
+				    				}
+//				    				dto.setExpedientIds(exp_ids);
+				    				dto.setProcInstIds(pi_ids);
+				    				execucioMassivaService.crearExecucioMassiva(dto);
+				    				
+				    				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {pi_ids.size()}));
+				    			} catch (Exception e) {
+				    				missatgeError(request, getMessage("error.no.massiu"));
+				    				logger.error("Error al programar les actualitzacions de versuó de procés", e);
+				    			}
+				        	}
 		        		} else if (command.getTipus().equals(TIPUS_EXPORTACIO_DEFPRC)) {
 			        		InputStream is = new ByteArrayInputStream(multipartFile.getBytes());
 					    	ObjectInputStream input = new ObjectInputStream(is);
@@ -199,6 +247,7 @@ public class DefinicioProcesDeployController extends BaseController {
 		private String etiqueta;
 		private String tipus;
 		private byte[] arxiu;
+		private boolean actualitzarProcessosActius;
 		public Long getExpedientTipusId() {
 			return expedientTipusId;
 		}
@@ -222,6 +271,12 @@ public class DefinicioProcesDeployController extends BaseController {
 		}
 		public void setArxiu(byte[] arxiu) {
 			this.arxiu = arxiu;
+		}
+		public boolean isActualitzarProcessosActius() {
+			return actualitzarProcessosActius;
+		}
+		public void setActualitzarProcessosActius(boolean actualitzarProcessosActius) {
+			this.actualitzarProcessosActius = actualitzarProcessosActius;
 		}
 	}
 
@@ -268,5 +323,7 @@ public class DefinicioProcesDeployController extends BaseController {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.DESIGN}) != null;
 	}
+
+	private static final Log logger = LogFactory.getLog(DefinicioProcesDeployController.class);
 
 }

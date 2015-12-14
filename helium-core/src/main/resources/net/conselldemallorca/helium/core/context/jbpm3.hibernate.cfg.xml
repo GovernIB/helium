@@ -5,6 +5,7 @@
 	<session-factory name="jbpm3">
 
    <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
+   <property name="hibernate.cache.use_query_cache">true</property>
 
    <!-- ###################### -->
    <!-- # jbpm mapping files # -->
@@ -83,6 +84,7 @@
    <!-- graph.exe mapping files -->
    <mapping resource="org/jbpm/graph/exe/Comment.hbm.xml"/>
    <mapping resource="org/jbpm/graph/exe/ProcessInstance.hbm.xml"/>
+   <mapping resource="org/jbpm/graph/exe/ProcessInstanceExpedient.hbm.xml"/>
    <mapping resource="org/jbpm/graph/exe/Token.hbm.xml"/>
    <mapping resource="org/jbpm/graph/exe/RuntimeAction.hbm.xml"/>
 

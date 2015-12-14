@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.4</version>
+		<version>3.0</version>
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
@@ -13,10 +13,70 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator-legacy</artifactId>
+			<version>4.0.2.GA</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-core</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>
+						hibernate-commons-annotations
+					</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate.validator.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.conselldemallorca</groupId>
+			<artifactId>helium-hibernate-entitymanager</artifactId>
+			<version>${helium.version}</version>
+			<type>jar</type>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>net.conselldemallorca</groupId> -->
+<!-- 			<artifactId>helium-core</artifactId> -->
+<!-- 			<version>${helium.version}</version> -->
+<!-- 			<type>ejb</type> -->
+<!-- 		</dependency> -->
+		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-webapp</artifactId>
-			<version>2.4</version>
+			<version>${helium.version}</version>
 			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.1</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -27,12 +87,17 @@
 				<version>2.3.2</version>
 				<configuration>
 					<finalName>helium</finalName>
+<!-- 					<ejbModule> -->
+<!-- 						<groupId>net.conselldemallorca</groupId> -->
+<!-- 						<artifactId>helium-core</artifactId> -->
+<!-- 					</ejbModule> -->
 					<modules>
 						<webModule>
 							<groupId>net.conselldemallorca</groupId>
 							<artifactId>helium-webapp</artifactId>
 						</webModule>
 					</modules>
+					<defaultJavaBundleDir>lib/</defaultJavaBundleDir>
 				</configuration>
 			</plugin>
 		</plugins>

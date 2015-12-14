@@ -13,9 +13,9 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class RespostaRegistre {
-
 	private String numero;
 	private Date data;
+	private ReferenciaRDSJustificante referenciaRDSJustificante;
 
 	public String getNumero() {
 		return numero;
@@ -29,5 +29,15 @@ public class RespostaRegistre {
 	public void setData(Date data) {
 		this.data = data;
 	}
+	public ReferenciaRDSJustificante getReferenciaRDSJustificante() {
+		return referenciaRDSJustificante;
+	}
+	public void setReferenciaRDSJustificante(ReferenciaRDSJustificante referenciaRDSJustificante) {
+		this.referenciaRDSJustificante = referenciaRDSJustificante;
+	}
 
+	@Override
+	public String toString() {
+		return "RespostaRegistre [numero=" + numero + ", data=" + data + ", referenciaRDSJustificante=" + referenciaRDSJustificante + "]";
+	}
 }

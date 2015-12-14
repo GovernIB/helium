@@ -10,17 +10,19 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +40,7 @@ public class IndexController extends BaseController {
 	private TascaService tascaService;
 	private AlertaService alertaService;
 	private PermissionService permissionService;
-
+	private AdminService adminService;
 
 
 	@Autowired
@@ -46,11 +48,13 @@ public class IndexController extends BaseController {
 			EntornService entornService,
 			TascaService tascaService,
 			AlertaService alertaService,
-			PermissionService permissionService) {
+			PermissionService permissionService,
+			AdminService adminService) {
 		this.entornService = entornService;
 		this.tascaService = tascaService;
 		this.alertaService = alertaService;
 		this.permissionService = permissionService;
+		this.adminService = adminService;
 	}
 
 	@RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -58,14 +62,18 @@ public class IndexController extends BaseController {
 			HttpServletRequest request,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (entorn != null) {
-			model.addAttribute("personaLlistat", tascaService.findTasquesPersonalsIndex(entorn.getId()));
-			model.addAttribute("grupLlistat", tascaService.findTasquesGrupIndex(entorn.getId()));
-			model.addAttribute("alertesLlistat", alertaService.findActivesAmbEntornIUsuariAutenticat(entorn.getId()));
+			adminService.mesuraTemporalIniciar("Index", "general");
+			model.addAttribute("countPersonaLlistat", tascaService.findCountTasquesPersonalsIndex(entorn.getId()));
+			model.addAttribute("countGrupLlistat", tascaService.findCountTasquesGrupIndex(entorn.getId()));
+			model.addAttribute("alertesCountLlistat", alertaService.countActivesAmbEntornIUsuari(entorn.getId(), auth.getName(), AlertaService.ALERTAS_TODAS));
+			adminService.mesuraTemporalCalcular("Index", "general");
 		} else {
+			adminService.mesuraTemporalIniciar("Index sense entorn actiu", "general");
 			Map<Entorn, List<TascaLlistatDto>> tasquesPersonaEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();
 			Map<Entorn, List<TascaLlistatDto>> tasquesGrupEntorn = new HashMap<Entorn, List<TascaLlistatDto>>();
-			Map<Entorn, List<Alerta>> alertesEntorn = new HashMap<Entorn, List<Alerta>>();
+			Map<Entorn, Object> alertesEntorn = new HashMap<Entorn, Object>();
 			List<Entorn> entornsActius = entornService.findActius();
 			permissionService.filterAllowed(
 					entornsActius,
@@ -76,14 +84,14 @@ public class IndexController extends BaseController {
 			for (Entorn ent: entornsActius) {
 				tasquesPersonaEntorn.put(ent, tascaService.findTasquesPersonalsIndex(ent.getId()));
 				tasquesGrupEntorn.put(ent, tascaService.findTasquesGrupIndex(ent.getId()));
-				alertesEntorn.put(ent, alertaService.findActivesAmbEntornIUsuariAutenticat(ent.getId()));
+				alertesEntorn.put(ent, alertaService.countActivesAmbEntornIUsuari(ent.getId(), auth.getName(), AlertaService.ALERTAS_TODAS));
 			}
 			model.addAttribute("entornsActius", entornsActius);
 			model.addAttribute("tasquesPersonaEntorn", tasquesPersonaEntorn);
 			model.addAttribute("tasquesGrupEntorn", tasquesGrupEntorn);
-			model.addAttribute("alertesEntorn", alertesEntorn);
+			model.addAttribute("alertesCountEntorn", alertesEntorn);
+			adminService.mesuraTemporalCalcular("Index sense entorn actiu", "general");
 		}
 		return "index";
 	}
-
 }

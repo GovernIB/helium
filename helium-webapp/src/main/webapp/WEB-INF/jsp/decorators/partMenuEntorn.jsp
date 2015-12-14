@@ -31,20 +31,29 @@
 	</div>
 	<div id="page-entorn-menu">
 		<ul id="menu-entorn" class="dropdown dropdown-horizontal">
-			<li class="image tasques"><a href="<c:url value="/tasca/personaLlistat.html"/>"><fmt:message key='comuns.tasques' /></a></li>
-			<li class="dir image expedient-consultes">
+			<li id="menuTasques" class="dir image tasques">
+				<a href="#" onclick="return false"><fmt:message key='comuns.tasques' /></a>
+				<ul>
+					<li class="image tasques"><a href="<c:url value="/tasca/personaLlistat.html"/>"><fmt:message key='common.tasques.personals' /></a></li>
+					<li class="image tasques"><a href="<c:url value="/tasca/grupLlistat.html"/>"><fmt:message key='common.tasques.grup' /></a></li>
+				</ul>
+			</li>
+			<li id="menuConsultes" class="dir image expedient-consultes">
 				<a href="#" onclick="return false"><fmt:message key='comuns.consultes' /></a>
 				<ul>
 					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consulta.html"/>"><fmt:message key='decorators.entorn.consultes.llistat' /></a></li>
 					<li class="image expedient-consultes"><a href="<c:url value="/expedient/consultaDisseny.html"/>"><fmt:message key='decorators.entorn.consultes.tipus' /></a></li>
+					<c:if test="${potReassignarExpedientTipus}">
+						<li class="image expedient-consultes"><a href="<c:url value="/tasca/consultaTasques.html"/>"><fmt:message key='decorators.entorn.consultes.tasques' /></a></li>
+					</c:if>
 				</ul>
 			</li>
 			<c:if test="${hiHaTramitsPerIniciar}">
-				<li class="image expedient-iniciar"><a href="<c:url value="/expedient/iniciar.html"/>"><fmt:message key='decorators.entorn.nou_exp' /></a></li>
+				<li id="menuIniciar" class="image expedient-iniciar"><a href="<c:url value="/expedient/iniciar.html"/>"><fmt:message key='decorators.entorn.nou_exp' /></a></li>
 			</c:if>
 			<c:if test="${globalProperties['app.organigrama.actiu']}">
 				<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,64">
-					<li class="dir image organitzacio">
+					<li id="menuOrganitzacio" class="dir image organitzacio">
 						<a href="#" onclick="return false"><fmt:message key='comuns.organitzacio' /></a>
 						<ul>
 							<li class="image area"><a href="<c:url value="/area/llistat.html"/>"><fmt:message key='comuns.arees' /></a></li>
@@ -56,7 +65,7 @@
 			</c:if>
 			<c:set var="esDissenyador" value="${false}"/>
 			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
-				<li class="dir image disseny">
+				<li id="menuDisseny" class="dir image disseny">
 					<a href="#" onclick="return false"><fmt:message key='comuns.disseny' /></a>
 					<ul>
 						<li class="image desplegar"><a href="<c:url value="/definicioProces/deploy.html"/>"><fmt:message key='decorators.entorn.despl_arxiu' /></a></li>
@@ -69,8 +78,8 @@
 				</li>
 				<c:set var="esDissenyador" value="${true}"/>
 			</security:accesscontrollist>
-			<c:if test="${!esDissenyador and potDissenyarExpedientTipus}">
-				<li class="dir image disseny">
+			<c:if test="${!esDissenyador and (potDissenyarExpedientTipus or potGestionarExpedientTipus)}">
+				<li id="menuDissenyTipus" class="dir image disseny">
 					<a href="#" onclick="return false"><fmt:message key='comuns.disseny' /></a>
 					<ul>
 						<li class="image tipexp"><a href="<c:url value="/expedientTipus/llistat.html"/>"><fmt:message key='comuns.tipus_exp' /></a></li>
@@ -78,5 +87,16 @@
 				</li>
 			</c:if>
 		</ul>
+<%-- 		<security:authorize ifAllGranted="ROLE_ADMIN"> --%>
+<%-- 			<c:if test="${globalProperties['app.mesura.temps.actiu']}"> --%>
+<%-- 				<div class="image temps"><a id="botoTemps" href="javascript:void(0)"><fmt:message key='expedient.mesura.temps' /></a></div> --%>
+<%-- 			</c:if> --%>
+<%-- 			<c:if test="${globalProperties['app.expedient.monitor']}"> --%>
+<%-- 				<div class="image monitor"><a id="botoMonitor" href="javascript:void(0)"><fmt:message key='expedient.monitor' /></a></div> --%>
+<%-- 			</c:if> --%>
+<%-- 		</security:authorize> --%>
+		<div class="image massives"><a id="botoMassiu" href="javascript:void(0)"><fmt:message key='comuns.massiu' /></a></div>
 	</div>
+	<!-- Progreso en acciones masivas -->
+	<jsp:include page="progressBarMassive.jsp"/>
 </c:if>

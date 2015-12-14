@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers.tipus;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -10,8 +11,10 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DocumentInfo {
+public class DocumentInfo implements Serializable{
 
+	private static final long serialVersionUID = 1L;
+	
 	private Long id;
 	private String titol;
 	private Date dataCreacio;

@@ -11,13 +11,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -65,7 +65,7 @@ public class ExpedientRelacionarController extends BaseController {
 				model.addAttribute(
 						"expedient",
 						expedient);
-				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 				model.addAttribute(
 						"instanciaProces",
 						instanciaProces);
@@ -103,8 +103,10 @@ public class ExpedientRelacionarController extends BaseController {
 								command.getExpedientIdDesti());
 						missatgeInfo(request, getMessage("expedient.relacionar.ok"));
 					} catch (Exception ex) {
+					  	Long entornId = entorn.getId();
+						String numeroExpedient = expedient.getIdentificador();
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+"No s'ha pogut relacionar l'expedient " + expedient.getIdentificador(), ex);
 						missatgeError(request, getMessage("error.expedient.relacionar"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut relacionar l'expedient " + expedient.getIdentificador(), ex);
 			        	return "expedient/info";
 					}
 				} else {

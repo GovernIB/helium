@@ -12,15 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.PermissionUtil;
+import net.conselldemallorca.helium.core.security.PermissionUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.AccessControlEntry;
-import org.springframework.security.acls.Permission;
-import org.springframework.security.acls.sid.Sid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.NotFoundException;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -68,7 +69,7 @@ public class PermisosExpedientTipusController extends BaseController {
 		Map<String, Permission> permisos = new HashMap<String, Permission>();
 		Map<String, Permission> permisosAll = PermissionUtil.permissionMap;
 		for (String clau: permisosAll.keySet()) {
-			if (clau.equals("ADMINISTRATION") || clau.equals("READ") || clau.equals("WRITE") || clau.equals("CREATE") || clau.equals("DELETE") || clau.equals("SUPERVISION") || clau.equals("DESIGN") || clau.equals("MANAGE"))
+			if (clau.equals("ADMINISTRATION") || clau.equals("READ") || clau.equals("WRITE") || clau.equals("CREATE") || clau.equals("DELETE") || clau.equals("SUPERVISION") || clau.equals("DESIGN") || clau.equals("MANAGE") || clau.equals("REASSIGNMENT"))
 				permisos.put(clau, permisosAll.get(clau));
 		}
 		return permisos;
@@ -112,7 +113,10 @@ public class PermisosExpedientTipusController extends BaseController {
 	        			true);
 	        	missatgeInfo(request, getMessage("info.permisos.tipusexp.afegit") );
 	        	status.setComplete();
-	        } catch (Exception ex) {
+	        } catch (NotFoundException nfex) {
+				missatgeError(request, getMessage("error.afegir.permisos.tipusexp.permis"));
+	        	logger.error("No s'han pogut afegir els permisos. No té permís", nfex);
+			} catch (Exception ex) {
 	        	missatgeError(request, getMessage("error.afegir.permisos.tipusexp"), ex.getLocalizedMessage());
 	        	logger.error("No s'han pogut afegir els permisos al tipus d'expedient", ex);
 	        }
@@ -132,7 +136,10 @@ public class PermisosExpedientTipusController extends BaseController {
 					command.getId(),
 					ExpedientTipus.class);
         	missatgeInfo(request, getMessage("info.permisos.tipusexp.esborrat") );
-        } catch (Exception ex) {
+		} catch (NotFoundException nfex) {
+			missatgeError(request, getMessage("error.esborrar.permisos.tipusexp.permis"));
+        	logger.error("No s'han pogut esborrar els permisos. No té permís", nfex);
+		} catch (Exception ex) {
         	missatgeError(request, getMessage("error.esborrar.permisos.tipusexp"), ex.getLocalizedMessage());
         	logger.error("No s'han pogut esborrar els permisos", ex);
         }

@@ -3,12 +3,20 @@
  */
 package net.conselldemallorca.helium.ws.backoffice;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
@@ -33,9 +41,10 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.DocumentTramit
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Mètodes base per a les diferents implementacions de backoffices
@@ -65,6 +74,7 @@ public abstract class BaseBackoffice {
 					expedientTipus.getEntorn().getId(),
 					null,
 					expedientTipus.getId(),
+					null,
 					null,
 					null, // expedientNumero
 					expedientTitol,
@@ -170,14 +180,16 @@ public abstract class BaseBackoffice {
 			}
 			try {
 				if (campHelium != null) {
+					Object valorSistra = valorVariableSistra(
+							tramit,
+							mapeig.getCodiHelium(),
+							mapeig.getCodiSistra());
+					Object valorHelium = valorVariableHelium(
+							valorSistra,
+							campHelium);
 					resposta.put(
 							mapeig.getCodiHelium(),
-							valorVariableHelium(
-									valorVariableSistra(
-											tramit,
-											mapeig.getCodiHelium(),
-											mapeig.getCodiSistra()),
-									campHelium));
+							valorHelium);
 				}
 			} catch (Exception ex) {
 				logger.error("Error llegint dades del document de SISTRA", ex);
@@ -241,8 +253,12 @@ public abstract class BaseBackoffice {
 				}
 			}
 			try {
-				if (docHelium != null)
-					resposta.put(mapeig.getCodiHelium(), documentSistra(tramit, mapeig.getCodiSistra(), docHelium));
+				if (docHelium != null) {
+					DadesDocumentDto document = documentSistra(tramit, mapeig.getCodiSistra(), docHelium);
+					if (document != null) {
+						resposta.put(mapeig.getCodiHelium(), document);
+					}
+				}
 			} catch (Exception ex) {
 				logger.error("Error llegint dades del document de SISTRA", ex);
 			}
@@ -296,7 +312,6 @@ public abstract class BaseBackoffice {
 			return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Object valorVariableSistra(
 			DadesTramit tramit,
 			String varHelium,
@@ -308,28 +323,35 @@ public abstract class BaseBackoffice {
 		String campCodi = parts[3];
 		for (DocumentTramit doc: tramit.getDocuments()) {
 			if (documentCodi.equalsIgnoreCase(doc.getIdentificador()) && doc.getInstanciaNumero() == instancia) {
-				String content = new String(doc.getDocumentTelematic().getArxiuContingut());
-				org.dom4j.Document document = DocumentHelper.parseText(content);
-				String xpath = "/FORMULARIO/" + finestraCodi + "/" + campCodi;
-				Element node = (Element)document.selectSingleNode(xpath);
-				if (node != null) {
-					if (node.attribute("indice")!= null) {
-						return node.attribute("indice").getValue();
-					} else if (node.isTextOnly()) {
-						return node.getText();
+				org.w3c.dom.Document document = xmlToDocument(new ByteArrayInputStream(doc.getDocumentTelematic().getArxiuContingut()));
+				
+				XPathFactory factory = XPathFactory.newInstance();
+				XPath xpath = factory.newXPath();
+				
+				Element node= (Element) xpath.evaluate(
+						"/FORMULARIO/" + finestraCodi + "/" + campCodi,
+						document, 
+						XPathConstants.NODE);
+				
+				if (node != null) {	 
+				    if (node.hasAttribute("indice")) {
+						return node.getAttribute("indice");
+					} else if (node.getChildNodes().getLength() == 1) {
+						return node.getTextContent();
 					} else {
 						List<String[]> valorsFiles = new ArrayList<String[]>();
-						List<Element> files = node.elements();
-						for (Element fila: files) {
-							if (fila.getName().startsWith("ID")) {
-								List<Element> columnes = fila.elements();
-								String[] valors = new String[columnes.size()];
-								for (int i = 0; i < columnes.size(); i++) {
-									Element columna = columnes.get(i);
-									if (columna.attribute("indice")!= null)
-										valors[i] = columna.attribute("indice").getValue();
+						NodeList nodes = node.getChildNodes();
+						for (int index = 0; index < nodes.getLength(); index++) {
+							Node fila = nodes.item(index);
+							if (fila.getNodeName().startsWith("ID")) {
+								NodeList columnes = fila.getChildNodes();
+								String[] valors = new String[columnes.getLength()];
+								for (int i = 0; i < columnes.getLength(); i++) {
+									Element columna = (Element) columnes.item(i);
+									if (columna.hasAttribute("indice"))
+										valors[i] = columna.getAttribute("indice");
 									else
-										valors[i] = columna.getText();
+										valors[i] = columna.getTextContent();
 								}
 								valorsFiles.add(valors);
 							}
@@ -342,13 +364,24 @@ public abstract class BaseBackoffice {
 		return null;
 	}
 
+	private org.w3c.dom.Document xmlToDocument(InputStream is) throws Exception {
+		DocumentBuilderFactory factory = DocumentBuilderFactory
+				.newInstance();
+		factory.setNamespaceAware(false);
+		DocumentBuilder builder = null;
+		builder = factory.newDocumentBuilder();
+		org.w3c.dom.Document doc = builder.parse(is);
+		is.close();
+		return doc;
+	}
+	
 	private DadesDocumentDto documentSistra(
 			DadesTramit tramit,
 			String varSistra,
 			Document varHelium) throws Exception {
 		DadesDocumentDto resposta = null;
 		for (DocumentTramit document: tramit.getDocuments()) {
-			if (varSistra.equalsIgnoreCase(document.getIdentificador())) {
+			if (varSistra.equalsIgnoreCase(document.getIdentificador()) && document.getDocumentTelematic() != null) {
 				resposta = new DadesDocumentDto();
 				resposta.setIdDocument(varHelium.getId());
 				resposta.setCodi(varHelium.getCodi());
@@ -376,7 +409,7 @@ public abstract class BaseBackoffice {
 			String varSistra) throws Exception {
 		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
 		for (DocumentTramit document: tramit.getDocuments()) {
-			if (document.getIdentificador().equalsIgnoreCase(varSistra)) {
+			if (document.getIdentificador().equalsIgnoreCase(varSistra) && document.getDocumentTelematic() != null) {
 				DadesDocumentDto docResposta = new DadesDocumentDto();
 				docResposta.setTitol(document.getNom());
 				docResposta.setData(tramit.getData());

@@ -6,7 +6,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>2.4</version>
+		<version>3.0</version>
 	</parent>
 	<artifactId>helium-plugin-impl</artifactId>
 	<properties>
@@ -19,6 +19,20 @@
 			<version>3.1.0</version>
 			<scope>system</scope>
 			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/signaturacaib.core-3.1.0-api-unsigned.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
+			<artifactId>seyconsession-common</artifactId>
+			<version>3.2.8-caib7</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/libext/seyconsession-common.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-jmx</artifactId>
+			<version>3.2.8</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/libext/jboss-jmx.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
@@ -64,6 +78,13 @@
 		</dependency>
 		<dependency>
 			<groupId>es.caib</groupId>
+			<artifactId>regweb-ws</artifactId>
+			<version>1.0</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/../helium-webapp/src/main/webapp/WEB-INF/lib/regweb-ws.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>es.caib</groupId>
 			<artifactId>regweb-logic</artifactId>
 			<version>1.0.5</version>
 			<scope>system</scope>
@@ -88,6 +109,34 @@
 			<artifactId>axis</artifactId>
 			<version>1.4</version>
 			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${spring-security.version}</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-aop</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-core</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-expression</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-context</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>jboss</groupId>
@@ -124,19 +173,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core-tiger</artifactId>
-			<version>2.0.5.RELEASE</version>
-			<type>jar</type>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>spring-aop</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>org.swinglabs</groupId>
 			<artifactId>swing-layout</artifactId>
 			<version>1.0.3</version>
@@ -159,14 +195,14 @@
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
-			<version>2.4</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-util</artifactId>
-			<version>2.4</version>
+			<version>${helium.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -177,9 +213,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<fork>true</fork>
-					<compilerVersion>1.5</compilerVersion>
-					<source>1.5</source>
-					<target>1.5</target>
+					<compilerVersion>${java.version}</compilerVersion>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<!--plugin>

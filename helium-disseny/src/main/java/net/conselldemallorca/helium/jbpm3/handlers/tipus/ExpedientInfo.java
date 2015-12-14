@@ -24,6 +24,7 @@ public class ExpedientInfo {
 	private Date dataFi;
 	private String comentari;
 	private String infoAturat;
+	private String comentariAnulat;
 	private IniciadorTipus iniciadorTipus;
 	private String iniciadorCodi;
 	private String responsableCodi;
@@ -290,5 +291,10 @@ public class ExpedientInfo {
 	public void setProcessInstanceId(long processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
-
+	public String getComentariAnulat() {
+		return comentariAnulat;
+	}
+	public void setComentariAnulat(String comentariAnulat) {
+		this.comentariAnulat = comentariAnulat;
+	}
 }

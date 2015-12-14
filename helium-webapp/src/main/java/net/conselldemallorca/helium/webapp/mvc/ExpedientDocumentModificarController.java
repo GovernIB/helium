@@ -18,14 +18,14 @@ import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -80,7 +80,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 		if (entorn != null) {
 			DocumentExpedientCommand command = new DocumentExpedientCommand();
 			DocumentDto dto = documentService.documentInfo(docId);
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(id, false, false, false);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
 					instanciaProces.getDefinicioProces().getId(),
 					dto.getDocumentCodi());
@@ -111,7 +111,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 					model.addAttribute("document", doc);
 					model.addAttribute(
 							"documentDisseny",
-							dissenyService.getDocumentById(doc.getDocumentId()));
+							doc.isAdjunt() ? dissenyService.getDocumentStoreById(doc.getId()) : dissenyService.getDocumentById(doc.getDocumentId()));
 					return "expedient/documentForm";
 				} else {
 					missatgeError(request, getMessage("error.modificar.doc.signat") );
@@ -142,11 +142,17 @@ public class ExpedientDocumentModificarController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new DocumentModificarValidator().validate(command, result);
-			        if (result.hasErrors()) {
+					boolean docAdjunto = !("deleted".equals(request.getParameter("contingut_deleted")) && command.getContingut().length == 0);
+			        if (result.hasErrors() || !docAdjunto) {
+			        	DocumentDto document = documentService.documentInfo(command.getDocId());
+				        if (!docAdjunto) {
+				        	document.setTokenSignatura(null);
+				        	missatgeError(request, getMessage("error.especificar.document"));				        	
+				        }
 			        	model.addAttribute("expedient", expedient);
 						model.addAttribute(
 								"document",
-								documentService.documentInfo(command.getDocId()));
+								document);
 			        	return "expedient/documentForm";
 			        }
 					try {
@@ -157,8 +163,8 @@ public class ExpedientDocumentModificarController extends BaseController {
 									doc.getDocumentCodi(),
 									null,
 									command.getData(),
-									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-									(multipartFile.getSize() > 0) ? command.getContingut() : null,
+									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : doc.getArxiuNom(),
+									(multipartFile.getSize() > 0) ? command.getContingut() : doc.getArxiuContingut(),
 									false);
 						} else {
 							documentService.guardarAdjunt(
@@ -166,13 +172,15 @@ public class ExpedientDocumentModificarController extends BaseController {
 									doc.getAdjuntId(),
 									command.getNom(),
 									command.getData(),
-									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : null,
-									(multipartFile.getSize() > 0) ? command.getContingut() : null);
+									(multipartFile.getSize() > 0) ? multipartFile.getOriginalFilename() : doc.getArxiuNom(),
+									(multipartFile.getSize() > 0) ? command.getContingut() : doc.getArxiuContingut());
 						}
 						missatgeInfo(request, getMessage("info.document.guardat") );
 			        } catch (Exception ex) {
+			        	Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut guardar el document", ex);
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut guardar el document", ex);
 			        }
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
@@ -226,6 +234,7 @@ public class ExpedientDocumentModificarController extends BaseController {
 			return clazz.isAssignableFrom(Object.class);
 		}
 		public void validate(Object command, Errors errors) {
+			ValidationUtils.rejectIfEmpty(errors, "nom", "not.blank");
 			ValidationUtils.rejectIfEmpty(errors, "data", "not.blank");
 		}
 	}

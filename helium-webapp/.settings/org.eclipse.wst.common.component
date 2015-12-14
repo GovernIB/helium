@@ -1,27 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="helium-webapp-2.4">
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="helium-webapp-3.0">
         <wb-resource deploy-path="/WEB-INF/web.xml" source-path="/target/replace-dir/WEB-INF/web.xml"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-        <dependent-module archiveName="helium-core-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core/helium-core">
+        <dependent-module archiveName="helium-core-v26-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-v26/helium-core-v26">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-util-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-util/helium-util">
+        <dependent-module archiveName="helium-util-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-util/helium-util">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-disseny-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-disseny/helium-disseny">
+        <dependent-module archiveName="helium-jbpm3-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-jbpm3/helium-jbpm3">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-ws-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-ws/helium-ws">
+        <dependent-module archiveName="helium-core-api-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core-api/helium-core-api">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-plugin-api-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-api/helium-plugin-api">
+        <dependent-module archiveName="helium-disseny-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-disseny/helium-disseny">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-plugin-impl-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-impl/helium-plugin-impl">
+        <dependent-module archiveName="helium-core-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-core/helium-core">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="helium-ws-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-ws/helium-ws">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="helium-selenium-integraciones-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-selenium-integraciones/helium-selenium-integraciones">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="helium-plugin-api-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-api/helium-plugin-api">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="helium-plugin-impl-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-plugin-impl/helium-plugin-impl">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="helium-hibernate-entitymanager-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/helium-hibernate-entitymanager/helium-hibernate-entitymanager">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/helium-webapp/target/classes"/>

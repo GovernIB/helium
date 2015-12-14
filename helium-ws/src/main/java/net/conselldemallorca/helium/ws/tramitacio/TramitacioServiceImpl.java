@@ -32,10 +32,14 @@ import net.conselldemallorca.helium.core.model.service.EntornService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -43,6 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @WebService(
+		serviceName="TramitacioService",
+		portName="TramitacioPort",
 		endpointInterface = "net.conselldemallorca.helium.ws.tramitacio.TramitacioService",
 		targetNamespace = "http://tramitacio.integracio.helium.conselldemallorca.net/")
 public class TramitacioServiceImpl implements TramitacioService {
@@ -92,6 +98,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					usuari,
 					et.getId(),
 					null,
+					null,
 					numero,
 					titol,
 					null,
@@ -130,7 +137,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -148,7 +155,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -164,24 +171,45 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari,
 			String tascaId) throws TramitacioException {
 		Entorn e = findEntornAmbCodi(entorn);
+		boolean agafada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, false);
-			boolean agafada = false;
+			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, usuari)) {
+				tascaService.agafar(e.getId(), usuari, tascaId);
+				agafada = true;
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut agafar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut agafar la tasca: " + ex.getMessage());
+		}
+		if (!agafada)
+			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
+	}
+	
+	public void alliberarTasca(
+			String entorn,
+			String usuari,
+			String tascaId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		boolean alliberada = false;
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, false);
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
-					tascaService.agafar(e.getId(), usuari, tascaId);
-					agafada = true;
+					tascaService.alliberar(e.getId(), usuari, tascaId, true);
+					alliberada = true;
 					break;
 				}
 			}
-			if (!agafada)
-				throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+			logger.error("No s'ha pogut alliberar la tasca", ex);
+			throw new TramitacioException("No s'ha pogut alliberar la tasca: " + ex.getMessage());
 		}
+		if (!alliberada)
+			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
 	}
 
 	public List<CampTasca> consultaFormulariTasca(
@@ -218,14 +246,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
 			for (ParellaCodiValor parella: valors) {
-				if (parella.getValor() instanceof XMLGregorianCalendar)
+				if (parella.getValor() instanceof XMLGregorianCalendar) {
+					// Converteix les dates al tipus correcte
 					variables.put(
 							parella.getCodi(),
 							((XMLGregorianCalendar)parella.getValor()).toGregorianCalendar().getTime());
-				else
+				} else if (parella.getValor() instanceof Object[]) {
+					Object[] multiple = (Object[])parella.getValor();
+					// Converteix les dates dins registres i vars múltiples
+					// al tipus corecte 
+					for (int i = 0; i < multiple.length; i++) {
+						if (multiple[i] instanceof Object[]) {
+							Object[] fila = (Object[])multiple[i];
+							for (int j = 0; j < fila.length; j++) {
+								if (fila[j] instanceof XMLGregorianCalendar) {
+									fila[j] = ((XMLGregorianCalendar)fila[j]).toGregorianCalendar().getTime();
+								}
+							}
+						} else if (multiple[i] instanceof XMLGregorianCalendar) {
+							multiple[i] = ((XMLGregorianCalendar)multiple[i]).toGregorianCalendar().getTime();
+						}
+					}
 					variables.put(
 							parella.getCodi(),
 							parella.getValor());
+				} else {
+					variables.put(
+							parella.getCodi(),
+							parella.getValor());
+				}
 			}
 		}
 		try {
@@ -338,7 +387,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			List<CampProces> resposta = new ArrayList<CampProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			if (instanciaProces.getVariables() != null) {
 				for (String var: instanciaProces.getVariables().keySet()) {
 					Camp campVar = null;
@@ -361,8 +410,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			}
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut guardar la variable al procés", ex);
-			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+			logger.error("No s'ha pogut consultar las variables al procés", ex);
+			throw new TramitacioException("No s'ha pogut consultar las variables al procés: " + ex.getMessage());
 		}
 	}
 	public void setVariableProces(
@@ -375,17 +424,35 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			if (valor instanceof XMLGregorianCalendar)
-				expedientService.updateVariable(
-						processInstanceId,
-						varCodi,
-						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
-			else
+			if (valor instanceof Object[]) {
+				Object[] vs = (Object[])valor;
+				for (int i = 0; i < vs.length; i++) {
+					if (vs[i] instanceof Object[]) {
+						Object[] vss = (Object[])vs[i];
+						for (int j = 0; j < vss.length; j++) {
+							if (vss[j] instanceof XMLGregorianCalendar)
+								vss[j] = ((XMLGregorianCalendar)vss[j]).toGregorianCalendar().getTime();
+						}
+					} else {
+						if (vs[i] instanceof XMLGregorianCalendar)
+							vs[i] = ((XMLGregorianCalendar)vs[i]).toGregorianCalendar().getTime();
+					}
+				}
 				expedientService.updateVariable(
 						processInstanceId,
 						varCodi,
 						valor);
-			
+			} else if (valor instanceof XMLGregorianCalendar) {
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
+			} else {
+				expedientService.updateVariable(
+						processInstanceId,
+						varCodi,
+						valor);
+			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
@@ -418,7 +485,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
 				resposta.add(convertirDocumentProces(document));
 			}
@@ -458,7 +525,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		try {
-			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
 			Document document = dissenyService.findDocumentAmbDefinicioProcesICodi(
@@ -608,7 +675,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 				}
 			}
 		}
-		
+		// Estableix l'usuari autenticat
+		establirUsuariAutenticat(usuari);
 		// Consulta d'expedients
 		List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
 				e.getId(),
@@ -623,12 +691,23 @@ public class TramitacioServiceImpl implements TramitacioService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				false);
+				FiltreAnulat.ACTIUS);
 		// Construcció de la resposta
 		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 		for (ExpedientDto dto: expedients)
 			resposta.add(toExpedientInfo(dto));
 		return resposta;
+	}
+
+	public void deleteExpedient(
+			String entorn,
+			String usuari,
+			String processInstanceId) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+		expedientService.delete(e.getId(), expedient.getId());
 	}
 
 
@@ -720,6 +799,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		dt.setDescripcio(documentTasca.getDocument().getDescripcio());
 		dt.setArxiu(document.getArxiuNom());
 		dt.setData(document.getDataDocument());
+		if (document.isSignat()) {
+			dt.setUrlCustodia(document.getUrlVerificacioCustodia());
+		}
 		return dt;
 	}
 	private CampProces convertirCampProces(
@@ -799,6 +881,52 @@ public class TramitacioServiceImpl implements TramitacioService {
 			return resposta;
 		}
 		return null;
+	}
+
+	private void establirUsuariAutenticat(
+			String usuariCodi) {
+		Authentication authentication =  new UsernamePasswordAuthenticationToken(
+				usuariCodi,
+				null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);

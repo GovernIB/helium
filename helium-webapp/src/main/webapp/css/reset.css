@@ -46,4 +46,10 @@ blockquote, q {
 	quotes: "" "";
 }
 
-#ui-datepicker-div { display: none; }
+table, tr#consTR{
+			cellpadding:4;
+			border-collapse: none;
+			border-spacing: 5px;
+}
+
+#ui-datepicker-div { display: none; clip: auto; }

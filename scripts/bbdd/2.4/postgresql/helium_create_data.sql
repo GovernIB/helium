@@ -47,10 +47,10 @@ select
     nextval('hibernate_sequence') id,
     '2.4.0' codi,
     240 ordre,
-    'now' data_creacio,
+    current_date data_creacio,
     false proces_executat,
     true script_executat,
-    'now' data_execucio_script
+    current_date data_execucio_script
 where (select count(*) from hel_versio where ordre = 240) = 0;
 
 

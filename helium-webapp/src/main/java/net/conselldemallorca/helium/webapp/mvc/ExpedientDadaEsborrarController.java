@@ -12,13 +12,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,10 +62,12 @@ public class ExpedientDadaEsborrarController extends BaseController {
 			if (potModificarExpedient(expedient)) {
 				try {
 					expedientService.deleteVariable(id, var);
-					missatgeInfo(request, getMessage("dada.proces.esborrada") );
+					missatgeInfo(request, getMessage("info.dada.proces.esborrada") );
 				} catch (Exception ex) {
+					Long entornId = entorn.getId();
+					String numeroExpedient = id;
+					logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut esborrar la dada del procés", ex);	
 					missatgeError(request, getMessage("error.esborrar.dada.proces"), ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut esborrar la dada del procés", ex);
 				}
 				return "redirect:/expedient/dades.html?id=" + id;
 			} else {

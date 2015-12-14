@@ -4,12 +4,27 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.conselldemallorca</groupId>
 	<artifactId>helium</artifactId>
-	<version>2.4</version>
+	<version>3.0</version>
 	<packaging>pom</packaging>
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.6</java.version>
+		<helium.version>3.0</helium.version>
 		<spring.version>3.1.1.RELEASE</spring.version>
+		<!--spring-security.version>2.0.5.RELEASE</spring-security.version-->
+		<spring-security.version>3.1.3.RELEASE</spring-security.version>
+		<spring-data.version>1.1.0.RELEASE</spring-data.version>
+		<spring-modules.version>0.9</spring-modules.version>
+		<hibernate.version>3.6.5.Final</hibernate.version>
+		<hibernate.validator.version>4.1.0.Final</hibernate.validator.version>
+		<jbpm.version>3.3.1.GA</jbpm.version>
+		<metrics.version>3.1.2</metrics.version>
+		<cxf.version>2.2.10</cxf.version>
+		<lucene.version>2.9.4</lucene.version>
+		<slf4j.version>1.5.8</slf4j.version>
 	</properties>
 	<modules>
+		<module>helium-core-v26</module>
 		<module>helium-core</module>
 		<module>helium-disseny</module>
 		<module>helium-ear</module>
@@ -18,5 +33,11 @@
 		<module>helium-util</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
+		<module>helium-selenium-integraciones</module>
+		<module>helium-jbpm3</module>
+		<module>helium-core-api</module>
+		<module>helium-hibernate-entitymanager</module>
+		<module>helium-applet</module>
+		<module>helium-selenium</module>
 	</modules>
 </project>

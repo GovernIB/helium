@@ -62,6 +62,7 @@ function confirmarEsborrar(e) {
 			</c:choose>
 		</display:column>
 		<c:choose>
+			<c:when test="${empty registre.terminiIniciat}"><c:set var="estilPrioritat"></c:set></c:when>
 			<c:when test="${registre.terminiIniciat.estat=='AVIS'}"><c:set var="estilPrioritat">background-color:orange</c:set></c:when>
 			<c:when test="${registre.terminiIniciat.estat=='CADUCAT'}"><c:set var="estilPrioritat">color:white;background-color:darkred</c:set></c:when>
 			<c:when test="${registre.terminiIniciat.estat=='COMPLETAT_FORA'}"><c:set var="estilPrioritat">color:white;background-color:red</c:set></c:when>
@@ -98,7 +99,7 @@ function confirmarEsborrar(e) {
 				<fmt:formatDate value="${registre.terminiIniciat.dataFi}" pattern="dd/MM/yyyy"/>
 			</c:if>
 		</display:column>
-		<c:if test="${empty param.expedientTipusId}">
+		<%-- <c:if test="${empty param.expedientTipusId}"> --%>
 			<display:column>
 				<c:choose>
 					<c:when test="${registre.llegida}">
@@ -112,7 +113,7 @@ function confirmarEsborrar(e) {
 			<display:column>
 				<a href="<c:url value="/alerta/esborrar.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key="comuns.esborrar"/>" title="<fmt:message key="comuns.esborrar"/>" border="0"/></a>
 			</display:column>
-		</c:if>
+		<%-- </c:if> --%>
 	</display:table>
 	<script type="text/javascript">initSelectable();</script>
 

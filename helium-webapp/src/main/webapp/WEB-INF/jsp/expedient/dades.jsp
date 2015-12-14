@@ -41,6 +41,14 @@ function confirmarModificar(e) {
 	if (e.stopPropagation) e.stopPropagation();
 	return confirm("Es podran modificar dades ja introduïdes. Voleu continuar?");
 }
+
+$(document).ready(function() {
+	$("#ambOcults").click(function() {
+		var checked = $('#ambOcults').prop('checked');
+		var location = "<c:url value="/expedient/dades.html"><c:param name="id" value="${param.id}"/></c:url>&ambOcults=" + checked;
+		window.location.href = location;
+	});
+});
 // ]]>
 </script>
 </head>
@@ -53,29 +61,37 @@ function confirmarModificar(e) {
 	<h3 class="titol-tab titol-dades-expedient">
 		<fmt:message key='expedient.dada.dades_proces' />
 	</h3>
+	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16">
+		<div class="form-group" style="text-align: right; padding-bottom: 5px;">
+			<label class="control-label col-xs-4" for="ambOcults">
+				<fmt:message key="expedient.dada.ocults"/>
+				<input type="checkbox" <c:if test="${ambOcults}">checked="checked"</c:if> class="span12" id="ambOcults"/>
+			</label>
+		</div>
+	</security:accesscontrollist>
+			
 	<div id="dades-proces">
 <%
+	Boolean ambOcults = (Boolean)request.getAttribute("ambOcults");
 	net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto instanciaProces = (net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto)request.getAttribute("instanciaProces");
 	request.setAttribute(
 			"variablesProcesSenseAgrupar",
 			getVariablesProcesSenseAgrupar(
 					instanciaProces.getCamps(),
-					instanciaProces.getVarsComText()));
+					instanciaProces.getVarsComText(),
+					ambOcults));
 %>
 		<c:if test="${not empty variablesProcesSenseAgrupar}">
 			<display:table name="variablesProcesSenseAgrupar" id="codi" class="displaytag">
+				<c:set var="found" value="${false}"/>
+				<c:forEach var="camp" items="${instanciaProces.camps}">
+					<c:if test="${camp.codi == codi}"><c:set var="found" value="${true}"/><c:set var="campActual" value="${camp}"/></c:if>
+				</c:forEach>
 				<display:column title="Variable">
-					<c:set var="found" value="${false}"/>
-					<c:forEach var="camp" items="${instanciaProces.camps}">
-						<c:if test="${camp.codi == codi}"><c:set var="found" value="${true}"/><c:set var="campActual" value="${camp}"/></c:if>
-					</c:forEach>
-					<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${codi}</c:otherwise></c:choose>
+					<c:if test="${found && campActual.ocult}"><img src="/helium/img/eye-close.png" alt="Ocult" title="Ocult" border="0">&nbsp;&nbsp;</c:if><c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${codi}</c:otherwise></c:choose>
 				</display:column>
 				<display:column title="Valor">
 					<c:set var="esRegistre" value="${false}"/>
-					<c:forEach var="camp" items="${instanciaProces.camps}">
-						<c:if test="${camp.codi == codi}"><c:set var="campActual" value="${camp}"/></c:if>
-					</c:forEach>
 					<c:choose>
 						<c:when test="${campActual.tipus == 'REGISTRE'}">
 							<c:set var="registres" value="${instanciaProces.varsComText[codi]}" scope="request"/>
@@ -89,6 +105,7 @@ function confirmarModificar(e) {
 						</c:when>
 						<c:otherwise>${instanciaProces.varsComText[codi]}</c:otherwise>
 					</c:choose>
+					<c:if test="${param.classes}"> (class=<%=instanciaProces.getVariableClassAsString((String)(pageContext.getAttribute("codi")))%>)</c:if>
 				</display:column>
 				<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 					<display:column>
@@ -118,7 +135,8 @@ function confirmarModificar(e) {
 			"campsAgrupacio",
 			getCampsAgrupacioNoBuits(
 					agrupacio.getCamps(),
-					instanciaProces.getVarsComText()));
+					instanciaProces.getVarsComText(),
+					ambOcults));
 %>
 						<display:table name="campsAgrupacio" id="campAgrup" class="displaytag">
 							<display:column title="Variable">
@@ -126,7 +144,7 @@ function confirmarModificar(e) {
 								<c:forEach var="camp" items="${instanciaProces.camps}">
 									<c:if test="${camp.codi == campAgrup.codi}"><c:set var="found" value="${true}"/><c:set var="campActual" value="${camp}"/></c:if>
 								</c:forEach>
-								<c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${campAgrup.codi}</c:otherwise></c:choose>
+								<c:if test="${found && campActual.ocult}"><img src="/helium/img/eye-close.png" alt="Ocult" title="Ocult" border="0">&nbsp;&nbsp;</c:if><c:choose><c:when test="${found}">${campActual.etiqueta}</c:when><c:otherwise>${campAgrup.codi}</c:otherwise></c:choose>
 							</display:column>
 							<display:column title="Valor">
 								<c:forEach var="camp" items="${instanciaProces.camps}">
@@ -145,6 +163,7 @@ function confirmarModificar(e) {
 									</c:when>
 									<c:otherwise>${instanciaProces.varsComText[campAgrup.codi]}</c:otherwise>
 								</c:choose>
+								<c:if test="${param.classes}"> <c:set var="campAgrupCodi" value="${campAgrup.codi}"/>(class=<%=instanciaProces.getVariableClassAsString((String)(pageContext.getAttribute("campAgrupCodi")))%>)</c:if>
 							</display:column>
 							<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 								<display:column>
@@ -249,13 +268,14 @@ function confirmarModificar(e) {
 <%!
 public java.util.List<String> getVariablesProcesSenseAgrupar(
 		java.util.Set<net.conselldemallorca.helium.core.model.hibernate.Camp> camps,
-		java.util.Map<String, Object> varsComText) {
+		java.util.Map<String, Object> varsComText,
+		Boolean ambOcults) {
 	java.util.List<String> resposta = new java.util.ArrayList<String>();
 	for (String codi: varsComText.keySet()) {
 		boolean trobat = false;
 		for (net.conselldemallorca.helium.core.model.hibernate.Camp camp: camps) {
 			if (camp.getCodi().equals(codi)) {
-				if (camp.getAgrupacio() == null && !camp.isOcult())
+				if (camp.getAgrupacio() == null && (ambOcults || !camp.isOcult()))
 					resposta.add(codi);
 				trobat = true;
 				break;
@@ -268,10 +288,11 @@ public java.util.List<String> getVariablesProcesSenseAgrupar(
 }
 public java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> getCampsAgrupacioNoBuits(
 		java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> campsAgrupacio,
-		java.util.Map<String, Object> varsComText) {
+		java.util.Map<String, Object> varsComText,
+		Boolean ambOcults) {
 	java.util.List<net.conselldemallorca.helium.core.model.hibernate.Camp> resposta = new java.util.ArrayList<net.conselldemallorca.helium.core.model.hibernate.Camp>();
 	for (net.conselldemallorca.helium.core.model.hibernate.Camp camp: campsAgrupacio) {
-		if (varsComText.containsKey(camp.getCodi()) && !camp.isOcult())
+		if (varsComText.containsKey(camp.getCodi()) && (ambOcults || !camp.isOcult()))
 			resposta.add(camp);
 	}
 	return resposta;

@@ -42,7 +42,7 @@ function confirmarAccio(e) {
 
 	<dl class="form-info">
 		<c:if test="${not empty expedient.numero}"><dt><fmt:message key='expedient.consulta.numero' /></dt><dd>${expedient.numero}</dd></c:if>
-		<c:if test="${not empty expedient.titol}"><dt><fmt:message key='expedient.consulta.titol' /></dt><dd>${expedient.titol}</dd></c:if>
+		<c:if test="${not empty expedient.titol}"><dt><fmt:message key='expedient.consulta.titol' /></dt><dd><c:out value="${expedient.titol}"/></dd></c:if>
 		<c:if test="${empty expedient.numero and empty expedient.titol}"><dt><fmt:message key='expedient.info.identificacio' /></dt><dd>${expedient.identificador}</dd></c:if>
 		<dt><fmt:message key='expedient.info.tipus' /></dt><dd>${expedient.tipus.nom}</dd>
 		<dt><fmt:message key='expedient.consulta.estat' /></dt><dd>
@@ -68,7 +68,9 @@ function confirmarAccio(e) {
 		<dt><fmt:message key='expedient.info.definicio_proces' /></dt>
 		<dd>
 			${instanciaProces.definicioProces.idPerMostrar}&nbsp;
-			<c:if test="${instanciaProces.imatgeDisponible}"><a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="<fmt:message key='expedient.info.situacio_actual' />" title="<fmt:message key='expedient.info.situacio_actual' />" border="0"/></a></c:if>
+			<!--  c:if test="${instanciaProces.imatgeDisponible}"-->
+			<a href="#imatgeProces" class="finestraProces"><img src="<c:url value="/img/map_go.png"/>" alt="<fmt:message key='expedient.info.situacio_actual' />" title="<fmt:message key='expedient.info.situacio_actual' />" border="0"/></a>
+			<!--/c:if-->
 		</dd>
 		<c:if test="${globalProperties['app.georef.actiu']}">
 			<c:choose>
@@ -140,7 +142,7 @@ function confirmarAccio(e) {
 
 	<c:set var="hiHaAccions" value="${false}"/>
 	<c:set var="hiHaAccionsPubliques" value="${false}"/>
-	<c:forEach var="accio" items="${instanciaProces.definicioProces.accions}">
+	<c:forEach var="accio" items="${accions}">
 		<c:if test="${not accio.oculta}">
 			<c:set var="hiHaAccions" value="${true}"/>
 			<c:if test="${accio.publica}"><c:set var="hiHaAccionsPubliques" value="${true}"/></c:if>
@@ -151,8 +153,8 @@ function confirmarAccio(e) {
 	<c:if test="${hiHaAccionsPubliques || (hiHaAccions && tePermisAccions)}">
 		<br/><div class="missatgesGris">
 			<h4 class="titol-missatge"><fmt:message key='expedient.info.executar_accio' /></h4>
-			<c:set var="accionsCodi"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status"><c:if test="${not accio.oculta}"><c:choose><c:when test="${accio.publica}">${accio.codi}<c:if test="${not status.last}">,</c:if></c:when><c:otherwise><c:if test="${tePermisAccions}">${accio.codi}<c:if test="${not status.last}">,</c:if></c:if></c:otherwise></c:choose></c:if></c:forEach></c:set>
-			<c:set var="accionsNom"><c:forEach var="accio" items="${instanciaProces.definicioProces.accions}" varStatus="status"><c:if test="${not accio.oculta}"><c:choose><c:when test="${accio.publica}">${accio.nom}<c:if test="${not status.last}">,</c:if></c:when><c:otherwise><c:if test="${tePermisAccions}">${accio.nom}<c:if test="${not status.last}">,</c:if></c:if></c:otherwise></c:choose></c:if></c:forEach></c:set>
+			<c:set var="accionsCodi"><c:forEach var="accio" items="${accions}" varStatus="status"><c:if test="${not accio.oculta}"><c:choose><c:when test="${accio.publica}">${accio.codi}<c:if test="${not status.last}">,</c:if></c:when><c:otherwise><c:if test="${tePermisAccions}">${accio.codi}<c:if test="${not status.last}">,</c:if></c:if></c:otherwise></c:choose></c:if></c:forEach></c:set>
+			<c:set var="accionsNom"><c:forEach var="accio" items="${accions}" varStatus="status"><c:if test="${not accio.oculta}"><c:choose><c:when test="${accio.publica}">${accio.nom}<c:if test="${not status.last}">,</c:if></c:when><c:otherwise><c:if test="${tePermisAccions}">${accio.nom}<c:if test="${not status.last}">,</c:if></c:if></c:otherwise></c:choose></c:if></c:forEach></c:set>
 			<form action="accio.html" method="post" class="uniForm" onsubmit="return confirmarAccio(event)">
 				<input type="hidden" name="id" value="${instanciaProces.id}"/>
 				<c:import url="../common/formElement.jsp">
@@ -163,7 +165,7 @@ function confirmarAccio(e) {
 			</form>
 		</div>
 	</c:if>
-	<c:if test="${instanciaProces.imatgeDisponible}">
+	<!--c:if test="${instanciaProces.imatgeDisponible}"-->
 		<script type="text/javascript">
 			$('.finestraProces').openDOMWindow({
 				eventType: 'click',
@@ -180,7 +182,7 @@ function confirmarAccio(e) {
 				<img style="position:absolute;left:0;top:0" src="<c:url value="/expedient/imatgeProces.html"><c:param name="id" value="${instanciaProces.id}"/></c:url>"/><c:forEach var="token" items="${activeTokens}"><div style="position:absolute;left:${token.nodePosX}px;top:${token.nodePosY}px;width:${token.nodeWidth - 4}px;height:${token.nodeHeight - 4}px;border: 2px solid red"></div></c:forEach>
 			</div>
 		</div>
-	</c:if>
+	<!--/c:if-->
 	<security:accesscontrollist domainObject="${expedient.tipus}" hasPermission="16,2">
 		<script type="text/javascript">
 			$('.accioRelacionar').openDOMWindow({

@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 
@@ -43,6 +44,12 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return new ArrayList<FilaResultat>();
 	}
 
+	public List<ParellaCodiValor> consultaEnumeracio(
+			ExecutionContext executionContext,
+			String codiEnumeracio) {
+		return new ArrayList<ParellaCodiValor>();
+	}
+
 	public List<ExpedientInfo> consultaExpedients(
 			ExecutionContext executionContext,
 			String titol,
@@ -53,6 +60,7 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String estatCodi,
 			boolean iniciat,
 			boolean finalitzat){
+
 		return new ArrayList<ExpedientInfo>();
 	}
 
@@ -92,24 +100,10 @@ public abstract class BasicActionHandler implements ActionHandler {
 			List<DocumentInfo> documentsEntrada) {
 		return null;
 	}
-	public DadesRegistreEntrada registreConsultarEntrada(
-			ExecutionContext executionContext,
-			String organCodi,
-			String oficinaCodi,
-			String numero) {
-		return null;
-	}
 	public RespostaRegistre registreSortida(
 			ExecutionContext executionContext,
 			DadesRegistreSortida dadesSortida,
 			List<DocumentInfo> documentsSortida) {
-		return null;
-	}
-	public DadesRegistreSortida registreConsultarSortida(
-			ExecutionContext executionContext,
-			String organCodi,
-			String oficinaCodi,
-			String numero) {
 		return null;
 	}
 	public RespostaRegistre registreNotificacio(
@@ -119,6 +113,18 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return null;
 	}
 	public Date registreObtenirJustificantRecepcio(String registreNumero) {
+		return null;
+	}
+
+	public Object getVariableValor(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return null;
+	}
+
+	public String getVariableText(
+			ExecutionContext executionContext,
+			String varCodi) {
 		return null;
 	}
 
@@ -145,6 +151,21 @@ public abstract class BasicActionHandler implements ActionHandler {
 			ExecutionContext executionContext,
 			long expedientId) {}
 
+	public void tokenRedirigir(long tokenId, String nodeName, boolean cancelarTasques) {}
+
+	public void guardarParametresPerRetrocedir(
+			ExecutionContext executionContext,
+			List<String> parametres) {}
+
+	public void instanciaProcesReindexar(ExecutionContext executionContext) {}
+	public void instanciaProcesReindexar(long processInstanceId) {}
+
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		return false;
+	}
+
+	public void reprendreExpedient(String processInstanceId) throws Exception {}
+
 	public byte[] obtenirArxiuGestorDocumental(String id) {
 		return null;
 	}
@@ -156,6 +177,30 @@ public abstract class BasicActionHandler implements ActionHandler {
 			String arxiuNom,
 			byte[] arxiuContingut) {}
 
+	public void adjuntGuardar(
+            ExecutionContext executionContext,
+            String nomDocument,
+            Date data,
+            String arxiuNom,
+            byte[] arxiuContingut) {}
+
+	public Object getVariableGlobal(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return null;
+	}
+	
+	public void setVariableGlobal(
+			ExecutionContext executionContext,
+			String varCodi,
+			Object varValor) {}
+	
+	public Object getVariableGlobalValor(
+			ExecutionContext executionContext,
+			String varCodi) {
+		return null;
+	}
+	
 	static final long serialVersionUID = 1L;
 
 }

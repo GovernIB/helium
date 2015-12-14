@@ -11,6 +11,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 public class CanviVersioProcesCommand {
 
 	private Long definicioProcesId;
+	private Long[] subprocesId;
 
 
 
@@ -21,6 +22,13 @@ public class CanviVersioProcesCommand {
 	}
 	public void setDefinicioProcesId(Long definicioProcesId) {
 		this.definicioProcesId = definicioProcesId;
+	}
+
+	public Long[] getSubprocesId() {
+		return subprocesId;
+	}
+	public void setSubprocesId(Long[] subprocesId) {
+		this.subprocesId = subprocesId;
 	}
 
 }

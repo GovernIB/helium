@@ -12,20 +12,21 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -44,6 +45,7 @@ public class ExpedientIniciarController extends BaseController {
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
+	public static final String CLAU_SESSIO_ANY = "iniciexp_any";
 	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 	public static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
@@ -134,7 +136,7 @@ public class ExpedientIniciarController extends BaseController {
 				}
 				// Si l'expedient no requereix dades inicials però ha de demanar titol i/o número
 				// redirigeix al pas per demanar aquestes dades
-				if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue()) {
+				if (tipus.getDemanaNumero().booleanValue() || tipus.getDemanaTitol().booleanValue() || tipus.isSeleccionarAny()) {
 					if (definicioProcesId != null)
 						return "redirect:/expedient/iniciarPasTitol.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 					else
@@ -142,16 +144,20 @@ public class ExpedientIniciarController extends BaseController {
 				}
 				// Si no requereix cap pas addicional inicia l'expedient directament
 				try {
-					iniciarExpedient(
+					ExpedientDto iniciat = iniciarExpedient(
 							entorn.getId(),
 							expedientTipusId,
 							definicioProcesId);
-					missatgeInfo(request, getMessage("info.expedient.iniciat") );
+					missatgeInfo(
+							request,
+							getMessage(
+									"info.expedient.iniciat",
+									new Object[] {iniciat.getIdentificador()}));
 				} catch (ExpedientRepetitException ex) {
 					missatgeError(
 							request,
-							getMessage("error.exist.exp.mateix.numero") );
-				}catch (Exception ex) {
+							getMessage("error.exist.exp.mateix.numero"));
+				} catch (Exception ex) {
 					missatgeError(
 							request,
 							getMessage("error.iniciar.expedient"),
@@ -206,15 +212,16 @@ public class ExpedientIniciarController extends BaseController {
 				"TIE_" + System.currentTimeMillis());
 	}
 
-	private synchronized void iniciarExpedient(
+	private synchronized ExpedientDto iniciarExpedient(
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
-		expedientService.iniciar(
+		return expedientService.iniciar(
 				entornId,
 				null,
 				expedientTipusId,
 				definicioProcesId,
+				null,
 				null,
 				null,
 				null,

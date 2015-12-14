@@ -1,0 +1,24 @@
+{
+    "sProcessing":   "Processant...",
+    "sLengthMenu":   "_MENU_",
+    "sZeroRecords":  "No s'ha trobat cap resultat",
+    "sInfo":         "Mostrant _START_ a _END_ de _TOTAL_ resultats",
+    "sInfoEmpty":    "Mostrant 0 a 0 de 0 resultats",
+    "sInfoFiltered": "(filtrat de _MAX_ resultats totals)",
+    "sInfoPostFix":  "",
+    "sSearch":       "Filtrar:",
+    "sUrl":          "",
+    "sInfoThousands":  ",",
+    "sLoadingRecords": "Carregant...",
+    "oPaginate": {
+        "sFirst":    "Primer",
+        "sPrevious": "Anterior",
+        "sNext":     "Següent",
+        "sLast":     "Darrer"
+    },
+    "fnInfoCallback": null,
+    "oAria": {
+        "sSortAscending":  ": Activar per a ordenar la columna amb ordre ascendent",
+        "sSortDescending": ": Activar per a ordenar la columna amb ordre descendent"
+    }
+}

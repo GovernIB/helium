@@ -10,12 +10,12 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dto.PersonaUsuariDto;
 import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -136,10 +136,8 @@ public class PersonaController extends BaseController {
 	        	logger.error("No s'ha pogut guardar el registre", ex);
 	        	return "persona/form";
 	        }
-	        return "redirect:/persona/consulta.html";
-		} else {
-			return "redirect:/persona/consulta.html";
-		}
+		} 
+        return "redirect:/persona/consulta.html";
 	}
 
 	@RequestMapping(value = "delete")
@@ -155,6 +153,15 @@ public class PersonaController extends BaseController {
 	public String suggestAction(
 			@RequestParam(value = "q", required = true) String text,
 			ModelMap model) {
+		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
+		return "persona/suggest";
+	}
+	
+	@RequestMapping(value = "suggest", method = RequestMethod.POST)
+	public String suggestPostAction(
+			@RequestParam(value = "q", required = true) String text,
+			ModelMap model) {
+		
 		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
 		return "persona/suggest";
 	}

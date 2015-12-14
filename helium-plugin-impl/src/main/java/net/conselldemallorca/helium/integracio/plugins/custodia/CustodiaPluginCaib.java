@@ -14,8 +14,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.signatura.DadesCertificat;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -52,7 +50,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return custodiaId;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut custodiar la signatura", ex);
+			//logger.error("No s'ha pogut custodiar la signatura: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
 		}
 	}
@@ -72,7 +70,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				return resposta;
 			}
 		} catch (Exception ex) {
-			logger.error("No s'han pogut obtenir les signatures", ex);
+			//logger.error("No s'han pogut obtenir les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'han pogut obtenir les signatures", ex);
 		}
 	}
@@ -90,7 +88,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				return consultar;
 			}
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			//logger.error("No s'ha pogut obtenir l'arxiu amb les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
 		}
 	}
@@ -99,10 +97,10 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		try {
 			byte[] xml = getClienteCustodia().eliminarDocumento(id);
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
-			if (resposta.isError())
+			if (resposta.isError() && !"DOCUMENTO_NO_ENCONTRADO".equals(resposta.getErrorCodi()))
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 		} catch (Exception ex) {
-			logger.error("No s'han pogut esborrar les signatures", ex);
+			//logger.error("No s'han pogut esborrar les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'han pogut esborrar les signatures", ex);
 		}
 	}
@@ -115,7 +113,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return parseSignatures(xml);
 		} catch (Exception ex) {
-			logger.error("No s'han pogut verificar les signatures", ex);
+			//logger.error("No s'han pogut verificar les signatures: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'han pogut verificar les signatures", ex);
 		}
 	}
@@ -139,7 +137,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			String baseUrl = GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.verificacio.baseurl");
 			return baseUrl + token;
 		} catch (Exception ex) {
-			logger.error("No s'ha pogut generar la url de comprovació de signatura", ex);
+			//logger.error("No s'ha pogut generar la url de comprovació de signatura: " + ex.getMessage());
 			throw new CustodiaPluginException("No s'ha pogut generar la url de comprovació de signatura", ex);
 		}
 	}
@@ -155,41 +153,6 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		}
 		return clienteCustodia;
 	}
-
-	/*private CustodiaResponseCaib parseResponse(byte[] response) throws DocumentException {
-		CustodiaResponseCaib resposta = new CustodiaResponseCaib();
-		Document document = DocumentHelper.parseText(new String(response));
-		Element resultMajorElement = null;
-		Element resultMinorElement = null;
-		Element resultMessageElement = null;
-		if ("CustodiaResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("VerifyResponse").element("Result").element("ResultMessage");
-		} else if ("EliminacionResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
-		} else if ("ConsultaResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
-		} else if ("VerificacionResponse".equals(document.getRootElement().getName())) {
-			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
-			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
-			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
-		}
-		if (resultMajorElement == null)
-			throw new DocumentException("No s'ha trobat el ResultMajor");
-		boolean hasErrors = "RequesterError".equals(resultMajorElement.getText());
-		resposta.setError(hasErrors);
-		//System.out.println(">>> " + resultMajorElement.getText() + ":" + resultMinorElement.getText() + ":" + resultMessageElement.getText());
-		if (hasErrors) {
-			resposta.setErrorCodi(resultMinorElement.getText());
-			resposta.setErrorDescripcio(resultMessageElement.getText());
-		}
-		return resposta;
-	}*/
 
 	@SuppressWarnings("unchecked")
 	private List<RespostaValidacioSignatura> parseSignatures(byte[] response) throws DocumentException {
@@ -250,7 +213,5 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	private String getIdCustodia(String docId) {
 		return docId;
 	}
-
-	private static final Log logger = LogFactory.getLog(CustodiaPluginCaib.class);
 
 }

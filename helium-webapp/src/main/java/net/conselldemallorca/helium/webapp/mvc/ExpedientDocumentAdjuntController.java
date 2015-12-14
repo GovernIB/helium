@@ -14,14 +14,14 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DocumentService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -87,7 +87,7 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potModificarOReassignarExpedient(expedient)) {
 				return "expedient/documentAdjuntForm";
 			} else {
 				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
@@ -111,7 +111,7 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potModificarOReassignarExpedient(expedient)) {
 				if ("submit".equals(submit) || submit.length() == 0) {
 					new DocumentAdjuntCrearValidator().validate(command, result);
 			        if (result.hasErrors())
@@ -133,8 +133,10 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 						missatgeInfo(request, getMessage("info.document.adjuntat") );
 						status.setComplete();
 			        } catch (Exception ex) {
+			        	Long entornId = entorn.getId();
+						String numeroExpedient = id;
+						logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" No s'ha pogut crear el document adjunt", ex);
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-			        	logger.error("No s'ha pogut crear el document adjunt", ex);
 			        }
 				}
 				return "redirect:/expedient/documents.html?id=" + id;
@@ -172,13 +174,14 @@ public class ExpedientDocumentAdjuntController extends BaseController {
 
 
 
-	private boolean potModificarExpedient(ExpedientDto expedient) {
+	private boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
 		return permissionService.filterAllowed(
 				expedient.getTipus(),
 				ExpedientTipus.class,
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
-					ExtendedPermission.WRITE}) != null;
+					ExtendedPermission.WRITE,
+					ExtendedPermission.REASSIGNMENT}) != null;
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDocumentAdjuntController.class);

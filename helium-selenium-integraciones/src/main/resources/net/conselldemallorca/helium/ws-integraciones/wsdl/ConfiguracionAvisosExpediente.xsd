@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:es:caib:zonaper:ws:v2:model:ConfiguracionAvisosExpediente" targetNamespace="urn:es:caib:zonaper:ws:v2:model:ConfiguracionAvisosExpediente" version="1.0">
+	<xs:complexType name="ConfiguracionAvisosExpediente">
+		<xs:sequence>
+			<xs:element minOccurs="0" name="habilitarAvisos" nillable="true" type="xs:boolean"/>
+			<xs:element minOccurs="0" name="avisoSMS" nillable="true" type="xs:string"/>
+			<xs:element minOccurs="0" name="avisoEmail" nillable="true" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -14,13 +14,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.permission.ExtendedPermission;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.Permission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -61,22 +61,40 @@ public class ExpedientTipusDocumentsController extends BaseController {
 
 	@ModelAttribute("command")
 	public Document populateCommand(
-			@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId) {
-		Document command = new Document();
-		if (id != null) {
-			Document vell = dissenyService.getDocumentById(id);
-			command.setId(id);
-			command.setCodi(vell.getCodi());
-			command.setNom(vell.getNom());
-			command.setArxiuNom(vell.getArxiuNom());
-			command.setDescripcio(vell.getDescripcio());
-			command.setPlantilla(vell.isPlantilla());
-		}
-		if (definicioProcesId != null)
-			command.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
-		return command;
-	}
+            @RequestParam(value = "id", required = false) Long id,
+            @RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId,
+            @RequestParam(value = "definicioProces", required = false) Long definicioProces) {
+        if (id != null) {
+            Document vell = dissenyService.getDocumentById(id);
+            Document document = new Document();
+            document.setId(id);
+            document.setCodi(vell.getCodi());
+            document.setNom(vell.getNom());
+            document.setArxiuNom(vell.getArxiuNom());
+            document.setDescripcio(vell.getDescripcio());
+            document.setPlantilla(vell.isPlantilla());
+            document.setAdjuntarAuto(vell.isAdjuntarAuto());
+            document.setContentType(vell.getContentType());
+            document.setCustodiaCodi(vell.getCustodiaCodi());
+            document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());
+            document.setDefinicioProces(vell.getDefinicioProces());
+            document.setCampData(vell.getCampData());
+			document.setExtensionsPermeses(vell.getExtensionsPermeses());
+			document.setConvertirExtensio(vell.getConvertirExtensio());
+			return document;
+        }
+        Document nou = new Document();
+        nou.setAdjuntarAuto(true);
+        if (definicioProcesId != null)
+nou.setDefinicioProces(dissenyService.getById(definicioProcesId, false));
+        if (definicioProces != null)
+nou.setDefinicioProces(dissenyService.getById(definicioProces, false));
+        return nou;
+    } 
+	
+	
+	
+	
 
 	@ModelAttribute("expedientTipus")
 	public ExpedientTipus populateExpedientTipus(

@@ -19,6 +19,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<title>Helium - <decorator:title default="<fmt:message key='decorators.default.benvinguts' />"/></title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
 	<link rel="icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/>
 	<link rel="shortcut icon" href="<c:url value="/img/favicon.ico"/>" type="image/x-icon"/> 
 	<link href="<c:url value="/css/reset.css"/>" rel="stylesheet" type="text/css"/>
@@ -28,9 +29,21 @@
 <![endif]-->
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="<c:url value="/js/jquery/excanvas.min.js"/>"></script><![endif]-->
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.js"/>"></script>
+	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.time.js"/>"></script>
 <%-- menu --%>
+<%--
+	<link media="all" type="text/css" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" rel="stylesheet">
+	<link media="all" type="text/css" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" rel="stylesheet">
+--%>
 	<link href="<c:url value="/css/dropdown/dropdown.css"/>" media="all" rel="stylesheet" type="text/css" />
 	<link href="<c:url value="/css/dropdown/themes/helium/helium.css"/>" media="all" rel="stylesheet" type="text/css" />
+	<link href="<c:url value="/js/jquery/ui/themes/base/jquery-ui.css"/>" media="all" rel="stylesheet" type="text/css"/>
+	<link href="<c:url value="/js/jquery/ui/themes/base/ui.dialog.css"/>" media="all" rel="stylesheet" type="text/css"/>
+	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
 <!--[if lt IE 7]>
 <script type="text/javascript">
 </script>
@@ -106,6 +119,7 @@
 	</c:if>
 	
 	<decorator:head />
+	
 </head>
 <body>
 	<div id="main">
@@ -162,16 +176,17 @@
 		</div>
 		<div id="push"></div>
 	</div>
-	
 	<div id="footer">
 		<span id="version">v.${versioNom}</span>
-		<c:choose>
-			<c:when test="${empty globalProperties['app.copyright.text']}">
-				<jsp:useBean id="ara" class="java.util.Date" />
-				&copy; <fmt:formatDate value="${ara}" pattern="yyyy"/> Govern de les Illes Balears
-			</c:when>
-			<c:otherwise>${globalProperties['app.copyright.text']}</c:otherwise>
-		</c:choose>
+		<span id="copyright">
+			<c:choose>
+				<c:when test="${empty globalProperties['app.copyright.text']}">
+					<jsp:useBean id="ara" class="java.util.Date" />
+					&copy; <fmt:formatDate value="${ara}" pattern="yyyy"/> Govern de les Illes Balears
+				</c:when>
+				<c:otherwise>${globalProperties['app.copyright.text']}</c:otherwise>
+			</c:choose>
+		</span>
 	</div>
 </body>
 </html>
