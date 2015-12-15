@@ -213,9 +213,9 @@ public class Token implements Identifiable, Serializable
       throw new JbpmException("this token is locked by " + lock);
     }
     if (isRoot() && processInstance.getExpedient() == null) {
-		ProcessInstance processInstanceSuperior = processInstance;
-		if (processInstanceSuperior.getSuperProcessToken() != null) {
-			processInstanceSuperior = processInstance.getSuperProcessToken().getProcessInstance();
+    	ProcessInstance processInstanceSuperior = processInstance;
+		while (processInstanceSuperior.getSuperProcessToken() != null) {
+			processInstanceSuperior = processInstanceSuperior.getSuperProcessToken().getProcessInstance();
 		}
 		Query query = executionContext.getJbpmContext().getSession().createQuery(
 				"from " +
@@ -228,7 +228,6 @@ public class Token implements Identifiable, Serializable
 		ProcessInstanceExpedient expedient = (ProcessInstanceExpedient)query.uniqueResult();
 		processInstance.setExpedient(expedient);
     }
-
     startCompositeLog(new SignalLog(transition));
     try
     {
