@@ -105,7 +105,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			taskQuerySb.append("and ti.isSuspended = false and ti.isOpen = true ");
 		}
 		if (taskName != null && !taskName.isEmpty()) {
-			taskQuerySb.append("and ti.name = :taskName ");
+			taskQuerySb.append("and ti.task.name = :taskName ");
 		}
 		if (titol != null && !titol.isEmpty()) {
 			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
