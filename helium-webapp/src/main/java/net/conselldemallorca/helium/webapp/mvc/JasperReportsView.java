@@ -102,14 +102,14 @@ public class JasperReportsView implements View {
 			
 			Object exp = (String)request.getAttribute("formatJR");
 
-			if(exp.equals("PDF")){
+			if("PDF".equals(exp)){
 				//exportar PDF		
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
 				response.setContentType("application/pdf");
 				response.getOutputStream().write(
 						JasperExportManager.exportReportToPdf(jasperPrint));
 			}
-			else if(exp.equals("ODT")){
+			else if("ODT".equals(exp)){
 				//exportar ODT
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.odt\"");
 				response.setContentType("application/vnd.oasis.opendocument.text");
@@ -121,7 +121,7 @@ public class JasperReportsView implements View {
 				loOdtExp.setParameter(JRExporterParameter.OUTPUT_FILE, odtFile);
 				loOdtExp.exportReport();
 			}
-			else if(exp.equals("RTF")){
+			else if("RTF".equals(exp)){
 				//exportar RTF
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.rtf\"");
 				response.setContentType("application/rtf");
@@ -133,7 +133,7 @@ public class JasperReportsView implements View {
 				loRtfExp.setParameter(JRExporterParameter.OUTPUT_FILE, rtfFile);
 				loRtfExp.exportReport();
 			}
-			else if(exp.equals("CSV")){
+			else if("CSV".equals(exp)){
 				//exportar CSV
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.csv\"");
 				response.setContentType("Content-type: text/csv");
@@ -145,7 +145,7 @@ public class JasperReportsView implements View {
 				loCsvExp.setParameter(JRExporterParameter.OUTPUT_FILE, csvFile);
 				loCsvExp.exportReport();
 			}
-			else if(exp.equals("HTML")){
+			else if("HTML".equals(exp)){
 				//exportar HTML		
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.html\"");
 				response.setContentType("text/html");
@@ -157,7 +157,7 @@ public class JasperReportsView implements View {
 				loHtmlExp.setParameter(JRExporterParameter.OUTPUT_FILE, htmlFile);
 				loHtmlExp.exportReport();  
 			}
-			else if(exp.equals("XML")){
+			else if("XML".equals(exp)){
 				//exportar XML		
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.xml\"");
 				response.setContentType("text/xml");
@@ -170,7 +170,7 @@ public class JasperReportsView implements View {
 				xmlExporter.exportReport();
 
 			}
-			else if(exp.equals("XLS")){
+			else if("XLS".equals(exp)){
 				//exportar XLS		
 				response.setHeader("Content-Disposition","attachment; filename=\"informe.xls\"");
 				response.setContentType("application/excel");
@@ -181,7 +181,12 @@ public class JasperReportsView implements View {
 				loXlsExp.setParameter(JRXlsExporterParameter.OUTPUT_STREAM, response.getOutputStream());
 				loXlsExp.setParameter(JRXlsExporterParameter.IS_DETECT_CELL_TYPE, Boolean.TRUE);
 				loXlsExp.exportReport();
-
+			} else {
+				//exportar PDF		
+				response.setHeader("Content-Disposition","attachment; filename=\"informe.pdf\"");
+				response.setContentType("application/pdf");
+				response.getOutputStream().write(
+						JasperExportManager.exportReportToPdf(jasperPrint));
 			}
 			
 			adminService.mesuraTemporalCalcular("INFORME: " + (String)model.get(MODEL_ATTRIBUTE_CONSULTA), "report", null, null, "REPORT");			
