@@ -8,6 +8,7 @@ import java.util.Map;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 /**
@@ -47,7 +48,11 @@ public class CloneTaskInstanceCommand extends AbstractBaseCommand {
 				clone.setVariableLocally(codi, variables.get(codi));
 			}
 		}
-		jbpmContext.addAutoSaveTaskInstance(clone);
+		
+		// Desam logs únicament si està marcat al tipus d'expedient
+		if (getAmbRetroaccio(jbpmContext, taskInstance.getProcessInstance()))
+			jbpmContext.addAutoSaveTaskInstance(clone);
+		
 		return clone;
 	}
 
@@ -85,6 +90,26 @@ public class CloneTaskInstanceCommand extends AbstractBaseCommand {
 	public CloneTaskInstanceCommand id(long id) {
 		setId(id);
 	    return this;
+	}
+	
+	private Boolean getAmbRetroaccio(JbpmContext jbpmContext, ProcessInstance processInstance) {
+		if (processInstance.getExpedient() == null) {
+			return true;
+		} else {
+			return processInstance.getExpedient().isAmbRetroaccio();
+		}
+//		Query query = jbpmContext.getSession().createQuery(
+//				"select te.ambRetroaccio " +
+//						"  from	net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus te, " +
+//						" 		org.jbpm.graph.exe.ProcessInstanceExpedient exp " +
+//						" where  exp.processInstanceId = :processInstanceId " +
+//						"   and  exp.expedientTipusId = te.id ");
+//		query.setParameter("processInstanceId", processInstanceId.toString());
+//		
+//		Boolean ambRetroaccio = (Boolean)query.uniqueResult();
+//		if (ambRetroaccio == null)
+//			return false;
+//		return ambRetroaccio;
 	}
 
 }

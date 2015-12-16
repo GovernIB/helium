@@ -169,6 +169,7 @@ public class DtoConverter {
 			}
 		}
 		dto.setDataFi(expedient.getDataFi());
+		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
 			ExpedientDto relacionatDto = new ExpedientDto();
 			relacionatDto.setId(relacionat.getId());

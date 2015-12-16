@@ -79,6 +79,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private boolean restringirPerGrup;
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
+	private boolean ambRetroaccio;
 	
 
 	@MaxLength(64)
@@ -271,6 +272,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.seleccionarAny = seleccionarAny;
 	}
 
+	@Column(name="amb_retroaccio")
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
+	}
+	
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {
 		return sistraTramitCodi;

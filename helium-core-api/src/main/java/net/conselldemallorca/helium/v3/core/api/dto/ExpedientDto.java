@@ -94,6 +94,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private PermisDto permisos;
 	private boolean usuariActualRead;
 
+	private boolean ambRetroaccio;
 
 	public Long getId() {
 		return id;
@@ -457,6 +458,12 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	public void setNomEstat(String nomEstat) {
 		this.nomEstat = nomEstat;
+	}
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
 	}
 
 	private static final long serialVersionUID = -9207907579002520198L;

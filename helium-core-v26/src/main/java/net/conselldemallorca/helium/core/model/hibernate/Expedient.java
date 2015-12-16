@@ -138,6 +138,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private List<ExpedientLog> logs = new ArrayList<ExpedientLog>();
 	private List<Portasignatures> portasignatures = new ArrayList<Portasignatures>();
 
+	private boolean ambRetroaccio;
 
 
 	public Expedient() {}
@@ -559,6 +560,14 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		getPortasignatures().remove(portasignatures);
 	}
 
+	@Column(name="amb_retroaccio")
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
+	}
+	
 	@Transient
 	public String getNumeroIdentificador() {
 		if (tipus.getTeNumero().booleanValue())
@@ -627,6 +636,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setComentariAnulat(String comentariAnulat) {
 		this.comentariAnulat = comentariAnulat;
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

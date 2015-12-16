@@ -74,12 +74,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
@@ -300,6 +300,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedientTipusCodi=" + expedientTipus.getCodi() + ", " +
 				"data=" + new Date() + ")";
 		try {
+			
 			String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
 			Expedient expedient = new Expedient();
 			expedient.setTipus(expedientTipus);
@@ -326,6 +327,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			expedient.setAvisosEmail(avisosEmail);
 			expedient.setAvisosMobil(avisosMobil);
 			expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
+			expedient.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
@@ -418,6 +420,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					variables);
 			expedient.setProcessInstanceId(processInstance.getId());
 			
+			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 			
@@ -460,16 +463,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
-			
+
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+		
 			ExpedientLog log = expedientLoggerHelper.afegirLogExpedientPerProces(
 					processInstance.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
 					null);
 			log.setEstat(ExpedientLogEstat.IGNORAR);
-			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+			
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			
 			// Actualitza les variables del procés
@@ -600,6 +604,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
+		boolean ambRetroaccio = expedient.isAmbRetroaccio();
+		
 		if (!execucioDinsHandler) {
 			ExpedientLog elog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				id,
@@ -611,6 +618,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (expedient.getTipus().getTeNumero()) {
 			if (!StringUtils.equals(expedient.getNumero(), numero)) {
 				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.NUMERO + "#@#" + expedient.getNumero());
 				expedient.setNumero(numero);
@@ -620,6 +628,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (expedient.getTipus().getTeTitol()) {
 			if (!StringUtils.equals(expedient.getTitol(), titol)) {
 				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.TITOL + "#@#" + expedient.getTitol());
 				expedient.setTitol(titol);
@@ -628,6 +637,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Responsable
 		if (!StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
 			expedient.setResponsableCodi(responsableCodi);
@@ -637,6 +647,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			String inici = sdf.format(dataInici);
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.INICI + "#@#" + inici);
 			expedient.setDataInici(dataInici);
@@ -644,6 +655,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comentari
 		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.COMENTARI + "#@#" + expedient.getComentari());
 			expedient.setComentari(comentari);
@@ -652,6 +664,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (estatId != null) {
 			if (expedient.getEstat() == null || !expedient.getEstat().getId().equals(estatId)) {
 				expedientLoggerHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				Estat estat = estatRepository.findByExpedientTipusAndId(
@@ -663,6 +676,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		} else if (expedient.getEstat() != null) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 			expedient.setEstat(null);
@@ -670,12 +684,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Geoposició
 		if (expedient.getGeoPosX() != geoPosX) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
 			expedient.setGeoPosX(geoPosX);
 		}
 		if (expedient.getGeoPosY() != geoPosY) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
 			expedient.setGeoPosY(geoPosY);
@@ -683,6 +699,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Georeferencia
 		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
 			expedient.setGeoReferencia(geoReferencia);
@@ -690,6 +707,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Grup
 		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
 			expedientLoggerHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
@@ -2014,7 +2032,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				origenId,
 				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
 				destiId.toString());
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		if (expedientLog != null)
+			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				false,
@@ -2059,7 +2078,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				origenId,
 				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
 				destiId.toString());
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		if (expedientLog != null)
+			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				false,
@@ -2836,14 +2856,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques) {
 		ExpedientLog log = expedientLogRepository.findById(expedientLogId);
 		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
-		ExpedientLog logRetroces = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				log.getExpedient().getId(),
-				retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
-				expedientLogId.toString());
-		expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
-		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-		serviceUtils.expedientIndexLuceneUpdate(
-				log.getExpedient().getProcessInstanceId());
+		if (log.getExpedient().isAmbRetroaccio()) {
+			ExpedientLog logRetroces = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+					log.getExpedient().getId(),
+					retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
+					expedientLogId.toString());
+			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
+			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
+			serviceUtils.expedientIndexLuceneUpdate(
+					log.getExpedient().getProcessInstanceId());
+		}
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}
 
@@ -2981,24 +3003,29 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional
 	public void reassignarTasca(String taskId, String expression) {
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		logger.debug("Reassignar tasca l'expedient (id=" + expedient.getId() + ")");
+		
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+		ExpedientLog expedientLog = null;
+		expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 				taskId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
-		logger.debug("Reassignar tasca l'expedient (id=" + expedientLog.getExpedient().getId() + ")");
+		
 		expedientHelper.getExpedientComprovantPermisos(
-				expedientLog.getExpedient().getId(),
+				expedient.getId(),
 				false,
 				true,
 				false,
 				false);
-		jbpmHelper.reassignTaskInstance(taskId, expression, expedientLog.getExpedient().getEntorn().getId());
+		jbpmHelper.reassignTaskInstance(taskId, expression, expedient.getEntorn().getId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 		crearRegistreRedirigirTasca(
-				expedientLog.getExpedient().getId(),
+				expedient.getId(),
 				taskId,
 				usuari,
 				expression);
@@ -3011,10 +3038,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	@Transactional
 	public void createVariable(Long expedientId, String processInstanceId, String varName, Object value) {
-		@SuppressWarnings("unused")
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
@@ -3037,10 +3064,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 			registre.setValorNou(value.toString());
 	}
 	
+	@SuppressWarnings("unused")
 	@Override
 	@Transactional
 	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValue) {
-		@SuppressWarnings("unused")
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
@@ -3096,10 +3123,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return varValue;
 	}
 	
+	@SuppressWarnings("unused")
 	@Override
 	@Transactional
 	public void deleteVariable(Long expedientId, String processInstanceId, String varName) {
-		@SuppressWarnings("unused")
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,

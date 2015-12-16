@@ -58,6 +58,7 @@ public class ExpedientInfo {
 	private String entornNom;
 
 	private long processInstanceId;
+	private boolean ambRetroaccio;
 
 
 
@@ -296,5 +297,11 @@ public class ExpedientInfo {
 	}
 	public void setComentariAnulat(String comentariAnulat) {
 		this.comentariAnulat = comentariAnulat;
+	}
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
 	}
 }

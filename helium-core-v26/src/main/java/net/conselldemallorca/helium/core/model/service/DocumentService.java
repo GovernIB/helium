@@ -86,7 +86,10 @@ public class DocumentService {
 				taskInstanceId,
 				task.getProcessInstanceId(),
 				documentCodi);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
 		boolean creat = (documentStore == null);
+		
 		if (creat) {
 			expedientLogHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
@@ -98,6 +101,7 @@ public class DocumentService {
 					ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR,
 					documentCodi);
 		}
+		
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
 		Long documentStoreId = documentHelper.actualitzarDocument(
 				taskInstanceId,
@@ -110,8 +114,6 @@ public class DocumentService {
 				false);
 		// Registra l'acció
 		if (user == null) user = SecurityContextHolder.getContext().getAuthentication().getName();
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(task.getProcessInstanceId()).getId());
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
 					expedient.getId(),
@@ -161,7 +163,10 @@ public class DocumentService {
 				null,
 				processInstanceId,
 				documentCodi);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmDao.getRootProcessInstance(processInstanceId).getId());
 		boolean creat = (documentStore == null);
+		
 		if (!isAdjunt) {
 			if (creat) {
 				expedientLogHelper.afegirLogExpedientPerProces(
@@ -175,6 +180,7 @@ public class DocumentService {
 						documentCodi);
 			}
 		}
+		
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
 		Long documentStoreId = documentHelper.actualitzarDocument(
 				null,
@@ -189,8 +195,6 @@ public class DocumentService {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
 		// Registra l'acció
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(processInstanceId).getId());
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentInstanciaProces(
 					expedient.getId(),
@@ -280,6 +284,9 @@ public class DocumentService {
 			JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 			piid = task.getProcessInstanceId();
 		}
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmDao.getRootProcessInstance(piid).getId());
+		
 		if (taskInstanceId != null) {
 			expedientLogHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
@@ -291,6 +298,7 @@ public class DocumentService {
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
 		}
+		
 		documentHelper.esborrarDocument(
 				taskInstanceId,
 				piid,
@@ -298,8 +306,6 @@ public class DocumentService {
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(piid).getId());
 		if (taskInstanceId != null) {
 			registreDao.crearRegistreEsborrarDocumentTasca(
 					expedient.getId(),
@@ -319,17 +325,19 @@ public class DocumentService {
 			Long docStoreId,
 			String adjuntId,
 			String adjuntTitol) {
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(
+				jbpmDao.getRootProcessInstance(processInstanceId).getId());
+		
 		expedientLogHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 				adjuntTitol);
+		
 		documentHelper.esborrarDocumentAdjunt(
 				docStoreId,
 				processInstanceId,
 				adjuntId);
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(
-				jbpmDao.getRootProcessInstance(processInstanceId).getId());
 		registreDao.crearRegistreEsborrarDocumentInstanciaProces(
 				expedient.getId(),
 				processInstanceId,

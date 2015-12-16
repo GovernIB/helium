@@ -36,6 +36,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private List<ConsultaExportacio> consultes;
 	private boolean restringirPerGrup;
 	private boolean seleccionarAny;
+	private boolean ambRetroaccio;
 	private String responsableDefecteCodi;
 	
 	public ExpedientTipusExportacio(
@@ -147,7 +148,6 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setEnumeracions(List<EnumeracioExportacio> enumeracions) {
 		this.enumeracions = enumeracions;
 	}
-
 	public List<DefinicioProcesExportacio> getDefinicionsProces() {
 		return definicionsProces;
 	}
@@ -155,28 +155,30 @@ public class ExpedientTipusExportacio implements Serializable {
 			List<DefinicioProcesExportacio> definicionsProces) {
 		this.definicionsProces = definicionsProces;
 	}
-
 	public List<ConsultaExportacio> getConsultes() {
 		return consultes;
 	}
 	public void setConsultes(List<ConsultaExportacio> consultes) {
 		this.consultes = consultes;
 	}
-
 	public boolean isRestringirPerGrup() {
 		return restringirPerGrup;
 	}
 	public void setRestringirPerGrup(boolean restringirPerGrup) {
 		this.restringirPerGrup = restringirPerGrup;
 	}
-
 	public boolean isSeleccionarAny() {
 		return seleccionarAny;
 	}
 	public void setSeleccionarAny(boolean seleccionarAny) {
 		this.seleccionarAny = seleccionarAny;
 	}
-
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
+	}
 	public String getResponsableDefecteCodi() {
 		return responsableDefecteCodi;
 	}

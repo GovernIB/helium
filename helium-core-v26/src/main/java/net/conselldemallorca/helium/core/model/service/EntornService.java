@@ -276,6 +276,7 @@ public class EntornService {
 			dto.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());		
 			dto.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 			dto.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+			dto.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			dto.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 			dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 			/*dto.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());
@@ -466,6 +467,7 @@ public class EntornService {
 			nou.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
 			nou.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 			nou.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+			nou.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			nou.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 			nou.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 			/*nou.setSistraTramitMapeigCamps(expedientTipus.getSistraTramitMapeigCamps());

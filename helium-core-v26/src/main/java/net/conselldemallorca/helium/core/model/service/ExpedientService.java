@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -271,6 +272,7 @@ public class ExpedientService {
 			expedient.setAvisosEmail(avisosEmail);
 			expedient.setAvisosMobil(avisosMobil);
 			expedient.setNotificacioTelematicaHabilitada(notificacioTelematicaHabilitada);
+			expedient.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Omplir dades");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Assignar numeros");
@@ -399,9 +401,10 @@ public class ExpedientService {
 			}
 			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 			
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+		
 			ExpedientLog log = expedientLogHelper.afegirLogExpedientPerProces(
 					processInstance.getId(),
 					ExpedientLogAccioTipus.EXPEDIENT_INICIAR,
@@ -409,6 +412,7 @@ public class ExpedientService {
 			log.setEstat(ExpedientLogEstat.IGNORAR);
 			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+			
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			
 			// Actualitza les variables del procés
@@ -544,21 +548,24 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		
 		if (!executatEnHandler) {
+			if (expedient == null)
+				expedient = ExpedientIniciantDto.getExpedient();
+			
 			ExpedientLog elog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
 				null);
 			elog.setEstat(ExpedientLogEstat.IGNORAR);
-			if (expedient == null)
-				expedient = ExpedientIniciantDto.getExpedient();
 		}
 
 		String informacioVella = getInformacioExpedient(expedient);
+		boolean ambRetroaccio = expedient.isAmbRetroaccio();
 		
 		// Numero
 		if (expedient.getTipus().getTeNumero()) {
 			if (!StringUtils.equals(expedient.getNumero(), numero)) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.NUMERO + "#@#" + expedient.getNumero());
 				expedient.setNumero(numero);
@@ -568,6 +575,7 @@ public class ExpedientService {
 		if (expedient.getTipus().getTeTitol()) {
 			if (!StringUtils.equals(expedient.getTitol(), titol)) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.TITOL + "#@#" + expedient.getTitol());
 				expedient.setTitol(titol);
@@ -576,6 +584,7 @@ public class ExpedientService {
 		// Responsable
 		if (!StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
 			expedient.setResponsableCodi(responsableCodi);
@@ -585,6 +594,7 @@ public class ExpedientService {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 			String inici = sdf.format(dataInici);
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.INICI + "#@#" + inici);
 			expedient.setDataInici(dataInici);
@@ -592,6 +602,7 @@ public class ExpedientService {
 		// Comentari
 		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.COMENTARI + "#@#" + expedient.getComentari());
 			expedient.setComentari(comentari);
@@ -605,11 +616,13 @@ public class ExpedientService {
 			} else if (estatId.equals(0L)) {
 				// Iniciamos el expediente
 				expedientLogHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				expedient.setEstat(null);
 			} else if (estatId.equals(-1L)) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				
@@ -618,17 +631,20 @@ public class ExpedientService {
 				expedient.setEstat(null);
 			} else if (expedient.getEstat() == null) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + "---");
 				expedient.setEstat(estatDao.getById(estatId, false));
 			} else if (!estatId.equals(expedient.getEstat().getId())) {
 				expedientLogHelper.afegirProcessLogInfoExpedient(
+						ambRetroaccio,
 						expedient.getProcessInstanceId(), 
 						LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 				expedient.setEstat(estatDao.getById(estatId, false));
 			}
 		} else if (expedient.getEstat() != null) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
 			expedient.setEstat(null);
@@ -636,12 +652,14 @@ public class ExpedientService {
 		// Geoposició
 		if (expedient.getGeoPosX() != geoPosX) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
 			expedient.setGeoPosX(geoPosX);
 		}
 		if (expedient.getGeoPosY() != geoPosY) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
 			expedient.setGeoPosY(geoPosY);
@@ -649,6 +667,7 @@ public class ExpedientService {
 		// Georeferencia
 		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
 			expedient.setGeoReferencia(geoReferencia);
@@ -656,6 +675,7 @@ public class ExpedientService {
 		// Grup
 		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
 			expedientLogHelper.afegirProcessLogInfoExpedient(
+					ambRetroaccio,
 					expedient.getProcessInstanceId(), 
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
@@ -732,6 +752,15 @@ public class ExpedientService {
 		Expedient expedient = expedientDao.findAmbEntornIId(entornId, id);
 		if (expedient != null) {
 			List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+			Collections.sort(
+					processInstancesTree,
+					new Comparator<JbpmProcessInstance>() {
+						public int compare(JbpmProcessInstance o1, JbpmProcessInstance o2) {
+							Long l1 = new Long(o1.getId());
+							Long l2 = new Long(o2.getId());
+							return l2.compareTo(l1);
+						}
+					});
 			for (JbpmProcessInstance pi: processInstancesTree){
 				for (TerminiIniciat ti: terminiIniciatDao.findAmbProcessInstanceId(pi.getId()))
 					terminiIniciatDao.delete(ti);
@@ -1256,7 +1285,8 @@ public class ExpedientService {
 				null);
 		jbpmHelper.reprendreExpedient(processInstanceId);
 		expedient.setDataFi(null);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		if (expedientLog != null)
+			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		
 		registreDao.crearRegistreReprendreExpedient(
 				expedient.getId(),
@@ -1724,11 +1754,12 @@ public class ExpedientService {
 			String taskId,
 			String expression,
 			String usuari) {
+		
 		String previousActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
-				null);
+					taskId,
+					ExpedientLogAccioTipus.TASCA_REASSIGNAR,
+					null);
 		jbpmHelper.reassignTaskInstance(taskId, expression, entornId);
 		String currentActors = expedientLogHelper.getActorsPerReassignacioTasca(taskId);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
@@ -1794,8 +1825,8 @@ public class ExpedientService {
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_FINALIZTAR,
 				null);
-		
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
 		for (JbpmProcessInstance pi : jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId())) {
 			for (org.jbpm.taskmgmt.exe.TaskInstance ti : pi.getProcessInstance().getTaskMgmtInstance().getTaskInstances()) {
@@ -2056,13 +2087,13 @@ public class ExpedientService {
 	public void createRelacioExpedient(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) {
+		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
+		Expedient desti = expedientDao.getById(expedientIdDesti, false);
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				expedientIdOrigen,
 				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
 				expedientIdDesti.toString());
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
-		Expedient desti = expedientDao.getById(expedientIdDesti, false);
 		boolean existeix = false;
 		for (Expedient relacionat: origen.getRelacionsOrigen()) {
 			if (relacionat.getId().longValue() == expedientIdDesti.longValue()) {
@@ -2085,13 +2116,15 @@ public class ExpedientService {
 	public void deleteRelacioExpedient(
 			Long expedientIdOrigen,
 			Long expedientIdDesti) {
+		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
+		Expedient desti = expedientDao.getById(expedientIdDesti, false);
+		
 		ExpedientLog expedientLog = expedientLogHelper.afegirLogExpedientPerExpedient(
 				expedientIdOrigen,
 				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
 				expedientIdDesti.toString());
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		Expedient origen = expedientDao.getById(expedientIdOrigen, false);
-		Expedient desti = expedientDao.getById(expedientIdDesti, false);
+		
 		origen.removeRelacioOrigen(desti);
 		desti.removeRelacioOrigen(origen);
 	}
@@ -2279,7 +2312,8 @@ public class ExpedientService {
 				retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
 				expedientLogId.toString());
 		expedientLogHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
-		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
+		if (logRetroces != null)
+			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
 		getServiceUtils().expedientIndexLuceneUpdate(
 				log.getExpedient().getProcessInstanceId());
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());

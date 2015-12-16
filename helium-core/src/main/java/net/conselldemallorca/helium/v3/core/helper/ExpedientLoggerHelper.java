@@ -118,12 +118,17 @@ public class ExpedientLoggerHelper {
 	}
 
 	public long afegirProcessLogInfoExpedient(
+			boolean ambRetroaccio,
 			String processInstanceId,
 			String message) {
-		long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
-				processInstanceId,
-				MESSAGE_LOGINFO_PREFIX + "::" + message);
-		return jbpmLogId;
+		if (ambRetroaccio) {
+			long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
+					processInstanceId,
+					MESSAGE_LOGINFO_PREFIX + "::" + message);
+			return jbpmLogId;
+		} else {
+			return -1;
+		}
 	}
 	public ExpedientLog afegirLogExpedientPerExpedient(
 			Long expedientId,
@@ -1299,15 +1304,20 @@ public class ExpedientLoggerHelper {
 			ExpedientLogAccioTipus tipus,
 			String accioParams,
 			String user) {
-		long jbpmLogId = jbpmHelper.addTaskInstanceMessageLog(
-				taskInstanceId,
-				getMessageLogPerTipus(tipus));
+		
 		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 		Expedient expedient = null;
 		if (expedientId == null) {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		} else {
 			expedient = expedientRepository.findOne(expedientId);
+		}
+		
+		Long jbpmLogId = null;
+		if (expedient.isAmbRetroaccio()) {
+			jbpmLogId = jbpmHelper.addTaskInstanceMessageLog(
+					taskInstanceId,
+					getMessageLogPerTipus(tipus));
 		}
 		String usuari = "Timer";
 		if (user != null) {
@@ -1333,10 +1343,15 @@ public class ExpedientLoggerHelper {
 			String processInstanceId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
-		long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
-				processInstanceId,
-				getMessageLogPerTipus(tipus));
+		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
+		Long jbpmLogId = null;
+		if (expedient.isAmbRetroaccio()) {
+			jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
+					processInstanceId,
+					getMessageLogPerTipus(tipus));
+		}
 		String usuari = "Timer";
 		try {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();

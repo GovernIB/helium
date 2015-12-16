@@ -891,6 +891,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				resposta.setEstatNom(expedient.getEstat().getNom());
 			}
 			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
+			resposta.setAmbRetroaccio(expedient.isAmbRetroaccio());
 			return resposta;
 		}
 		return null;

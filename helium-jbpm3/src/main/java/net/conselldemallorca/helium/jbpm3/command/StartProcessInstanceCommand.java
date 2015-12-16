@@ -27,18 +27,19 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
 		Object object = super.execute(jbpmContext);
 		if (object instanceof ProcessInstance) {
 			ProcessInstance processInstance = (ProcessInstance) object;
-			Task startTask = processInstance.getProcessDefinition()
-					.getTaskMgmtDefinition().getStartTask();
+			Task startTask = processInstance.getProcessDefinition().getTaskMgmtDefinition().getStartTask();
 			if (startTask != null && startTask.getSwimlane() != null) {
-				SwimlaneInstance si = new SwimlaneInstance(
-						startTask.getSwimlane());
+				SwimlaneInstance si = new SwimlaneInstance(startTask.getSwimlane());
 				si.setActorId(getActorId());
 				processInstance.getTaskMgmtInstance().addSwimlaneInstance(si);
 			}
 			ExpedientDto expedientIniciant = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
-			if (expedientIniciant != null)
+			if (expedientIniciant != null) {
 				expedientIniciant.setProcessInstanceId(new Long(processInstance.getId()).toString());
-			jbpmContext.addAutoSaveProcessInstance(processInstance);
+//				if (expedientIniciant.getTipus().isAmbRetroaccio())
+				if (expedientIniciant.isAmbRetroaccio())
+					jbpmContext.addAutoSaveProcessInstance(processInstance);
+			}
 		}
 		return object;
 	}

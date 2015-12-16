@@ -15,5 +15,6 @@
     <property name="expedientTipusId" column="TIPUS_ID"/>
     <property name="entornId" column="ENTORN_ID"/>
     <property name="processInstanceId" column="PROCESS_INSTANCE_ID"/>
+    <property name="ambRetroaccio" column="AMB_RETROACCIO"/>
    </class>
 </hibernate-mapping>

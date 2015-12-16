@@ -123,7 +123,7 @@ public class ExpedientHelper {
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
 		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());		
 		dto.setDataFi(expedient.getDataFi());
-		
+		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		return dto;
 	}
 

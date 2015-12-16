@@ -805,6 +805,8 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				false,
 				true);
+//		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		
 		// TODO contemplar el cas que no faci falta que l'usuari
 		// estigui als pooledActors
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -817,16 +819,14 @@ public class TascaServiceImpl implements TascaService {
 					id,
 					JbpmTask.class);
 		}
-		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
-				id);
+		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 				id,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmHelper.takeTaskInstance(id, auth.getName());
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
-				id);
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
 				task,
@@ -851,6 +851,7 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				true,
 				true);
+//		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				id);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
@@ -859,8 +860,7 @@ public class TascaServiceImpl implements TascaService {
 				previousActors);
 		jbpmHelper.releaseTaskInstance(id);
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
-				id);
+		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
 		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
 				task,
@@ -884,6 +884,8 @@ public class TascaServiceImpl implements TascaService {
 				taskInstanceId,
 				true,
 				true);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		
 		if (taskInstanceId != null) {
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
@@ -895,6 +897,7 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR,
 					documentCodi);
 		}
+		
 		documentHelper.esborrarDocument(
 				taskInstanceId,
 				task.getProcessInstanceId(),
@@ -902,7 +905,6 @@ public class TascaServiceImpl implements TascaService {
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (taskInstanceId != null) {
 			registreDao.crearRegistreEsborrarDocumentTasca(
 					expedient.getId(),
@@ -951,7 +953,9 @@ public class TascaServiceImpl implements TascaService {
 			String user) {
 		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
 		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		boolean creat = (documentStore == null);
+		
 		if (creat) {
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
 					taskInstanceId,
@@ -963,6 +967,7 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR,
 					documentCodi);
 		}
+		
 		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
 		Long documentStoreId = documentHelper.actualitzarDocument(
 				taskInstanceId,
@@ -977,7 +982,6 @@ public class TascaServiceImpl implements TascaService {
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentTasca(
 					expedient.getId(),
@@ -1171,6 +1175,7 @@ public class TascaServiceImpl implements TascaService {
 					JbpmTask.class,
 					"firmes_ok");
 		}
+//		Expedient expedient = expedientRepository.findOne(expedientId);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
 				tascaId,
 				expedientId,

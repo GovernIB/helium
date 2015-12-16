@@ -24,6 +24,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private long expedientTipusId;
 	private long entornId;
 	private String processInstanceId;
+	private boolean ambRetroaccio;
 
 	public long getId() {
 		return id;
@@ -78,6 +79,12 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	}
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
+	}
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
 	}
 
 	private static final long serialVersionUID = 1L;

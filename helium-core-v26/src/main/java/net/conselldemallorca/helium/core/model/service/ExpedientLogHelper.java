@@ -108,11 +108,16 @@ public class ExpedientLogHelper {
 			ExpedientLogAccioTipus tipus,
 			String accioParams,
 			String user) {
-		long jbpmLogId = jbpmDao.addTaskInstanceMessageLog(
-				taskInstanceId,
-				getMessageLogPerTipus(tipus));
+		
 		JbpmTask task = jbpmDao.getTaskById(taskInstanceId);
 		Expedient expedient = getExpedientPerProcessInstanceId(task.getProcessInstanceId());
+		
+		Long jbpmLogId = null; 
+		if (expedient.isAmbRetroaccio()) {
+			jbpmLogId = jbpmDao.addTaskInstanceMessageLog(
+					taskInstanceId,
+					getMessageLogPerTipus(tipus));
+		}
 		String usuari = "Timer";
 		if (user != null) {
 			usuari = user;
@@ -137,10 +142,14 @@ public class ExpedientLogHelper {
 			String processInstanceId,
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
-		long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
-				processInstanceId,
-				getMessageLogPerTipus(tipus));
 		Expedient expedient = getExpedientPerProcessInstanceId(processInstanceId);
+		
+		Long jbpmLogId = null;
+		if (expedient.isAmbRetroaccio()) {
+			jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
+					processInstanceId,
+					getMessageLogPerTipus(tipus));
+		}
 		String usuari = "Timer";
 		try {
 			usuari = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -162,6 +171,7 @@ public class ExpedientLogHelper {
 			ExpedientLogAccioTipus tipus,
 			String accioParams) {
 		Expedient expedient = expedientDao.getById(expedientId, false);
+		
 		String processInstanceId = expedient.getProcessInstanceId();
 		String usuari = "Timer";
 		try {
@@ -179,12 +189,16 @@ public class ExpedientLogHelper {
 		return expedientLog;
 	}
 	public long afegirProcessLogInfoExpedient(
+			boolean ambRetroaccio,
 			String processInstanceId,
 			String message) {
-		long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
-				processInstanceId,
-				MESSAGE_LOGINFO_PREFIX + "::" + message);
-		return jbpmLogId;
+		if (ambRetroaccio) {
+			long jbpmLogId = jbpmDao.addProcessInstanceMessageLog(
+					processInstanceId,
+					MESSAGE_LOGINFO_PREFIX + "::" + message);
+			return jbpmLogId;
+		}
+		return -1;
 	}
 	
 	public void retrocedirFinsLog(ExpedientLog expedientLog, boolean retrocedirPerTasques, Long iniciadorId) {
