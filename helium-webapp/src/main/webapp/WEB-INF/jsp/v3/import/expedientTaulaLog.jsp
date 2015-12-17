@@ -1,22 +1,23 @@
 <c:set var="log" value="${dada}"/>
+<c:set var="permisReg" value="${expedient.permisAdministration || expedient.permisSupervision || tipus_retroces == 0}" />
 <c:if test="${index == 0}">
 <table id="log_${log.id}" class="table tableLogs table-bordered">
 	<thead>
 		<tr>
 			<th><spring:message code="expedient.document.data"/></th>
 			<th><spring:message code="expedient.editar.responsable"/></th>
-			<c:if test="${expedient.permisAdministration || (tipus_retroces == 0 && not expedient.permisAdministration)}">
+			<c:if test="${permisReg}" >
 				<th><spring:message code="expedient.log.objecte"/></th>
 			</c:if>
 			<th>
-				<c:if test="${expedient.permisAdministration || (tipus_retroces == 0 && not expedient.permisAdministration)}">
+				<c:if test="${permisReg}">
 					<spring:message code="expedient.log.accio"/>
 				</c:if>
-				<c:if test="${not (tipus_retroces == 0 && not expedient.permisAdministration)}">
+				<c:if test="${not tipus_retroces}">
 					<spring:message code="expedient.log.objecte.TASCA"/>
 				</c:if>
 			</th>
-			<c:if test="${expedient.permisAdministration || (tipus_retroces == 0 && not expedient.permisAdministration)}">
+			<c:if test="${permisReg}">
 				<th><spring:message code="expedient.log.info"/></th>
 				<th><spring:message code="expedient.lot.token"/></th>
 			</c:if>
@@ -32,7 +33,7 @@
 		<td>
 			${log.usuari}
 		</td>
-		<c:if test="${expedient.permisAdministration || (tipus_retroces == 0 && not expedient.permisAdministration)}">
+		<c:if test="${permisReg}">
 			<td>
 				<c:choose>
 					<c:when test="${log.targetTasca}"><spring:message code="expedient.log.objecte.TASCA"/><c:if test="${tipus_retroces == 0}">: ${tasques[log.targetId].tascaNom}</c:if></c:when>
@@ -55,7 +56,7 @@
 				</c:otherwise>
 			</c:choose>
 		</td>
-		<c:if test="${expedient.permisAdministration || (tipus_retroces == 0 && not expedient.permisAdministration)}">
+		<c:if test="${permisReg}">
 			<td>
 				<c:choose>
 					<c:when test="${log.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"><spring:message code="expedient.log.info.nom"/>: ${registre.accioParams}</c:when>
@@ -93,7 +94,7 @@
 				<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
 				<c:when test="${log.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"></c:when>
 				<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">										
-					<c:if test="${expedient.permisAdministration}">
+					<c:if test="${expedient.permisAdministration || expedient.permisSupervision}">
 						<a  class="icon retroces" 
 							data-rdt-link-confirm="<spring:message code='expedient.log.confirm.retrocedir'/>"
 							data-rdt-link-ajax=true
