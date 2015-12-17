@@ -3104,13 +3104,15 @@ public class DissenyService {
 		List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
 		if (subPds != null) {
 			for (JbpmProcessDefinition subPd: subPds) {
-				afegirJbpmKeyProcesAmbSubprocessos(subPd, jbpmKeys);
-				if (!jbpmKeys.contains(subPd.getKey()))
+				if (!jbpmKeys.contains(subPd.getKey())) {
 					jbpmKeys.add(subPd.getKey());
+					afegirJbpmKeyProcesAmbSubprocessos(subPd, jbpmKeys);
+				}
 			}
 		}
-		if (!jbpmKeys.contains(jpd.getKey()))
+		if (!jbpmKeys.contains(jpd.getKey())) {
 			jbpmKeys.add(jpd.getKey());
+		}
 	}
 	
 	public List<DefinicioProcesDto> findDefinicionsProcesAmbExpedientTipus(ExpedientTipus expedientTipus) {
