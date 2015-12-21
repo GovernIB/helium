@@ -3,10 +3,16 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 
@@ -42,6 +48,16 @@ public class BaseExpedientController extends BaseController {
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
 			model.addAttribute("pipellaActiva", "dades");
+		
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
+		int numAccions = 0;
+		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			List<AccioDto> accionsTrobades = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId);
+			accions.put(instanciaProces, accionsTrobades);
+			numAccions += accionsTrobades.size();
+		}
+		model.addAttribute("numAccions", numAccions);
 		return "v3/expedientPipelles";
 	}
 

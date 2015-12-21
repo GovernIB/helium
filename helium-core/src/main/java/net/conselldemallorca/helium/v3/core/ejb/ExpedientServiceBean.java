@@ -265,6 +265,18 @@ public class ExpedientServiceBean implements ExpedientService {
 	public List<PersonaDto> findParticipants(Long id) {
 		return delegate.findParticipants(id);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AccioDto findAccioAmbId(Long idAccio) {
+		return delegate.findAccioAmbId(idAccio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId) {
+		delegate.accioExecutar(expedientId, processInstanceId, accioId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -698,8 +710,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId) {
-		return delegate.findAccionsVisiblesAmbProcessInstanceId(processInstanceId);
+	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId) {
+		return delegate.findAccionsVisiblesAmbProcessInstanceId(processInstanceId, expedientId);
 	}
 
 	@Override

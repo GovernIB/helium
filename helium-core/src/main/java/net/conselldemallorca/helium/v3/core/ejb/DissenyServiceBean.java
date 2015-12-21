@@ -9,7 +9,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -160,18 +159,6 @@ public class DissenyServiceBean implements DissenyService {
 	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(
 			Long definicioProcesId) {
 		return delegate.findCampsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public AccioDto findAccioAmbId(Long idAccio) {
-		return delegate.findAccioAmbId(idAccio);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void executarAccio(Long accioId, Long expedientId) throws Exception {
-		delegate.executarAccio(accioId, expedientId);
 	}
 
 	@Override

@@ -98,6 +98,7 @@ import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidac
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmNodePosition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -2039,9 +2040,29 @@ public class ExpedientService {
 				processInstance.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accio.getJbpmAction());
-		jbpmHelper.executeActionInstanciaProces(
-				processInstanceId,
-				accio.getJbpmAction());
+		
+		try {
+			jbpmHelper.executeActionInstanciaProces(
+					processInstanceId,
+					accio.getJbpmAction());
+		} catch (Exception ex) {
+			if (ex instanceof ExecucioHandlerException) {
+				logger.error(
+						"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
+						ex.getCause());
+			} else {
+				logger.error(
+						"Error al executa l'acció '" + accio.getCodi() + "'",
+						ex);
+			}
+			throw new net.conselldemallorca.helium.v3.core.api.exception.JbpmException(
+					expedient.getId(),
+					expedient.getIdentificador(),
+					expedient.getTipus().getId(),
+					processInstanceId,
+					(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
+		}
+		
 		verificarFinalitzacioExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu())

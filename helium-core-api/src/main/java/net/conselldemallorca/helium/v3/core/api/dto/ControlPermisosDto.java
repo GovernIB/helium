@@ -12,18 +12,18 @@ import java.io.Serializable;
  */
 public abstract class ControlPermisosDto implements Serializable {
 
-	protected boolean permisCreate;
-	protected boolean permisRead;
-	protected boolean permisWrite;
-	protected boolean permisDelete;
+	protected boolean permisCreate; // 4
+	protected boolean permisRead; // 1
+	protected boolean permisWrite; // 2
+	protected boolean permisDelete; // 8
 	
-	protected boolean permisSupervision;
-	protected boolean permisReassignment;
+	protected boolean permisSupervision; // 128
+	protected boolean permisReassignment; // 512
 
-	protected boolean permisDesign;
-	protected boolean permisOrganization;
-	protected boolean permisManage;
-	protected boolean permisAdministration;
+	protected boolean permisDesign; // 32
+	protected boolean permisOrganization; // 64
+	protected boolean permisManage; // 256
+	protected boolean permisAdministration; // 16
 
 
 	public boolean isPermisCreate() {

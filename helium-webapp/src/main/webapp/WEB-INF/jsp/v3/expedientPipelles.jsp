@@ -304,10 +304,18 @@
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
 				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.cronograma"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
-				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
-				<li id="pipella-tokens"><a href="#contingut-tokens" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tokens"/></a></li>
-				<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
-				<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
+				<c:if test="${expedient.permisRead or expedient.permisSupervision or expedient.permisAdministration}">
+					<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
+				</c:if>
+				<c:if test="${expedient.permisAdministration}">
+					<li id="pipella-tokens"><a href="#contingut-tokens" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tokens"/></a></li>
+				</c:if>
+				<c:if test="${expedient.permisSupervision or expedient.permisAdministration}">
+					<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
+				</c:if>
+				<c:if test="${numAccions > 0}">
+					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
+				</c:if>
 			</ul>
 			<div class="tab-content">
 				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dada"/>">
@@ -316,24 +324,32 @@
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
-					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>
+				<c:if test="${expedient.permisRead or expedient.permisSupervision or expedient.permisAdministration}">
+					<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tokens"/>">
-					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>
-				<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">
-					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>
-				<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accions"/>">
-					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>
+				<c:if test="${expedient.permisAdministration}">
+					<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tokens"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${expedient.permisSupervision or expedient.permisAdministration}">
+					<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${numAccions > 0}">
+					<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accions"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
 			</div>
 		</div>
 	</div>
