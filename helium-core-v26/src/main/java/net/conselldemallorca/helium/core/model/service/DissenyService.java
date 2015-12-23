@@ -2393,9 +2393,9 @@ public class DissenyService {
 			String startTaskName = jbpmDao.getStartTaskName(
 					definicioProces.getJbpmId());
 			if (startTaskName != null) {
-				Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
+				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 						startTaskName,
-						definicioProces.getId());
+						definicioProces.getJbpmId());
 				if (tasca != null) {
 					List<CampTasca> camps = campTascaDao.findAmbTascaOrdenats(tasca.getId());
 					result = new Boolean(camps.size() > 0);

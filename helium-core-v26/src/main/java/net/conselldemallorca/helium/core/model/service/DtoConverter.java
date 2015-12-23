@@ -220,7 +220,7 @@ public class DtoConverter {
 				}
 			}
 		} else {
-			titol = task.getName();
+			titol = task.getTaskName();
 		}
 		return titol;
 	}
@@ -234,7 +234,7 @@ public class DtoConverter {
 			boolean documentsComplet,
 			boolean signaturesComplet) {
 		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-				task.getName(),
+				task.getTaskName(),
 				task.getProcessDefinitionId());
 		TascaDto dto = new TascaDto();
 		dto.setId(task.getId());
@@ -281,7 +281,7 @@ public class DtoConverter {
 			if (tasca != null)
 				dto.setNom(tasca.getNom());
 			else
-				dto.setNom(task.getName());
+				dto.setNom(task.getTaskName());
 		}
 		if (tasca != null) {
 			dto.setTascaId(tasca.getId());

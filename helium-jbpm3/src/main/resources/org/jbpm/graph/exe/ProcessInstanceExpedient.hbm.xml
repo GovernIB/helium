@@ -4,16 +4,20 @@
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping auto-import="false" default-access="field">
-  <class name="org.jbpm.graph.exe.ProcessInstanceExpedient"
-         table="HEL_EXPEDIENT">
-    <id name="id" column="ID"></id>
-    <property name="titol" column="TITOL"/>
-    <property name="numero" column="NUMERO"/>
-    <property name="numeroDefault" column="NUMERO_DEFAULT"/>
-    <property name="dataInici" column="DATA_INICI"/>
-    <property name="dataFi" column="DATA_FI"/>
-    <property name="expedientTipusId" column="TIPUS_ID"/>
-    <property name="entornId" column="ENTORN_ID"/>
-    <property name="processInstanceId" column="PROCESS_INSTANCE_ID"/>
-   </class>
+	<class name="org.jbpm.graph.exe.ProcessInstanceExpedient" table="HEL_EXPEDIENT">
+		<id name="id" column="ID"></id>
+		<property name="titol" column="TITOL" />
+		<property name="numero" column="NUMERO" />
+		<property name="numeroDefault" column="NUMERO_DEFAULT" />
+		<property name="dataInici" column="DATA_INICI" />
+		<property name="dataFi" column="DATA_FI" />
+		<property name="entornId" column="ENTORN_ID" />
+		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" />
+		<many-to-one
+				name="tipus"
+				column="TIPUS_ID"
+				foreign-key="HEL_EXPTIPUS_EXPEDIENT_FK"
+				index="HEL_EXPEDIENT_TIPUS_I"
+				lazy="false"/>
+	</class>
 </hibernate-mapping>

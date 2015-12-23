@@ -16,6 +16,34 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.jbpm.JbpmException;
+import org.jbpm.command.CancelTokenCommand;
+import org.jbpm.command.ChangeProcessInstanceVersionCommand;
+import org.jbpm.command.Command;
+import org.jbpm.command.CommandService;
+import org.jbpm.command.DeleteProcessDefinitionCommand;
+import org.jbpm.command.DeployProcessCommand;
+import org.jbpm.command.GetProcessInstanceCommand;
+import org.jbpm.command.GetProcessInstancesCommand;
+import org.jbpm.command.GetTaskInstanceCommand;
+import org.jbpm.command.SignalCommand;
+import org.jbpm.command.TaskInstanceEndCommand;
+import org.jbpm.file.def.FileDefinition;
+import org.jbpm.graph.def.DelegationException;
+import org.jbpm.graph.def.Node;
+import org.jbpm.graph.def.Node.NodeType;
+import org.jbpm.graph.def.ProcessDefinition;
+import org.jbpm.graph.def.Transition;
+import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.graph.exe.Token;
+import org.jbpm.job.Timer;
+import org.jbpm.logging.log.ProcessLog;
+import org.jbpm.taskmgmt.def.Task;
+import org.jbpm.taskmgmt.exe.TaskInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.jbpm3.command.AddProcessInstanceMessageLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.AddTaskInstanceMessageLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.AddToAutoSaveCommand;
@@ -71,34 +99,6 @@ import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 
-import org.jbpm.JbpmException;
-import org.jbpm.command.CancelTokenCommand;
-import org.jbpm.command.ChangeProcessInstanceVersionCommand;
-import org.jbpm.command.Command;
-import org.jbpm.command.CommandService;
-import org.jbpm.command.DeleteProcessDefinitionCommand;
-import org.jbpm.command.DeployProcessCommand;
-import org.jbpm.command.GetProcessInstanceCommand;
-import org.jbpm.command.GetProcessInstancesCommand;
-import org.jbpm.command.GetTaskInstanceCommand;
-import org.jbpm.command.SignalCommand;
-import org.jbpm.command.TaskInstanceEndCommand;
-import org.jbpm.file.def.FileDefinition;
-import org.jbpm.graph.def.DelegationException;
-import org.jbpm.graph.def.Node;
-import org.jbpm.graph.def.Node.NodeType;
-import org.jbpm.graph.def.ProcessDefinition;
-import org.jbpm.graph.def.Transition;
-import org.jbpm.graph.exe.ProcessInstance;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.jbpm.graph.exe.Token;
-import org.jbpm.job.Timer;
-import org.jbpm.logging.log.ProcessLog;
-import org.jbpm.taskmgmt.def.Task;
-import org.jbpm.taskmgmt.exe.TaskInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
  * 
@@ -120,6 +120,7 @@ public class JbpmHelper {
 			String actorId,
 			String taskName,
 			String titol,
+			Long expedientId,
 			String expedientTitol,
 			String expedientNumero,
 			Long expedientTipusId,
@@ -141,6 +142,7 @@ public class JbpmHelper {
 				actorId,
 				taskName,
 				titol,
+				expedientId,
 				expedientTitol,
 				expedientNumero,
 				expedientTipusId,
@@ -158,6 +160,14 @@ public class JbpmHelper {
 				asc,
 				nomesCount);
 		return (LlistatIds)commandService.execute(command);
+	}
+
+	public ProcessInstanceExpedient expedientFindByProcessInstanceId(
+			String processInstanceId) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
+				Long.parseLong(processInstanceId));
+		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
+		return processInstance.getExpedient();
 	}
 
 	public JbpmProcessDefinition desplegar(
@@ -785,7 +795,10 @@ public class JbpmHelper {
 	public void describeTaskInstance(String taskId, String titol, String description) {
 		//adminService.mesuraIniciar("jBPM describeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
-		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(id, titol, description);
+		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(
+				id,
+				titol,
+				description);
 		executeCommandWithAutoSave(
 				command,
 				id,
@@ -1471,8 +1484,9 @@ public class JbpmHelper {
 		//adminService.mesuraIniciar("jBPM findTasks ids", "jbpmDao");
 		List<JbpmTask> resultat = new ArrayList<JbpmTask>();
 		GetTaskListCommand command = new GetTaskListCommand(ids);
-		for (TaskInstance ti : (List<TaskInstance>)commandService.execute(command))
+		for (TaskInstance ti: (List<TaskInstance>)commandService.execute(command)) {
 			resultat.add(new JbpmTask(ti));
+		}
 		//adminService.mesuraCalcular("jBPM findTasks ids", "jbpmDao");
 		return resultat;
 	}
@@ -1717,7 +1731,7 @@ public class JbpmHelper {
 				if (element.getMethodName().equals("execute")) {
 					return new ExecucioHandlerException(
 							(expedient != null) ? expedient.getId() : null,
-							(expedient != null) ? expedient.getExpedientTipusId() : null,
+							(expedient != null) ? expedient.getTipus().getId() : null,
 							processInstanceId,
 							taskInstanceId,
 							tokenId,

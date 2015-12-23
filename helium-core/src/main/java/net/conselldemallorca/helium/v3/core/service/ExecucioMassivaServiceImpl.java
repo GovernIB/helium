@@ -204,7 +204,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						if (task.isCacheActiu())
 							tasca = task.getFieldFromDescription("titol");
 						else
-							tasca = task.getName();
+							tasca = task.getTaskName();
 					}
 				}
 				for (ExecucioMassivaExpedient expedient: expedients) {

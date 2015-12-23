@@ -19,6 +19,19 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Element;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -45,7 +58,6 @@ import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
@@ -87,7 +99,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
@@ -108,19 +119,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Element;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
@@ -137,7 +135,6 @@ public class ExpedientService {
 	private LuceneDao luceneDao;
 	private ConsultaDao consultaDao;
 	private CampDao campDao;
-	private TascaDao tascaDao;
 	private ConsultaCampDao consultaCampDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
@@ -661,7 +658,6 @@ public class ExpedientService {
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
-		
 		luceneDao.updateExpedientCapsalera(
 				expedient,
 				getServiceUtils().isExpedientFinalitzat(expedient));
@@ -671,7 +667,6 @@ public class ExpedientService {
 				getUsuariPerRegistre(),
 				informacioVella,
 				informacioNova);
-		
 		actualizarCacheExpedient(expedient);
 	}
 
@@ -679,14 +674,33 @@ public class ExpedientService {
 	 * Actualización de la caché en todas las jbpm_task del expediente
 	 */
 	private void actualizarCacheExpedient(Expedient expedient) {
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(Long.parseLong(expedient.getProcessInstanceId()));
-		LlistatIds llistatIds = jbpmHelper.findListIdsTasks(expedient.getResponsableCodi(),ids);
-		List<JbpmTask> tasques = jbpmHelper.findTasks(llistatIds.getIds());
-		
-		for(JbpmTask task : tasques) {
-			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getName(),
+		LlistatIds taskIds = jbpmHelper.tascaFindByFiltre(
+				expedient.getEntorn().getId(),
+				null,
+				null,
+				null,
+				expedient.getId(),
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				true, // tasquesPersona
+				true, // tasquesGrup
+				false, // nomesPendents
+				0,
+				-1,
+				null,
+				true,
+				false);
+		List<JbpmTask> tasks = jbpmHelper.findTasks(taskIds.getIds());
+		for (JbpmTask task: tasks) {
+			task.setCacheInactiu();
+			/*Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+					task.getTaskName(),
 					task.getProcessDefinitionId());
 			String titol = tasca.getNom();
 			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
@@ -721,10 +735,10 @@ public class ExpedientService {
 			task.setFieldFromDescription(
 					"definicioProcesJbpmKey",
 					tasca.getDefinicioProces().getJbpmKey());
-			task.setCacheActiu();
+			task.setCacheActiu();*/
 			jbpmHelper.describeTaskInstance(
 					task.getId(),
-					titol,
+					task.getTaskName(),
 					task.getDescriptionWithFields());
 		}		
 	}
@@ -2483,10 +2497,6 @@ public class ExpedientService {
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
-	}
-	@Autowired
-	public void setTascaDao(TascaDao tascaDao) {
-		this.tascaDao = tascaDao;
 	}
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {

@@ -923,9 +923,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				task.getProcessDefinitionId());
 		if (definicioProces == null)
 			throw new DefinicioProcesNotFoundException();
-		Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
-				task.getName(),
-				definicioProces.getId());
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getTaskName(),
+				definicioProces.getJbpmId());
 		if (tasca == null)
 			throw new TascaNotFoundException();
 		return conversioTipusHelper.convertirList(
@@ -944,9 +944,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				task.getProcessDefinitionId());
 		if (definicioProces == null)
 			throw new DefinicioProcesNotFoundException();
-		Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
-				task.getName(),
-				definicioProces.getId());
+		Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
+				task.getTaskName(),
+				definicioProces.getJbpmId());
 		if (tasca == null)
 			throw new TascaNotFoundException();
 		return conversioTipusHelper.convertirList(

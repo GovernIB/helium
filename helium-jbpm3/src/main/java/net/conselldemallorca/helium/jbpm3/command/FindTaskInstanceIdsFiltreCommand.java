@@ -26,6 +26,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 	private String actorId;
 	private String taskName;
 	private String titol;
+	private Long expedientId;
 	private String expedientTitol;
 	private String expedientNumero;
 	private Long expedientTipusId;
@@ -48,6 +49,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			String actorId,
 			String taskName,
 			String titol,
+			Long expedientId,
 			String expedientTitol,
 			String expedientNumero,
 			Long expedientTipusId,
@@ -69,6 +71,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 		this.actorId = actorId;
 		this.taskName = taskName;
 		this.titol = titol;
+		this.expedientId = expedientId;
 		this.expedientTitol = expedientTitol;
 		this.expedientNumero = expedientNumero;
 		this.expedientTipusId = expedientTipusId;
@@ -90,16 +93,24 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		StringBuilder taskQuerySb = new StringBuilder();
-		taskQuerySb.append(
-				"from " +
-				"    org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
-				"where ");
-		if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-			taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
-		} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
-			taskQuerySb.append("ti.actorId is not null and ti.actorId = :actorId ");
-		} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-			taskQuerySb.append("ti.actorId is null and pa.actorId = :actorId ");
+		if (actorId != null) {
+			taskQuerySb.append(
+					"from " +
+					"    org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
+					"where ");
+			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
+			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is not null and ti.actorId = :actorId ");
+			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is null and pa.actorId = :actorId ");
+			}
+		} else {
+			taskQuerySb.append(
+					"from " +
+					"    org.jbpm.taskmgmt.exe.TaskInstance ti " +
+					"where " +
+					"    ti.id is not null ");
 		}
 		if (nomesPendents) {
 			taskQuerySb.append("and ti.isSuspended = false and ti.isOpen = true ");
@@ -109,6 +120,9 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (titol != null && !titol.isEmpty()) {
 			taskQuerySb.append("and upper(ti.description) like '%@#@TITOL@#@%'||:titol||'%@#@ENTORNID@#@%' ");
+		}
+		if (expedientId != null) {
+			taskQuerySb.append("and ti.processInstance.expedient.id = :expedientId ");
 		}
 		if (expedientTitol != null && !expedientTitol.isEmpty()) {
 			taskQuerySb.append(
@@ -155,6 +169,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 				actorId,
 				taskName,
 				titol,
+				expedientId,
 				expedientTitol,
 				expedientNumero,
 				expedientTipusId,
@@ -208,6 +223,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 					actorId,
 					taskName,
 					titol,
+					expedientId,
 					expedientTitol,
 					expedientNumero,
 					expedientTipusId,
@@ -239,6 +255,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			String actorId,
 			String taskName,
 			String titol,
+			Long expedientId,
 			String expedientTitol,
 			String expedientNumero,
 			Long expedientTipusId,
@@ -249,7 +266,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			Date dataLimitFi,
 			int firstResult,
 			int maxResults) {
-		if (mostrarAssignadesUsuari || mostrarAssignadesGrup) {
+		if (actorId != null && (mostrarAssignadesUsuari || mostrarAssignadesGrup)) {
 			query.setParameter("actorId", actorId);
 		}
 		if (taskName != null && !taskName.isEmpty()) {
@@ -257,6 +274,9 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (titol != null && !titol.isEmpty()) {
 			query.setParameter("titol", titol.toUpperCase());
+		}
+		if (expedientId != null) {
+			query.setParameter("expedientId", expedientId);
 		}
 		if (expedientTitol != null && !expedientTitol.isEmpty()) {
 			query.setParameter("expedientTitol", "%" + expedientTitol + "%");
