@@ -142,7 +142,8 @@ public class RegistreSortidaHandler extends BasicActionHandler implements Regist
 				resposta.getNumero(),
 				resposta.getData(),
 				anotacio.getOficinaCodi(),
-				Jbpm3HeliumBridge.getInstanceService().getRegistreOficinaNom(anotacio.getOficinaCodi()),
+				Jbpm3HeliumBridge.getInstanceService().registreObtenirOficinaNom(
+						anotacio.getOficinaCodi()),
 				false);
 		if (varNumeroAnyRegistre != null)
 			executionContext.setVariable(

@@ -550,7 +550,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto generarDocumentAmbPlantillaProces(
+	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
@@ -562,7 +562,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto generarDocumentAmbPlantillaTasca(
+	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
 			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
 		return delegate.generarDocumentAmbPlantillaTasca(

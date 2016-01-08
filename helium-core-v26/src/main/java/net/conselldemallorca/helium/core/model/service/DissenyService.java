@@ -17,7 +17,13 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Service;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.helperv26.CacheHelper;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -46,7 +52,6 @@ import net.conselldemallorca.helium.core.model.dao.TerminiDao;
 import net.conselldemallorca.helium.core.model.dao.ValidacioDao;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.ExportException;
 import net.conselldemallorca.helium.core.model.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.core.model.exportacio.AgrupacioExportacio;
@@ -101,11 +106,6 @@ import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Service;
 
 
 /**
@@ -1799,16 +1799,16 @@ public class DissenyService {
 		return dominiDao.findAmbEntornICodi(entornId, codi);
 	}
 
-	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId) {
+	public List<FilaResultat> consultaDomini(
+			Long entornId,
+			Long dominiId) {
 		return consultaDomini(entornId, dominiId, null, null);
 	}
-	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, Map<String, Object> params) {
-		try {
-			return cacheHelper.getResultatConsultaDomini(entornId, dominiId, null, params);
-		} catch (Exception ex) {
-			throw new DominiException(
-					getServiceUtils().getMessage("error.dissenyService.consultantDomini"), ex);
-		}
+	public List<FilaResultat> consultaDomini(
+			Long entornId,
+			Long dominiId,
+			Map<String, Object> params) {
+		return cacheHelper.getResultatConsultaDomini(entornId, dominiId, null, params);
 	}
 	
 	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId) {
@@ -1816,12 +1816,7 @@ public class DissenyService {
 	}
 	
 	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId, Map<String, Object> params) {
-		try {
-			return cacheHelper.getResultatConsultaDomini(entornId, dominiId, dominiWsId, params);
-		} catch (Exception ex) {
-			throw new DominiException(
-					getServiceUtils().getMessage("error.dissenyService.consultantDomini") + " : " + dominiWsId + " << parametros >> " + params, ex);
-		}
+		return cacheHelper.getResultatConsultaDomini(entornId, dominiId, dominiWsId, params);
 	}	
 
 	public DefinicioProcesDto findDefinicioProcesAmbProcessInstanceId(String processInstanceId) {
@@ -1832,7 +1827,7 @@ public class DissenyService {
 	public List<FilaResultat> getResultatConsultaDomini(
 			Long definicioProcesId,
 			String campCodi,
-			String textInicial) throws DominiException {
+			String textInicial) {
 		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProcesId, campCodi);
 		return dtoConverter.getResultatConsultaDominiPerCamp(camp, null, textInicial);
 	}

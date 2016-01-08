@@ -10,6 +10,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.ConsultaCampDao;
@@ -48,13 +57,6 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProces
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 
 /**
@@ -558,7 +560,7 @@ public class PluginService {
 		if (document != null) {
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(documentStore.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-			String varDocumentCodi = documentStore.getJbpmVariable().substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
+			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
 			if (signatures != null) {
 				//logger.info(">>> [PSIGN] Té signatures i comença custòdia (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");

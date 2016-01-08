@@ -18,30 +18,6 @@ import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.report.FieldValue;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
-import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.displaytag.properties.SortOrderEnum;
@@ -61,6 +37,29 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.PaginatedList;
+import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 
 
@@ -232,7 +231,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 			Object commandFiltre = session.getAttribute(VARIABLE_SESSIO_FILTRE_COMMAND);
 			if (commandFiltre != null && commandSeleccio != null && commandSeleccio.getConsultaId() != null) {
 				Consulta consulta = null;
-				if (MesuresTemporalsHelper.isActiu()) {
+				if (adminService.mesuraTemporalIsActive()) {
 					consulta = dissenyService.getConsultaById(commandSeleccio.getConsultaId());
 					adminService.mesuraTemporalIniciar(
 							"INFORME: " + consulta.getCodi(),
@@ -269,7 +268,7 @@ public class ExpedientConsultaDissenyController extends BaseController {
 								dir,
 								objectsPerPage,
 								export));
-				if (MesuresTemporalsHelper.isActiu())
+				if (adminService.mesuraTemporalIsActive())
 					adminService.mesuraTemporalCalcular(
 							"INFORME: " + consulta.getCodi(),
 							"report",

@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -27,6 +30,41 @@ public interface AdminService {
 	 * @return l'string amb les mètriques
 	 */
 	public String getMetrics();
+
+	/**
+	 * Retorna el llistat de les integracions disponibles.
+	 * 
+	 * @return la llista d'integracions
+	 */
+	public List<IntegracioDto> monitorIntegracioFindAll();
+
+	/**
+	 * Retorna les darreres accions de la integració especificada.
+	 * 
+	 * @param integracioCodi el codi de la integració a consultar
+	 * @return
+	 */
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(
+			String integracioCodi);
+
+	/**
+	 * Retorna la llista de dominis d'un entorn
+	 * 
+	 * @param entornId l'id del entorn que es vol consultar, si es null
+	 * retorna tots els dominis
+	 * @return la llista de dominis
+	 */
+	public List<DominiDto> monitorDominiFindByEntorn(
+			Long entornId);
+
+	/**
+	 * Retorna la llista de les darreres accions d'un domini
+	 * 
+	 * @param dominiId l'id del domini que es vol consultar
+	 * @return la llista d'accions
+	 */
+	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
+			Long dominiId);
 
 	/**
 	 * Consulta les mesures temporals per família.
@@ -86,6 +124,8 @@ public interface AdminService {
 	public void mesuraTemporalCalcular(
 			String clau,
 			String familia);
+	public boolean mesuraTemporalIsActive();
+
 	public boolean isStatisticActive();
 
 	public List<MesuraTemporalDto> getHibernateStatistics(

@@ -17,22 +17,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.exception.NotFoundException;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.service.DocumentService;
-import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
-import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +34,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
+import net.conselldemallorca.helium.core.model.exception.NotFoundException;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
+
 
 
 /**
@@ -63,7 +63,7 @@ public class TascaDocumentsController extends BaseController {
 	private TascaService tascaService;
 	private DocumentService documentService;
 	private ExecucioMassivaService execucioMassivaService;
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	private AdminService adminService;
 
 
 	@Autowired
@@ -71,11 +71,11 @@ public class TascaDocumentsController extends BaseController {
 			TascaService tascaService,
 			DocumentService documentService,
 			ExecucioMassivaService execucioMassivaService,
-			MesuresTemporalsHelper mesuresTemporalsHelper) {
+			AdminService adminService) {
 		this.tascaService = tascaService;
 		this.documentService = documentService;
 		this.execucioMassivaService = execucioMassivaService;
-		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
+		this.adminService = adminService;
 	}
 
 	@ModelAttribute("seleccioMassiva")
@@ -166,8 +166,13 @@ public class TascaDocumentsController extends BaseController {
 					null,
 					true,
 					true);
-			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraIniciar("Tasca DOCUMENTS", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+			if (adminService.mesuraTemporalIsActive())
+				adminService.mesuraTemporalIniciar(
+						"Tasca DOCUMENTS",
+						"tasques",
+						tasca.getExpedient().getTipus().getNom(),
+						tasca.getNomLimitat(),
+						null);
 			model.addAttribute("tasca", tasca);
 			for (DocumentTasca document: tasca.getDocuments()) {
 				DocumentExpedientCommand command = new DocumentExpedientCommand();
@@ -176,8 +181,13 @@ public class TascaDocumentsController extends BaseController {
 						"documentCommand_" + document.getDocument().getCodi(),
 						command);
 			}
-			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraCalcular("Tasca DOCUMENTS", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+			if (adminService.mesuraTemporalIsActive())
+				adminService.mesuraTemporalCalcular(
+						"Tasca DOCUMENTS",
+						"tasques",
+						tasca.getExpedient().getTipus().getNom(),
+						tasca.getNomLimitat(),
+						null);
 			return "tasca/documents";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
-import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 /**
@@ -35,7 +35,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 	@Autowired
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
-	private PersonaHelper personaHelper;
+	private PluginHelper pluginHelper;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
@@ -61,7 +61,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 	@Override
 	@Transactional(readOnly = true)
 	public PersonaDto findPersonaAmbCodi(String codi) {
-		return personaHelper.findAmbCodi(codi);
+		return pluginHelper.personaFindAmbCodi(codi);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
-		return personaHelper.findLikeNomSencer(text);
+		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 
 

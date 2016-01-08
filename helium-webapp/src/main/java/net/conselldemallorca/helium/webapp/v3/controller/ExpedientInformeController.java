@@ -477,7 +477,9 @@ public class ExpedientInformeController extends BaseExpedientController {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();
 		for (TascaDadaDto camp : camps) {
 			String clau = (camp.getDefinicioProcesKey() == null) ? camp.getVarCodi() : camp.getDefinicioProcesKey() + "." + camp.getVarCodi();
-			clau = camp.getVarCodi().replace(ExpedientCamps.EXPEDIENT_PREFIX_JSP, ExpedientCamps.EXPEDIENT_PREFIX);
+			clau = camp.getVarCodi().replace(
+					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
+					ExpedientCamps.EXPEDIENT_PREFIX);
 			if (camp.getCampTipus().BOOLEAN.equals(camp.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, camp.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(filtreCommand, camp.getVarCodi());
 				valors.put(camp.getVarCodi(), valor);

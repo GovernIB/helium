@@ -3,22 +3,14 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.hibernate.SessionFactory;
-import org.hibernate.stat.QueryStatistics;
-import org.hibernate.stat.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,21 +21,29 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.json.MetricsModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.HibernateHelper;
+import net.conselldemallorca.helium.core.helper.MonitorDominiHelper;
+import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.PersonaHelper;
-import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
@@ -57,6 +57,10 @@ import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesReposit
 public class AdminServiceImpl implements AdminService {
 
 	@Resource
+	private EntornRepository entornRepository;
+	@Resource
+	private DominiRepository dominiRepository;
+	@Resource
 	private ReassignacioRepository reassignacioRepository;
 	@Resource
 	private UsuariPreferenciesRepository usuariPreferenciesRepository;
@@ -64,16 +68,16 @@ public class AdminServiceImpl implements AdminService {
 	private PersonaRepository personaRepository;
 
 	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+	private HibernateHelper hibernateHelper;
 	@Resource
-	private UsuariActualHelper usuariActualCacheHelper;
+	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
-	private PersonaHelper personaHelper;
-
+	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
-	private SessionFactory sessionFactory;
+	private MonitorDominiHelper monitorDominiHelper;
+
 	@Autowired
 	private MetricRegistry metricRegistry;
 
@@ -84,6 +88,7 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public String getMetrics() {
+		logger.debug("Consultant les mètriques de l'aplicació");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.registerModule(
@@ -102,6 +107,59 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<IntegracioDto> monitorIntegracioFindAll() {
+		logger.debug("Consultant la llista d'integracions disponibles");
+		return monitorIntegracioHelper.findAll();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(
+			String integracioCodi) {
+		logger.debug("Consultant la llista d'accions per a la integració (" +
+				"integracioCodi=" + integracioCodi + ")");
+		return monitorIntegracioHelper.findAccionsByIntegracioCodi(integracioCodi);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<DominiDto> monitorDominiFindByEntorn(
+			Long entornId) {
+		logger.debug("Consultant la llista de dominis donat un entorn (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = null;
+		if (entornId != null) {
+			entorn = entornRepository.findOne(entornId);
+			if (entorn == null) {
+				throw new NotFoundException(entornId, Entorn.class);
+			}
+		}
+		return monitorDominiHelper.findByEntorn(entorn);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
+			Long dominiId) {
+		logger.debug("Consultant la llista d'accions per al domini (" +
+				"dominiId=" + dominiId + ")");
+		Domini domini = dominiRepository.findOne(dominiId);
+		if (domini == null) {
+			throw new NotFoundException(dominiId, Domini.class);
+		}
+		return monitorDominiHelper.findAccionsByDomini(domini);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<MesuraTemporalDto> mesuraTemporalFindByFamilia(
 			String familia,
 			boolean ambDetall) {
@@ -110,6 +168,7 @@ public class AdminServiceImpl implements AdminService {
 				"ambDetall=" + ambDetall + ")");
 		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -118,6 +177,7 @@ public class AdminServiceImpl implements AdminService {
 		logger.debug("Consultant el llistat de mesures temporals dels tipus d'expedient");
 		return mesuresTemporalsHelper.getEstadistiquesTipusExpedient();
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -126,6 +186,7 @@ public class AdminServiceImpl implements AdminService {
 		logger.debug("Consultant el llistat de mesures temporals de les tasques");
 		return mesuresTemporalsHelper.getEstadistiquesTasca();
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -134,6 +195,7 @@ public class AdminServiceImpl implements AdminService {
 		logger.debug("Consultant el llistat de famílies de mesures temporals");
 		return mesuresTemporalsHelper.getIntervalsFamilia();
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -176,117 +238,55 @@ public class AdminServiceImpl implements AdminService {
 				tasca,
 				detall);
 	}
-	
+
 	@Override
-	public void mesuraTemporalCalcular(String clau, String familia) {
-		mesuresTemporalsHelper.mesuraCalcular(clau, familia);
+	public void mesuraTemporalCalcular(
+			String clau,
+			String familia) {
+		mesuresTemporalsHelper.mesuraCalcular(
+				clau,
+				familia);
 	}
-	
 	@Override
-	public void mesuraTemporalCalcular(String clau, String familia, String tipusExpedient) {
-		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient);
+	public void mesuraTemporalCalcular(
+			String clau,
+			String familia,
+			String tipusExpedient) {
+		mesuresTemporalsHelper.mesuraCalcular(
+				clau,
+				familia,
+				tipusExpedient);
 	}
 	@Override
-	public void mesuraTemporalCalcular(String clau, String familia, String tipusExpedient, String tasca, String detall) {
-		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
+	public void mesuraTemporalCalcular(
+			String clau,
+			String familia,
+			String tipusExpedient,
+			String tasca,
+			String detall) {
+		mesuresTemporalsHelper.mesuraCalcular(
+				clau,
+				familia,
+				tipusExpedient,
+				tasca,
+				detall);
 	}
-	
+
+	@Override
+	public boolean mesuraTemporalIsActive() {
+		return MesuresTemporalsHelper.isActiu();
+	}
+
 	@Override
 	public boolean isStatisticActive() {
-		return sessionFactory.getStatistics().isStatisticsEnabled();
+		return hibernateHelper.isStatisticActive();
 	}
-	
-	@Override
-	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar) {
-		Map<String,MesuraTemporalDto> resposta = new HashMap<String, MesuraTemporalDto>();
-		Map<String,MesuraTemporalDto> respostaDetallada = new HashMap<String, MesuraTemporalDto>();
-		
-		String clauJbpm = exportar?"Consultas Jbpm":"Consultas totales de JBPM";
-		String clauHelium = exportar?"Consultas Helium":"Consultas totales de Helium";
-		Statistics stats = sessionFactory.getStatistics();
-		for (String sQuery : stats.getQueries()) {
-			QueryStatistics qStats = stats.getQueryStatistics(sQuery);
-			String clau = clauHelium;
-			boolean pasar = true;
-			if (!sQuery.contains("org.jbpm.") && "sql_helium".equals(familia)) {
-				clau = sQuery;
-				pasar = false;
-			} else if (sQuery.contains("org.jbpm.") && "sql_jbpm".equals(familia)) {
-				clau = sQuery;
-				pasar = false;
-			} else if ("".equals(familia)) {
-				if (sQuery.contains("org.jbpm.")) {
-					clau = clauJbpm;
-				}
-				pasar = false;
-			} 
-			
-			if (!pasar && (exportar || "".equals(familia) || qStats.getExecutionMaxTime() > 100)) {
-				MesuraTemporalDto dto;
-				MesuraTemporalDto dtoDetalle;
-				if (resposta.containsKey(clau)) {
-					dto = resposta.get(clau);
-					if (dto.getMinima()>qStats.getExecutionMinTime()) {
-						dto.setMinima(qStats.getExecutionMinTime());
-					}
-					if (dto.getMaxima()<qStats.getExecutionMinTime()) {
-						dto.setMaxima(qStats.getExecutionMaxTime());
-					}
-					
-					long  mediaAnterior = (long) (dto.getMitja() * ((float) dto.getNumMesures()/(float) (dto.getNumMesures() + qStats.getExecutionCount())));
-					long  mediaActual = (long) (qStats.getExecutionAvgTime() * ((float) qStats.getExecutionCount()/(float) (dto.getNumMesures() + qStats.getExecutionCount())));
-					dto.setNumMesures((int) (dto.getNumMesures() + qStats.getExecutionCount()));				
-					dto.setMitja(mediaAnterior+mediaActual);
-				} else {
-					dto = new MesuraTemporalDto();
-					dto.setClau(clau);
-					dto.setMinima(qStats.getExecutionMinTime());
-					dto.setMaxima(qStats.getExecutionMaxTime());
-					dto.setNumMesures((int) qStats.getExecutionCount());
-					dto.setMitja(qStats.getExecutionAvgTime());
-				}
-				
-				LinkedList<IntervalEventDto> intervalEvents = new LinkedList<IntervalEventDto>();
-				dto.setEvents(intervalEvents);
-				dtoDetalle = new MesuraTemporalDto();
-				dtoDetalle.setClau(sQuery);
-				dtoDetalle.setMinima(qStats.getExecutionMinTime());
-				dtoDetalle.setMaxima(qStats.getExecutionMaxTime());
-				dtoDetalle.setNumMesures((int) qStats.getExecutionCount());
-				dtoDetalle.setMitja(qStats.getExecutionAvgTime());
-				
-				LinkedList<IntervalEventDto> intervalEventsDetalle = new LinkedList<IntervalEventDto>();
-				dtoDetalle.setEvents(intervalEventsDetalle);
-				
-				respostaDetallada.put(StringEscapeUtils.escapeJavaScript(sQuery),dtoDetalle);
-								
-				if ("sql_helium".equals(familia)) {
-					resposta.put(StringEscapeUtils.escapeJavaScript(sQuery),dto);
-				} else if ("sql_jbpm".equals(familia)) {
-					resposta.put(StringEscapeUtils.escapeJavaScript(sQuery),dto);
-				} else if ("".equals(familia)) {
-					resposta.put(clau,dto);
-				}
-			}
-		}
-		
-		if (!"".equals(familia)) {
-			if ("sql_helium".equals(familia) && resposta.containsKey(clauJbpm)) {
-				resposta.remove(clauJbpm);
-			}
-			if ("sql_jbpm".equals(familia) && resposta.containsKey(clauHelium)) {
-				resposta.remove(clauHelium);
-			}
-			resposta.putAll(respostaDetallada);
-		}
 
-		List<MesuraTemporalDto> ret = new ArrayList<MesuraTemporalDto>();
-		Long temps = MesuresTemporalsHelper.getTemps();
-		for (MesuraTemporalDto mesura: resposta.values()) {
-			mesura.setPeriode((mesura.getNumMesures() * 60000.0) / temps);
-			ret.add(mesura);
-		}
-		return ret;
+	@Override
+	public List<MesuraTemporalDto> getHibernateStatistics(
+			String familia,
+			boolean exportar) {
+		return hibernateHelper.getHibernateStatistics(familia, exportar);
 	}
 	
 	@Override
@@ -381,6 +381,6 @@ public class AdminServiceImpl implements AdminService {
 	public ReassignacioDto findReassignacioById(Long id) {
 		return conversioTipusHelper.convertir(reassignacioRepository.findOne(id), ReassignacioDto.class);
 	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);	
 }

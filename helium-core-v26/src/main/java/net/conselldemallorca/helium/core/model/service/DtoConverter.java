@@ -12,8 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Service;
+
+import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.helperv26.CacheHelper;
+import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
@@ -37,7 +47,6 @@ import net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -63,13 +72,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Service;
 
 
 /**
@@ -562,7 +564,7 @@ public class DtoConverter {
 			String processInstanceId,
 			String campCodi,
 			String textInicial,
-			Map<String, Object> valorsAddicionals) throws DominiException {
+			Map<String, Object> valorsAddicionals) {
 		List<FilaResultat> resultat = new ArrayList<FilaResultat>();
 		Camp camp = null;
 		for (Camp c: definicioProces.getCamps()) {
@@ -643,7 +645,7 @@ public class DtoConverter {
 			String processInstanceId,
 			String campCodi,
 			String textInicial,
-			Map<String, Object> valorsAddicionals) throws DominiException {
+			Map<String, Object> valorsAddicionals) {
 		Camp camp = null;
 		for (Camp c: definicioProces.getCamps()) {
 			if (c.getCodi().equals(campCodi)) {
@@ -665,39 +667,33 @@ public class DtoConverter {
 	public List<FilaResultat> getResultatConsultaDominiPerCamp(
 			Camp camp,
 			Map<String, Object> params,
-			String textInicial) throws DominiException {
+			String textInicial) {
 		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
 			Long dominiId = (long) 0;
 			if (camp.getDomini() != null){
 				Domini domini = camp.getDomini();
 				dominiId = domini.getId();
 			}	
-			try {
-				List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
-						camp.getDefinicioProces().getEntorn().getId(),
-						dominiId,
-						camp.getDominiId(),
-						params);
-				// Filtra els resultats amb el textInicial (si n'hi ha)
-				if (textInicial != null) {
-					String columna = camp.getDominiCampText();
-					Iterator<FilaResultat> it = resultat.iterator();
-					while (it.hasNext()) {
-						FilaResultat fr = it.next();
-						for (ParellaCodiValor parella: fr.getColumnes()) {
-							if (parella.getCodi().equals(columna) && !parella.getValor().toString().toUpperCase().contains(textInicial.toUpperCase())) {
-								it.remove();
-								break;
-							}
+			List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
+					camp.getDefinicioProces().getEntorn().getId(),
+					dominiId,
+					camp.getDominiId(),
+					params);
+			// Filtra els resultats amb el textInicial (si n'hi ha)
+			if (textInicial != null) {
+				String columna = camp.getDominiCampText();
+				Iterator<FilaResultat> it = resultat.iterator();
+				while (it.hasNext()) {
+					FilaResultat fr = it.next();
+					for (ParellaCodiValor parella: fr.getColumnes()) {
+						if (parella.getCodi().equals(columna) && !parella.getValor().toString().toUpperCase().contains(textInicial.toUpperCase())) {
+							it.remove();
+							break;
 						}
 					}
 				}
-				return resultat;
-			} catch (Exception ex) {
-				throw new DominiException(
-						getServiceUtils().getMessage("error.dtoConverter.consultarDomini") + " : id : " + dominiId + " << parametros >> " + params,
-						ex);
 			}
+			return resultat;
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -839,7 +835,7 @@ public class DtoConverter {
 			String taskId,
 			String processInstanceId,
 			Collection<Camp> camps,
-			Map<String, Object> valors) throws DominiException {
+			Map<String, Object> valors) {
 		Map<String, ParellaCodiValor> resposta = new HashMap<String, ParellaCodiValor>();
 		if (valors != null) {
 			for (Camp camp: camps) {
@@ -874,7 +870,7 @@ public class DtoConverter {
 			String taskId,
 			String processInstanceId,
 			Collection<Camp> camps,
-			Map<String, Object> valors) throws DominiException {
+			Map<String, Object> valors) {
 		Map<String, List<ParellaCodiValorDto>> resposta = new HashMap<String, List<ParellaCodiValorDto>>();
 		if (valors != null) {
 			for (Camp camp: camps) {
@@ -911,7 +907,7 @@ public class DtoConverter {
 			Map<String, Object> valorsAddicionals,
 			Camp camp,
 			Object valor,
-			boolean actualitzarJbpm) throws DominiException {
+			boolean actualitzarJbpm) {
 		if (valor == null)
 			return null;
 		if (valor instanceof DominiCodiDescripcio) {
@@ -929,40 +925,35 @@ public class DtoConverter {
 					Domini domini = camp.getDomini();
 					dominiId = domini.getId();
 				}				
-				try {
-					paramsConsulta = getParamsConsulta(
-							taskId,
-							processInstanceId,
-							camp,
-							valorsAddicionals);
-					List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
-							camp.getDefinicioProces().getEntorn().getId(),
-							dominiId,
-							camp.getDominiId(),
-							paramsConsulta);
-					String columnaCodi = camp.getDominiCampValor();
-					String columnaValor = camp.getDominiCampText();
-					Iterator<FilaResultat> it = resultat.iterator();
-					while (it.hasNext()) {
-						FilaResultat fr = it.next();
-						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-							if (parellaCodi.getCodi().equals(columnaCodi) && parellaCodi.getValor().toString().equals(valor)) {
-								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
-									if (parellaValor.getCodi().equals(columnaValor)) {
-										ParellaCodiValor codiValor = new ParellaCodiValor(
-												parellaCodi.getValor().toString(),
-												parellaValor.getValor());
-										resposta = codiValor;
-										break;
-									}
+				paramsConsulta = getParamsConsulta(
+						taskId,
+						processInstanceId,
+						camp,
+						valorsAddicionals);
+				List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
+						camp.getDefinicioProces().getEntorn().getId(),
+						dominiId,
+						camp.getDominiId(),
+						paramsConsulta);
+				String columnaCodi = camp.getDominiCampValor();
+				String columnaValor = camp.getDominiCampText();
+				Iterator<FilaResultat> it = resultat.iterator();
+				while (it.hasNext()) {
+					FilaResultat fr = it.next();
+					for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
+						if (parellaCodi.getCodi().equals(columnaCodi) && parellaCodi.getValor().toString().equals(valor)) {
+							for (ParellaCodiValor parellaValor: fr.getColumnes()) {
+								if (parellaValor.getCodi().equals(columnaValor)) {
+									ParellaCodiValor codiValor = new ParellaCodiValor(
+											parellaCodi.getValor().toString(),
+											parellaValor.getValor());
+									resposta = codiValor;
+									break;
 								}
-								break;
 							}
+							break;
 						}
 					}
-				} catch (Exception ex) {
-					//throw new DominiException("No s'ha pogut consultar el domini", ex);
-					logger.error("No s'ha pogut consultar el domini"  + " : id : " + dominiId + " << parametros >> " + paramsConsulta, ex);
 				}
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
@@ -1035,9 +1026,9 @@ public class DtoConverter {
 			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT) ||
-						codi.startsWith(DocumentHelper.PREFIX_SIGNATURA) ||
-						codi.startsWith(DocumentHelper.PREFIX_ADJUNT) ||
+				if (	codi.startsWith(JbpmVars.PREFIX_VAR_DOCUMENT) ||
+						codi.startsWith(JbpmVars.PREFIX_SIGNATURA) ||
+						codi.startsWith(JbpmVars.PREFIX_ADJUNT) ||
 						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}
@@ -1085,10 +1076,10 @@ public class DtoConverter {
 			}
 			// Afegeix els adjunts
 			for (String var: valors.keySet()) {
-				if (var.startsWith(DocumentHelper.PREFIX_ADJUNT)) {
+				if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 					Long documentStoreId = (Long)valors.get(var);
 					resposta.put(
-							var.substring(DocumentHelper.PREFIX_ADJUNT.length()),
+							var.substring(JbpmVars.PREFIX_ADJUNT.length()),
 							documentHelper.getDocumentSenseContingut(documentStoreId));
 				}
 			}

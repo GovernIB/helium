@@ -19,6 +19,8 @@ public class PaginacioParamsDto implements Serializable {
 
 	private int paginaNum;
 	private int paginaTamany;
+	private String filtre;
+	private List<FiltreDto> filtres = new ArrayList<FiltreDto>();
 	private List<OrdreDto> ordres = new ArrayList<OrdreDto>();
 
 	public int getPaginaNum() {
@@ -33,6 +35,18 @@ public class PaginacioParamsDto implements Serializable {
 	public void setPaginaTamany(int paginaTamany) {
 		this.paginaTamany = paginaTamany;
 	}
+	public String getFiltre() {
+		return filtre;
+	}
+	public void setFiltre(String filtre) {
+		this.filtre = filtre;
+	}
+	public List<FiltreDto> getFiltres() {
+		return filtres;
+	}
+	public void setFiltres(List<FiltreDto> filtres) {
+		this.filtres = filtres;
+	}
 	public List<OrdreDto> getOrdres() {
 		return ordres;
 	}
@@ -40,6 +54,14 @@ public class PaginacioParamsDto implements Serializable {
 		this.ordres = ordres;
 	}
 
+	public void afegirFiltre(
+			String camp,
+			String valor) {
+		getFiltres().add(
+				new FiltreDto(
+						camp,
+						valor));
+	}
 	public void afegirOrdre(
 			String camp,
 			OrdreDireccioDto direccio) {
@@ -52,6 +74,30 @@ public class PaginacioParamsDto implements Serializable {
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
+	}
+
+	public class FiltreDto implements Serializable {
+		private String camp;
+		private String valor;
+		public FiltreDto(
+				String camp,
+				String valor) {
+			this.camp = camp;
+			this.valor = valor;
+		}
+		public String getCamp() {
+			return camp;
+		}
+		public void setCamp(String camp) {
+			this.camp = camp;
+		}
+		public String getValor() {
+			return valor;
+		}
+		public void setValor(String valor) {
+			this.valor = valor;
+		}
+		private static final long serialVersionUID = -139254994389509932L;
 	}
 
 	public enum OrdreDireccioDto {

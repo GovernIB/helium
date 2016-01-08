@@ -24,7 +24,9 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.annotation.Timed;
 
+import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
 import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
@@ -42,7 +44,6 @@ import net.conselldemallorca.helium.core.model.dto.PaginaLlistatDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
@@ -198,7 +199,8 @@ public class TascaService {
 		mesuresTemporalsHelper.mesuraCalcular("Obtenir tasques personals", "consulta");
 		return list;*/
 	}
-	
+
+	@Timed
 	public int countTasquesPersonalsEntorn(
 			Long entornId,
 			String usuari) {
@@ -243,6 +245,7 @@ public class TascaService {
 				"consulta");
 		return taskIds.getCount();
 	}
+	@Timed
 	public int countTasquesPersonalsFiltre(
 			Long entornId,
 			String usuari,
@@ -436,6 +439,7 @@ public class TascaService {
 		return resposta;
 	}
 
+	@Timed
 	public int countTasquesGrupEntorn(
 			Long entornId,
 			String usuari) {
@@ -478,6 +482,7 @@ public class TascaService {
 		mesuresTemporalsHelper.mesuraCalcular("Recompte tasques grup", "consulta");
 		return taskIds.getCount();
 	}
+	@Timed
 	public int countTasquesGrupFiltre(
 			Long entornId,
 			String usuari,
@@ -691,6 +696,7 @@ public class TascaService {
 		return resposta;
 	}
 
+	@Timed
 	public PaginaLlistatDto findTasquesConsultaFiltre(
 			Long entornId,
 			Long expedientTipusId,
@@ -1635,7 +1641,7 @@ public class TascaService {
 	public List<FilaResultat> getValorsCampSelect(
 			String taskId,
 			String campCodi,
-			String textInicial) throws DominiException {
+			String textInicial) {
 		JbpmTask task = jbpmDao.getTaskById(taskId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(task.getProcessDefinitionId());
 		return dtoConverter.getResultatConsultaDomini(
@@ -1650,14 +1656,14 @@ public class TascaService {
 	public void executarAccio(
 			Long entornId,
 			String taskId,
-			String accio) throws DominiException {
+			String accio) {
 		executarAccio(entornId, taskId, accio, null);
 	}
 	public void executarAccio(
 			Long entornId,
 			String taskId,
 			String accio,
-			String user)  throws NotFoundException, IllegalStateException, DominiException {
+			String user)  throws NotFoundException, IllegalStateException {
 		JbpmTask task = comprovarSeguretatTasca(entornId, taskId, user, true);
 		Expedient expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
@@ -2217,7 +2223,7 @@ public class TascaService {
 				task.getProcessDefinitionId());
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
-				String codiJbpm = DocumentHelper.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
+				String codiJbpm = JbpmVars.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
 				Object valor = jbpmDao.getTaskInstanceVariable(
 						task.getId(),
 						codiJbpm);
@@ -2236,7 +2242,7 @@ public class TascaService {
 				task.getProcessDefinitionId());
 		for (FirmaTasca firmaTasca: tasca.getFirmes()) {
 			if (firmaTasca.isRequired()) {
-				String codiJbpm = DocumentHelper.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
+				String codiJbpm = JbpmVars.PREFIX_SIGNATURA + firmaTasca.getDocument().getCodi();
 				Object valor = jbpmDao.getTaskInstanceVariable(task.getId(), codiJbpm);
 				if (valor == null)
 					ok = false;

@@ -16,7 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
@@ -71,7 +71,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					SessionHelper.VARIABLE_ENTORN_ACTUAL_V3);
 			EntornDto entornActual = null;
 			String canviEntorn = request.getParameter(VARIABLE_REQUEST_CANVI_ENTORN);
-			List<EntornDto> entorns = entornService.findAmbPermisAcces();
+			List<EntornDto> entorns = entornService.findActiusAmbPermisAcces();
 			request.setAttribute("entorns", entorns);
 			// Si en el request existeix el paràmetre de selecció d'entorn
 			// canvia l'entorn actual

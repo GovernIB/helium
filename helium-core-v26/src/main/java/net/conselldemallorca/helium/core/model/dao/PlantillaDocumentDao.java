@@ -16,31 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto.Sexe;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.hibernate.Area;
-import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Carrec;
-import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.service.CacheHelper;
-import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.NombreEnCastella;
-import net.conselldemallorca.helium.core.util.NombreEnCatala;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.sf.jooreports.templates.DocumentTemplate;
-import net.sf.jooreports.templates.DocumentTemplateFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,6 +36,31 @@ import freemarker.template.TemplateMethodModel;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.helperv26.CacheHelper;
+import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
+import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.AreaJbpmId;
+import net.conselldemallorca.helium.core.model.hibernate.Carrec;
+import net.conselldemallorca.helium.core.model.hibernate.CarrecJbpmId;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.NombreEnCastella;
+import net.conselldemallorca.helium.core.util.NombreEnCatala;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.sf.jooreports.templates.DocumentTemplate;
+import net.sf.jooreports.templates.DocumentTemplateFactory;
 
 /**
  * Dao per a la generació de plantilles
@@ -582,7 +582,7 @@ public class PlantillaDocumentDao {
 								List<DocumentStore> documents = documentStoreDao.findAmbProcessInstanceId(processInstanceId);
 								DocumentDto resposta = null;
 								for (int i = 0; i < documents.size(); i++) {
-									if (documents.get(i).getJbpmVariable().equals(DocumentHelper.PREFIX_VAR_DOCUMENT + codi))
+									if (documents.get(i).getJbpmVariable().equals(JbpmVars.PREFIX_VAR_DOCUMENT + codi))
 										resposta = documentHelper.getDocumentSenseContingut(documents.get(i).getId());
 								}
 								return new BeanModel(

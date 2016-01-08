@@ -45,7 +45,6 @@ public class DocumentStoreDao extends HibernateGenericDao<DocumentStore, Long> {
 			ds.setAdjuntTitol(adjuntTitol);
 		if (arxiuContingut != null)
 			ds.setArxiuContingut(arxiuContingut);
-
 		getSession().saveOrUpdate(ds);
 		return ds.getId();
 	}

@@ -14,28 +14,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
-import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
-import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
@@ -48,6 +26,27 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
  * 
@@ -56,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("execucioMassivaServiceV3")
 @Transactional(noRollbackForClassName = "java.lang.Exception")
 public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
+
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
@@ -76,9 +76,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MessageHelper messageHelper;
 	@Resource
 	private PluginHelper pluginHelper;
-	@Resource
-	private ExpedientService expedientService;
-	
+
+
+
 	@Transactional
 	@Override
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
@@ -267,7 +267,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			mjson.put("expedients", ljson_exp);
 			String nomSencer = "";
 			try {
-				nomSencer = pluginHelper.findPersonaAmbCodi(execucio.getUsuari()).getNomSencer();
+				nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
 			} catch (Exception e) {
 				logger.error(e);
 				e.printStackTrace();

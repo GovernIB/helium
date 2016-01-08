@@ -20,7 +20,23 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.AreaJbpmIdDao;
@@ -53,7 +69,6 @@ import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
@@ -61,7 +76,6 @@ import net.conselldemallorca.helium.core.model.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.core.model.dto.PortasignaturesPendentDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.dto.TokenDto;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.exception.IllegalArgumentsException;
 import net.conselldemallorca.helium.core.model.exception.NotFoundException;
@@ -108,19 +122,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Element;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
 /**
  * 
  * @author Limit Tecnologies <limit@limit.es>
@@ -164,12 +165,14 @@ public class ExpedientService {
 	private ExpedientLogHelper expedientLogHelper;
 
 	private ServiceUtils serviceUtils;
-	
+
 	private String textBloqueigIniciExpedient;
 
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	
+
+
+
 	public ExpedientDto getById(Long id) {
 		Expedient expedient = expedientDao.getById(id, false);
 		if (expedient != null)
@@ -680,7 +683,6 @@ public class ExpedientService {
 					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
 			expedient.setGrupCodi(grupCodi);
 		}
-		
 		luceneDao.updateExpedientCapsalera(
 				expedient,
 				getServiceUtils().isExpedientFinalitzat(expedient));
@@ -1857,7 +1859,7 @@ public class ExpedientService {
 	public List<FilaResultat> getResultatConsultaDomini(
 			String processInstanceId,
 			String campCodi,
-			String textInicial) throws DominiException {
+			String textInicial) {
 		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesDao.findAmbJbpmId(jpd.getId());
 		return dtoConverter.getResultatConsultaDomini(
@@ -2765,9 +2767,9 @@ public class ExpedientService {
 	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
 		String jbpmVariable = documentStore.getJbpmVariable();
 		if (documentStore.isAdjunt())
-			return jbpmVariable.substring(DocumentHelper.PREFIX_ADJUNT.length());
+			return jbpmVariable.substring(JbpmVars.PREFIX_ADJUNT.length());
 		else
-			return jbpmVariable.substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
+			return jbpmVariable.substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
 	}
 
 	private void comprovarUsuari(String usuari) {
@@ -2959,15 +2961,6 @@ public class ExpedientService {
 			dadesExpedient.remove(LuceneDao.CLAU_EXPEDIENT_ID);
 		}
 		return resposta;
-	}
-
-	// Inicialització de les definicions de procés per a poder utilitzar les classes
-	// java (handlers) d'aquestes en els timers. 
-	public void initializeDefinicionsProces() {
-		List<ExpedientTipus> llistat = expedientTipusDao.findAll();
-		for (ExpedientTipus expedientTipus: llistat) {
-			Hibernate.initialize(expedientTipus.getDefinicionsProces());
-		}
 	}
 
 	public boolean tokenActivar(long tokenId, boolean activar) {

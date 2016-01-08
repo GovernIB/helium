@@ -227,7 +227,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		RespostaRegistre resposta = registreNotificacio(executionContext,anotacio,annexos);
 		if (resposta != null) {			
 			
-			Jbpm3HeliumBridge.getInstanceService().guardarNotificacioElectronica(
+			Jbpm3HeliumBridge.getInstanceService().notificacioGuardar(
 					expedient.getId(),
 					resposta.getNumero(),
 					resposta.getData(),
@@ -268,7 +268,7 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 			dadesNotificacioElectronica.getAnotacio().setNotificacioAvisText("La notificación que se realizó anteriormente no es correcta.");
 			RespostaRegistre resposta = registreNotificacio(executionContext,dadesNotificacioElectronica.getAnotacio(),dadesNotificacioElectronica.getAnnexos());
 			if (resposta != null) {
-				boolean borrado = Jbpm3HeliumBridge.getInstanceService().borrarNotificacioElectronica(
+				boolean borrado = Jbpm3HeliumBridge.getInstanceService().notificacioEsborrar(
 						resposta.getNumero(),
 						resposta.getReferenciaRDSJustificante().getClave(),
 						resposta.getReferenciaRDSJustificante().getCodigo());

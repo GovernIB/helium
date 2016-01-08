@@ -14,6 +14,9 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -40,6 +43,45 @@ public class AdminServiceBean implements AdminService {
 	@RolesAllowed({"HEL_ADMIN"})
 	public String getMetrics() {
 		return delegate.getMetrics();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public List<IntegracioDto> monitorIntegracioFindAll() {
+		return delegate.monitorIntegracioFindAll();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(
+			String integracioCodi) {
+		return delegate.monitorIntegracioFindAccionsByIntegracio(integracioCodi);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public List<DominiDto> monitorDominiFindByEntorn(
+			Long entornId) {
+		return delegate.monitorDominiFindByEntorn(entornId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
+			Long dominiId) {
+		return delegate.monitorDominiFindAccionsByDomini(dominiId);
 	}
 
 	/**
@@ -105,6 +147,12 @@ public class AdminServiceBean implements AdminService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void mesuraTemporalCalcular(String clau, String familia) {
 		delegate.mesuraTemporalCalcular(clau, familia);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean mesuraTemporalIsActive() {
+		return delegate.mesuraTemporalIsActive();
 	}
 
 	@Override

@@ -196,15 +196,11 @@
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-util</artifactId>
+			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<build>

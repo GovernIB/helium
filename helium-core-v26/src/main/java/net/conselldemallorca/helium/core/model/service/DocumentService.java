@@ -8,6 +8,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentDao;
 import net.conselldemallorca.helium.core.model.dao.DocumentStoreDao;
@@ -31,14 +41,6 @@ import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
 
 /**
@@ -594,9 +596,9 @@ public class DocumentService {
 		DocumentStore documentStore = documentStoreDao.getById(documentStoreId, false);
 		String varJbpm = documentStore.getJbpmVariable();
 		if (documentStore.isAdjunt())
-			return varJbpm.substring(DocumentHelper.PREFIX_ADJUNT.length());
+			return varJbpm.substring(JbpmVars.PREFIX_ADJUNT.length());
 		else
-			return varJbpm.substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
+			return varJbpm.substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
 	}
 
 

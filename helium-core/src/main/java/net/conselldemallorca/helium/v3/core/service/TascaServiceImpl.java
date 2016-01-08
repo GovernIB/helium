@@ -15,13 +15,43 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.RegistreDao;
+import org.apache.commons.collections.comparators.NullComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.FormulariExternHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.ServiceUtils;
+import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.VariableHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
+import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
@@ -32,9 +62,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -56,21 +83,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.FormulariExternHelper;
-import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
-import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
-import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
-import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -79,21 +96,6 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
-import org.apache.commons.collections.comparators.NullComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * Servei per gestionar terminis.
  * 
@@ -101,28 +103,40 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("tascaServiceV3")
 public class TascaServiceImpl implements TascaService {
+
 	@Resource
 	private ExpedientHeliumRepository expedientHeliumRepository;
 	@Resource
 	private EnumeracioValorsRepository enumeracioValorsRepository;
+	@Resource
+	private CampRepository campRepository;
+	@Resource
+	private TascaRepository tascaRepository;
+	@Resource
+	private RegistreRepository registreRepository;
+	@Resource
+	private CampTascaRepository campTascaRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
+	@Resource
+	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private TerminiIniciatRepository terminiIniciatRepository;
+	@Resource
+	private AlertaRepository alertaRepository;
+	@Resource
+	private DocumentRepository documentRepository;
+
+	@Resource
+	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
-	@Resource
-	private CampRepository campRepository;
-	@Resource
-	private TascaRepository tascaRepository;
-	@Resource
-	private CampTascaRepository campTascaRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
-	@Resource
-	private RegistreRepository registreRepository;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
@@ -133,8 +147,6 @@ public class TascaServiceImpl implements TascaService {
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource
-	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private VariableHelper variableHelper;
 	@Resource(name="documentHelperV3")
@@ -147,12 +159,8 @@ public class TascaServiceImpl implements TascaService {
 	private FormulariExternHelper formulariExternHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
-	private TerminiIniciatRepository terminiIniciatRepository;
-	@Resource
-	private AlertaRepository alertaRepository;
-	@Resource
-	private RegistreDao registreDao;
+
+
 
 	@Override
 	@Transactional(readOnly = true)
@@ -645,7 +653,7 @@ public class TascaServiceImpl implements TascaService {
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
 			String documentCodi) {
-		logger.debug("btenint contingut de l'arxiu per l'tasca (" +
+		logger.debug("Obtenint contingut de l'arxiu per l'tasca (" +
 				"tascaId=" + tascaId + ", " +
 				"documentCodi=" + documentCodi + ")");
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -659,14 +667,19 @@ public class TascaServiceImpl implements TascaService {
 					false,
 					false);
 		} else {
-			DocumentDto document = documentHelper.generarDocumentAmbPlantilla(
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
+					task.getProcessInstanceId());
+			Document document = documentRepository.findByDefinicioProcesAndCodi(
+					expedientHelper.findDefinicioProcesByProcessInstanceId(
+							task.getProcessInstanceId()),
+					documentCodi);
+			Date documentData = new Date();
+			return documentHelper.generarDocumentAmbPlantillaIConvertir(
+					expedient,
+					document,
 					tascaId,
 					task.getProcessInstanceId(),
-					documentCodi);
-			ArxiuDto arxiu = new ArxiuDto();
-			arxiu.setNom(document.getArxiuNom());
-			arxiu.setContingut(document.getArxiuContingut());
-			return arxiu;
+					documentData);
 		}
 	}
 
@@ -832,7 +845,7 @@ public class TascaServiceImpl implements TascaService {
 				task,
 				null,
 				false);
-		registreDao.crearRegistreIniciarTasca(
+		expedientRegistreHelper.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
 				id,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -866,7 +879,7 @@ public class TascaServiceImpl implements TascaService {
 				task,
 				null,
 				false);
-		registreDao.crearRegistreIniciarTasca(
+		expedientRegistreHelper.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
 				id,
 				SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -906,13 +919,13 @@ public class TascaServiceImpl implements TascaService {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
 		if (taskInstanceId != null) {
-			registreDao.crearRegistreEsborrarDocumentTasca(
+			expedientRegistreHelper.crearRegistreEsborrarDocumentTasca(
 					expedient.getId(),
 					taskInstanceId,
 					user,
 					documentCodi);
 		} else {
-			registreDao.crearRegistreEsborrarDocumentInstanciaProces(
+			expedientRegistreHelper.crearRegistreEsborrarDocumentInstanciaProces(
 					expedient.getId(),
 					task.getProcessInstanceId(),
 					user,
@@ -931,7 +944,7 @@ public class TascaServiceImpl implements TascaService {
 		boolean signat = false;
 		DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
 		if (dto != null) {
-			registreDao.crearRegistreSignarDocument(
+			expedientRegistreHelper.crearRegistreSignarDocument(
 					expedientId,
 					dto.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -983,14 +996,14 @@ public class TascaServiceImpl implements TascaService {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
 		if (creat) {
-			registreDao.crearRegistreCrearDocumentTasca(
+			expedientRegistreHelper.crearRegistreCrearDocumentTasca(
 					expedient.getId(),
 					taskInstanceId,
 					user,
 					documentCodi,
 					arxiuNom);
 		} else {
-			registreDao.crearRegistreModificarDocumentTasca(
+			expedientRegistreHelper.crearRegistreModificarDocumentTasca(
 					expedient.getId(),
 					taskInstanceId,
 					user,

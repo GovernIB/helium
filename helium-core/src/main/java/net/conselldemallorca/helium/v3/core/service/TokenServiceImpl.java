@@ -18,8 +18,8 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
 import net.conselldemallorca.helium.v3.core.api.service.TokenService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 

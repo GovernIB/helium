@@ -10,7 +10,7 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class RespostaJustificantRecepcio extends RespostaBase{
+public class RespostaJustificantRecepcio extends RespostaBase {
 
 	private Date data;
 

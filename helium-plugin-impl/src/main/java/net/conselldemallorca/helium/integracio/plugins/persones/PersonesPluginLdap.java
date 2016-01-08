@@ -29,7 +29,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException {
 		try {
-			String userFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.user");
+			String userFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.user");
 			String filter = new String(userFilter).replace("###", codi);
 			List<DadesPersona> persones = findPersonesLdap(filter);
 			if (persones.size() > 0)
@@ -42,7 +42,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException {
 		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.like");
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.like");
 			String filter = new String(likeFilter).replace("###", text);
 			return findPersonesLdap(filter);
 		} catch (Exception ex) {
@@ -52,7 +52,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 
 	public List<DadesPersona> findAll() throws PersonesPluginException {
 		try {
-			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.like");
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.like");
 			String filter = new String(likeFilter).replace("*###*", "*");
 			return findPersonesLdap(filter);
 		} catch (Exception ex) {
@@ -85,7 +85,7 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		//searchCtls.setReturningAttributes(returnedAtts);
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		NamingEnumeration<SearchResult> answer = ctx.search(
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.searchbase"),
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.base"),
 				filter,
 				searchCtls);
 		List<DadesPersona> resposta = new ArrayList<DadesPersona>();

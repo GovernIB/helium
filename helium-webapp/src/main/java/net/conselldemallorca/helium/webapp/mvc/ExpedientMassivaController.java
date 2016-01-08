@@ -21,35 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.core.model.dto.DocumentDto;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.core.model.service.DocumentService;
-import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.webapp.mvc.ExpedientConsultaDissenyController.ExpedientConsultaDissenyCommand;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,6 +48,34 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+
+import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.DocumentDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca.TipusTasca;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.DocumentService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.webapp.mvc.ExpedientConsultaDissenyController.ExpedientConsultaDissenyCommand;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 
 
 
@@ -112,8 +111,7 @@ public class ExpedientMassivaController extends BaseController {
 			PermissionService permissionService,
 			DissenyService dissenyService,
 			TascaService tascaService,
-			DocumentService documentService,
-			DocumentHelper documentHelper) {
+			DocumentService documentService) {
 		this.execucioMassivaService = execucioMassivaService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;

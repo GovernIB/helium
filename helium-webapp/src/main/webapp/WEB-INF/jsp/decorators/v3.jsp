@@ -14,20 +14,19 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 	<meta name="description" content=""/>
 	<meta name="author" content=""/>
-	<link href="<c:url value="/css/bootstrap.min.css"/>" rel="stylesheet"/>
-	<link href="<c:url value="/css/font-awesome.min.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/webjars/bootstrap/3.3.6/css/bootstrap.min.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/webjars/font-awesome/4.5.0/css/font-awesome.min.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/estils-v3.css"/>" rel="stylesheet">
 	<link rel="shortcut icon" href="<c:url value="/img/ico/favicon.png"/>">
 	<link rel="icon" type="image/png" href="<c:url value="/img/ico/favicon.png"/>">
 	<script type="text/javascript" src="<c:url value="/js/jquery-1.10.2.min.js"/>"></script>
-	
-	<!-- Llibreria per a compatibilitat amb HTML5 -->
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 		<script type='text/javascript' src="<c:url value="/js/respond.js"/>"></script>
 	<![endif]-->
-	<script src="<c:url value="/js/bootstrap.min.js"/>"></script>
+	<script src="<c:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<style>
 		body {
 			background-image:url(<c:url value="/img/background-pattern.jpg"/>);
@@ -199,6 +198,8 @@
 									<c:if test="${globalProperties['app.expedient.monitor']}">
 										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
+									<li><a href="<c:url value="/v3/monitorIntegracio"/>" data-toggle="modal" data-maximized="true"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
+									<li><a href="<c:url value="/v3/monitorDomini"/>" data-toggle="modal" data-maximized="true"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
 									<li><a data-rdt-link-modal="true" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
@@ -216,8 +217,6 @@
 									});
 								</script>
 							</div>
-
-							
 						</c:if>
 					</div>
 					<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">

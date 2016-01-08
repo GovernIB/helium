@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -21,11 +20,40 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
-import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
-import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
-import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.conselldemallorca.helium.core.common.ExpedientCamps;
+import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helper.ConsultaHelper;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.ServiceUtils;
+import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.VariableHelper;
+import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -44,16 +72,12 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientHelium;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.service.DocumentHelper;
-import net.conselldemallorca.helium.core.model.service.LuceneHelper;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -69,7 +93,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -92,24 +115,10 @@ import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarExcepti
 import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
-import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
-import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
-import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
-import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -128,20 +137,6 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * Servei per a gestionar expedients.
@@ -150,14 +145,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("expedientServiceV3")
 public class ExpedientServiceImpl implements ExpedientService {
+
+	private String textBloqueigIniciExpedient;
+
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
 	private ExpedientHeliumRepository expedientHeliumRepository;
-	@Resource
-	private RegistreDao registreDao;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -179,19 +175,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private TerminiIniciatRepository terminiIniciatRepository;
 	@Resource
-	private ConsultaHelper consultaHelper;
-	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 	@Resource
 	private AccioRepository accioRepository;
 	@Resource
+	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
+
+	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
 	private MessageHelper messageHelper;
 	@Resource
 	private EntornHelper entornHelper;
+	@Resource
+	private ConsultaHelper consultaHelper;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -206,8 +207,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
 	@Resource
 	private LuceneHelper luceneHelper;
 	@Resource(name="permisosHelperV3")
@@ -218,13 +217,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
-	private PluginCustodiaDao pluginCustodiaDao;
-	@Resource
-	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
-	@Resource
-	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
-	private String textBloqueigIniciExpedient;
+	@Resource(name="serviceUtilsV3")
+	private ServiceUtils serviceUtils;
+
+
 
 	@Override
 	@Transactional
@@ -604,117 +600,19 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		
-		boolean ambRetroaccio = expedient.isAmbRetroaccio();
-		
-		if (!execucioDinsHandler) {
-			ExpedientLog elog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				id,
-				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
-				null);
-			elog.setEstat(ExpedientLogEstat.IGNORAR);
-		}
-		// Numero
-		if (expedient.getTipus().getTeNumero()) {
-			if (!StringUtils.equals(expedient.getNumero(), numero)) {
-				expedientLoggerHelper.afegirProcessLogInfoExpedient(
-						ambRetroaccio,
-						expedient.getProcessInstanceId(), 
-						LogInfo.NUMERO + "#@#" + expedient.getNumero());
-				expedient.setNumero(numero);
-			}
-		}
-		// Titol
-		if (expedient.getTipus().getTeTitol()) {
-			if (!StringUtils.equals(expedient.getTitol(), titol)) {
-				expedientLoggerHelper.afegirProcessLogInfoExpedient(
-						ambRetroaccio,
-						expedient.getProcessInstanceId(), 
-						LogInfo.TITOL + "#@#" + expedient.getTitol());
-				expedient.setTitol(titol);
-			}
-		}
-		// Responsable
-		if (!StringUtils.equals(expedient.getResponsableCodi(), responsableCodi)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.RESPONSABLE + "#@#" + expedient.getResponsableCodi());
-			expedient.setResponsableCodi(responsableCodi);
-		}
-		// Data d'inici
-		if (expedient.getDataInici() != dataInici) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-			String inici = sdf.format(dataInici);
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.INICI + "#@#" + inici);
-			expedient.setDataInici(dataInici);
-		}
-		// Comentari
-		if (!StringUtils.equals(expedient.getComentari(), comentari)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.COMENTARI + "#@#" + expedient.getComentari());
-			expedient.setComentari(comentari);
-		}
-		// Estat
-		if (estatId != null) {
-			if (expedient.getEstat() == null || !expedient.getEstat().getId().equals(estatId)) {
-				expedientLoggerHelper.afegirProcessLogInfoExpedient(
-						ambRetroaccio,
-						expedient.getProcessInstanceId(), 
-						LogInfo.ESTAT + "#@#" + "---");
-				Estat estat = estatRepository.findByExpedientTipusAndId(
-						expedient.getTipus(),
-						estatId);
-				if (estat == null)
-					throw new EstatNotFoundException();
-				expedient.setEstat(estat);
-			}
-		} else if (expedient.getEstat() != null) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.ESTAT + "#@#" + expedient.getEstat().getId());
-			expedient.setEstat(null);
-		}
-		// Geoposició
-		if (expedient.getGeoPosX() != geoPosX) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.GEOPOSICIOX + "#@#" + expedient.getGeoPosX());
-			expedient.setGeoPosX(geoPosX);
-		}
-		if (expedient.getGeoPosY() != geoPosY) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.GEOPOSICIOY + "#@#" + expedient.getGeoPosY());
-			expedient.setGeoPosY(geoPosY);
-		}
-		// Georeferencia
-		if (!StringUtils.equals(expedient.getGeoReferencia(), geoReferencia)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.GEOREFERENCIA + "#@#" + expedient.getGeoReferencia());
-			expedient.setGeoReferencia(geoReferencia);
-		}
-		// Grup
-		if (!StringUtils.equals(expedient.getGrupCodi(), grupCodi)) {
-			expedientLoggerHelper.afegirProcessLogInfoExpedient(
-					ambRetroaccio,
-					expedient.getProcessInstanceId(), 
-					LogInfo.GRUP + "#@#" + expedient.getGrupCodi());
-			expedient.setGrupCodi(grupCodi);
-		}
-		luceneHelper.updateExpedientCapsalera(
+		expedientHelper.update(
 				expedient,
-				expedientHelper.isFinalitzat(expedient));
+				numero,
+				titol,
+				responsableCodi,
+				dataInici,
+				comentari,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				grupCodi,
+				execucioDinsHandler);
 	}
 
 	@Transactional(readOnly = true)
@@ -761,11 +659,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(pi.getId())) {
 				if (documentStore.isSignat()) {
 					try {
-						pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia());
 					} catch (Exception ignored) {}
 				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginGestioDocumentalDao.deleteDocument(documentStore.getReferenciaFont());
+					pluginHelper.gestioDocumentalDeleteDocument(
+							documentStore.getReferenciaFont());
 				documentStoreRepository.delete(documentStore.getId());
 			}
 		}
@@ -869,14 +768,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		// Registra l'acció
 		if (creat) {
-			registreDao.crearRegistreCrearDocumentInstanciaProces(
+			expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 					expedientId,
 					processInstanceId,
 					user,
 					codi,
 					nomArxiu);
 		} else {
-			registreDao.crearRegistreModificarDocumentInstanciaProces(
+			expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
 					expedientId,
 					processInstanceId,
 					user,
@@ -1681,13 +1580,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 		if (documentStore != null && documentStore.isSignat()) {
 			try {
-				pluginCustodiaDao.esborrarSignatures(documentStore.getReferenciaCustodia());
+				pluginHelper.custodiaEsborrarSignatures(
+						documentStore.getReferenciaCustodia());
 			} catch (Exception ignored) {}
 			String jbpmVariable = documentStore.getJbpmVariable();
 			documentStore.setReferenciaCustodia(null);
 			documentStore.setSignat(false);
 			Expedient expedient = expedientRepository.findOne(expedientId);
-			registreDao.crearRegistreEsborrarSignatura(
+			expedientRegistreHelper.crearRegistreEsborrarSignatura(
 					expedient.getId(),
 					expedient.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -1704,9 +1604,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
 		String jbpmVariable = documentStore.getJbpmVariable();
 		if (documentStore.isAdjunt())
-			return jbpmVariable.substring(DocumentHelper.PREFIX_ADJUNT.length());
+			return jbpmVariable.substring(
+					JbpmVars.PREFIX_ADJUNT.length());
 		else
-			return jbpmVariable.substring(DocumentHelper.PREFIX_VAR_DOCUMENT.length());
+			return jbpmVariable.substring(
+					JbpmVars.PREFIX_VAR_DOCUMENT.length());
 	}
 
 	@Override
@@ -1887,7 +1789,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+		expedientHelper.aturar(expedient, motiu, null);
+		/*ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_ATURAR,
 				motiu);
@@ -1900,7 +1803,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (JbpmProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
 		jbpmHelper.suspendProcessInstances(ids);
-		expedient.setInfoAturat(motiu);
+		expedient.setInfoAturat(motiu);*/
 	}
 
 	@Override
@@ -1939,6 +1842,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		expedientHelper.reprendre(expedient, null);
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				false,
+				true,
+				false,
+				false);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
@@ -1953,9 +1863,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ids[i++] = pi.getId();
 		jbpmHelper.resumeProcessInstances(ids);
 		expedient.setInfoAturat(null);
-		registreDao.crearRegistreReprendreExpedient(
+		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
-				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());*/
 	}
 	
 	@Override
@@ -1977,8 +1887,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		jbpmHelper.reprendreExpedient(expedient.getProcessInstanceId());
 		expedient.setDataFi(null);
-		
-		registreDao.crearRegistreReprendreExpedient(
+		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
 				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
@@ -2028,12 +1937,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Creant relació d'expedients (" +
 				"origenId=" + origenId + ", " +
 				"destiId=" + destiId + ")");
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				origenId,
-				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
-				destiId.toString());
-		if (expedientLog != null)
-			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				false,
@@ -2046,24 +1949,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
-		boolean existeix = false;
-		for (Expedient relacionat: origen.getRelacionsOrigen()) {
-			if (relacionat.getId().longValue() == destiId.longValue()) {
-				existeix = true;
-				break;
-			}
-		}
-		if (!existeix)
-			origen.addRelacioOrigen(desti);
-		existeix = false;
-		for (Expedient relacionat: desti.getRelacionsOrigen()) {
-			if (relacionat.getId().longValue() == origenId.longValue()) {
-				existeix = true;
-				break;
-			}
-		}
-		if (!existeix)
-			desti.addRelacioOrigen(origen);
+		expedientHelper.relacioCrear(origen, desti);
 	}
 
 	@Transactional
@@ -2173,7 +2059,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
 		if (MesuresTemporalsHelper.isActiu()) {
-			expedient = expedientRepository.findByProcessInstanceId(pi.getId()).get(0);
+			expedient = expedientRepository.findByProcessInstanceId(pi.getId());
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		}
 		jbpmHelper.evaluateScript(expedient.getProcessInstanceId(), script, new HashSet<String>());
@@ -2350,35 +2236,45 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional
-	public DocumentDto generarDocumentAmbPlantillaTasca(
+	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String taskInstanceId,
 			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskInstanceId,
 				true,
 				true);
-		DocumentDto document = documentHelper.generarDocumentAmbPlantilla(
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
+				task.getProcessInstanceId());
+		Document document = documentRepository.findByDefinicioProcesAndCodi(
+				expedientHelper.findDefinicioProcesByProcessInstanceId(
+						task.getProcessInstanceId()),
+				documentCodi);
+		Date documentData = new Date();
+		ArxiuDto arxiu = documentHelper.generarDocumentAmbPlantillaIConvertir(
+				expedient,
+				document,
 				taskInstanceId,
 				task.getProcessInstanceId(),
-				documentCodi);
+				documentData);
 		if (document.isAdjuntarAuto()) {
-			Long documentStoreId = documentHelper.actualitzarDocument(
+			documentHelper.actualitzarDocument(
 					taskInstanceId,
 					task.getProcessInstanceId(),
 					document.getCodi(),
 					null,
-					document.getDataDocument(),
-					document.getArxiuNom(),
-					document.getArxiuContingut(),
+					documentData,
+					arxiu.getNom(),
+					arxiu.getContingut(),
 					false);
-			document.setId(documentStoreId);
+			return null;
+		} else {
+			return arxiu;
 		}
-		return document;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public DocumentDto generarDocumentAmbPlantillaProces(
+	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
@@ -2388,20 +2284,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
-		if (processInstanceId == null) {
-			return documentHelper.generarDocumentAmbPlantilla(
-					null,
-					expedient.getProcessInstanceId(),
-					documentCodi);
-		} else {
+		if (processInstanceId != null) {
 			expedientHelper.comprovarInstanciaProces(
 					expedient,
 					processInstanceId);
-			return documentHelper.generarDocumentAmbPlantilla(
-					null,
-					processInstanceId,
-					documentCodi);
 		}
+		Document document = documentRepository.findByDefinicioProcesAndCodi(
+				expedientHelper.findDefinicioProcesByProcessInstanceId(
+						processInstanceId),
+				documentCodi);
+		Date documentData = new Date();
+		return documentHelper.generarDocumentAmbPlantillaIConvertir(
+				expedient,
+				document,
+				null,
+				(processInstanceId != null) ? processInstanceId : expedient.getProcessInstanceId(),
+				documentData);
 	}
 
 	@Override
@@ -2649,11 +2547,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 		if (paginacioParams != null) {
 			for (OrdreDto or : paginacioParams.getOrdres()) {
 				asc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
-				String clau = or.getCamp().replace(ExpedientCamps.EXPEDIENT_PREFIX_JSP, ExpedientCamps.EXPEDIENT_PREFIX);
+				String clau = or.getCamp().replace(
+						ExpedientCamps.EXPEDIENT_PREFIX_JSP,
+						ExpedientCamps.EXPEDIENT_PREFIX);
 				if (or.getCamp().contains("dadesExpedient")) {
 					sort = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
 				} else {
-					sort = clau.replace(".", ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
+					sort = clau.replace(
+							".",
+							ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
 				}
 				break;
 			}
@@ -3270,7 +3172,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	
 	private PersonaDto comprovarUsuari(String usuari) {
 		try {
-			PersonaDto persona = pluginHelper.findPersonaAmbCodi(usuari);
+			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);
 			if (persona == null) {
 				throw new NotFoundException(
 						usuari,

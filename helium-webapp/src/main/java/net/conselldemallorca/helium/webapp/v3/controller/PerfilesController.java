@@ -68,7 +68,7 @@ public class PerfilesController extends BaseController {
 	public List<ExpedientTipusDto> getExpedientTipus(
 			HttpServletRequest request,
 			@PathVariable String entornCodi) {
-		for (EntornDto entorn: entornService.findAmbPermisAcces()) {
+		for (EntornDto entorn: entornService.findActiusAmbPermisAcces()) {
 			if (entorn.getCodi().equals(entornCodi)) {
 				List<ExpedientTipusDto> expedientTipusConConsultas = dissenyService.findExpedientTipusAmbPermisDissenyUsuariActual(entorn.getId());
 				Iterator<ExpedientTipusDto> it = expedientTipusConConsultas.iterator();
@@ -90,7 +90,7 @@ public class PerfilesController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable String entornCodi) {
-		for (EntornDto entorn: entornService.findAmbPermisAcces()) {
+		for (EntornDto entorn: entornService.findActiusAmbPermisAcces()) {
 			if (entorn.getCodi().equals(entornCodi)) {
 				return dissenyService.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entorn.getId(),expedientTipusId);
 			}
@@ -138,7 +138,7 @@ public class PerfilesController extends BaseController {
 		if (preferencies == null)
 			preferencies = new UsuariPreferenciesDto();
 		EntornDto entornUsuari = null;
-		List<EntornDto> entorns = entornService.findAmbPermisAcces();
+		List<EntornDto> entorns = entornService.findActiusAmbPermisAcces();
 		for (EntornDto entorn: entorns) {
 			if (entorn.getCodi().equals(preferencies.getDefaultEntornCodi())) {
 				entornUsuari = entorn;

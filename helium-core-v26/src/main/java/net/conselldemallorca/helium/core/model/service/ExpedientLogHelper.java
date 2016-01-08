@@ -20,31 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.conselldemallorca.helium.core.model.dao.CampDao;
-import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
-import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
-import net.conselldemallorca.helium.core.model.dao.EstatDao;
-import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
-import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
-import net.conselldemallorca.helium.core.model.dao.TascaDao;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.bytes.ByteArray;
@@ -74,6 +49,34 @@ import org.jbpm.taskmgmt.log.TaskLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.dao.CampDao;
+import net.conselldemallorca.helium.core.model.dao.CampTascaDao;
+import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
+import net.conselldemallorca.helium.core.model.dao.EstatDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientDao;
+import net.conselldemallorca.helium.core.model.dao.ExpedientLogDao;
+import net.conselldemallorca.helium.core.model.dao.TascaDao;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 
 /**
  * Helper per a gestionar els logs dels expedients
@@ -447,7 +450,7 @@ public class ExpedientLogHelper {
 							jbpmDao.deleteProcessInstanceVariable(
 									pid,
 									logo.getName());
-							if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
+							if (logo.getName().startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
 								documentHelper.esborrarDocument(
 										null,
 										pid,
@@ -456,7 +459,7 @@ public class ExpedientLogHelper {
 						} else if (!created && deleted) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
-							if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
+							if (logo.getName().startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
 								Long documentStoreId = documentHelper.actualitzarDocument(
 										null,
@@ -480,7 +483,7 @@ public class ExpedientLogHelper {
 						} else if (!created && !deleted) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
-							if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
+							if (logo.getName().startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
 								Long documentStoreId = documentHelper.actualitzarDocument(
 										null,
@@ -541,7 +544,7 @@ public class ExpedientLogHelper {
 											null);
 								}
 								// Si la variable correspon a un document vol dir que també l'hem d'esborrar
-								if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
+								if (logo.getName().startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
 									documentHelper.esborrarDocument(
 											task.getId(),
 											null,
@@ -550,7 +553,7 @@ public class ExpedientLogHelper {
 							} else if (!created && deleted) {
 								if (debugRetroces)
 									logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
-								if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
+								if (logo.getName().startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
 									Long documentStoreId = documentHelper.actualitzarDocument(
 											task.getId(),
@@ -574,7 +577,7 @@ public class ExpedientLogHelper {
 							} else if (!created && !deleted) {
 								if (debugRetroces)
 									logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
-								if (logo.getName().startsWith(DocumentHelper.PREFIX_VAR_DOCUMENT)) {
+								if (logo.getName().startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
 									Long documentStoreId = documentHelper.actualitzarDocument(
 											task.getId(),
@@ -714,9 +717,9 @@ public class ExpedientLogHelper {
 				}
 			}
 			for (DocumentTasca document: getDocumentsPerTaskInstance(ti)) {
-				String codi = DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
+				String codi = JbpmVars.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
 				if (!document.isReadOnly()) {
-					Object valor = ci.getVariable(DocumentHelper.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
+					Object valor = ci.getVariable(JbpmVars.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
 					if (valor != null)
 						if (debugRetroces)
 							logger.info(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getName() + " (" + task.getId() + ")");

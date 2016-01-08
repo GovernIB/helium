@@ -53,7 +53,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -383,7 +382,6 @@ public interface Jbpm3HeliumService {
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param dataDocument
-	 * @param forsarAdjuntarAuto
 	 * @return
 	 * @throws DefinicioProcesNotFoundException
 	 * @throws DocumentNotFoundException
@@ -393,8 +391,7 @@ public interface Jbpm3HeliumService {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,
-			Date dataDocument,
-			boolean forsarAdjuntarAuto) throws DefinicioProcesNotFoundException, DocumentNotFoundException, DocumentGenerarException;
+			Date dataDocument) throws DefinicioProcesNotFoundException, DocumentNotFoundException, DocumentGenerarException;
 
 	/**
 	 * Obté el termini donada una instància de procés i el codi del termini.
@@ -722,15 +719,6 @@ public interface Jbpm3HeliumService {
 
 	/**
 	 * 
-	 * @param notificacio
-	 * @return
-	 * @throws PluginException
-	 */
-	public RegistreIdDto registreNotificacio(
-			RegistreNotificacioDto notificacio) throws PluginException;
-
-	/**
-	 * 
 	 * @param registreNumero
 	 * @return
 	 * @throws PluginException
@@ -744,8 +732,35 @@ public interface Jbpm3HeliumService {
 	 * @return
 	 * @throws PluginException
 	 */
-	public String getRegistreOficinaNom(
+	public String registreObtenirOficinaNom(
 			String oficinaCodi) throws PluginException;
+
+	/**
+	 * 
+	 * @param notificacio
+	 * @return
+	 * @throws PluginException
+	 */
+	public RegistreIdDto notificacioCrear(
+			RegistreNotificacioDto notificacio) throws PluginException;
+
+	public void notificacioGuardar(
+			Long expedientId,
+			String numero,
+			Date data,
+			String RDSClave,
+			Long RDSCodigo);
+
+	public boolean notificacioEsborrar(
+			String numero,
+			String clave,
+			Long codigo);	
+
+	public RespostaJustificantRecepcioDto notificacioElectronicaJustificant(
+			String registreNumero) throws Exception;
+
+	public RespostaJustificantDetallRecepcioDto notificacioElectronicaJustificantDetall(
+			String registreNumero) throws Exception;
 
 	/**
 	 * 
@@ -915,12 +930,8 @@ public interface Jbpm3HeliumService {
 	 * @param dataInici2
 	 * @param expedientTipusId
 	 * @param estatId
-	 * @param iniciat
-	 * @param finalitzat
-	 * @param geoPosX
-	 * @param geoPosY
-	 * @param geoReferencia
-	 * @param mostrarAnulats
+	 * @param nomesIniciats
+	 * @param nomesFinalitzats
 	 * @return
 	 * @throws EntornNotFoundException
 	 * @throws ExpedientTipusNotFoundException
@@ -934,12 +945,8 @@ public interface Jbpm3HeliumService {
 			Date dataInici2,
 			Long expedientTipusId,
 			Long estatId,
-			boolean iniciat,
-			boolean finalitzat,
-			Double geoPosX,
-			Double geoPosY,
-			String geoReferencia,
-			FiltreAnulat mostrarAnulats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+			boolean nomesIniciats,
+			boolean nomesFinalitzats) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	
 	/**
@@ -961,7 +968,14 @@ public interface Jbpm3HeliumService {
 	 * Informa si mesura de temps està activa
 	 */
 	public boolean mesuraIsActiu();
-	
+
+	/**
+	 * 
+	 * @param propertyName
+	 * @return
+	 */
+	public String getHeliumProperty(String propertyName);
+
 	/**
 	 * Actualitza els camps d'error de l'expedient
 	 * 
@@ -970,13 +984,23 @@ public interface Jbpm3HeliumService {
 	 * @param errorFull
 	 */
 	public void updateExpedientError(String processInstanceId, String errorDesc, String errorFull);
-	
+
 	/**
+	 * Activa o desactiva un token
 	 * 
-	 * @param propertyName
+	 * @param tokenId
+	 * @param activar
 	 * @return
 	 */
-	public String getHeliumProperty(String propertyName);
+	public boolean tokenActivar(long tokenId, boolean activar);
+
+	/**
+	 * Reprendre un expedient
+	 * 
+	 * @param processInstanceId
+	 * @throws Exception
+	 */
+	public void reprendreExpedient(String processInstanceId) throws Exception;
 
 	/**
 	 * Obté la propera operació a realitzar massivament
@@ -1005,28 +1029,4 @@ public interface Jbpm3HeliumService {
 	 */
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva);
 
-	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(String registreNumero) throws Exception;
-
-	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(String registreNumero) throws Exception;
-
-	public void guardarNotificacioElectronica(Long expedientId, String numero, Date data, String RDSClave, Long RDSCodigo);
-
-	public boolean borrarNotificacioElectronica(String numero, String clave, Long codigo);
-
-	/**
-	 * Activa o desactiva un token
-	 * 
-	 * @param tokenId
-	 * @param activar
-	 * @return
-	 */
-	public boolean tokenActivar(long tokenId, boolean activar);
-
-	/**
-	 * Reprendre un expedient
-	 * 
-	 * @param processInstanceId
-	 * @throws Exception
-	 */
-	public void reprendreExpedient(String processInstanceId) throws Exception;
 }

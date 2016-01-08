@@ -18,8 +18,15 @@ public interface EntornService {
 	 * Retorna una llista d'entorns per als quals l'usuari actual
 	 * te permis d'accés (READ).
 	 * 
-	 * @return El llistat d'entorns.
+	 * @return la llista d'entorns.
 	 */
-	public List<EntornDto> findAmbPermisAcces();
+	public List<EntornDto> findActiusAmbPermisAcces();
+
+	/**
+	 * Retorna una llista amb tots els entorns.
+	 * 
+	 * @return la llista d'entorns.
+	 */
+	public List<EntornDto> findActiusAll();
 
 }

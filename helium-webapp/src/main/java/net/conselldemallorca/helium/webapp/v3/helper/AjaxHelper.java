@@ -3,12 +3,18 @@
  */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 
 /**
  * Utilitat per a marcar peticions AJAX.
@@ -46,6 +52,21 @@ public class AjaxHelper {
 		}
 	}
 
+	public static AjaxFormResponse generarAjaxFormErrors(
+			Object objecte,
+			BindingResult bindingResult) {
+		return new AjaxFormResponse(objecte, bindingResult);
+	}
+	public static AjaxFormResponse generarAjaxFormOk(
+			Object objecte) {
+		return new AjaxFormResponse(objecte);
+	}
+	public static AjaxFormResponse generarAjaxFormOk() {
+		return new AjaxFormResponse(null);
+	}
+
+
+
 	private static boolean isRequestUriAjax(
 			HttpServletRequest request) {
 		return request.getRequestURI().contains(URI_PREFIX_AJAX);
@@ -71,6 +92,88 @@ public class AjaxHelper {
 		request.setAttribute(
 				REQUEST_ATTRIBUTE_AJAX,
 				new Boolean(true));
+	}
+
+	public static class AjaxFormResponse {
+		private Object objecte;
+		private AjaxFormEstatEnum estat;
+		private List<AjaxFormError> errorsGlobals;
+		private List<AjaxFormError> errorsCamps;
+		public AjaxFormResponse(Object objecte, BindingResult bindingResult) {
+			super();
+			this.objecte = objecte;
+			if (bindingResult != null) {
+				this.errorsGlobals = new ArrayList<AjaxFormError>();
+				for (ObjectError objectError: bindingResult.getGlobalErrors()) {
+					errorsGlobals.add(
+							new AjaxFormError(
+									objectError.getObjectName(),
+									MessageHelper.getInstance().getMessage(
+											objectError.getCode(),
+											objectError.getArguments())));
+				}
+				this.errorsCamps = new ArrayList<AjaxFormError>();
+				for (FieldError fieldError: bindingResult.getFieldErrors()) {
+					errorsCamps.add(
+							new AjaxFormError(
+									fieldError.getField(),
+									MessageHelper.getInstance().getMessage(
+											fieldError.getCodes(),
+											fieldError.getArguments(),
+											null)));
+				}
+				this.estat = AjaxFormEstatEnum.ERROR;
+			} else {
+				this.estat = AjaxFormEstatEnum.OK;
+			}
+		}
+		public AjaxFormResponse(Object objecte) {
+			super();
+			this.objecte = objecte;
+			this.estat = AjaxFormEstatEnum.OK;
+		}
+		public Object getObjecte() {
+			return objecte;
+		}
+		public AjaxFormEstatEnum getEstat() {
+			return estat;
+		}
+		public List<AjaxFormError> getErrorsGlobals() {
+			return errorsGlobals;
+		}
+		public List<AjaxFormError> getErrorsCamps() {
+			return errorsCamps;
+		}
+		public boolean isEstatOk() {
+			return estat.equals(AjaxFormEstatEnum.OK);
+		}
+		public boolean isEstatError() {
+			return estat.equals(AjaxFormEstatEnum.ERROR);
+		}
+		public boolean isErrorsGlobals() {
+			return errorsGlobals != null;
+		}
+		public boolean isErrorsCamps() {
+			return errorsCamps != null;
+		}
+	}
+	public static class AjaxFormError {
+		private String camp;
+		private String missatge;
+		public AjaxFormError(String camp, String missatge) {
+			this.camp = camp;
+			this.missatge = missatge;
+		}
+		public String getCamp() {
+			return camp;
+		}
+		public String getMissatge() {
+			return missatge;
+		}
+	}
+	public enum AjaxFormEstatEnum {
+		OK,
+		ERROR
 	}
 
 }

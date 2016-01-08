@@ -27,10 +27,9 @@ public class NotifElectronicaDao extends HibernateGenericDao<NotifElectronica, L
 		NotifElectronica notifElectronica = new NotifElectronica();
 		notifElectronica.setNumero(numero);
 		notifElectronica.setData(data);
-		notifElectronica.setRDSClave(RDSClave);
-		notifElectronica.setRDSCodi(RDSCodigo);
+		notifElectronica.setRdsClave(RDSClave);
+		notifElectronica.setRdsCodi(RDSCodigo);
 		notifElectronica.setExpedientId(expedientId);
-		
 		return saveOrUpdate(notifElectronica);
 	}
 

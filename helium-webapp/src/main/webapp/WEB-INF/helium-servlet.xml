@@ -25,7 +25,9 @@
 	<mvc:resources mapping="/**/*.gif" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.css" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.js" location="/" cache-period="86400"/>
-    
+
+	<mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>

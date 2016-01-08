@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.core.model.service;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.EnumeracioDao;
 import net.conselldemallorca.helium.core.model.dao.PermisDao;
 import net.conselldemallorca.helium.core.model.dao.PersonaDao;
@@ -60,7 +59,7 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "3.1.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 310;
 
-	public static final int VERSIO_ACTUAL_RELEASE = 0;
+	public static final int VERSIO_ACTUAL_RELEASE = 2;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
@@ -309,11 +308,11 @@ public class UpdateService {
 		if (enumeracions.size() > 0) {
 			for (Enumeracio enumeracio : enumeracions) {
 				if ((enumeracio.getValors() != null) && (!enumeracio.getValors().equals(""))) {
-					List<ParellaCodiValor> valors = enumeracio.getLlistaValors();
-					for (ParellaCodiValor parella : valors) {
+					List<String[]> valors = enumeracio.getLlistaValors();
+					for (String[] parella : valors) {
 						EnumeracioValors enumeracioValors = new EnumeracioValors();
-						enumeracioValors.setCodi(parella.getCodi());
-						enumeracioValors.setNom((String)parella.getValor());
+						enumeracioValors.setCodi(parella[0]);
+						enumeracioValors.setNom((String)parella[0]);
 						enumeracioValors.setEnumeracio(enumeracio);
 						dissenyService.createEnumeracioValors(enumeracioValors);
 					}

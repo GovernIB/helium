@@ -8,17 +8,18 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.dao.AlertaDao;
-import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.dao.AlertaDao;
+import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 
 
 /**

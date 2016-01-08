@@ -82,12 +82,12 @@
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-core-api</artifactId>
+			<artifactId>helium-disseny</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
-			<artifactId>helium-disseny</artifactId>
+			<artifactId>helium-core-api</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
 	</dependencies>

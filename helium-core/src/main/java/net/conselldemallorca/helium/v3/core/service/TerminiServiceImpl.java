@@ -21,8 +21,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.FestiuNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
@@ -440,7 +440,7 @@ public class TerminiServiceImpl implements TerminiService {
 		if (pi == null) {
 			return null;
 		}
-		return expedientRepository.findByProcessInstanceId(pi.getId()).get(0);
+		return expedientRepository.findByProcessInstanceId(pi.getId());
 	}
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {

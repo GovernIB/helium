@@ -11,6 +11,20 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.ServiceUtils;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
+import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -19,9 +33,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -44,11 +55,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
-import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -60,12 +66,6 @@ import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar les tasques de disseny.
@@ -487,11 +487,18 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	private List<ExpedientTipusDto> getExpedientTipusAmbEntorn(Entorn entorn) {
 		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
-		permisosHelper.filterGrantedAny(tipus, new ObjectIdentifierExtractor<ExpedientTipusDto>() {
-			public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
-				return expedientTipus.getId();
-			}
-		}, ExpedientTipus.class, new Permission[] { ExtendedPermission.ADMINISTRATION, ExtendedPermission.CREATE });
+		permisosHelper.filterGrantedAny(
+				tipus,
+				new ObjectIdentifierExtractor<ExpedientTipusDto>() {
+					public Long getObjectIdentifier(ExpedientTipusDto expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+						ExtendedPermission.ADMINISTRATION,
+						ExtendedPermission.CREATE
+				});
 		return tipus;
 	}
 	

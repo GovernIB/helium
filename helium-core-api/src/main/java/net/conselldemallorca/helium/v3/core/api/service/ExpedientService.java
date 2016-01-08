@@ -719,12 +719,27 @@ public interface ExpedientService {
 
 	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception;
 
-	public DocumentDto generarDocumentAmbPlantillaProces(
+	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
 
-	public DocumentDto generarDocumentAmbPlantillaTasca(
+	/**
+	 * Genera un document amb plantilla.
+	 * 
+	 * @param tascaId
+	 *            La tasca a dins la qual es genera el document
+	 * @param documentCodi
+	 *            El codi del document a generar
+	 * @return El document generat o null si el document s'adjunta automàticament a la tasca
+	 * @throws NotFoundException
+	 *            Si el document a generar no s'ha trobat
+	 * @throws DocumentGenerarException
+	 *            Si s'ha produit algun error al generar el document
+	 * @throws DocumentConvertirException
+	 *            Si s'ha produit algun error al convertir el document
+	 */
+	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
 			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
 

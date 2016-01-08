@@ -43,8 +43,7 @@ public class DocumentGenerarHandler extends AbstractHeliumActionHandler implemen
 				null,
 				getProcessInstanceId(executionContext),
 				dc,
-				docData,
-				true);
+				docData);
 		logger.debug("Handler generar document finalitzat amb èxit");
 	}
 

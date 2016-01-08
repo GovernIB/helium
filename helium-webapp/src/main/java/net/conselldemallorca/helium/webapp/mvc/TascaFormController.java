@@ -18,26 +18,6 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.exception.NotFoundException;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
-import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,6 +40,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
+import net.conselldemallorca.helium.core.model.exception.NotFoundException;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+
 
 
 /**
@@ -80,7 +80,7 @@ public class TascaFormController extends BaseController {
 	private Validator validatorGuardar;
 	private Validator validatorValidar;
 	private ExecucioMassivaService execucioMassivaService;
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	private AdminService adminService;
 
 
 	@Autowired
@@ -90,14 +90,14 @@ public class TascaFormController extends BaseController {
 			ExpedientService expedientService, 
 			TascaController tascaController,
 			ExecucioMassivaService execucioMassivaService,
-			MesuresTemporalsHelper mesuresTemporalsHelper) {
+			AdminService adminService) {
 		this.tascaService = tascaService;
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.validatorGuardar = new TascaFormValidator(tascaService, false);
 		this.validatorValidar = new TascaFormValidator(tascaService);
 		this.execucioMassivaService = execucioMassivaService;
-		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
+		this.adminService = adminService;
 	}
 
 
@@ -229,7 +229,7 @@ public class TascaFormController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			TascaDto tasca = null;
-			if (MesuresTemporalsHelper.isActiu()) {
+			if (adminService.mesuraTemporalIsActive()) {
 				try {
 					tasca = tascaService.getById(
 							entorn.getId(),
@@ -238,7 +238,13 @@ public class TascaFormController extends BaseController {
 							null,
 							true,
 							false);
-					mesuresTemporalsHelper.mesuraIniciar("Tasca FORM", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+					if (adminService.mesuraTemporalIsActive())
+							adminService.mesuraTemporalIniciar(
+									"Tasca FORM",
+									"tasques",
+									tasca.getExpedient().getTipus().getNom(),
+									tasca.getNomLimitat(),
+									null);
 				} catch (net.conselldemallorca.helium.core.model.exception.IllegalStateException ex) {
 					missatgeError(request, getMessage("error.tasca.no.disponible") );
 					logger.error(getMessage("error.tascaService.noDisponible"), ex);
@@ -253,8 +259,13 @@ public class TascaFormController extends BaseController {
 						request.getSession().removeAttribute(VARIABLE_SESSIO_CAMP_FOCUS);
 				}
 			}
-			if (MesuresTemporalsHelper.isActiu())
-				mesuresTemporalsHelper.mesuraCalcular("Tasca FORM", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+			if (adminService.mesuraTemporalIsActive())
+				adminService.mesuraTemporalCalcular(
+						"Tasca FORM",
+						"tasques",
+						tasca.getExpedient().getTipus().getNom(),
+						tasca.getNomLimitat(),
+						null);
 			if (model.get("command") == null) {
 				missatgeError(request, getMessage("error.tasca.no.disponible") );
 				return "redirect:/tasca/personaLlistat.html";

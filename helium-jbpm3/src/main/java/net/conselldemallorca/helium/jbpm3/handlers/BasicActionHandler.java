@@ -8,6 +8,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.JbpmException;
+import org.jbpm.context.exe.ContextInstance;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.Token;
+
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
@@ -54,13 +60,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.DefinicioProcesNotFoun
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
-
-import org.jbpm.JbpmException;
-import org.jbpm.context.exe.ContextInstance;
-import org.jbpm.graph.def.ActionHandler;
-import org.jbpm.graph.exe.ExecutionContext;
-import org.jbpm.graph.exe.Token;
 
 
 /**
@@ -204,11 +203,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 					expedient.getTipus().getId(),
 					estat == null ? null : estat.getId(),
 					iniciat,
-					finalitzat,
-					null,
-					null,
-					null,
-					FiltreAnulat.ACTIUS);
+					finalitzat);
 			// Construcció de la resposta
 			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 			for (ExpedientDto dto: resultats)
@@ -504,7 +499,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		}
 		notificacio.setAnnexos(annexos);
 		try {
-			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreNotificacio(notificacio);
+			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
 			resposta.setData(anotacioId.getData());
@@ -527,7 +522,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(String registreNumero) throws Exception {
 		try {
-			return Jbpm3HeliumBridge.getInstanceService().obtenirJustificantRecepcio(
+			return Jbpm3HeliumBridge.getInstanceService().notificacioElectronicaJustificant(
 					registreNumero);
 		} catch (PluginException ex) {
 			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
@@ -543,7 +538,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(String registreNumero) throws Exception {
 		try {
-			return Jbpm3HeliumBridge.getInstanceService().obtenirJustificantDetallRecepcio(
+			return Jbpm3HeliumBridge.getInstanceService().notificacioElectronicaJustificantDetall(
 					registreNumero);
 		} catch (PluginException ex) {
 			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);

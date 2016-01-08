@@ -7,15 +7,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 /**
  * Dao pels objectes de tipus expedient

@@ -1,39 +1,22 @@
 package net.conselldemallorca.helium.core.model.dao;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+
+import org.hibernate.criterion.Restrictions;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.model.exception.DominiException;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
 
 /**
  * Dao pels objectes de tipus Domini
@@ -98,7 +81,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		jdbcTemplates.remove(dominiId);
 	}
 
-	private List<FilaResultat> consultaWs(
+	/*private List<FilaResultat> consultaWs(
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) throws Exception {
@@ -247,6 +230,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return sb.toString();
 	}
 
-	private static final Log logger = LogFactory.getLog(DominiDao.class);
+	private static final Log logger = LogFactory.getLog(DominiDao.class);*/
 
 }

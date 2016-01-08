@@ -155,7 +155,7 @@ public class BaseTascaController extends BaseController {
 	
 	@SuppressWarnings("unchecked")
 	protected Map<String, Object> getDatosTramitacionMasiva(HttpServletRequest request) {
-		Object obj = SessionHelper.getAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
+		Object obj = SessionHelper.getAttribute(request, VARIABLE_TRAMITACIO_MASSIVA);
 		if (obj instanceof Map) {
 			return (Map<String, Object>) obj;
 		}

@@ -11,11 +11,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.helperv26.CacheHelper;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.model.service.CacheHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
@@ -73,9 +73,27 @@ public class PluginPersonaDao extends PersonaDao {
 			if (getPersonesPlugin() == null || isSyncActiu()) {
 				return toPersonaPlugin(findAmbCodi(codiPerConsulta));
 			} else {
-				return cacheHelper.getPersonaFromPlugin(
+				net.conselldemallorca.helium.v3.core.api.dto.PersonaDto dto = cacheHelper.getPersonaFromPlugin(
 						codiPerConsulta,
 						personesPlugin);
+				PersonaDto.Sexe sexe = null;
+				if (dto.getSexe() != null) {
+					switch (dto.getSexe()) {
+					case SEXE_DONA:
+						sexe = PersonaDto.Sexe.SEXE_DONA;
+						break;
+					case SEXE_HOME:
+						sexe = PersonaDto.Sexe.SEXE_HOME;
+						break;
+					}
+				}
+				PersonaDto personaDto = new PersonaDto(
+						dto.getCodi(),
+						dto.getNom(),
+						dto.getLlinatges(),
+						dto.getEmail(),
+						sexe);
+				return personaDto;
 				/*return toPersonaPlugin(
 						personesPlugin.findAmbCodi(codiPerConsulta));*/
 			}

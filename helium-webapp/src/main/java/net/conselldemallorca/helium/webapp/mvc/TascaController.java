@@ -14,24 +14,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.service.PersonaService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.core.model.service.TerminiService;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +29,24 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.PersonaService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.core.model.service.TerminiService;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 
 /**
  * Controlador per la gestió de tasques
@@ -67,7 +67,7 @@ public class TascaController extends BaseController {
 	private DissenyService dissenyService;
 	private PersonaService  personaService;
 	private ExecucioMassivaService execucioMassivaService;
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	private AdminService adminService;
 	
 	@Autowired
 	public TascaController(
@@ -76,13 +76,13 @@ public class TascaController extends BaseController {
 			DissenyService dissenyService,
 			PersonaService  personaService,
 			ExecucioMassivaService execucioMassivaService,
-			MesuresTemporalsHelper mesuresTemporalsHelper) {
+			AdminService adminService) {
 		this.tascaService = tascaService;
 		this.terminiService = terminiService;
 		this.dissenyService = dissenyService;
 		this.personaService = personaService;
 		this.execucioMassivaService = execucioMassivaService;
-		this.mesuresTemporalsHelper = mesuresTemporalsHelper;
+		this.adminService = adminService;
 	}
 
 	@ModelAttribute("prioritats")
@@ -217,7 +217,13 @@ public class TascaController extends BaseController {
 		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
 		Long tid = tasca.getExpedient().getTipus().getId();
 		if (entorn != null) {
-			mesuresTemporalsHelper.mesuraIniciar("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+			if (adminService.mesuraTemporalIsActive())
+				adminService.mesuraTemporalIniciar(
+						"Tasca INFO",
+						"tasques",
+						tasca.getExpedient().getTipus().getNom(),
+						tasca.getNomLimitat(),
+						null);
 			if (massiva == null || !massiva.equalsIgnoreCase("s")) {
 				TramitacioMassiva.netejarTramitacioMassiva(request);
 				model.remove("seleccioMassiva");
@@ -240,24 +246,54 @@ public class TascaController extends BaseController {
 			} catch (Exception ex) {
 				logger.error("S'ha produït un error processant la seva petició", ex);
 				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-				mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+				if (adminService.mesuraTemporalIsActive())
+					adminService.mesuraTemporalCalcular(
+							"Tasca INFO",
+							"tasques",
+							tasca.getExpedient().getTipus().getNom(),
+							tasca.getNomLimitat(),
+							null);
 				return "redirect:/tasca/personaLlistat.html";
 			}
 			if ("s".equals(ini)) {
 				
-				if(tasca.isDelegacioOriginal()){
-					mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+				if (tasca.isDelegacioOriginal()) {
+					if (adminService.mesuraTemporalIsActive())
+						adminService.mesuraTemporalCalcular(
+								"Tasca INFO",
+								"tasques",
+								tasca.getExpedient().getTipus().getNom(),
+								tasca.getNomLimitat(),
+								null);
 					return "redirect:/tasca/info.html?id="+id;
-				}else{
+				} else {
 					
 					if (!tasca.getCamps().isEmpty()) {
-						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+						if (adminService.mesuraTemporalIsActive())
+							adminService.mesuraTemporalCalcular(
+									"Tasca INFO",
+									"tasques",
+									tasca.getExpedient().getTipus().getNom(),
+									tasca.getNomLimitat(),
+									null);
 						return "redirect:/tasca/form.html?id="+id;
 					} else if(!tasca.getDocuments().isEmpty()) {
-						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+						if (adminService.mesuraTemporalIsActive())
+							adminService.mesuraTemporalCalcular(
+									"Tasca INFO",
+									"tasques",
+									tasca.getExpedient().getTipus().getNom(),
+									tasca.getNomLimitat(),
+									null);
 						return "redirect:/tasca/documents.html?id="+id;
 					} else if (!tasca.getSignatures().isEmpty()) {
-						mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+						if (adminService.mesuraTemporalIsActive())
+							adminService.mesuraTemporalCalcular(
+									"Tasca INFO",
+									"tasques",
+									tasca.getExpedient().getTipus().getNom(),
+									tasca.getNomLimitat(),
+									null);
 						return "redirect:/tasca/signatures.html?id="+id;
 					}	
 				}
@@ -266,7 +302,13 @@ public class TascaController extends BaseController {
 			model.addAttribute(
 					 "destinataris",
 					 destinataris);
-			mesuresTemporalsHelper.mesuraCalcular("Tasca INFO", "tasques", tasca.getExpedient().getTipus().getNom(), tasca.getNomLimitat());
+			if (adminService.mesuraTemporalIsActive())
+				adminService.mesuraTemporalCalcular(
+						"Tasca INFO",
+						"tasques",
+						tasca.getExpedient().getTipus().getNom(),
+						tasca.getNomLimitat(),
+						null);
 	        return "tasca/info";
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );

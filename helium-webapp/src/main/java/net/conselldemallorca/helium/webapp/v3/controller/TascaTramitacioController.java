@@ -16,30 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -64,6 +40,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 /**
  * Controlador per a la tramitació de taques.
@@ -524,17 +523,19 @@ public class TascaTramitacioController extends BaseTascaController {
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else {
-				DocumentDto generat = accioDocumentGenerar(
+				ArxiuDto generat = accioDocumentGenerar(
 						request,
 						tascaId, 
 						documentCodi, 
 						(data == null) ? new Date() : data);
 				if (generat != null) {
-					if (!generat.isAdjuntarAuto()) {
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getArxiuNom());
-						model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getArxiuContingut());
-						return "arxiuView";
-					}
+					model.addAttribute(
+							ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+							generat.getNom());
+					model.addAttribute(
+							ArxiuView.MODEL_ATTRIBUTE_DATA,
+							generat.getContingut());
+					return "arxiuView";
 				}
 			}
 		} catch (Exception ex) {
@@ -1302,12 +1303,12 @@ public class TascaTramitacioController extends BaseTascaController {
 		return resposta;
 	}
 
-	private DocumentDto accioDocumentGenerar(
+	private ArxiuDto accioDocumentGenerar(
 			HttpServletRequest request,
 			String tascaId,
 			String documentCodi,
 			Date data) {
-		DocumentDto generat = null;
+		ArxiuDto generat = null;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			try {				
@@ -1328,8 +1329,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				generat = expedientService.generarDocumentAmbPlantillaTasca(
 						tascaId,
 						documentCodi);
-				params[3] = generat.getArxiuContingut();
-				params[4] = generat.getArxiuNom();
+				params[3] = generat.getContingut();
+				params[4] = generat.getNom();
 				params[5] = auth.getCredentials();
 				List<String> rols = new ArrayList<String>();
 				for (GrantedAuthority gauth : auth.getAuthorities()) {
@@ -1338,8 +1339,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				params[6] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-
-				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
+				MissatgesHelper.success(
+						request,
+						getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);

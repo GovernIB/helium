@@ -128,7 +128,6 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		CwsProxy factory = new CwsProxy();
 		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
 		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();
-		
 		try {
 			DeleteRequest request = new DeleteRequest(
 					getRequestApplication(),
@@ -256,7 +255,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			DeleteRequestDocument documentRequest = new DeleteRequestDocument(document);
 			documentsRequest[i++] = documentRequest; 
 		}
-			return documentsRequest;
+		return documentsRequest;
 	}
 	
 	private UploadRequestDocument getRequestDocument(

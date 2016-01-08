@@ -46,14 +46,15 @@
 	
 	<!-- V3 -->
 	<context:component-scan base-package="net.conselldemallorca.helium.core.model.service"/>
+	<context:component-scan base-package="net.conselldemallorca.helium.core.helperv26"/>
 	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.service"/>
-	<context:component-scan base-package="net.conselldemallorca.helium.v3.core.helper"/>
+	<context:component-scan base-package="net.conselldemallorca.helium.core.helper"/>
 
 	<bean id="jbpm3HeliumBridgeFactory" class="net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge" lazy-init="false">
 		<property name="jbpm3HeliumService" ref="jbpm3HeliumHelper" />
 	</bean>
 	
-	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper">
+	<bean id="mesuresTemporalsHelper" class="net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper">
 		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
 		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
 	</bean>
