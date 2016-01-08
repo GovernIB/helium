@@ -54,6 +54,21 @@ public class ExecucionsMassivesController extends BaseController {
 	}
 	
 	/**
+	 * Obtenir les dades de l'execució massiva i els seus expedients.
+	 * @throws Exception 
+	 */
+	@RequestMapping(value="getExecucioMassivaDetall", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String getExecucioMassivaDetall(
+			@RequestParam(value = "execucioMassivaId", required = false) Long execucioMassivaId, 
+			HttpServletRequest request,
+			HttpServletResponse response,
+			ModelMap model, 
+			HttpSession session)  throws ServletException, IOException {
+		return execucioMassivaService.getExecucioMassivaDetall(execucioMassivaId);
+	}
+	
+	/**
 	 * Refresca las barras de progreso de detalle de las acciones masivas
 	 * @throws Exception 
 	 */

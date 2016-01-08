@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,15 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 			"where 	e.expedient.id = :execucioMassivaId " +
 			" and e.dataFi is null")
 	public Long findProgresExecucioMassivaActiveById(@Param("execucioMassivaId") Long execucioMassivaId);	
+	
+	@Query("select e.execucioMassiva.id, " +
+			"sum(case when e.error is not null then 1 else 0 end) as error, " +
+			"sum(case when e.error is null and e.dataFi is null and e.estat is 'ESTAT_PENDENT' then 1 else 0 end) as pendent, " +
+			"count(*) as total " +
+			"from ExecucioMassivaExpedient e " +
+			"where e.execucioMassiva in (:execucionsMassives) " +
+			"group by e.execucioMassiva.id, " +
+			"e.execucioMassiva.dataInici " +
+			"order by e.execucioMassiva.dataInici DESC")
+	public List<Object[]> findResultatsExecucionsMassives(@Param("execucionsMassives") List<ExecucioMassiva> execucionsMassives);
 }

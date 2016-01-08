@@ -178,7 +178,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	public String getJsonExecucionsMassivesByUser(int results, boolean viewAll) {		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
-		Pageable paginacio = new PageRequest(0,results, Direction.DESC, "dataInici");		
+		int page = results < 0 ? 0 : results;
+		
+		Pageable paginacio = new PageRequest(page,10, Direction.DESC, "dataInici");		
 		List<ExecucioMassiva> execucions = null;
 		
 		if (viewAll){
@@ -187,104 +189,168 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			execucions = execucioMassivaRepository.findByUsuariAndEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
 		}
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");		
+		//Recuperem els resultats
+		final int ID = 0;
+		final int ERROR = 1;
+		final int PENDENT = 2;
+		final int TOTAL = 3;
+		
 		JSONArray ljson = new JSONArray();	
-		for (ExecucioMassiva execucio: execucions) {
-			List<ExecucioMassivaExpedient> expedients = execucio.getExpedients();
-			JSONArray ljson_exp = new JSONArray();
-			String tasca = "";
-			Long success = 0L;
-			Long danger = 0L;
-			Long pendent = 0L;
-			if (!expedients.isEmpty()) {
-				ExecucioMassivaExpedient em = expedients.get(0);
-				if (em.getTascaId() != null) {
-					JbpmTask task = jbpmHelper.getTaskById(em.getTascaId());					
-					if (task != null){
-						if (task.isCacheActiu())
-							tasca = task.getFieldFromDescription("titol");
-						else
-							tasca = task.getTaskName();
-					}
-				}
-				for (ExecucioMassivaExpedient expedient: expedients) {
-					Expedient exp = expedient.getExpedient();
-					String titol = "";
-					if (exp != null) { 
-						if (exp.getNumero() != null)
-							titol = "[" + exp.getNumero() + "]";
-			    		if (exp.getTitol() != null) 
-			    			titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
-			    		if (titol.length() == 0)
-			    			titol = exp.getNumeroDefault();
-					} else {
-//						if (expedient.getProcessInstanceId() != null) {
-//							exp = expedientService.findExpedientAmbProcessInstanceId(expedient.getProcessInstanceId());
-//							if (exp != null) {
-//								titol = exp.getIdentificador();
-//							} else {
-//								titol = messageHelper.getMessage("expedient.massiva.error.expedient") + " " + expedient.getProcessInstanceId();
-//							}
-//						} else {
-//							titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
-//						}
+		
+		if (!execucions.isEmpty()) {
+			List<Object[]> comptadorsExecucions = execucioMassivaExpedientRepository.findResultatsExecucionsMassives(execucions);
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");		
+			
+			int i = 0;
+			for (ExecucioMassiva execucio: execucions) {
+				if (i < comptadorsExecucions.size()) {
+				Object[] comptadorsExecucio = comptadorsExecucions.get(i);
+	
+					if (execucio.getId().equals(comptadorsExecucio[0])) {
+						JSONArray ljson_exp = new JSONArray();
+						String tasca = "";
 						
-						titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
+						Long id = (Long)comptadorsExecucio[ID];
+						Long error = (Long)comptadorsExecucio[ERROR];
+						Long pendent = (Long)comptadorsExecucio[PENDENT];
+						Long total = (Long)comptadorsExecucio[TOTAL];
+						Long ok = (total - error - pendent);
+						
+						Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
+						mjson.put("id", id);
+						mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
+						
+						mjson.put("error", error);
+						mjson.put("pendent", pendent);
+						mjson.put("ok", ok);
+						mjson.put("total", total);
+						
+						mjson.put("executades", getPercent((total - pendent), total));
+						
+						mjson.put("data", sdf.format(execucio.getDataInici()));
+						if (execucio.getDataFi() != null)
+							mjson.put("dataFi", sdf.format(execucio.getDataFi()));
+						mjson.put("tasca", tasca);
+						mjson.put("expedients", ljson_exp);
+						String nomSencer = "";
+						try {
+							nomSencer = pluginHelper.findPersonaAmbCodi(execucio.getUsuari()).getNomSencer();
+						} catch (Exception e) {
+							logger.error(e);
+							e.printStackTrace();
+						}
+						mjson.put("usuari", nomSencer);
+						ljson.add(mjson);
+						
+						i++;
 					}
-					
-					Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
-					mjson_exp.put("id", expedient.getId());
-					mjson_exp.put("titol", titol);
-					mjson_exp.put("estat", expedient.getEstat().name());
-					
-					if (expedient.getDataFi() != null){
-						mjson_exp.put("dataFi", sdf.format(expedient.getDataFi()));
-					}
-					
-					String error = expedient.getError();
-					if (error != null) {
-						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
-						danger++;
-					} else if (expedient.getDataFi() == null && ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())){
-						pendent++;
-					} else {
-						success++;
-					}
-					mjson_exp.put("error", JSONValue.escape(error));
-					ljson_exp.add(mjson_exp);
 				}
-			}		
-			Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
-			mjson.put("id", execucio.getId());
-			mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
-			mjson.put("success", getPercent(success, expedients.size()));
-			mjson.put("pendent", getPercent(pendent, expedients.size()));
-			mjson.put("danger", getPercent(danger, expedients.size()));
-			mjson.put("data", sdf.format(execucio.getDataInici()));
-			if (execucio.getDataFi() != null)
-				mjson.put("dataFi", sdf.format(execucio.getDataFi()));
-			mjson.put("tasca", tasca);
-			mjson.put("expedients", ljson_exp);
-			String nomSencer = "";
-			try {
-				nomSencer = pluginHelper.findPersonaAmbCodi(execucio.getUsuari()).getNomSencer();
-			} catch (Exception e) {
-				logger.error(e);
-				e.printStackTrace();
 			}
-			mjson.put("usuari", nomSencer);
-			ljson.add(mjson);
 		}
 		String ojson = JSONValue.toJSONString(ljson);
 		return ojson;
 	}
 	
-	private double getPercent(Long value, int total) {
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	@Override
+	public String getExecucioMassivaDetall(Long execucioMassivaId) {		
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");		
+		
+		ExecucioMassiva execucio = execucioMassivaRepository.findOne(execucioMassivaId);
+		
+		List<ExecucioMassivaExpedient> expedients = execucio.getExpedients();
+		JSONArray ljson_exp = new JSONArray();
+		String tasca = "";
+		Long success = 0L;
+		Long danger = 0L;
+		Long pendent = 0L;
+		
+		if (!expedients.isEmpty()) {
+			ExecucioMassivaExpedient em = expedients.get(0);
+			if (em.getTascaId() != null) {
+				JbpmTask task = jbpmHelper.getTaskById(em.getTascaId());					
+				if (task != null){
+					if (task.isCacheActiu())
+						tasca = task.getFieldFromDescription("titol");
+					else
+						tasca = task.getTaskName();
+				}
+			}
+			for (ExecucioMassivaExpedient expedient: expedients) {
+				Expedient exp = expedient.getExpedient();
+				String titol = "";
+				if (exp != null) { 
+					if (exp.getNumero() != null)
+						titol = "[" + exp.getNumero() + "]";
+		    		if (exp.getTitol() != null) 
+		    			titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
+		    		if (titol.length() == 0)
+		    			titol = exp.getNumeroDefault();
+				} else {
+					titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
+				}
+				
+				Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
+				mjson_exp.put("id", expedient.getId());
+				mjson_exp.put("titol", titol);
+				mjson_exp.put("estat", expedient.getEstat().name());
+				
+				if (expedient.getDataFi() != null){
+					mjson_exp.put("dataFi", sdf.format(expedient.getDataFi()));
+				}
+				
+				String error = expedient.getError();
+				if (error != null) {
+					error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
+					danger++;
+				} else if (expedient.getDataFi() == null && ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())){
+					pendent++;
+				} else {
+					success++;
+				}
+				mjson_exp.put("error", JSONValue.escape(error));
+				ljson_exp.add(mjson_exp);
+			}
+		}		
+		Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
+		mjson.put("id", execucio.getId());
+		mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
+		
+		long total = (long) expedients.size();
+		mjson.put("error", danger);
+		mjson.put("pendent", pendent);
+		mjson.put("ok", success);
+		mjson.put("total", total);
+		mjson.put("data", sdf.format(execucio.getDataInici()));
+
+		mjson.put("executades", getPercent((total - pendent), total));
+		
+		if (execucio.getDataFi() != null)
+			mjson.put("dataFi", sdf.format(execucio.getDataFi()));
+		mjson.put("tasca", tasca);
+		mjson.put("expedients", ljson_exp);
+		String nomSencer = "";
+		try {
+			nomSencer = pluginHelper.findPersonaAmbCodi(execucio.getUsuari()).getNomSencer();
+		} catch (Exception e) {
+			logger.error(e);
+			e.printStackTrace();
+		}
+		mjson.put("usuari", nomSencer);
+			
+		String ojson = JSONValue.toJSONString(mjson);
+		return ojson;
+	}
+	
+	private double getPercent(Long value, Long total) {
 		if (total == 0)
 			return 100L;
 		else if (value == 0L)
 			return 0L;
-	    return Math.round(value * 100 / (double) total);
+	    return Math.round(value * 100 / total);
 	}
 
 	private String getTextExecucioMassiva(ExecucioMassiva execucioMassiva, String tasca) {
