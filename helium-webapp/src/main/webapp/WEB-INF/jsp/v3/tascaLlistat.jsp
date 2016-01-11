@@ -104,26 +104,19 @@
 				}else{
 					$('#responsableDiv').hide();
 				}
-				
 			});
-
 			$('#expedientTipusId').select2().on("select2-removed", function(e) {
 				$('#consultar').trigger('click');
 		    })
-			
 			$('#expedientTipusId').trigger('change');
 		</c:if>
 		actualizarBotonesFiltros();
 	});
-	function massivaTasca(element, tipo) {
-		var href = null;
-		
-		if (tipo === 'reassignacio') href = "<c:url value='/modal/v3/tasca/massivaReassignacioTasca'/>";
-		else if (tipo === 'tramitacio') href = "<c:url value='/modal/v3/expedient/massivaTramitacioTasca'/>";
-		else return false;
-		
-		$(element).attr('href', href + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
-	}	
+	function botoMassiuClick(element) {
+		$(element).attr(
+				'href',
+				$(element).attr('href') + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
+	}
 	function actualizarBotonesFiltros(id) {
 		$('#nomesTasquesPersonalsCheck').attr('disabled', false);
 		$('#nomesTasquesGrupCheck').attr('disabled', false);
@@ -184,7 +177,6 @@
 	                    </script>
 			    	</div>
 				</div>
-				
 				<div class="control-group form-group control-group-mid">
 					<input type="checkbox" id="correu" name="correu" value="${correu}"/>
 					<label for="correu"><spring:message code="expedient.massiva.correu"/></label>
@@ -364,13 +356,13 @@
 					<c:when test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">
 						<a class="btn btn-default" href="../v3/tasca/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="../v3/tasca/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a onclick="massivaTasca(this,'reassignacio');" class="btn btn-default" data-rdt-link-modal="true" href="#"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a href="../v3/tasca/massivaReassignacioTasca" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:when>
-						<c:otherwise>
+					<c:otherwise>
 						<a class="btn btn-default" href="#" onclick="seleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 						<a class="btn btn-default" href="#" onclick="deseleccionarMassivaTodos()" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
-						<a onclick="massivaTasca(this,'reassignacio');" class="btn btn-default" data-rdt-link-modal="true" href="#"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
-						<a onclick="massivaTasca(this,'tramitacio');" class="btn btn-default" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="#"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a href="<c:url value="/v3/tasca/massivaReassignacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true"><spring:message code="tasca.llistat.reassignacions.massiva"/>&nbsp;<span id="reasignacioMassivaCount" class="badge">&nbsp;</span></a>
+						<a href="<c:url value="/v3/tasca/massivaTramitacioTasca"/>" class="btn btn-default" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 					</c:otherwise>
 				</c:choose>	
 			</div>

@@ -62,7 +62,6 @@ import net.conselldemallorca.helium.core.model.dao.PluginPortasignaturesDao;
 import net.conselldemallorca.helium.core.model.dao.PluginSignaturaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginTramitacioDao;
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
-import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiIniciatDao;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.dto.DadesDocumentDto;
@@ -102,7 +101,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
@@ -113,6 +111,7 @@ import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidac
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarEventRequest;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmNodePosition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -138,7 +137,6 @@ public class ExpedientService {
 	private LuceneDao luceneDao;
 	private ConsultaDao consultaDao;
 	private CampDao campDao;
-	private TascaDao tascaDao;
 	private ConsultaCampDao consultaCampDao;
 	private PluginCustodiaDao pluginCustodiaDao;
 	private RegistreDao registreDao;
@@ -700,52 +698,34 @@ public class ExpedientService {
 	 * Actualización de la caché en todas las jbpm_task del expediente
 	 */
 	private void actualizarCacheExpedient(Expedient expedient) {
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(Long.parseLong(expedient.getProcessInstanceId()));
-		LlistatIds llistatIds = jbpmHelper.findListIdsTasks(expedient.getResponsableCodi(),ids);
-		List<JbpmTask> tasques = jbpmHelper.findTasks(llistatIds.getIds());
-		
-		for(JbpmTask task : tasques) {
-			Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getName(),
-					task.getProcessDefinitionId());
-			String titol = tasca.getNom();
-			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-				titol = dtoConverter.getTitolPerTasca(task, tasca);
-			task.setFieldFromDescription(
-					"entornId",
-					expedient.getEntorn().getId().toString());
-			task.setFieldFromDescription(
-					"titol",
-					titol);
-			task.setFieldFromDescription(
-					"identificador",
-					expedient.getIdentificador());
-			task.setFieldFromDescription(
-					"identificadorOrdenacio",
-					expedient.getIdentificadorOrdenacio());
-			task.setFieldFromDescription(
-					"numeroIdentificador",
-					expedient.getNumeroIdentificador());
-			task.setFieldFromDescription(
-					"expedientTipusId",
-					expedient.getTipus().getId().toString());
-			task.setFieldFromDescription(
-					"expedientTipusNom",
-					expedient.getTipus().getNom());
-			task.setFieldFromDescription(
-					"processInstanceId",
-					expedient.getProcessInstanceId());
-			task.setFieldFromDescription(
-					"tramitacioMassiva",
-					new Boolean(tasca.isTramitacioMassiva()).toString());
-			task.setFieldFromDescription(
-					"definicioProcesJbpmKey",
-					tasca.getDefinicioProces().getJbpmKey());
-			task.setCacheActiu();
+		LlistatIds taskIds = jbpmHelper.tascaFindByFiltre(
+				expedient.getEntorn().getId(),
+				null,
+				null,
+				null,
+				expedient.getId(),
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				true, // tasquesPersona
+				true, // tasquesGrup
+				false, // nomesPendents
+				0,
+				-1,
+				null,
+				true,
+				false);
+		List<JbpmTask> tasks = jbpmHelper.findTasks(taskIds.getIds());
+		for (JbpmTask task: tasks) {
+			task.setCacheInactiu();
 			jbpmHelper.describeTaskInstance(
 					task.getId(),
-					titol,
+					task.getTaskName(),
 					task.getDescriptionWithFields());
 		}		
 	}
@@ -2072,9 +2052,27 @@ public class ExpedientService {
 				processInstance.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accio.getJbpmAction());
-		jbpmHelper.executeActionInstanciaProces(
-				processInstanceId,
-				accio.getJbpmAction());
+		try {
+			jbpmHelper.executeActionInstanciaProces(
+					processInstanceId,
+					accio.getJbpmAction());
+		} catch (Exception ex) {
+			if (ex instanceof ExecucioHandlerException) {
+				logger.error(
+						"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
+						ex.getCause());
+			} else {
+				logger.error(
+						"Error al executa l'acció '" + accio.getCodi() + "'",
+						ex);
+			}
+			throw new net.conselldemallorca.helium.v3.core.api.exception.JbpmException(
+					expedient.getId(),
+					expedient.getIdentificador(),
+					expedient.getTipus().getId(),
+					processInstanceId,
+					(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
+		}
 		verificarFinalitzacioExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu())
@@ -2498,10 +2496,6 @@ public class ExpedientService {
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
-	}
-	@Autowired
-	public void setTascaDao(TascaDao tascaDao) {
-		this.tascaDao = tascaDao;
 	}
 	@Autowired
 	public void setDtoConverter(DtoConverter dtoConverter) {

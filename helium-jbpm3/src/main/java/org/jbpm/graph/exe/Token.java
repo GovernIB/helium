@@ -31,9 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
@@ -215,11 +212,10 @@ public class Token implements Identifiable, Serializable
     {
       throw new JbpmException("this token is locked by " + lock);
     }
-    // Assignam l'expedient al la instància de procés del token
     if (isRoot() && processInstance.getExpedient() == null) {
-		ProcessInstance processInstanceArrel = processInstance;
-		while (processInstanceArrel.getSuperProcessToken() != null) {
-			processInstanceArrel = processInstance.getSuperProcessToken().getProcessInstance();
+    	ProcessInstance processInstanceSuperior = processInstance;
+		while (processInstanceSuperior.getSuperProcessToken() != null) {
+			processInstanceSuperior = processInstanceSuperior.getSuperProcessToken().getProcessInstance();
 		}
 		Query query = executionContext.getJbpmContext().getSession().createQuery(
 				"from " +
@@ -228,11 +224,10 @@ public class Token implements Identifiable, Serializable
 				"    exp.processInstanceId = :processInstanceId");
 		query.setParameter(
 				"processInstanceId",
-				new Long(processInstanceArrel.getId()).toString());
+				new Long(processInstanceSuperior.getId()).toString());
 		ProcessInstanceExpedient expedient = (ProcessInstanceExpedient)query.uniqueResult();
 		processInstance.setExpedient(expedient);
     }
-
     startCompositeLog(new SignalLog(transition));
     try
     {
@@ -443,42 +438,15 @@ public class Token implements Identifiable, Serializable
   /**
    * convenience method for adding a process log.
    */
-	public void addLog(ProcessLog processLog) {
-		Boolean ambRetroaccio = null;
-		ExpedientDto expedientIniciant = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
-		if (expedientIniciant != null) {
-			ambRetroaccio = expedientIniciant.isAmbRetroaccio(); //expedientIniciant.getTipus().isAmbRetroaccio();
-		}
-		
-		if (ambRetroaccio == null) {
-			if (processInstance.getExpedient() != null) {
-//				ExecutionContext executionContext = new ExecutionContext(this);
-//				// Assignam l'expedient al la instància de procés del token
-//	    		setExpedient(executionContext);
-				ambRetroaccio = processInstance.getExpedient().isAmbRetroaccio();
-//				Query query = executionContext.getJbpmContext().getSession().createQuery(
-//						"select te.ambRetroaccio " +
-//								"  from	net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus te, " +
-//								" 		org.jbpm.graph.exe.ProcessInstanceExpedient exp " +
-//								" where  exp.processInstanceId = :processInstanceId " +
-//								"   and  exp.expedientTipusId = te.id ");
-//				query.setParameter("processInstanceId", String.valueOf(processInstance.getId()));
-//				ambRetroaccio = (Boolean)query.uniqueResult();
-			} else {
-				ambRetroaccio = true;
-			}
-//			if (ambRetroaccio == null)
-//				ambRetroaccio = true;
-		}
-		
-		if (ambRetroaccio) {
-			LoggingInstance li = (LoggingInstance) processInstance.getInstance(LoggingInstance.class);
-			if (li != null) {
-				processLog.setToken(this);
-				li.addLog(processLog);
-			}
-		}
-	}
+  public void addLog(ProcessLog processLog)
+  {
+    LoggingInstance li = (LoggingInstance)processInstance.getInstance(LoggingInstance.class);
+    if (li != null)
+    {
+      processLog.setToken(this);
+      li.addLog(processLog);
+    }
+  }
 
   /**
    * convenience method for starting a composite log. When you add composite logs, make sure you put the

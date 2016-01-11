@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +27,12 @@ import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifi
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -46,7 +41,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
@@ -340,12 +334,6 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public AccioDto findAccioAmbId(Long idAccio) {
-		return conversioTipusHelper.convertir(accioRepository.findOne(idAccio), AccioDto.class);
-	}
-
-	@Transactional(readOnly=true)
-	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
 			Long entornId) throws EntornNotFoundException {
 		return findExpedientTipusAmbPermisosUsuariActual(
@@ -508,49 +496,5 @@ public class DissenyServiceImpl implements DissenyService {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		return conversioTipusHelper.convertirList(campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), CampDto.class);
 	}
-	
-	@Transactional
-	@Override
-	public void executarAccio(Long accioId, Long expedientId) throws Exception {
-		AccioDto accio = findAccioAmbId(accioId);
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		ExpedientDto expedientDto = conversioTipusHelper.convertir(
-				expedient,
-				ExpedientDto.class);
-		mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedientDto.getTipus().getNom());
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				expedientDto.getProcessInstanceId(),
-				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
-				accio.getJbpmAction());
-		jbpmHelper.executeActionInstanciaProces(
-				expedientDto.getProcessInstanceId(),
-				accio.getJbpmAction());
-		verificarFinalitzacioExpedient(expedientDto);
-		serviceUtils.expedientIndexLuceneUpdate(expedientDto.getProcessInstanceId());
-		mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedientDto.getTipus().getNom());
-	}
 
-	private void verificarFinalitzacioExpedient(ExpedientDto expedient) {
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
-		if (pi.getEnd() != null) {
-			// Actualitzar data de fi de l'expedient
-			expedient.setDataFi(pi.getEnd());
-			// Finalitzar terminis actius
-			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
-				if (terminiIniciat.getDataInici() != null) {
-					terminiIniciat.setDataCancelacio(new Date());
-					long[] timerIds = terminiIniciat.getTimerIdsArray();
-					for (int i = 0; i < timerIds.length; i++)
-						jbpmHelper.suspendTimer(
-								timerIds[i],
-								new Date(Long.MAX_VALUE));
-				}
-			}
-		}
-	}
 }

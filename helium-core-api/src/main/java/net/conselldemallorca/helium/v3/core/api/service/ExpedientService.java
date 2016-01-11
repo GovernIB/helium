@@ -775,7 +775,11 @@ public interface ExpedientService {
 
 	public ArxiuDto arxiuDocumentPerSignar(String token);
 
-	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId);
+	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId);
+	
+	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId);
+	
+	public AccioDto findAccioAmbId(Long idAccio);
 
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 	

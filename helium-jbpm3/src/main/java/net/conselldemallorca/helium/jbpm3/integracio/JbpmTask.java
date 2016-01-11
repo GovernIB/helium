@@ -23,89 +23,89 @@ public class JbpmTask {
 
 	private static final String DESCRIPTION_FIELD_SEPARATOR = "@#@";
 
-	private TaskInstance task;
+	private TaskInstance taskInstance;
 
-	public JbpmTask(TaskInstance task) {
-		this.task = task;
+	public JbpmTask(TaskInstance taskInstance) {
+		this.taskInstance = taskInstance;
 	}
 
 	public TaskInstance getTask() {
-		return task;
+		return taskInstance;
 	}
-	public void setTask(TaskInstance task) {
-		this.task = task;
+	public void setTask(TaskInstance taskInstance) {
+		this.taskInstance = taskInstance;
 	}
 
 	public String getId() {
-		return new Long(task.getId()).toString();
+		return new Long(taskInstance.getId()).toString();
 	}
 
 	public String getProcessInstanceId() {
-		return new Long(task.getProcessInstance().getId()).toString();
+		return new Long(taskInstance.getProcessInstance().getId()).toString();
 	}
 
 	public String getProcessDefinitionId() {
-		return new Long(task.getProcessInstance().getProcessDefinition().getId()).toString();
+		return new Long(taskInstance.getProcessInstance().getProcessDefinition().getId()).toString();
 	}
 
-	public String getName() {
-		return task.getTask().getName();
+	public String getTaskName() {
+		return taskInstance.getTask().getName();
 	}
 	public String getDescription() {
-		if (task.getDescription() == null)
+		if (taskInstance.getDescription() == null)
 			return null;
-		if (task.getDescription().contains(DESCRIPTION_FIELD_SEPARATOR)) {
-			int index = task.getDescription().lastIndexOf(DESCRIPTION_FIELD_SEPARATOR);
-			if (index + 1 < task.getDescription().length())
-				return task.getDescription().substring(index + 1);
+		if (taskInstance.getDescription().contains(DESCRIPTION_FIELD_SEPARATOR)) {
+			int index = taskInstance.getDescription().lastIndexOf(DESCRIPTION_FIELD_SEPARATOR);
+			if (index + 1 < taskInstance.getDescription().length())
+				return taskInstance.getDescription().substring(index + 1);
 			else
 				return "";
 		} else {
-			return task.getDescription();
+			return taskInstance.getDescription();
 		}
 	}
 	public String getAssignee() {
-		return task.getActorId();
+		return taskInstance.getActorId();
 	}
 	public Set<String> getPooledActors() {
 		Set<String> resultat = new HashSet<String>();
-		for (PooledActor pa: task.getPooledActors()) {
+		for (PooledActor pa: taskInstance.getPooledActors()) {
 			resultat.add(pa.getActorId());
 		}
 		return resultat;
 	}
 	public Date getCreateTime() {
-		return task.getCreate();
+		return taskInstance.getCreate();
 	}
 	public Date getStartTime() {
-		return task.getStart();
+		return taskInstance.getStart();
 	}
 	public Date getEndTime() {
-		return task.getEnd();
+		return taskInstance.getEnd();
 	}
 	public Date getDueDate() {
-		return task.getDueDate();
+		return taskInstance.getDueDate();
 	}
 	public int getPriority() {
-		return 3 - task.getPriority();
+		return 3 - taskInstance.getPriority();
 	}
 	public boolean isOpen() {
-		return task.isOpen();
+		return taskInstance.isOpen();
 	}
 	public boolean isCompleted() {
-		return task.getEnd() != null;
+		return taskInstance.getEnd() != null;
 	}
 	public boolean isSuspended() {
-		return task.isSuspended();
+		return taskInstance.isSuspended();
 	}
 	public boolean isCancelled() {
-		return task.isCancelled();
+		return taskInstance.isCancelled();
 	}
 	public String getPooledActorsExpression() {
-		if (task.getTask() == null) {
+		if (taskInstance.getTask() == null) {
 			return null;
 		}
-		return task.getTask().getPooledActorsExpression();
+		return taskInstance.getTask().getPooledActorsExpression();
 	}
 	
 	public boolean isAgafada() {
@@ -122,11 +122,11 @@ public class JbpmTask {
 					conGrupoAnteriorAsignado = getPooledActors() != null && !getPooledActors().isEmpty();
 					if (!conGrupoAnteriorAsignado) {
 						@SuppressWarnings("rawtypes")
-						Iterator it = task.getTask().getTaskMgmtDefinition().getSwimlanes().entrySet().iterator();
+						Iterator it = taskInstance.getTask().getTaskMgmtDefinition().getSwimlanes().entrySet().iterator();
 						while (it.hasNext()) {
 							@SuppressWarnings("unchecked")
 							Map.Entry<String, Swimlane> e = (Map.Entry<String, Swimlane>)it.next();
-							String pooledActorExpresion = task.getTask().getTaskMgmtDefinition().getSwimlane(e.getKey()).getPooledActorsExpression();
+							String pooledActorExpresion = taskInstance.getTask().getTaskMgmtDefinition().getSwimlane(e.getKey()).getPooledActorsExpression();
 							if (pooledActorExpresion != null && pooledActorExpresion.length() > 0) {
 								conGrupoOriginal = true;
 								break;
@@ -143,12 +143,15 @@ public class JbpmTask {
 	public void setCacheActiu() {
 		setFieldFromDescription("cache", "true");
 	}
+	public void setCacheInactiu() {
+		setFieldFromDescription("cache", "false");
+	}
 	public boolean isCacheActiu() {
 		return "true".equalsIgnoreCase(getFieldFromDescription("cache"));
 	}
 
 	public String getDescriptionWithFields() {
-		return task.getDescription();
+		return taskInstance.getDescription();
 	}
 	public String getFieldFromDescription(String name) {
 		String text = getDescriptionWithFields();
@@ -168,13 +171,13 @@ public class JbpmTask {
 		if (currentFieldValue != null) {
 			String currentFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + currentFieldValue;
 			String newFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + value;
-			task.setDescription(getDescriptionWithFields().replace(currentFieldText, newFieldText));
+			taskInstance.setDescription(getDescriptionWithFields().replace(currentFieldText, newFieldText));
 		} else {
 			String newFieldText = DESCRIPTION_FIELD_SEPARATOR + name + DESCRIPTION_FIELD_SEPARATOR + value;
 			String fields = getDescriptionWithFields();
 			if (fields == null || !fields.startsWith(DESCRIPTION_FIELD_SEPARATOR))
 				newFieldText += DESCRIPTION_FIELD_SEPARATOR;
-			task.setDescription(newFieldText + getDescriptionWithFields());
+			taskInstance.setDescription(newFieldText + getDescriptionWithFields());
 		}
 	}
 

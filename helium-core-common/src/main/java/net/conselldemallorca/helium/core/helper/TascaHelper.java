@@ -127,7 +127,7 @@ public class TascaHelper {
 			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 					task.getProcessDefinitionId());
 			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
-					task.getName(),
+					task.getTaskName(),
 					definicioProces);
 			String titol = tasca.getNom();
 			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
@@ -400,7 +400,7 @@ public class TascaHelper {
 				}
 			}
 		} else {
-			titol = task.getName();
+			titol = task.getTaskName();
 		}
 		return titol;
 	}
@@ -410,7 +410,7 @@ public class TascaHelper {
 		Expedient expedientPerTasca = expedientHelper.findExpedientByProcessInstanceId(
 				task.getProcessInstanceId());
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				task.getName(),
+				task.getTaskName(),
 				task.getProcessDefinitionId());
 		String titol = tasca.getNom();
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
@@ -459,7 +459,7 @@ public class TascaHelper {
 	public Tasca findTascaByJbpmTask(
 			JbpmTask task) {
 		return tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				task.getName(),
+				task.getTaskName(),
 				task.getProcessDefinitionId());
 	}
 
@@ -533,7 +533,7 @@ public class TascaHelper {
 				task,
 				expedient);
 		dto.setTitol(dadesCacheTasca.getTitol());
-		dto.setJbpmName(task.getName());
+		dto.setJbpmName(task.getTaskName());
 		dto.setDescription(task.getDescription());
 		dto.setAssignee(task.getAssignee());
 		dto.setPooledActors(task.getPooledActors());

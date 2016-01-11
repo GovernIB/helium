@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -131,10 +130,6 @@ public interface DissenyService {
 	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException;
 
 	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId);
-
-	public AccioDto findAccioAmbId(Long idAccio);
-
-	public void executarAccio(Long accioId, Long expedientId) throws Exception;
 
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId);
 

@@ -12,7 +12,10 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 @SuppressWarnings("serial")
 public class ExecucioHandlerException extends RuntimeException {
 
+	private Long expedientId;
+	private Long expedientTipusId;
 	private Long processInstanceId;
+	private Long taskInstanceId;
 	private Long tokenId;
 	private String className;
 	private String methodName;
@@ -20,7 +23,10 @@ public class ExecucioHandlerException extends RuntimeException {
 	private int lineNumber;
 
 	public ExecucioHandlerException(
+			Long expedientId,
+			Long expedientTipusId,
 			Long processInstanceId,
+			Long taskInstanceId,
 			Long tokenId,
 			String className,
 			String methodName,
@@ -29,7 +35,10 @@ public class ExecucioHandlerException extends RuntimeException {
 			String message,
 			Throwable cause) {
 		super(message, cause);
+		this.expedientId = expedientId;
+		this.expedientTipusId = expedientTipusId;
 		this.processInstanceId = processInstanceId;
+		this.taskInstanceId = taskInstanceId;
 		this.tokenId = tokenId;
 		this.className = className;
 		this.fileName = fileName;
@@ -37,11 +46,29 @@ public class ExecucioHandlerException extends RuntimeException {
 		this.lineNumber = lineNumber;
 	}
 
+	public Long getExpedientId() {
+		return expedientId;
+	}
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
+	}
+	public Long getExpedientTipusId() {
+		return expedientTipusId;
+	}
+	public void setExpedientTipusId(Long expedientTipusId) {
+		this.expedientTipusId = expedientTipusId;
+	}
 	public Long getProcessInstanceId() {
 		return processInstanceId;
 	}
 	public void setProcessInstanceId(Long processInstanceId) {
 		this.processInstanceId = processInstanceId;
+	}
+	public Long getTaskInstanceId() {
+		return taskInstanceId;
+	}
+	public void setTaskInstanceId(Long taskInstanceId) {
+		this.taskInstanceId = taskInstanceId;
 	}
 	public Long getTokenId() {
 		return tokenId;
@@ -75,15 +102,13 @@ public class ExecucioHandlerException extends RuntimeException {
 	}
 
 	public String toString() {
-		String id;
-		if (processInstanceId != null)
-			id = processInstanceId + ", " + tokenId;
-		else
-			id = "*expedient*en*creacio*";
-		if (getCause() != null)
-			return "Error al executar un handler de l'expedient [" + id + "]: " + getCause().getClass().getName() + ": " + getCause().getMessage();
-		else
-			return "Error al executar un handler de l'expedient [" + id + "]";
+		String expId = (expedientId != null) ? expedientId.toString() : "*expedient*en*creacio*";
+		return "Error al executar un handler de l'expedient (" +
+				"expedientId=" + expId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"taskInstanceId=" + taskInstanceId + ", " +
+				"tokenId=" + tokenId + ")";
 	}
 
 }

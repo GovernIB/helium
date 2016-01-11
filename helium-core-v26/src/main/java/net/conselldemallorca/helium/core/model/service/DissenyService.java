@@ -2390,9 +2390,9 @@ public class DissenyService {
 			String startTaskName = jbpmDao.getStartTaskName(
 					definicioProces.getJbpmId());
 			if (startTaskName != null) {
-				Tasca tasca = tascaDao.findAmbActivityNameIDefinicioProces(
+				Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 						startTaskName,
-						definicioProces.getId());
+						definicioProces.getJbpmId());
 				if (tasca != null) {
 					List<CampTasca> camps = campTascaDao.findAmbTascaOrdenats(tasca.getId());
 					result = new Boolean(camps.size() > 0);
@@ -3094,20 +3094,22 @@ public class DissenyService {
 		String processDefinitionId = jbpmDao.getProcessDefinition(jbpmId).getId();
 		return toDto(definicioProcesDao.findAmbJbpmId(processDefinitionId), false);
 	}
-	
+
 	private void afegirJbpmKeyProcesAmbSubprocessos(
 			JbpmProcessDefinition jpd,
 			List<String> jbpmKeys) {
 		List<JbpmProcessDefinition> subPds = jbpmDao.getSubProcessDefinitions(jpd.getId());
 		if (subPds != null) {
 			for (JbpmProcessDefinition subPd: subPds) {
-				afegirJbpmKeyProcesAmbSubprocessos(subPd, jbpmKeys);
-				if (!jbpmKeys.contains(subPd.getKey()))
+				if (!jbpmKeys.contains(subPd.getKey())) {
 					jbpmKeys.add(subPd.getKey());
+					afegirJbpmKeyProcesAmbSubprocessos(subPd, jbpmKeys);
+				}
 			}
 		}
-		if (!jbpmKeys.contains(jpd.getKey()))
+		if (!jbpmKeys.contains(jpd.getKey())) {
 			jbpmKeys.add(jpd.getKey());
+		}
 	}
 	
 	public List<DefinicioProcesDto> findDefinicionsProcesAmbExpedientTipus(ExpedientTipus expedientTipus) {

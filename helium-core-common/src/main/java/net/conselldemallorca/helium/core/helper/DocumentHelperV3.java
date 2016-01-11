@@ -387,7 +387,7 @@ public class DocumentHelperV3 {
 		DocumentTasca documentTasca = documentTascaRepository.findAmbDefinicioProcesITascaJbpmNameDocumentId(
 				docId,
 				definicioProces.getId(),
-				task.getName());
+				task.getTaskName());
 		
 		return toTascaDocumentDto(
 					task,
@@ -399,7 +399,7 @@ public class DocumentHelperV3 {
 				task.getProcessDefinitionId());
 		List<DocumentTasca> documentsTasca = documentTascaRepository.findAmbDefinicioProcesITascaJbpmNameOrdenats(
 				definicioProces.getId(),
-				task.getName());
+				task.getTaskName());
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 		for (DocumentTasca documentTasca: documentsTasca) {
 			resposta.add(toTascaDocumentDto(
@@ -414,12 +414,14 @@ public class DocumentHelperV3 {
 				task.getProcessDefinitionId());
 		return documentTascaRepository.countAmbDefinicioProcesITascaJbpmName(
 				definicioProces.getId(),
-				task.getName()) > 0;
+				task.getTaskName()) > 0;
 	}
 
 	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(JbpmTask task) {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
-		for (FirmaTasca firmaTasca: firmaTascaRepository.findAmbTascaOrdenats(task.getName(), task.getProcessDefinitionId())) {
+		for (FirmaTasca firmaTasca: firmaTascaRepository.findAmbTascaOrdenats(
+				task.getTaskName(),
+				task.getProcessDefinitionId())) {
 			resposta.add(toTascaDocumentDto(
 					task,
 					firmaTasca.getDocument(), firmaTasca.isRequired(), false));
@@ -428,7 +430,9 @@ public class DocumentHelperV3 {
 	}
 
 	public boolean hasDocumentsPerInstanciaTascaSignar(JbpmTask task) {
-		return firmaTascaRepository.countAmbTasca(task.getName(), task.getProcessDefinitionId()) > 0;
+		return firmaTascaRepository.countAmbTasca(
+				task.getTaskName(),
+				task.getProcessDefinitionId()) > 0;
 	}
 
 	public void guardarDadesRegistre(

@@ -6,8 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
- * de Helium.
+ * Servei per a gestionar l'execució de les accions massives.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -22,4 +21,7 @@ public interface ExecucioMassivaService {
 	public void cancelarExecucio(Long id) throws Exception;
 
 	public String getJsonExecucionsMassivesByUser(int numResults, boolean viewAll);
+	
+	public String getExecucioMassivaDetall(Long execucioMassivaId);
+
 }

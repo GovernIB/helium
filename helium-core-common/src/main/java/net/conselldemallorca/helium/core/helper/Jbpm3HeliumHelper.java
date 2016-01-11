@@ -985,7 +985,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (definicioProces == null)
 			throw new DefinicioProcesNotFoundException();
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
-				task.getName(),
+				task.getTaskName(),
 				definicioProces);
 		if (tasca == null)
 			throw new TascaNotFoundException();
@@ -1006,7 +1006,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (definicioProces == null)
 			throw new DefinicioProcesNotFoundException();
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
-				task.getName(),
+				task.getTaskName(),
 				definicioProces);
 		if (tasca == null)
 			throw new TascaNotFoundException();

@@ -13,7 +13,7 @@
 		<td>${accio.nom}</td>
 		<td id="accio_options_${accio.id}">			
 			<a  class="btn_accio btn btn-primary" 
-				href='<c:url value="/v3/expedient/${expedient.id}/accio/${accio.id}"/>'>
+				href='<c:url value="/v3/expedient/${procesId}/${expedient.id}/accio/${accio.id}"/>'>
 				<span class="fa fa-bolt"></span> <spring:message code="expedient.info.accio.executar"/>
 			</a>
 		</td>

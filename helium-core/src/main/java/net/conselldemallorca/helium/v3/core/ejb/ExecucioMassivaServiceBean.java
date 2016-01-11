@@ -22,6 +22,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
+
 	@Autowired
 	ExecucioMassivaService delegate;
 
@@ -54,4 +55,11 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	public String getJsonExecucionsMassivesByUser(int numResults, boolean viewAll) {
 		return delegate.getJsonExecucionsMassivesByUser(numResults,viewAll);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String getExecucioMassivaDetall(Long execucioMassivaId) {
+		return delegate.getExecucioMassivaDetall(execucioMassivaId);
+	}
+
 }

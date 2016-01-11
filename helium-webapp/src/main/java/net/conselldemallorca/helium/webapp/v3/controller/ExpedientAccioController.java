@@ -6,10 +6,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.JbpmException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 import org.apache.commons.logging.Log;
@@ -37,8 +38,10 @@ public class ExpedientAccioController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
+		
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			accions.put(instanciaProces, expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId()));
+			List<AccioDto> accionsTrobades = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId);
+			accions.put(instanciaProces, accionsTrobades);
 		}
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());		
 		model.addAttribute("expedient", expedient);
@@ -55,40 +58,36 @@ public class ExpedientAccioController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
-		accions.put(instanciaProces, expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId()));
+		accions.put(instanciaProces, expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId));
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);	
 		return "v3/procesAccions";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/accio/{accioId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{procesId}/{expedientId}/accio/{accioId}", method = RequestMethod.GET)
 	public String accio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId, 
 			@PathVariable Long accioId, 
+			@PathVariable String procesId,
 			Model model) {
 		try {
-			dissenyService.executarAccio(accioId, expedientId);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+			expedientService.accioExecutar(expedientId, instanciaProces.getId(), accioId);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
-		} catch (Exception ex) {
+		} catch (NotAllowedException ex) {
+			MissatgesHelper.error(
+	    			request,
+	    			getMessage(request, "error.executar.accio") + ": " + getMessage(request, "error.permisos.modificar.expedient"));
+			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
+		} catch (JbpmException ex) {
 			String nomAccio = accioId.toString();
-			try {
-				AccioDto accio = dissenyService.findAccioAmbId(accioId);
-				nomAccio = accio.getNom();
-			} catch (Exception e) {}
-			if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
-				MissatgesHelper.error(
-		    			request,
-		    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getCause().getMessage());
-			} else {
-				MissatgesHelper.error(
-		    			request,
-		    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + 
-		    					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-//				MissatgesHelper.error(request, getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage());
-				logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
-			}
+			AccioDto accio = expedientService.findAccioAmbId(accioId);
+			nomAccio = accio.getNom();
+			MissatgesHelper.error(
+	    			request,
+	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getMessage());
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

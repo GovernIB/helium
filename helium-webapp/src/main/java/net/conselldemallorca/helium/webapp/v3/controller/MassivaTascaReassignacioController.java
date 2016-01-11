@@ -2,11 +2,12 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -54,7 +55,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	@Autowired
 	private AplicacioService aplicacioService;
 	
-	@Autowired
+	@Resource(name="execucioMassivaServiceV3")
 	private ExecucioMassivaService execucioMassivaService;
 	
 	@RequestMapping(value = "/massivaReassignacioTasca", method = RequestMethod.GET)
@@ -157,11 +158,11 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 			dto.setDataInici(dInici);
 			dto.setEnviarCorreu(correu);
-			List<Long> listIds = new ArrayList<Long>(ids);
-			String[] tasquesId = new String[ids.size() - 1];
-			for (int i = 0; i < listIds.size() - 1; i++)
-				tasquesId[i] = listIds.get(i + 1).toString();
-			dto.setTascaIds(tasquesId);
+			Set<String> idsAsString = new HashSet<String>();
+			for (Long id: ids) {
+				idsAsString.add(id.toString());
+			}
+			dto.setTascaIds(idsAsString.toArray(new String[idsAsString.size()]));
 			dto.setExpedientTipusId(ids.iterator().next());
 			dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
 			dto.setParam1(expression);
@@ -175,7 +176,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			logger.error("Error al programar les accions massives", e);
 			return "v3/tasquesReassignacio";
 		}
-		return modalUrlTancar();
+		return modalUrlTancar(false);
 	}
 	
 	private class ReassignarValidator implements Validator {		

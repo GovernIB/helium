@@ -968,7 +968,7 @@ public class ExpedientLoggerHelper {
 										logo.getName());
 								// Si la variable ha estat creada mitjançant el DefaultControllerHandler fa un setVariableLocally
 								Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-										task.getName(),
+										task.getTaskName(),
 										task.getProcessDefinitionId());
 								CampTasca campTasca = campTascaRepository.findAmbTascaCodi(
 										tasca.getId(),
@@ -1131,7 +1131,7 @@ public class ExpedientLoggerHelper {
 			for (CampTasca camp: getCampsPerTaskInstance(ti)) {
 				if (camp.isReadFrom()) {
 					if (debugRetroces)
-						logger.info(">>> [RETVAR] Carregar variable del procés " + camp.getCamp().getCodi() + " a la tasca " + task.getName() + " (" + task.getId() + ")");
+						logger.info(">>> [RETVAR] Carregar variable del procés " + camp.getCamp().getCodi() + " a la tasca " + task.getTaskName() + " (" + task.getId() + ")");
 					String codi = camp.getCamp().getCodi();
 					ti.setVariableLocally(
 							codi,
@@ -1144,7 +1144,7 @@ public class ExpedientLoggerHelper {
 					Object valor = ci.getVariable(DocumentHelperV3.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
 					if (valor != null)
 						if (debugRetroces)
-							logger.info(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getName() + " (" + task.getId() + ")");
+							logger.info(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getTaskName() + " (" + task.getId() + ")");
 						ti.setVariableLocally(
 								codi,
 								ci.getVariable(codi));

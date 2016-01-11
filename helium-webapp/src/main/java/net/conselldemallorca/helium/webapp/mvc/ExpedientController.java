@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
@@ -628,11 +629,17 @@ public class ExpedientController extends BaseController {
 					try {
 						expedientService.executarAccio(id, jbpmAction);
 						missatgeInfo(request, getMessage("info.accio.executat"));
-					} catch (JbpmException ex ) {
-						Long numeroExpedient = expedient.getId();
-						Long entornId = expedient.getEntorn().getId();
-						missatgeError(request, getMessage("error.executar.accio") +" "+ jbpmAction + ": "+ ex.getCause().getMessage());
-			        	logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+numeroExpedient+" Error al executar la accio", ex);
+					} catch (NotAllowedException ex) {
+						missatgeError(
+								request, 
+								getMessage("error.executar.accio") + ": " + getMessage("error.permisos.modificar.expedient"));
+						logger.error(getMessage("error.executar.accio") +" "+ accio.getId() + ": "+ ex.getLocalizedMessage(), ex);
+					} catch (net.conselldemallorca.helium.v3.core.api.exception.JbpmException ex) {
+						String nomAccio = accio.getId().toString();
+						nomAccio = accio.getNom();
+						missatgeError(
+				    			request,
+				    			getMessage("error.executar.accio") + " " + nomAccio + ": " + ex.getMessage());
 					}
 					return "redirect:/expedient/info.html?id=" + id;
 				} else {

@@ -34,13 +34,13 @@ function isValidForm(){
 	<display:table name="acesGroupedBySid" id="registre" requestURI="" class="displaytag">
 		<display:column titleKey="comuns.tipus" sortable="true">
 			<c:choose>
-				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}"><fmt:message key='permisos.exp.usuari' /></c:when>
+				<c:when test="${fn:contains(registre[0].sid['class'], 'Principal')}"><fmt:message key='permisos.exp.usuari' /></c:when>
 				<c:otherwise><fmt:message key='permisos.exp.rol' /></c:otherwise>
 			</c:choose>
 		</display:column>
 		<display:column titleKey="comuns.nom">
 			<c:choose>
-				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}">${registre[0].sid.principal}</c:when>
+				<c:when test="${fn:contains(registre[0].sid['class'], 'Principal')}">${registre[0].sid.principal}</c:when>
 				<c:otherwise>${registre[0].sid.grantedAuthority}</c:otherwise>
 			</c:choose>
 		</display:column>
@@ -53,7 +53,7 @@ function isValidForm(){
 		</display:column>
 		<display:column>
 	    	<c:choose>
-				<c:when test="${fn:contains(registre[0].sid.class, 'Principal')}">
+				<c:when test="${fn:contains(registre[0].sid['class'], 'Principal')}">
 		    		<a href="<c:url value="/permisos/expedientTipusEsborrar.html"><c:param name="id" value="${command.id}"/><c:param name="nom" value="${registre[0].sid.principal}"/><c:param name="usuari" value="on"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 		    	</c:when>
 		    	<c:otherwise>

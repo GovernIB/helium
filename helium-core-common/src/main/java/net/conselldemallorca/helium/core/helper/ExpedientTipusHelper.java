@@ -129,7 +129,7 @@ public class ExpedientTipusHelper {
 	public ExpedientTipus findAmbProcessInstanceId(
 			String processInstanceId) {
 		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
-		return expedientTipusRepository.findOne(piexp.getExpedientTipusId());
+		return expedientTipusRepository.findOne(piexp.getTipus().getId());
 	}
 
 }

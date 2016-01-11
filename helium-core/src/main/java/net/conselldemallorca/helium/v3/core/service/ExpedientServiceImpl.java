@@ -80,6 +80,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
+import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -107,6 +108,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -117,6 +119,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
@@ -1396,28 +1399,72 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId) {
+	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId) {
 		logger.debug("Consulta d'accions visibles de l'expedient amb processInstanceId(" +
 				"processInstanceId=" + processInstanceId + ")");
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
 		// Filtra les accions restringides per rol que no estan permeses per a l'usuari actual
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Iterator<Accio> it = accions.iterator();
 		while (it.hasNext()) {
 			Accio accio = it.next();
-			if (accio.getRols() != null) {
-				boolean permesa = false;
-				for (String rol: accio.getRols().split(",")) {
-					if (isUserInRole(auth, rol)) {
-						permesa = true;
-						break;
-					}
-				}
-				if (!permesa) it.remove();
-			}
+			if (!permetreExecutarAccioExpedient(accio, expedientId)) it.remove();
 		}
 		return conversioTipusHelper.convertirList(accions, AccioDto.class);
+	}
+
+	@Transactional
+	@Override
+	public void accioExecutar(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) {
+		Accio accio = accioRepository.findOne(accioId);
+		
+		if (this.permetreExecutarAccioExpedient(accio, expedientId)) {
+			Expedient expedient = expedientRepository.findOne(expedientId);
+			
+			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					processInstanceId,
+					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
+					accio.getJbpmAction());
+			try {
+				jbpmHelper.executeActionInstanciaProces(
+						processInstanceId,
+						accio.getJbpmAction());
+			} catch (Exception ex) {
+				if (ex instanceof ExecucioHandlerException) {
+					logger.error(
+							"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
+							ex.getCause());
+				} else {
+					logger.error(
+							"Error al executa l'acció '" + accio.getCodi() + "'",
+							ex);
+				}
+				throw new net.conselldemallorca.helium.v3.core.api.exception.JbpmException(
+						expedient.getId(),
+						expedient.getIdentificador(),
+						expedient.getTipus().getId(),
+						processInstanceId,
+						(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
+			}
+			verificarFinalitzacioExpedient(processInstanceId, expedient);
+			serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+		} else {
+			throw new NotAllowedException(
+					expedientId,
+					Expedient.class,
+					PermisTipusEnumDto.WRITE);
+		}
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public AccioDto findAccioAmbId(Long idAccio) {
+		return conversioTipusHelper.convertir(accioRepository.findOne(idAccio), AccioDto.class);
 	}
 
 	@Override
@@ -3187,5 +3234,57 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	private boolean permetreExecutarAccioExpedient(Accio accio, Long expedientId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean permesa = true;
+		
+		if (!accio.isPublica()) {
+			try {
+				expedientHelper.getExpedientComprovantPermisos(
+					expedientId,
+					false,
+					true,
+					false,
+					false);
+			} catch (NotAllowedException ex) {
+				permesa =  false;
+			}
+		}
+		
+		if (permesa && accio.getRols() != null) {
+			permesa = false;
+			for (String rol: accio.getRols().split(",")) {
+				if (isUserInRole(auth, rol)) {
+					permesa = true;
+					break;
+				}
+			}
+		}
+		
+		return permesa;
+	}
+
+	private void verificarFinalitzacioExpedient(
+			String processInstanceId,
+			Expedient expedient) {
+		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
+		if (pi.getEnd() != null) {
+			// Actualitzar data de fi de l'expedient
+			expedient.setDataFi(pi.getEnd());
+			// Finalitzar terminis actius
+			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
+				if (terminiIniciat.getDataInici() != null) {
+					terminiIniciat.setDataCancelacio(new Date());
+					long[] timerIds = terminiIniciat.getTimerIdsArray();
+					for (int i = 0; i < timerIds.length; i++)
+						jbpmHelper.suspendTimer(
+								timerIds[i],
+								new Date(Long.MAX_VALUE));
+				}
+			}
+		}
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
 }

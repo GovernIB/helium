@@ -98,6 +98,7 @@
 		}
 	</style>
 	<script type="text/javascript">	
+		var page = 0;
 		var numResults = 10;
 		var nivell = "${nivell}";
 		var col_span = "col-md-2";
@@ -107,14 +108,21 @@
 		}
 
 	    $(document).ready(function(){
+		    
 			$("button[name=refrescar]").click(function() {
-				refreshExecucionsMassives();
+				carregaExecucionsMassives(page, true);
 			});
-			$("button[name=mesDades]").click(function() {
-				var numFiles = $("#accordio_massiva .panel-heading").length;
-				carregaExecucionsMassives(numFiles + 10);
+			$("button[name=nextPage]").click(function() {
+				var nextPage = page + 1;
+				carregaExecucionsMassives(nextPage, false);
 			});
-			carregaExecucionsMassives(numResults);
+
+			$("button[name=previousPage]").click(function() {
+				var previousPage = page > 0 ? (page - 1) : 0;
+				carregaExecucionsMassives(previousPage, false);
+			});
+			
+			carregaExecucionsMassives(0, true);
 			
 		});
 	    
@@ -158,29 +166,14 @@
 	   		$('div.tooltip').remove();
 		};
 	    
-	    function createBar(id, success, pendent, danger) {
+	    function createBar(id, executades) {
 	    	var text = '<div class="progress">';
-	    	if (success > 0) {
-		    	text += '<div class="progress-bar progress-bar-success" role="progressbar"' +
-		    	  		'     aria-valuenow="'+success+'" aria-valuemin="0" aria-valuemax="100"' +
-		    	  		'     style="width: '+success+'%">' +
-		    	  		'  <span><div class="value">'+success+'%</div></span>' +
-		    	  		'</div>';
-	    	}
-	    	if (pendent > 0) {
-		    	text += '<div class="progress-bar progress-bar-warning" role="progressbar"' +
-		    	  		'     aria-valuenow="'+pendent+'" aria-valuemin="0" aria-valuemax="100"' +
-		    	  		'     style="width: '+pendent+'%">' +
-		    	  		'  <span><div class="value">'+pendent+'%</div></span>' +
-		    	  		'</div>';
-	    	}
-	    	if (danger > 0) {
-		    	text += '<div class="progress-bar progress-bar-danger" role="progressbar"' +
-		    	  		'     aria-valuenow="'+danger+'" aria-valuemin="0" aria-valuemax="100"' +
-		    	  		'     style="width: '+danger+'%">' +
-		    	  		'  <span><div class="value">'+danger+'%</div></span>' +
-		    	  		'</div>';
-	    	}
+	    	text += '<div class="progress-bar progress-bar-success" role="progressbar"' +
+	    	  		'     aria-valuenow="'+executades+'" aria-valuemin="0" aria-valuemax="100"' +
+	    	  		'     style="width: '+executades+'%">' +
+	    	  		'  <span><div class="value">'+executades+'%</div></span>' +
+	    	  		'</div>';
+	    	
 	    	text += '</div>';
 	    	$("#"+id).html(text);
 	    }
@@ -189,14 +182,15 @@
 	    	var text =	
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
 	    		'<div class="row pull-left massiu-dades">' +
-				'<div class="col-md-4"><span class="desc-limit" title="' + execucio.text + '">' + execucio.text + '</span></div>' +
-				'<div class="col-md-4 one-line"><div><span class="badge in-line-badge">' + execucio.expedients.length + '</span></div> <div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.progres + '%</span></div></div>' +
+	    		'<div class="col-md-3"><span class="desc-limit" title="' + execucio.text + '">' + execucio.text + '</span></div>' +
+				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> <div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div></div>' +
+				//'<div class="col-md-1">' + execucio.ok + '</div>' + 
+				'<div class="mass-error col-md-1">' + execucio.error + '</div>' + 
 				'<div class="' + col_span + '">' + execucio.data + '</div>' + 
-				'<div class="' + col_span + '">' + (execucio.dataFi != undefined ? execucio.dataFi : '') +
-				(nivell == "admin" ? ('</div><div class="col-md-2">' + execucio.usuari) : '') + 
-				'</div>' +
+				'<div class="mass-data-fi ' + col_span + '">' + (execucio.dataFi != undefined ? execucio.dataFi : '') + '</div>' +
+				'<div class="col-md-2">' + execucio.usuari + '</div>' + 
 				'</div>';
-			if (execucio.expedients.length > 0) {
+			if (execucio.total > 0) {
 				text +=	'<div class="pull-right">' +
 						'<span class="icona-collapse fa fa-chevron-down"></span>' +
 						'</div>' +
@@ -215,7 +209,7 @@
 			} else if (expedient.estat == "ESTAT_ERROR"){
 				estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";
 			} else if (expedient.estat == "ESTAT_FINALITZAT"){
-				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.finalizat'/>" + (expedient.dataFi != undefined ? (' el ' + expedient.dataFi) : '') + "</label>";
+				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.finalizat'/></label>";
 			} else if (expedient.estat == "ESTAT_PENDENT"){
 				estat = "<span class='fa fa-circle-o-notch fa-spin'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.pendent_solament'/>";
 				if (expedient.tasca == "") {
@@ -230,9 +224,10 @@
 				var estat_org = $("#massexp_" + expedient.id + " td:nth-child(2)").html();
 				if (estat != estat_org) $("#massexp_" + expedient.id + " td:nth-child(2)").html(estat);	
 			} else {
-				return	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + '">' +
+				return	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + (expedient.estat == "ESTAT_ERROR" ? ' danger' : '') + '">' +
 							'<td class="massiu-expedient">' + expedient.titol + '</td>' +
 							'<td class="massiu-estat">' + estat + '</td>' +
+							'<td class="massiu-estat">' + (expedient.dataFi != undefined ? (expedient.dataFi) : '') + '</td>' +
    						'</tr>';
 			}
 	    }
@@ -243,8 +238,7 @@
 			});
 		}
 		
-		function carregaExecucionsMassives(numResultats) {
-			numResults = numResultats;
+		function carregaExecucionsMassives(numResultats,header) {
 			$.ajax({
 				url: nivell + "/refreshBarsExpedientMassive",
 				dataType: 'json',
@@ -252,30 +246,43 @@
 				async: false,
 				success: function(data){
 					var length = data.length;
-					var content = "";
-					if (length == 0) {
-						content = "<h4><spring:message code='execucions.massives.no'/></h4>";
-					} else {
-						content = '<div class="panel panel-default panel-heading special-margin">' +
-							'<div class="row massiu-dades">' +
-								'<div class="col-md-4"><strong><spring:message code="expedient.tramitacio.massiva.header.nom"/></strong></div>' +
-								'<div class="col-md-4"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
-								'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataInici"/></strong></div>' +
-								'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataFi"/></strong></div>' +
-								(nivell =="admin" ? ('<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.usuari"/></strong></div>') : '') + 
-							'</div>'+ 
-							'<div class="pull-right">' +
-								'<span>&nbsp;</span>' +
-							'</div>'+ 
-						'</div>';
-						content += '<div id="accordio_massiva">';
+					if (length > 0) {
+						page = numResultats;
+						var content = "";
+						if(header) {
+							if (length == 0) {
+								content = "<h4><spring:message code='execucions.massives.no'/></h4>";
+							} else {
+								content = '<div class="panel panel-default panel-heading special-margin">' +
+									'<div class="row massiu-dades">' +
+										'<div class="col-md-3"><strong><spring:message code="expedient.tramitacio.massiva.header.nom"/></strong></div>' +
+										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.execucio"/></strong></div>' +
+										//'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.ok"/></strong></div>' +
+										'<div class="col-md-1"><strong><spring:message code="expedient.tramitacio.massiva.header.error"/></strong></div>' +
+										'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataInici"/></strong></div>' +
+										'<div class="' + col_span + '"><strong><spring:message code="expedient.tramitacio.massiva.header.dataFi"/></strong></div>' +
+										'<div class="col-md-2"><strong><spring:message code="expedient.tramitacio.massiva.header.usuari"/></strong></div>' + 
+									'</div>'+ 
+									'<div class="pull-right">' +
+										'<span>&nbsp;</span>' +
+									'</div>'+ 
+								'</div>';
+								content += '<div id="accordio_massiva">';
+							}
+							$("#massiva_contens").html(content);
+						}
+						
+	
+						content = "";
 						for (var i = 0; i < length; i++) {
 							execucio = data[i];
-							content +=	'<div class="panel-group"><div class="panel panel-default">';
+							var error_class = (execucio.error > 0 ? "panel-danger" : "");
+							
+							content += '<div class="panel-group"><div id="panel_' + execucio.id + '" class="panel panel-default ' + error_class + '">';
 							content += createTit(execucio);
 							content +=	'<div id="collapse_' + execucio.id + '" class="panel-collapse collapse">';
 							
-							var exps =  execucio.expedients.length;
+							var exps =  execucio.total;
 							if (exps > 0) {
 								content += 
 									'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
@@ -283,35 +290,45 @@
 											'<tr>' +
 												'<th class="massiu-expedient"><spring:message code="expedient.llistat.expedient"/></th>' +
 												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
 											'</tr>' +
 										'</thead>' +
 									'<tbody>';
-								for (var j = 0; j < exps; j++) {
-									content += putEstat(execucio, j, false);
-								}
 								content += '</tbody></table>';
 							}
 							content += '</div>';
 							content +=	'</div></div>';
 						}
+						$("#accordio_massiva").html(content);
+						
+						for (var i = 0; i < length; i++) {
+							execucio = data[i];
+							createBar("pbar_" + execucio.id, execucio.executades);
+						}
+						
+					    $("#accordio_massiva .panel-heading").click(function() {
+					    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
+					    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
+	
+					    	if(!$($(this).attr('href')).hasClass('collapse in')){
+						        var mass_id = $(this).prop('id').split('_')[1];
+					        	$.ajax({
+									url: "getExecucioMassivaDetall",
+									dataType: 'json',
+									data: {execucioMassivaId: mass_id},
+									async: false,
+									success: function(data) {
+										var execucio = data;
+										mostraDetall(execucio);
+									}
+								})
+								.fail(function( jqxhr, textStatus, error ) {
+									var err = textStatus + ', ' + error;
+									console.log( "Request Failed: " + err);
+								})
+					        }
+				   		});
 					}
-					$("#massiva_contens").html(content);
-					for (var i = 0; i < length; i++) {
-						execucio = data[i];
-						createBar("pbar_" + execucio.id, execucio.success, execucio.pendent, execucio.danger);
-					}
-					
-				    $("#accordio_massiva .panel-heading").click(function() {
-				    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
-				    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
-			   		});
-				    
-				    $(document).ready(function(){					 
-						$(".msg-error").bind({
-						   mousemove : changeTooltipPosition,
-						   mouseenter : showTooltip
-						});
-					});
 				}
 			})
 			.fail(function( jqxhr, textStatus, error ) {
@@ -322,8 +339,35 @@
 				$("body").removeClass("loading");
 			});
 		}
+
+		function mostraDetall(execucio) {
+			var exps = '';
+			var expedients = execucio.expedients
+			for (var j = 0; j < expedients.length; j++) {
+				exps += putEstat(execucio, j, false);
+			}
+			$('#massexpt_' + execucio.id + ' tbody').html(exps);
+
+			if (execucio.error > 0) {
+				$('#panel_' + execucio.id).addClass('panel-danger');
+			} else if($('#panel_' + execucio.id).hasClass('panel-danger')) {
+				$('#panel_' + execucio.id).removeClass('panel-danger');
+			}
+			
+			$('#mass_' + execucio.id + ' .massiu-dades .mass-badge').text(execucio.total);
+			$('#mass_' + execucio.id + ' .massiu-dades .mass-error').text(execucio.error);
+			$('#mass_' + execucio.id + ' .massiu-dades .mass-data-fi').text(execucio.dataFi != undefined ? execucio.dataFi : '');
+
+			createBar("pbar_" + execucio.id, execucio.executades);
+
+			$(".msg-error").unbind();
+			$(".msg-error").bind({
+				   mousemove : changeTooltipPosition,
+				   mouseenter : showTooltip
+			});
+		}
 		
-		function refreshExecucionsMassives() {
+		/*function refreshExecucionsMassives() {
 			$.ajax({
 				url: nivell + "/refreshBarsExpedientMassive",
 				dataType: 'json',
@@ -336,12 +380,12 @@
 						// Actualitzam barres de progrés
 						for (var i = 0; i < length; i++) {
 							execucio = data[i];
-							createBar("pbar_" + execucio.id, execucio.success, execucio.pendent, execucio.danger);
+							createBar("pbar_" + execucio.id, execucio.executades);
 						}
 						
 						for (var i = 0; i < length; i++) {
 							execucio = data[i];
-							var exps =  execucio.expedients.length;
+							var exps =  execucio.total;
 							var content = "";
 							// Afegim noves execucions
 							if ($("#mass_" + execucio.id).length == 0) {
@@ -359,14 +403,11 @@
 												'</tr>' +
 											'</thead>' +
 										'<tbody>';
-									for (var j = 0; j < exps; j++) {
-										content += createEstat(execucio, j);
-									}
 									content += '</tbody></table>';
 								}
 								content += '</div></div>';
 								$("#accordio_massiva").prepend(content);
-								createBar("pbar_" + execucio.id, execucio.success, execucio.pendent, execucio.danger);
+								createBar("pbar_" + execucio.id, execucio.executades);
 								
 							    $("#accordio_massiva .panel-heading").click(function() {
 							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
@@ -379,11 +420,6 @@
 									   mouseenter : showTooltip
 									});
 								});
-							} else if (exps > 0) {
-								// Actualitzam execucions existents
-								for (var j = 0; exps > 0 && j < exps; j++) {
-									putEstat(execucio, j, true);
-								}
 							}
 						}
 					}
@@ -393,14 +429,16 @@
 				var err = textStatus + ', ' + error;
 				console.log( "Request Failed: " + err);
 			})
-		}
+		}*/
 	</script>
 </head>
 <body>	
 	<div id="massiva_contens"><div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div></div>
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
-		<button type="button" class="btn btn-primary" name="mesDades" value="mesDades"><span class="fa fa-plus"></span>&nbsp;<spring:message code="comuns.mes.dades"/></button>
+		
+		<button type="button" class="btn btn-primary" name="previousPage" value="previousPage"><span class="fa fa-arrow-left"></span>&nbsp;<spring:message code="comuns.previous"/></button>
+		<button type="button" class="btn btn-primary" name="nextPage" value="nextPage"><spring:message code="comuns.next"/>&nbsp;<span class="fa fa-arrow-right"></span></button>
 		<button type="button" class="btn btn-primary" name="refrescar" value="refrescar"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="comuns.refrescar"/></button>
 	</div>
 </body>
