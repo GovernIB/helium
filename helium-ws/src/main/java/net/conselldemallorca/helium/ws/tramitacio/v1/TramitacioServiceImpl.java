@@ -1023,7 +1023,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), codi, null, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), null, codi, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
@@ -1043,7 +1043,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		if (!validarPermisEntornRead(e))
 			throw new TramitacioException("No té permisos per accedir a l'entorn '" + entorn + "'");
 		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), codi, null, true);
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), null, codi, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
 				resposta.add(convertirTascaTramitacio(tasca));
