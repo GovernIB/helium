@@ -155,7 +155,7 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesPersonalsTramitacio(
 			Long entornId,
 			String usuari,
-			String codiExpedient,
+			String expedientNumero,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques personals", "consulta");
 		PaginaLlistatDto resposta = findTasquesFiltre(
@@ -164,7 +164,7 @@ public class TascaService {
 				null,
 				null,
 				null,
-				null,
+				expedientNumero,
 				null,
 				null,
 				null,
@@ -876,7 +876,7 @@ public class TascaService {
 	public List<TascaLlistatDto> findTasquesGrupTramitacio(
 			Long entornId,
 			String usuari,
-			String codiExpedient,
+			String expedientNumero,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques grup", "consulta");
 		PaginaLlistatDto resposta = findTasquesFiltre(
@@ -885,7 +885,7 @@ public class TascaService {
 				null,
 				null,
 				null,
-				null,
+				expedientNumero,
 				null,
 				null,
 				null,
@@ -2340,6 +2340,7 @@ public class TascaService {
 		dto.setExpedientTipusId(expedient.getTipus().getId());
 		dto.setExpedientTipusNom(expedient.getTipus().getNom());
 		dto.setExpedientProcessInstanceId(expedient.getProcessInstanceId());
+		dto.setExpedientNumero(expedient.getNumero());
 		return dto;
 	}
 	
