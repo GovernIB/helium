@@ -1026,7 +1026,7 @@ public class DtoConverter {
 			variables.remove(TascaService.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(JbpmVars.PREFIX_VAR_DOCUMENT) ||
+				if (	codi.startsWith(JbpmVars.PREFIX_DOCUMENT) ||
 						codi.startsWith(JbpmVars.PREFIX_SIGNATURA) ||
 						codi.startsWith(JbpmVars.PREFIX_ADJUNT) ||
 						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))

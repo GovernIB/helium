@@ -2231,7 +2231,7 @@ public class TascaService {
 				task.getProcessDefinitionId());
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
-				String codiJbpm = JbpmVars.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
+				String codiJbpm = JbpmVars.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
 				Object valor = jbpmDao.getTaskInstanceVariable(
 						task.getId(),
 						codiJbpm);

@@ -51,6 +51,7 @@ import org.jbpm.taskmgmt.log.TaskLog;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -887,7 +888,7 @@ public class ExpedientLoggerHelper {
 							jbpmHelper.deleteProcessInstanceVariable(
 									pid,
 									logo.getName());
-							if (logo.getName().startsWith(DocumentHelperV3.PREFIX_VAR_DOCUMENT)) {
+							if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 								documentHelper.esborrarDocument(
 										null,
 										pid,
@@ -896,7 +897,7 @@ public class ExpedientLoggerHelper {
 						} else if (!created && deleted) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
-							if (logo.getName().startsWith(DocumentHelperV3.PREFIX_VAR_DOCUMENT)) {
+							if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
 								Long documentStoreId = documentHelper.actualitzarDocument(
 										null,
@@ -920,7 +921,7 @@ public class ExpedientLoggerHelper {
 						} else if (!created && !deleted) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
-							if (logo.getName().startsWith(DocumentHelperV3.PREFIX_VAR_DOCUMENT)) {
+							if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 								// Si existissin versions de documents no s'hauria de fer res
 								Long documentStoreId = documentHelper.actualitzarDocument(
 										null,
@@ -980,7 +981,7 @@ public class ExpedientLoggerHelper {
 											null);
 								}
 								// Si la variable correspon a un document vol dir que també l'hem d'esborrar
-								if (logo.getName().startsWith(DocumentHelperV3.PREFIX_VAR_DOCUMENT)) {
+								if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 									documentHelper.esborrarDocument(
 											task.getId(),
 											null,
@@ -989,7 +990,7 @@ public class ExpedientLoggerHelper {
 							} else if (!created && deleted) {
 								if (debugRetroces)
 									logger.info(">>> [RETLOG] Crear variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
-								if (logo.getName().startsWith(DocumentHelperV3.PREFIX_VAR_DOCUMENT)) {
+								if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
 									Long documentStoreId = documentHelper.actualitzarDocument(
 											task.getId(),
@@ -1013,7 +1014,7 @@ public class ExpedientLoggerHelper {
 							} else if (!created && !deleted) {
 								if (debugRetroces)
 									logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " de la tasca (" + task.getId() + ") amb el valor (" + logo.getValorInicial() + ")");
-								if (logo.getName().startsWith(DocumentHelperV3.PREFIX_VAR_DOCUMENT)) {
+								if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 									// Si existissin versions de documents no s'hauria de fer res
 									Long documentStoreId = documentHelper.actualitzarDocument(
 											task.getId(),
@@ -1139,9 +1140,9 @@ public class ExpedientLoggerHelper {
 				}
 			}
 			for (DocumentTasca document: getDocumentsPerTaskInstance(ti)) {
-				String codi = DocumentHelperV3.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi();
+				String codi = JbpmVars.PREFIX_DOCUMENT + document.getDocument().getCodi();
 				if (!document.isReadOnly()) {
-					Object valor = ci.getVariable(DocumentHelperV3.PREFIX_VAR_DOCUMENT + document.getDocument().getCodi());
+					Object valor = ci.getVariable(JbpmVars.PREFIX_DOCUMENT + document.getDocument().getCodi());
 					if (valor != null)
 						if (debugRetroces)
 							logger.info(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getTaskName() + " (" + task.getId() + ")");

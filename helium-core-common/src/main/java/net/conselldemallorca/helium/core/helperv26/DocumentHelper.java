@@ -422,8 +422,8 @@ public class DocumentHelper {
 		}
 	}
 	public String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(JbpmVars.PREFIX_VAR_DOCUMENT)) {
-			return var.substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
+		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
 		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
 		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
@@ -519,7 +519,7 @@ public class DocumentHelper {
 					dto.setAdjuntId(document.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
 					dto.setDocumentId(document.getId());
 				} else {
-					codiDocument = document.getJbpmVariable().substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
+					codiDocument = document.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 					JbpmProcessDefinition jpd = jbpmDao.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
@@ -719,7 +719,7 @@ public class DocumentHelper {
 		if (isAdjunt)
 			return JbpmVars.PREFIX_ADJUNT + documentCodi;
 		else
-			return JbpmVars.PREFIX_VAR_DOCUMENT + documentCodi;
+			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
 	}
 
 	private DocumentTokenUtils getDocumentTokenUtils() {

@@ -271,7 +271,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public String getCodiDocument() {
 		if (getJbpmVariable() == null)
 			return null;
-		return getJbpmVariable().substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
+		return getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 	}
 	@Transient
 	public boolean isRegistrat() {

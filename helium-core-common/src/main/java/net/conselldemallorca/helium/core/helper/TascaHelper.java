@@ -58,9 +58,6 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 @Component
 public class TascaHelper {
 
-	public static final String VAR_TASCA_VALIDADA = "H3l1um#tasca.validada";
-	public static final String VAR_TASCA_DELEGACIO = "H3l1um#tasca.delegacio";
-
 	@Resource
 	private TascaRepository tascaRepository;
 	@Resource
@@ -627,13 +624,13 @@ public class TascaHelper {
 	public void validarTasca(String taskId) {
 		jbpmHelper.setTaskInstanceVariable(
 				taskId,
-				VAR_TASCA_VALIDADA,
+				JbpmVars.VAR_TASCA_VALIDADA,
 				new Date());
 	}
 	public void restaurarTasca(String taskId) {
 		jbpmHelper.deleteTaskInstanceVariable(
 				taskId,
-				VAR_TASCA_VALIDADA);
+				JbpmVars.VAR_TASCA_VALIDADA);
 	}
 
 	public boolean isTascaValidada(Object task) {
@@ -651,7 +648,7 @@ public class TascaHelper {
 			return true;
 		Object valor = jbpmHelper.getTaskInstanceVariable(
 				((JbpmTask)task).getId(),
-				VAR_TASCA_VALIDADA);
+				JbpmVars.VAR_TASCA_VALIDADA);
 		if (valor == null || !(valor instanceof Date))
 			return false;
 		return true;
@@ -661,7 +658,7 @@ public class TascaHelper {
 		Tasca tasca = findTascaByJbpmTask((JbpmTask)task);
 		for (DocumentTasca docTasca: tasca.getDocuments()) {
 			if (docTasca.isRequired()) {
-				String codiJbpm = JbpmVars.PREFIX_VAR_DOCUMENT + docTasca.getDocument().getCodi();
+				String codiJbpm = JbpmVars.PREFIX_DOCUMENT + docTasca.getDocument().getCodi();
 				Object valor = jbpmHelper.getTaskInstanceVariable(
 						((JbpmTask)task).getId(),
 						codiJbpm);
@@ -728,18 +725,18 @@ public class TascaHelper {
 		info.setSupervised(supervisada);
 		jbpmHelper.setTaskInstanceVariable(
 				task.getId(), 
-				TascaHelper.VAR_TASCA_DELEGACIO,
+				JbpmVars.VAR_TASCA_DELEGACIO,
 				info);
 	}
 	public DelegationInfo getDelegationInfo(JbpmTask task) {
 		return (DelegationInfo)jbpmHelper.getTaskInstanceVariable(
 				task.getId(),
-				VAR_TASCA_DELEGACIO);
+				JbpmVars.VAR_TASCA_DELEGACIO);
 	}
 	public void deleteDelegationInfo(JbpmTask task) {
 		jbpmHelper.deleteTaskInstanceVariable(
 				task.getId(),
-				VAR_TASCA_DELEGACIO);
+				JbpmVars.VAR_TASCA_DELEGACIO);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);

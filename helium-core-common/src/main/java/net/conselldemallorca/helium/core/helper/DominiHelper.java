@@ -32,12 +32,12 @@ import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
 import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.helper.WsClientHelper.WsClientAuth;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiConsultaException;
@@ -60,6 +60,8 @@ public class DominiHelper {
 
 	@Autowired
 	private MonitorDominiHelper monitorDominiHelper;
+	@Autowired
+	private WsClientHelper wsClientHelper;
 	@Autowired
 	private MetricRegistry metricRegistry;
 
@@ -277,31 +279,34 @@ public class DominiHelper {
 	private DominiHelium getClientWsFromDomini(Domini domini) {
 		DominiHelium clientWs = wsCache.get(domini.getId());
 		if (clientWs == null) {
-			String usuari = null;
-			String contrasenya = null;
+			String username = null;
+			String password = null;
 			if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
 				if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
-					usuari = GlobalProperties.getInstance().getProperty(domini.getUsuari());
-					contrasenya = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
+					username = GlobalProperties.getInstance().getProperty(domini.getUsuari());
+					password = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
 				} else {
-					usuari = domini.getUsuari();
-					contrasenya = domini.getContrasenya();
+					username = domini.getUsuari();
+					password = domini.getContrasenya();
 				}
 			}
-			String auth = "NONE";
-			if (TipusAuthDomini.HTTP_BASIC.equals(domini.getTipusAuth()))
-				auth = "BASIC";
-			if (TipusAuthDomini.USERNAMETOKEN.equals(domini.getTipusAuth()))
-				auth = "USERNAMETOKEN";
-			clientWs = (DominiHelium)WsClientUtils.getWsClientProxy(
-					DominiHelium.class,
+			WsClientAuth auth;
+			switch (domini.getTipusAuth()) {
+			case HTTP_BASIC:
+				auth = WsClientAuth.BASIC;
+				break;
+			case USERNAMETOKEN:
+				auth = WsClientAuth.USERNAMETOKEN;
+				break;
+			default:
+				auth = WsClientAuth.NONE;
+				break;
+			}
+			clientWs = wsClientHelper.getDominiService(
 					domini.getUrl(),
-					usuari,
-					contrasenya,
 					auth,
-					false,
-					false,
-					true);
+					username,
+					password);
 			wsCache.put(domini.getId(), clientWs);
 		}
 		return clientWs;

@@ -560,7 +560,7 @@ public class PluginService {
 		if (document != null) {
 			JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(documentStore.getProcessInstanceId());
 			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
+			String varDocumentCodi = documentStore.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 			List<byte[]> signatures = obtenirSignaturesDelPortasignatures(documentId);
 			if (signatures != null) {
 				//logger.info(">>> [PSIGN] Té signatures i comença custòdia (psignaId=" + documentId + ", docStoreId=" + documentStoreId + ", refCustòdia=" + docst.getReferenciaCustodia() + ")");

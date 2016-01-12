@@ -598,7 +598,7 @@ public class DocumentService {
 		if (documentStore.isAdjunt())
 			return varJbpm.substring(JbpmVars.PREFIX_ADJUNT.length());
 		else
-			return varJbpm.substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
+			return varJbpm.substring(JbpmVars.PREFIX_DOCUMENT.length());
 	}
 
 

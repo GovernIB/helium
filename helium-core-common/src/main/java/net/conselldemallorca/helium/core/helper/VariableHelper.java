@@ -62,10 +62,6 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 @Component
 public class VariableHelper {
 
-	public static final String PREFIX_VAR_DOCUMENT = JbpmVars.PREFIX_VAR_DOCUMENT;
-	public static final String PREFIX_VAR_ADJUNT = JbpmVars.PREFIX_ADJUNT;
-	public static final String PREFIX_VAR_SIGNATURA = JbpmVars.PREFIX_SIGNATURA;
-
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
@@ -875,13 +871,13 @@ public class VariableHelper {
 
 	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(TascaHelper.VAR_TASCA_VALIDADA);
-			variables.remove(TascaHelper.VAR_TASCA_DELEGACIO);
+			variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
+			variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(PREFIX_VAR_DOCUMENT) ||
-						codi.startsWith(PREFIX_VAR_SIGNATURA) ||
-						codi.startsWith(PREFIX_VAR_ADJUNT) ||
+				if (	codi.startsWith(JbpmVars.PREFIX_DOCUMENT) ||
+						codi.startsWith(JbpmVars.PREFIX_SIGNATURA) ||
+						codi.startsWith(JbpmVars.PREFIX_ADJUNT) ||
 						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}

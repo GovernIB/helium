@@ -61,10 +61,6 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 @Component
 public class DocumentHelperV3 {
 
-	public static final String PREFIX_VAR_DOCUMENT = "H3l1um#document.";
-	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
-	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
-	
 	@Resource
 	private PlantillaHelper plantillaHelper;
 	@Resource
@@ -192,7 +188,7 @@ public class DocumentHelperV3 {
 			for (String var: varsInstanciaProces.keySet()) {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
 				if (documentStoreId != null) {
-					if (var.startsWith(VariableHelper.PREFIX_VAR_DOCUMENT)) {
+					if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 						// Afegeix el document
 						String documentCodi = getDocumentCodiDeVariableJbpm(var);
 						Document document = null;
@@ -214,7 +210,7 @@ public class DocumentHelperV3 {
 										"documentCodi=" + documentCodi + ")");
 							resposta.add(dto);
 						}
-					} else if (var.startsWith(VariableHelper.PREFIX_VAR_ADJUNT)) {
+					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
 						resposta.add(
 								crearDtoPerAdjuntExpedient(
@@ -802,19 +798,19 @@ public class DocumentHelperV3 {
 	}
 
 	private String getDocumentCodiDeVariableJbpm(String varName) {
-		return varName.substring(VariableHelper.PREFIX_VAR_DOCUMENT.length());
+		return varName.substring(JbpmVars.PREFIX_DOCUMENT.length());
 	}
 	private String getAdjuntIdDeVariableJbpm(String varName) {
-		return varName.substring(VariableHelper.PREFIX_VAR_ADJUNT.length());
+		return varName.substring(JbpmVars.PREFIX_ADJUNT.length());
 	}
 
 	private void filtrarVariablesAmbDocuments(Map<String, Object> variables) {
 		if (variables != null) {
-			variables.remove(TascaHelper.VAR_TASCA_VALIDADA);
-			variables.remove(TascaHelper.VAR_TASCA_DELEGACIO);
+			variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
+			variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
 			List<String> codisEsborrar = new ArrayList<String>();
 			for (String codi: variables.keySet()) {
-				if (!codi.startsWith(VariableHelper.PREFIX_VAR_DOCUMENT) && !codi.startsWith(VariableHelper.PREFIX_VAR_ADJUNT)) {
+				if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 					codisEsborrar.add(codi);
 				}
 			}
@@ -965,13 +961,13 @@ public class DocumentHelperV3 {
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
-					dto.setAdjuntId(document.getJbpmVariable().substring(PREFIX_ADJUNT.length()));
+					dto.setAdjuntId(document.getJbpmVariable().substring(JbpmVars.PREFIX_ADJUNT.length()));
 					dto.setCodi(dto.getAdjuntId());
 					dto.setDocumentCodi(dto.getAdjuntId());
 					dto.setDocumentNom(document.getAdjuntTitol());
 					dto.setArxiuContingut(document.getArxiuContingut());
 				} else {
-					codiDocument = document.getJbpmVariable().substring(PREFIX_VAR_DOCUMENT.length());
+					codiDocument = document.getJbpmVariable().substring(JbpmVars.PREFIX_DOCUMENT.length());
 					JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(document.getProcessInstanceId());
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
@@ -1194,7 +1190,7 @@ public class DocumentHelperV3 {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
 				if (dto.isSignat()) {
-					Object signatEnTasca = jbpmHelper.getTaskInstanceVariable(taskInstanceId, DocumentHelperV3.PREFIX_SIGNATURA + dto.getDocumentCodi());
+					Object signatEnTasca = jbpmHelper.getTaskInstanceVariable(taskInstanceId, JbpmVars.PREFIX_SIGNATURA + dto.getDocumentCodi());
 					dto.setSignatEnTasca(signatEnTasca != null);
 				} else {
 					dto.setSignatEnTasca(false);
@@ -1365,7 +1361,7 @@ public class DocumentHelperV3 {
 					documentStore.getJbpmVariable());
 			jbpmHelper.deleteTaskInstanceVariable(
 					taskInstanceId,
-					PREFIX_SIGNATURA + documentCodi);
+					JbpmVars.PREFIX_SIGNATURA + documentCodi);
 		}
 		if (processInstanceId != null) {
 			jbpmHelper.deleteProcessInstanceVariable(
@@ -1409,17 +1405,17 @@ public class DocumentHelperV3 {
 	
 	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
 		if (isAdjunt)
-			return PREFIX_ADJUNT + documentCodi;
+			return JbpmVars.PREFIX_ADJUNT + documentCodi;
 		else
-			return PREFIX_VAR_DOCUMENT + documentCodi;
+			return JbpmVars.PREFIX_DOCUMENT + documentCodi;
 	}
 	public static String getDocumentCodiPerVariableJbpm(String var) {
-		if (var.startsWith(PREFIX_VAR_DOCUMENT)) {
-			return var.substring(PREFIX_VAR_DOCUMENT.length());
-		} else if (var.startsWith(PREFIX_ADJUNT)) {
-			return var.substring(PREFIX_ADJUNT.length());
-		} else if (var.startsWith(PREFIX_SIGNATURA)) {
-			return var.substring(PREFIX_SIGNATURA.length());
+		if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
+			return var.substring(JbpmVars.PREFIX_DOCUMENT.length());
+		} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+			return var.substring(JbpmVars.PREFIX_ADJUNT.length());
+		} else if (var.startsWith(JbpmVars.PREFIX_SIGNATURA)) {
+			return var.substring(JbpmVars.PREFIX_SIGNATURA.length());
 		} else {
 			return var;
 		}

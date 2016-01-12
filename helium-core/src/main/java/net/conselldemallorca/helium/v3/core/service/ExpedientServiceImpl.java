@@ -1662,7 +1662,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					JbpmVars.PREFIX_ADJUNT.length());
 		else
 			return jbpmVariable.substring(
-					JbpmVars.PREFIX_VAR_DOCUMENT.length());
+					JbpmVars.PREFIX_DOCUMENT.length());
 	}
 
 	@Override

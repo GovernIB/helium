@@ -2763,7 +2763,7 @@ public class ExpedientService {
 		if (documentStore.isAdjunt())
 			return jbpmVariable.substring(JbpmVars.PREFIX_ADJUNT.length());
 		else
-			return jbpmVariable.substring(JbpmVars.PREFIX_VAR_DOCUMENT.length());
+			return jbpmVariable.substring(JbpmVars.PREFIX_DOCUMENT.length());
 	}
 
 	private void comprovarUsuari(String usuari) {
