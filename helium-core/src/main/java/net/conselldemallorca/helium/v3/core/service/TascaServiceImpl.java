@@ -15,6 +15,19 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.collections.comparators.NullComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -78,21 +91,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-
-import org.apache.commons.collections.comparators.NullComparator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar terminis.
@@ -295,7 +293,6 @@ public class TascaServiceImpl implements TascaService {
 			Long entornId,
 			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
-			String usuari,
 			String titol,
 			String tasca,
 			String responsable,
@@ -305,14 +302,13 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup,
+			boolean nomesAssignadesUsuari,
+			boolean nomesAssignadesGrup,
 			final PaginacioParamsDto paginacioParams) throws Exception {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
 				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
 				"expedientTipusId=" + expedientTipusId + ", " +
-				"usuari=" + usuari + ", " +
 				"responsable=" + responsable + ", " +
 				"titol=" + titol + ", " +
 				"tasca=" + tasca + ", " +
@@ -321,69 +317,28 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitInici=" + dataLimitInici + ", " +
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
-				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
-				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
+				"nomesAssignadesUsuari=" + nomesAssignadesUsuari + ", " +
+				"nomesAssignadesGrup=" + nomesAssignadesGrup + ", " +
+				"paginacioParams=" + paginacioParams + ")");
 		// Comprova l'accés a l'entorn
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+		entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true,
 				false,
 				false);
 		// Comprova l'accés al tipus d'expedient
-		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+			expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					expedientTipusId,
 					true,
 					false,
 					false);
 		}
-		
 		// Si no te permis ASSIGNMENT o ADMIN a damunt el tipus d'exp.
 		// forçar usuari actual
 		if (!(expedientTipusId != null && expedientTipusHelper.getExpedientTipusComprovantPermisosReassignar(expedientTipusId) != null)) {
 			responsable = SecurityContextHolder.getContext().getAuthentication().getName();
 		}
-		
-		// Obté la llista de tipus d'expedient permesos
-		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
-		permisosHelper.filterGrantedAny(
-				tipusPermesos,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION});
-		if (tipusPermesos.isEmpty())
-			throw new Exception(messageHelper.getMessage("error.expedientService.noExisteix.tipus"));
-		
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
-		
-		Pageable paginacio = null;
-		if (!paginacioParams.getOrdres().isEmpty()) {
-			OrdreDto order = paginacioParams.getOrdres().get(0);
-			if ("expedientIdentificador".equals(order.getCamp()) || "expedientTipusNom".equals(order.getCamp())) {
-				if ("expedientIdentificador".equals(order.getCamp())) {
-					order.setCamp("titol");
-				} else {
-					order.setCamp("tipus.nom");
-				}
-				paginacio = new PageRequest(0,99999999, order.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, order.getCamp());
-			}
-		}
-
-		List<Long> idsExpedients = expedientHeliumRepository.findListExpedients(
-				entorn,
-				tipusPermesos,
-				(expedientTipus == null),
-				expedientTipus,
-				(expedient == null),
-				expedient,
-				paginacio);
 		if (consultaTramitacioMassivaTascaId != null) {
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 					consultaTramitacioMassivaTascaId,
@@ -391,8 +346,6 @@ public class TascaServiceImpl implements TascaService {
 					true);
 			tasca = task.getTaskName();
 		}
-		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
-		
 		// Calcula la data d'creacio fi pel filtre
 		if (dataCreacioFi != null) {
 			Calendar cal = Calendar.getInstance();
@@ -407,39 +360,56 @@ public class TascaServiceImpl implements TascaService {
 			cal.add(Calendar.DATE, 1);
 			dataLimitFi.setTime(cal.getTime().getTime());
 		}
-		
-		LlistatIds ids = jbpmHelper.findListTasks(
-				usuari,
+		String ordre = null;
+		if (!paginacioParams.getOrdres().isEmpty()) {
+			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
+			if ("expedientIdentificador".equals(ordreDto.getCamp())) {
+				ordre = "expedientTitol";
+			} else if ("expedientTipusNom".equals(ordreDto.getCamp())) {
+				ordre = "expedientTipusNom";
+			} else if ("createTime".equals(ordreDto.getCamp())) {
+				ordre = "dataCreacio";
+			} else if ("dueDate".equals(ordreDto.getCamp())) {
+				ordre = "dataLimit";
+			} else if ("prioritat".equals(ordreDto.getCamp())) {
+				ordre = "prioritat";
+			}
+		}
+		boolean mostrarAssignadesUsuari = (nomesAssignadesUsuari && !nomesAssignadesGrup) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
+		boolean mostrarAssignadesGrup = (nomesAssignadesGrup && !nomesAssignadesUsuari) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
+		LlistatIds ids = jbpmHelper.tascaFindByFiltre(
+				entornId,
 				responsable,
-				titol,
 				tasca,
-				idsExpedients,
+				titol,
+				null,
+				expedient,
+				null, //expedientNumero,
+				expedientTipusId,
 				dataCreacioInici,
 				dataCreacioFi,
 				prioritat,
 				dataLimitInici,
 				dataLimitFi,
-				paginacioParams,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				true);
-		if (consultaTramitacioMassivaTascaId != null) {			
-			// Filtra les tasques per mostrar només les del entorn seleccionat
-			for (JbpmTask task: jbpmHelper.findPersonalTasks(usuari)) {
-				//DadesCacheTasca dadesCacheTasca = dtoConverter.getDadesCacheTasca(task, null);
-				if (ids.getIds().contains(Long.parseLong(task.getId())))			
-					expedientTasques.add(
-							tascaHelper.getExpedientTascaDto(
-									task,
-									null,
-									false));
-			}
-			ids.setCount(expedientTasques.size());
-		}
-		return getPaginaExpedientTascaDto(ids, expedientTasques, paginacioParams);
+				mostrarAssignadesUsuari,
+				mostrarAssignadesGrup,
+				true,
+				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
+				paginacioParams.getPaginaTamany(),
+				ordre,
+				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
+				false);
+		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
+		return getPaginaExpedientTascaDto(
+				ids,
+				expedientTasques,
+				paginacioParams);
 	}
 
-	private PaginaDto<ExpedientTascaDto> getPaginaExpedientTascaDto(final LlistatIds ids, final List<ExpedientTascaDto> expedientTasques, final PaginacioParamsDto paginacioParams) {
+	private PaginaDto<ExpedientTascaDto> getPaginaExpedientTascaDto(
+			final LlistatIds ids,
+			final List<ExpedientTascaDto> expedientTasques,
+			final PaginacioParamsDto paginacioParams) {
 		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
 			@Override
 			public Iterator<ExpedientTascaDto> iterator() {

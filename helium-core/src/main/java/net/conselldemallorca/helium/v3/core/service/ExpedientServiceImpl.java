@@ -1665,7 +1665,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		for (JbpmProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
-			resposta.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(jpi.getId(), expedient, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup));
+			resposta.addAll(
+					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
+							jpi.getId(),
+							expedient,
+							permisosVerOtrosUsuarios,
+							nomesMeves,
+							nomesTasquesPersonals,
+							nomesTasquesGrup));
 		}
 		return resposta;
 	}

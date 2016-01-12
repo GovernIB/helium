@@ -102,7 +102,6 @@ public interface TascaService {
 			Long entornId,
 			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
-			String usuari,
 			String titulo,
 			String tasca,
 			String responsable,

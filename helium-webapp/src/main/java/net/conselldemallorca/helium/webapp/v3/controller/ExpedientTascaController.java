@@ -110,8 +110,17 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
-		model.addAttribute("tasques", expedientService.findTasquesPendents(expedientId, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup));
-		model.addAttribute("expedient", expedientService.findAmbId(expedientId));	
+		model.addAttribute(
+				"tasques",
+				expedientService.findTasquesPendents(
+						expedientId,
+						permisosVerOtrosUsuarios,
+						nomesMeves,
+						nomesTasquesPersonals,
+						nomesTasquesGrup));
+		model.addAttribute(
+				"expedient",
+				expedientService.findAmbId(expedientId));	
 		return "v3/expedientTasquesPendents";
 	}
 
