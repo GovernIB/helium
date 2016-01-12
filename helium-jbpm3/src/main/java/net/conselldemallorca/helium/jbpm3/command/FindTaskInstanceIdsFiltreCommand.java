@@ -182,7 +182,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 				-1);
 		resposta.setCount(((Long)queryCount.uniqueResult()).intValue());
 		if (!nomesCount) {
-			String sortColumn = null;
+			List<String> sortColumns = new ArrayList<String>();
 			if (sort != null) {
 				/*sorts:
 				titol
@@ -194,28 +194,37 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 				// Per defecte: dataCreacio desc
 				taskQuerySb.append("order by ");
 				if ("titol".equals(sort)) {
-					sortColumn = "ti.description";
+					sortColumns.add("ti.description");
 				} else if ("expedientTitol".equals(sort)) {
-					sortColumn = "ti.processInstance.expedient.titol";
+					sortColumns.add("ti.processInstance.expedient.numero");
+					sortColumns.add("ti.processInstance.expedient.titol");
 				} else if ("expedientTipusNom".equals(sort)) {
-					sortColumn = "ti.processInstance.expedient.expedientTipusId";
+					sortColumns.add("ti.processInstance.expedient.tipus.nom");
 				} else if ("dataCreacio".equals(sort)) {
-					sortColumn = "ti.create";
+					sortColumns.add("ti.create");
 				} else if ("prioritat".equals(sort)) {
-					sortColumn = "ti.priority";
+					sortColumns.add("ti.priority");
 				} else if ("dataLimit".equals(sort)) {
-					sortColumn = "ti.dueDate";
-				} else {
-					sortColumn = sort;
+					sortColumns.add("ti.dueDate");
 				}
-				taskQuerySb.append(sortColumn);
-				taskQuerySb.append((asc) ? " asc" : " desc");
+				boolean sortFirst = true;
+				for (String sortColumn: sortColumns) {
+					if (!sortFirst)
+						taskQuerySb.append(", ");
+					taskQuerySb.append(sortColumn);
+					taskQuerySb.append((asc) ? " asc" : " desc");
+					sortFirst = false;
+				}
 			}
-			if (sortColumn != null) {
-				taskQuerySb.insert(0, "select distinct ti.id, " + sortColumn + " ");
-			} else {
-				taskQuerySb.insert(0, "select distinct ti.id ");
+			StringBuilder selectSb = new StringBuilder("select distinct ti.id");
+			if (!sortColumns.isEmpty()) {
+				for (String sortColumn: sortColumns) {
+					selectSb.append(", ");
+					selectSb.append(sortColumn);
+				}
 			}
+			selectSb.append(" ");
+			taskQuerySb.insert(0, selectSb);
 			Query queryIds = jbpmContext.getSession().createQuery(taskQuerySb.toString());
 			setQueryParams(
 					queryIds,
@@ -235,7 +244,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 					firstResult,
 					maxResults);
 			List<Object[]> resultat = (List<Object[]>)queryIds.list();
-			if (sortColumn != null) {
+			if (!sortColumns.isEmpty()) {
 				List<Long> ids = new ArrayList<Long>();
 				for (Object[] fila: resultat) {
 					ids.add((Long)fila[0]);
@@ -244,7 +253,6 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 			} else {
 				resposta.setIds((List<Long>)queryIds.list());
 			}
-			
 		}
 		return resposta;
 	}

@@ -150,7 +150,6 @@ public class TascaLlistatV3Controller extends BaseController {
 							entornActual.getId(),
 							filtreCommand.getConsultaTramitacioMassivaTascaId(),
 							filtreCommand.getExpedientTipusId(),
-							request.getUserPrincipal().getName(),
 							filtreCommand.getTitol(),
 							filtreCommand.getTasca(),
 							filtreCommand.getResponsable(),
