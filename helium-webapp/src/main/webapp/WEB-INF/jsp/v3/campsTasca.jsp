@@ -11,11 +11,9 @@
 <%-- <c:if test="${!dada.readOnly}"> --%>
 	
 	<c:set var="campErrors"><form:errors path="${campCodi}"/></c:set>
-	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if>">
+	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if><c:if test="${not empty tasca.tascaFormExternCodi}"> formext</c:if>">
 		<label for="${dada.varCodi}" class="control-label<c:choose><c:when test='${inline}'> sr-only</c:when><c:otherwise> col-xs-3<c:if test="${dada.required}"> obligatori</c:if></c:otherwise></c:choose>">${dada.campEtiqueta}</label>
 		<div class="controls<c:if test='${not inline}'> col-xs-9</c:if> <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if> <c:if test="${!dada.required}"> no-obligatori</c:if>">
-
-
 
 <%-- VARIABLES SENZILLES ----------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
