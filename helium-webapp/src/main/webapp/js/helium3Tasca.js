@@ -272,7 +272,7 @@ $(function() {
 			initSeleccio(this);
 		});
 	});
-	$(".validada").each(function(index){
+	$(".validada, .formext").each(function(index){
 		validado(true);
 	});
 	// Camp múltiple: eliminar
