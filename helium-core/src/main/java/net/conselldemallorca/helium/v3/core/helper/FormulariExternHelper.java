@@ -54,13 +54,15 @@ public class FormulariExternHelper {
 		return iniciar(
 				taskId,
 				tasca,
-				expedientTipus);
+				expedientTipus,
+				false);
 	}
 	
 	public FormulariExternDto iniciar(
 		String taskId,
 		Tasca tasca,
-		ExpedientTipus expedientTipus) {
+		ExpedientTipus expedientTipus,
+		boolean tascaIniciExpedient) {
 		String url;
 		String username = null;
 		String password = null;
@@ -86,7 +88,7 @@ public class FormulariExternHelper {
 		RespostaIniciFormulari resposta = clientWs.iniciFormulari(
 				tasca.getFormExtern(),
 				taskId,
-				getVariablesPerIniciFormulari(taskId));
+				(!tascaIniciExpedient) ? getVariablesPerIniciFormulari(taskId) : null);
 		/*RespostaIniciFormulari resposta = new RespostaIniciFormulari();
 		resposta.setFormulariId(taskId);
 		resposta.setUrl("http://oficina.limit.es");

@@ -1216,22 +1216,22 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional
-	public FormulariExternDto formulariExternIniciar(
-			String id) {
+	public FormulariExternDto formulariExternObrir(
+			String tascaId) {
 		logger.debug("Iniciant formulari extern per la tasca (" +
-				"id=" + id + ")");
+				"tascaId=" + tascaId + ")");
 		tascaHelper.getTascaComprovacionsTramitacio(
-				id,
+				tascaId,
 				true,
 				true);
 		FormulariExternDto dto = formulariExternHelper.iniciar(
-				id,
-				variableHelper.getVariablesJbpmTascaValor(id));
+				tascaId,
+				variableHelper.getVariablesJbpmTascaValor(tascaId));
 		return dto;
 	}
 	
-	public FormulariExternDto iniciarFormulariExtern(
-			String taskId,
+	public FormulariExternDto formulariExternObrirTascaInicial(
+			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
@@ -1251,9 +1251,10 @@ public class TascaServiceImpl implements TascaService {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(starTaskName, definicioProces);
 		
 		FormulariExternDto dto = formulariExternHelper.iniciar(
-				taskId,
+				tascaIniciId,
 				tasca,
-				expedientTipus);
+				expedientTipus,
+				true);
 		return dto;
 	}
 

@@ -651,7 +651,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
-		return tascaService.formulariExternIniciar(tascaId);
+		return tascaService.formulariExternObrir(tascaId);
 	}
 
 	@RequestMapping(value = "/formExtern", method = RequestMethod.GET)

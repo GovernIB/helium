@@ -26,32 +26,32 @@
 	<script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
 	<script src="https://www.java.com/js/deployJava.js"></script>
-	
-	
 	<hel:modalHead/>
 	<link href="<c:url value="/css/tascaForm.css"/>" rel="stylesheet"/>
-</head>
-<body>
 	<c:if test="${not empty tasca.tascaFormExternCodi}">
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-		<div class="form-group">
-			
-			<div id="modal-botons-form-extern" class="pull-right form_extern">
-				<a id="boto-formext" href="<c:url value="/v3/expedient/tasca/${expedientTipus.id}/${definicioProces.id}/${tasca.id}/formExtern"/>" class="btn btn-default"><span class="fa fa-pencil-square-o"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></a>
-			</div>
-			
-			<script type="text/javascript">
-				// <![CDATA[
-					function recargarPanel (tag, correcte) {
-						if (correcte) {
-							location.reload();
-						}
-					}
-				//]]>
-			</script>
-		
+	</c:if>
+</head>
+<body>
+	<c:if test="${not empty tasca.tascaFormExternCodi}">
+		<div class="alert alert-warning">
+			<p>
+				<span class="fa fa-warning"></span>
+				<spring:message code="tasca.form.compl_form"/>
+				<a id="boto-formext" href="<c:url value="/v3/expedient/tasca/${expedientTipus.id}/${definicioProces.id}/${tasca.id}/formExtern"/>" class="btn btn-xs btn-default pull-right"><span class="fa fa-external-link"></span>&nbsp;<spring:message code='tasca.form.obrir_form' /></a>
+			</p>
 		</div>
+		<%--script type="text/javascript">
+			// <![CDATA[
+				function recargarPanel(tag, correcte) {
+					if (correcte) {
+						alert('RECARREGAR');
+						//location.reload();
+					}
+				}
+			//]]>
+		</script--%>
 	</c:if>
 	
 	<form:form id="command" name="command" action="../../iniciarForm/${expedientTipus.id}/${definicioProces.id}" cssClass="form-horizontal form-tasca" method="post">
@@ -119,10 +119,10 @@
 			<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 		</c:forEach>
 		<div id="modal-botons">
-			<button type="submit" class="botons-iniciar modal-tancar btn btn-default" name="submit" value="cancel">
+			<button type="submit" name="submit" value="cancel" class="botons-iniciar modal-tancar btn btn-default">
 				<spring:message code='comuns.cancelar' />
 			</button>			
-			<button type="submit" id="iniciar" name="accio" class="botons-iniciar btn btn-primary" value="iniciar">
+			<button type="submit" id="iniciar" name="accio" value="iniciar" class="botons-iniciar btn btn-primary">
 				<spring:message code='comuns.iniciar' />
 			</button>
 			<script type="text/javascript">

@@ -287,7 +287,7 @@ public interface TascaService {
 	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
 	 * l'usuari que ha creat la delegació.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @param accio
 	 *            Nom de l'acció a executar.
@@ -297,22 +297,22 @@ public interface TascaService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void executarAccio(
-			String id,
+			String tascaId,
 			String accio);
 
 	/**
 	 * Inicia un formulari extern i retorna les dades per a obrir
 	 * una finestra amb el formulari.
 	 * 
-	 * @param id
+	 * @param tascaId
 	 *            Atribut id de la tasca.
 	 * @return
 	 */
-	public FormulariExternDto formulariExternIniciar(
-			String id);
+	public FormulariExternDto formulariExternObrir(
+			String tascaId);
 	
-	public FormulariExternDto iniciarFormulariExtern(
-			String taskId,
+	public FormulariExternDto formulariExternObrirTascaInicial(
+			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId);
 
