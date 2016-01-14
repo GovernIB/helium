@@ -399,7 +399,8 @@ $(function() {
 	                width: dialogWidth,
 	                height: dialogHeight,
 	                close: function() {
-	                	document.location.reload();
+	                	window.location.href = window.location.href;
+	                	//document.location.reload();
 					}
 	            }).width(dialogWidth - 24);
 			},
@@ -414,9 +415,6 @@ function validado(validar) {
 		$(this).attr("disabled",validar);
 	});
 	$('#command textarea').each(function(){
-		$(this).attr("disabled",validar);
-	});
-	$('#command button').each(function(){
 		$(this).attr("disabled",validar);
 	});
 	$('#command select').each(function(){

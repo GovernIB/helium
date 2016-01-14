@@ -308,11 +308,11 @@ public interface TascaService {
 	 *            Atribut id de la tasca.
 	 * @return
 	 */
-	public FormulariExternDto formulariExternIniciar(
-			String id);
+	public FormulariExternDto formulariExternObrir(
+			String tascaId);
 	
-	public FormulariExternDto iniciarFormulariExtern(
-			String taskId,
+	public FormulariExternDto formulariExternObrirTascaInicial(
+			String tascaIniciId,
 			Long expedientTipusId,
 			Long definicioProcesId);
 

@@ -192,9 +192,21 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public FormulariExternDto formulariExternIniciar(
-			String id) {
-		return delegate.formulariExternIniciar(id);
+	public FormulariExternDto formulariExternObrir(
+			String tascaId) {
+		return delegate.formulariExternObrir(tascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public FormulariExternDto formulariExternObrirTascaInicial(
+			String tascaIniciId,
+			Long expedientTipusId,
+			Long definicioProcesId) {
+		return delegate.formulariExternObrirTascaInicial(
+				tascaIniciId,
+				expedientTipusId,
+				definicioProcesId);
 	}
 
 	@Override
@@ -317,13 +329,6 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isSignaturesComplet(String tascaId) {
 		return delegate.isSignaturesComplet(tascaId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public FormulariExternDto iniciarFormulariExtern(String taskId,
-			Long expedientTipusId, Long definicioProcesId) {
-		return delegate.iniciarFormulariExtern(taskId, expedientTipusId, definicioProcesId);
 	}
 
 }

@@ -17,6 +17,7 @@ import javax.validation.Valid;
 
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -25,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,8 +58,31 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientInicioPasTitolController extends BaseExpedientController {
+
 	@Autowired
 	protected ExpedientService expedientService;
+
+	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.GET)
+	public String iniciarTitolGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
+			Model model) {
+		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
+		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		ExpedientInicioPasTitolCommand command = new ExpedientInicioPasTitolCommand();
+		command.setAny(Calendar.getInstance().get(Calendar.YEAR));
+		command.setExpedientTipusId(expedientTipusId);
+		command.setNumero(expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, command.getAny()));
+		command.setResponsableCodi(expedientTipus.getResponsableDefecteCodi());
+		command.setExpedientTipusId(expedientTipus.getId());
+		model.addAttribute("anysSeleccionables", getAnysSeleccionables());
+		command.setEntornId(entorn.getId());
+		model.addAttribute(command);
+		model.addAttribute("expedientTipus", expedientTipus);
+		return "v3/expedient/iniciarPasTitol";
+	}
 
 	@RequestMapping(value = "/iniciarTitol/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)
 	public String iniciarTitolPost(
@@ -177,7 +202,18 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 			}
 		}
 	}
-	
+
+	private void definicioProcesToModel(Long expedientTipusId, Long definicioProcesId, Model model){
+		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
+		DefinicioProcesDto definicioProces = null;
+		if (definicioProcesId != null) {
+			definicioProces = dissenyService.getById(definicioProcesId);
+		} else {
+			definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
+		}
+		model.addAttribute("definicioProces", definicioProces);
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
