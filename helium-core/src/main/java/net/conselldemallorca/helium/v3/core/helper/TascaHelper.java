@@ -120,53 +120,70 @@ public class TascaHelper {
 			Expedient expedient) {
 		DadesCacheTasca dadesCache = null;
 		if (!task.isCacheActiu()) {
-			if (expedient == null)
-				expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
-					task.getProcessDefinitionId());
-			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
-					task.getTaskName(),
-					definicioProces);
-			String titol = tasca.getNom();
-			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-				titol = getTitolPerTasca(task, tasca);
-			task.setFieldFromDescription(
-					"entornId",
-					expedient.getEntorn().getId().toString());
-			task.setFieldFromDescription(
-					"titol",
-					titol);
-			task.setFieldFromDescription(
-					"identificador",
-					expedient.getIdentificador());
-			task.setFieldFromDescription(
-					"identificadorOrdenacio",
-					expedient.getIdentificadorOrdenacio());
-			task.setFieldFromDescription(
-					"numeroIdentificador",
-					expedient.getNumeroIdentificador());
-			task.setFieldFromDescription(
-					"expedientTipusId",
-					expedient.getTipus().getId().toString());
-			task.setFieldFromDescription(
-					"expedientTipusNom",
-					expedient.getTipus().getNom());
-			task.setFieldFromDescription(
-					"processInstanceId",
-					expedient.getProcessInstanceId());
-			task.setFieldFromDescription(
-					"tramitacioMassiva",
-					new Boolean(tasca.isTramitacioMassiva()).toString());
-			task.setFieldFromDescription(
-					"definicioProcesJbpmKey",
-					tasca.getDefinicioProces().getJbpmKey());
-			task.setCacheActiu();
-			jbpmHelper.describeTaskInstance(
-					task.getId(),
-					titol,
-					task.getDescriptionWithFields());
+			setTascaCache(task, expedient);
 		}
-		dadesCache = new DadesCacheTasca(
+		try {
+			dadesCache = getDadesCacheTasca(task);
+		} catch (Exception e) {
+			task.setCacheInactiu();
+			setTascaCache(task, expedient);
+			dadesCache = getDadesCacheTasca(task);
+		}
+		return dadesCache;
+	}
+	
+	private void setTascaCache(
+			JbpmTask task,
+			Expedient expedient) {
+		if (expedient == null)
+			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
+				task.getProcessDefinitionId());
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
+				task.getTaskName(),
+				definicioProces);
+		String titol = tasca.getNom();
+		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
+			titol = getTitolPerTasca(task, tasca);
+		task.setFieldFromDescription(
+				"entornId",
+				expedient.getEntorn().getId().toString());
+		task.setFieldFromDescription(
+				"titol",
+				titol);
+		task.setFieldFromDescription(
+				"identificador",
+				expedient.getIdentificador());
+		task.setFieldFromDescription(
+				"identificadorOrdenacio",
+				expedient.getIdentificadorOrdenacio());
+		task.setFieldFromDescription(
+				"numeroIdentificador",
+				expedient.getNumeroIdentificador());
+		task.setFieldFromDescription(
+				"expedientTipusId",
+				expedient.getTipus().getId().toString());
+		task.setFieldFromDescription(
+				"expedientTipusNom",
+				expedient.getTipus().getNom());
+		task.setFieldFromDescription(
+				"processInstanceId",
+				expedient.getProcessInstanceId());
+		task.setFieldFromDescription(
+				"tramitacioMassiva",
+				new Boolean(tasca.isTramitacioMassiva()).toString());
+		task.setFieldFromDescription(
+				"definicioProcesJbpmKey",
+				tasca.getDefinicioProces().getJbpmKey());
+		task.setCacheActiu();
+		jbpmHelper.describeTaskInstance(
+				task.getId(),
+				titol,
+				task.getDescriptionWithFields());
+	}
+	
+	private DadesCacheTasca getDadesCacheTasca(JbpmTask task) {
+		return  new DadesCacheTasca(
 				new Long(task.getFieldFromDescription("entornId")),
 				task.getFieldFromDescription("titol"),
 				task.getFieldFromDescription("identificador"),
@@ -177,7 +194,6 @@ public class TascaHelper {
 				task.getFieldFromDescription("processInstanceId"),
 				new Boolean(task.getFieldFromDescription("tramitacioMassiva")).booleanValue(),
 				task.getFieldFromDescription("definicioProcesJbpmKey"));
-		return dadesCache;
 	}
 
 	public class DadesCacheTasca {
@@ -405,51 +421,9 @@ public class TascaHelper {
 
 	public void createDadesTasca(Long taskId) {
 		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		Expedient expedientPerTasca = expedientHelper.findExpedientByProcessInstanceId(
-				task.getProcessInstanceId());
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				task.getTaskName(),
-				task.getProcessDefinitionId());
-		String titol = tasca.getNom();
-		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-			titol = getTitolPerTasca(task, tasca);
-		task.setFieldFromDescription(
-				"entornId",
-				expedientPerTasca.getEntorn().getId().toString());
-		task.setFieldFromDescription(
-				"titol",
-				titol);
-		task.setFieldFromDescription(
-				"identificador",
-				expedientPerTasca.getIdentificador());
-		task.setFieldFromDescription(
-				"identificadorOrdenacio",
-				expedientPerTasca.getIdentificadorOrdenacio());
-		task.setFieldFromDescription(
-				"numeroIdentificador",
-				expedientPerTasca.getNumeroIdentificador());
-		task.setFieldFromDescription(
-				"expedientTipusId",
-				expedientPerTasca.getTipus().getId().toString());
-		task.setFieldFromDescription(
-				"expedientTipusNom",
-				expedientPerTasca.getTipus().getNom());
-		task.setFieldFromDescription(
-				"processInstanceId",
-				expedientPerTasca.getProcessInstanceId());
-		task.setFieldFromDescription(
-				"tramitacioMassiva",
-				new Boolean(tasca.isTramitacioMassiva()).toString());
-		task.setFieldFromDescription(
-				"definicioProcesJbpmKey",
-				tasca.getDefinicioProces().getJbpmKey());
-		task.setCacheActiu();
-		jbpmHelper.describeTaskInstance(
-				task.getId(),
-				titol,
-				task.getDescriptionWithFields());
+		setTascaCache(task, null);
 	}
-
+	
 	public Tasca findTascaByJbpmTaskId(
 			String jbpmTaskId) {
 		return findTascaByJbpmTask(jbpmHelper.getTaskById(jbpmTaskId));
