@@ -136,8 +136,14 @@
 						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
 					</c:when>
 					<c:otherwise>
-						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
-						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+					<c:if test="${not empty procesId}">
+							<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/proces/${procesId}/valor"/></c:set>
+							<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/proces/${procesId}/valors"/></c:set>
+						</c:if>
+						<c:if test="${empty procesId}">
+							<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
+							<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+						</c:if>
 					</c:otherwise>
 				</c:choose>
 				<c:set var="placeholder"><spring:message code='js.helforms.selec_valor'/></c:set>
@@ -155,8 +161,14 @@
 						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/tasca/${tasca.id}/valors"/></c:set>
 					</c:when>
 					<c:otherwise>
-						<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
-						<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+						<c:if test="${not empty procesId}">
+							<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/proces/${procesId}/valor"/></c:set>
+							<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/proces/${procesId}/valors"/></c:set>
+						</c:if>
+						<c:if test="${empty procesId}">
+							<c:set var="urlConsultaInicial"><c:url value="/v3/camp/${dada.campId}/valor"/></c:set>
+							<c:set var="urlConsultaLlistat"><c:url value="/v3/camp/${dada.campId}/valors"/></c:set>
+						</c:if>
 					</c:otherwise>
 				</c:choose>
 				<c:set var="placeholder"><spring:message code="js.helforms.selec_valor"/></c:set>

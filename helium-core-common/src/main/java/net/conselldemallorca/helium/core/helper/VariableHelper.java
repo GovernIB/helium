@@ -561,12 +561,10 @@ public class VariableHelper {
 								registreIndex,
 								campCodi);
 					}
-					if (value == null) {
-						if (taskInstanceId != null)
-							value = getVariableJbpmTascaValor(taskInstanceId, campCodi);
-						else if (processInstanceId != null)
-							value = getVariableJbpmProcesValor(processInstanceId, campCodi);
-					}
+					if (value == null && taskInstanceId != null)
+						value = getVariableJbpmTascaValor(taskInstanceId, campCodi);
+					if (value == null && processInstanceId != null)
+						value = getVariableJbpmProcesValor(processInstanceId, campCodi);
 				}
 			}
 			if (value != null)
