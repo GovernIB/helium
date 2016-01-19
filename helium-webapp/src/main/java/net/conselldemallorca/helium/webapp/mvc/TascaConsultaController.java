@@ -441,9 +441,9 @@ public class TascaConsultaController extends BaseController {
 		if (commandFiltre != null) {
 			TascaConsultaFiltreCommand filtre = (TascaConsultaFiltreCommand)commandFiltre;
 			if (filtre.getResponsable() != null && !"".equals(filtre.getResponsable())) {
-				List<PersonaDto> responsable = pluginService.findPersonaLikeNomSencer(filtre.getResponsable());
-				if (!responsable.isEmpty())
-					model.addAttribute("responsable", responsable.get(0));
+				PersonaDto responsable = pluginService.findPersonaAmbCodi(filtre.getResponsable());
+				if (responsable != null)
+					model.addAttribute("responsable", responsable);
 			}
 			model.addAttribute("commandFiltre", commandFiltre);
 		}
