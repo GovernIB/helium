@@ -157,9 +157,16 @@ public class TascaService {
 			String expedientNumero,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques personals", "consulta");
+		
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		
 		PaginaLlistatDto resposta = findTasquesFiltre(
 				entornId,
-				usuari,
+				usuariBo,
 				null,
 				null,
 				null,
@@ -327,9 +334,16 @@ public class TascaService {
 			String sort,
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES PERSONA", "consulta");
+		
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		
 		PaginaLlistatDto resposta = findTasquesFiltre(
 				entornId,
-				usuari,
+				usuariBo,
 				null,
 				titol,
 				expedientTitol,
@@ -573,9 +587,16 @@ public class TascaService {
 			String sort,
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES GRUP", "consulta");
+		
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		
 		PaginaLlistatDto resposta = findTasquesFiltre(
 				entornId,
-				usuari,
+				usuariBo,
 				null,
 				titol,
 				expedientTitol,
@@ -710,8 +731,10 @@ public class TascaService {
 			String sort,
 			boolean asc) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
-		boolean incloureTasquesPersona = true;
-		boolean incloureTasquesGrup = true;
+		
+		boolean incloureTasquesPersona = (MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_PERSONALS.equals(mostrarTasques) || MostrarTasquesDto.MOSTRAR_TASQUES_TOTS.equals(mostrarTasques));
+		boolean incloureTasquesGrup = (MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_GROUPS.equals(mostrarTasques) || MostrarTasquesDto.MOSTRAR_TASQUES_TOTS.equals(mostrarTasques));
+		
 		PaginaLlistatDto resposta = findTasquesFiltre(
 				entornId,
 				(responsable != null && !responsable.isEmpty()) ? responsable : null,
@@ -873,9 +896,16 @@ public class TascaService {
 			String expedientNumero,
 			boolean perTramitacio) {
 		mesuresTemporalsHelper.mesuraIniciar("Obtenir tasques grup", "consulta");
+		
+		String usuariBo = usuari;
+		if (usuariBo == null) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			usuariBo = auth.getName();
+		}
+		
 		PaginaLlistatDto resposta = findTasquesFiltre(
 				entornId,
-				usuari,
+				usuariBo,
 				null,
 				null,
 				null,
@@ -1877,11 +1907,11 @@ public class TascaService {
 						entornId.toString()));
 		final Timer.Context contextTotal = timerTotal.time();
 		try {
-			String usuariBo = usuari;
-			if (usuariBo == null) {
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				usuariBo = auth.getName();
-			}
+//			String usuariBo = usuari;
+//			if (usuariBo == null) {
+//				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//				usuariBo = auth.getName();
+//			}
 			final Timer timerTascaIds = metricRegistry.timer(
 					MetricRegistry.name(
 							TascaService.class,
@@ -1894,7 +1924,7 @@ public class TascaService {
 				// Consulta els expedients de l'entorn que compleixen el filtre
 				taskIds = jbpmDao.tascaFindByFiltre(
 						entornId,
-						usuariBo,
+						usuari,
 						taskName,
 						titol,
 						null,

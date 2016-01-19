@@ -104,13 +104,23 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 				taskQuerySb.append("ti.actorId is not null and ti.actorId = :actorId ");
 			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("ti.actorId is null and pa.actorId = :actorId ");
+			} else {
+				taskQuerySb.append("ti.id is not null ");
 			}
 		} else {
 			taskQuerySb.append(
 					"from " +
 					"    org.jbpm.taskmgmt.exe.TaskInstance ti " +
-					"where " +
-					"    ti.id is not null ");
+					"where ");
+			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
+			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is not null ");
+			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
+				taskQuerySb.append("ti.actorId is null and exists elements(ti.pooledActors) ");
+			} else {
+				taskQuerySb.append("ti.id is not null ");
+			}
 		}
 		if (nomesPendents) {
 			taskQuerySb.append("and ti.isSuspended = false and ti.isOpen = true ");
