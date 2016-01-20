@@ -86,9 +86,8 @@ public class PaginacioHelper {
 		}
 		return dto;
 	}
-
 	@SuppressWarnings("unchecked")
-	public static <T> PaginaDto<T> toPaginaDto(Page<?> page) {
+	public <T> PaginaDto<T> toPaginaDto(Page<?> page) {
 		PaginaDto<T> dto = new PaginaDto<T>();
 		dto.setNumero(page.getNumber());
 		dto.setTamany(page.getSize());
@@ -99,7 +98,50 @@ public class PaginacioHelper {
 		dto.setPosteriors(page.hasNextPage());
 		dto.setDarrera(page.isLastPage());
 		if (page.hasContent()) {
-			dto.setContingut((List<T>) page.getContent());
+			dto.setContingut((List<T>)page.getContent());
+		}
+		return dto;
+	}
+
+	public <T> PaginaDto<T> toPaginaDto(
+			List<T> elements,
+			int elementsTotal,
+			PaginacioParamsDto paginacioParams) {
+		PaginaDto<T> dto = new PaginaDto<T>();
+		int paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
+		dto.setNumero(paginacioParams.getPaginaNum());
+		dto.setTamany(paginacioParams.getPaginaTamany());
+		dto.setTotal(paginesTotal);
+		dto.setElementsTotal(elementsTotal);
+		dto.setAnteriors(paginacioParams.getPaginaNum() > 0);
+		dto.setPrimera(paginacioParams.getPaginaNum() == 0);
+		dto.setPosteriors(paginacioParams.getPaginaNum() < paginesTotal - 1);
+		dto.setDarrera(paginacioParams.getPaginaNum() == paginesTotal - 1);
+		if (elements != null && elements.size() > 0) {
+			dto.setContingut(elements);
+		}
+		return dto;
+	}
+	public <T> PaginaDto<T> toPaginaDto(
+			List<T> elements,
+			int elementsTotal,
+			PaginacioParamsDto paginacioParams,
+			Class<T> targetType) {
+		PaginaDto<T> dto = new PaginaDto<T>();
+		int paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
+		dto.setNumero(paginacioParams.getPaginaNum());
+		dto.setTamany(paginacioParams.getPaginaTamany());
+		dto.setTotal(paginesTotal);
+		dto.setElementsTotal(elementsTotal);
+		dto.setAnteriors(paginacioParams.getPaginaNum() > 0);
+		dto.setPrimera(paginacioParams.getPaginaNum() == 0);
+		dto.setPosteriors(paginacioParams.getPaginaNum() < paginesTotal - 1);
+		dto.setDarrera(paginacioParams.getPaginaNum() == paginesTotal - 1);
+		if (elements != null && elements.size() > 0) {
+			dto.setContingut(
+					conversioTipusHelper.convertirList(
+							elements,
+							targetType));
 		}
 		return dto;
 	}

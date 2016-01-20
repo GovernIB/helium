@@ -180,12 +180,11 @@ public class ExpedientServiceBean implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesAmbTasquesActives,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			MostrarAnulatsDto mostrarAnulats,
-			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesGrup, 
-			PaginacioParamsDto paginacioParams) throws Exception {
+			PaginacioParamsDto paginacioParams) {
 		return delegate.findAmbFiltrePaginat(
 				entornId,
 				expedientTipusId,
@@ -200,11 +199,10 @@ public class ExpedientServiceBean implements ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				nomesAmbTasquesActives,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
 				nomesAlertes,
 				mostrarAnulats,
-				mostrarTasquesPersonals, 
-				mostrarTasquesGrup, 
 				paginacioParams);
 	}
 
@@ -224,11 +222,10 @@ public class ExpedientServiceBean implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesAmbTasquesActives,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
-			MostrarAnulatsDto mostrarAnulats,
-			boolean mostrarTasquesPersonals, 
-			boolean mostrarTasquesGrup) {
+			MostrarAnulatsDto mostrarAnulats) {
 		return delegate.findIdsAmbFiltre(
 				entornId,
 				expedientTipusId,
@@ -243,11 +240,10 @@ public class ExpedientServiceBean implements ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				nomesAmbTasquesActives,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
 				nomesAlertes,
-				mostrarAnulats,
-				mostrarTasquesPersonals,
-				mostrarTasquesGrup);
+				mostrarAnulats);
 	}
 
 	@Override
@@ -274,8 +270,14 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean permisosVerOtrosUsuarios, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
-		return delegate.findTasquesPendents(id, permisosVerOtrosUsuarios, nomesMeves, nomesTasquesPersonals, nomesTasquesGrup);
+	public List<ExpedientTascaDto> findTasquesPendents(
+			Long expedientId,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
+		return delegate.findTasquesPendents(
+				expedientId,
+				nomesTasquesPersonals,
+				nomesTasquesGrup);
 	}
 
 	@Override

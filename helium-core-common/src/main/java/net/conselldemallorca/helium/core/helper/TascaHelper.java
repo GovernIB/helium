@@ -438,15 +438,10 @@ public class TascaHelper {
 			String processInstanceId,
 			Expedient expedient,
 			boolean permisosVerOtrosUsuarios,
-			boolean nomesMeves,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
-		if (nomesMeves) {
-			permisosVerOtrosUsuarios = false;
-			nomesTasquesGrup = false;
-		}
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
 				ExpedientTascaDto tasca = getExpedientTascaDto(task, expedient, true);

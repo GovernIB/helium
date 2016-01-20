@@ -27,6 +27,8 @@ import org.springframework.data.repository.query.Param;
  */
 public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 
+	List<Expedient> findByIdIn(Collection<Long> id);
+
 	Expedient findByProcessInstanceId(String processInstanceId);
 
 	Expedient findByEntornIdAndTipusIdAndNumero(

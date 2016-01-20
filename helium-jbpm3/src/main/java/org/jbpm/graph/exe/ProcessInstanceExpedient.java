@@ -28,8 +28,15 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private Date dataFi;
 	private long entornId;
 	private ProcessInstanceExpedientTipus tipus;
+	private Long estatId;
+	private Double geoPosX;
+	private Double geoPosY;
+	private String geoReferencia;
+	private boolean anulat;
+	private String errorDesc;
 	private String processInstanceId;
-	private boolean ambRetroaccio;
+
+
 
 	public long getId() {
 		return id;
@@ -79,17 +86,47 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	public void setTipus(ProcessInstanceExpedientTipus tipus) {
 		this.tipus = tipus;
 	}
+	public Long getEstatId() {
+		return estatId;
+	}
+	public void setEstatId(Long estatId) {
+		this.estatId = estatId;
+	}
+	public Double getGeoPosX() {
+		return geoPosX;
+	}
+	public void setGeoPosX(Double geoPosX) {
+		this.geoPosX = geoPosX;
+	}
+	public Double getGeoPosY() {
+		return geoPosY;
+	}
+	public void setGeoPosY(Double geoPosY) {
+		this.geoPosY = geoPosY;
+	}
+	public String getGeoReferencia() {
+		return geoReferencia;
+	}
+	public void setGeoReferencia(String geoReferencia) {
+		this.geoReferencia = geoReferencia;
+	}
+	public boolean isAnulat() {
+		return anulat;
+	}
+	public void setAnulat(boolean anulat) {
+		this.anulat = anulat;
+	}
+	public String getErrorDesc() {
+		return errorDesc;
+	}
+	public void setErrorDesc(String errorDesc) {
+		this.errorDesc = errorDesc;
+	}
 	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
-	}
-	public boolean isAmbRetroaccio() {
-		return ambRetroaccio;
-	}
-	public void setAmbRetroaccio(boolean ambRetroaccio) {
-		this.ambRetroaccio = ambRetroaccio;
 	}
 
 	@Transient

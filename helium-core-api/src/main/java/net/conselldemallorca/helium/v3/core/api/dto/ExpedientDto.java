@@ -89,8 +89,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private PersonaDto iniciadorPersona;
 	private PersonaDto responsablePersona;
 	
-	private String nomEstat;
-	
 	private PermisDto permisos;
 	private boolean usuariActualRead;
 
@@ -452,13 +450,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 				+ ", responsablePersona=" + responsablePersona + "]";
 	}
 
-	public String getNomEstat() {
-		return nomEstat;
-	}
-
-	public void setNomEstat(String nomEstat) {
-		this.nomEstat = nomEstat;
-	}
 	public boolean isAmbRetroaccio() {
 		return ambRetroaccio;
 	}

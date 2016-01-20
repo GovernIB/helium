@@ -100,22 +100,17 @@ public class ExpedientTascaController extends BaseExpedientController {
 		return "v3/procesTasques";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesMeves}/{nomesTasquesPersonals}/{nomesTasquesGrup}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesTasquesPersonals}/{nomesTasquesGrup}", method = RequestMethod.GET)
 	public String tasquesPendents(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable boolean nomesMeves,
 			@PathVariable boolean nomesTasquesPersonals,
 			@PathVariable boolean nomesTasquesGrup,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 		model.addAttribute(
 				"tasques",
 				expedientService.findTasquesPendents(
 						expedientId,
-						permisosVerOtrosUsuarios,
-						nomesMeves,
 						nomesTasquesPersonals,
 						nomesTasquesGrup));
 		model.addAttribute(

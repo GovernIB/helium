@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,7 +69,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientHelium;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
@@ -86,6 +86,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -849,7 +850,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientDto> findAmbFiltrePaginat (
+	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -863,14 +864,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesMeves,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			MostrarAnulatsDto mostrarAnulats,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, 
-			PaginacioParamsDto paginacioParams) throws Exception {
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
+			PaginacioParamsDto paginacioParams) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients paginada (" +
 				"entornId=" + entornId + ", " +
@@ -886,7 +884,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
-				"nomesMeves=" + nomesMeves + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
@@ -939,127 +938,65 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION},
 				auth);
-		if (tipusPermesos.isEmpty())
-			throw new Exception(messageHelper.getMessage("error.expedientService.noExisteix.tipus"));
-		
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
-		// Obté la llista d'ids d'expedient de l'entorn actual que
-		// tenen alguna tasca activa per a l'usuari actual.
-		// Per evitar la limitació d'Oracle que impedeix més de 1000
-		// elements com a paràmetres de l'operador IN cream varis
-		// conjunts d'ids.
-		Set<String> rootProcessInstanceIdsAmbTasques1 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques2 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques3 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques4 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques5 = null;
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
-		Page<ExpedientHelium> paginaResultats = null;
-		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
-		if (filtreTasques) {
-			// Fa la consulta
-			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
-					entorn,
-					tipusPermesos,
-					(expedientTipus == null),
-					expedientTipus,
-					(titol == null),
-					titol,
-					(numero == null),
-					numero,
-					(dataInici1 == null),
-					dataInici1,
-					(dataInici2 == null),
-					dataInici2,
-					EstatTipusDto.INICIAT.equals(estatTipus),
-					EstatTipusDto.FINALITZAT.equals(estatTipus),
-					(!EstatTipusDto.CUSTOM.equals(estatTipus) || estat == null),
-					estat,
-					(geoPosX == null),
-					geoPosX,
-					(geoPosY == null),
-					geoPosY,
-					(geoReferencia == null),
-					geoReferencia,
-					MostrarAnulatsDto.SI.equals(mostrarAnulats),
-					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-					nomesAlertes);
-			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
-					auth.getName(),
-					idsInstanciesProces,
-					nomesMeves,
-					nomesTasquesPersonals,
-					nomesTasquesGrup);
-			int index = 0;
-			for (String id: ids) {
-				if (index == 0)
-					rootProcessInstanceIdsAmbTasques1 = new HashSet<String>();
-				if (index == 1000)
-					rootProcessInstanceIdsAmbTasques2 = new HashSet<String>();
-				if (index == 2000)
-					rootProcessInstanceIdsAmbTasques3 = new HashSet<String>();
-				if (index == 3000)
-					rootProcessInstanceIdsAmbTasques4 = new HashSet<String>();
-				if (index == 4000)
-					rootProcessInstanceIdsAmbTasques5 = new HashSet<String>();
-				if (index < 1000)
-					rootProcessInstanceIdsAmbTasques1.add(id);
-				else if (index < 2000)
-					rootProcessInstanceIdsAmbTasques2.add(id);
-				else if (index < 3000)
-					rootProcessInstanceIdsAmbTasques3.add(id);
-				else if (index < 4000)
-					rootProcessInstanceIdsAmbTasques4.add(id);
-				else
-					rootProcessInstanceIdsAmbTasques5.add(id);
-				index++;
+		List<Long> tipusIdPermesos = new ArrayList<Long>();
+		for (ExpedientTipus tipus: tipusPermesos) {
+			tipusIdPermesos.add(tipus.getId());
+		}
+		// Calcula l'ordenació
+		String ordre = null;
+		if (!paginacioParams.getOrdres().isEmpty()) {
+			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
+			if ("identificador".equals(ordreDto.getCamp())) {
+				ordre = "identificador";
+			} else if ("tipus.nom".equals(ordreDto.getCamp())) {
+				ordre = "tipus";
+			} else if ("dataInici".equals(ordreDto.getCamp())) {
+				ordre = "dataInici";
+			} else if ("dataFi".equals(ordreDto.getCamp())) {
+				ordre = "dataFi";
+			} else if ("estat.nom".equals(ordreDto.getCamp())) {
+				ordre = "estat";
 			}
 		}
-		// Fa la consulta
-		paginaResultats = expedientHeliumRepository.findByFiltreGeneralPaginat(
-				entorn,
-				tipusPermesos,
-				(expedientTipus == null),
-				expedientTipus,
-				(titol == null),
+		// Executa la consulta amb paginació
+		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+				entornId,
+				auth.getName(),
+				tipusIdPermesos,
 				titol,
-				(numero == null),
 				numero,
-				(dataInici1 == null),
+				expedientTipusId,
 				dataInici1,
-				(dataInici2 == null),
 				dataInici2,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
 				EstatTipusDto.INICIAT.equals(estatTipus),
 				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				(!EstatTipusDto.CUSTOM.equals(estatTipus) || estat == null),
-				estat,
-				(geoPosX == null),
-				geoPosX,
-				(geoPosY == null),
-				geoPosY,
-				(geoReferencia == null),
-				geoReferencia,
-				filtreTasques,
-				rootProcessInstanceIdsAmbTasques1,
-				rootProcessInstanceIdsAmbTasques2,
-				rootProcessInstanceIdsAmbTasques3,
-				rootProcessInstanceIdsAmbTasques4,
-				rootProcessInstanceIdsAmbTasques5,
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),
 				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
-				paginacioHelper.toSpringDataPageable(paginacioParams));			
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
-		PaginaDto<ExpedientDto> resposta = paginacioHelper.toPaginaDto(
-				paginaResultats,
+				nomesTasquesPersonals || nomesTasquesGrup,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				false, //permesTasquesAltresUsuaris,
+				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
+				paginacioParams.getPaginaTamany(),
+				ordre,
+				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
+				false);
+		// Retorna la pàgina amb la resposta
+		List<ExpedientDto> expedients = conversioTipusHelper.convertirList(
+				expedientRepository.findByIdIn(expedientIds.getIds()),
 				ExpedientDto.class);
-		expedientHelper.omplirPermisosExpedients(resposta.getContingut());
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "3");
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
-		return resposta;
+		// Després de la consulta els expedients es retornen en ordre invers
+		Collections.reverse(expedients);
+		expedientHelper.omplirPermisosExpedients(expedients);
+		return paginacioHelper.toPaginaDto(
+				expedients,
+				expedientIds.getCount(),
+				paginacioParams);
 	}
 
 	@Transactional(readOnly = true)
@@ -1078,13 +1015,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesMeves,
-			boolean nomesAlertes,
-			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) {
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
+			boolean nomesTasquesGrup,
+			boolean nomesAlertes,
+			MostrarAnulatsDto mostrarAnulats) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients només ids (" +
 				"entornId=" + entornId + ", " +
@@ -1100,7 +1034,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
-				"nomesMeves=" + nomesMeves + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
@@ -1153,116 +1086,39 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION},
 				auth);
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "0");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
-		// Obté la llista d'ids d'expedient de l'entorn actual que
-		// tenen alguna tasca activa per a l'usuari actual.
-		// Per evitar la limitació d'Oracle que impedeix més de 1000
-		// elements com a paràmetres de l'operador IN cream varis
-		// conjunts d'ids.
-		Set<String> rootProcessInstanceIdsAmbTasques1 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques2 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques3 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques4 = null;
-		Set<String> rootProcessInstanceIdsAmbTasques5 = null;
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
-		mesuresTemporalsHelper.mesuraIniciar("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "2");
-		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;
-		if (filtreTasques) {
-			// Fa la consulta
-			List<String> idsInstanciesProces = expedientRepository.findProcessInstanceIdsByFiltreGeneral(
-					entorn,
-					tipusPermesos,
-					(expedientTipus == null),
-					expedientTipus,
-					(titol == null),
-					titol,
-					(numero == null),
-					numero,
-					(dataInici1 == null),
-					dataInici1,
-					(dataInici2 == null),
-					dataInici2,
-					EstatTipusDto.INICIAT.equals(estatTipus),
-					EstatTipusDto.FINALITZAT.equals(estatTipus),
-					(!EstatTipusDto.CUSTOM.equals(estatTipus) || estat == null),
-					estat,
-					(geoPosX == null),
-					geoPosX,
-					(geoPosY == null),
-					geoPosY,
-					(geoReferencia == null),
-					geoReferencia,
-					MostrarAnulatsDto.SI.equals(mostrarAnulats),
-					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-					nomesAlertes);
-			List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
-					auth.getName(),
-					idsInstanciesProces,
-					nomesMeves,
-					nomesTasquesPersonals,
-					nomesTasquesGrup);
-			int index = 0;
-			for (String id: ids) {
-				if (index == 0)
-					rootProcessInstanceIdsAmbTasques1 = new HashSet<String>();
-				if (index == 1000)
-					rootProcessInstanceIdsAmbTasques2 = new HashSet<String>();
-				if (index == 2000)
-					rootProcessInstanceIdsAmbTasques3 = new HashSet<String>();
-				if (index == 3000)
-					rootProcessInstanceIdsAmbTasques4 = new HashSet<String>();
-				if (index == 4000)
-					rootProcessInstanceIdsAmbTasques5 = new HashSet<String>();
-				if (index < 1000)
-					rootProcessInstanceIdsAmbTasques1.add(id);
-				else if (index < 2000)
-					rootProcessInstanceIdsAmbTasques2.add(id);
-				else if (index < 3000)
-					rootProcessInstanceIdsAmbTasques3.add(id);
-				else if (index < 4000)
-					rootProcessInstanceIdsAmbTasques4.add(id);
-				else
-					rootProcessInstanceIdsAmbTasques5.add(id);
-				index++;
-			}
+		List<Long> tipusIdPermesos = new ArrayList<Long>();
+		for (ExpedientTipus tipus: tipusPermesos) {
+			tipusIdPermesos.add(tipus.getId());
 		}
-		// Fa la consulta
-		List<Long> listaIds = expedientRepository.findIdsByFiltreGeneral(
-				entorn,
-				tipusPermesos,
-				(expedientTipus == null),
-				expedientTipus,
-				(titol == null),
+		// Executa la consulta amb paginació
+		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+				entornId,
+				auth.getName(),
+				tipusIdPermesos,
 				titol,
-				(numero == null),
 				numero,
-				(dataInici1 == null),
+				expedientTipusId,
 				dataInici1,
-				(dataInici2 == null),
 				dataInici2,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
 				EstatTipusDto.INICIAT.equals(estatTipus),
 				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				(!EstatTipusDto.CUSTOM.equals(estatTipus) || estat == null),
-				estat,
-				(geoPosX == null),
-				geoPosX,
-				(geoPosY == null),
-				geoPosY,
-				(geoReferencia == null),
-				geoReferencia,
-				filtreTasques,
-				rootProcessInstanceIdsAmbTasques1,
-				rootProcessInstanceIdsAmbTasques2,
-				rootProcessInstanceIdsAmbTasques3,
-				rootProcessInstanceIdsAmbTasques4,
-				rootProcessInstanceIdsAmbTasques5,
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats)
-				);
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta", null, null, "1");
-		mesuresTemporalsHelper.mesuraCalcular("CONSULTA GENERAL EXPEDIENTS v3", "consulta");
-		return listaIds;
+				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+				nomesAlertes,
+				nomesTasquesPersonals || nomesTasquesGrup,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				false, //permesTasquesAltresUsuaris,
+				0,
+				-1,
+				null,
+				false,
+				false);
+		return expedientIds.getIds();
 	}
 
 	@Override
@@ -1523,23 +1379,35 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean permisosVerOtrosUsuarios, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup) {
+	public List<ExpedientTascaDto> findTasquesPendents(
+			Long expedientId,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
 		logger.debug("Consulta de tasques pendents de l'expedient (" +
-				"id=" + id + ")");
+				"id=" + expedientId + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
+				expedientId,
 				true,
 				false,
 				false,
 				false);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean tasquesAltresUsuaris = permisosHelper.isGrantedAny(
+					expedient.getTipus().getId(),
+					ExpedientTipus.class,
+					new Permission[] {
+						ExtendedPermission.REASSIGNMENT,
+						ExtendedPermission.ADMINISTRATION},
+					auth);
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		for (JbpmProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
 			resposta.addAll(
 					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 							jpi.getId(),
 							expedient,
-							permisosVerOtrosUsuarios,
-							nomesMeves,
+							tasquesAltresUsuaris,
 							nomesTasquesPersonals,
 							nomesTasquesGrup));
 		}

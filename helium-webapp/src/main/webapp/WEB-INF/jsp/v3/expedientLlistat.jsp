@@ -71,7 +71,7 @@ $(document).ready(function() {
 					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
 				} else {
 					var jqxhr = $.ajax({
-						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#nomesMeves').val()+"/"+$('#nomesTasquesPersonals').val()+"/"+$('#nomesTasquesGrup').val(),
+						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#nomesTasquesPersonals').val()+"/"+$('#nomesTasquesGrup').val(),
 						beforeSend: function(xhr) {
 							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
 						}
@@ -133,7 +133,6 @@ $(document).ready(function() {
 	actualizarBotonesFiltros();
 });
 function actualizarBotonesFiltros(id) {
-	$('#nomesMevesCheck').attr('disabled', false);
 	$('#nomesTasquesPersonalsCheck').attr('disabled', false);
 	$('#nomesTasquesGrupCheck').attr('disabled', false);
 
@@ -241,7 +240,6 @@ function refrescarAlertes(e) {
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
-				<form:hidden path="nomesMeves"/>
 				
 				<button style="display:none" type="submit" name="accio" value="consultar"></button>
 				
@@ -273,14 +271,18 @@ function refrescarAlertes(e) {
 						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
 					</script>
 				</th>
-				<th data-rdt-property="titol" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
+				<th data-rdt-property="identificador" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
 				<th data-rdt-property="tipus.nom" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/></th>
 				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.iniciat"/></th>
 				<th data-rdt-property="dataFi" data-rdt-type="datetime" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.finalitzat"/></th>
-				<th data-rdt-property="nomEstat" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
+				<th data-rdt-property="estat.nom" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
 					<spring:message code="expedient.llistat.columna.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
-					{{:nomEstat}}
+					{{if dataFi}}
+						<spring:message code="comu.estat.finalitzat"/>
+					{{else}}
+						{{if estat_nom}}{{:estat_nom}}{{else}}<spring:message code="comu.estat.iniciat"/>{{/if}}
+					{{/if}}
 					<div class="pull-right">
 						{{if errorsIntegracions}}
 							<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span> </span>

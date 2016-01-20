@@ -172,7 +172,6 @@ function actualizarBotonesFiltros(id) {
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
-				<form:hidden path="nomesMeves"/>
 				
 				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
 				
