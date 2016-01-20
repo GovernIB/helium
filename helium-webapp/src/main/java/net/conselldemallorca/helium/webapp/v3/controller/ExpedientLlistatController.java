@@ -11,22 +11,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
-import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +27,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador per al llistat d'expedients.
@@ -88,42 +86,27 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
-		
-		DatatablesPagina<ExpedientDto> result = null;
-		try {
-			result = PaginacioHelper.getPaginaPerDatatables(
-					request,
-					expedientService.findAmbFiltrePaginat(
-							entornActual.getId(),
-							filtreCommand.getExpedientTipusId(),
-							filtreCommand.getTitol(),
-							filtreCommand.getNumero(),
-							filtreCommand.getDataIniciInicial(),
-							filtreCommand.getDataIniciFinal(),
-							filtreCommand.getDataFiInicial(),
-							filtreCommand.getDataFiFinal(),
-							filtreCommand.getEstatTipus(),
-							filtreCommand.getEstatId(),
-							filtreCommand.getGeoPosX(),
-							filtreCommand.getGeoPosY(),
-							filtreCommand.getGeoReferencia(),
-							filtreCommand.isNomesMeves(),
-							filtreCommand.isNomesAlertes(),
-							filtreCommand.getMostrarAnulats(),
-							filtreCommand.isNomesTasquesPersonals(),
-							filtreCommand.isNomesTasquesGrup(),
-							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
-		} catch (Exception e) {
-			if (entornActual == null)
-				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
-			else {
-				MissatgesHelper.error(request, e.getMessage());
-				logger.error("No se pudo obtener la lista de expedientes", e);
-			}
-			result = PaginacioHelper.getPaginaPerDatatables(
-					request,
-					new PaginaDto<ExpedientDto>());
-		}
+		DatatablesPagina<ExpedientDto> result = PaginacioHelper.getPaginaPerDatatables(
+				request,
+				expedientService.findAmbFiltrePaginat(
+						entornActual.getId(),
+						filtreCommand.getExpedientTipusId(),
+						filtreCommand.getTitol(),
+						filtreCommand.getNumero(),
+						filtreCommand.getDataIniciInicial(),
+						filtreCommand.getDataIniciFinal(),
+						filtreCommand.getDataFiInicial(),
+						filtreCommand.getDataFiFinal(),
+						filtreCommand.getEstatTipus(),
+						filtreCommand.getEstatId(),
+						filtreCommand.getGeoPosX(),
+						filtreCommand.getGeoPosY(),
+						filtreCommand.getGeoReferencia(),
+						filtreCommand.isNomesTasquesPersonals(),
+						filtreCommand.isNomesTasquesGrup(),
+						filtreCommand.isNomesAlertes(),
+						filtreCommand.getMostrarAnulats(),
+						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		return result;
 	}
 	
@@ -173,11 +156,10 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						filtreCommand.getGeoPosX(),
 						filtreCommand.getGeoPosY(),
 						filtreCommand.getGeoReferencia(),
-						filtreCommand.isNomesMeves(),
-						filtreCommand.isNomesAlertes(),
-						filtreCommand.getMostrarAnulats(),
 						filtreCommand.isNomesTasquesPersonals(),
-						filtreCommand.isNomesTasquesGrup());		
+						filtreCommand.isNomesTasquesGrup(),
+						filtreCommand.isNomesAlertes(),
+						filtreCommand.getMostrarAnulats());		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
 		if (seleccio == null) {

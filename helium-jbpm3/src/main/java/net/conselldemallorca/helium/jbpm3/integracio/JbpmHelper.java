@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,6 +61,7 @@ import net.conselldemallorca.helium.jbpm3.command.EvaluateExpressionCommand;
 import net.conselldemallorca.helium.jbpm3.command.EvaluateScriptCommand;
 import net.conselldemallorca.helium.jbpm3.command.ExecuteActionCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindArrivingNodeNamesCommand;
+import net.conselldemallorca.helium.jbpm3.command.FindExpedientIdsFiltreCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
@@ -169,6 +171,66 @@ public class JbpmHelper {
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		return processInstance.getExpedient();
 	}
+
+	public LlistatIds expedientFindByFiltre(
+			Long entornId,
+			String actorId,
+			Collection<Long> tipusIdPermesos,
+			String titol,
+			String numero,
+			Long tipusId,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Long estatId,
+			Double geoPosX,
+			Double geoPosY,
+			String geoReferencia,
+			boolean nomesIniciats,
+			boolean nomesFinalitzats,
+			boolean mostrarAnulats,
+			boolean mostrarNomesAnulats,
+			boolean nomesAlertes,
+			boolean nomesAmbTasquesPendents,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean permesTasquesAltresUsuaris,
+			int firstResult,
+			int maxResults,
+			String sort,
+			boolean asc,
+			boolean nomesCount) {
+		FindExpedientIdsFiltreCommand command = new FindExpedientIdsFiltreCommand(
+				entornId,
+				actorId,
+				tipusIdPermesos,
+				titol,
+				numero,
+				tipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				estatId,
+				geoPosX,
+				geoPosY,
+				geoReferencia,
+				nomesIniciats,
+				nomesFinalitzats,
+				mostrarAnulats,
+				mostrarNomesAnulats,
+				nomesAlertes,
+				nomesAmbTasquesPendents,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				permesTasquesAltresUsuaris,
+				firstResult,
+				maxResults,
+				sort,
+				asc,
+				nomesCount);
+		return (LlistatIds)commandService.execute(command);
+	}
+
+	
+
 
 	public JbpmProcessDefinition desplegar(
 			String nomArxiu,

@@ -37,7 +37,6 @@ public class ExpedientConsultaCommand {
 	private boolean tramitacioMassivaActivada = false;
 	private boolean consultaRealitzada = false;
 	
-	private boolean nomesMeves;
 	private boolean nomesAlertes;
 	private MostrarAnulatsDto mostrarAnulats;
 	
@@ -112,12 +111,6 @@ public class ExpedientConsultaCommand {
 	}
 	public void setGeoPosY(Double geoPosY) {
 		this.geoPosY = geoPosY;
-	}
-	public boolean isNomesMeves() {
-		return nomesMeves;
-	}
-	public void setNomesMeves(boolean nomesMeves) {
-		this.nomesMeves = nomesMeves;
 	}
 	public boolean isNomesTasquesPersonals() {
 		return nomesTasquesPersonals;

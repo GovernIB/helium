@@ -262,12 +262,11 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesMeves,
-			boolean nomesAlertes,
-			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			PaginacioParamsDto paginacioParams) throws Exception;
+			boolean nomesAlertes,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams);
 
 	/**
 	 * Consulta només ids d'expedient per entorn.
@@ -321,11 +320,10 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
-			boolean nomesMeves,
-			boolean nomesAlertes,
-			MostrarAnulatsDto mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup);
+			boolean nomesTasquesGrup,
+			boolean nomesAlertes,
+			MostrarAnulatsDto mostrarAnulats);
 
 	/**
 	 * Retorna l'arxiu amb la imatge de la definició de procés.
@@ -383,7 +381,10 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientTascaDto> findTasquesPendents(Long id, boolean permisosVerOtrosUsuarios, boolean nomesMeves, boolean nomesTasquesPersonals, boolean nomesTasquesGrup);
+	public List<ExpedientTascaDto> findTasquesPendents(
+			Long id,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup);
 
 	/**
 	 * Retorna la llista de dades d'una instància de procés de

@@ -89,8 +89,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private PersonaDto iniciadorPersona;
 	private PersonaDto responsablePersona;
 	
-	private String nomEstat;
-	
 	private PermisDto permisos;
 	private boolean usuariActualRead;
 
@@ -449,14 +447,6 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 		return "ExpedientDto [id=" + id + ", processInstanceId=" + processInstanceId + ", titol=" + titol + ", numero=" + numero + ", numeroDefault=" + numeroDefault + ", dataInici=" + dataInici + ", dataFi=" + dataFi + ", comentari=" + comentari + ", infoAturat=" + infoAturat + ", iniciadorTipus=" + iniciadorTipus + ", iniciadorCodi=" + iniciadorCodi + ", responsableCodi=" + responsableCodi + ", anulat=" + anulat + ", grupCodi=" + grupCodi + ", comentariAnulat=" + comentariAnulat + ", geoPosX=" + geoPosX + ", geoPosY=" + geoPosY + ", geoReferencia=" + geoReferencia + ", registreNumero=" + registreNumero + ", registreData=" + registreData + ", unitatAdministrativa=" + unitatAdministrativa + ", idioma=" + idioma + ", autenticat=" + autenticat + ", tramitadorNif=" + tramitadorNif
 				+ ", tramitadorNom=" + tramitadorNom + ", interessatNif=" + interessatNif + ", interessatNom=" + interessatNom + ", representantNif=" + representantNif + ", representantNom=" + representantNom + ", avisosHabilitats=" + avisosHabilitats + ", avisosEmail=" + avisosEmail + ", avisosMobil=" + avisosMobil + ", notificacioTelematicaHabilitada=" + notificacioTelematicaHabilitada + ", tramitExpedientIdentificador=" + tramitExpedientIdentificador + ", tramitExpedientClau=" + tramitExpedientClau + ", bantelEntradaNum=" + bantelEntradaNum + ", entorn=" + entorn + ", tipus=" + tipus + ", estatTipus=" + estatTipus + ", estat=" + estat + ", errorDesc=" + errorDesc + ", errorFull=" + errorFull + ", errorsIntegracions=" + errorsIntegracions + ", iniciadorPersona=" + iniciadorPersona
 				+ ", responsablePersona=" + responsablePersona + "]";
-	}
-
-	public String getNomEstat() {
-		return nomEstat;
-	}
-
-	public void setNomEstat(String nomEstat) {
-		this.nomEstat = nomEstat;
 	}
 
 	private static final long serialVersionUID = -9207907579002520198L;

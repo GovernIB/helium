@@ -12,7 +12,13 @@
 		<property name="dataInici" column="DATA_INICI" />
 		<property name="dataFi" column="DATA_FI" />
 		<property name="entornId" column="ENTORN_ID" />
-		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" />
+		<property name="estatId" column="ESTAT_ID" />
+		<property name="geoPosX" column="GEO_POSX" />
+		<property name="geoPosY" column="GEO_POSY" />
+		<property name="geoReferencia" column="GEO_REFERENCIA" />
+		<property name="anulat" column="ANULAT" />
+		<property name="errorDesc" column="ERROR_DESC" />
+		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
 		<many-to-one
 				name="tipus"
 				column="TIPUS_ID"
