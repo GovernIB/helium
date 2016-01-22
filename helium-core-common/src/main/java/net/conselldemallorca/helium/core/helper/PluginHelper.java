@@ -12,6 +12,9 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -60,6 +63,8 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlug
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -82,30 +87,29 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 @Component("pluginHelperV3")
 public class PluginHelper {
 
-	@Resource
-	private PortasignaturesRepository portasignaturesRepository;
+	private static final String CACHE_PERSONA_ID = "personaPluginCache";
 
 	@Resource
+	private PortasignaturesRepository portasignaturesRepository;
+	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Autowired
+	private CacheManager cacheManager;
+	@Autowired
+	private MonitorIntegracioHelper monitorIntegracioHelper;
 
 	private PersonesPlugin personesPlugin;
 	private boolean personesPluginEvaluat = false;
-
 	private TramitacioPlugin tramitacioPlugin;
 	private boolean tramitacioPluginEvaluat = false;
-
 	private RegistrePlugin registrePlugin;
 	private boolean registrePluginEvaluat = false;
-
 	private GestioDocumentalPlugin gestioDocumentalPlugin;
 	private boolean gestioDocumentalPluginEvaluat = false;
-
 	private PortasignaturesPlugin portasignaturesPlugin;
 	private boolean portasignaturesPluginEvaluat = false;
-
 	private CustodiaPlugin custodiaPlugin;
 	private boolean custodiaPluginEvaluat = false;
-
 	private SignaturaPlugin signaturaPlugin;
 	private boolean signaturaPluginEvaluat = false;
 
@@ -114,10 +118,22 @@ public class PluginHelper {
 	public List<PersonaDto> personaFindLikeNomSencer(String text) {
 		try {
 			List<DadesPersona> persones = getPersonesPlugin().findLikeNomSencer(text);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"Consulta d'usuaris amb like",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto("text", text));
 			if (persones == null)
 				return new ArrayList<PersonaDto>();
 			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
 		} catch (PersonesPluginException ex) {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"Consulta d'usuaris amb like",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					"El plugin ha retornat una excepció",
+					ex,
+					new IntegracioParametreDto("text", text));
 			logger.error(
 					"No s'han pogut consultar persones amb el text (text=" + text + ")",
 					ex);
@@ -128,18 +144,39 @@ public class PluginHelper {
 	}
 
 	public PersonaDto personaFindAmbCodi(String codi) {
-		try {
-			DadesPersona dadesPersona = getPersonesPlugin().findAmbCodi(codi);
-			return conversioTipusHelper.convertir(
-					dadesPersona,
-					PersonaDto.class);
-		} catch (PersonesPluginException ex) {
-			logger.error(
-					"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
-					ex);
-			throw new PluginException(
-					"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
-					ex);
+		Cache personaCache = cacheManager.getCache(CACHE_PERSONA_ID);
+		if (personaCache.get(codi) == null) {
+			try {
+				DadesPersona dadesPersona = getPersonesPlugin().findAmbCodi(codi);
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_PERSONA,
+						"Consulta d'usuari amb codi",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						new IntegracioParametreDto("codi", codi));
+				PersonaDto dto = conversioTipusHelper.convertir(
+						dadesPersona,
+						PersonaDto.class);
+				if (dto != null) {
+					personaCache.put(codi, dto);
+				}
+				return dto;
+			} catch (PersonesPluginException ex) {
+				monitorIntegracioHelper.addAccioError(
+						MonitorIntegracioHelper.INTCODI_PERSONA,
+						"Consulta d'usuari amb codi",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						"El plugin ha retornat una excepció",
+						ex,
+						new IntegracioParametreDto("codi", codi));
+				logger.error(
+						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
+						ex);
+				throw new PluginException(
+						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
+						ex);
+			}
+		} else {
+			return (PersonaDto)personaCache.get(codi).get();
 		}
 	}
 
@@ -155,39 +192,150 @@ public class PluginHelper {
 	public void tramitacioZonaperExpedientCrear(
 			ExpedientDto expedient,
 			ZonaperExpedientDto dadesExpedient) throws Exception {
-		PublicarExpedientRequest request = conversioTipusHelper.convertir(
-				dadesExpedient,
-				PublicarExpedientRequest.class);
-		getTramitacioPlugin().publicarExpedient(request);
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedientIdentificador",
+						dadesExpedient.getExpedientIdentificador()),
+				new IntegracioParametreDto(
+						"expedientClau",
+						dadesExpedient.getExpedientClau()),
+				new IntegracioParametreDto(
+						"unitatAdministrativa",
+						dadesExpedient.getUnitatAdministrativa()),
+				new IntegracioParametreDto(
+						"descripcio",
+						dadesExpedient.getDescripcio())
+		};
+		try {
+			PublicarExpedientRequest request = conversioTipusHelper.convertir(
+					dadesExpedient,
+					PublicarExpedientRequest.class);
+			getTramitacioPlugin().publicarExpedient(request);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Creació d'expedient",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
+		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'ha pogut crear l'expedient (" +
+					"expedientIdentificador=" + dadesExpedient.getExpedientIdentificador() + ", " +
+					"expedientClau=" + dadesExpedient.getExpedientClau() + ", " +
+					"unitatAdministrativa=" + dadesExpedient.getUnitatAdministrativa() + ", " +
+					"descripcio=" + dadesExpedient.getDescripcio() + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Creació d'expedient",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw new PluginException(
+					errorDescripcio,
+					ex);
+		}
 	}
 	public void tramitacioZonaperEventCrear(
 			Expedient expedient,
 			ZonaperEventDto dadesEvent) throws Exception {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedientIdentificador",
+						expedient.getTramitExpedientIdentificador()),
+				new IntegracioParametreDto(
+						"expedientClau",
+						expedient.getTramitExpedientClau()),
+				new IntegracioParametreDto(
+						"unitatAdministrativa",
+						expedient.getUnitatAdministrativa()),
+				new IntegracioParametreDto(
+						"interessatNif",
+						expedient.getInteressatNif()),
+				new IntegracioParametreDto(
+						"eventTitol",
+						dadesEvent.getTitol()),
+				new IntegracioParametreDto(
+						"eventText",
+						dadesEvent.getText())
+		};
 		if (expedient.getTramitExpedientIdentificador() == null || expedient.getTramitExpedientClau() == null)
-			throw new Exception("Abans s'ha de crear un expedient per a poder publicar un event");
+			throw new PluginException(
+					"Abans s'ha de crear un expedient per a poder publicar un event");
 		PublicarEventRequest request = new PublicarEventRequest();
 		request.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		request.setExpedientClau(expedient.getTramitExpedientClau());
 		request.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
-		request.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		request.setRepresentatNif(expedient.getInteressatNif());
 		request.setRepresentatNom(expedient.getInteressatNom());	
 		request.setEvent(
 				conversioTipusHelper.convertir(
 						dadesEvent,
-						Event.class));		
-		getTramitacioPlugin().publicarEvent(request);
+						Event.class));
+		try {
+			getTramitacioPlugin().publicarEvent(request);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Creació d'event",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
+		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'ha pogut crear l'event (" +
+					"expedientIdentificador=" + expedient.getTramitExpedientIdentificador() + ", " +
+					"expedientClau=" + expedient.getTramitExpedientClau() + ", " +
+					"unitatAdministrativa=" + expedient.getUnitatAdministrativa() + ", " +
+					"interessatNif=" + expedient.getInteressatNif() + ", " +
+					"eventTitol=" + dadesEvent.getTitol() + ", " +
+					"eventText=" + dadesEvent.getText() + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Creació d'event",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw new PluginException(
+					errorDescripcio,
+					ex);
+		}
 	}
 	public TramitDto tramitacioObtenirDadesTramit(
 			String numero,
 			String clau) {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"numero",
+						numero),
+				new IntegracioParametreDto(
+						"clau",
+						clau)
+		};
 		try {
 			ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
 			request.setNumero(numero);
 			request.setClau(clau);
 			DadesTramit dadesTramit = getTramitacioPlugin().obtenirDadesTramit(request);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir dades del tràmit",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
 			return toTramitDto(dadesTramit);
 		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'ha pogut obtenir la informació del tràmit (" +
+					"numero=" + numero + ", " +
+					"clau=" + clau + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir dades del tràmit",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
 			logger.error(
 					"No s'ha pogut obtenir la informació del tràmit (" +
 					"numero=" + numero + ", " +
@@ -203,22 +351,45 @@ public class PluginHelper {
 
 	public RespostaAnotacioRegistre tramitacioRegistrarNotificacio(
 			RegistreNotificacio registreNotificacio) {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedientIdentificador",
+						registreNotificacio.getDadesExpedient().getIdentificador()),
+				new IntegracioParametreDto(
+						"expedientClau",
+						registreNotificacio.getDadesExpedient().getClau()),
+				new IntegracioParametreDto(
+						"expedientUnitatAdministrativa",
+						registreNotificacio.getDadesExpedient().getUnitatAdministrativa()),
+				new IntegracioParametreDto(
+						"interessatNif",
+						registreNotificacio.getDadesInteressat().getNif()),
+				new IntegracioParametreDto(
+						"interessatNom",
+						registreNotificacio.getDadesInteressat().getNomAmbCognoms()),
+				new IntegracioParametreDto(
+						"assumpte",
+						registreNotificacio.getDadesNotificacio().getAssumpte())
+		};
 		try {
-			return getTramitacioPlugin().registrarNotificacio(registreNotificacio);
+			RespostaAnotacioRegistre resposta = getTramitacioPlugin().registrarNotificacio(registreNotificacio);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Registrar notificació",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
+			return resposta;
 		} catch (TramitacioPluginException ex) {
-			logger.error(
-					"No s'han pogut registrar la notificació (" +
+			String errorDescripcio = "No s'han pogut registrar la notificació (" +
 					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
 					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
 					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
-					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")",
+					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")";
+			logger.error(
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut registrar la notificació (" +
-					"expedientIdentificador=" + registreNotificacio.getDadesExpedient().getIdentificador() + ", " +
-					"expedientClau=" + registreNotificacio.getDadesExpedient().getClau() + ", " +
-					"oficinaOrganCodi=" + registreNotificacio.getDadesOficina().getOrganCodi() + ", " +
-					"oficinaCodi=" + registreNotificacio.getDadesOficina().getOficinaCodi() + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -226,15 +397,32 @@ public class PluginHelper {
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(
 			String registreNumero) {
 		try {
-			return getTramitacioPlugin().obtenirJustificantRecepcio(registreNumero);
+			RespostaJustificantRecepcio resposta = getTramitacioPlugin().obtenirJustificantRecepcio(registreNumero);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir justificant",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"registreNumero",
+							registreNumero));
+			return resposta;
 		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenir el justificant de recepció (" +
+					"registreNumero=" + registreNumero + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir justificant",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"registreNumero",
+							registreNumero));
 			logger.error(
-					"No s'han pogut obtenir el justificant de recepció (" +
-					"registreNumero=" + registreNumero + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut obtenir el justificant de recepció (" +
-					"registreNumero=" + registreNumero + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -242,100 +430,231 @@ public class PluginHelper {
 	public RespostaJustificantDetallRecepcio tramitacioObtenirJustificantDetall(
 			String registreNumero) {
 		try {
-			return getTramitacioPlugin().obtenirJustificantDetallRecepcio(registreNumero);
+			RespostaJustificantDetallRecepcio resposta = getTramitacioPlugin().obtenirJustificantDetallRecepcio(registreNumero);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir detall justificant",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"registreNumero",
+							registreNumero));
+			return resposta;
 		} catch (TramitacioPluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenir el detall del justificant de recepció (" +
+					"registreNumero=" + registreNumero + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
+					"Obtenir detall justificant",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"registreNumero",
+							registreNumero));
 			logger.error(
-					"No s'han pogut obtenir el detall del justificant de recepció (" +
-					"registreNumero=" + registreNumero + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut obtenir el detall del justificant de recepció (" +
-					"registreNumero=" + registreNumero + ")",
+					errorDescripcio,
 					ex);
 		}
-	}	
+	}
 
 	public RegistreIdDto registreAnotacioEntrada(
 			RegistreAnotacioDto anotacio) throws PluginException {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"organCodi",
+						anotacio.getOrganCodi()),
+				new IntegracioParametreDto(
+						"oficinaCodi",
+						anotacio.getOficinaCodi()),
+				new IntegracioParametreDto(
+						"entitatCodi",
+						anotacio.getEntitatCodi()),
+				new IntegracioParametreDto(
+						"unitatAdministrativa",
+						anotacio.getUnitatAdministrativa()),
+				new IntegracioParametreDto(
+						"interessatNif",
+						anotacio.getInteressatNif()),
+				new IntegracioParametreDto(
+						"assumpteExtracte",
+						anotacio.getAssumpteExtracte())
+		};
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarEntrada(
 					toRegistreEntrada(anotacio));
 			if (!resposta.isOk()) {
-				throw new PluginException(
-						"No s'han pogut registrar l'entrada (" +
+				String errorDescripcio = "No s'han pogut registrar l'entrada (" +
 						getDescripcioErrorRegistre(anotacio) +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
-						"errorDescripcio=" + resposta.getErrorDescripcio() + ")");
+						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";
+				monitorIntegracioHelper.addAccioError(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Anotació d'entrada",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						errorDescripcio,
+						parametres);
+				throw new PluginException(errorDescripcio);
 			} else {
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Anotació d'entrada",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
 				registreId.setNumero(resposta.getNumero());
 				registreId.setData(resposta.getData());
 				return registreId;
 			}
 		} catch (RegistrePluginException ex) {
+			String errorDescripcio = "No s'ha pogut registrar l'entrada (" +
+					getDescripcioErrorRegistre(anotacio) + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Anotació d'entrada",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
 			logger.error(
-					"No s'ha pogut registrar l'entrada (" +
-					getDescripcioErrorRegistre(anotacio) + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'ha pogut registrar l'entrada (" +
-					getDescripcioErrorRegistre(anotacio) + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
 	public RegistreIdDto registreAnotacioSortida(
 			RegistreAnotacioDto anotacio) throws PluginException {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"organCodi",
+						anotacio.getOrganCodi()),
+				new IntegracioParametreDto(
+						"oficinaCodi",
+						anotacio.getOficinaCodi()),
+				new IntegracioParametreDto(
+						"entitatCodi",
+						anotacio.getEntitatCodi()),
+				new IntegracioParametreDto(
+						"unitatAdministrativa",
+						anotacio.getUnitatAdministrativa()),
+				new IntegracioParametreDto(
+						"interessatNif",
+						anotacio.getInteressatNif()),
+				new IntegracioParametreDto(
+						"assumpteExtracte",
+						anotacio.getAssumpteExtracte())
+		};
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarSortida(
 					toRegistreSortida(anotacio));
 			if (!resposta.isOk()) {
-				throw new PluginException(
-						"No s'han pogut registrar la sortida (" +
-						getDescripcioErrorRegistre(anotacio) + ", " +
+				String errorDescripcio = "No s'han pogut registrar la sortida (" +
+						getDescripcioErrorRegistre(anotacio) +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
-						"errorDescripcio=" + resposta.getErrorDescripcio() + ")");
+						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";
+				monitorIntegracioHelper.addAccioError(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Anotació de sortida",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						errorDescripcio,
+						parametres);
+				throw new PluginException(errorDescripcio);
 			} else {
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Anotació de sortida",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
 				registreId.setNumero(resposta.getNumero());
 				registreId.setData(resposta.getData());
 				return registreId;
 			}
 		} catch (RegistrePluginException ex) {
+			String errorDescripcio = "No s'ha pogut registrar la sortida (" +
+					getDescripcioErrorRegistre(anotacio) + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Anotació de sortida",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
 			logger.error(
-					"No s'ha pogut registrar la sortida (" +
-					getDescripcioErrorRegistre(anotacio) + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'ha pogut registrar la sortida (" +
-					getDescripcioErrorRegistre(anotacio) + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
 	public RegistreIdDto registreNotificacio(
 			RegistreNotificacioDto notificacio) throws PluginException {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"organCodi",
+						notificacio.getOrganCodi()),
+				new IntegracioParametreDto(
+						"oficinaCodi",
+						notificacio.getOficinaCodi()),
+				new IntegracioParametreDto(
+						"entitatCodi",
+						notificacio.getEntitatCodi()),
+				new IntegracioParametreDto(
+						"unitatAdministrativa",
+						notificacio.getUnitatAdministrativa()),
+				new IntegracioParametreDto(
+						"interessatNif",
+						notificacio.getInteressatNif()),
+				new IntegracioParametreDto(
+						"assumpteExtracte",
+						notificacio.getAssumpteExtracte())
+		};
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarNotificacio(
 					toRegistreNotificacio(notificacio));
 			if (!resposta.isOk()) {
-				throw new PluginException(
-						"No s'han pogut registrar la notificació (" +
-						getDescripcioErrorRegistre(notificacio) + ", " +
+				String errorDescripcio = "No s'han pogut registrar la notificació (" +
+						getDescripcioErrorRegistre(notificacio) +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
-						"errorDescripcio=" + resposta.getErrorDescripcio() + ")");
+						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";
+				monitorIntegracioHelper.addAccioError(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Notificació",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						errorDescripcio,
+						parametres);
+				throw new PluginException(errorDescripcio);
 			} else {
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Notificació",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
 				registreId.setNumero(resposta.getNumero());
 				registreId.setData(resposta.getData());
 				return registreId;
 			}
 		} catch (RegistrePluginException ex) {
+			String errorDescripcio = "No s'ha pogut registrar la notificació (" +
+					getDescripcioErrorRegistre(notificacio) + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Notificació",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
 			logger.error(
-					"No s'ha pogut registrar la notificació (" +
-						getDescripcioErrorRegistre(notificacio) + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'ha pogut registrar la notificació (" +
-					getDescripcioErrorRegistre(notificacio) + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -344,37 +663,78 @@ public class PluginHelper {
 		try {
 			RespostaJustificantRecepcio resposta = getRegistrePlugin().obtenirJustificantRecepcio(numeroRegistre);
 			if (!resposta.isOk()) {
-				throw new PluginException(
-						"No s'han pogut obtenir la data del justificant de la notificació (" +
+				String errorDescripcio = "No s'han pogut obtenir la data del justificant de la notificació (" +
 						"numeroRegistre=" + numeroRegistre + ", " +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
-						"errorDescripcio=" + resposta.getErrorDescripcio() + ")");
+						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";
+				monitorIntegracioHelper.addAccioError(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Obtenir data del justificant de recepció",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						errorDescripcio,
+						new IntegracioParametreDto(
+								"numeroRegistre",
+								numeroRegistre));
+				throw new PluginException(errorDescripcio);
 			} else {
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Obtenir data del justificant de recepció",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						new IntegracioParametreDto(
+								"numeroRegistre",
+								numeroRegistre));
 				return resposta.getData();
 			}
 		} catch (RegistrePluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenir la data del justificant de la notificació (" +
+					"numeroRegistre=" + numeroRegistre + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Obtenir data del justificant de recepció",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"numeroRegistre",
+							numeroRegistre));
 			logger.error(
-					"No s'han pogut obtenir la data del justificant de la notificació (" +
-					"numeroRegistre=" + numeroRegistre + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut obtenir la data del justificant de la notificació (" +
-					"numeroRegistre=" + numeroRegistre + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
 	public String registreOficinaNom(
 			String codi) {
 		try {
-			return getRegistrePlugin().obtenirNomOficina(codi);
+			String oficinaNom = getRegistrePlugin().obtenirNomOficina(codi);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Obtenir nom de l'oficina",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"oficinaCodi",
+							codi));
+			return oficinaNom;
 		} catch (RegistrePluginException ex) {
+			String errorDescripcio = "No s'ha pogut obtenir el nom de l'oficina de registre (" +
+					"codi=" + codi + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"Obtenir nom de l'oficina",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"oficinaCodi",
+							codi));
 			logger.error(
-					"No s'ha pogut obtenir el nom de l'oficina de registre (" +
-					"codi=" + codi + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'ha pogut obtenir el nom de l'oficina de registre (" +
-					"codi=" + codi + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -389,6 +749,23 @@ public class PluginHelper {
 			Date documentData,
 			String documentArxiuNom,
 			byte[] documentArxiuContingut) {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedient",
+						expedient.getIdentificador()),
+				new IntegracioParametreDto(
+						"documentCodi",
+						documentCodi),
+				new IntegracioParametreDto(
+						"documentDescripcio",
+						documentDescripcio),
+				new IntegracioParametreDto(
+						"documentData",
+						documentData),
+				new IntegracioParametreDto(
+						"documentArxiuNom",
+						documentArxiuNom)
+		};
 		try {
 			String expedientTipus = null;
 			if (gestionDocumentalIsTipusExpedientDirecte()) {
@@ -398,7 +775,7 @@ public class PluginHelper {
 			} else {
 				expedientTipus = expedient.getEntorn().getCodi() + "#" + expedient.getTipus().getCodi();
 			}
-			return getGestioDocumentalPlugin().createDocument(
+			String documentId = getGestioDocumentalPlugin().createDocument(
 					expedient.getNumeroIdentificador(),
 					expedientTipus,
 					documentCodi,
@@ -406,35 +783,62 @@ public class PluginHelper {
 					documentData,
 					documentArxiuNom,
 					documentArxiuContingut);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
+					"Pujar document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
+			return documentId;
 		} catch (GestioDocumentalPluginException ex) {
-			logger.error(
-					"No s'han pogut guardar el document a la gestió documental (" +
+			String errorDescripcio = "No s'han pogut guardar el document a la gestió documental (" +
 					"expedientIdentificador=" + expedient.getIdentificador() + ", " +
 					"documentCodi=" + documentCodi + ", " +
 					"documentDescripcio=" + documentDescripcio + ", " +
 					"documentData=" + documentData + ", " +
-					"documentArxiuNom=" + documentArxiuNom + ")",
+					"documentArxiuNom=" + documentArxiuNom + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
+					"Pujar document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut guardar el document a la gestió documental (" +
-					"expedientIdentificador=" + expedient.getIdentificador() + ", " +
-					"documentCodi=" + documentCodi + ", " +
-					"documentDescripcio=" + documentDescripcio + ", " +
-					"documentData=" + documentData + ", " +
-					"documentArxiuNom=" + documentArxiuNom + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
 	public byte[] gestioDocumentalObtenirDocument(
 			String documentId) {
 		try {
-			return getGestioDocumentalPlugin().retrieveDocument(documentId);
+			byte[] contingut = getGestioDocumentalPlugin().retrieveDocument(documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
+					"Obtenir document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
+			return contingut;
 		} catch (GestioDocumentalPluginException ex) {
+			String errorDescripcio = "No s'han pogut llegir el document de la gestió documental (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
+					"Obtenir document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'han pogut llegir el document de la gestió documental (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut llegir el document de la gestió documental (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -443,12 +847,29 @@ public class PluginHelper {
 		try {
 			if (getGestioDocumentalPlugin() != null)
 				getGestioDocumentalPlugin().deleteDocument(documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
+					"Esborrar document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 		} catch (GestioDocumentalPluginException ex) {
+			String errorDescripcio = "No s'han pogut esborrar el document de la gestió documental (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
+					"Obtenir document",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'han pogut esborrar el document de la gestió documental (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut esborrar el document de la gestió documental (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -474,6 +895,26 @@ public class PluginHelper {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedient",
+						expedient.getIdentificador()),
+				new IntegracioParametreDto(
+						"documentCodi",
+						document.getDocumentCodi()),
+				new IntegracioParametreDto(
+						"documentNom",
+						document.getDocumentNom()),
+				new IntegracioParametreDto(
+						"documentTipus",
+						document.getTipusDocPortasignatures()),
+				new IntegracioParametreDto(
+						"arxiuNom",
+						document.getArxiuNom()),
+				new IntegracioParametreDto(
+						"personaCodi",
+						persona.getCodi())
+		};
 		try {
 			Integer resposta = getPortasignaturesPlugin().uploadDocument(
 					getDocumentPortasignatures(document, expedient),
@@ -490,6 +931,11 @@ public class PluginHelper {
 					expedient.getIdentificador(),
 					importancia,
 					dataLimit);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Enviar document a firmar",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(resposta);
@@ -504,26 +950,47 @@ public class PluginHelper {
 			portasignaturesRepository.save(portasignatures);
 			return resposta;
 		} catch (PortasignaturesPluginException ex) {
-			logger.error(
-					"No s'han pogut enviar el document al portafirmes (" +
+			String errorDescripcio = "No s'han pogut enviar el document al portafirmes (" +
 					"documentId=" + document.getId() + ", " +
 					"destinatari=" + persona.getCodi() + ", " +
-					"expedient=" + expedient.getIdentificador() + ")",
+					"expedient=" + expedient.getIdentificador() + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Enviar document a firmar",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut enviar el document al portafirmes (" +
-					"documentId=" + document.getId() + ", " +
-					"destinatari=" + persona.getCodi() + ", " +
-					"expedient=" + expedient.getIdentificador() + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
 
 	public void portasignaturesCancelar(
 			List<Integer> documentIds) {
+		StringBuilder ids = new StringBuilder();
+		boolean first = true;
+		for (Integer documentId: documentIds) {
+			if (first)
+				first = false;
+			else
+				ids.append(", ");
+			ids.append(documentId.toString());
+		}
 		try {
 			getPortasignaturesPlugin().deleteDocuments(
 					documentIds);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Cancel·lació d'enviaments de documents",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentIds",
+							ids.toString()));
 			for (Integer documentId: documentIds) {
 				Portasignatures portasignatures = portasignaturesRepository.findByDocumentId(documentId);
 				if (portasignatures != null) {
@@ -531,18 +998,22 @@ public class PluginHelper {
 				}
 			}
 		} catch (PortasignaturesPluginException ex) {
-			StringBuilder idsStr = new StringBuilder();
-			for (Integer documentId: documentIds) {
-				idsStr.append(documentId.toString());
-				idsStr.append(" ");
-			}
+			String errorDescripcio = "No s'han pogut cancel·lar els enviaments al portafirmes (" +
+					"ids=" + ids.toString() + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Cancel·lació d'enviaments de documents",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentIds",
+							ids.toString()));
 			logger.error(
-					"No s'han pogut cancel·lar els enviaments al portafirmes (" +
-					"ids=" + idsStr + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut cancel·lar els enviaments al portafirmes (" +
-							"ids=" + idsStr + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -553,27 +1024,51 @@ public class PluginHelper {
 			String nomArxiuSignat,
 			String codiTipusCustodia,
 			byte[] signatura) {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"documentId",
+						documentId),
+				new IntegracioParametreDto(
+						"gesdocId",
+						gesdocId),
+				new IntegracioParametreDto(
+						"nomArxiuSignat",
+						nomArxiuSignat),
+				new IntegracioParametreDto(
+						"codiTipusCustodia",
+						codiTipusCustodia)
+		};
 		try {
-			return getCustodiaPlugin().addSignature(
+			String custodiaId = getCustodiaPlugin().addSignature(
 					documentId.toString(),
 					gesdocId,
 					nomArxiuSignat,
 					codiTipusCustodia,
 					signatura);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Enviament de document a custòdia",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
+			return custodiaId;
 		} catch (CustodiaPluginException ex) {
-			logger.error(
-					"No s'ha pogut afegir la signatura a la custòdia (" +
+			String errorDescripcio = "No s'ha pogut afegir la signatura a la custòdia (" +
 					"documentId=" + documentId + ", " +
 					"gesdocId=" + gesdocId + ", " +
 					"nomArxiuSignat=" + nomArxiuSignat + ", " +
-					"codiTipusCustodia=" + codiTipusCustodia + ")",
+					"codiTipusCustodia=" + codiTipusCustodia + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Enviament de document a custòdia",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'ha pogut afegir la signatura a la custòdia (" +
-					"documentId=" + documentId + ", " +
-					"gesdocId=" + gesdocId + ", " +
-					"nomArxiuSignat=" + nomArxiuSignat + ", " +
-					"codiTipusCustodia=" + codiTipusCustodia + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -581,13 +1076,32 @@ public class PluginHelper {
 	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(
 			String documentId) {
 		try {
-			return getCustodiaPlugin().dadesValidacioSignatura(documentId);
+			List<RespostaValidacioSignatura> validacions = getCustodiaPlugin().dadesValidacioSignatura(
+					documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenció de dades de validació de signatura",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
+			return validacions;
 		} catch (CustodiaPluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenció de dades de validació de signatura",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -595,13 +1109,31 @@ public class PluginHelper {
 	public List<byte[]> custodiaObtenirSignatures(
 			String documentId) {
 		try {
-			return getCustodiaPlugin().getSignatures(documentId);
+			List<byte[]> signatures = getCustodiaPlugin().getSignatures(documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenció de signatures",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
+			return signatures;
 		} catch (CustodiaPluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenirles signatures de la custòdia (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenció de signatures",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'han pogut obtenir les signatures de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut obtenir les signatures de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -609,13 +1141,31 @@ public class PluginHelper {
 	public byte[] custodiaObtenirSignaturesAmbArxiu(
 			String documentId) {
 		try {
-			return getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
+			byte[] signaturesAmbArxiu = getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenció de signatures amb arxiu",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
+			return signaturesAmbArxiu;
 		} catch (CustodiaPluginException ex) {
+			String errorDescripcio = "No s'han pogut obtenirles signatures amb arxiu de la custòdia (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenció de signatures amb arxiu",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'han pogut obtenir les signatures amb arxiu de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut obtenir les signatures amb arxiu de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -623,12 +1173,29 @@ public class PluginHelper {
 	public void custodiaEsborrarSignatures(String documentId) {
 		try {
 			getCustodiaPlugin().deleteSignatures(documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Esborrar documents custodiats",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 		} catch (CustodiaPluginException ex) {
+			String errorDescripcio = "No s'ha pogut esborrar el document de la custòdia (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Esborrar documents custodiats",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'han pogut esborrar les signatures de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 			throw new PluginException(
-					"No s'han pogut esborrar les signatures de la custòdia (documentId=" + documentId + ")",
+					errorDescripcio,
 					ex);
 		}
 	}
@@ -636,13 +1203,31 @@ public class PluginHelper {
 	public String custodiaObtenirUrlComprovacioSignatura(
 			String documentId) {
 		try {
-			return getCustodiaPlugin().getUrlComprovacioSignatura(documentId);
+			String url = getCustodiaPlugin().getUrlComprovacioSignatura(documentId);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenir URL de comprovació de signatura",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
+			return url;
 		} catch (CustodiaPluginException ex) {
+			String errorDescripcio = "No s'ha pogut obtenir url de comprovació de la custòdia (documentId=" + documentId + ")";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"Obtenir URL de comprovació de signatura",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					new IntegracioParametreDto(
+							"documentId",
+							documentId));
 			logger.error(
-					"No s'ha pogut obtenir url de comprovació de la custòdia (documentId=" + documentId + ")",
+					documentId,
 					ex);
 			throw new PluginException(
-					"No s'ha pogut obtenir url de comprovació la custòdia (documentId=" + documentId + ")",
+					documentId,
 					ex);
 		}
 	}
@@ -663,34 +1248,42 @@ public class PluginHelper {
 			byte[] document,
 			byte[] signatura,
 			boolean obtenirDadesCertificat) throws PluginException {
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"document",
+						document.length + " bytes"),
+				new IntegracioParametreDto(
+						"signatura",
+						signatura.length + " bytes"),
+				new IntegracioParametreDto(
+						"obtenirDadesCertificat",
+						new Boolean(obtenirDadesCertificat).toString())
+		};
 		try {
-			return getSignaturaPlugin().verificarSignatura(
+			RespostaValidacioSignatura resposta = getSignaturaPlugin().verificarSignatura(
 					document,
 					signatura,
 					obtenirDadesCertificat);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_FIRMA,
+					"Validació de signatura",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					parametres);
+			return resposta;
 		} catch (SignaturaPluginException ex) {
-			logger.error("No s'han pogut verificar la signatura", ex);
-			throw new PluginException("No s'han pogut verificar la signatura", ex);
+			String errorDescripcio = "No s'han pogut verificar la signatura";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_FIRMA,
+					"Validació de signatura",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(errorDescripcio, ex);
+			throw new PluginException(errorDescripcio, ex);
 		}
 	}
 
-	/*public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
-		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
-		Iterator<Portasignatures> it = psignas.iterator();
-		while (it.hasNext()) {
-			Portasignatures psigna = it.next();
-			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
-					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
-					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
-					!TipusEstat.ERROR.equals(psigna.getEstat())) {
-				it.remove();
-			}
-		}
-		return psignas;
-	}
-	public void saveOrUpdatePortasignatures(Portasignatures psigna) {
-		portasignaturesRepository.save(psigna);
-	}*/
 
 
 	private TramitDto toTramitDto(DadesTramit dadesTramit) {

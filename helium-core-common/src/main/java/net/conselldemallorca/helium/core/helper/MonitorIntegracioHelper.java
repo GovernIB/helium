@@ -33,8 +33,10 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_PERSONA = "PERSONA";
 	public static final String INTCODI_SISTRA = "SISTRA";
 	public static final String INTCODI_PFIRMA = "PFIRMA";
+	public static final String INTCODI_FIRMA = "FIRMA";
 	public static final String INTCODI_CUSTODIA = "CUSTODIA";
 	public static final String INTCODI_REGISTRE = "REGISTRE";
+	public static final String INTCODI_GESDOC = "GESDOC";
 	public static final String INTCODI_CONVDOC = "CONVDOC";
 	public static final String INTCODI_PFIRMA_CB = "PFIRMA_CB";
 
@@ -48,6 +50,9 @@ public class MonitorIntegracioHelper {
 		integracions.add(
 				novaIntegracio(
 						INTCODI_PERSONA));
+		integracions.add(
+				novaIntegracio(
+						INTCODI_FIRMA));
 		integracions.add(
 				novaIntegracio(
 						INTCODI_PFIRMA));
@@ -65,6 +70,9 @@ public class MonitorIntegracioHelper {
 						INTCODI_SISTRA));
 		integracions.add(
 				novaIntegracio(
+						INTCODI_GESDOC));
+		integracions.add(
+				novaIntegracio(
 						INTCODI_CONVDOC));
 		return integracions;
 	}
@@ -75,13 +83,11 @@ public class MonitorIntegracioHelper {
 	}
 
 	public void addAccioOk(
-			Long entornId,
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
-				entornId,
 				integracioCodi,
 				descripcio,
 				tipus,
@@ -91,14 +97,12 @@ public class MonitorIntegracioHelper {
 				parametres);
 	}
 	public void addAccioError(
-			Long entornId,
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			String errorDescripcio,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
-				entornId,
 				integracioCodi,
 				descripcio,
 				tipus,
@@ -108,7 +112,6 @@ public class MonitorIntegracioHelper {
 				parametres);
 	}
 	public void addAccioError(
-			Long entornId,
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
@@ -116,7 +119,6 @@ public class MonitorIntegracioHelper {
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
-				entornId,
 				integracioCodi,
 				descripcio,
 				tipus,
@@ -157,7 +159,6 @@ public class MonitorIntegracioHelper {
 	}
 
 	private void addAccio(
-			Long entornId,
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
@@ -166,7 +167,6 @@ public class MonitorIntegracioHelper {
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
 		IntegracioAccioDto accio = new IntegracioAccioDto();
-		accio.setEntornId(entornId);
 		accio.setIntegracioCodi(integracioCodi);
 		accio.setData(new Date());
 		accio.setDescripcio(descripcio);
@@ -199,10 +199,14 @@ public class MonitorIntegracioHelper {
 		integracio.setCodi(codi);
 		if (INTCODI_REGISTRE.equals(codi)) {
 			integracio.setDescripcio("Registre");
+		} else if (INTCODI_FIRMA.equals(codi)) {
+			integracio.setDescripcio("Firma digital");
 		} else if (INTCODI_PFIRMA.equals(codi)) {
 			integracio.setDescripcio("Portafirmes");
 		} else if (INTCODI_CUSTODIA.equals(codi)) {
 			integracio.setDescripcio("Custòdia");
+		} else if (INTCODI_GESDOC.equals(codi)) {
+			integracio.setDescripcio("Gestió doc.");
 		} else if (INTCODI_CONVDOC.equals(codi)) {
 			integracio.setDescripcio("Conversió doc.");
 		} else if (INTCODI_PERSONA.equals(codi)) {

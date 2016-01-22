@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.helperv26.CacheHelper;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -55,7 +55,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsu
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
@@ -98,7 +97,7 @@ public class DtoConverter {
 	private ConsultaCampDao consultaCampDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
-	private CacheHelper cacheHelper;
+	private DominiHelper dominiHelper;
 
 	private DocumentHelper documentHelper;
 	private ServiceUtils serviceUtils;
@@ -659,26 +658,30 @@ public class DtoConverter {
 					processInstanceId,
 					camp,
 					valorsAddicionals);
-			return getResultatConsultaDominiPerCamp(camp, params, textInicial);
+			return getResultatConsultaDominiPerCamp(definicioProces, camp, params, textInicial);
 		}
 		return new ArrayList<FilaResultat>();
 	}
 
 	public List<FilaResultat> getResultatConsultaDominiPerCamp(
+			DefinicioProces definicioProces,
 			Camp camp,
 			Map<String, Object> params,
 			String textInicial) {
 		if (camp != null && (camp.getDomini() != null || camp.isDominiIntern())) {
-			Long dominiId = (long) 0;
-			if (camp.getDomini() != null){
-				Domini domini = camp.getDomini();
-				dominiId = domini.getId();
-			}	
-			List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
-					camp.getDefinicioProces().getEntorn().getId(),
-					dominiId,
-					camp.getDominiId(),
-					params);
+			List<FilaResultat> resultat;
+			if (camp.getDomini() != null) {
+				resultat = dominiHelper.consultar(
+						camp.getDomini(),
+						camp.getDominiId(),
+						params);
+			} else {
+				resultat = dominiHelper.consultarIntern(
+						definicioProces.getEntorn(),
+						definicioProces.getExpedientTipus(),
+						camp.getDominiId(),
+						params);
+			}
 			// Filtra els resultats amb el textInicial (si n'hi ha)
 			if (textInicial != null) {
 				String columna = camp.getDominiCampText();
@@ -753,8 +756,8 @@ public class DtoConverter {
 	}
 	
 	@Autowired
-	public void setCacheHelper(CacheHelper cacheHelper) {
-		this.cacheHelper = cacheHelper;
+	public void setDominiHelper(DominiHelper dominiHelper) {
+		this.dominiHelper = dominiHelper;
 	}
 	@Autowired
 	public void setExpedientService(ExpedientService expedientService) {
@@ -919,22 +922,25 @@ public class DtoConverter {
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDomini() != null || camp.isDominiIntern()) {
-				Long dominiId = (long) 0;
 				Map<String, Object> paramsConsulta = null;
-				if (camp.getDomini() != null){
-					Domini domini = camp.getDomini();
-					dominiId = domini.getId();
-				}				
 				paramsConsulta = getParamsConsulta(
 						taskId,
 						processInstanceId,
 						camp,
 						valorsAddicionals);
-				List<FilaResultat> resultat = cacheHelper.getResultatConsultaDomini(
-						camp.getDefinicioProces().getEntorn().getId(),
-						dominiId,
-						camp.getDominiId(),
-						paramsConsulta);
+				List<FilaResultat> resultat;
+				if (camp.getDomini() != null) {
+					resultat = dominiHelper.consultar(
+							camp.getDomini(),
+							camp.getDominiId(),
+							paramsConsulta);
+				} else {
+					resultat = dominiHelper.consultarIntern(
+							camp.getDefinicioProces().getEntorn(),
+							camp.getDefinicioProces().getExpedientTipus(),
+							camp.getDominiId(),
+							paramsConsulta);
+				}
 				String columnaCodi = camp.getDominiCampValor();
 				String columnaValor = camp.getDominiCampText();
 				Iterator<FilaResultat> it = resultat.iterator();

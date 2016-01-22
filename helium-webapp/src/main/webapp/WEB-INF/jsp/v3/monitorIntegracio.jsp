@@ -6,7 +6,7 @@
 
 <html>
 <head>
-	<title><spring:message code="expedient.monitor.integracio.titol"/></title>
+	<title><spring:message code="monitor.integracio.titol"/></title>
 	<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
 	<link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
@@ -21,6 +21,24 @@ $(document).ready(function() {
 		$('table#accions-' + integracioCodi).webutilDatatable();
 	});
 	$('#pipelles li:first a').click();
+	$('table.accions-integracio').on('rowinfo.dataTable', function(e, $info, rowData) {
+		var accioId = rowData['DT_Id'];
+		if (rowData['parametres']) {
+			var panelParamHeader = '<spring:message code="monitor.integracio.info.parametres"/>';
+			var panelParamBody = '<ul>';
+			for (var i = 0; i < rowData['parametres'].length; i++) {
+				var param = rowData['parametres'][i];
+				panelParamBody += '<li>' + param.nom + ': ' + param.valor + '</li>';
+			}
+			panelParamBody += '</ul>';
+			$info.append('<div class="panel panel-default"><div class="panel-heading"><a href="#param-' + accioId + '" data-toggle="collapse">' + panelParamHeader + '</a></div><div id="param-' + accioId + '" class="panel-body collapse">' + panelParamBody + '</div></div>');
+		}
+		if (rowData['estat'] == 'ERROR') {
+			var panelErrorHeader = rowData['excepcioMessage'];
+			var panelErrorBody = '<textarea class="form-control" style="width:100%" rows="10">' + rowData['excepcioStacktrace'] + '</textarea>';
+			$info.append('<div class="panel panel-default"><div class="panel-heading"><a href="#error-' + accioId + '" data-toggle="collapse">' + panelErrorHeader + '</a></div><div id="error-' + accioId + '" class="panel-body collapse">' + panelErrorBody + '</div></div>');
+		}
+	});
 });
 </script>
 </head>
@@ -36,12 +54,20 @@ $(document).ready(function() {
 		<c:forEach var="integracio" items="${integracions}">
 			<div role="tabpanel" class="tab-pane" id="${integracio.codi}">
 				<br/>
-				<table id="accions-${integracio.codi}" data-url="monitorIntegracio/${integracio.codi}/datatable" data-paging-enabled="false" data-ordering="false" class="table table-striped table-bordered table-hover" style="width:100%">
+				<table id="accions-${integracio.codi}" data-url="monitorIntegracio/${integracio.codi}/datatable" data-paging-enabled="false" data-ordering="false" data-row-info="true" class="table table-striped table-bordered table-hover accions-integracio" style="width:100%">
 				<thead>
 					<tr>
-						<th data-col-name="data" width="15%">Data</th>
-						<th data-col-name="descripcio" width="40%">Descripció</th>
-						<th data-col-name="tipus" width="25%">Tipus</th>
+						<th data-col-name="data" data-converter="datetime" width="25%"><spring:message code="monitor.integracio.columna.data"/></th>
+						<th data-col-name="descripcio" width="25%"><spring:message code="monitor.integracio.columna.descripcio"/></th>
+						<th data-col-name="tipus" width="25%"><spring:message code="monitor.integracio.columna.tipus"/></th>
+						<th data-col-name="estat" width="25%" data-template="#estatTemplate">
+							<spring:message code="monitor.integracio.columna.estat"/>
+							<script id="estatTemplate" type="text/x-jsrender"><span title="{{:errorDescripcio}}">{{:estat}}</span></script>
+						</th>
+						<th data-col-name="parametres" data-visible="false"></th>
+						<th data-col-name="errorDescripcio" data-visible="false"></th>
+						<th data-col-name="excepcioMessage" data-visible="false"></th>
+						<th data-col-name="excepcioStacktrace" data-visible="false"></th>
 					</tr>
 				</thead>
 				</table>

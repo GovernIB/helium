@@ -23,7 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.helperv26.CacheHelper;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -136,7 +136,7 @@ public class DissenyService {
 	private MapeigSistraDao mapeigSistraDao;
 	private DominiDao dominiDao;
 	private CampAgrupacioDao campAgrupacioDao;
-	private CacheHelper cacheHelper;
+	private DominiHelper dominiHelper;
 	private ConsultaDao consultaDao;
 	private ConsultaCampDao consultaCampDao;
 	private AccioDao accioDao;
@@ -1808,15 +1808,33 @@ public class DissenyService {
 			Long entornId,
 			Long dominiId,
 			Map<String, Object> params) {
-		return cacheHelper.getResultatConsultaDomini(entornId, dominiId, null, params);
+		return consultaDomini(entornId, dominiId, null, params);
 	}
-	
-	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId) {
+	public List<FilaResultat> consultaDomini(
+			Long entornId,
+			Long dominiId,
+			String dominiWsId) {
 		return consultaDomini(entornId, dominiId, dominiWsId, null);
 	}
-	
-	public List<FilaResultat> consultaDomini(Long entornId, Long dominiId, String dominiWsId, Map<String, Object> params) {
-		return cacheHelper.getResultatConsultaDomini(entornId, dominiId, dominiWsId, params);
+	public List<FilaResultat> consultaDomini(
+			Long entornId,
+			Long dominiId,
+			String dominiWsId,
+			Map<String, Object> params) {
+		if (dominiId.longValue() != 0) {
+			Domini domini = dominiDao.getById(dominiId, false);
+			return dominiHelper.consultar(
+					domini,
+					(dominiId != null) ? dominiId.toString() : null,
+					params);
+		} else {
+			Entorn entorn = entornDao.getById(entornId, false);
+			return dominiHelper.consultarIntern(
+					entorn,
+					null,
+					dominiWsId,
+					params);
+		}
 	}	
 
 	public DefinicioProcesDto findDefinicioProcesAmbProcessInstanceId(String processInstanceId) {
@@ -1829,7 +1847,11 @@ public class DissenyService {
 			String campCodi,
 			String textInicial) {
 		Camp camp = campDao.findAmbDefinicioProcesICodi(definicioProcesId, campCodi);
-		return dtoConverter.getResultatConsultaDominiPerCamp(camp, null, textInicial);
+		return dtoConverter.getResultatConsultaDominiPerCamp(
+				camp.getDefinicioProces(),
+				camp,
+				null,
+				textInicial);
 	}
 
 	public List<FilaResultat> getResultatConsultaCamp(
@@ -2216,8 +2238,8 @@ public class DissenyService {
 	}
 	
 	@Autowired
-	public void setCacheHelper(CacheHelper cacheHelper) {
-		this.cacheHelper = cacheHelper;
+	public void setDominiHelper(DominiHelper dominiHelper) {
+		this.dominiHelper = dominiHelper;
 	}
 	
 	@Autowired

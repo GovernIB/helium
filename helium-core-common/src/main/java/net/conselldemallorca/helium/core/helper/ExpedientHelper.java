@@ -562,9 +562,11 @@ public class ExpedientHelper {
 	}
 	
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
+		Expedient expedient = null;
 		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
 				processInstanceId);
-		Expedient expedient = expedientRepository.findOne(piexp.getId());
+		if (piexp != null)
+			expedient = expedientRepository.findOne(piexp.getId());
 		if (expedient == null) {
 			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {

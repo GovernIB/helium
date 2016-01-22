@@ -20,13 +20,13 @@
 
 	<context:component-scan base-package="net.conselldemallorca.helium.webapp"/>
 
-	<mvc:resources mapping="/**/*.png" location="/" cache-period="86400"/>
+	<mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+
+	<!--mvc:resources mapping="/**/*.png" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.jpg" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.gif" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.css" location="/" cache-period="86400"/>
-	<mvc:resources mapping="/**/*.js" location="/" cache-period="86400"/>
-
-	<mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+	<mvc:resources mapping="/**/*.js" location="/" cache-period="86400"/-->
 
 	<context:annotation-config/>
 	<mvc:annotation-driven/>

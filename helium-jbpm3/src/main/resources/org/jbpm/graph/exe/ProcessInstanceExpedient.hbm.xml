@@ -19,6 +19,7 @@
 		<property name="anulat" column="ANULAT" />
 		<property name="errorDesc" column="ERROR_DESC" />
 		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
+		<property name="ambRetroaccio" column="AMB_RETROACCIO"/>
 		<many-to-one
 				name="tipus"
 				column="TIPUS_ID"

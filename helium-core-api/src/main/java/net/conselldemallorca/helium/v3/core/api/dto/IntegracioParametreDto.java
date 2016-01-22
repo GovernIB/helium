@@ -19,6 +19,13 @@ public class IntegracioParametreDto {
 		this.nom = nom;
 		this.valor = valor;
 	}
+	public IntegracioParametreDto(String nom, Object valor) {
+		this.nom = nom;
+		if (valor != null)
+			this.valor = valor.toString();
+		else
+			valor = "<null>";
+	}
 
 	public String getNom() {
 		return nom;

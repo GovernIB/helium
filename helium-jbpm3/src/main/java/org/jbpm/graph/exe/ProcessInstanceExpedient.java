@@ -35,6 +35,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private boolean anulat;
 	private String errorDesc;
 	private String processInstanceId;
+	private boolean ambRetroaccio;
 
 
 
@@ -127,6 +128,12 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	}
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
+	}
+	public boolean isAmbRetroaccio() {
+		return ambRetroaccio;
+	}
+	public void setAmbRetroaccio(boolean ambRetroaccio) {
+		this.ambRetroaccio = ambRetroaccio;
 	}
 
 	@Transient

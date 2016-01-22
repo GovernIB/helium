@@ -425,7 +425,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 			
 			// Emmagatzema el nou expedient
-			expedientRepository.save(expedient);
+			expedientRepository.saveAndFlush(expedient);
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
@@ -501,7 +501,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
-			
+
+			ExpedientIniciantDto.setExpedient(null);
 			logger.debug("textBloqueigIniciExpedient: " + textBloqueigIniciExpedient);
 			return dto;
 		} finally {

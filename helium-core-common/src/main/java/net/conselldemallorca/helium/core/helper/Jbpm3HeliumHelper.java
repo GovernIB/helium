@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.helperv26.CacheHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
@@ -218,7 +217,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
-	private CacheHelper cacheHelper;
+	private DominiHelper dominiHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
@@ -926,9 +925,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (domini == null)
 			throw new DominiNotFoundException();
 		try {
-			List<FilaResultat> files = cacheHelper.getResultatConsultaDomini(
-					expedient.getEntorn().getId(),
-					domini.getId(),
+			List<FilaResultat> files = dominiHelper.consultar(
+					domini,
 					dominiId,
 					parametres);
 			List<DominiRespostaFilaDto> resposta = new ArrayList<DominiRespostaFilaDto>();

@@ -19,6 +19,8 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -37,11 +39,12 @@ import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiConsultaException;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 /**
@@ -52,10 +55,10 @@ import net.sf.ehcache.Element;
 @Component
 public class DominiHelper {
 
+	private static final String CACHE_DOMINI_ID = "dominiCache";
 	private static final String CACHE_KEY_SEPARATOR = "#";
-	private Ehcache dominiCache;
+	//private Ehcache dominiCache;
 
-	private Map<Long, DominiHelium> wsCache = new HashMap<Long, DominiHelium>();
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
 
 	@Autowired
@@ -64,6 +67,8 @@ public class DominiHelper {
 	private WsClientHelper wsClientHelper;
 	@Autowired
 	private MetricRegistry metricRegistry;
+	@Autowired
+	private CacheManager cacheManager;
 
 
 
@@ -72,106 +77,118 @@ public class DominiHelper {
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) {
-		final Timer timerEntorn = metricRegistry.timer(
-				MetricRegistry.name(
-						DominiHelper.class,
-						"consulta",
-						domini.getEntorn().getCodi()));
-		final Timer timerExptip = metricRegistry.timer(
-				MetricRegistry.name(
-						DominiHelper.class,
-						"consulta",
-						domini.getEntorn().getCodi(),
-						domini.getExpedientTipus().getCodi()));
-		final Timer timerDomini = metricRegistry.timer(
-				MetricRegistry.name(
-						DominiHelper.class,
-						"consulta",
-						domini.getEntorn().getCodi(),
-						domini.getExpedientTipus().getCodi(),
-						domini.getCodi()));
-		final Timer.Context contextEntorn = timerEntorn.time();
-		final Timer.Context contextExptip = timerExptip.time();
-		final Timer.Context contextDomini = timerDomini.time();
+		Cache dominiCache = cacheManager.getCache(CACHE_DOMINI_ID);
+		String cacheKey = getCacheKey(domini.getId(), id, parametres);
 		List<FilaResultat> resultat = null;
-		try {
-			String cacheKey = getCacheKey(domini.getId(), id, parametres);
-			Element element = null;
-			if (domini.getCacheSegons() > 0 && dominiCache != null)
-				element = dominiCache.get(cacheKey);
-			if (element == null) {
+		if (dominiCache.get(cacheKey) == null) {
+			final Timer timerEntorn = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consulta",
+							domini.getEntorn().getCodi()));
+			final Timer timerExptip = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consulta",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi()));
+			final Timer timerDomini = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consulta",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi(),
+							domini.getCodi()));
+			final Timer.Context contextEntorn = timerEntorn.time();
+			final Timer.Context contextExptip = timerExptip.time();
+			final Timer.Context contextDomini = timerDomini.time();
+			try {
 				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 					resultat = consultaWs(domini, id, parametres);
 				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
 					resultat = consultaSql(domini, parametres);
 				if (domini.getCacheSegons() > 0) {
-					element = new Element(cacheKey, resultat);
-					element.setTimeToLive(domini.getCacheSegons());
-					if (dominiCache != null) {
-						dominiCache.put(element);
-					}
+					net.sf.ehcache.Cache nativeCache = (net.sf.ehcache.Cache)dominiCache.getNativeCache();
+					Element cacheElement = new Element(
+							cacheKey,
+							resultat);
+					cacheElement.setTimeToLive(domini.getCacheSegons());
+					nativeCache.put(cacheElement);
 				}
-			} else {
-				resultat = (List<FilaResultat>)element.getValue();
+				final Counter counterOkEntorn = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consulta.ok",
+								domini.getEntorn().getCodi()));
+				counterOkEntorn.inc();
+				final Counter counterOkExptip = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consulta.ok",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi()));
+				counterOkExptip.inc();
+				final Counter counterOkDomini = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consulta.ok",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi(),
+								domini.getCodi()));
+				counterOkDomini.inc();
+			} catch (DominiConsultaException ex) {
+				final Counter counterErrorEntorn = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consulta.error",
+								domini.getEntorn().getCodi()));
+				counterErrorEntorn.inc();
+				final Counter counterErrorExptip = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consulta.error",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi()));
+				counterErrorExptip.inc();
+				final Counter counterErrorDomini = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consulta.error",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi(),
+								domini.getCodi()));
+				counterErrorDomini.inc();
+				throw ex;
+			} finally {
+				contextEntorn.stop();
+				contextExptip.stop();
+				contextDomini.stop();
 			}
-			if (resultat == null) {
-				resultat = new ArrayList<FilaResultat>();
-			}
-			final Counter counterOkEntorn = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consulta.ok",
-							domini.getEntorn().getCodi()));
-			counterOkEntorn.inc();
-			final Counter counterOkExptip = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consulta.ok",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus().getCodi()));
-			counterOkExptip.inc();
-			final Counter counterOkDomini = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consulta.ok",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus().getCodi(),
-							domini.getCodi()));
-			counterOkDomini.inc();
-		} catch (DominiConsultaException ex) {
-			final Counter counterErrorEntorn = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consulta.error",
-							domini.getEntorn().getCodi()));
-			counterErrorEntorn.inc();
-			final Counter counterErrorExptip = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consulta.error",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus().getCodi()));
-			counterErrorExptip.inc();
-			final Counter counterErrorDomini = metricRegistry.counter(
-					MetricRegistry.name(
-							DominiHelper.class,
-							"consulta.error",
-							domini.getEntorn().getCodi(),
-							domini.getExpedientTipus().getCodi(),
-							domini.getCodi()));
-			counterErrorDomini.inc();
-			throw ex;
-		} finally {
-			contextEntorn.stop();
-			contextExptip.stop();
-			contextDomini.stop();
+		} else {
+			resultat = (List<FilaResultat>)dominiCache.get(cacheKey).get();
 		}
 		return resultat;
 	}
 
-	public void makeDirty(Long dominiId) {
-		wsCache.remove(dominiId);
-		jdbcTemplates.remove(dominiId);
+	public List<FilaResultat> consultarIntern(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			String id,
+			Map<String, Object> parametres) {
+		Domini dominiIntern = new Domini();
+		dominiIntern.setId((long)0);
+		dominiIntern.setEntorn(entorn);
+		dominiIntern.setExpedientTipus(expedientTipus);
+		dominiIntern.setCacheSegons(30);
+		dominiIntern.setCodi("intern");
+		dominiIntern.setNom("Domini intern");
+		dominiIntern.setTipus(TipusDomini.CONSULTA_WS);
+		dominiIntern.setTipusAuth(TipusAuthDomini.NONE);
+		dominiIntern.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
+		return consultar(
+				dominiIntern,
+				id,
+				parametres);
 	}
 
 
@@ -277,39 +294,34 @@ public class DominiHelper {
 	}
 
 	private DominiHelium getClientWsFromDomini(Domini domini) {
-		DominiHelium clientWs = wsCache.get(domini.getId());
-		if (clientWs == null) {
-			String username = null;
-			String password = null;
-			if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
-				if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
-					username = GlobalProperties.getInstance().getProperty(domini.getUsuari());
-					password = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
-				} else {
-					username = domini.getUsuari();
-					password = domini.getContrasenya();
-				}
+		String username = null;
+		String password = null;
+		if (domini.getTipusAuth() != null && !TipusAuthDomini.NONE.equals(domini.getTipusAuth())) {
+			if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
+				username = GlobalProperties.getInstance().getProperty(domini.getUsuari());
+				password = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
+			} else {
+				username = domini.getUsuari();
+				password = domini.getContrasenya();
 			}
-			WsClientAuth auth;
-			switch (domini.getTipusAuth()) {
-			case HTTP_BASIC:
-				auth = WsClientAuth.BASIC;
-				break;
-			case USERNAMETOKEN:
-				auth = WsClientAuth.USERNAMETOKEN;
-				break;
-			default:
-				auth = WsClientAuth.NONE;
-				break;
-			}
-			clientWs = wsClientHelper.getDominiService(
-					domini.getUrl(),
-					auth,
-					username,
-					password);
-			wsCache.put(domini.getId(), clientWs);
 		}
-		return clientWs;
+		WsClientAuth auth;
+		switch (domini.getTipusAuth()) {
+		case HTTP_BASIC:
+			auth = WsClientAuth.BASIC;
+			break;
+		case USERNAMETOKEN:
+			auth = WsClientAuth.USERNAMETOKEN;
+			break;
+		default:
+			auth = WsClientAuth.NONE;
+			break;
+		}
+		return wsClientHelper.getDominiService(
+				domini.getUrl(),
+				auth,
+				username,
+				password);
 	}
 
 	private NamedParameterJdbcTemplate getJdbcTemplateFromDomini(Domini domini) throws NamingException {

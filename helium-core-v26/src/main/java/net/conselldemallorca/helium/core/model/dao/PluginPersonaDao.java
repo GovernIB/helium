@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.helperv26.CacheHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.PersonaPluginException;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
@@ -33,7 +33,7 @@ public class PluginPersonaDao extends PersonaDao {
 	private boolean pluginEvaluat = false;
 
 	@Autowired
-	private CacheHelper cacheHelper;
+	private PluginHelper pluginHelper;
 
 
 
@@ -69,6 +69,27 @@ public class PluginPersonaDao extends PersonaDao {
 
 	public PersonaDto findAmbCodiPlugin(String codi) {
 		String codiPerConsulta = (isIgnoreCase()) ? codi.toLowerCase() : codi;
+		net.conselldemallorca.helium.v3.core.api.dto.PersonaDto dto = pluginHelper.personaFindAmbCodi(
+				codiPerConsulta);
+		PersonaDto.Sexe sexe = null;
+		if (dto.getSexe() != null) {
+			switch (dto.getSexe()) {
+			case SEXE_DONA:
+				sexe = PersonaDto.Sexe.SEXE_DONA;
+				break;
+			case SEXE_HOME:
+				sexe = PersonaDto.Sexe.SEXE_HOME;
+				break;
+			}
+		}
+		PersonaDto personaDto = new PersonaDto(
+				dto.getCodi(),
+				dto.getNom(),
+				dto.getLlinatges(),
+				dto.getEmail(),
+				sexe);
+		return personaDto;
+		/*String codiPerConsulta = (isIgnoreCase()) ? codi.toLowerCase() : codi;
 		try {
 			if (getPersonesPlugin() == null || isSyncActiu()) {
 				return toPersonaPlugin(findAmbCodi(codiPerConsulta));
@@ -94,13 +115,11 @@ public class PluginPersonaDao extends PersonaDao {
 						dto.getEmail(),
 						sexe);
 				return personaDto;
-				/*return toPersonaPlugin(
-						personesPlugin.findAmbCodi(codiPerConsulta));*/
 			}
 		} catch (PersonesPluginException ex) {
 			logger.error("Error al cercar les persones amb el codi " + codi, ex);
 			throw new PluginException("Error al cercar les persones amb el codi" + codi, ex);
-		}
+		}*/
 	}
 
 	public List<PersonaDto> findAllPlugin() {

@@ -38,7 +38,7 @@ import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.helperv26.CacheHelper;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -77,7 +77,7 @@ public class PlantillaDocumentDao {
 	private AreaJbpmIdDao areaJbpmIdDao;
 	private JbpmHelper jbpmHelper;
 	private DominiDao dominiDao;
-	private CacheHelper cacheHelper;
+	private DominiHelper dominiHelper;
 	private DocumentStoreDao documentStoreDao;
 	private DocumentHelper documentHelper;
 
@@ -166,8 +166,8 @@ public class PlantillaDocumentDao {
 		this.dominiDao = dominiDao;
 	}
 	@Autowired
-	public void setCacheHelper(CacheHelper cacheHelper) {
-		this.cacheHelper = cacheHelper;
+	public void setDominiHelper(DominiHelper dominiHelper) {
+		this.dominiHelper = dominiHelper;
 	}
 	@Autowired
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
@@ -543,9 +543,8 @@ public class PlantillaDocumentDao {
 												}
 											}
 										}
-										List<FilaResultat> files = cacheHelper.getResultatConsultaDomini(
-												entornId,
-												domini.getId(),
+										List<FilaResultat> files = dominiHelper.consultar(
+												domini,
 												arg1,
 												parametres);
 										Object[] resultat = new Object[files.size()];
