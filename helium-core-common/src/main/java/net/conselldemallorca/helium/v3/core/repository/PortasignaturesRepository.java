@@ -5,11 +5,13 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -52,4 +54,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 
 	Portasignatures findByDocumentId(Integer documentId);
 
+	List<Portasignatures> findByExpedientAndEstat(
+			Expedient expedient,
+			TipusEstat estat);
 }

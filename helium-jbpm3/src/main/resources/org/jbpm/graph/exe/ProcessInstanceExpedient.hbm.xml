@@ -18,6 +18,7 @@
 		<property name="geoReferencia" column="GEO_REFERENCIA" />
 		<property name="anulat" column="ANULAT" />
 		<property name="errorDesc" column="ERROR_DESC" />
+		<property name="errorsIntegs" column="ERRORS_INTEGS" />
 		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
 		<property name="ambRetroaccio" column="AMB_RETROACCIO"/>
 		<many-to-one

@@ -12,21 +12,11 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -57,9 +47,21 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+
+import org.apache.commons.lang.StringUtils;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els expedients.
@@ -94,6 +96,8 @@ public class ExpedientHelper {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private AlertaRepository alertaRepository;
 
 
 
@@ -628,6 +632,36 @@ public class ExpedientHelper {
 		expedients.add(expedient);
 		omplirPermisosExpedients(expedients);
 	}
+	public void trobarAlertesExpedients(List<ExpedientDto> expedients) {
+		List<Long> expedientIds = new ArrayList<Long>();
+		for (ExpedientDto expedient: expedients) {
+			expedientIds.add(expedient.getId());
+		}
+		omplirNumAlertes(
+				expedientIds,
+				expedients);
+	}
+	public void trobarAlertesExpedient(ExpedientDto dto) {
+		Expedient expedient = this.getExpedientComprovantPermisos(
+				dto.getId(),
+				true,
+				false,
+				false,
+				false);
+		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
+		
+		long pendents = 0L;
+		if (!alertes.isEmpty()) {
+			dto.setAlertesTotals(new Long(alertes.size()));
+			dto.setAlertesPendents(0L);
+			for (Alerta alerta: alertes) {
+				if (alerta.getDataLectura() == null)
+					pendents ++;
+			}
+			dto.setAlertesPendents(pendents);
+		}
+		
+	}
 
 	public String getNumeroExpedientActual(
 			ExpedientTipus expedientTipus,
@@ -880,6 +914,19 @@ public class ExpedientHelper {
 		}
 	}
 
+	private void omplirNumAlertes(List<Long> ids, List<ExpedientDto> dtos) {
+		List<Object[]> comptadorsAlertes = alertaRepository.findByExpedientIds(ids);
+		
+		for (Object[] comptadorsAlerta: comptadorsAlertes) {
+			long id = (Long)comptadorsAlerta[0];
+			for (ExpedientDto dto: dtos) {
+				if (id == dto.getId()) {
+					dto.setAlertesTotals((Long)comptadorsAlerta[1]);
+					dto.setAlertesPendents((Long)comptadorsAlerta[2]);
+				}
+			}
+		}
+	}
 	private String getNumexpDefaultExpression() {
 		return GlobalProperties.getInstance().getProperty("app.numexp.expression");
 	}

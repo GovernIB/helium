@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -20,12 +21,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -265,6 +266,7 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams);
 
@@ -323,6 +325,7 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats);
 
 	/**
@@ -609,6 +612,34 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<ExpedientDto> findRelacionats(Long id);
+	
+	/**
+	 * Retorna la llista d'alertes no eliminades de l'expedient
+	 * especificat
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @return La llista d'alertes.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public List<AlertaDto> findAlertes(Long id);
+	
+	/**
+	 * Retorna la llista d'errors relacionats amb
+	 * l'Expedient
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @return La llista d'errors.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	Object[] findErrorsExpedient(Long id);
 
 	/**
 	 * Canvia la versió de la definició de procés.

@@ -7,11 +7,13 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -89,6 +91,35 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient"));
 		}
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	@RequestMapping(value = "/{expedientId}/alertes", method = RequestMethod.GET)
+	public String alertes(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		model.addAttribute("expedientId", expedientId);		
+		model.addAttribute(
+				"alertes",
+				expedientService.findAlertes(expedientId));
+		return "v3/expedient/alertes";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/errors", method = RequestMethod.GET)
+	public String errors(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		
+		Object[] errors = expedientService.findErrorsExpedient(expedientId);
+		
+		List<ExpedientErrorDto> errors_bas = (List<ExpedientErrorDto>) errors[0];
+		List<ExpedientErrorDto> errors_int = (List<ExpedientErrorDto>) errors[1];
+		
+		model.addAttribute("expedientId", expedientId);		
+		model.addAttribute("errors_bas",errors_bas);
+		model.addAttribute("errors_int",errors_int);
+		return "v3/expedient/errors";
 	}
 
 	@RequestMapping(value = "/{expedientId}/imatgeDefProces", method = RequestMethod.GET)
