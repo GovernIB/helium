@@ -303,7 +303,7 @@
 					${expedient.infoAturat}
 				</div>
 			</c:if>
-			<c:if test="${not empty expedient.errorsIntegracions || not empty expedient.errorDesc}">
+			<c:if test="${(expedient.errorsIntegracions || expedient.errorDesc != null)}">
 				<div class="alert alert-danger" role="alert">
 					<span class="fa fa-exclamation-triangle"></span>
 					<strong><spring:message code="expedient.info.errors"/>: </strong><spring:message code="expedient.consulta.errors"/>
