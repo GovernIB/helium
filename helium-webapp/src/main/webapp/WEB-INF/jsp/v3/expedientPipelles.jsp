@@ -66,6 +66,10 @@
 		color: #3071a9
 	}
 	.formRelacioDelete {float: right;}
+	.right-btn {
+		float: right;
+		margin-top: -4px;
+	}
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {		
@@ -285,6 +289,13 @@
 			</div>
 		</div>
 		<div id="expedient-pipelles" class="col-md-9">
+			<c:if test="${not empty expedient.comentari}">
+				<div class="alert alert-info" role="alert">
+					<span class="fa fa-info-circle"></span>
+					<strong><spring:message code="expedient.info.comentari"/>:</strong>
+					${expedient.comentari}
+				</div>
+			</c:if>
 			<c:if test="${not empty expedient.infoAturat}">
 				<div class="alert alert-danger" role="alert">
 					<span class="fa fa-pause"></span>
@@ -292,11 +303,21 @@
 					${expedient.infoAturat}
 				</div>
 			</c:if>
-			<c:if test="${not empty expedient.comentari}">
-				<div class="alert alert-info" role="alert">
-					<span class="fa fa-info-circle"></span>
-					<strong><spring:message code="expedient.info.comentari"/>:</strong>
-					${expedient.comentari}
+			<c:if test="${not empty expedient.errorsIntegracions || not empty expedient.errorDesc}">
+				<div class="alert alert-danger" role="alert">
+					<span class="fa fa-exclamation-triangle"></span>
+					<strong><spring:message code="expedient.info.errors"/>: </strong><spring:message code="expedient.consulta.errors"/>
+					<a class="btn btn-default btn-sm right-btn error-btn" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/errors"/>"><spring:message code="expedient.boto.veure_errors"/></a>
+				</div>
+			</c:if>
+			<c:if test="${not empty expedient.alertesTotals}">
+				<div class="alert alert-warning" role="alert">
+					<span class="fa fa-envelope"></span>
+					<strong><spring:message code="expedient.info.alertes"/>: </strong><spring:message code="expedient.info.alertes.text"/>
+					<c:if test="${not empty expedient.alertesPendents}">
+						<strong>${expedient.alertesPendents} <spring:message code="expedient.info.alertes.complement"/></strong>
+					</c:if>
+					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
 				</div>
 			</c:if>
 			<ul class="nav nav-tabs" role="tablist">
@@ -358,6 +379,17 @@
 		$("#expedient-info-accio a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false
+		});
+
+		$(".alert-btn").heliumEvalLink({
+			refrescarPagina: true,
+			refrescarAlertes: true ,
+			refrescarTaula: false
+		});
+		$(".error-btn").heliumEvalLink({
+			refrescarPagina: false,
+			refrescarAlertes: false ,
+			refrescarTaula: false
 		});
 	//]]>
 	</script>

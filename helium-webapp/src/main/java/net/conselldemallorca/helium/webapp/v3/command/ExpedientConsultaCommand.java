@@ -38,6 +38,7 @@ public class ExpedientConsultaCommand {
 	private boolean consultaRealitzada = false;
 	
 	private boolean nomesAlertes;
+	private boolean nomesErrors;
 	private MostrarAnulatsDto mostrarAnulats;
 	
 	private boolean nomesTasquesPersonals = false;
@@ -136,6 +137,14 @@ public class ExpedientConsultaCommand {
 	public void setNomesAlertes(boolean nomesAlertes) {
 		this.nomesAlertes = nomesAlertes;
 	}
+	public boolean isNomesErrors() {
+		return nomesErrors;
+	}
+
+	public void setNomesErrors(boolean nomesErrors) {
+		this.nomesErrors = nomesErrors;
+	}
+
 	public boolean isFiltreDesplegat() {
 		return filtreDesplegat;
 	}

@@ -91,6 +91,9 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	
 	private PermisDto permisos;
 	private boolean usuariActualRead;
+	
+	private Long alertesTotals;
+	private Long alertesPendents;
 
 
 	public Long getId() {
@@ -375,6 +378,22 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	}
 	public void setUsuariActualRead(boolean usuariActualRead) {
 		this.usuariActualRead = usuariActualRead;
+	}
+
+	public Long getAlertesTotals() {
+		return alertesTotals;
+	}
+
+	public void setAlertesTotals(Long alertesTotals) {
+		this.alertesTotals = alertesTotals;
+	}
+
+	public Long getAlertesPendents() {
+		return alertesPendents;
+	}
+
+	public void setAlertesPendents(Long alertesPendents) {
+		this.alertesPendents = alertesPendents;
 	}
 
 	public String getEstatNom() {

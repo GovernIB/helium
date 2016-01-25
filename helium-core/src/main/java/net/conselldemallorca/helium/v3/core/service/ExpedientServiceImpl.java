@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -78,6 +79,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -92,6 +94,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -142,6 +146,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -229,6 +234,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
+	@Resource
+	private PortasignaturesRepository portasignaturesRepository;
 	private String textBloqueigIniciExpedient;
 
 	@Override
@@ -887,6 +894,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient,
 				ExpedientDto.class);
 		expedientHelper.omplirPermisosExpedient(expedientDto);
+		expedientHelper.trobarAlertesExpedient(expedientDto);
 		return expedientDto;
 	}
 
@@ -951,6 +959,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -971,6 +980,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
+				"nomesErrors=" + nomesErrors + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
@@ -1061,6 +1071,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),
 				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
+				nomesErrors,
 				nomesTasquesPersonals || nomesTasquesGrup,
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
@@ -1071,12 +1082,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
 				false);
 		// Retorna la pàgina amb la resposta
-		List<ExpedientDto> expedients = conversioTipusHelper.convertirList(
+		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
+		if (expedientIds.getCount() > 0) {
+			expedients = conversioTipusHelper.convertirList(
 				expedientRepository.findByIdIn(expedientIds.getIds()),
 				ExpedientDto.class);
+		}
 		// Després de la consulta els expedients es retornen en ordre invers
 		Collections.reverse(expedients);
-		expedientHelper.omplirPermisosExpedients(expedients);
+		if (expedients.size() > 0) {
+			expedientHelper.omplirPermisosExpedients(expedients);
+			expedientHelper.trobarAlertesExpedients(expedients);
+		}
 		return paginacioHelper.toPaginaDto(
 				expedients,
 				expedientIds.getCount(),
@@ -1102,6 +1119,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients només ids (" +
@@ -1119,6 +1137,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
+				"nomesErrors=" + nomesErrors + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
@@ -1193,6 +1212,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),
 				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
+				nomesErrors,
 				nomesTasquesPersonals || nomesTasquesGrup,
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
@@ -2063,6 +2083,50 @@ public class ExpedientServiceImpl implements ExpedientService {
 			list.add(findAmbId(relacionat.getId()));
 		}
 		return list;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<AlertaDto> findAlertes(Long id) {
+		logger.debug("Consulta alertes de l'expedient (" +
+				"id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				true,
+				false,
+				false,
+				false);
+		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
+		// Convertir a AlertaDto
+		return conversioTipusHelper.convertirList(alertes, AlertaDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Object[] findErrorsExpedient(Long id) {
+		logger.debug("Consulta errors de l'expedient (" +
+				"id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				true,
+				false,
+				false,
+				false);
+		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+		List<ExpedientErrorDto> errors_int = new ArrayList<ExpedientErrorDto>();
+		
+		if(!portasignatures.isEmpty()){
+			for(Portasignatures ps: portasignatures) {
+				errors_int.add(new ExpedientErrorDto(ErrorTipusDto.INTEGRACIONS, ps.getErrorCallbackProcessant()));
+			}
+		}
+		
+		List<ExpedientErrorDto> errors_bas = new ArrayList<ExpedientErrorDto>();
+		if (expedient.getErrorDesc() != null) {
+			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorFull()));
+		}
+		
+		return new Object[]{errors_bas,errors_int};
 	}
 
 	@Override

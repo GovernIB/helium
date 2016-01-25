@@ -6,15 +6,16 @@ package net.conselldemallorca.helium.v3.core.ejb;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Map.Entry;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -24,12 +25,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -183,6 +184,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findAmbFiltrePaginat(
@@ -202,6 +204,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				nomesAlertes,
+				nomesErrors,
 				mostrarAnulats,
 				paginacioParams);
 	}
@@ -225,6 +228,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats) {
 		return delegate.findIdsAmbFiltre(
 				entornId,
@@ -243,6 +247,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				nomesAlertes,
+				nomesErrors,
 				mostrarAnulats);
 	}
 
@@ -406,6 +411,18 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientDto> findRelacionats(Long id) {
 		return delegate.findRelacionats(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AlertaDto> findAlertes(Long id) {
+		return delegate.findAlertes(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Object[] findErrorsExpedient(Long id) {
+		return delegate.findErrorsExpedient(id);
 	}
 
 	@Override

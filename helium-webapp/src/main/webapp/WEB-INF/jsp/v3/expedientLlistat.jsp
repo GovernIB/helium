@@ -32,6 +32,34 @@
 	<style type="text/css">
 		.col-md-1.btn-group {width: 4.333%;}
 		.col-md-6.btn-group {width: 54%;}
+		.alert-envelope {
+			font-size: 21px;
+			position: relative;
+			top: 3px;
+			margin-left: 3px;
+		}
+		.sup-count {
+			position: relative;
+			padding: 2px 5px;
+			background-color: red;
+			font-size: 11px;
+			top: -9px;
+			left: -10px;
+		}
+		.error-triangle {
+			color: red;
+		    font-size: 18px;
+		    top: 4px;
+		    position: relative;	
+		}
+		a.no-deco-link {
+			text-decoration: none;
+			color: inherit;
+		}
+		a.no-deco-link:hover {
+			text-decoration: none;
+			color: inherit;
+		}
 	</style>
 <script>
 $(document).ready(function() {
@@ -238,6 +266,7 @@ function refrescarAlertes(e) {
 			</div>		
 			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
+				<form:hidden path="nomesErrors"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
 				
@@ -249,7 +278,8 @@ function refrescarAlertes(e) {
 							<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="expedient.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 						</div>
-						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
+						<button id="nomesErrorsCheck" data-path="nomesErrors" title="<spring:message code="expedient.llistat.filtre.camp.errors"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesErrors}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
+						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa  fa-envelope"></span></button>
 					</div>
 					<div class="col-md-6">
 						<div class="pull-right">
@@ -284,8 +314,10 @@ function refrescarAlertes(e) {
 						{{if estat_nom}}{{:estat_nom}}{{else}}<spring:message code="comu.estat.iniciat"/>{{/if}}
 					{{/if}}
 					<div class="pull-right">
-						{{if errorsIntegracions}}
-							<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span> </span>
+						{{if errorsIntegracions || errorDesc}}
+							<a class="no-deco-link" data-rdt-link-modal="true" href="<c:url value="../v3/expedient/{{:id}}/errors"/>">
+								<span class="fa fa-exclamation-triangle error-triangle" title="<spring:message code="expedient.consulta.errors"/>"></span>
+							</a>
 						{{/if}}
 						{{if aturat}}
 							<span class="label label-danger" title="{{:infoAturat}}">AT</span>
@@ -293,12 +325,20 @@ function refrescarAlertes(e) {
 						{{if anulat}}
 							<span class="label label-warning" title="{{:comentariAnulat}}">AN</span>
 						{{/if}}
-						{{if errorDesc}}
+						<!-- {{if errorDesc}}
 							{{if permisAdministration}}
 								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}" data-error-detall="{{:errorFull}}" data-error-pid="{{:processInstanceId}}"><span class="fa fa-exclamation-circle"></span> </span>
 							{{else}}
 								<span class="label label-warning show-modal-error" title="{{:errorDesc}}" data-error-titol="Informació sobre l'error" data-error-missatge="{{:errorDesc}}"><span class="fa fa-exclamation-circle"></span> </span>
 							{{/if}}						
+						{{/if}} -->
+						{{if alertesTotals}}
+							<a class="no-deco-link" data-rdt-link-modal="true" href="<c:url value="../v3/expedient/{{:id}}/alertes"/>">
+								<span class="fa fa-envelope alert-envelope show-modal-alertes" title="<spring:message code="expedient.consulta.alertes.totals"/>"></span>
+								{{if alertesPendents}}
+									<span class="badge sup-count">{{:alertesPendents}}</span>
+								{{/if}}
+							</a>
 						{{/if}}
 					</div>
 					</script>
@@ -316,6 +356,8 @@ function refrescarAlertes(e) {
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
+				<th data-rdt-property="alertesTotals" data-rdt-visible="false"></th>
+				<th data-rdt-property="alertesPendents" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">

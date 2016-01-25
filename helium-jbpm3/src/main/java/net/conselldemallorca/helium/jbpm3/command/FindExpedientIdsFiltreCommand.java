@@ -40,6 +40,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private boolean mostrarAnulats;
 	private boolean mostrarNomesAnulats;
 	private boolean nomesAlertes;
+	private boolean nomesErrors;
 	private boolean nomesAmbTasquesPendents;
 	private boolean nomesTasquesPersonals;
 	private boolean nomesTasquesGrup;
@@ -68,6 +69,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			boolean mostrarAnulats,
 			boolean mostrarNomesAnulats,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			boolean nomesAmbTasquesPendents,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
@@ -95,6 +97,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.mostrarAnulats = mostrarAnulats;
 		this.mostrarNomesAnulats = mostrarNomesAnulats;
 		this.nomesAlertes = nomesAlertes;
+		this.nomesErrors = nomesErrors;
 		this.nomesAmbTasquesPendents = nomesAmbTasquesPendents;
 		this.nomesTasquesPersonals = nomesTasquesPersonals;
 		this.nomesTasquesGrup = nomesTasquesGrup;
@@ -184,7 +187,21 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			}
 		}
 		expedientQuerySb.append("and (((:mostrarAnulats = true or pie.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and pie.anulat = true)) ");
-		expedientQuerySb.append("and (:nomesAlertes = false or pie.errorDesc is not null) ");
+		
+		if (nomesErrors) {
+			expedientQuerySb.append("and (pie.errorDesc is not null or (pie.errorsIntegs is not null and pie.errorsIntegs > 0)) ");
+		}
+		
+		if (nomesAlertes) {
+			expedientQuerySb.append(
+					"and exists (" + 
+					"    from " +
+					"        Alerta as al " +
+					"    where " +
+					"        al.entorn.id = pie.entornId " +
+					"    and al.expedient.id = pie.id ) ");
+		}
+		
 		LlistatIds resposta = new LlistatIds();
 		//System.out.println(">>> Consulta d'expedients COUNT: " + expedientQuerySb.toString());
 		Query queryCount = jbpmContext.getSession().createQuery(
@@ -206,6 +223,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				mostrarAnulats,
 				mostrarNomesAnulats,
 				nomesAlertes,
+				nomesErrors,
 				nomesAmbTasquesPendents,
 				permesTasquesAltresUsuaris,
 				0,
@@ -260,7 +278,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			}
 			selectSb.append(" ");
 			expedientQuerySb.insert(0, selectSb);
-			//System.out.println(">>> Consulta d'expedients DADES: " + expedientQuerySb.toString());
+//			System.out.println(">>> Consulta d'expedients DADES: " + expedientQuerySb.toString());
 			Query queryIds = jbpmContext.getSession().createQuery(expedientQuerySb.toString());
 			setQueryParams(
 					queryIds,
@@ -279,6 +297,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					mostrarAnulats,
 					mostrarNomesAnulats,
 					nomesAlertes,
+					nomesErrors,
 					nomesAmbTasquesPendents,
 					permesTasquesAltresUsuaris,
 					firstResult,
@@ -314,6 +333,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			boolean mostrarAnulats,
 			boolean mostrarNomesAnulats,
 			boolean nomesAlertes,
+			boolean nomesErrors,
 			boolean nomesAmbTasquesPendents,
 			boolean permesTasquesAltresUsuaris,
 			int firstResult,
@@ -352,7 +372,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		query.setParameter("mostrarAnulats", mostrarAnulats);
 		query.setParameter("mostrarNomesAnulats", mostrarNomesAnulats);
-		query.setParameter("nomesAlertes", nomesAlertes);
+//		if (nomesAlertes) {
+//			query.setParameter("nomesAlertes", nomesAlertes);
+//		}
 		if (maxResults != -1) {
 			query.setFirstResult(firstResult);
 			query.setMaxResults(maxResults);

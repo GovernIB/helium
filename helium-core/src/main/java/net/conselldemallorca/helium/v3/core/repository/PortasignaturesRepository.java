@@ -5,7 +5,9 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +24,9 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 
 	@Query("select p from Portasignatures p where processInstanceId=:processInstanceId")
 	List<Portasignatures> findPendentsPerProcessInstanceId(@Param("processInstanceId") String processInstanceId);
+
+	List<Portasignatures> findByExpedientAndEstat(
+			Expedient expedient,
+			TipusEstat estat);
+
 }
