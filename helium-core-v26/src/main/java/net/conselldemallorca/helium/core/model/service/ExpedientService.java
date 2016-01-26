@@ -1935,7 +1935,8 @@ public class ExpedientService {
 			String processInstanceId,
 			String errorDesc, 
 			String errorFull) {
-		jbpmHelper.retryJob(jobId);
+		if (jobId != null)
+			jbpmHelper.retryJob(jobId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
 		expedient.setErrorDesc(errorDesc);
 		expedient.setErrorFull(errorFull);
