@@ -983,7 +983,7 @@ public interface Jbpm3HeliumService {
 	 * @param errorDesc
 	 * @param errorFull
 	 */
-	public void updateExpedientError(String processInstanceId, String errorDesc, String errorFull);
+	public void updateExpedientError(Long jobId, String processInstanceId, String errorDesc, String errorFull);
 
 	/**
 	 * Activa o desactiva un token

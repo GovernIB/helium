@@ -54,6 +54,7 @@
 					$('#tramitar-tasca-' + tascaIdPerAgafar).click();
 				}
 				tascaIdPerAgafar = null;
+				filtreActiu();
 			}
 		});	
 		$('.date_time').datetimepicker({
@@ -144,6 +145,36 @@
 			$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].checked = true;
 		}
 		$('#taulaDades').find('th:eq('+numColumna+')').find('input[type=checkbox]')[0].click();
+	}
+	function filtreActiu() {
+		var filtre = false;
+		// Comprovam els inputs del formulari de filtre
+		if ($("#nomesTasquesPersonalsCheck").hasClass("active"))
+			filtre = true;
+		if ($("#nomesTasquesGrupCheck").hasClass("active"))
+			filtre = true;
+		if ($("#titol").val() != "")
+			filtre = true;
+		if ($("#expedient").val() != "")
+			filtre = true;
+		if ($("#expedientTipusId").val() != "")
+			filtre = true;
+		if ($("#tasca").val() != "")
+			filtre = true;
+		if ($("#dataCreacioInicial").val() != "")
+			filtre = true;
+		if ($("#dataCreacioFinal").val() != "")
+			filtre = true;
+		if ($("#dataLimitInicial").val() != "")
+			filtre = true;
+		if ($("#dataLimitFinal").val() != "")
+			filtre = true;
+			
+		if (filtre) {
+			$('#tascaConsultaCommand').addClass("filtrat");
+		} else {
+			$('#tascaConsultaCommand').removeClass("filtrat");
+		}
 	}
 </script>
 <style type="text/css">

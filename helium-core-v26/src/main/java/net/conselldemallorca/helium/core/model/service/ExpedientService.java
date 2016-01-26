@@ -1925,7 +1925,13 @@ public class ExpedientService {
 				nodeName);
 	}
 	
-	public Expedient updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
+//	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public Expedient updateExpedientError(
+//			Long jobId,
+			String processInstanceId, 
+			String errorDesc, 
+			String errorFull) {
+//		jbpmHelper.retryJob(jobId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
 		expedient.setErrorDesc(errorDesc);
 		expedient.setErrorFull(errorFull);

@@ -82,6 +82,7 @@ $(document).ready(function() {
 				$('#modal-error').modal('show');
 				if (e.stopPropagation) e.stopPropagation();
 			});
+			filtreActiu();
 		},
 		rowClickCallback: function(row, event) {
 			var clickNomesDesplegar = true;
@@ -194,6 +195,48 @@ function refrescarAlertes(e) {
 			$('#contingut-alertes').html(data);
 		}
 	});
+}
+function filtreActiu() {
+	var filtre = false;
+	// Comprovam els inputs del formulari de filtre
+	if ($("#nomesTasquesPersonalsCheck").hasClass("active"))
+		filtre = true;
+	if ($("#nomesTasquesGrupCheck").hasClass("active"))
+		filtre = true;
+	if ($("#nomesAlertesCheck").hasClass("active"))
+		filtre = true;
+	if ($("#nomesErrorsCheck").hasClass("active"))
+		filtre = true;
+	if ($("#numero").val() != "")
+		filtre = true;
+	if ($("#titol").val() != "")
+		filtre = true;
+	if ($("#expedientTipusId").val() != "")
+		filtre = true;
+	if ($("#estatText").val() != "")
+		filtre = true;
+	if ($("#dataIniciInicial").val() != "")
+		filtre = true;
+	if ($("#dataIniciFinal").val() != "")
+		filtre = true;
+	if ($("#dataFiInicial").val() != "")
+		filtre = true;
+	if ($("#dataFiFinal").val() != "")
+		filtre = true;
+	if ($("#geoReferencia").val() != "")
+		filtre = true;
+	if ($("#mostrarAnulats").val() != "NO") {
+		if ($("#mostrarAnulats").val() == null)
+			$("#mostrarAnulats").select2().val("NO").trigger("change")
+		else
+			filtre = true;
+	}
+		
+	if (filtre) {
+		$('#expedientConsultaCommand').addClass("filtrat");
+	} else {
+		$('#expedientConsultaCommand').removeClass("filtrat");
+	}
 }
 </script>
 </head>

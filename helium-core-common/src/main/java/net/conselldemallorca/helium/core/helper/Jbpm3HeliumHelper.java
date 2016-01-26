@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -1719,6 +1721,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
+	@Transactional
 	public void initializeDefinicionsProces() {
 		List<ExpedientTipus> llistat = expedientTipusRepository.findAll();
 		for (ExpedientTipus expedientTipus: llistat) {
@@ -1740,7 +1743,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void updateExpedientError(
+			Long jobId,
 			String processInstanceId,
 			String errorDesc,
 			String errorFull) {
@@ -1749,6 +1754,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient,
 				errorDesc,
 				errorFull);
+		jbpmHelper.retryJob(jobId);
 	}
 
 	@Override

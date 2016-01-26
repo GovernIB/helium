@@ -279,9 +279,20 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES,
 				dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
 						entorn.getId()));
+		// Eliminam expedient actual
 		SessionHelper.removeAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACTUAL);
+		// Eliminam filtres de tasques i expedients
+		SessionHelper.removeAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_GENERAL);
+		SessionHelper.removeAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TASCA);
+		SessionHelper.removeAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS);
 	}
 
 }
