@@ -31,6 +31,8 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
@@ -1927,7 +1929,13 @@ public class ExpedientService {
 				nodeName);
 	}
 	
-	public Expedient updateExpedientError(String processInstanceId, String errorDesc, String errorFull) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public Expedient updateExpedientError(
+			Long jobId,
+			String processInstanceId,
+			String errorDesc, 
+			String errorFull) {
+		jbpmHelper.retryJob(jobId);
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
 		expedient.setErrorDesc(errorDesc);
 		expedient.setErrorFull(errorFull);

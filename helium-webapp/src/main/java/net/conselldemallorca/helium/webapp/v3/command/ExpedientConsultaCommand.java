@@ -39,7 +39,7 @@ public class ExpedientConsultaCommand {
 	
 	private boolean nomesAlertes;
 	private boolean nomesErrors;
-	private MostrarAnulatsDto mostrarAnulats;
+	private MostrarAnulatsDto mostrarAnulats = MostrarAnulatsDto.NO;
 	
 	private boolean nomesTasquesPersonals = false;
 	private boolean nomesTasquesGrup = false;

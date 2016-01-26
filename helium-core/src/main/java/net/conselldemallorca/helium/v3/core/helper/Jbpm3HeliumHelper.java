@@ -10,6 +10,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -129,12 +135,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -1660,10 +1660,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void updateExpedientError(
+			Long jobId,
 			String processInstanceId,
 			String errorDesc,
 			String errorFull) {
-		expedientService.updateExpedientError(processInstanceId, errorDesc, errorFull);
+		expedientService.updateExpedientError(jobId, processInstanceId, errorDesc, errorFull);
 	}
 
 	@Override

@@ -8,9 +8,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -25,6 +22,8 @@ import org.jbpm.job.Job;
 import org.jbpm.persistence.JbpmPersistenceException;
 import org.jbpm.persistence.db.StaleObjectLogConfigurer;
 import org.jbpm.svc.Services;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 public class JobExecutorThread extends Thread {
 
@@ -192,19 +191,12 @@ public class JobExecutorThread extends Thread {
 
 	protected void executeJob(Job job) throws Exception {
 		JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
-//		boolean jobHasBeenExecutedWithError = job.getException() != null;
-//		String ex = job.getException();
 		try {
 			JobSession jobSession = jbpmContext.getJobSession();
 			job = jobSession.loadJob(job.getId());
 			
-			if (jobHasBeenExecutedWithError(job)) {
-				log.error("Job Exception: " + getJobException(job));
-				job.setRetries(job.getRetries() - 1);
-				jobSession.saveJob(job);
-				if (job.getRetries() <= 0) {
-					jobSession.deleteJob(job);
-				}
+			if (job.getRetries() <= 0) {
+				jobSession.deleteJob(job);
 				return;
 			}
 			try {
@@ -243,21 +235,6 @@ public class JobExecutorThread extends Thread {
 				}
 			}
 		}
-	}
-	
-	private boolean jobHasBeenExecutedWithError(Job job) {
-		if (SpringJobExecutorThread.jobErrors.containsKey(job.getId())) 
-			return true;
-		return job.getException() != null;
-	}
-	
-	private String getJobException(Job job) {
-		if (SpringJobExecutorThread.jobErrors.containsKey(job.getId())) {
-			String excepcio = SpringJobExecutorThread.jobErrors.get(job.getId());
-			SpringJobExecutorThread.jobErrors.remove(job.getId());
-			return excepcio;
-		}
-		return job.getException();
 	}
 	
 	protected void saveJobException(Job job, Throwable exception) {

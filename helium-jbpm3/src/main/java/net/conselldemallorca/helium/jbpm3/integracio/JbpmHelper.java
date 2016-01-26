@@ -86,6 +86,7 @@ import net.conselldemallorca.helium.jbpm3.command.ReleaseTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstanceTimerCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstancesCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeTaskInstanceCommand;
+import net.conselldemallorca.helium.jbpm3.command.RetryJobCommand;
 import net.conselldemallorca.helium.jbpm3.command.RevertProcessInstanceEndCommand;
 import net.conselldemallorca.helium.jbpm3.command.RevertTokenEndCommand;
 import net.conselldemallorca.helium.jbpm3.command.SaveProcessInstanceVariablesCommand;
@@ -1688,6 +1689,11 @@ public class JbpmHelper {
 			commandService.execute(deleteCommand);
 		}
 		//adminService.mesuraCalcular("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
+	}
+	
+	public void retryJob(Long jobId) {
+		RetryJobCommand command = new RetryJobCommand(jobId);
+		commandService.execute(command);
 	}
 
 	public void reprendreExpedient(String processInstanceId) throws Exception{
