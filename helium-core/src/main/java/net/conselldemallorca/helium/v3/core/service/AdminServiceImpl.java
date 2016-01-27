@@ -298,6 +298,10 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public void updatePerfil(UsuariPreferenciesDto preferencies) {
 		UsuariPreferencies usuari = usuariPreferenciesRepository.findByCodi(preferencies.getCodi());
+		if (usuari == null)
+			usuari = new UsuariPreferencies();
+		
+		usuari.setCodi(preferencies.getCodi());
 		usuari.setCabeceraReducida(preferencies.isCabeceraReducida());
 		usuari.setConsultaId(preferencies.getConsultaId());
 		usuari.setExpedientTipusDefecteId(preferencies.getExpedientTipusDefecteId());

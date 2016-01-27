@@ -7,19 +7,20 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
+import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
-import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 /**
  * Helper per a enviament de correus
@@ -54,6 +55,14 @@ public class UsuariActualHelper {
 		return conversioTipusHelper.convertirList(
 				entorns,
 				EntornDto.class);
+	}
+
+	@CacheEvict(value = "entornsUsuariActual", allEntries = true)
+	public void netejarCacheUsuariTots() {
+	}
+
+	@CacheEvict(value = "entornsUsuariActual")
+	public void netejarCacheUsuari(String usuariCodi) {
 	}
 
 	public String getUsuariActual() {

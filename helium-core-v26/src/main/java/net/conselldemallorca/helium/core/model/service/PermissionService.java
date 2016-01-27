@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.GenericEntity;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.security.PermissionUtil;
@@ -38,6 +41,8 @@ public class PermissionService {
 
 	private AclServiceDao aclServiceDao;
 
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
 
 
 	@SuppressWarnings("rawtypes")
@@ -58,12 +63,14 @@ public class PermissionService {
 							clazz,
 							(Long)id,
 							permission);
+					usuariActualHelper.netejarCacheUsuari(recipient);
 				} else {
 					aclServiceDao.assignarPermisRol(
 							tRecipient,
 							clazz,
 							(Long)id,
 							permission);
+					usuariActualHelper.netejarCacheUsuariTots();
 				}
 			}
 		}
@@ -106,6 +113,11 @@ public class PermissionService {
 				id,
 				clazz,
 				true);
+		if (principal) {
+			usuariActualHelper.netejarCacheUsuari(recipient);
+		} else {
+			usuariActualHelper.netejarCacheUsuariTots();
+		}
 	}
 	@SuppressWarnings("rawtypes")
 	public Map<Sid, List<AccessControlEntry>> getAclEntriesGroupedBySid(

@@ -454,7 +454,8 @@ public class DissenyServiceImpl implements DissenyService {
 						tipus.getEntorn().getId(),
 						tipus.getJbpmProcessDefinitionKey()));
 			}
-			tasques.addAll(tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
+			if (ids.size() > 0)
+				tasques.addAll(tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
 		}
 				
 		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
