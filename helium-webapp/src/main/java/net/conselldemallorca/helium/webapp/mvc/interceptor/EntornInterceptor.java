@@ -10,12 +10,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
 import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
@@ -28,8 +22,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
-import net.conselldemallorca.helium.webapp.v3.controller.BaseController;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.ModelAndViewDefiningException;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
@@ -73,59 +74,127 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			String canviEntorn = request.getParameter(VARIABLE_REQUEST_CANVI_ENTORN);
 			List<EntornDto> entorns = entornService.findAmbPermisAcces();
 			request.setAttribute("entorns", entorns);
-			// Si en el request existeix el paràmetre de selecció d'entorn
-			// canvia l'entorn actual
-			if (canviEntorn != null) {
-				Long entornId = new Long(canviEntorn);
-				for (EntornDto entorn: entorns) {
-					if (entorn.getId().longValue() == entornId.longValue()) {
-						entornActual = entorn;
-						setEntornActual(request, entornActual);
-						break;
-					}
+			
+			// Nova implementació
+			if (entorns.size() == 0) {
+				if (request.getServletPath().startsWith("/v3")) {
+		            ModelAndView mav = new ModelAndView("v3/entornNoDisponible");
+		            throw new ModelAndViewDefiningException(mav);
 				}
-			} else if (entornSessio == null) {
-				if (entorns.size() == 1) {
-					entornActual = entorns.get(0);
-					setEntornActual(request, entornActual);
+			} else {
+				if (canviEntorn != null) {
+					Long entornId = new Long(canviEntorn);
+					for (EntornDto entorn: entorns) {
+						if (entorn.getId().longValue() == entornId.longValue()) {
+							entornActual = entorn;
+							setEntornActual(request, entornActual);
+							break;
+						}
+					}
 				} else {
-					UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
-					if (prefs != null) {
-						if (prefs.getDefaultEntornCodi() != null) {
-							for (EntornDto entorn: entorns) {
-								if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
-									entornActual = entorn;
+					if (entornSessio == null) {
+						
+						UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
+						if (prefs != null) {
+							if (prefs.getDefaultEntornCodi() != null) {
+								for (EntornDto entorn: entorns) {
+									if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
+										entornActual = entorn;
+										setEntornActual(request, entornActual);
+										break;
+									}
+								}
+								if (entornActual == null) {
+									entornActual = entorns.get(0);
 									setEntornActual(request, entornActual);
-									break;
+								}
+							} else {
+								entornActual = entorns.get(0);
+								setEntornActual(request, entornActual);
+							}
+							if (prefs.getExpedientTipusDefecteId() != null) {
+								for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {
+									if (expTipus.getId().equals(prefs.getExpedientTipusDefecteId())) {
+										SessionHelper.setAttribute(
+												request,
+												SessionHelper.VARIABLE_EXPTIP_ACTUAL,
+												expTipus);
+										break;
+									}							
 								}
 							}
-						} else if (request.getRequestURI().startsWith(BaseController.ESQUEMA_PREFIX+"/v3") && !entorns.isEmpty()) {
+						} else {
 							entornActual = entorns.get(0);
 							setEntornActual(request, entornActual);
 						}
-						if (prefs.getExpedientTipusDefecteId() != null) {
-							for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {
-								if (expTipus.getId().equals(prefs.getExpedientTipusDefecteId())) {
-									SessionHelper.setAttribute(
-											request,
-											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
-											expTipus);
-									break;
-								}							
+					} else {
+						for (EntornDto entorn: entorns) {
+							if (entorn.getCodi().equals(entornSessio.getCodi())) {
+								entornActual = entorn;
+								break;
 							}
 						}
+						if (entornActual != null && EntornActual.getEntornId() == null)
+							EntornActual.setEntornId(entornActual.getId());
 					}
 				}
-			} else {
-				for (EntornDto entorn: entorns) {
-					if (entorn.getCodi().equals(entornSessio.getCodi())) {
-						entornActual = entorn;
-						break;
-					}
-				}
-				if (entornActual != null && EntornActual.getEntornId() == null)
-					EntornActual.setEntornId(entornActual.getId());
 			}
+			
+			
+			
+			// Si en el request existeix el paràmetre de selecció d'entorn
+			// canvia l'entorn actual
+//			if (canviEntorn != null) {
+//				Long entornId = new Long(canviEntorn);
+//				for (EntornDto entorn: entorns) {
+//					if (entorn.getId().longValue() == entornId.longValue()) {
+//						entornActual = entorn;
+//						setEntornActual(request, entornActual);
+//						break;
+//					}
+//				}
+//			} else if (entornSessio == null) {
+//				if (entorns.size() == 1) {
+//					entornActual = entorns.get(0);
+//					setEntornActual(request, entornActual);
+//				} else {
+//					UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
+//					if (prefs != null) {
+//						if (prefs.getDefaultEntornCodi() != null) {
+//							for (EntornDto entorn: entorns) {
+//								if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
+//									entornActual = entorn;
+//									setEntornActual(request, entornActual);
+//									break;
+//								}
+//							}
+//						} else if (request.getRequestURI().startsWith(BaseController.ESQUEMA_PREFIX+"/v3") && !entorns.isEmpty()) {
+//							entornActual = entorns.get(0);
+//							setEntornActual(request, entornActual);
+//						}
+//						if (prefs.getExpedientTipusDefecteId() != null) {
+//							for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {
+//								if (expTipus.getId().equals(prefs.getExpedientTipusDefecteId())) {
+//									SessionHelper.setAttribute(
+//											request,
+//											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
+//											expTipus);
+//									break;
+//								}							
+//							}
+//						}
+//					}
+//				}
+//			} else {
+//				for (EntornDto entorn: entorns) {
+//					if (entorn.getCodi().equals(entornSessio.getCodi())) {
+//						entornActual = entorn;
+//						break;
+//					}
+//				}
+//				if (entornActual != null && EntornActual.getEntornId() == null)
+//					EntornActual.setEntornId(entornActual.getId());
+//			}
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
 			ExpedientIniciantDto.setExpedient(null);
 			if (entornActual != null) {

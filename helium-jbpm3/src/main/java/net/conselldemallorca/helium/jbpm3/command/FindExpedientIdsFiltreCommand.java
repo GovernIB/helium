@@ -111,177 +111,105 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		StringBuilder expedientQuerySb = new StringBuilder();
-		expedientQuerySb.append(
-				"from " +
-				"    org.jbpm.graph.exe.ProcessInstanceExpedient pie " +
-				"where " +
-				"    pie.entornId = :entornId " +
-				"and pie.tipus.id in (:tipusIdPermesos) ");
-		if (titol != null && !titol.isEmpty()) {
-			expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%')) ");
-		}
-		if (numero != null && !numero.isEmpty()) {
-			expedientQuerySb.append("and lower(pie.numero) like lower('%'||:numero||'%')) ");
-		}
-		if (tipusId != null) {
-			expedientQuerySb.append("and pie.tipus.id = :tipusId ");
-		}
-		if (dataIniciInici != null) {
-			expedientQuerySb.append("and pie.dataInici >= :dataIniciInici ");
-		}
-		if (dataIniciFi != null) {
-			expedientQuerySb.append("and pie.dataInici <= :dataIniciFi ");
-		}
-		if (estatId != null) {
-			expedientQuerySb.append("and pie.estatId = :estatId ");
-		}
-		if (geoPosX != null) {
-			expedientQuerySb.append("and pie.geoPosX = :geoPosX ");
-		}
-		if (geoPosY != null) {
-			expedientQuerySb.append("and pie.geoPosY = :geoPosY ");
-		}
-		if (geoReferencia != null) {
-			expedientQuerySb.append("and pie.geoReferencia = :geoReferencia ");
-		}
-		if (nomesIniciats) {
-			expedientQuerySb.append("and pie.dataFi is null and pie.estatId is null ");
-		}
-		if (nomesFinalitzats) {
-			expedientQuerySb.append("and pie.dataFi is not null ");
-		}
-		if (nomesAmbTasquesPendents) {
-			if (permesTasquesAltresUsuaris) {
-				expedientQuerySb.append(
-						"and exists (" + 
-						"    from " +
-						"        org.jbpm.taskmgmt.exe.TaskInstance as ti " +
-						"    where " +
-						"        ti.processInstance.id = pie.processInstanceId " +
-						"    and ti.isSuspended = false " +
-						"    and ti.isOpen = true ");
-				if (nomesTasquesPersonals) {
-					expedientQuerySb.append("    and ti.actorId is not null ");
-				} else if (nomesTasquesGrup) {
-					expedientQuerySb.append("    and (ti.actorId is null and exists elements(ti.pooledActors)) ");
-				}
-				expedientQuerySb.append(") ");
-			} else {
-				expedientQuerySb.append(
-						"and exists (" + 
-						"    from " +
-						"        org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
-						"    where " +
-						"        ti.processInstance.id = pie.processInstanceId " +
-						"    and ti.isSuspended = false " +
-						"    and ti.isOpen = true ");
-				if (nomesTasquesPersonals) {
-					expedientQuerySb.append("    and (ti.actorId is not null and ti.actorId = :actorId) ");
-				} else if (nomesTasquesGrup) {
-					expedientQuerySb.append("    and (ti.actorId is null and pa.actorId = :actorId) ");
-				} else {
-					expedientQuerySb.append("    and ((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId))) ");
-				}
-				expedientQuerySb.append(") ");
-			}
-		}
-		expedientQuerySb.append("and (((:mostrarAnulats = true or pie.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and pie.anulat = true)) ");
-		
-		if (nomesErrors) {
-			expedientQuerySb.append("and (pie.errorDesc is not null or (pie.errorsIntegs is not null and pie.errorsIntegs > 0)) ");
-		}
-		
-		if (nomesAlertes) {
-			expedientQuerySb.append(
-					"and exists (" + 
-					"    from " +
-					"        Alerta as al " +
-					"    where " +
-					"        al.entorn.id = pie.entornId " +
-					"    and al.expedient.id = pie.id ) ");
-		}
-		
 		LlistatIds resposta = new LlistatIds();
-		//System.out.println(">>> Consulta d'expedients COUNT: " + expedientQuerySb.toString());
-		Query queryCount = jbpmContext.getSession().createQuery(
-				"select count(distinct pie.id) " + expedientQuerySb.toString());
-		setQueryParams(
-				queryCount,
-				entornId,
-				actorId,
-				tipusIdPermesos,
-				titol,
-				numero,
-				tipusId,
-				dataIniciInici,
-				dataIniciFi,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				mostrarAnulats,
-				mostrarNomesAnulats,
-				nomesAlertes,
-				nomesErrors,
-				nomesAmbTasquesPendents,
-				permesTasquesAltresUsuaris,
-				0,
-				-1);
-		resposta.setCount(((Long)queryCount.uniqueResult()).intValue());
-		//System.out.println(">>> COUNT: " + resposta.getCount());
-		if (!nomesCount) {
-			List<String> sortColumns = new ArrayList<String>();
-			if (sort != null) {
-				/*sorts:
-				titol
-				numero
-				identificador
-				tipus
-				dataInici
-				dataFi,
-				estat*/
-				// Per defecte: dataCreacio desc
-				expedientQuerySb.append("order by ");
-				if ("titol".equals(sort)) {
-					sortColumns.add("pie.titol");
-				} else if ("numero".equals(sort)) {
-					sortColumns.add("pie.numero");
-				} else if ("identificador".equals(sort)) {
-					sortColumns.add("pie.numero");
-					sortColumns.add("pie.titol");
-				} else if ("tipus".equals(sort)) {
-					sortColumns.add("pie.tipus");
-				} else if ("dataInici".equals(sort)) {
-					sortColumns.add("pie.dataInici");
-				} else if ("dataFi".equals(sort)) {
-					sortColumns.add("pie.dataFi");
-				} else if ("estat".equals(sort)) {
-					sortColumns.add("case when pie.dataFi is null then 0 else 1 end");
-					sortColumns.add("pie.estatId nulls first");
-				}
-				boolean sortFirst = true;
-				for (String sortColumn: sortColumns) {
-					if (!sortFirst)
-						expedientQuerySb.append(", ");
-					expedientQuerySb.append(sortColumn);
-					expedientQuerySb.append((asc) ? " asc" : " desc");
-					sortFirst = false;
+		if(tipusIdPermesos.size() > 0) {
+			StringBuilder expedientQuerySb = new StringBuilder();
+			expedientQuerySb.append(
+					"from " +
+					"    org.jbpm.graph.exe.ProcessInstanceExpedient pie " +
+					"where " +
+					"    pie.entornId = :entornId " +
+					"and pie.tipus.id in (:tipusIdPermesos) ");
+			if (titol != null && !titol.isEmpty()) {
+				expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%')) ");
+			}
+			if (numero != null && !numero.isEmpty()) {
+				expedientQuerySb.append("and lower(pie.numero) like lower('%'||:numero||'%')) ");
+			}
+			if (tipusId != null) {
+				expedientQuerySb.append("and pie.tipus.id = :tipusId ");
+			}
+			if (dataIniciInici != null) {
+				expedientQuerySb.append("and pie.dataInici >= :dataIniciInici ");
+			}
+			if (dataIniciFi != null) {
+				expedientQuerySb.append("and pie.dataInici <= :dataIniciFi ");
+			}
+			if (estatId != null) {
+				expedientQuerySb.append("and pie.estatId = :estatId ");
+			}
+			if (geoPosX != null) {
+				expedientQuerySb.append("and pie.geoPosX = :geoPosX ");
+			}
+			if (geoPosY != null) {
+				expedientQuerySb.append("and pie.geoPosY = :geoPosY ");
+			}
+			if (geoReferencia != null) {
+				expedientQuerySb.append("and pie.geoReferencia = :geoReferencia ");
+			}
+			if (nomesIniciats) {
+				expedientQuerySb.append("and pie.dataFi is null and pie.estatId is null ");
+			}
+			if (nomesFinalitzats) {
+				expedientQuerySb.append("and pie.dataFi is not null ");
+			}
+			if (nomesAmbTasquesPendents) {
+				if (permesTasquesAltresUsuaris) {
+					expedientQuerySb.append(
+							"and exists (" + 
+							"    from " +
+							"        org.jbpm.taskmgmt.exe.TaskInstance as ti " +
+							"    where " +
+							"        ti.processInstance.id = pie.processInstanceId " +
+							"    and ti.isSuspended = false " +
+							"    and ti.isOpen = true ");
+					if (nomesTasquesPersonals) {
+						expedientQuerySb.append("    and ti.actorId is not null ");
+					} else if (nomesTasquesGrup) {
+						expedientQuerySb.append("    and (ti.actorId is null and exists elements(ti.pooledActors)) ");
+					}
+					expedientQuerySb.append(") ");
+				} else {
+					expedientQuerySb.append(
+							"and exists (" + 
+							"    from " +
+							"        org.jbpm.taskmgmt.exe.TaskInstance ti left join ti.pooledActors pa " +
+							"    where " +
+							"        ti.processInstance.id = pie.processInstanceId " +
+							"    and ti.isSuspended = false " +
+							"    and ti.isOpen = true ");
+					if (nomesTasquesPersonals) {
+						expedientQuerySb.append("    and (ti.actorId is not null and ti.actorId = :actorId) ");
+					} else if (nomesTasquesGrup) {
+						expedientQuerySb.append("    and (ti.actorId is null and pa.actorId = :actorId) ");
+					} else {
+						expedientQuerySb.append("    and ((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId))) ");
+					}
+					expedientQuerySb.append(") ");
 				}
 			}
-			StringBuilder selectSb = new StringBuilder("select distinct pie.id");
-			if (!sortColumns.isEmpty()) {
-				for (String sortColumn: sortColumns) {
-					selectSb.append(", ");
-					selectSb.append(sortColumn);
-				}
+			expedientQuerySb.append("and (((:mostrarAnulats = true or pie.anulat = false) and :mostrarNomesAnulats = false) or (:mostrarNomesAnulats = true and pie.anulat = true)) ");
+			
+			if (nomesErrors) {
+				expedientQuerySb.append("and (pie.errorDesc is not null or (pie.errorsIntegs is not null and pie.errorsIntegs > 0)) ");
 			}
-			selectSb.append(" ");
-			expedientQuerySb.insert(0, selectSb);
-//			System.out.println(">>> Consulta d'expedients DADES: " + expedientQuerySb.toString());
-			Query queryIds = jbpmContext.getSession().createQuery(expedientQuerySb.toString());
+			
+			if (nomesAlertes) {
+				expedientQuerySb.append(
+						"and exists (" + 
+						"    from " +
+						"        Alerta as al " +
+						"    where " +
+						"        al.entorn.id = pie.entornId " +
+						"    and al.expedient.id = pie.id ) ");
+			}
+			
+			
+			//System.out.println(">>> Consulta d'expedients COUNT: " + expedientQuerySb.toString());
+			Query queryCount = jbpmContext.getSession().createQuery(
+					"select count(distinct pie.id) " + expedientQuerySb.toString());
 			setQueryParams(
-					queryIds,
+					queryCount,
 					entornId,
 					actorId,
 					tipusIdPermesos,
@@ -300,17 +228,92 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					nomesErrors,
 					nomesAmbTasquesPendents,
 					permesTasquesAltresUsuaris,
-					firstResult,
-					maxResults);
-			List<Object[]> resultat = (List<Object[]>)queryIds.list();
-			if (!sortColumns.isEmpty()) {
-				List<Long> ids = new ArrayList<Long>();
-				for (Object[] fila: resultat) {
-					ids.add((Long)fila[0]);
+					0,
+					-1);
+			resposta.setCount(((Long)queryCount.uniqueResult()).intValue());
+			//System.out.println(">>> COUNT: " + resposta.getCount());
+			if (!nomesCount) {
+				List<String> sortColumns = new ArrayList<String>();
+				if (sort != null) {
+					/*sorts:
+					titol
+					numero
+					identificador
+					tipus
+					dataInici
+					dataFi,
+					estat*/
+					// Per defecte: dataCreacio desc
+					expedientQuerySb.append("order by ");
+					if ("titol".equals(sort)) {
+						sortColumns.add("pie.titol");
+					} else if ("numero".equals(sort)) {
+						sortColumns.add("pie.numero");
+					} else if ("identificador".equals(sort)) {
+						sortColumns.add("pie.numero");
+						sortColumns.add("pie.titol");
+					} else if ("tipus".equals(sort)) {
+						sortColumns.add("pie.tipus");
+					} else if ("dataInici".equals(sort)) {
+						sortColumns.add("pie.dataInici");
+					} else if ("dataFi".equals(sort)) {
+						sortColumns.add("pie.dataFi");
+					} else if ("estat".equals(sort)) {
+						sortColumns.add("case when pie.dataFi is null then 0 else 1 end");
+						sortColumns.add("pie.estatId nulls first");
+					}
+					boolean sortFirst = true;
+					for (String sortColumn: sortColumns) {
+						if (!sortFirst)
+							expedientQuerySb.append(", ");
+						expedientQuerySb.append(sortColumn);
+						expedientQuerySb.append((asc) ? " asc" : " desc");
+						sortFirst = false;
+					}
 				}
-				resposta.setIds(ids);
-			} else {
-				resposta.setIds((List<Long>)queryIds.list());
+				StringBuilder selectSb = new StringBuilder("select distinct pie.id");
+				if (!sortColumns.isEmpty()) {
+					for (String sortColumn: sortColumns) {
+						selectSb.append(", ");
+						selectSb.append(sortColumn);
+					}
+				}
+				selectSb.append(" ");
+				expedientQuerySb.insert(0, selectSb);
+	//			System.out.println(">>> Consulta d'expedients DADES: " + expedientQuerySb.toString());
+				Query queryIds = jbpmContext.getSession().createQuery(expedientQuerySb.toString());
+				setQueryParams(
+						queryIds,
+						entornId,
+						actorId,
+						tipusIdPermesos,
+						titol,
+						numero,
+						tipusId,
+						dataIniciInici,
+						dataIniciFi,
+						estatId,
+						geoPosX,
+						geoPosY,
+						geoReferencia,
+						mostrarAnulats,
+						mostrarNomesAnulats,
+						nomesAlertes,
+						nomesErrors,
+						nomesAmbTasquesPendents,
+						permesTasquesAltresUsuaris,
+						firstResult,
+						maxResults);
+				List<Object[]> resultat = (List<Object[]>)queryIds.list();
+				if (!sortColumns.isEmpty()) {
+					List<Long> ids = new ArrayList<Long>();
+					for (Object[] fila: resultat) {
+						ids.add((Long)fila[0]);
+					}
+					resposta.setIds(ids);
+				} else {
+					resposta.setIds((List<Long>)queryIds.list());
+				}
 			}
 		}
 		return resposta;
