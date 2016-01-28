@@ -378,7 +378,7 @@ function filtreActiu() {
 							{{/if}}						
 						{{/if}} -->
 						{{if alertesTotals}}
-							<a class="no-deco-link" data-rdt-link-modal="true" href="<c:url value="../v3/expedient/{{:id}}/alertes"/>">
+							<a class="no-deco-link" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../v3/expedient/{{:id}}/alertes"/>">
 								<span class="fa fa-envelope alert-envelope show-modal-alertes" title="<spring:message code="expedient.consulta.alertes.totals"/>"></span>
 								{{if alertesPendents}}
 									<span class="badge sup-count">{{:alertesPendents}}</span>

@@ -121,10 +121,10 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					"    pie.entornId = :entornId " +
 					"and pie.tipus.id in (:tipusIdPermesos) ");
 			if (titol != null && !titol.isEmpty()) {
-				expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%')) ");
+				expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%') ");
 			}
 			if (numero != null && !numero.isEmpty()) {
-				expedientQuerySb.append("and lower(pie.numero) like lower('%'||:numero||'%')) ");
+				expedientQuerySb.append("and lower(pie.numero) like lower('%'||:numero||'%') ");
 			}
 			if (tipusId != null) {
 				expedientQuerySb.append("and pie.tipus.id = :tipusId ");
@@ -201,6 +201,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 						"        Alerta as al " +
 						"    where " +
 						"        al.entorn.id = pie.entornId " +
+						"    and al.dataEliminacio is null " +
 						"    and al.expedient.id = pie.id ) ");
 			}
 			

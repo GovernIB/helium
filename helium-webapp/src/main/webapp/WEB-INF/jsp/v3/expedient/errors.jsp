@@ -12,16 +12,13 @@
 	<hel:modalHead/>
 	
 	<style type="text/css">
-		.min-body {
-			height:600px;
-		}
 		.margin-content {
 			margin-top: 10px;
 		}
 	</style>
 </head>
 <body>
-	<div class=min-body>
+	<div>
 	  <!-- Nav tabs -->
 	  <ul class="nav nav-tabs" role="tablist">
 	    <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab"><spring:message code="error.tipus.basic"/></a></li>

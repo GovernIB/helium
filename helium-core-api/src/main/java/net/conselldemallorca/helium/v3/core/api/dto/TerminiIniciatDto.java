@@ -31,6 +31,8 @@ public class TerminiIniciatDto {
 	private int anys;
 	private int mesos;
 	private int dies;
+	private String taskInstanceId;
+	private TerminiIniciatEstat estat;
 	
 	private TerminiDto termini;
 
@@ -107,6 +109,39 @@ public class TerminiIniciatDto {
 		this.dies = dies;
 	}
 
+	public String getTaskInstanceId() {
+		return taskInstanceId;
+	}
+	public void setTaskInstanceId(String taskInstanceId) {
+		this.taskInstanceId = taskInstanceId;
+	}
+//	public TerminiIniciatEstat getEstat() {
+//		return estat;
+//	}
+	
+	public TerminiIniciatEstat getEstat() {
+		Date dataFi = getDataFiAmbAturadaActual();
+		if (dataCompletat != null) {
+			if (dataCompletat.before(dataFi))
+				return TerminiIniciatEstat.COMPLETAT_TEMPS;
+			return TerminiIniciatEstat.COMPLETAT_FORA;
+		}
+		Date ara = new Date();
+		if (ara.after(dataFi))
+			return TerminiIniciatEstat.CADUCAT;
+		if (termini.getDiesPrevisAvis() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(dataFi);
+			cal.add(Calendar.DAY_OF_MONTH, -termini.getDiesPrevisAvis().intValue());
+			if (ara.after(cal.getTime()))
+				return TerminiIniciatEstat.AVIS;
+		}
+		return TerminiIniciatEstat.NORMAL;
+	}
+	
+	public void setEstat(TerminiIniciatEstat estat) {
+		this.estat = estat;
+	}
 	public int getNumDiesAturadaActual(Date data) {
 		if (getDataAturada() == null)
 			return 0;
