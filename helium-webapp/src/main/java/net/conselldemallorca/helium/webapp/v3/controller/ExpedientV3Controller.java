@@ -7,13 +7,18 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -48,6 +53,9 @@ public class ExpedientV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
+
+	@Autowired
+	private AplicacioService aplicacioService ;
 
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
 	public String info(
@@ -98,11 +106,26 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
+		
+		List<AlertaDto> alertes = expedientService.findAlertes(expedientId);
+		Map<String, String> persones = getNomPersonaPerAlertes(alertes);
+		
 		model.addAttribute("expedientId", expedientId);		
-		model.addAttribute(
-				"alertes",
-				expedientService.findAlertes(expedientId));
+		model.addAttribute("alertes",alertes);
+		model.addAttribute("persones", persones);
 		return "v3/expedient/alertes";
+	}
+	
+	private Map<String, String> getNomPersonaPerAlertes(List<AlertaDto> alertes) {
+		Map<String, String> resposta = new HashMap<String, String>();
+		for (AlertaDto alerta: alertes) {
+			if (resposta.get(alerta.getDestinatari()) == null) {
+				PersonaDto persona = aplicacioService.findPersonaAmbCodi(alerta.getDestinatari());
+				if (persona != null)
+					resposta.put(persona.getCodi(), persona.getNomSencer());
+			}
+		}
+		return resposta;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/errors", method = RequestMethod.GET)

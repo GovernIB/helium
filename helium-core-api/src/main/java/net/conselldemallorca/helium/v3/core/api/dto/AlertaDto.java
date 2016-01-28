@@ -28,6 +28,7 @@ public class AlertaDto {
 	private Date dataLectura;
 	private Date dataEliminacio;
 	private AlertaPrioritatDto prioritat;
+	private TerminiIniciatDto terminiIniciat;
 	private ExpedientDto expedient;
 	
 	public Long getId() {
@@ -77,6 +78,12 @@ public class AlertaDto {
 	}
 	public void setPrioritat(AlertaPrioritatDto prioritat) {
 		this.prioritat = prioritat;
+	}
+	public TerminiIniciatDto getTerminiIniciat() {
+		return terminiIniciat;
+	}
+	public void setTerminiIniciat(TerminiIniciatDto terminiIniciat) {
+		this.terminiIniciat = terminiIniciat;
 	}
 	public ExpedientDto getExpedient() {
 		return expedient;

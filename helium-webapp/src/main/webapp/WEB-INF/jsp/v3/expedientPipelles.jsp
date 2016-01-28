@@ -307,7 +307,7 @@
 				<div class="alert alert-danger" role="alert">
 					<span class="fa fa-exclamation-triangle"></span>
 					<strong><spring:message code="expedient.info.errors"/>: </strong><spring:message code="expedient.consulta.errors"/>
-					<a class="btn btn-default btn-sm right-btn error-btn" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/errors"/>"><spring:message code="expedient.boto.veure_errors"/></a>
+					<a class="btn btn-default btn-sm right-btn error-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../../v3/expedient/${expedientId}/errors"/>"><spring:message code="expedient.boto.veure_errors"/></a>
 				</div>
 			</c:if>
 			<c:if test="${not empty expedient.alertesTotals}">
@@ -317,7 +317,7 @@
 					<c:if test="${not empty expedient.alertesPendents}">
 						<strong>${expedient.alertesPendents} <spring:message code="expedient.info.alertes.complement"/></strong>
 					</c:if>
-					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
+					<a class="btn btn-default btn-sm right-btn alert-btn" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../../v3/expedient/${expedientId}/alertes"/>"><spring:message code="expedient.boto.veure_alertes"/></a>
 				</div>
 			</c:if>
 			<ul class="nav nav-tabs" role="tablist">

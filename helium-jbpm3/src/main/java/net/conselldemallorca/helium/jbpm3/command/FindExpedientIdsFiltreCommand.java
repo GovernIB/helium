@@ -201,6 +201,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 						"        Alerta as al " +
 						"    where " +
 						"        al.entorn.id = pie.entornId " +
+						"    and al.dataEliminacio is null " +
 						"    and al.expedient.id = pie.id ) ");
 			}
 			
