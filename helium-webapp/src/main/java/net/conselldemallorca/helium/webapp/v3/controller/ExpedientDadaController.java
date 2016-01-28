@@ -277,7 +277,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					campsAddicionals,
 					campsAddicionalsClasses,
 					false);
-			validator.setValidarExpresions(true);
+			validator.setValidarExpresions(false);
 			validator.setValidarObligatoris(true);
 			validator.validate(commandValidar, result);
 			if (result.hasErrors()) {
@@ -432,7 +432,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						expedientService,
 						tascaDades);
 
-				validator.setValidarExpresions(true);
+				validator.setValidarExpresions(false);
 				validator.setValidarObligatoris(true);
 				validator.validate(commandValidar, result);				
 				if (!result.hasErrors()) {
