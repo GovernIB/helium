@@ -12,24 +12,27 @@
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 <script src="<c:url value="/js/helium3Tasca.js"/>"></script>
-<div class="alert alert-warning">
-	<c:choose>
-		<c:when test="${empty tasca.tascaFormExternCodi}">
-			<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-			<p>
-				<span class="fa fa-warning"></span>
-				<spring:message code="tasca.tramitacio.form.no.validat"/>
-			</p>
-		</c:when>
-		<c:otherwise>
+
+<c:choose>
+	<c:when test="${not empty tasca.tascaFormExternCodi}">
+		<div class="alert alert-warning">
 			<p>
 				<span class="fa fa-warning"></span>
 				<spring:message code="tasca.form.compl_form"/>
 				<a id="boto-formext" href="<c:url value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/formExtern"/>" class="btn btn-xs btn-default pull-right"><span class="fa fa-external-link"></span> <spring:message code="tasca.form.obrir_form"/></a>
 			</p>
-		</c:otherwise>
-	</c:choose>
-</div>
+		</div>
+	</c:when>
+	<c:when test="${!tasca.validada}">
+		<div class="alert alert-warning">
+			<button type="button" class="close" data-dismiss="alert" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+			<p>
+				<span class="fa fa-warning"></span>
+				<spring:message code="tasca.tramitacio.form.no.validat"/>
+			</p>
+		</div>
+	</c:when>
+</c:choose>
 	
 <c:choose>
 	<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
