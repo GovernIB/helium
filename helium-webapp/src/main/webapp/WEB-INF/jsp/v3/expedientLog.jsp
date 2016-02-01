@@ -92,15 +92,13 @@ function recargarRegistro() {
 	$('#contingut-registre').load('<c:url value="/nodeco/v3/expedient/${expedient.id}/registre?tipus_retroces='+$('#tipus_retroces').val()+'"/>');
 }
 
-function recargarPanelesLog (tipus_retroces, correcte) {
-	if (correcte) {
-		if ($('#tipus_retroces').val() == 0)
-			$('#tipus_retroces').val(1);
-		else
-			$('#tipus_retroces').val(0);
-		recargarRegistro();
-		$('#contingut-tasques').data('loaded', false);
-	}
+function recargarPanelesLog (tipus_retroces) {
+	if ($('#tipus_retroces').val() == 0)
+		$('#tipus_retroces').val(1);
+	else
+		$('#tipus_retroces').val(0);
+	recargarRegistro();
+	$('#contingut-tasques').data('loaded', false);
 }
 //]]>
 </script>
