@@ -13,7 +13,7 @@
 				<c:if test="${permisReg}">
 					<spring:message code="expedient.log.accio"/>
 				</c:if>
-				<c:if test="${not tipus_retroces}">
+				<c:if test="${empty tipus_retroces || tipus_retroces == 0}">
 					<spring:message code="expedient.log.objecte.TASCA"/>
 				</c:if>
 			</th>
