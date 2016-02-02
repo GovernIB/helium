@@ -177,7 +177,7 @@
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="entornCodi" textKey="perfil.usuari.entorn" placeholderKey="perfil.usuari.entorn" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" inline="false"/>
+							<hel:inputSelect name="entornCodi" textKey="perfil.usuari.entorn" placeholderKey="perfil.usuari.entorn" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" emptyOption="true" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.entorn"/>
 							</p>
@@ -189,7 +189,7 @@
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="expedientTipusDefecteId" textKey="perfil.usuari.tipus.expedient" placeholderKey="perfil.usuari.tipus.expedient" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
+							<hel:inputSelect name="expedientTipusDefecteId" textKey="perfil.usuari.tipus.expedient" placeholderKey="perfil.usuari.tipus.expedient" optionItems="${expedientTipus}" optionValueAttribute="id" optionTextAttribute="nom" emptyOption="true" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.tipusexpedientdefecte"/>
 							</p>
