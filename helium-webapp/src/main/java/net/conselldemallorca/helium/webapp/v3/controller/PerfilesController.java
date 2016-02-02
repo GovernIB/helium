@@ -146,8 +146,8 @@ public class PerfilesController extends BaseController {
 			}
 		}
 		List<ExpedientTipusDto> expedientTipusConConsultas = new ArrayList<ExpedientTipusDto>();
-		if (entornUsuari == null)
-			entornUsuari = SessionHelper.getSessionManager(request).getEntornActual();
+//		if (entornUsuari == null)
+//			entornUsuari = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornUsuari != null) {
 			List<ExpedientTipusDto> expedientTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornUsuari.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
