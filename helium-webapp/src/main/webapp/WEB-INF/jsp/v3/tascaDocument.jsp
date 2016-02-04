@@ -48,9 +48,24 @@
 		</p>
 	</div>
 </c:if>
+
 <c:forEach var="document" items="${documents}">
 	<div class="documentTramitacio well well-small">
-		<form id="documentsForm" class="form-horizontal form-tasca" action="${tasca.id}/document/${document.documentCodi}/adjuntar" enctype="multipart/form-data" method="post">
+				
+		<c:choose>
+			<c:when test="${isModal}">
+				<c:url var="tascaDocumentAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
+				<c:url var="documentGenerarAction" value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
+				<c:url var="documentBorrarAction" value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
+			</c:when>
+			<c:otherwise>
+				<c:url var="tascaDocumentAction" value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
+				<c:url var="documentGenerarAction" value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
+				<c:url var="documentBorrarAction" value="/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
+			</c:otherwise>
+		</c:choose>
+	
+		<form id="documentsForm" class="form-horizontal form-tasca" action="${tascaDocumentAction}" enctype="multipart/form-data" method="post">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
@@ -58,7 +73,7 @@
 		 			<c:if test="${document.plantilla and tasca.validada}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
-							href="<c:url value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>"
+							href="${documentGenerarAction}"
 							<c:if test="${document.adjuntarAuto}">data-rdt-link-confirm="<spring:message code='expedient.tasca.doc.generar.confirm' />"</c:if>
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />">
 							<i class="fa fa-file-text-o"></i>
@@ -69,7 +84,7 @@
 					</a>
 					<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
 						id="removeUrl${document.id}" 
-						href="<c:url value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"></c:url>"
+						href="${documentBorrarAction}"
 						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
 						<i class="fa fa-trash-o"></i>

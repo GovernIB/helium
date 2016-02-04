@@ -99,11 +99,14 @@ public class BaseTascaController extends BaseController {
 		if (pipellaActiva != null && 
 				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) || 
 				request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1].equalsIgnoreCase("esborrar")){
-			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/" + pipellaActiva;
+			if (ModalHelper.isModal(request)) {
+				return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/" + pipellaActiva;
+			} else {
+				return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/" + pipellaActiva;
+			}
 		}else{
 			return "v3/tascaPipelles";	
 		}
-		
 	}
 
 	private void setErrorValidate(HttpServletRequest request, String tascaId, TascaDadaDto dada) {		
