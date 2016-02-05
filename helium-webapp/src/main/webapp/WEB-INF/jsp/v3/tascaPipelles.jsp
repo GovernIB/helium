@@ -214,7 +214,10 @@ function refrescarAlertesFunction() {
 					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/form"/>"></div>
 				</c:if>
 				<c:if test="${hasDocuments}">
-					<div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div>
+					<c:choose>
+						<c:when test="${isModal}"><div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div></c:when>
+						<c:otherwise><div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div></c:otherwise>
+					</c:choose>
 				</c:if>
 				<c:if test="${hasSignatures}">
 					<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"/>"></div>

@@ -274,7 +274,10 @@ public class TascaTramitacioController extends BaseTascaController {
 					result.hasErrors() ? "form" : null);
 		}
 		status.setComplete();
-		return modalUrlTancar(false);
+		if (ModalHelper.isModal(request))
+			return modalUrlTancar(false);
+		else
+			return "redirect:/v3/tasca";
 	}
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/restaurar", method = RequestMethod.POST)
@@ -369,6 +372,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("documents", documents);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
+		model.addAttribute("isModal", ModalHelper.isModal(request));
 		return "v3/tascaDocument";
 	}
 	
