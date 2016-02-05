@@ -27,8 +27,13 @@ public class RetryJobCommand extends AbstractBaseCommand {
 		JobSession jobSession = jbpmContext.getJobSession();
 		Job job = jobSession.loadJob(jobId);
 	
-		job.setRetries(job.getRetries() - 1);
-		jobSession.saveJob(job);
+		if (job != null) {
+			job.setRetries(job.getRetries() - 1);
+			if (job.getRetries() > 0)
+				jobSession.saveJob(job);
+			else 
+				jobSession.deleteJob(job);
+		}
 		return null;
 	}
 

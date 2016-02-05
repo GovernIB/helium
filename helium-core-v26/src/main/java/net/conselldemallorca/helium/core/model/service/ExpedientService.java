@@ -1935,12 +1935,24 @@ public class ExpedientService {
 			String processInstanceId,
 			String errorDesc, 
 			String errorFull) {
+		logger.info("JOB (" + jobId + "): Actualitzant error de l'expedient amb pi=" + processInstanceId);
 		if (jobId != null)
 			jbpmHelper.retryJob(jobId);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
-		expedient.setErrorDesc(errorDesc);
-		expedient.setErrorFull(errorFull);
-		expedient = expedientDao.saveOrUpdate(expedient);
+		Expedient expedient = null;
+		try {
+			expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+			if (expedient != null) {
+				if (errorDesc != null)
+					errorDesc = errorDesc.substring(0, Math.min(errorDesc.length() - 1, 254));
+				expedient.setErrorDesc(errorDesc);
+				expedient.setErrorFull(errorFull);
+				expedient = expedientDao.saveOrUpdate(expedient);
+			} else {
+				logger.error("JOB (" + jobId + "): Error al actualitzar l'error de l'expedient amb pi=" + processInstanceId + ". No s'ha trobat l'expedient");
+			}
+		} catch (Exception e) {
+			logger.error("JOB (" + jobId + "): Error al actualitzar l'error de l'expedient amb pi=" + processInstanceId, e);
+		}
 		return expedient;
 	}
 
@@ -2979,4 +2991,5 @@ public class ExpedientService {
 	public boolean tokenActivar(long tokenId, boolean activar) {
 		return jbpmHelper.tokenActivar(tokenId, activar);
 	}
+
 }
