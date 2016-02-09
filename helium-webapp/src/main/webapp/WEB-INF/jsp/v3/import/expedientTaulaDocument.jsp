@@ -41,9 +41,9 @@
 												</c:if>
 												<c:if test="${document.signat}">																					
 													<a 	data-rdt-link-modal="true" 
-														<c:if test="${not empty document.urlVerificacioCustodia}">data-rdt-link-modal-min-height="400"</c:if>
+														<c:if test="${not empty document.signaturaUrlVerificacio}">data-rdt-link-modal-min-height="400"</c:if>
 														class="icon signature" 
-														href="<c:url value='/v3/expedient/${expedientId}/verificarSignatura/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.urlVerificacioCustodia}">
+														href="<c:url value='/v3/expedient/${expedientId}/verificarSignatura/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
 														<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
 													</a>
 													<a 	class="icon signature fa-stack fa-2x" 

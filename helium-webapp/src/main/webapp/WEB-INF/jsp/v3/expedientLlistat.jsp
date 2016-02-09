@@ -360,7 +360,7 @@ function filtreActiu() {
 					{{/if}}
 					<div class="pull-right">
 						{{if errorsIntegracions || errorDesc}}
-							<a class="no-deco-link" data-rdt-link-modal="true" href="<c:url value="../v3/expedient/{{:id}}/errors"/>">
+							<a class="no-deco-link" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../v3/expedient/{{:id}}/errors"/>">
 								<span class="fa fa-exclamation-triangle error-triangle" title="<spring:message code="expedient.consulta.errors"/>"></span>
 							</a>
 						{{/if}}
