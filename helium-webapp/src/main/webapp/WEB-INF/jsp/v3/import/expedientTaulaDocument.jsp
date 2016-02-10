@@ -39,17 +39,30 @@
 															<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${document.signat}">																					
-													<a 	data-rdt-link-modal="true" 
-														<c:if test="${not empty document.urlVerificacioCustodia}">data-rdt-link-modal-min-height="400"</c:if>
-														class="icon signature" 
-														href="<c:url value='/v3/expedient/${expedientId}/verificarSignatura/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.urlVerificacioCustodia}">
-														<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
-													</a>
+												<c:if test="${document.signat}">	
+												
+													<c:choose>
+														<c:when test="${not empty document.signaturaUrlVerificacio}">
+															<a 	class="icon signature"
+															   	data-rdt-link-modal="true" 
+															   	data-rdt-link-modal-min-height="400" 
+															   	href="${document.signaturaUrlVerificacio}">
+																<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+															</a>
+														</c:when>
+														<c:otherwise>																			
+															<a 	data-rdt-link-modal="true"
+																class="icon signature" 
+																href="<c:url value='../../v3/expedient/${expedientId}/verificarSignatura/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
+																<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
+															</a>
+														</c:otherwise>
+													</c:choose>
+													
 													<a 	class="icon signature fa-stack fa-2x" 
 														data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_signatures' />"
 														data-rdt-link-ajax=true
-														href='<c:url value="/v3/expedient/${expedientId}/signaturaEsborrar/${document.id}"/>' 
+														href='<c:url value="../../v3/expedient/${expedientId}/document/${document.id}/signaturaEsborrar"/>' 
 														data-rdt-link-callback="esborrarSignatura(${document.id});"
 														title="<spring:message code='expedient.document.esborrar.signatures' />">
 														<i class="fa fa-certificate fa-stack-1x"></i>
@@ -59,7 +72,7 @@
 												<c:if test="${document.registrat}">
 													<a 	data-rdt-link-modal="true" 
 														class="icon registre" 
-														href="<c:url value='/v3/expedient/${expedientId}/verificarRegistre/${document.id}/${document.documentCodi}'/>">
+														href="<c:url value='../../v3/expedient/${expedientId}/verificarRegistre/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>">
 														<span class="fa fa-book fa-2x" title="<spring:message code='expedient.document.registrat' />"></span>
 													</a>
 												</c:if>

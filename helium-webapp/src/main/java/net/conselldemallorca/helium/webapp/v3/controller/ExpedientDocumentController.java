@@ -331,7 +331,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return response;
 	}
 
-	@RequestMapping(value = "/{expedientId}/signaturaEsborrar/{documentStoreId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/signaturaEsborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean signaturaEsborrar(
 			HttpServletRequest request,
