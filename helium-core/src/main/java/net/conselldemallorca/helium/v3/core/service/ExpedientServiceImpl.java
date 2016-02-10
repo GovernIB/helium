@@ -2004,10 +2004,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false);
 		DefinicioProces defprocNova = null;
 		try {
+//			if (!expedient.getTipus().isAmbRetroaccio()) {
+//				jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+//			}
+			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
 			jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), versio);
 			// Apunta els terminis iniciats cap als terminis
 			// de la nova definició de procés
-			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
 			defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					expedient.getProcessInstanceId());
 			List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(expedient.getProcessInstanceId());

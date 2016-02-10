@@ -1759,12 +1759,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String processInstanceId,
 			String errorDesc,
 			String errorFull) {
+		logger.error("JOB (" + jobId + "): Actualitzant error de l'expedient");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		expedientHelper.updateError(
 				expedient,
 				errorDesc,
 				errorFull);
-		jbpmHelper.retryJob(jobId);
+		if (jobId != null)
+			jbpmHelper.retryJob(jobId);
 	}
 
 	@Override

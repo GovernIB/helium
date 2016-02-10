@@ -1932,13 +1932,24 @@ public class ExpedientService {
 			String errorDesc, 
 			String errorFull) {
 //		jbpmHelper.retryJob(jobId);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
-		expedient.setErrorDesc(errorDesc);
-		expedient.setErrorFull(errorFull);
-		expedient = expedientDao.saveOrUpdate(expedient);
+		Expedient expedient = null;
+		try {
+			expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
+			if (expedient != null) {
+				if (errorDesc != null)
+					errorDesc = errorDesc.substring(0, Math.min(errorDesc.length() - 1, 254));
+				expedient.setErrorDesc(errorDesc);
+				expedient.setErrorFull(errorFull);
+				expedient = expedientDao.saveOrUpdate(expedient);
+			} else {
+				logger.error("Error al actualitzar l'error de l'expedient amb pi=" + processInstanceId + ". No s'ha trobat l'expedient");
+			}
+		} catch (Exception e) {
+			logger.error("Error al actualitzar l'error de l'expedient amb pi=" + processInstanceId, e);
+		}
 		return expedient;
 	}
-
+	
 	public Object evaluateScript(
 			String processInstanceId,
 			String script,
