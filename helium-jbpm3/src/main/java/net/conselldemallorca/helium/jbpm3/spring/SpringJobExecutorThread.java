@@ -82,45 +82,67 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				return jobName;
 			}
 		});
-		transactionTemplate.execute(new TransactionCallback() {
-			public Object doInTransaction(TransactionStatus transactionStatus) {
-				try {
-					if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
-						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
-						if (exp != null)
-							expedientTipus = exp.getTipus().getNom();
-						Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedientTipus, null, null);
-					}
-					SpringJobExecutorThread.super.executeJob(job);
+		try {
+			transactionTemplate.execute(new TransactionCallback() {
+				public Object doInTransaction(TransactionStatus transactionStatus) {
 					try {
-						String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
-						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
+						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
+							exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
+							if (exp != null)
+								expedientTipus = exp.getTipus().getNom();
+							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedientTipus, null, null);
+						}
+						SpringJobExecutorThread.super.executeJob(job);
+						try {
+							String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
+							Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
+						} catch (Exception ex) {
+							logger.error("Error al indexar l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						}
 					} catch (Exception ex) {
-						logger.error("Error al indexar l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						String errorDesc = "Se ha producido un error al ejecutar el timer " + jName + ".";			
+						StringWriter errors = new StringWriter();
+						ex.printStackTrace(new PrintWriter(errors));
+						String errorFull = errors.toString();	
+						jobErrors.put(job.getId(), errorFull);
+						errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+						errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+						// He configurat la transacció de updateExpedientError per a que es desi tot i fer rollback...		
+						Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
+								job.getId(), 
+								String.valueOf(job.getProcessInstance().getId()), 
+								errorDesc, 
+								errorFull);
+						logger.error("Error al executar el job " + jName + " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						
+						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
+						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
+						throw e;
 					}
-				} catch (Exception ex) {
-					String errorDesc = "Se ha producido un error al ejecutar el timer " + jName + ".";			
-					StringWriter errors = new StringWriter();
-					ex.printStackTrace(new PrintWriter(errors));
-					String errorFull = errors.toString();	
-					jobErrors.put(job.getId(), errorFull);
-					errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-					errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
-					// He configurat la transacció de updateExpedientError per a que es desi tot i fer rollback...		
-					Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
-							job.getId(), 
-							String.valueOf(job.getProcessInstance().getId()), 
-							errorDesc, 
-							errorFull);
-					logger.error("Error al executar el job " + jName + " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-					
-					// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
-					JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
-					throw e;
+					return null;
 				}
-				return null;
+			});
+		} catch (JbpmException ex) {
+			String errorDesc = "Se ha producido un error al ejecutar la transacción del timer " + jName + ".";			
+			StringWriter errors = new StringWriter();
+			ex.printStackTrace(new PrintWriter(errors));
+			String errorFull = jobErrors.get(job.getId());
+			if (errorFull == null)
+				errorFull = errors.toString();			
+			errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+			errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+			Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
+					job.getId(),
+					String.valueOf(job.getProcessInstance().getId()), 
+					errorDesc, 
+					errorFull);
+			String error = "Error al executar la transaccio del job '" + jName + "' con processInstanceId=" + job.getProcessInstance().getId();
+			if (exp != null) {
+				error += " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ")";
 			}
-		});
+			logger.error(error, ex);
+			throw ex;
+		}
 		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedientTipus, null, null);
 	}
 

@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -195,8 +197,12 @@ public class JobExecutorThread extends Thread {
 			JobSession jobSession = jbpmContext.getJobSession();
 			job = jobSession.loadJob(job.getId());
 			
-			if (job.getRetries() <= 0) {
-				jobSession.deleteJob(job);
+			try {
+				if (job.getRetries() <= 0) {
+					jobSession.deleteJob(job);
+					return;
+				}
+			} catch (EntityNotFoundException enf) {
 				return;
 			}
 			try {

@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.db.JobSession;
@@ -25,15 +27,16 @@ public class RetryJobCommand extends AbstractBaseCommand {
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		JobSession jobSession = jbpmContext.getJobSession();
-		Job job = jobSession.loadJob(jobId);
-	
-		if (job != null) {
-			job.setRetries(job.getRetries() - 1);
-			if (job.getRetries() > 0)
-				jobSession.saveJob(job);
-			else 
-				jobSession.deleteJob(job);
-		}
+		try {
+			Job job = jobSession.loadJob(jobId);
+			if (job != null) {
+				job.setRetries(job.getRetries() - 1);
+				if (job.getRetries() > 0)
+					jobSession.saveJob(job);
+				else 
+					jobSession.deleteJob(job);
+			}
+		} catch (EntityNotFoundException enf) {}
 		return null;
 	}
 
