@@ -17,21 +17,19 @@
 	</style>
 </head>
 <body>
-	<div class="well well-small">
-		<h4 class="titol-missatge">
-			<div class="form-info">
-				<label><spring:message code="common.icon.oficina"/>:</label>&nbsp;${document.registreOficinaNom}
-				<br/><br/>
-				<label><spring:message code="common.icon.data"/>:</label>&nbsp;<fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/>
-				<br/><br/>
-				<label><spring:message code="comuns.tipus"/>:</label>&nbsp;<c:choose><c:when test="${document.registreEntrada}"><spring:message code="common.icon.entrada"/></c:when><c:otherwise><spring:message code="common.icon.sortida"/></c:otherwise></c:choose>
-				<br/><br/>
-				<label><spring:message code="common.icon.numero"/>:</label>&nbsp;${document.registreNumero}
-			</div>			
-		</h4>
-	</div>
+	<h4 class="titol-missatge">
+		<div class="form-info">
+			<label><spring:message code="common.icon.oficina"/>:</label>&nbsp;${document.registreOficinaNom}
+			<br/><br/>
+			<label><spring:message code="common.icon.data"/>:</label>&nbsp;<fmt:formatDate value="${document.registreData}" pattern="dd/MM/yyyy HH:mm"/>
+			<br/><br/>
+			<label><spring:message code="comuns.tipus"/>:</label>&nbsp;<c:choose><c:when test="${document.registreEntrada}"><spring:message code="common.icon.entrada"/></c:when><c:otherwise><spring:message code="common.icon.sortida"/></c:otherwise></c:choose>
+			<br/><br/>
+			<label><spring:message code="common.icon.numero"/>:</label>&nbsp;${document.registreNumero}
+		</div>			
+	</h4>
 	<div id="modal-botons" class="well">
-		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
 	</div>
 </body>
 </html>
