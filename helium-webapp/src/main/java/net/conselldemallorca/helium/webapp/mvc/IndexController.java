@@ -61,6 +61,13 @@ public class IndexController extends BaseController {
 	public String index(
 			HttpServletRequest request,
 			ModelMap model) {
+		return "redirect:/v3/expedient";
+	}
+
+	@RequestMapping(value = "/index26", method = RequestMethod.GET)
+	public String index26(
+			HttpServletRequest request,
+			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (entorn != null) {
