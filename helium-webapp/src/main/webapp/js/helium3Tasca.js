@@ -173,13 +173,13 @@ $(function() {
 	var action = $("#command").attr('action');
 	$("#command").attr('action', cleanAction($("#command").attr('action')));
 	// Ajustaments per a cada tipus de camp
-//	$(".price").priceFormat({
-//		prefix: '',
-//		centsSeparator: ',',
-//	    thousandsSeparator: '.',
-//	    allowNegative: true
-//	});
-	$(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
+	$(".price").priceFormat({
+		prefix: '',
+		centsSeparator: ',',
+	    thousandsSeparator: '.',
+	    allowNegative: true
+	});
+	//$(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
 	$(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
 	$(".btn_date").click(function(){
 		$(this).prev(".date").trigger("focus");
@@ -238,13 +238,13 @@ $(function() {
 		});
 		previousInput.after(newInput);
 		// Camp de tipus price
-//		newInput.find(".price").priceFormat({
-//				prefix: '',
-//				centsSeparator: ',',
-//			    thousandsSeparator: '.',
-//			    allowNegative: true
-//			});
-		newInput.find(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
+		newInput.find(".price").priceFormat({
+				prefix: '',
+				centsSeparator: ',',
+			    thousandsSeparator: '.',
+			    allowNegative: true
+			});
+		//newInput.find(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
 		// Camp de tipus date
 		newInput.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
 		newInput.find(".btn_date").click(function(){
@@ -480,13 +480,13 @@ function addField(idTable) {
 	newTr.appendTo(tabla);
 	// Camp de tipus price
 	
-	/*newTr.find(".price").priceFormat({
+	newTr.find(".price").priceFormat({
 			prefix: '',
 			centsSeparator: ',',
 		    thousandsSeparator: '.',
 		    allowNegative: true
-		});*/
-	newTr.find(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
+		});
+	//newTr.find(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
 	// Camp de tipus date
 	newTr.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
 	newTr.find(".btn_date").click(function(){
