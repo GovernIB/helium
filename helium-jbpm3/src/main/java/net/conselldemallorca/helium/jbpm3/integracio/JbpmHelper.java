@@ -68,6 +68,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTas
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdsFiltreCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetProcesDefinitionNotUsedListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesEntornCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
@@ -1692,6 +1693,17 @@ public class JbpmHelper {
 	public void retryJob(Long jobId) {
 		RetryJobCommand command = new RetryJobCommand(jobId);
 		commandService.execute(command);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId) {
+		List<String> resultat = new ArrayList<String>();
+		
+		GetProcesDefinitionNotUsedListCommand command = new GetProcesDefinitionNotUsedListCommand(entornId);
+		for (ProcessDefinition pd : (List<ProcessDefinition>)commandService.execute(command))
+			resultat.add(String.valueOf(pd.getId()));
+		//adminService.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
+		return resultat;
 	}
 
 	public void reprendreExpedient(String processInstanceId) throws Exception{

@@ -2002,35 +2002,27 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		DefinicioProces defprocNova = null;
-		try {
-//			if (!expedient.getTipus().isAmbRetroaccio()) {
-//				jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
-//			}
-			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-			jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), versio);
-			// Apunta els terminis iniciats cap als terminis
-			// de la nova definició de procés
-			defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					expedient.getProcessInstanceId());
-			List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
-			for (TerminiIniciat terminiIniciat: terminisIniciats) {
-				Termini termini = terminiIniciat.getTermini();
-				if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
-					for (Termini terminiNou: defprocNova.getTerminis()) {
-						if (terminiNou.getCodi().equals(termini.getCodi())) {
-							termini.removeIniciat(terminiIniciat);
-							terminiNou.addIniciat(terminiIniciat);
-							terminiIniciat.setTermini(terminiNou);
-							break;
-						}
+		if (!expedient.isAmbRetroaccio()) {
+			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+		}
+		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
+		jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), versio);
+		// Apunta els terminis iniciats cap als terminis
+		// de la nova definició de procés
+		DefinicioProces defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
+		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		for (TerminiIniciat terminiIniciat: terminisIniciats) {
+			Termini termini = terminiIniciat.getTermini();
+			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
+				for (Termini terminiNou: defprocNova.getTerminis()) {
+					if (terminiNou.getCodi().equals(termini.getCodi())) {
+						termini.removeIniciat(terminiIniciat);
+						terminiNou.addIniciat(terminiIniciat);
+						terminiIniciat.setTermini(terminiNou);
+						break;
 					}
 				}
 			}
-		} catch (Exception ex) {
-			logger.error("Canviant versió de la definició de procés (" +
-					"id=" + id + ", " +
-					"versio=" + versio + ")", ex);
 		}
 		return defprocNova.getEtiqueta();
 	}

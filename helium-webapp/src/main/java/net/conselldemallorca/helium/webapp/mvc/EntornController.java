@@ -7,15 +7,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
-import net.conselldemallorca.helium.core.model.exportacio.EntornExportacio;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.EntornService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +29,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.exportacio.EntornExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.EntornService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+
 
 
 /**
@@ -44,7 +51,8 @@ public class EntornController extends BaseController {
 
 	private EntornService entornService;
 	private ExpedientService expedientService;
-
+	private DissenyService dissenyService;
+	
 	private Validator annotationValidator;
 	private Validator additionalValidator;
 
@@ -53,9 +61,11 @@ public class EntornController extends BaseController {
 	@Autowired
 	public EntornController(
 			EntornService entornService,
-			ExpedientService expedientService) {
+			ExpedientService expedientService,
+			DissenyService dissenyService) {
 		this.entornService = entornService;
 		this.expedientService = expedientService;
+		this.dissenyService = dissenyService;
 		additionalValidator = new EntornValidator(entornService);
 	}
 
@@ -222,7 +232,71 @@ public class EntornController extends BaseController {
 		return "redirect:/entorn/llistat.html";
 	}
 
+	@RequestMapping(value = "/entorn/netejar_df", method = RequestMethod.GET)
+	public String netejar_df(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			ModelMap model) {
+		model.addAttribute("entornId", id);
+		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesEntorn(id));
+		return "/entorn/llistatDpNoUs";
+	}
 
+	@RequestMapping(value = "/entorn/netejar_df", method = RequestMethod.POST)
+	public String netejar_df(
+			HttpServletRequest request,
+			@RequestParam(value = "entornId", required = true) Long entornId,
+			@RequestParam(value = "dpId", required = false) Long[] dpId,
+			ModelMap model) {
+		Entorn entorn = entornService.getById(entornId);
+		List<Long> dfBorrar = new ArrayList<Long>();
+		String msg = "";
+		for (Long definicioProcesId : dpId) {
+			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entornId, definicioProcesId);
+				try {
+					List<Consulta> consultes = dissenyService.findConsultesAmbEntorn(entorn.getId());
+					boolean esborrar = true;
+					if (consultes.isEmpty()) {
+						dfBorrar.add(definicioProcesId);
+						msg += definicioProces.getJbpmName() + " v." +  definicioProces.getVersio() + ", ";
+					} else {
+						for(Consulta consulta: consultes){
+							Set<ConsultaCamp> llistat = consulta.getCamps();
+							for(ConsultaCamp c: llistat){
+								if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
+									esborrar = false;
+								}
+							}
+							if(!esborrar){
+								missatgeError(request, getMessage("error.exist.cons.df", new Object[]{consulta.getNom(), definicioProces.getJbpmName(), definicioProces.getVersio()}) );
+							} else {
+								dfBorrar.add(definicioProcesId);
+								msg += definicioProces.getJbpmName() + " v." +  definicioProces.getVersio() + ", ";
+							}
+						}
+					}
+		        } catch (Exception ex) {
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+		        	logger.error("No s'han pogut esborrar les definicions de procés", ex);
+		        }
+		}
+		
+		try {
+			if (!dfBorrar.isEmpty()) {
+				dissenyService.undeploy(entorn.getId(), dfBorrar);
+				if (msg.length() > 0) 
+					msg = msg.substring(0, msg.length() - 2);
+				missatgeInfo(request, getMessage("info.defproc.esborrades", new Object[]{msg}) );
+			}
+		} catch (Exception ex) {
+			missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+			logger.error("No s'han pogut esborrar les definicions de procés", ex);
+		}
+		model.addAttribute("entornId", entornId);
+		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesEntorn(entornId));
+		return "/entorn/llistatDpNoUs";
+	}
+	
 
 	@Resource(name = "annotationValidator")
 	public void setAnnotationValidator(Validator annotationValidator) {
@@ -248,7 +322,6 @@ public class EntornController extends BaseController {
 			}
 		}
 	}
-
 
 
 	private boolean isAdmin(HttpServletRequest request) {

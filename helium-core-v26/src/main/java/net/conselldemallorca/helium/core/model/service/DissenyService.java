@@ -255,6 +255,24 @@ public class DissenyService {
 			}
 		}
 	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
+	public void undeploy(Long entornId, List<Long> dfBorrar) {
+		for (Long definicioProcesId : dfBorrar) {
+			if (comprovarEntorn(entornId, definicioProcesId)) {
+				DefinicioProces definicioProces = definicioProcesDao.getById(definicioProcesId, false);
+				jbpmDao.esborrarDesplegament(definicioProces.getJbpmId());
+				for (Document doc: definicioProces.getDocuments())
+					documentDao.delete(doc.getId());
+				for (Termini termini: definicioProces.getTerminis())
+					deleteTermini(termini.getId());
+				definicioProcesDao.delete(definicioProcesId);
+			} else {
+				throw new IllegalArgumentException(
+						getServiceUtils().getMessage("error.dissenyService.noEntorn"));
+			}
+		}
+	}
 
 	public DefinicioProcesDto getById(
 			Long id,
@@ -4019,5 +4037,15 @@ public class DissenyService {
 
 	public EnumeracioValors findEnumeracioValorsAmbId(Long enumeracioId, Long id) {
 		return enumeracioValorsDao.findAmbEnumeracioIId(enumeracioId, id);
+	}
+	
+	public List<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesEntorn(Long entornId) {
+		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
+		List<String> noUtilitzades = jbpmDao.findDefinicionsProcesIdNoUtilitzadesByEntorn(entornId);
+		List<DefinicioProces> definicionsProces = definicioProcesDao.findAmbEntornIJbpmIds(entornId, noUtilitzades);
+		for (DefinicioProces definicioProces: definicionsProces) {
+			resposta.add(toDto(definicioProces, false));
+		}
+		return resposta;
 	}
 }

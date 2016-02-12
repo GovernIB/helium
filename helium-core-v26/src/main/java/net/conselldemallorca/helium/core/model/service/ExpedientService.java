@@ -2012,6 +2012,11 @@ public class ExpedientService {
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
 			int newVersion) {
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+		if (!expedient.isAmbRetroaccio()) {
+			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+		}
 		DefinicioProces defprocAntiga = getDefinicioProcesPerProcessInstanceId(processInstanceId);
 		jbpmHelper.changeProcessInstanceVersion(processInstanceId, newVersion);
 		// Apunta els terminis iniciats cap als terminis

@@ -13,17 +13,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONValue;
@@ -41,6 +30,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
+
+import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ChangeLogException;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -128,6 +129,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return resposta;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{expedientId}/errors", method = RequestMethod.GET)
 	public String errors(
 			HttpServletRequest request,
@@ -176,7 +178,13 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					versio);
 			MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.realitzat") );
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+			logger.error("Canviant versió de la definició de procés (" +
+					"id=" + expedientId + ", " +
+					"versio=" + versio + ")", ex);
+			if (ex.getCause() instanceof ChangeLogException)
+				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces.logs") + "<br/> " + ex.getCause().getMessage());
+			else
+				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
 		}
 	        	
 		return JSONValue.toJSONString(nom);
