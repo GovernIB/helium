@@ -22,8 +22,8 @@
 			<div class="col-xs-8">
 				<div class="input-group" style="width:100%">
 					<div class="input-group date">
-						<form:input path="${campPath}" cssClass="form-control datetimepicker" data-format="dd/MM/yyyy" id="${campPath}" disabled="${disabled}"/>
-						<span class="input-group-addon" style="width:1%"><span class="fa fa-calendar"></span></span>
+						<form:input path="${campPath}" cssClass="form-control datetimepicker date" data-format="dd/MM/yyyy" id="${campPath}" disabled="${disabled}"/>
+						<span class="input-group-addon btn_date" style="width:1%"><span class="fa fa-calendar"></span></span>
 					</div>
 				</div>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
@@ -35,8 +35,8 @@
 			<label class="sr-only ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<div class="input-group">
 				<div class="input-group date">
-					<form:input path="${campPath}" cssClass="form-control datetimepicker" data-format="dd/MM/yyyy" id="${campPath}" placeholder="${campPlaceholder}" disabled="${disabled}"/>
-					<span class="input-group-addon" style="width:auto"><span class="fa fa-calendar"></span></span>
+					<form:input path="${campPath}" cssClass="form-control datetimepicker date" data-format="dd/MM/yyyy" id="${campPath}" placeholder="${campPlaceholder}" disabled="${disabled}"/>
+					<span class="input-group-addon btn_date" style="width:auto"><span class="fa fa-calendar"></span></span>
 				</div>
 			</div>
 		</div>
@@ -59,6 +59,9 @@ $(document).ready(function() {
 		var height = $('html').height();
 		iframe.height((iframe.height() - 200) + 'px');
 		divField.height((divField.height() - 200) + 'px');
+	});
+	$(".btn_date").click(function(){
+		$(this).prev(".date").trigger("focus");
 	});
 });
 </script>
