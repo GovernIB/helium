@@ -128,6 +128,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return resposta;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{expedientId}/errors", method = RequestMethod.GET)
 	public String errors(
 			HttpServletRequest request,

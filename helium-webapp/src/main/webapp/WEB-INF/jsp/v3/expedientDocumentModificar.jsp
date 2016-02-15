@@ -27,10 +27,20 @@
 	.col-xs-4 {width: 7%;}		
 	.col-xs-8 {width: 93%;}
 	#s2id_estatId {width: 100% !important;}
+	.titol-missatge {
+		margin-left: 3px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	.titol-missatge label {
+		padding-right: 10px;
+	}
 </style>
 </head>
 <body>		
-	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.signaturaPortasignaturesId}"/></c:url>
+	<c:url value="/v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/descarregar" var="downloadUrl"/>
+<%-- 	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.documentStoreId}"/></c:url> --%>
+
 	<form:form cssClass="form-horizontal form-tasca" action="modificar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
 			<form:hidden path="docId"/>
@@ -38,12 +48,13 @@
 			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${document.processInstanceId}"/>
 			<input type="hidden" id="modificarArxiu" name="modificarArxiu" value="false"/>
 			<h4 class="titol-missatge">
-<%-- 	 			<c:if test="${document.plantilla}">  --%>
-<%-- 	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="../../../../expedient/${expedientId}/documentGenerar"><c:param name="docId" value="${documentExpedientCommand.docId}"/></c:url>"> --%>
-<!-- 	 					<i class="fa fa-file-text-o"></i> -->
-<!-- 	 				</a> -->
-<%-- 	 			</c:if>  --%>
- 				<c:if test="${not empty document.signaturaPortasignaturesId && document.signat}">
+				<label><c:choose><c:when test="${document.adjunt}">${document.adjuntTitol}</c:when><c:otherwise>${document.documentNom}</c:otherwise></c:choose></label>
+	 			<c:if test="${document.plantilla}"> 
+	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="/modal/v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/generar"/>">
+	 					<i class="fa fa-file-text-o"></i>
+	 				</a>
+	 			</c:if> 
+ 				<c:if test="${empty document.signaturaPortasignaturesId && not document.signat}">
 					<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
 						<i class="fa fa-download"></i>
 					</a>
@@ -52,6 +63,7 @@
 					</a>
 				</c:if>
 			</h4>
+			<br/>
 			<c:choose>
 				<c:when test="${document.adjunt}">
 					<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>

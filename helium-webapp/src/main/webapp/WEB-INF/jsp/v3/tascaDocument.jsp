@@ -158,7 +158,9 @@
     		autoclose: true,
     		language: '${idioma}'
     	});
-
+		$(".btn_date").click(function(){
+			$(this).prev(".date").trigger("focus");
+		});
 	});
 	
 	function checkFile(docId) {

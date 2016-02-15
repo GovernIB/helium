@@ -808,4 +808,6 @@ public interface ExpedientService {
 
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId);
 
+	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi);
+
 }

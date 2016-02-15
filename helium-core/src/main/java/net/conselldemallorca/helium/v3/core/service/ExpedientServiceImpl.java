@@ -3276,6 +3276,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				numero) != null;
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi) {
+		return documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
+	}
+	
 	private PersonaDto comprovarUsuari(String usuari) {
 		try {
 			PersonaDto persona = pluginHelper.findPersonaAmbCodi(usuari);
@@ -3294,4 +3300,5 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
 }

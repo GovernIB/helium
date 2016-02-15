@@ -124,7 +124,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
 			logger.error("Error generant el document: " + documentCodi, ex);
-			return modalUrlTancar(false);
+			Long documentStoreId = expedientService.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
+			return "redirect:/modal/v3/expedient/" + expedientId + "/document/" + processInstanceId + "/" + documentStoreId + "/modificar"; 
+//			return modalUrlTancar(false);
 		} 
 		return "arxiuView";
 	}
@@ -250,7 +252,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		command.setCodi(document.getDocumentCodi());
 		command.setData(document.getDataDocument());
 		model.addAttribute("documentExpedientCommand", command);
-		model.addAttribute("document", document);		
+		model.addAttribute("document", document);
+		model.addAttribute("expedientId", expedientId);
 		return "v3/expedientDocumentModificar";
 	}
 	
@@ -307,6 +310,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + ": " + ex.getLocalizedMessage());
         }
 		return modalUrlTancar(false);
+	}
+	
+	@RequestMapping(value="/{expedientId}/document/{processInstanceId}/{documentStoreId}/descarregar", method = RequestMethod.GET)
+	public String documentDesacarregarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		ArxiuDto arxiu = expedientService.getArxiuPerDocument(expedientId, documentStoreId);
+		if (arxiu != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		}
+		return "arxiuView";
 	}
 	
 	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}/{documentStoreId}/esborrar", method = RequestMethod.GET)

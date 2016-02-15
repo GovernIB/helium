@@ -258,6 +258,9 @@ public class DocumentHelperV3 {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		Document document =  documentRepository.findByDefinicioProcesAndCodi(definicioProces,documentCodi);
+		if (documentStoreId == null) {
+			documentStoreId = getDocumentStoreIdDeVariableJbpm(null, processInstanceId, documentCodi);
+		}
 		if (document != null) {
 			return crearDtoPerDocumentExpedient(
 							document,
@@ -269,6 +272,11 @@ public class DocumentHelperV3 {
 						"documentCodi=" + documentCodi + ")");
 			return dto;
 		}
+	}
+	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
+			String processInstanceId,
+			String documentCodi) {
+			return getDocumentStoreIdDeVariableJbpm(null, processInstanceId, documentCodi);
 	}
 	
 	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
@@ -516,6 +524,7 @@ public class DocumentHelperV3 {
 			dto.setDocumentCodi(document.getCodi());
 			dto.setDocumentNom(document.getNom());
 			dto.setSignat(documentStore.isSignat());
+			dto.setPlantilla(document.isPlantilla());
 			if (documentStore.isSignat()) {
 				// TODO
 				//dto.setSignaturaPortasignaturesId(documentStore.getP);
