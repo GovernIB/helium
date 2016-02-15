@@ -217,23 +217,15 @@ public class ExpedientHelper {
 	}
 
 	public void comprovarInstanciaProces(
-			Expedient expedient,
+			Long expedientId,
 			String processInstanceId) {
-		if (!expedient.getProcessInstanceId().equals(processInstanceId)) {
-			List<JbpmProcessInstance> processInstanceFills = jbpmHelper.getProcessInstanceTree(
-					expedient.getProcessInstanceId());
-			boolean trobada = false;
-			for (JbpmProcessInstance processInstance: processInstanceFills) {
-				if (expedient.getProcessInstanceId().equals(processInstance.getId())) {
-					trobada = true;
-					break;
-				}
-			}
-			if (!trobada) {
-				throw new NotFoundException(
-						new Long(processInstanceId),
-						JbpmProcessInstance.class);
-			}
+		
+		JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
+		
+		if (!expedientId.equals(processInstance.getProcessInstance().getExpedient().getId())) {
+			throw new NotFoundException(
+					new Long(processInstanceId),
+					JbpmProcessInstance.class);
 		}
 	}
 

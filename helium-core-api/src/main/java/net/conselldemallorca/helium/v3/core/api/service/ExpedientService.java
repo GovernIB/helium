@@ -708,7 +708,7 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 
-	public void evaluateScript(Long expedientId, String script);
+	public void evaluateScript(Long expedientId, String script, String processInstanceId);
 
 	public enum FiltreAnulat {
 		ACTIUS		("expedient.consulta.anulats.actius"),

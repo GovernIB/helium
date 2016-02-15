@@ -22,8 +22,29 @@
 <body>
 	<form:form id="scriptCommand" name="scriptCommand" action="scriptCommand" method="post" commandName="expedientEinesScriptCommand" onsubmit="return confirmar(event)">
 		<input type="hidden" name="id" value="${param.id}"/>
+		
+		<div class="form-group">
+		    <label for="scriptProcessId"><spring:message code="expedient.log.objecte.PROCES"/></label>
+			<select id="scriptProcessId" name="scriptProcessId">
+				<c:forEach var="proces" items="${processos}">
+					<option value="${proces.id}" <c:if test="${proces.instanciaProcesPareId == null}"> selected</c:if>>
+						<c:choose>
+						 	<c:when test="${proces.instanciaProcesPareId == null}">
+						 		<spring:message code="common.tabsexp.proc_princip" />	
+						 	</c:when>
+						 	<c:otherwise>
+						 		${proces.titol}
+						 	</c:otherwise>
+						</c:choose>
+					</option>
+				</c:forEach>
+			</select>
+		</div>									
 	
-		<hel:inputTextarea required="true" name="script" textKey="expedient.accio.script.camp.script" placeholderKey="expedient.accio.script.camp.script" inline="true"/>
+		<div class="form-group">
+		    <label for="exampleInputEmail1"><spring:message code="expedient.eines.script"/></label>
+			<hel:inputTextarea required="true" name="script" textKey="expedient.accio.script.camp.script" placeholderKey="expedient.accio.script.camp.script" inline="true"/>
+		</div>
 			
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel">

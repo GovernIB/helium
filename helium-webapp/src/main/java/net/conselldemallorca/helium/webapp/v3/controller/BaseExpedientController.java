@@ -3,9 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,11 +48,11 @@ public class BaseExpedientController extends BaseController {
 			model.addAttribute("pipellaActiva", "dades");
 		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
+//		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		int numAccions = 0;
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<AccioDto> accionsTrobades = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId);
-			accions.put(instanciaProces, accionsTrobades);
+//			accions.put(instanciaProces, accionsTrobades);
 			numAccions += accionsTrobades.size();
 		}
 		model.addAttribute("numAccions", numAccions);

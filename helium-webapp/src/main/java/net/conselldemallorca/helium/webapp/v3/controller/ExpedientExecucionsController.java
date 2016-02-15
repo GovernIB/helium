@@ -3,9 +3,13 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -41,6 +45,9 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 	public String execucions(HttpServletRequest request, @PathVariable Long expedientId, Model model) {
 		model.addAttribute("expedientId", expedientId);
 		ExpedientEinesScriptCommand expedientEinesScriptCommand = new ExpedientEinesScriptCommand();
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		model.addAttribute("processos", arbreProcessos);
 		model.addAttribute(expedientEinesScriptCommand);
 		return "v3/expedient/execucions";
 	}
@@ -56,6 +63,9 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		new ExpedientScriptValidator().validate(expedientEinesScriptCommand, result);
 		if (result.hasErrors()) {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+			model.addAttribute("processos", arbreProcessos);
 			model.addAttribute("expedientId", expedientId);
 			model.addAttribute(expedientEinesScriptCommand);
 			return "v3/expedient/execucions";
@@ -63,7 +73,8 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 		try {
 			expedientService.evaluateScript(
 					expedientId,
-					expedientEinesScriptCommand.getScript());
+					expedientEinesScriptCommand.getScript(),
+					expedientEinesScriptCommand.getScriptProcessId());
 			MissatgesHelper.success(request, getMessage(request, "info.script.executat"));
 		} catch (Exception ex) {
 			Long entornId = entorn.getId();
