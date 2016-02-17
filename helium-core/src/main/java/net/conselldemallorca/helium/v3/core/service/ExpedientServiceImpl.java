@@ -2183,9 +2183,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"id=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
+				false,
 				true,
-				true,
-				true,
+				false,
 				false);
 		
 		expedientHelper.comprovarInstanciaProces(expedient.getId(), processInstanceId);
@@ -3028,8 +3028,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.getExpedientComprovantPermisos(
 				expedientLog.getExpedient().getId(),
 				false,
-				true,
 				false,
+				false,
+				false,
+				true,
 				false);
 		jbpmHelper.reassignTaskInstance(taskId, expression, expedientLog.getExpedient().getEntorn().getId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);

@@ -14,5 +14,7 @@ public enum PermisTipusEnumDto implements Serializable {
 	READ,
 	WRITE,
 	DELETE,
+	SUPERVISION,
+	REASSIGNMENT,
 	ADMINISTRATION
 }

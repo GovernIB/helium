@@ -13,7 +13,7 @@ import java.util.Set;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
+public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<ExpedientTascaDto> {
 
 	public enum TascaTipusDto {
 		ESTAT,
@@ -409,5 +409,7 @@ public class ExpedientTascaDto implements Comparable<ExpedientTascaDto> {
 	public boolean isFormExtern() {
 		return (tascaFormExternCodi != null && !tascaFormExternCodi.isEmpty());
 	}
+
+	private static final long serialVersionUID = 127420079220181365L;
 
 }

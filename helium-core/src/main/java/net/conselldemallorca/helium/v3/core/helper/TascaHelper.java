@@ -505,6 +505,11 @@ public class TascaHelper {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setTascaTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
+		Expedient expedientNoNull = expedient;
+		if (expedientNoNull == null) {
+			expedientNoNull = expedientHelper.findExpedientByProcessInstanceId(
+					task.getProcessInstanceId());
+		}
 		if (perTramitacio) {
 			// Opcional outcomes?
 			dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
@@ -549,11 +554,6 @@ public class TascaHelper {
 		}
 		dto.setAgafada(task.isAgafada());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		Expedient expedientNoNull = expedient;
-		if (expedientNoNull == null) {
-			expedientNoNull = expedientHelper.findExpedientByProcessInstanceId(
-					task.getProcessInstanceId());
-		}
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
@@ -578,6 +578,10 @@ public class TascaHelper {
 			}
 			dto.setResponsables(responsables);
 		}
+		permisosHelper.omplirControlPermisosSegonsUsuariActual(
+				expedientNoNull.getTipus().getId(),
+				dto,
+				ExpedientTipus.class);
 		return dto;
 	}
 
