@@ -16,6 +16,12 @@ public class ExpedientErrorDto {
 		this.errorTipus = errorTipus;
 		this.text = text;
 	}
+	public ExpedientErrorDto(ErrorTipusDto errorTipus, String desc, String text) {
+		super();
+		this.errorTipus = errorTipus;
+		this.desc = desc;
+		this.text = text;
+	}
 	public enum ErrorTipusDto {
 		BASIC,
 		INTEGRACIONS
@@ -23,6 +29,7 @@ public class ExpedientErrorDto {
 
 	private ErrorTipusDto errorTipus;
 	private String text;
+	private String desc;
 	
 	public ErrorTipusDto getErrorTipus() {
 		return errorTipus;
@@ -35,6 +42,12 @@ public class ExpedientErrorDto {
 	}
 	public void setText(String text) {
 		this.text = text;
+	}
+	public String getDesc() {
+		return desc;
+	}
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 	
 }

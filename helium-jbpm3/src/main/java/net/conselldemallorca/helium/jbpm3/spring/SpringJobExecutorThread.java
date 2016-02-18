@@ -7,9 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +22,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+
 /**
  * Extension of the default jBPM Job executor thread.
  * 
@@ -36,7 +36,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 
 	private static final Log logger = LogFactory.getLog(SpringJobExecutorThread.class);
 	private TransactionTemplate transactionTemplate;
-	public static Map<Long, String> jobErrors = new HashMap<Long, String>();
+	public static Map<Long, String[]> jobErrors = new HashMap<Long, String[]>();
 	private String expedientTipus = null;
 	private ExpedientDto exp = null;
 	
@@ -86,8 +86,8 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
 					try {
+						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
-							exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 							if (exp != null)
 								expedientTipus = exp.getTipus().getNom();
 							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedientTipus, null, null);
@@ -97,23 +97,28 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 							String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
 							Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
 						} catch (Exception ex) {
-							logger.error("Error al indexar l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+							String errorDesc = "S'ha produït un error al reindexar l'expediente en el timer " + jName + ".";	
+							saveJobError(job.getId(), ex, errorDesc);
+							if (exp != null) {
+								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+							} else {
+								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+							}
 						}
 					} catch (Exception ex) {
-						String errorDesc = "Se ha producido un error al ejecutar el timer " + jName + ".";			
-						StringWriter errors = new StringWriter();
-						ex.printStackTrace(new PrintWriter(errors));
-						String errorFull = errors.toString();	
-						jobErrors.put(job.getId(), errorFull);
-						errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-						errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+						String errorDesc = "S'ha produït un error al executar el timer " + jName + ".";	
+						String errorFull = saveJobError(job.getId(), ex, errorDesc);
 						// He configurat la transacció de updateExpedientError per a que es desi tot i fer rollback...		
 						Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
 								job.getId(), 
 								String.valueOf(job.getProcessInstance().getId()), 
 								errorDesc, 
 								errorFull);
-						logger.error("Error al executar el job " + jName + " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						if (exp != null) {
+							logger.error("Error al executar el job " + jName + " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						} else {
+							logger.error("Error al executar el job " + jName + " de l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						}
 						
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
 						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
@@ -122,26 +127,29 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 					return null;
 				}
 			});
-		} catch (JbpmException ex) {
-			String errorDesc = "Se ha producido un error al ejecutar la transacción del timer " + jName + ".";			
-			StringWriter errors = new StringWriter();
-			ex.printStackTrace(new PrintWriter(errors));
-			String errorFull = jobErrors.get(job.getId());
-			if (errorFull == null)
-				errorFull = errors.toString();			
-			errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
-			errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+		} catch (Exception ex) {
+			String[] error = jobErrors.get(job.getId());
+			String errorDesc = "";
+			String errorFull = "";
+			if (error == null || error.length < 2) {
+				errorDesc = "S'ha produït un error al executar la transacció del timer " + jName + ".";
+				errorFull = saveJobError(job.getId(), ex, errorDesc);
+			} else {
+				errorDesc = error[0];
+				errorFull = error[1];
+			}
 			Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
 					job.getId(),
 					String.valueOf(job.getProcessInstance().getId()), 
 					errorDesc, 
 					errorFull);
-			String error = "Error al executar la transaccio del job '" + jName + "' con processInstanceId=" + job.getProcessInstance().getId();
+			String msgError = "Error al executar la transaccio del job '" + jName + "' con processInstanceId=" + job.getProcessInstance().getId();
 			if (exp != null) {
-				error += " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ")";
+				msgError += " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ")";
 			}
-			logger.error(error, ex);
-			throw ex;
+			logger.error(msgError, ex);
+			JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
+			throw e;
 		}
 		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedientTipus, null, null);
 	}
@@ -154,5 +162,15 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				return SpringJobExecutorThread.super.getNextDueDate();
 			}
 		});
+	}
+	
+	private String saveJobError(Long jobId, Throwable ex, String errorDesc) {
+		StringWriter errors = new StringWriter();
+		ex.printStackTrace(new PrintWriter(errors));
+		String errorFull = errors.toString();	
+		errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+		jobErrors.put(jobId, new String[] {errorDesc, errorFull});
+		return errorFull;
 	}
 }

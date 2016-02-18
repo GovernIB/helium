@@ -2123,7 +2123,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		List<ExpedientErrorDto> errors_bas = new ArrayList<ExpedientErrorDto>();
 		if (expedient.getErrorDesc() != null) {
-			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorFull()));
+			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorDesc(), expedient.getErrorFull()));
 		}
 		
 		return new Object[]{errors_bas,errors_int};
