@@ -20,10 +20,15 @@ import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.db.JobSession;
 import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.job.Job;
 import org.jbpm.persistence.JbpmPersistenceException;
 import org.jbpm.persistence.db.StaleObjectLogConfigurer;
 import org.jbpm.svc.Services;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
@@ -78,6 +83,44 @@ public class JobExecutorThread extends Thread {
 					Iterator iter = acquiredJobs.iterator();
 					while (iter.hasNext() && isActive) {
 						Job job = (Job) iter.next();
+						MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
+				        ProcessInstanceExpedient expedient = job.getProcessInstance().getExpedient();
+				        final Timer timerTotal = metricRegistry.timer(
+								MetricRegistry.name(
+										JobExecutor.class,
+										"job"));
+						final Timer.Context contextTotal = timerTotal.time();
+						Counter countTotal = metricRegistry.counter(
+								MetricRegistry.name(
+										JobExecutor.class,
+										"job.count"));
+						countTotal.inc();
+						final Timer timerEntorn = metricRegistry.timer(
+								MetricRegistry.name(
+										JobExecutor.class,
+										"job",
+										expedient.getEntorn().getCodi()));
+						final Timer.Context contextEntorn = timerEntorn.time();
+						Counter countEntorn = metricRegistry.counter(
+								MetricRegistry.name(
+										JobExecutor.class,
+										"job.count",
+										expedient.getEntorn().getCodi()));
+						countEntorn.inc();
+						final Timer timerTipexp = metricRegistry.timer(
+								MetricRegistry.name(
+										JobExecutor.class,
+										"job",
+										expedient.getEntorn().getCodi(),
+										expedient.getTipus().getCodi()));
+						final Timer.Context contextTipexp = timerTipexp.time();
+						Counter countTipexp = metricRegistry.counter(
+								MetricRegistry.name(
+										JobExecutor.class,
+										"job.count",
+										expedient.getEntorn().getCodi(),
+										expedient.getTipus().getCodi()));
+						countTipexp.inc();
 						boolean error = false;
 						Throwable terror = null;
 						try {
@@ -90,6 +133,10 @@ public class JobExecutorThread extends Thread {
 						} catch (Error e) {
 							error = true;
 							terror = e;
+						} finally {
+							contextTotal.stop();
+							contextEntorn.stop();
+							contextTipexp.stop();
 						}
 						if (error) {
 							saveJobException(job, terror);

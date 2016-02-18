@@ -16,8 +16,10 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.comparators.NullComparator;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -27,6 +29,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
@@ -157,6 +163,9 @@ public class TascaServiceImpl implements TascaService {
 	private FormulariExternHelper formulariExternHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
+
+	@Autowired
+	private MetricRegistry metricRegistry;
 
 
 
@@ -1164,51 +1173,95 @@ public class TascaServiceImpl implements TascaService {
 					JbpmTask.class,
 					"firmes_ok");
 		}
-//		Expedient expedient = expedientRepository.findOne(expedientId);
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
-				tascaId,
-				expedientId,
-				ExpedientLogAccioTipus.TASCA_COMPLETAR,
-				outcome,
-				usuari);
-		jbpmHelper.startTaskInstance(tascaId);
-		jbpmHelper.endTaskInstance(tascaId, outcome);
-		// Accions per a una tasca delegada
-		DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
-		if (delegationInfo != null) {
-			if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
-				// Copia les variables de la tasca delegada a la original
-				jbpmHelper.setTaskInstanceVariables(
-						delegationInfo.getSourceTaskId(),
-						jbpmHelper.getTaskInstanceVariables(tascaId),
-						false);
-				JbpmTask taskOriginal = jbpmHelper.getTaskById(
-						delegationInfo.getSourceTaskId());
-				if (!delegationInfo.isSupervised()) {
-					// Si no es supervisada també finalitza la tasca original
-					completar(taskOriginal.getId(), expedientId, outcome);
+		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+				task.getProcessInstanceId());
+		Expedient expedient = expedientRepository.findOne(piexp.getId());
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TascaService.class,
+						"completar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TascaService.class,
+						"completar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TascaService.class,
+						"completar",
+						expedient.getEntorn().getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TascaService.class,
+						"completar.count",
+						expedient.getEntorn().getCodi()));
+		countEntorn.inc();
+		final Timer timerTipexp = metricRegistry.timer(
+				MetricRegistry.name(
+						TascaService.class,
+						"completar",
+						expedient.getEntorn().getCodi(),
+						expedient.getTipus().getCodi()));
+		final Timer.Context contextTipexp = timerTipexp.time();
+		Counter countTipexp = metricRegistry.counter(
+				MetricRegistry.name(
+						TascaService.class,
+						"completar.count",
+						expedient.getEntorn().getCodi(),
+						expedient.getTipus().getCodi()));
+		countTipexp.inc();
+		try {
+			ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
+					tascaId,
+					expedientId,
+					ExpedientLogAccioTipus.TASCA_COMPLETAR,
+					outcome,
+					usuari);
+			jbpmHelper.startTaskInstance(tascaId);
+			jbpmHelper.endTaskInstance(tascaId, outcome);
+			// Accions per a una tasca delegada
+			DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
+			if (delegationInfo != null) {
+				if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
+					// Copia les variables de la tasca delegada a la original
+					jbpmHelper.setTaskInstanceVariables(
+							delegationInfo.getSourceTaskId(),
+							jbpmHelper.getTaskInstanceVariables(tascaId),
+							false);
+					JbpmTask taskOriginal = jbpmHelper.getTaskById(
+							delegationInfo.getSourceTaskId());
+					if (!delegationInfo.isSupervised()) {
+						// Si no es supervisada també finalitza la tasca original
+						completar(taskOriginal.getId(), expedientId, outcome);
+					}
+					tascaHelper.deleteDelegationInfo(taskOriginal);
 				}
-				tascaHelper.deleteDelegationInfo(taskOriginal);
 			}
+			
+			JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedientLog.getExpedient().getProcessInstanceId());		
+			actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
+			verificarFinalitzacioExpedient(expedientLog.getExpedient(), pi);
+			serviceUtils.expedientIndexLuceneUpdate(expedientLog.getExpedient().getProcessInstanceId());
+			
+			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+					task.getTaskName(),
+					task.getProcessDefinitionId());
+			Registre registre = new Registre(
+					new Date(),
+					expedientId,
+					usuari,
+					Registre.Accio.FINALITZAR,
+					Registre.Entitat.TASCA,
+					tascaId);
+			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+			registreRepository.save(registre);
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextTipexp.stop();
 		}
-		
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedientLog.getExpedient().getProcessInstanceId());		
-		actualitzarTerminisIAlertes(tascaId, expedientLog.getExpedient());
-		verificarFinalitzacioExpedient(expedientLog.getExpedient(), pi);
-		serviceUtils.expedientIndexLuceneUpdate(expedientLog.getExpedient().getProcessInstanceId());
-		
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				task.getTaskName(),
-				task.getProcessDefinitionId());
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				usuari,
-				Registre.Accio.FINALITZAR,
-				Registre.Entitat.TASCA,
-				tascaId);
-		registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
-		registreRepository.save(registre);
 	}
 
 	@Override

@@ -350,17 +350,19 @@
 								{{if open && !suspended && agafada && assignee == "${dadesPersona.codi}"}}
 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
+								{{if permisRead}}
 								<li><a href="../v3/expedient/{{:expedientId}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
-								{{if open}}
+								{{/if}}
+								{{if open && permisReassignment}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 								{{/if}}
-								{{if open && !suspended}}
+								{{if open && !suspended && permisSupervision}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
-								{{if suspended}}
+								{{if suspended && permisSupervision}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 								{{/if}}
-								{{if !cancelled}}
+								{{if !cancelled && permisSupervision}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 								{{/if}}
  							</ul>
@@ -377,6 +379,9 @@
 				<th data-rdt-property="completed" data-rdt-visible="false"></th>				
 				<th data-rdt-property="expedientId" data-rdt-visible="false"></th>
 				<th data-rdt-property="responsables" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisSupervision" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisReassignment" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>

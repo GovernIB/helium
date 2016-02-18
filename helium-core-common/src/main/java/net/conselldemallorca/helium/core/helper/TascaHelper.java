@@ -40,8 +40,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
@@ -285,20 +283,6 @@ public class TascaHelper {
 	public List<ExpedientTascaDto> findTasquesPerExpedient(
 			Expedient expedient) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		/*List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(
-				expedient.getProcessInstanceId());*/
-		List<JbpmProcessInstance> pis = jbpmHelper.getProcessInstanceTree(
-				expedient.getProcessInstanceId());
-		List<Long> idsPIExpedients = new ArrayList<Long>();
-		for (JbpmProcessInstance pi: pis) {
-			idsPIExpedients.add(new Long(pi.getId()));
-		}
-		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
-		paginacioParams.afegirOrdre(
-				"dataCreacio",
-				OrdreDireccioDto.DESCENDENT);
-		paginacioParams.setPaginaNum(0);
-		paginacioParams.setPaginaTamany(-1);
 		// Si l'usuari te permis de supervisio mostra totes les tasques de
 		// l'expedient de qualsevol usuari
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -309,20 +293,27 @@ public class TascaHelper {
 					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.ADMINISTRATION},
 				auth);
-		final LlistatIds ids = jbpmHelper.findListTasks(
-				auth.getName(),
-				(isPermisSupervision) ? null : auth.getName(), 
+		final LlistatIds ids = jbpmHelper.tascaFindByFiltre(
+				expedient.getEntorn().getId(),
+				(isPermisSupervision) ? null : auth.getName(),
 				null,
 				null,
-				idsPIExpedients, 
-				null, 
+				expedient.getId(),
 				null,
-				null, 
-				null, 
-				null, 
-				paginacioParams,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
 				true,
 				true,
+				false,
+				0,
+				-1,
+				"dataCreacio",
+				false,
 				false);
 		List<JbpmTask> tasks = jbpmHelper.findTasks(ids.getIds());
 		for (JbpmTask task: tasks) {
@@ -513,6 +504,11 @@ public class TascaHelper {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setTascaTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
+		Expedient expedientNoNull = expedient;
+		if (expedientNoNull == null) {
+			expedientNoNull = expedientHelper.findExpedientByProcessInstanceId(
+					task.getProcessInstanceId());
+		}
 		if (perTramitacio) {
 			// Opcional outcomes?
 			dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
@@ -555,14 +551,13 @@ public class TascaHelper {
 			if (definicioProces != null) {
 				dto.setDefinicioProcesId(definicioProces.getId());
 			}
+			permisosHelper.omplirControlPermisosSegonsUsuariActual(
+					expedientNoNull.getTipus().getId(),
+					dto,
+					ExpedientTipus.class);
 		}
 		dto.setAgafada(task.isAgafada());
 		dto.setProcessInstanceId(task.getProcessInstanceId());
-		Expedient expedientNoNull = expedient;
-		if (expedientNoNull == null) {
-			expedientNoNull = expedientHelper.findExpedientByProcessInstanceId(
-					task.getProcessInstanceId());
-		}
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());

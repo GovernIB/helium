@@ -17,8 +17,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class PaginacioParamsDto implements Serializable {
 
-	private int paginaNum;
-	private int paginaTamany;
+	private int paginaNum = 0;
+	private int paginaTamany = -1;
 	private String filtre;
 	private List<FiltreDto> filtres = new ArrayList<FiltreDto>();
 	private List<OrdreDto> ordres = new ArrayList<OrdreDto>();

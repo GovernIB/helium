@@ -13,10 +13,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
-
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -32,7 +28,13 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.ControlPermisosDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 
 
 /**
@@ -295,6 +297,167 @@ public class PermisosHelper {
 			aclService.deleteAcl(oid, true);
 		} catch (NotFoundException nfex) {
 		}
+	}
+
+	public void omplirControlPermisosSegonsUsuariActual(
+			List<Long> ids,
+			List<? extends ControlPermisosDto> dtos,
+			Class<?> classePermisos) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		ObjectIdentifierExtractor<Long> oie = new ObjectIdentifierExtractor<Long>() {
+			public Long getObjectIdentifier(Long id) {
+				return id;
+			}
+		};
+		List<Long> idsAmbPermisCreate = new ArrayList<Long>();
+		idsAmbPermisCreate.addAll(ids);
+		filterGrantedAny(
+				idsAmbPermisCreate,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.CREATE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisRead = new ArrayList<Long>();
+		idsAmbPermisRead.addAll(ids);
+		filterGrantedAny(
+				idsAmbPermisRead,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisWrite = new ArrayList<Long>();
+		idsAmbPermisWrite.addAll(ids);
+		filterGrantedAny(
+				idsAmbPermisWrite,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisDelete = new ArrayList<Long>();
+		idsAmbPermisDelete.addAll(ids);
+		filterGrantedAny(
+				idsAmbPermisDelete,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.DELETE,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisSupervision = new ArrayList<Long>();
+		idsAmbPermisSupervision.addAll(ids);
+		filterGrantedAny(
+				idsAmbPermisSupervision,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisReassignment = new ArrayList<Long>();
+		idsAmbPermisReassignment.addAll(ids);
+		filterGrantedAny(
+				idsAmbPermisReassignment,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.REASSIGNMENT,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		List<Long> idsAmbPermisAdministration = new ArrayList<Long>();
+		idsAmbPermisAdministration.addAll(ids);
+		filterGrantedAll(
+				idsAmbPermisAdministration,
+				oie,
+				classePermisos,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		for (int i = 0; i < ids.size(); i++) {
+			Long id = ids.get(i);
+			ControlPermisosDto dto = dtos.get(i);
+			dto.setPermisCreate(
+					idsAmbPermisCreate.contains(id));
+			dto.setPermisRead(
+					idsAmbPermisRead.contains(id));
+			dto.setPermisWrite(
+					idsAmbPermisWrite.contains(id));
+			dto.setPermisDelete(
+					idsAmbPermisDelete.contains(id));
+			dto.setPermisSupervision(
+					idsAmbPermisSupervision.contains(id));
+			dto.setPermisReassignment(
+					idsAmbPermisReassignment.contains(id));
+			dto.setPermisAdministration(
+					idsAmbPermisAdministration.contains(id));
+		}
+	}
+
+	public void omplirControlPermisosSegonsUsuariActual(
+			Long id,
+			ControlPermisosDto dto,
+			Class<?> classePermisos) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		dto.setPermisCreate(
+				isGrantedAny(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.CREATE,
+								ExtendedPermission.ADMINISTRATION},
+						auth));
+		dto.setPermisRead(
+				isGrantedAny(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.READ,
+								ExtendedPermission.ADMINISTRATION},
+						auth));
+		dto.setPermisWrite(
+				isGrantedAny(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.WRITE,
+								ExtendedPermission.ADMINISTRATION},
+						auth));
+		dto.setPermisDelete(
+				isGrantedAny(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.DELETE,
+								ExtendedPermission.ADMINISTRATION},
+						auth));
+		dto.setPermisSupervision(
+				isGrantedAny(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.SUPERVISION,
+								ExtendedPermission.ADMINISTRATION},
+						auth));
+		dto.setPermisReassignment(
+				isGrantedAny(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.REASSIGNMENT,
+								ExtendedPermission.ADMINISTRATION},
+						auth));
+		dto.setPermisAdministration(
+				isGrantedAll(
+						id,
+						classePermisos,
+						new Permission[] {
+								ExtendedPermission.ADMINISTRATION},
+						auth));
 	}
 
 

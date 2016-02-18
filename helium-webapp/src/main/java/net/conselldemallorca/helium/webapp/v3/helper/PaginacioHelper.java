@@ -59,6 +59,13 @@ public class PaginacioHelper {
 		return paginacio;
 	}
 
+	public static PaginacioParamsDto getPaginacioDtoTotsElsResultats() {
+		PaginacioParamsDto paginacio = new PaginacioParamsDto();
+		paginacio.setPaginaNum(0);
+		paginacio.setPaginaTamany(-1);
+		return paginacio;
+	}
+
 	public static <T> DatatablesPagina<T> getPaginaPerDatatables(
 			HttpServletRequest request,
 			PaginaDto<T> pagina) {

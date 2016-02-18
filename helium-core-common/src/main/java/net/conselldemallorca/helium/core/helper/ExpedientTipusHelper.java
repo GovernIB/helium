@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
@@ -11,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -130,6 +135,35 @@ public class ExpedientTipusHelper {
 			String processInstanceId) {
 		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
 		return expedientTipusRepository.findOne(piexp.getTipus().getId());
+	}
+
+	public List<ExpedientTipus> findAmbPermisRead(
+			Entorn entorn) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		return tipusPermesos;
+	}
+
+	public List<Long> findIdsAmbPermisRead(
+			Entorn entorn) {
+		List<ExpedientTipus> tipusPermesos = findAmbPermisRead(entorn);
+		List<Long> ids = new ArrayList<Long>();
+		for (ExpedientTipus tipus: tipusPermesos) {
+			ids.add(tipus.getId());
+		}
+		return ids;
 	}
 
 }

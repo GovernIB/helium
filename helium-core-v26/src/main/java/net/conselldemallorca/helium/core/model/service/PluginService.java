@@ -17,6 +17,8 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -90,6 +92,7 @@ public class PluginService {
 
 	private ServiceUtils serviceUtils;
 	private MessageSource messageSource;
+	private MetricRegistry metricRegistry;
 
 
 
@@ -453,6 +456,10 @@ public class PluginService {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
+	}
 
 
 
@@ -656,7 +663,8 @@ public class PluginService {
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

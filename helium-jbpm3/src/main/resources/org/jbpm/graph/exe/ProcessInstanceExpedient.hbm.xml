@@ -11,7 +11,6 @@
 		<property name="numeroDefault" column="NUMERO_DEFAULT" />
 		<property name="dataInici" column="DATA_INICI" />
 		<property name="dataFi" column="DATA_FI" />
-		<property name="entornId" column="ENTORN_ID" />
 		<property name="estatId" column="ESTAT_ID" />
 		<property name="geoPosX" column="GEO_POSX" />
 		<property name="geoPosY" column="GEO_POSY" />
@@ -21,6 +20,12 @@
 		<property name="errorsIntegs" column="ERRORS_INTEGS" />
 		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
 		<property name="ambRetroaccio" column="AMB_RETROACCIO"/>
+		<many-to-one
+				name="entorn"
+				column="ENTORN_ID"
+				foreign-key="HEL_ENTORN_EXPEDIENT_FK"
+				index="HEL_EXPEDIENT_ENTORN_I"
+				lazy="false"/>
 		<many-to-one
 				name="tipus"
 				column="TIPUS_ID"

@@ -32,6 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -168,6 +170,7 @@ public class ExpedientService {
 
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	private MetricRegistry metricRegistry;
 
 
 
@@ -2598,6 +2601,11 @@ public class ExpedientService {
 	public void setExecucioMassivaExpedientDao(ExecucioMassivaExpedientDao execucioMassivaExpedientDao) {
 		this.execucioMassivaExpedientDao = execucioMassivaExpedientDao;
 	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
+	}
+
 
 
 	@SuppressWarnings("rawtypes")
@@ -2934,7 +2942,8 @@ public class ExpedientService {
 					dtoConverter,
 					jbpmHelper,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -102,6 +104,7 @@ public class DtoConverter {
 	private DocumentHelper documentHelper;
 	private ServiceUtils serviceUtils;
 	private ExpedientService expedientService;
+	private MetricRegistry metricRegistry;
 
 
 
@@ -658,7 +661,11 @@ public class DtoConverter {
 					processInstanceId,
 					camp,
 					valorsAddicionals);
-			return getResultatConsultaDominiPerCamp(definicioProces, camp, params, textInicial);
+			return getResultatConsultaDominiPerCamp(
+					definicioProces,
+					camp,
+					params,
+					textInicial);
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -830,6 +837,10 @@ public class DtoConverter {
 	@Autowired
 	public void setDocumentHelper(DocumentHelper documentHelper) {
 		this.documentHelper = documentHelper;
+	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
 	}
 
 
@@ -1341,7 +1352,8 @@ public class DtoConverter {
 					this,
 					jbpmDao,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

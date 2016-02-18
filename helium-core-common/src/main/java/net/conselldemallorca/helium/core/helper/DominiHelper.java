@@ -57,7 +57,6 @@ public class DominiHelper {
 
 	private static final String CACHE_DOMINI_ID = "dominiCache";
 	private static final String CACHE_KEY_SEPARATOR = "#";
-	//private Ehcache dominiCache;
 
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
 
@@ -81,27 +80,58 @@ public class DominiHelper {
 		String cacheKey = getCacheKey(domini.getId(), id, parametres);
 		List<FilaResultat> resultat = null;
 		if (dominiCache.get(cacheKey) == null) {
+			final Timer timerTotal = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar"));
+			final Timer.Context contextTotal = timerTotal.time();
+			Counter countTotal = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar.count"));
+			countTotal.inc();
 			final Timer timerEntorn = metricRegistry.timer(
 					MetricRegistry.name(
 							DominiHelper.class,
-							"consulta",
+							"consultar",
 							domini.getEntorn().getCodi()));
-			final Timer timerExptip = metricRegistry.timer(
+			final Timer.Context contextEntorn = timerEntorn.time();
+			Counter countEntorn = metricRegistry.counter(
 					MetricRegistry.name(
 							DominiHelper.class,
-							"consulta",
+							"consultar.count",
+							domini.getEntorn().getCodi()));
+			countEntorn.inc();
+			final Timer timerTipexp = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar",
 							domini.getEntorn().getCodi(),
 							domini.getExpedientTipus().getCodi()));
+			final Timer.Context contextTipexp = timerTipexp.time();
+			Counter countTipexp = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar.count",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi()));
+			countTipexp.inc();
 			final Timer timerDomini = metricRegistry.timer(
 					MetricRegistry.name(
 							DominiHelper.class,
-							"consulta",
+							"consultar",
 							domini.getEntorn().getCodi(),
 							domini.getExpedientTipus().getCodi(),
 							domini.getCodi()));
-			final Timer.Context contextEntorn = timerEntorn.time();
-			final Timer.Context contextExptip = timerExptip.time();
 			final Timer.Context contextDomini = timerDomini.time();
+			Counter countDomini = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar.count",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi(),
+							domini.getCodi()));
+			countDomini.inc();
 			try {
 				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 					resultat = consultaWs(domini, id, parametres);
@@ -115,53 +145,64 @@ public class DominiHelper {
 					cacheElement.setTimeToLive(domini.getCacheSegons());
 					nativeCache.put(cacheElement);
 				}
+				final Counter counterOkTotal = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar.ok"));
+				counterOkTotal.inc();
 				final Counter counterOkEntorn = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
-								"consulta.ok",
+								"consultar.ok",
 								domini.getEntorn().getCodi()));
 				counterOkEntorn.inc();
-				final Counter counterOkExptip = metricRegistry.counter(
+				final Counter counterOkTipexp = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
-								"consulta.ok",
+								"consultar.ok",
 								domini.getEntorn().getCodi(),
 								domini.getExpedientTipus().getCodi()));
-				counterOkExptip.inc();
+				counterOkTipexp.inc();
 				final Counter counterOkDomini = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
-								"consulta.ok",
+								"consultar.ok",
 								domini.getEntorn().getCodi(),
 								domini.getExpedientTipus().getCodi(),
 								domini.getCodi()));
 				counterOkDomini.inc();
 			} catch (DominiConsultaException ex) {
+				final Counter counterErrorTotal = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar.error"));
+				counterErrorTotal.inc();
 				final Counter counterErrorEntorn = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
-								"consulta.error",
+								"consultar.error",
 								domini.getEntorn().getCodi()));
 				counterErrorEntorn.inc();
-				final Counter counterErrorExptip = metricRegistry.counter(
+				final Counter counterErrorTipexp = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
-								"consulta.error",
+								"consultar.error",
 								domini.getEntorn().getCodi(),
 								domini.getExpedientTipus().getCodi()));
-				counterErrorExptip.inc();
+				counterErrorTipexp.inc();
 				final Counter counterErrorDomini = metricRegistry.counter(
 						MetricRegistry.name(
 								DominiHelper.class,
-								"consulta.error",
+								"consultar.error",
 								domini.getEntorn().getCodi(),
 								domini.getExpedientTipus().getCodi(),
 								domini.getCodi()));
 				counterErrorDomini.inc();
 				throw ex;
 			} finally {
+				contextTotal.stop();
 				contextEntorn.stop();
-				contextExptip.stop();
+				contextTipexp.stop();
 				contextDomini.stop();
 			}
 		} else {

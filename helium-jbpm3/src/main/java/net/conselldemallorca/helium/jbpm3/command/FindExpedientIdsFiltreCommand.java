@@ -118,7 +118,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					"from " +
 					"    org.jbpm.graph.exe.ProcessInstanceExpedient pie " +
 					"where " +
-					"    pie.entornId = :entornId " +
+					"    pie.entorn.id = :entornId " +
 					"and pie.tipus.id in (:tipusIdPermesos) ");
 			if (titol != null && !titol.isEmpty()) {
 				expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%') ");
@@ -200,7 +200,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 						"    from " +
 						"        Alerta as al " +
 						"    where " +
-						"        al.entorn.id = pie.entornId " +
+						"        al.entorn.id = pie.entorn.id " +
 						"    and al.dataEliminacio is null " +
 						"    and al.expedient.id = pie.id ) ");
 			}

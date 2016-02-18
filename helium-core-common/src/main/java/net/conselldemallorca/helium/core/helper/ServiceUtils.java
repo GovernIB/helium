@@ -13,6 +13,10 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -23,6 +27,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 
 /**
@@ -43,6 +48,10 @@ public class ServiceUtils {
 	private LuceneHelper luceneHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
+	@Resource
+	private MetricRegistry metricRegistry;
+
+
 
 	/**
 	 * Mètodes per a la reindexació d'expedients
@@ -61,17 +70,77 @@ public class ServiceUtils {
 				false);
 	}
 
-	public void expedientIndexLuceneUpdate(String processInstanceId) {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
-		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneHelper.updateExpedientCamps(
-				expedient,
-				getMapDefinicionsProces(expedient.getProcessInstanceId()),
-				mapCamps,
-				mapValors,
-				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+	public void expedientIndexLuceneUpdate(
+			String processInstanceId) {
+		expedientIndexLuceneUpdate(
+				processInstanceId,
+				false,
+				null);
+	}
+	public void expedientIndexLuceneUpdate(
+			String processInstanceId,
+			boolean perTasca,
+			Expedient expedientDeLaTasca) {
+		Timer.Context contextTotal = null;
+		Timer.Context contextEntorn = null;
+		Timer.Context contextTipexp = null;
+		if (perTasca) {
+			final Timer timerTotal = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar"));
+			contextTotal = timerTotal.time();
+			Counter countTotal = metricRegistry.counter(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar.count"));
+			countTotal.inc();
+			final Timer timerEntorn = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar",
+							expedientDeLaTasca.getEntorn().getCodi()));
+			contextEntorn = timerEntorn.time();
+			Counter countEntorn = metricRegistry.counter(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar.count",
+							expedientDeLaTasca.getEntorn().getCodi()));
+			countEntorn.inc();
+			final Timer timerTipexp = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar",
+							expedientDeLaTasca.getEntorn().getCodi(),
+							expedientDeLaTasca.getTipus().getCodi()));
+			contextTipexp = timerTipexp.time();
+			Counter countTipexp = metricRegistry.counter(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar.count",
+							expedientDeLaTasca.getEntorn().getCodi(),
+							expedientDeLaTasca.getTipus().getCodi()));
+			countTipexp.inc();
+		}
+		try {
+			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
+			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
+			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
+			luceneHelper.updateExpedientCamps(
+					expedient,
+					getMapDefinicionsProces(rootProcessInstance.getId()),
+					mapCamps,
+					mapValors,
+					getMapValorsDomini(mapCamps, mapValors),
+					isExpedientFinalitzat(expedient));
+		} finally {
+			if (perTasca) {
+				contextTotal.stop();
+				contextEntorn.stop();
+				contextTipexp.stop();
+			}
+		}
 	}
 
 	public void expedientIndexLuceneDelete(String processInstanceId) {

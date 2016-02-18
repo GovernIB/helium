@@ -421,18 +421,28 @@ public class JbpmHelper {
 	
 	public JbpmProcessInstance getRootProcessInstance(
 			String processInstanceId) {
-		//adminService.mesuraIniciar("jBPM getRootProcessInstance", "jbpmDao");
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(Long.parseLong(processInstanceId));
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
+				Long.parseLong(processInstanceId));
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
 		if (processInstance != null) {
-			while (processInstance.getSuperProcessToken() != null) {
-				final long id = processInstance.getSuperProcessToken().getProcessInstance().getId();
-				command.setProcessInstanceId(id);
-				processInstance = (ProcessInstance)commandService.execute(command);
+			if (processInstance.getExpedient() != null) {
+				if (!processInstance.getExpedient().getProcessInstanceId().equals(processInstanceId)) {
+					command.setProcessInstanceId(
+							Long.parseLong(
+									processInstance.getExpedient().getProcessInstanceId()));
+					processInstance = (ProcessInstance)commandService.execute(command);
+				}
+				return new JbpmProcessInstance(processInstance);
+			} else {
+				// L'expedient del processInstance pot ser null si estam
+				// iniciant l'expedient
+				while (processInstance.getSuperProcessToken() != null) {
+					final long id = processInstance.getSuperProcessToken().getProcessInstance().getId();
+					command.setProcessInstanceId(id);
+					processInstance = (ProcessInstance)commandService.execute(command);
+				}
+				return new JbpmProcessInstance(processInstance);
 			}
-			JbpmProcessInstance resultat = new JbpmProcessInstance(processInstance);
-			//adminService.mesuraCalcular("jBPM getRootProcessInstance", "jbpmDao");
-			return resultat;
 		} else {
 			return null;
 		}
