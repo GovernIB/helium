@@ -1019,23 +1019,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			dataInici2.setTime(cal.getTime().getTime());
 		}
 		// Obté la llista de tipus d'expedient permesos
-		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
-		permisosHelper.filterGrantedAny(
-				tipusPermesos,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> tipusIdPermesos = new ArrayList<Long>();
-		for (ExpedientTipus tipus: tipusPermesos) {
-			tipusIdPermesos.add(tipus.getId());
-		}
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Calcula l'ordenació
 		String ordre = null;
 		if (!paginacioParams.getOrdres().isEmpty()) {
@@ -1056,7 +1040,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
-				tipusIdPermesos,
+				tipusPermesosIds,
 				titol,
 				numero,
 				expedientTipusId,
@@ -1176,28 +1160,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 			dataInici2.setTime(cal.getTime().getTime());
 		}
 		// Obté la llista de tipus d'expedient permesos
-		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
-		permisosHelper.filterGrantedAny(
-				tipusPermesos,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
-		List<Long> tipusIdPermesos = new ArrayList<Long>();
-		for (ExpedientTipus tipus: tipusPermesos) {
-			tipusIdPermesos.add(tipus.getId());
-		}
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
 		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
-				tipusIdPermesos,
+				tipusPermesosIds,
 				titol,
 				numero,
 				expedientTipusId,
@@ -3043,7 +3011,228 @@ public class ExpedientServiceImpl implements ExpedientService {
 				usuari,
 				expression);
 	}
-	
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ExpedientConsultaDissenyDto> consultaFindPaginat(
+			Long consultaId,
+			Map<String, Object> filtreValors,
+			Set<Long> expedientIdsSeleccio,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean nomesErrors,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug("Consulta general d'expedients paginada (" +
+				"consultaId=" + consultaId + ", " +
+				"filtreValors=" + filtreValors + ", " +
+				"expedientIdsSeleccio=" + expedientIdsSeleccio + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
+				"nomesMeves=" + nomesMeves + ", " +
+				"nomesAlertes=" + nomesAlertes + ", " +
+				"nomesErrors=" + nomesErrors + ", " +
+				"mostrarAnulats=" + mostrarAnulats + 
+				"paginacioParams=" + paginacioParams + ")");
+		// Comprova l'accés a la consulta
+		Consulta consulta = consultaRepository.findById(consultaId);
+		if (consulta == null) {
+			throw new NotFoundException(
+					consultaId,
+					Consulta.class);
+		}
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				consulta.getEntorn().getId(),
+				true,
+				false,
+				false);
+		// Comprova l'accés al tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					consulta.getExpedientTipus().getId(),
+					true,
+					false,
+					false);
+		// Obte la llista d'expedients permesos
+		List<Long> expedientIdsPermesos;
+		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
+			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
+		} else {
+			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+					entorn.getId(),
+					auth.getName(),
+					tipusPermesosIds,
+					null,
+					null,
+					expedientTipus.getId(),
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false,
+					false,
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+					nomesAlertes,
+					nomesErrors,
+					nomesTasquesPersonals || nomesTasquesGrup,
+					nomesTasquesPersonals,
+					nomesTasquesGrup,
+					!nomesMeves,
+					0,
+					-1,
+					null,
+					false,
+					false);
+			expedientIdsPermesos = expedientIds.getIds();
+		}
+		// Obte la llista d'expedients de lucene passant els expedients permesos
+		// com a paràmetres
+		List<Camp> filtreCamps = consultaHelper.toListCamp(
+				consultaHelper.findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.FILTRE));
+		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+		List<Camp> informeCamps = consultaHelper.toListCamp(
+				consultaHelper.findCampsPerCampsConsulta(
+						consulta,
+						TipusConsultaCamp.INFORME));
+		Object[] respostaLucene = luceneHelper.findPaginatAmbDadesV3(
+				entorn,
+				expedientTipus,
+				expedientIdsPermesos,
+				filtreCamps,
+				filtreValors,
+				informeCamps,
+				paginacioParams);
+		@SuppressWarnings("unchecked")
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
+		Long count = (Long)respostaLucene[1];
+		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
+		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+			Expedient expedient = expedientRepository.findOne(Long.parseLong(dadaExpedientId.getValorIndex()));
+			if (expedient != null) {
+				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
+				expedientHelper.omplirPermisosExpedient(expedientDto);
+				fila.setExpedient(expedientDto);
+				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						informeCamps,
+						expedient);
+				fila.setDadesExpedient(dadesExpedient);
+				resposta.add(fila);
+			}
+			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+		}
+		return paginacioHelper.toPaginaDto(
+				resposta,
+				count.intValue(),
+				paginacioParams);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<Long> consultaFindNomesIdsPaginat(
+			Long consultaId,
+			Map<String, Object> filtreValors,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean nomesErrors,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug("Consulta general d'expedients paginada (" +
+				"consultaId=" + consultaId + ", " +
+				"filtreValors=" + filtreValors + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
+				"nomesMeves=" + nomesMeves + ", " +
+				"nomesAlertes=" + nomesAlertes + ", " +
+				"nomesErrors=" + nomesErrors + ", " +
+				"mostrarAnulats=" + mostrarAnulats + 
+				"paginacioParams=" + paginacioParams + ")");
+		// Comprova l'accés a la consulta
+		Consulta consulta = consultaRepository.findById(consultaId);
+		if (consulta == null) {
+			throw new NotFoundException(
+					consultaId,
+					Consulta.class);
+		}
+		// Comprova l'accés a l'entorn
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				consulta.getEntorn().getId(),
+				true,
+				false,
+				false);
+		// Comprova l'accés al tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					consulta.getExpedientTipus().getId(),
+					true,
+					false,
+					false);
+		// Obte la llista d'expedients permesos segons els filtres
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+				entorn.getId(),
+				auth.getName(),
+				tipusPermesosIds,
+				null,
+				null,
+				expedientTipus.getId(),
+				null,
+				null,
+				null,
+				null,
+				null,
+				null,
+				false,
+				false,
+				MostrarAnulatsDto.SI.equals(mostrarAnulats),
+				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+				nomesAlertes,
+				nomesErrors,
+				nomesTasquesPersonals || nomesTasquesGrup,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				!nomesMeves,
+				0,
+				-1,
+				null,
+				false,
+				false);
+		// Obte la llista d'ids de lucene passant els expedients permesos
+		// com a paràmetres
+		List<Camp> filtreCamps = consultaHelper.toListCamp(
+				consultaHelper.findCampsPerCampsConsulta(
+				consulta,
+				TipusConsultaCamp.FILTRE));
+		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+		Object[] respostaLucene = luceneHelper.findPaginatNomesIdsV3(
+				entorn,
+				expedientTipus,
+				expedientIds.getIds(),
+				filtreCamps,
+				filtreValors,
+				paginacioParams);
+		@SuppressWarnings("unchecked")
+		List<Long> ids = (List<Long>)respostaLucene[0];
+		Long count = (Long)respostaLucene[1];
+		return paginacioHelper.toPaginaDto(
+				ids,
+				count.intValue(),
+				paginacioParams);
+	}
+
 	@Override
 	@Transactional
 	public void buidarLogExpedient(String processInstanceId) {

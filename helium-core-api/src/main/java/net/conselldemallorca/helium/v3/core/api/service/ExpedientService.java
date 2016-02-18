@@ -238,6 +238,16 @@ public interface ExpedientService {
 	 *            Posició Y de la georeferència.
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
+	 * @param nomesTasquesPersonals
+	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
+	 * @param nomesTasquesGrup
+	 *            Indica que el resultat ha d'incloure expedients amb tasques de grup pendents.
+	 * @param nomesAlertes
+	 *            Indica que el resultat ha d'incloure expedients amb alertes pendents.
+	 * @param nomesErrors
+	 *            Indica que el resultat ha d'incloure expedients amb errors.
+	 * @param mostrarAnulats
+	 *            Indica si el resultat ha d'incloure expedients anulats.
 	 * @param paginacioParams
 	 *            Paràmetres de paginació.
 	 * @return La pàgina del llistat d'expedients.
@@ -299,6 +309,16 @@ public interface ExpedientService {
 	 *            Posició Y de la georeferència.
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
+	 * @param nomesTasquesPersonals
+	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
+	 * @param nomesTasquesGrup
+	 *            Indica que el resultat ha d'incloure expedients amb tasques de grup pendents.
+	 * @param nomesAlertes
+	 *            Indica que el resultat ha d'incloure expedients amb alertes pendents.
+	 * @param nomesErrors
+	 *            Indica que el resultat ha d'incloure expedients amb errors.
+	 * @param mostrarAnulats
+	 *            Indica si el resultat ha d'incloure expedients anulats.
 	 * @return La pàgina del llistat d'expedients.
 	 * @throws Exception 
 	 * @throws NotFoundException
@@ -686,6 +706,87 @@ public interface ExpedientService {
 
 	public void reassignarTasca(String taskId, String expression);
 
+	/**
+	 * Fa una consulta per tipus damunt un tipus d'expedient.
+	 * 
+	 * @param consultaId
+	 *            Atribut id de la consulta a executar
+	 * @param filtreValors
+	 *            Els valors per filtrar els resultats de la consulta
+	 * @param expedientIdsSeleccio
+	 *            La llista d'expedients seleccionats
+	 * @param nomesTasquesPersonals
+	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
+	 * @param nomesTasquesGrup
+	 *            Indica que el resultat ha d'incloure expedients amb tasques de grup pendents.
+	 * @param nomesMeves
+	 *            Indica que el resultat ha d'incloure expedients amb tasques de l'usuari actual.
+	 * @param nomesAlertes
+	 *            Indica que el resultat ha d'incloure expedients amb alertes pendents.
+	 * @param nomesErrors
+	 *            Indica que el resultat ha d'incloure expedients amb errors.
+	 * @param mostrarAnulats
+	 *            Indica si el resultat ha d'incloure expedients anulats.
+	 * @param paginacioParams
+	 *            Paràmetres de paginació.
+	 * @return la pàgina d'expedients resultat d'executar la consulta
+	 * @throws NotFoundException
+	 *             Si no es troba la consulta amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public PaginaDto<ExpedientConsultaDissenyDto> consultaFindPaginat(
+			Long consultaId,
+			Map<String, Object> filtreValors,
+			Set<Long> expedientIdsSeleccio,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean nomesErrors,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams);
+
+	/**
+	 * Fa una consulta per tipus damunt un tipus d'expedient i retorna només els ids.
+	 * 
+	 * @param consultaId
+	 *            Atribut id de la consulta a executar
+	 * @param filtreValors
+	 *            Els valors per filtrar els resultats de la consulta
+	 * @param seleccioIds
+	 *            La llista d'expedients seleccionats
+	 * @param nomesTasquesPersonals
+	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
+	 * @param nomesTasquesGrup
+	 *            Indica que el resultat ha d'incloure expedients amb tasques de grup pendents.
+	 * @param nomesMeves
+	 *            Indica que el resultat ha d'incloure expedients amb tasques de l'usuari actual.
+	 * @param nomesAlertes
+	 *            Indica que el resultat ha d'incloure expedients amb alertes pendents.
+	 * @param nomesErrors
+	 *            Indica que el resultat ha d'incloure expedients amb errors.
+	 * @param mostrarAnulats
+	 *            Indica si el resultat ha d'incloure expedients anulats.
+	 * @param paginacioParams
+	 *            Paràmetres de paginació.
+	 * @return la llista d'ids dels expedients resultat d'executar la consulta
+	 * @throws NotFoundException
+	 *             Si no es troba la consulta amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public PaginaDto<Long> consultaFindNomesIdsPaginat(
+			Long consultaId,
+			Map<String, Object> filtreValors,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean nomesErrors,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams);
+
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);
 
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId);
@@ -728,12 +829,15 @@ public interface ExpedientService {
 		}
 	}
 
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, 
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(
+			Long consultaId,
+			Map<String, Object> valorsPerService, 
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+			boolean nomesTasquesGrup,
+			PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 

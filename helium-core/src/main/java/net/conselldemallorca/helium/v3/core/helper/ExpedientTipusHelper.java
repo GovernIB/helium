@@ -3,13 +3,19 @@
  */
 package net.conselldemallorca.helium.v3.core.helper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.PermisosHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -17,13 +23,9 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els entorns.
@@ -40,7 +42,7 @@ public class ExpedientTipusHelper {
 
 	@Resource
 	private JbpmHelper jbpmHelper;
-	@Resource
+	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
 
 
@@ -141,6 +143,35 @@ public class ExpedientTipusHelper {
 		} else {
 			return null;
 		}
+	}
+
+	public List<ExpedientTipus> findAmbPermisRead(
+			Entorn entorn) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		permisosHelper.filterGrantedAny(
+				tipusPermesos,
+				new ObjectIdentifierExtractor<ExpedientTipus>() {
+					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+						return expedientTipus.getId();
+					}
+				},
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION},
+				auth);
+		return tipusPermesos;
+	}
+
+	public List<Long> findIdsAmbPermisRead(
+			Entorn entorn) {
+		List<ExpedientTipus> tipusPermesos = findAmbPermisRead(entorn);
+		List<Long> ids = new ArrayList<Long>();
+		for (ExpedientTipus tipus: tipusPermesos) {
+			ids.add(tipus.getId());
+		}
+		return ids;
 	}
 
 }

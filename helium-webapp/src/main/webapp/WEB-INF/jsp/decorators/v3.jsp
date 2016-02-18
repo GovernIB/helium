@@ -256,23 +256,25 @@
 						</div>
 						<div class="col-md-2">
 							<c:if test="${not empty screen && screen=='expedients'}">
+								<c:if test="${not empty expedientTipusAccessiblesAmbConsultesActives}">
 									<div id="btnConsultes" class="btn-group pull-right" >
 										<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultes"/> <span class="caret"></span></button>
 										<ul class="dropdown-menu">	
 											<li class="nav-consulta-tipus"><a href="<c:url value="/v3/expedient"></c:url>"><spring:message code="decorator.menu.consultes.generic"/></a></li>
-											<li class="divider"></li>												
 											<c:forEach var="expedientTipus" items="${expedientTipusAccessiblesAmbConsultesActives}" varStatus="consultaStatus">
 												<c:if test="${empty expedientTipusActual or expedientTipusActual.id == expedientTipus.id}">
-													<c:if test="${consultaStatus.index gt 0}"><li class="divider"></li></c:if>	
+													<c:if test="${consultaStatus.index == 0}"><li class="divider"></li></c:if>	
 													<li class="nav-header">${expedientTipus.nom}</li>
-													<c:forEach var="consulte" items="${expedientTipus.consultesSort}">
-														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulte.id}"></c:url>">${consulte.nom}</a></li>
+													<c:forEach var="consulta" items="${expedientTipus.consultesSort}">
+														<%--li class="nav-consulta-tipus"><a href="<c:url value="/v3/informe?consultaId=${consulta.id}"></c:url>">${consulta.nom}</a></li--%>
+														<li class="nav-consulta-tipus"><a href="<c:url value="/v3/expedient/consulta/${consulta.id}"></c:url>">${consulta.nom}</a></li>
 													</c:forEach>
 												</c:if>
 											</c:forEach>
 										</ul>
 									</div>
 								</c:if>
+							</c:if>
 						</div>
 					</div>
 				</div>

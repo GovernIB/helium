@@ -509,6 +509,56 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<ExpedientConsultaDissenyDto> consultaFindPaginat(
+			Long consultaId,
+			Map<String, Object> filtreValors,
+			Set<Long> expedientIdsSeleccio,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean nomesErrors,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams) {
+		return consultaFindPaginat(
+				consultaId,
+				filtreValors,
+				expedientIdsSeleccio,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				nomesMeves,
+				nomesAlertes,
+				nomesErrors,
+				mostrarAnulats,
+				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<Long> consultaFindNomesIdsPaginat(
+			Long consultaId,
+			Map<String, Object> filtreValors,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean nomesErrors,
+			MostrarAnulatsDto mostrarAnulats,
+			PaginacioParamsDto paginacioParams) {
+		return consultaFindNomesIdsPaginat(
+				consultaId,
+				filtreValors,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				nomesMeves,
+				nomesAlertes,
+				nomesErrors,
+				mostrarAnulats,
+				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		return delegate.getInstanciaProcesById(processInstanceId);
 	}

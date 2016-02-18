@@ -54,6 +54,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	@Autowired
 	private ExpedientService expedientService;
 
+
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,

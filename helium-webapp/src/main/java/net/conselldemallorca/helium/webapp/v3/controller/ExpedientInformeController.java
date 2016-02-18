@@ -86,6 +86,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/v3/informe")
 public class ExpedientInformeController extends BaseExpedientController {
+
 	// Variables exportació
 	private HSSFWorkbook wb;
 	private HSSFCellStyle headerStyle;
