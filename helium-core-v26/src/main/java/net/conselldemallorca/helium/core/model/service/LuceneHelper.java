@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,16 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
-
-import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,6 +40,21 @@ import org.springmodules.lucene.index.core.DocumentModifier;
 import org.springmodules.lucene.index.support.LuceneIndexSupport;
 import org.springmodules.lucene.search.core.HitExtractor;
 import org.springmodules.lucene.search.core.LuceneSearchTemplate;
+
+import net.conselldemallorca.helium.core.model.dto.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 /**
  * Helper per a gestionar la informació dels expedients emprant Lucene.
@@ -75,6 +81,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	@Resource
 	protected MesuresTemporalsHelper mesuresTemporalsHelper;
+
+
 
 	// TODO Ha d'estar actiu mentre els expedients no es reindexin totalment
 	// si es desactiva abans de la reindexació total aleshores hi haura expedients
@@ -272,7 +280,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"tipusCodi=" + tipusCodi + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findNomesIds", "lucene");
 		checkIndexOk();
-		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
+		Query query = getLuceneQuery(entornCodi, tipusCodi, filtreCamps, filtreValors);
 		List<Long> resposta = searchTemplate.search(query, new HitExtractor() {
 			public Object mapHit(int id, Document document, float score) {
 				boolean ignorar = false;
@@ -315,33 +323,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"tipusCodi=" + tipusCodi + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientPaginatV3", "lucene");
 		checkIndexOk();
-		Query query = queryPerFiltre(entornCodi, tipusCodi, filtreCamps, filtreValors);
-		Sort luceneSort = null;
-		if (sort != null && sort.length() > 0) {
-			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
-				sort = sort + "_no_analyzed";
-			} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) {
-				sort = sort + "_no_analyzed";
-			} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)) {
-				sort = sort + "_no_analyzed";
-			} else {
-				for (Camp camp : campsInforme) {
-					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
-						sort = sort + "_no_analyzed";
-						break;
-					}
-				}
-				String campOrdenacio = null;
-				if ("expedient$identificador".equals(sort)) {
-					campOrdenacio = ExpedientCamps.EXPEDIENT_CAMP_ID;
-				} else {
-					campOrdenacio = sort;
-				}
-				luceneSort = new Sort(new SortField(campOrdenacio, SortField.STRING, !asc));
-			}
-		} else
-			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));		
-		
+		Query query = getLuceneQuery(
+				entornCodi,
+				tipusCodi,
+				filtreCamps,
+				filtreValors);
+		Sort luceneSort = getLuceneSort(
+				sort,
+				asc,
+				campsInforme);
 		final List<Long> resposta = searchTemplate.search(query, new HitExtractor() {
 			private int count = 0;
 			
@@ -387,22 +377,170 @@ public class LuceneHelper extends LuceneIndexSupport {
 				"llistaExpedientIds=" + llistaExpedientIds.size() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientV3", "lucene");
 		checkIndexOk();
-
 		BooleanQuery bquery = new BooleanQuery();
 		for (Long id : llistaExpedientIds) {
 			bquery.add(new TermQuery(new Term(ExpedientCamps.EXPEDIENT_CAMP_ID, id.toString())), BooleanClause.Occur.SHOULD);
 		}
 		Query query = (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
-
 		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedientV3", "lucene");
 		return resultat;
+	}
+
+	public Object[] findPaginatAmbDadesV3(
+			final Entorn entorn,
+			ExpedientTipus expedientTipus,
+			final Collection<Long> expedientIds,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors,
+			List<Camp> informeCamps,
+			PaginacioParamsDto paginacioParams) {
+		checkIndexOk();
+		Query query = getLuceneQuery(
+				entorn.getCodi(),
+				expedientTipus.getCodi(),
+				filtreCamps,
+				filtreValors);
+		final int firstRow;
+		final int maxResults;
+		if (paginacioParams != null) {
+			firstRow = paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany();
+			maxResults = paginacioParams.getPaginaTamany();
+		} else {
+			firstRow = 0;
+			maxResults = -1;
+		}
+		Sort luceneSort = getLuceneSort(
+				paginacioParams,
+				informeCamps);
+		final long[] count = new long[1];
+		HitExtractor hitExtractor = new HitExtractor() {
+			@SuppressWarnings("unchecked")
+			public Map<String, List<String>> mapHit(
+					int id,
+					Document document,
+					float score) {
+				Map<String, List<String>> valorsDocument = null;
+				boolean ignorar = false;
+				if (PEGAT_ENTORN_ACTIU) {
+					Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
+					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entorn.getCodi());
+				}
+				if (expedientIds != null) {
+					Long expedientId = new Long(document.getField(ExpedientCamps.EXPEDIENT_CAMP_ID).stringValue());
+					ignorar = !expedientIds.contains(expedientId);
+				}
+				if (!ignorar) {
+					if (maxResults == -1 || (count[0] >= firstRow && count[0] < firstRow + maxResults)) {
+						valorsDocument = new HashMap<String, List<String>>();
+						for (Field field: (List<Field>)document.getFields()) {
+							if (valorsDocument.get(field.name()) == null) {
+								List<String> valors = new ArrayList<String>();
+								valors.add(field.stringValue());
+								valorsDocument.put(field.name(), valors);
+							} else {
+								List<String> valors = valorsDocument.get(field.name());
+								valors.add(field.stringValue());
+							}
+						}
+					}
+					count[0]++;
+				}
+				return valorsDocument;
+			}
+		};
+		@SuppressWarnings("unchecked")
+		final List<Map<String, List<String>>> resultats = searchTemplate.search(
+				query,
+				hitExtractor,
+				luceneSort);
+		if (PEGAT_ENTORN_ACTIU) {
+			Iterator<Map<String, List<String>>> it = resultats.iterator();
+			while (it.hasNext()) {
+				Map<String, List<String>> valor = it.next();
+				if (valor == null)
+					it.remove();
+			}
+		}
+		List<Map<String, DadaIndexadaDto>> resposta = toDadesIndexadesDto(
+				resultats,
+				informeCamps,
+				true);
+		return new Object[] {
+				resposta,
+				new Long(count[0])
+		};
+	}
+
+	public Object[] findPaginatNomesIdsV3(
+			final Entorn entorn,
+			ExpedientTipus expedientTipus,
+			final Collection<Long> expedientIds,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors,
+			PaginacioParamsDto paginacioParams) {
+		checkIndexOk();
+		Query query = getLuceneQuery(
+				entorn.getCodi(),
+				expedientTipus.getCodi(),
+				filtreCamps,
+				filtreValors);
+		final int firstRow;
+		final int maxResults;
+		if (paginacioParams != null) {
+			firstRow = paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany();
+			maxResults = paginacioParams.getPaginaTamany();
+		} else {
+			firstRow = 0;
+			maxResults = -1;
+		}
+		final long[] count = new long[1];
+		HitExtractor hitExtractor = new HitExtractor() {
+			public Long mapHit(int id, Document document, float score) {
+				Long valorsDocument = null;
+				boolean ignorar = false;
+				if (PEGAT_ENTORN_ACTIU) {
+					Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
+					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entorn.getCodi());
+				}
+				if (expedientIds != null) {
+					Long expedientId = new Long(document.getField(ExpedientCamps.EXPEDIENT_CAMP_ID).stringValue());
+					ignorar = !expedientIds.contains(expedientId);
+				}
+				if (!ignorar) {
+					if (maxResults == -1 || (count[0] >= firstRow && count[0] < firstRow + maxResults)) {
+						valorsDocument = new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
+						count[0]++;
+					}
+				}
+				return valorsDocument;
+			}
+		};
+		@SuppressWarnings("unchecked")
+		final List<Long> resultats = searchTemplate.search(
+				query,
+				hitExtractor,
+				(Sort)null);
+		if (PEGAT_ENTORN_ACTIU) {
+			Iterator<Long> it = resultats.iterator();
+			while (it.hasNext()) {
+				Long valor = it.next();
+				if (valor == null)
+					it.remove();
+			}
+		}
+		return new Object[] {
+				resultats,
+				new Long(count[0])
+		};
 	}
 
 	@Autowired
 	public void setSearchTemplate(LuceneSearchTemplate searchTemplate) {
 		this.searchTemplate = searchTemplate;
 	}
+
+
 
 	private Document updateDocumentFromExpedient(Document docLucene, Expedient expedient, Map<String, DefinicioProces> definicionsProces, Map<String, Set<Camp>> camps, Map<String, Map<String, Object>> valors, Map<String, Map<String, String>> textDominis, boolean finalitzat) {
 		boolean isUpdate = (docLucene != null);
@@ -416,7 +554,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI, (expedient.getComentari() != null) ? (expedient.getComentari()) : VALOR_CAMP_BUIT, Field.Store.YES, (expedient.getComentari() != null) ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_COMENTARI + "_no_analyzed", (expedient.getComentari() != null) ? (expedient.getComentari()) : VALOR_CAMP_BUIT, Field.Store.NO, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_INICIADOR, (expedient.getIniciadorCodi() != null) ? expedient.getIniciadorCodi() : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
-		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE, expedient.getResponsableCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
+		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE, (expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, dataPerIndexar(expedient.getDataInici()), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, expedient.getTipus().getCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		if (finalitzat) {
@@ -453,7 +591,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		document.add(field);
 	}
 
-	protected Query queryPerFiltre(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors) {
+	protected Query getLuceneQuery(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors) {
 		BooleanQuery bquery = new BooleanQuery();
 		if (!PEGAT_ENTORN_ACTIU) {
 			bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, entornCodi, null), BooleanClause.Occur.MUST));
@@ -466,8 +604,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 		return (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
 	}
-	
-	protected Query queryPerFiltre(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Long> ids) {
+	protected Query getLuceneQuery(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Long> ids) {
 		BooleanQuery bquery = new BooleanQuery();
 		if (!PEGAT_ENTORN_ACTIU) {
 			bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, entornCodi, null), BooleanClause.Occur.MUST));
@@ -486,6 +623,63 @@ public class LuceneHelper extends LuceneIndexSupport {
 			bquery.add(nested, BooleanClause.Occur.MUST);
 		}
 		return (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
+	}
+
+	protected Sort getLuceneSort(
+			PaginacioParamsDto paginacioParams,
+			List<Camp> informeCamps) {
+		String sort = "expedient$identificador";
+		boolean asc = false;
+		if (paginacioParams != null) {
+			for (OrdreDto ordre: paginacioParams.getOrdres()) {
+				asc = ordre.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
+				String clau = ordre.getCamp().replace(
+						net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_JSP,
+						net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX);
+				if (ordre.getCamp().contains("dadesExpedient")) {
+					sort = clau.replace("/", ".").replace("dadesExpedient.", "").replace(".valorMostrar", "");
+				} else {
+					sort = clau.replace(".", net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
+				}
+				break;
+			}
+		}
+		return getLuceneSort(
+				sort,
+				asc,
+				informeCamps);
+	}
+	protected Sort getLuceneSort(
+			String sort,
+			boolean asc,
+			List<Camp> informeCamps) {
+		Sort luceneSort = null;
+		if (sort != null && sort.length() > 0) {
+			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
+				sort = sort + "_no_analyzed";
+			} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(sort)) {
+				sort = sort + "_no_analyzed";
+			} else if (ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(sort)) {
+				sort = sort + "_no_analyzed";
+			} else {
+				for (Camp camp: informeCamps) {
+					if (camp != null && sort.endsWith(camp.getCodi()) && (camp.getTipus().equals(TipusCamp.STRING) || camp.getTipus().equals(TipusCamp.TEXTAREA))) {
+						sort = sort + "_no_analyzed";
+						break;
+					}
+				}
+				String campOrdenacio = null;
+				if ("expedient$identificador".equals(sort)) {
+					campOrdenacio = ExpedientCamps.EXPEDIENT_CAMP_ID;
+				} else {
+					campOrdenacio = sort;
+				}
+				luceneSort = new Sort(new SortField(campOrdenacio, SortField.STRING, !asc));
+			}
+		} else {
+			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));
+		}
+		return luceneSort;
 	}
 
 	protected Query queryFromCampFiltre(String codiCamp, Object valorFiltre, List<Camp> camps) {
@@ -607,7 +801,15 @@ public class LuceneHelper extends LuceneIndexSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(final String entornCodi, Query query, List<Camp> campsInforme, boolean incloureId, String sort, boolean asc, final int firstRow, final int maxResults) {
+	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(
+			final String entornCodi,
+			Query query,
+			List<Camp> campsInforme,
+			boolean incloureId,
+			String sort,
+			boolean asc,
+			final int firstRow,
+			final int maxResults) {
 		Sort luceneSort = null;
 		if (sort != null && sort.length() > 0) {
 			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
@@ -635,7 +837,6 @@ public class LuceneHelper extends LuceneIndexSupport {
 			luceneSort = new Sort(new SortField(ExpedientCamps.EXPEDIENT_CAMP_ID, SortField.STRING, !asc));
 		final List<Map<String, List<String>>> resultats = searchTemplate.search(query, new HitExtractor() {
 			private int count = 0;
-
 			public Object mapHit(int id, Document document, float score) {
 				Map<String, List<String>> valorsDocument = null;
 				boolean ignorar = false;
@@ -662,6 +863,16 @@ public class LuceneHelper extends LuceneIndexSupport {
 				return valorsDocument;
 			}
 		}, luceneSort);
+		return toDadesIndexadesDto(
+				resultats,
+				campsInforme,
+				incloureId);
+	}
+
+	private List<Map<String, DadaIndexadaDto>> toDadesIndexadesDto(
+			List<Map<String, List<String>>> resultats,
+			List<Camp> informeCamps,
+			boolean incloureId) {
 		List<Map<String, DadaIndexadaDto>> resposta = new ArrayList<Map<String, DadaIndexadaDto>>();
 		if (resultats.size() > 0) {
 			Set<String> clausAmbValorMultiple = new HashSet<String>();
@@ -669,7 +880,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				if (fila != null) {
 					List<DadaIndexadaDto> dadesFila = new ArrayList<DadaIndexadaDto>();
 					for (String codi : fila.keySet()) {
-						for (Camp camp : campsInforme) {
+						for (Camp camp: informeCamps) {
 							boolean coincideix = false;
 							String[] partsCodi = codi.split("\\.");
 							if (camp != null) {
