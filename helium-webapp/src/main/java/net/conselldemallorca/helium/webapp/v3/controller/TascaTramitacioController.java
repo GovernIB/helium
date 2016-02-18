@@ -799,15 +799,15 @@ public class TascaTramitacioController extends BaseTascaController {
 					request,
 					tascaId,
 					model);
-			TascaFormHelper.ompleMultiplesBuits(
-					tascaFormCommand,
-					dades, 
-					false);
 		} else {
 			Object bindingResult = SessionHelper.getAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
 			SessionHelper.removeAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
 			model.addAttribute("org.springframework.validation.BindingResult.command", bindingResult);
 		}
+		TascaFormHelper.ompleMultiplesBuits(
+				tascaFormCommand,
+				dades, 
+				false);
 		model.addAttribute("command", tascaFormCommand);
 		model.addAttribute("isModal", ModalHelper.isModal(request));
 	}

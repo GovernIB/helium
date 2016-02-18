@@ -1950,7 +1950,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		List<ExpedientErrorDto> errors_bas = new ArrayList<ExpedientErrorDto>();
 		if (expedient.getErrorDesc() != null) {
-			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorFull()));
+			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorDesc(), expedient.getErrorFull()));
 		}
 		
 		return new Object[]{errors_bas,errors_int};
@@ -3341,6 +3341,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				entornId,
 				expedientTipusId,
 				numero) != null;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi) {
+		return documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
 	}
 	
 	private PersonaDto comprovarUsuari(String usuari) {

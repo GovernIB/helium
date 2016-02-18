@@ -33,7 +33,7 @@
 												<c:if test="${!document.signat}">
 													<a 	href="../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/modificar"
 														data-rdt-link-modal="true" 
-														data-rdt-link-modal-min-height="190" 
+														data-rdt-link-modal-min-height="265" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 														class="icon modificar" >
 															<span class="fa fa-2x fa-pencil" title="<spring:message code='expedient.document.modificar' />"></span>

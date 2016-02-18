@@ -40,6 +40,8 @@ public class ExpedientDocumentDto implements Serializable {
 	private String registreOficinaNom;
 	private boolean registreEntrada = true;
 
+	private boolean plantilla = false;
+	
 	private String error;
 
 
@@ -175,6 +177,12 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setRegistreEntrada(boolean registreEntrada) {
 		this.registreEntrada = registreEntrada;
+	}
+	public boolean isPlantilla() {
+		return plantilla;
+	}
+	public void setPlantilla(boolean plantilla) {
+		this.plantilla = plantilla;
 	}
 	public String getError() {
 		return error;

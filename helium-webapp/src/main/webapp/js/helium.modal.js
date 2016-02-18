@@ -316,6 +316,17 @@ function modalAdjustHeight(iframe, height) {
 	$(iframe).css('min-height', height + 'px');
 }
 
+function modalAdjustMinHeight(iframe, height) {
+	altPare = $(iframe).parent().css('min-height');
+	if (altPare == undefined)
+		altPare = 0;
+	else
+		altPare = parseInt(altPare.substring(0, altPare.length - 2));
+	if (height > altPare)
+		$(iframe).parent().css('min-height', height + 15 + 'px');
+	$(iframe).css('min-height', height + 'px');
+}
+
 function modalRefrescarElements(
 		iframe,
 		settings) {
@@ -344,20 +355,20 @@ function modalRefrescarElements(
 	});
 	$('#' + settings.buttonContainerId, $(iframe).contents()).hide();
 	// Ajustar tamany
+	var contentHeight = $(iframe).contents().find("html").outerHeight();
+	var modalobj = $(iframe).parent().parent().parent();
+	var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
+	var maxBodyHeight = $(window.top).height() - taraModal - 30;
 	if (settings.adjustHeight) {
-		var contentHeight = $(iframe).contents().find("html").outerHeight();
 		$(iframe).height(contentHeight + 'px');
+		$(iframe).parent().css('height', Math.min(contentHeight + 15, maxBodyHeight - 35) + 'px');
+		$(iframe).parent().css('max-height', maxBodyHeight + 'px');
 	}
 	if (settings.adjustWidth) {
 		var contentWidth = $(iframe).contents().find("html").outerWidth();
-		var modalobj = $(iframe).parent().parent().parent();
 		modalobj.css('width', contentWidth + 'px');
 	}
 	if (settings.maximize) {
-		var contentHeight = $(iframe).contents().find("html").outerHeight();
-		var modalobj = $(iframe).parent().parent().parent();
-		var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
-		var maxBodyHeight = $(window.top).height() - taraModal - 30;
 		/*if (contentHeight > maxBodyHeight) {
 			// Si el contingut és més alt que la finestra
 			$(this).height(maxBodyHeight + 'px');
@@ -368,10 +379,12 @@ function modalRefrescarElements(
 			$('.modal-body', modalobj).css('height', contentHeight + 'px');
 		}*/
 		$(iframe).height(maxBodyHeight + 'px');
-		$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+		$(iframe).css('margin-bottom', '-5px');
+		$(iframe).parent().css('max-height', (maxBodyHeight) + 'px');
+		$('.modal-body', modalobj).css('height', (maxBodyHeight) + 'px');
 	}
 	if (settings.minHeight) {
-		modalAdjustHeight($(iframe), settings.minHeight);
+		modalAdjustMinHeight($(iframe), settings.minHeight);
 	}
 }
 

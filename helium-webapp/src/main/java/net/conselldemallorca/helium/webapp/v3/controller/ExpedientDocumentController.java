@@ -123,7 +123,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
 			logger.error("Error generant el document: " + documentCodi, ex);
-			return modalUrlTancar(false);
+			Long documentStoreId = expedientService.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
+			return "redirect:/modal/v3/expedient/" + expedientId + "/document/" + processInstanceId + "/" + documentStoreId + "/modificar";
+//			return modalUrlTancar(false);
 		} 
 		return "arxiuView";
 	}
@@ -249,7 +251,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		command.setCodi(document.getDocumentCodi());
 		command.setData(document.getDataDocument());
 		model.addAttribute("documentExpedientCommand", command);
-		model.addAttribute("document", document);		
+		model.addAttribute("document", document);	
+		model.addAttribute("expedientId", expedientId);
 		return "v3/expedientDocumentModificar";
 	}
 	

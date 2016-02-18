@@ -806,4 +806,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId) {
 		return delegate.findDadesPerInstanciaProces(procesId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi) {
+		return delegate.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
+	}
 }

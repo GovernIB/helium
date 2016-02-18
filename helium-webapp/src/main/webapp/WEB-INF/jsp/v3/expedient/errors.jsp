@@ -31,6 +31,7 @@
 	    	<c:choose>
 				<c:when test="${not empty errors_bas}">
 			    	<c:forEach var="error_bas" items="${errors_bas}">
+			    		<h5>${error_bas.desc}</h5>
 						<div class="well">${error_bas.text}</div>
 					</c:forEach>
 				</c:when>

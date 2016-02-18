@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 
 /**
  * DTO amb informació d'una tasca de l'expedient.
@@ -392,7 +394,13 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 		else
 			return titol;
 	}
-
+	public String getTitolEscaped() {
+		return StringEscapeUtils.escapeJavaScript(titol);
+	}
+	public String getExpedientIdentificadorEscaped() {
+		return StringEscapeUtils.escapeJavaScript(expedientIdentificador);
+	}
+	
 	private static final String PREFIX_TASCA_INICIAL = "TIE_";
 	public boolean isInicial() {
 		return id.startsWith(PREFIX_TASCA_INICIAL);

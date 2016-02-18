@@ -922,4 +922,6 @@ public interface ExpedientService {
 	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto dadaPerInstanciaProces);
 
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId);
+	
+	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi);
 }
