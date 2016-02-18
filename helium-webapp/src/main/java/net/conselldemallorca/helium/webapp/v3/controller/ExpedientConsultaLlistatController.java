@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +53,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 public class ExpedientConsultaLlistatController extends BaseExpedientController {
 
 
-	@ModelAttribute("expedientInformeCommand")
+	@ModelAttribute("expedientConsultaCommand")
 	public Object getFiltreCommand(
 			HttpServletRequest request,
 			Long consultaId) {
@@ -124,6 +126,60 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				"estats",
 				estats);
 		Object filtreCommand = getFiltreCommand(request, consultaId);
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
+				filtreCommand);
+		model.addAttribute("expedientConsultaCommand", filtreCommand);
+		return "v3/expedientConsultaLlistat";
+	}
+
+	@RequestMapping(value = "/{consultaId}", method = RequestMethod.POST)
+	public String post(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			@Valid @ModelAttribute("expedientConsultaCommand") Object filtreCommand,			
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio,
+			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+		if ("netejar".equals(accio)) {
+			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
+			filtreCommand = getFiltreCommand(request, consultaId);
+		} else {
+			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+			model.addAttribute(
+					"consulta",
+					consulta);
+			model.addAttribute(
+					"campsFiltre",
+					expedientService.findConsultaFiltre(consultaId));
+			model.addAttribute(
+					"campsInforme",
+					expedientService.findConsultaInforme(consultaId));
+			model.addAttribute(
+					"campsInformeParams",
+					expedientService.findConsultaInformeParams(consultaId));
+			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(
+					consulta.getExpedientTipus().getId());
+			estats.add(
+					0,
+					new EstatDto(
+							0L,
+							"0",
+							getMessage(
+									request,
+									"expedient.consulta.iniciat")));
+			estats.add(
+					new EstatDto(
+							-1L,
+							"-1",
+							getMessage(
+									request,
+									"expedient.consulta.finalitzat")));
+			model.addAttribute(
+					"estats",
+					estats);
+		}
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
