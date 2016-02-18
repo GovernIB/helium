@@ -76,9 +76,7 @@ $(document).ready(function() {
 								buttonContainerId: "modal-botons",
 								buttonCloseClass: "modal-tancar"
 							});
-<c:set var="titleExpedientIdentificador">${fn:trim(fn:replace(tasca.expedientIdentificador, "'", "\\'"))}</c:set>
-<c:set var="titleTascaTitol">${fn:trim(fn:replace(tasca.titol, "'", "\\'"))}</c:set>
-					$(".modal-title", parent.document).html('<a href="<c:url value="/v3/expedient/${tasca.expedientId}"/>">${titleExpedientIdentificador}</a>: ${titleTascaTitol}');
+					$(".modal-title", parent.document).html('<a href="<c:url value="/v3/expedient/${tasca.expedientId}"/>">${tasca.expedientIdentificadorEscaped}</a>: ${tasca.titolEscaped}');
 				}
 			}
 		);
