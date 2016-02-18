@@ -22,12 +22,12 @@
 	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
 	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
-	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 	
 	<style type="text/css">
 		.carregant {margin: 1em 0 2em 0;text-align: center;}
 		.col-xs-3 {width: 20%;}
 		.col-xs-9 {width: 80%;}
+		.pad-left-col-xs-3 {left: 20%;}
 	</style>
 </head>
 <body>		

@@ -103,6 +103,9 @@ p.help-block {
 }
 /* MODALS */
 /*********************************************/
+.modal-body {
+	overflow: auto;
+}
 .modal-dialog.modal-maximize {
 	width: 98%;
 	top: 1%;
