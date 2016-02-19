@@ -1,7 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -70,15 +69,15 @@ public class PerfilesController extends BaseController {
 			@PathVariable String entornCodi) {
 		for (EntornDto entorn: entornService.findAmbPermisAcces()) {
 			if (entorn.getCodi().equals(entornCodi)) {
-				List<ExpedientTipusDto> expedientTipusConConsultas = dissenyService.findExpedientTipusAmbPermisDissenyUsuariActual(entorn.getId());
-				Iterator<ExpedientTipusDto> it = expedientTipusConConsultas.iterator();
-				while (it.hasNext()) {
-					ExpedientTipusDto expTip = it.next();
-					if (expTip.getConsultes().isEmpty()) {
-						it.remove();
-					}
-				}
-				return expedientTipusConConsultas;
+				List<ExpedientTipusDto> expedientsTipus = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entorn.getId());
+//				Iterator<ExpedientTipusDto> it = expedientsTipus.iterator();
+//				while (it.hasNext()) {
+//					ExpedientTipusDto expTip = it.next();
+//					if (expTip.getConsultes().isEmpty()) {
+//						it.remove();
+//					}
+//				}
+				return expedientsTipus;
 			}
 		}
 		return null;
