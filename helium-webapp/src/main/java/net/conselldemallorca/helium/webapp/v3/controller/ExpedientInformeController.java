@@ -151,7 +151,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 				campsFiltre,
 				new HashMap<String, Object>(),
 				new HashMap<String, Class<?>>(),
-				false);
+				true);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET)

@@ -271,22 +271,22 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	@SuppressWarnings("unchecked")
 	public List<Long> findNomesIds(
-			final String entornCodi,
-			String tipusCodi,
+			final Entorn entorn,
+			ExpedientTipus expedientTipus,
 			List<Camp> filtreCamps,
 			Map<String, Object> filtreValors) {
 		logger.debug("Consulta d'index Lucene només ids (" +
-				"entornCodi=" + entornCodi + ", " +
-				"tipusCodi=" + tipusCodi + ")");
+				"entornCodi=" + entorn.getCodi() + ", " +
+				"tipusCodi=" + expedientTipus.getCodi() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findNomesIds", "lucene");
 		checkIndexOk();
-		Query query = getLuceneQuery(entornCodi, tipusCodi, filtreCamps, filtreValors);
+		Query query = getLuceneQuery(entorn, expedientTipus, filtreCamps, filtreValors);
 		List<Long> resposta = searchTemplate.search(query, new HitExtractor() {
 			public Object mapHit(int id, Document document, float score) {
 				boolean ignorar = false;
 				if (PEGAT_ENTORN_ACTIU) {
 					Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
-					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entornCodi);
+					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entorn.getCodi());
 				}
 				if (!ignorar) {
 					return new Long(document.get(ExpedientCamps.EXPEDIENT_CAMP_ID));
@@ -309,8 +309,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 
 	@SuppressWarnings("unchecked")
 	public List<Long> findIdsAmbDadesExpedientPaginatV3(
-			final String entornCodi,
-			String tipusCodi,
+			final Entorn entorn,
+			ExpedientTipus expedientTipus,
 			List<Camp> filtreCamps,
 			List<Camp> campsInforme,
 			Map<String, Object> filtreValors,
@@ -319,13 +319,13 @@ public class LuceneHelper extends LuceneIndexSupport {
 			final int firstRow,
 			final int maxResults) {
 		logger.debug("Consulta paginada d'index Lucene (1) (" +
-				"entornCodi=" + entornCodi + ", " +
-				"tipusCodi=" + tipusCodi + ")");
+				"entornCodi=" + entorn.getCodi() + ", " +
+				"tipusCodi=" + expedientTipus.getCodi() + ")");
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedientPaginatV3", "lucene");
 		checkIndexOk();
 		Query query = getLuceneQuery(
-				entornCodi,
-				tipusCodi,
+				entorn,
+				expedientTipus,
 				filtreCamps,
 				filtreValors);
 		Sort luceneSort = getLuceneSort(
@@ -340,7 +340,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 				boolean ignorar = false;
 				if (PEGAT_ENTORN_ACTIU) {
 					Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
-					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entornCodi);
+					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entorn.getCodi());
 				}
 				if (!ignorar) {
 					if (maxResults == -1 || (count >= firstRow && count < firstRow + maxResults)) {
@@ -397,8 +397,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 			PaginacioParamsDto paginacioParams) {
 		checkIndexOk();
 		Query query = getLuceneQuery(
-				entorn.getCodi(),
-				expedientTipus.getCodi(),
+				entorn,
+				expedientTipus,
 				filtreCamps,
 				filtreValors);
 		final int firstRow;
@@ -481,8 +481,8 @@ public class LuceneHelper extends LuceneIndexSupport {
 			PaginacioParamsDto paginacioParams) {
 		checkIndexOk();
 		Query query = getLuceneQuery(
-				entorn.getCodi(),
-				expedientTipus.getCodi(),
+				entorn,
+				expedientTipus,
 				filtreCamps,
 				filtreValors);
 		final int firstRow;
@@ -591,12 +591,16 @@ public class LuceneHelper extends LuceneIndexSupport {
 		document.add(field);
 	}
 
-	protected Query getLuceneQuery(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors) {
+	protected Query getLuceneQuery(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors) {
 		BooleanQuery bquery = new BooleanQuery();
 		if (!PEGAT_ENTORN_ACTIU) {
-			bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, entornCodi, null), BooleanClause.Occur.MUST));
+			bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, entorn.getCodi(), null), BooleanClause.Occur.MUST));
 		}
-		bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, tipusCodi, null), BooleanClause.Occur.MUST));
+		bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, expedientTipus.getCodi(), null), BooleanClause.Occur.MUST));
 		for (String clau : filtreValors.keySet()) {
 			Query query = queryFromCampFiltre(clau, filtreValors.get(clau), filtreCamps);
 			if (query != null)
@@ -604,12 +608,17 @@ public class LuceneHelper extends LuceneIndexSupport {
 		}
 		return (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
 	}
-	protected Query getLuceneQuery(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Long> ids) {
+	protected Query getLuceneQuery(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors,
+			List<Long> ids) {
 		BooleanQuery bquery = new BooleanQuery();
 		if (!PEGAT_ENTORN_ACTIU) {
-			bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, entornCodi, null), BooleanClause.Occur.MUST));
+			bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ENTORN, entorn.getCodi(), null), BooleanClause.Occur.MUST));
 		}
-		bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, tipusCodi, null), BooleanClause.Occur.MUST));
+		bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, expedientTipus.getCodi(), null), BooleanClause.Occur.MUST));
 		for (String clau : filtreValors.keySet()) {
 			Query query = queryFromCampFiltre(clau, filtreValors.get(clau), filtreCamps);
 			if (query != null)
@@ -682,7 +691,10 @@ public class LuceneHelper extends LuceneIndexSupport {
 		return luceneSort;
 	}
 
-	protected Query queryFromCampFiltre(String codiCamp, Object valorFiltre, List<Camp> camps) {
+	protected Query queryFromCampFiltre(
+			String codiCamp,
+			Object valorFiltre,
+			List<Camp> camps) {
 		try {
 			if (valorFiltre != null && valorFiltre != "") {
 				if (codiCamp.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
