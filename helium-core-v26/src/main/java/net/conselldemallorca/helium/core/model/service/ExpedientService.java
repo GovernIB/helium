@@ -1094,8 +1094,8 @@ public class ExpedientService {
 				TipusConsultaCamp.FILTRE);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Long> idExpedients = luceneDao.findNomesIds(
-				consulta.getEntorn().getCodi(),
-				consulta.getExpedientTipus().getCodi(),
+				consulta.getEntorn(),
+				consulta.getExpedientTipus(),
 				campsFiltre,
 				valors);
 		return idExpedients.size();
@@ -1172,8 +1172,8 @@ public class ExpedientService {
 		mesuresTemporalsHelper.mesuraCalcular("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - find camps per consulta");
 		mesuresTemporalsHelper.mesuraIniciar("INFORME: " + consulta.getCodi(), "report", consulta.getExpedientTipus().getNom(), null, "Recuperar consulta disseny - lucene");
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
-				consulta.getEntorn().getCodi(),
-				consulta.getExpedientTipus().getCodi(),
+				consulta.getEntorn(),
+				consulta.getExpedientTipus(),
 				campsFiltre,
 				valors,
 				campsInforme,
@@ -2968,8 +2968,8 @@ public class ExpedientService {
 				TipusConsultaCamp.INFORME);
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
-				consulta.getEntorn().getCodi(),
-				consulta.getExpedientTipus().getCodi(),
+				consulta.getEntorn(),
+				consulta.getExpedientTipus(),
 				campsFiltre,
 				valors,
 				campsInforme,

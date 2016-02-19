@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +53,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 public class ExpedientConsultaLlistatController extends BaseExpedientController {
 
 
-	@ModelAttribute("expedientInformeCommand")
+	@ModelAttribute("expedientConsultaCommand")
 	public Object getFiltreCommand(
 			HttpServletRequest request,
 			Long consultaId) {
@@ -73,7 +75,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		campsAddicionals.put("nomesTasquesGrup", false);
 		campsAddicionalsClasses.put("nomesMeves", Boolean.class);
 		campsAddicionalsClasses.put("nomesAlertes", Boolean.class);
-		campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);			
+		campsAddicionalsClasses.put("mostrarAnulats", Boolean.class);
 		campsAddicionalsClasses.put("consultaId", Long.class);
 		campsAddicionalsClasses.put("nomesTasquesPersonals", Boolean.class);
 		campsAddicionalsClasses.put("nomesTasquesGrup", Boolean.class);
@@ -132,6 +134,60 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		return "v3/expedientConsultaLlistat";
 	}
 
+	@RequestMapping(value = "/{consultaId}", method = RequestMethod.POST)
+	public String post(
+			HttpServletRequest request,
+			@PathVariable Long consultaId,
+			@Valid @ModelAttribute("expedientConsultaCommand") Object filtreCommand,			
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio,
+			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+		if ("netejar".equals(accio)) {
+			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
+			filtreCommand = getFiltreCommand(request, consultaId);
+		} else {
+			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+			model.addAttribute(
+					"consulta",
+					consulta);
+			model.addAttribute(
+					"campsFiltre",
+					expedientService.findConsultaFiltre(consultaId));
+			model.addAttribute(
+					"campsInforme",
+					expedientService.findConsultaInforme(consultaId));
+			model.addAttribute(
+					"campsInformeParams",
+					expedientService.findConsultaInformeParams(consultaId));
+			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(
+					consulta.getExpedientTipus().getId());
+			estats.add(
+					0,
+					new EstatDto(
+							0L,
+							"0",
+							getMessage(
+									request,
+									"expedient.consulta.iniciat")));
+			estats.add(
+					new EstatDto(
+							-1L,
+							"-1",
+							getMessage(
+									request,
+									"expedient.consulta.finalitzat")));
+			model.addAttribute(
+					"estats",
+					estats);
+		}
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
+				filtreCommand);
+		model.addAttribute("expedientConsultaCommand", filtreCommand);
+		return "v3/expedientConsultaLlistat";
+	}
+
 	@RequestMapping(value = "/{consultaId}/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public  DatatablesPagina<ExpedientConsultaDissenyDto> datatable(
@@ -148,7 +204,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				true);
 		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients = expedientService.consultaFindPaginat(
 				consultaId,
-				getValorsPerService(filtreCommand, campsFiltre, filtreValors),
+				processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
 				null,
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
@@ -200,14 +256,14 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			HttpServletRequest request,
 			@PathVariable Long consultaId) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		Object filtreCommand = getFiltreCommand(request, consultaId);
-		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+		List<TascaDadaDto> dadesFiltre = expedientService.findConsultaFiltre(consultaId);
 		Map<String, Object> filtreValors = TascaFormHelper.getValorsFromCommand(
-				campsFiltre,
+				dadesFiltre,
 				filtreCommand,
 				true);
 		PaginaDto<Long> paginaIds = expedientService.consultaFindNomesIdsPaginat(
 				consultaId,
-				getValorsPerService(filtreCommand, campsFiltre, filtreValors),
+				processarValorsFiltre(filtreCommand, dadesFiltre, filtreValors),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
@@ -241,34 +297,38 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	@ModelAttribute("listTerminis")
 	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+		for (int i = 0; i <= 12; i++) {
+			resposta.add(
+					new ParellaCodiValorDto(
+							String.valueOf(i),
+							i));
+		}
 		return resposta;
 	}
 
 
 
-	private Map<String, Object> getValorsPerService(
+	private Map<String, Object> processarValorsFiltre(
 			Object filtreCommand,
-			List<TascaDadaDto> camps,
+			List<TascaDadaDto> dadesFiltre,
 			Map<String, Object> valors) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		Map<String, Object> valorsPerService = new HashMap<String, Object>();
-		for (TascaDadaDto camp : camps) {
-			String clau = (camp.getDefinicioProcesKey() == null) ? camp.getVarCodi() : camp.getDefinicioProcesKey() + "." + camp.getVarCodi();
-			clau = camp.getVarCodi().replace(
+		for (TascaDadaDto dada: dadesFiltre) {
+			String clau = (dada.getDefinicioProcesKey() == null) ? dada.getVarCodi() : dada.getDefinicioProcesKey() + "." + dada.getVarCodi();
+			clau = clau.replace(
 					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
 					ExpedientCamps.EXPEDIENT_PREFIX);
-			if (CampTipusDto.BOOLEAN.equals(camp.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, camp.getVarCodi())) {
+			if (CampTipusDto.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
 				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(
 						filtreCommand,
-						camp.getVarCodi());
+						dada.getVarCodi());
 				valors.put(
-						camp.getVarCodi(),
+						dada.getVarCodi(),
 						valor);
 			}
 			valorsPerService.put(
 					clau,
-					valors.get(camp.getVarCodi()));
+					valors.get(dada.getVarCodi()));
 		}
 		return valorsPerService;
 	}

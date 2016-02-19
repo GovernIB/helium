@@ -22,7 +22,9 @@ import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.model.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 
 /**
@@ -33,40 +35,86 @@ import net.conselldemallorca.helium.core.util.ExpedientCamps;
 @Component
 public class LuceneDao extends LuceneHelper {
 
-	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(String entornCodi, Expedient expedient, List<Camp> informeCamps) {
+	public List<Map<String, DadaIndexadaDto>> getDadesExpedient(
+			Entorn entorn,
+			Expedient expedient,
+			List<Camp> informeCamps) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
 		checkIndexOk();
-		Query query = queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_ID, expedient.getId().toString(), null);
-		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, false, ExpedientCamps.EXPEDIENT_CAMP_ID, true, 0, -1);
+		Query query = queryFromCampFiltre(
+				ExpedientCamps.EXPEDIENT_CAMP_ID,
+				expedient.getId().toString(),
+				null);
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entorn, query, informeCamps, false, ExpedientCamps.EXPEDIENT_CAMP_ID, true, 0, -1);
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: getDadesExpedient", "lucene", expedient.getTipus().getNom());
 		return resultat;
 	}
 
-	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults) {
+	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors,
+			List<Camp> informeCamps,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
 		checkIndexOk();
-		Query query = getLuceneQuery(entornCodi, tipusCodi, filtreCamps, filtreValors);
-		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
+		Query query = getLuceneQuery(
+				entorn,
+				expedientTipus,
+				filtreCamps,
+				filtreValors);
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
+				entorn, query, informeCamps, true, sort, asc, firstRow, maxResults);
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
 		return resultat;
 	}
 	
-	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(String entornCodi, String tipusCodi, List<Camp> filtreCamps, Map<String, Object> filtreValors, List<Camp> informeCamps, String sort, boolean asc, int firstRow, int maxResults, List<Long> ids) {
+	public List<Map<String, DadaIndexadaDto>> findAmbDadesExpedient(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			List<Camp> filtreCamps,
+			Map<String, Object> filtreValors,
+			List<Camp> informeCamps,
+			String sort,
+			boolean asc,
+			int firstRow,
+			int maxResults,
+			List<Long> ids) {
 		mesuresTemporalsHelper.mesuraIniciar("Lucene: findAmbDadesExpedient", "lucene");
 		checkIndexOk();
 		Query query = null;
 		if (ids != null && !ids.isEmpty()) {
-			query = getLuceneQuery(entornCodi, tipusCodi, filtreCamps, filtreValors, ids.subList(1, ids.size()));
+			query = getLuceneQuery(entorn, expedientTipus, filtreCamps, filtreValors, ids.subList(1, ids.size()));
 		} else {
-			query = getLuceneQuery(entornCodi, tipusCodi, filtreCamps, filtreValors);
+			query = getLuceneQuery(entorn, expedientTipus, filtreCamps, filtreValors);
 		}
-		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(entornCodi, query, informeCamps, true, sort, asc, firstRow, maxResults);
+		List<Map<String, DadaIndexadaDto>> resultat = getDadesExpedientPerConsulta(
+				entorn,
+				query,
+				informeCamps,
+				true,
+				sort,
+				asc,
+				firstRow,
+				maxResults);
 		mesuresTemporalsHelper.mesuraCalcular("Lucene: findAmbDadesExpedient", "lucene");
 		return resultat;
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(final String entornCodi, Query query, List<Camp> campsInforme, boolean incloureId, String sort, boolean asc, final int firstRow, final int maxResults) {
+	private List<Map<String, DadaIndexadaDto>> getDadesExpedientPerConsulta(
+			final Entorn entorn,
+			Query query,
+			List<Camp> campsInforme,
+			boolean incloureId,
+			String sort,
+			boolean asc,
+			final int firstRow,
+			final int maxResults) {
 		Sort luceneSort = null;
 		if (sort != null && sort.length() > 0) {
 			if (ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(sort)) {
@@ -100,7 +148,7 @@ public class LuceneDao extends LuceneHelper {
 				boolean ignorar = false;
 				if (PEGAT_ENTORN_ACTIU) {
 					Field campEntorn = document.getField(ExpedientCamps.EXPEDIENT_CAMP_ENTORN);
-					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entornCodi);
+					ignorar = campEntorn != null && !campEntorn.stringValue().equals(entorn.getCodi());
 				}
 				if (!ignorar) {
 					if (maxResults == -1 || (count >= firstRow && count < firstRow + maxResults)) {

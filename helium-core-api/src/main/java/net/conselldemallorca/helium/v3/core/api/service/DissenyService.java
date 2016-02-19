@@ -125,7 +125,19 @@ public interface DissenyService {
 
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entorn);
 
-	public List<ParellaCodiValorDto> findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(Long entornId, Long expedientTipusId);
+	/**
+	 * Consulta les tasques disponibles per entorn i expedient tipus per emplenar
+	 * el camp de selecció del filtre de tasques.
+	 * 
+	 * @param entornId
+	 *            L'atribut id del entorn.
+	 * @param expedientTipusId
+	 *            L'atribut id del tipus d'expedient.
+	 * @return La llista de tasques
+	 */
+	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
+			Long entornId,
+			Long expedientTipusId);
 
 	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException;
 

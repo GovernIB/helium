@@ -2516,8 +2516,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<Long> llistaExpedientIds = new ArrayList<Long>();
 		if (ids == null || ids.isEmpty()) {
 			llistaExpedientIds = luceneHelper.findIdsAmbDadesExpedientPaginatV3(
-					consulta.getEntorn().getCodi(),
-					consulta.getExpedientTipus().getCodi(),
+					consulta.getEntorn(),
+					consulta.getExpedientTipus(),
 					campsFiltre,
 					campsInforme,
 					valors,
@@ -2582,7 +2582,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	@Transactional(readOnly=true)
+	@Transactional(readOnly = true)
 	public List<Long> findIdsPerConsultaInforme(
 			Long consultaId,
 			Map<String, Object> valors,
@@ -2600,8 +2600,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		afegirValorsPredefinits(consulta, valors, campsFiltre);
 		
 		List<Long> llistaExpedientIds = luceneHelper.findNomesIds(
-				consulta.getEntorn().getCodi(),
-				consulta.getExpedientTipus().getCodi(),
+				consulta.getEntorn(),
+				consulta.getExpedientTipus(),
 				campsFiltre,
 				valors);
 		boolean filtreTasques = nomesMeves || nomesTasquesPersonals || nomesTasquesGrup;

@@ -86,7 +86,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				campsFiltre,
 				new HashMap<String, Object>(),
 				new HashMap<String, Class<?>>(),
-				false);
+				true);
 	}
 
 	@RequestMapping(value = "/{consultaId}/excel", method = RequestMethod.GET)
@@ -97,7 +97,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			HttpSession session,
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
 		@SuppressWarnings("unchecked")
-		Map<String, Object> valors = (Map<String, Object>)session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
+		Map<String, Object> valors = (Map<String, Object>)session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES + consultaId);
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);

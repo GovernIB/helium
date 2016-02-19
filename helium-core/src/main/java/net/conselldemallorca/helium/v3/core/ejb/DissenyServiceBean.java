@@ -187,7 +187,12 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ParellaCodiValorDto> findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(Long entornId, Long expedientTipusId) {
-		return delegate.findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(entornId, expedientTipusId);
+	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findTasquesAmbEntornIExpedientTipusPerSeleccio(
+				entornId,
+				expedientTipusId);
 	}
+
 }

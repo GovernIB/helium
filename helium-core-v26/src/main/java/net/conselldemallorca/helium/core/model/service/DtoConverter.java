@@ -585,8 +585,8 @@ public class DtoConverter {
 					TipusConsultaCamp.INFORME);
 			afegirValorsPredefinits(consulta, valorsAddicionals, campsFiltre);
 			List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneDao.findAmbDadesExpedient(
-					consulta.getEntorn().getCodi(),
-					consulta.getExpedientTipus().getCodi(),
+					consulta.getEntorn(),
+					consulta.getExpedientTipus(),
 					campsFiltre,
 					valorsAddicionals,
 					campsInforme,

@@ -443,10 +443,11 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<ParellaCodiValorDto> findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(Long entornId, Long expedientTipusId) {
+	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
+			Long entornId,
+			Long expedientTipusId) {
 		List<Long> ids = new ArrayList<Long>();
 		List<Object[]> tasques = new ArrayList<Object[]>();
-		
 		if (expedientTipusId.equals(-1L)) {
 			List<ExpedientTipusDto> tipusExpedient = findExpedientTipusAmbPermisReadUsuariActual(entornId);
 			for (ExpedientTipusDto tipus : tipusExpedient) {
@@ -455,9 +456,9 @@ public class DissenyServiceImpl implements DissenyService {
 						tipus.getJbpmProcessDefinitionKey()));
 			}
 			if (ids.size() > 0)
-				tasques.addAll(tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
+				tasques.addAll(
+						tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
 		}
-				
 		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
 		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIJbpmKey(
@@ -465,9 +466,8 @@ public class DissenyServiceImpl implements DissenyService {
 					expedientTipus.getJbpmProcessDefinitionKey()));
 			tasques.addAll(tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
 		}
-		
 		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
-		for (Object[] tasca : tasques) {
+		for (Object[] tasca: tasques) {
 			lista.add(new ParellaCodiValorDto(tasca[0].toString(), tasca[1]));
 		}
 		return lista;
