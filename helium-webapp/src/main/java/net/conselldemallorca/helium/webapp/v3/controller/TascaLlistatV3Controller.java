@@ -192,7 +192,9 @@ public class TascaLlistatV3Controller extends BaseController {
 			@PathVariable Long entornId,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		return dissenyService.findTasquesAmbDefinicioProcesByTipusExpedientIdByEntornId(entornId, expedientTipusId);
+		return dissenyService.findTasquesAmbEntornIExpedientTipusPerSeleccio(
+				entornId,
+				expedientTipusId);
 	}
 
 	@RequestMapping(value = "/seleccioTots")

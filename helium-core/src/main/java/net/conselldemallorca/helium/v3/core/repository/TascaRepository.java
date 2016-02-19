@@ -23,7 +23,7 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 
 	public List<Tasca> findByDefinicioProcesIdOrderByNomAsc(Long definicioProcesId);
 	
-	@Query(	"select t.nom, t.nom from " +
+	@Query(	"select t.jbpmName, t.nom from " +
 			"    Tasca t " +
 			"where " +
 			" t.definicioProces.id in (:ids)" +
@@ -31,7 +31,7 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 	public List<Object[]> findIdNomByDefinicioProcesIdsOrderByNomAsc(
 			@Param("ids") List<Long> ids);
 	
-	@Query(	"select t.nom, '[' || t.definicioProces.expedientTipus.nom || ' ] ' || t.nom from " +
+	@Query(	"select t.jbpmName, '[' || t.definicioProces.expedientTipus.nom || ' ] ' || t.nom from " +
 			"    Tasca t " +
 			"where " +
 			" t.definicioProces.id in (:ids)" +
