@@ -145,41 +145,40 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		if (accio != null && accio.startsWith("netejar")) {
 			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 			filtreCommand = getFiltreCommand(request, consultaId);
-		} else {
-			ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
-			model.addAttribute(
-					"consulta",
-					consulta);
-			model.addAttribute(
-					"campsFiltre",
-					expedientService.findConsultaFiltre(consultaId));
-			model.addAttribute(
-					"campsInforme",
-					expedientService.findConsultaInforme(consultaId));
-			model.addAttribute(
-					"campsInformeParams",
-					expedientService.findConsultaInformeParams(consultaId));
-			List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(
-					consulta.getExpedientTipus().getId());
-			estats.add(
-					0,
-					new EstatDto(
-							0L,
-							"0",
-							getMessage(
-									request,
-									"expedient.consulta.iniciat")));
-			estats.add(
-					new EstatDto(
-							-1L,
-							"-1",
-							getMessage(
-									request,
-									"expedient.consulta.finalitzat")));
-			model.addAttribute(
-					"estats",
-					estats);
 		}
+		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
+		model.addAttribute(
+				"consulta",
+				consulta);
+		model.addAttribute(
+				"campsFiltre",
+				expedientService.findConsultaFiltre(consultaId));
+		model.addAttribute(
+				"campsInforme",
+				expedientService.findConsultaInforme(consultaId));
+		model.addAttribute(
+				"campsInformeParams",
+				expedientService.findConsultaInformeParams(consultaId));
+		List<EstatDto> estats = dissenyService.findEstatByExpedientTipus(
+				consulta.getExpedientTipus().getId());
+		estats.add(
+				0,
+				new EstatDto(
+						0L,
+						"0",
+						getMessage(
+								request,
+								"expedient.consulta.iniciat")));
+		estats.add(
+				new EstatDto(
+						-1L,
+						"-1",
+						getMessage(
+								request,
+								"expedient.consulta.finalitzat")));
+		model.addAttribute(
+				"estats",
+				estats);
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
