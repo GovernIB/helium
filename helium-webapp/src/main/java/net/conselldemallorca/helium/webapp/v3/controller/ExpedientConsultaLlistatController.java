@@ -142,7 +142,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
-		if ("netejar".equals(accio)) {
+		if (accio != null && accio.startsWith("netejar")) {
 			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 			filtreCommand = getFiltreCommand(request, consultaId);
 		} else {
