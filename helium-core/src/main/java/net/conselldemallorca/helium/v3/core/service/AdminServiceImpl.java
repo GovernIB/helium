@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -14,15 +16,18 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.json.MetricsModule;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.HibernateHelper;
+import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MonitorDominiHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -31,6 +36,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
@@ -77,6 +84,8 @@ public class AdminServiceImpl implements AdminService {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private MonitorDominiHelper monitorDominiHelper;
+	@Resource
+	private MailHelper mailHelper;
 
 	@Autowired
 	private MetricRegistry metricRegistry;
@@ -90,16 +99,44 @@ public class AdminServiceImpl implements AdminService {
 	public String getMetrics() {
 		logger.debug("Consultant les mètriques de l'aplicació");
 		try {
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.registerModule(
-					new MetricsModule(
-							TimeUnit.SECONDS,
-							TimeUnit.MILLISECONDS,
-							false));
-			return mapper.writeValueAsString(metricRegistry);
+			return getApplictionMetrics();
 		} catch (Exception ex) {
 			logger.error("Error al generar les mètriques de l'aplicació", ex);
 			return "ERR";
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Scheduled(cron="0 30 23 * * *")
+	public void metricsEmailResponsables() {
+		logger.debug("Enviant email amb les mètriques de l'aplicació");
+		String destinataris = getCorreuMetriquesDestinataris();
+		if (destinataris != null && !destinataris.isEmpty()) {
+			try {
+				List<String> recipients = new ArrayList<String>();
+				for (String recipient: destinataris.split(",")) {
+					recipients.add(recipient.trim());
+				}
+				String fromAddress = getCorreuRemitent();
+				List<ArxiuDto> attachments = new ArrayList<ArxiuDto>();
+				attachments.add(
+						new ArxiuDto(
+								"metrics.json",
+								getApplictionMetrics().getBytes()));
+				mailHelper.send(
+						fromAddress,
+						recipients,
+						null,
+						null,
+						"Mètriques Helium " + new SimpleDateFormat("dd/MM/yyyy").format(new Date()),
+						"Mètriques generades per a monitoritzar l'ús de l'aplicació.",
+						attachments);
+			} catch (Exception ex) {
+				logger.error("Error al enviar per correu les mètriques de l'aplicació", ex);
+			}
 		}
 	}
 
@@ -386,5 +423,25 @@ public class AdminServiceImpl implements AdminService {
 		return conversioTipusHelper.convertir(reassignacioRepository.findOne(id), ReassignacioDto.class);
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);	
+
+
+	private String getApplictionMetrics() throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(
+				new MetricsModule(
+						TimeUnit.SECONDS,
+						TimeUnit.MILLISECONDS,
+						false));
+		return mapper.writeValueAsString(metricRegistry);
+	}
+
+	private String getCorreuRemitent() {
+		return GlobalProperties.getInstance().getProperty("app.correu.remitent");
+	}
+	private String getCorreuMetriquesDestinataris() {
+		return GlobalProperties.getInstance().getProperty("app.correu.metrics.recipients");
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
+
 }

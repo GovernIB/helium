@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +103,7 @@ public class PluginService {
 	public PersonaDto findPersonaAmbCodi(String codi) {
 		return pluginPersonaDao.findAmbCodiPlugin(codi);
 	}
+	@Scheduled(fixedRate = 86400000)
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
 			List<PersonaDto> persones = pluginPersonaDao.findAllPlugin();

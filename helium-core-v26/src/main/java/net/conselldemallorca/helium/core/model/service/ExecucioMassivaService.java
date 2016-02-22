@@ -34,6 +34,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
@@ -78,9 +82,12 @@ public class ExecucioMassivaService {
 	private TascaService tascaService;
 	private DocumentService documentService;
 	private PluginService pluginService;
-	
+
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private MetricRegistry metricRegistry;
+
 
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
@@ -355,7 +362,48 @@ public class ExecucioMassivaService {
 	
 	@SuppressWarnings("unchecked")
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
-		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
+		logger.debug(
+				"Executant la acció massiva (" +
+				"expedientTipusId=" + dto.getExpedientTipusId() + ", " +
+				"dataInici=" + dto.getDataInici() + ", " +
+				"expedient=" + dto.getId() + ", " +
+				"acció=" + dto.getTipus());
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar",
+						dto.getExpedient().getEntorn().getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar.count",
+						dto.getExpedient().getEntorn().getCodi()));
+		countEntorn.inc();
+		final Timer timerTipexp = metricRegistry.timer(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"completar",
+						dto.getExpedient().getEntorn().getCodi(),
+						dto.getExpedient().getTipus().getCodi()));
+		final Timer.Context contextTipexp = timerTipexp.time();
+		Counter countTipexp = metricRegistry.counter(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"completar.count",
+						dto.getExpedient().getEntorn().getCodi(),
+						dto.getExpedient().getTipus().getCodi()));
+		countTipexp.inc();
 		try {
 			ExecucioMassivaTipus tipus = dto.getTipus();
 			
@@ -500,6 +548,10 @@ public class ExecucioMassivaService {
 		} catch (Exception ex) {
 			logger.error("Error al executar la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus(), ex);
 			throw ex;
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextTipexp.stop();
 		}
 	}
 	

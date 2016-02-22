@@ -7,14 +7,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmException;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.job.ExecuteActionJob;
 import org.jbpm.job.ExecuteNodeJob;
 import org.jbpm.job.Job;
@@ -24,6 +22,11 @@ import org.jbpm.job.executor.JobExecutorThread;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 /**
  * Extension of the default jBPM Job executor thread.
@@ -37,9 +40,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	private static final Log logger = LogFactory.getLog(SpringJobExecutorThread.class);
 	private TransactionTemplate transactionTemplate;
 	public static Map<Long, String[]> jobErrors = new HashMap<Long, String[]>();
-	private String expedientTipus = null;
-	private ExpedientDto exp = null;
-	
+
 	public SpringJobExecutorThread(String name,
                             JobExecutor jobExecutor,
                             JbpmConfiguration jbpmConfiguration,
@@ -82,15 +83,50 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				return jobName;
 			}
 		});
+		final ProcessInstanceExpedient expedient = job.getProcessInstance().getExpedient();
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
+					MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
+			        final com.codahale.metrics.Timer timerTotal = metricRegistry.timer(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job"));
+					final com.codahale.metrics.Timer.Context contextTotal = timerTotal.time();
+					Counter countTotal = metricRegistry.counter(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job.count"));
+					countTotal.inc();
+					final com.codahale.metrics.Timer timerEntorn = metricRegistry.timer(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job",
+									expedient.getEntorn().getCodi()));
+					final com.codahale.metrics.Timer.Context contextEntorn = timerEntorn.time();
+					Counter countEntorn = metricRegistry.counter(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job.count",
+									expedient.getEntorn().getCodi()));
+					countEntorn.inc();
+					final com.codahale.metrics.Timer timerTipexp = metricRegistry.timer(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job",
+									expedient.getEntorn().getCodi(),
+									expedient.getTipus().getCodi()));
+					final com.codahale.metrics.Timer.Context contextTipexp = timerTipexp.time();
+					Counter countTipexp = metricRegistry.counter(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job.count",
+									expedient.getEntorn().getCodi(),
+									expedient.getTipus().getCodi()));
+					countTipexp.inc();
 					try {
-						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
-							if (exp != null)
-								expedientTipus = exp.getTipus().getNom();
-							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedientTipus, null, null);
+							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedient.getTipus().getNom(), null, null);
 						}
 						SpringJobExecutorThread.super.executeJob(job);
 						try {
@@ -99,10 +135,8 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 						} catch (Exception ex) {
 							String errorDesc = "S'ha produït un error al reindexar l'expediente en el timer " + jName + ".";	
 							saveJobError(job.getId(), ex, errorDesc);
-							if (exp != null) {
-								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-							} else {
-								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+							if (expedient != null) {
+								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 							}
 						}
 					} catch (Exception ex) {
@@ -114,15 +148,16 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 								String.valueOf(job.getProcessInstance().getId()), 
 								errorDesc, 
 								errorFull);
-						if (exp != null) {
-							logger.error("Error al executar el job " + jName + " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-						} else {
-							logger.error("Error al executar el job " + jName + " de l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
+						if (expedient != null) {
+							logger.error("Error al executar el job " + jName + " de l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
 						}
-						
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
 						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 						throw e;
+					} finally {
+						contextTotal.stop();
+						contextEntorn.stop();
+						contextTipexp.stop();
 					}
 					return null;
 				}
@@ -144,14 +179,14 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 					errorDesc, 
 					errorFull);
 			String msgError = "Error al executar la transaccio del job '" + jName + "' con processInstanceId=" + job.getProcessInstance().getId();
-			if (exp != null) {
-				msgError += " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ")";
+			if (expedient != null) {
+				msgError += " de l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ")";
 			}
 			logger.error(msgError, ex);
 			JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 			throw e;
 		}
-		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedientTipus, null, null);
+		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedient.getTipus().getNom(), null, null);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

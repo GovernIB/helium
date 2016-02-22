@@ -32,6 +32,11 @@ public interface AdminService {
 	public String getMetrics();
 
 	/**
+	 * Envia les mètriques per correu-e als responsables de l'aplicació.
+	 */
+	public void metricsEmailResponsables();
+
+	/**
 	 * Retorna el llistat de les integracions disponibles.
 	 * 
 	 * @return la llista d'integracions

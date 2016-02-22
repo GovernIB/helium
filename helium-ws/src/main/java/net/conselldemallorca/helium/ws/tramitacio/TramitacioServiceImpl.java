@@ -41,6 +41,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 /**
  * Implementació del servei de tramitació d'expedients
  * 
@@ -58,6 +62,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 	private ExpedientService expedientService;
 	private TascaService tascaService;
 	private DocumentService documentService;
+
+	@Autowired
+	private MetricRegistry metricRegistry;
 
 
 
@@ -92,6 +99,40 @@ public class TramitacioServiceImpl implements TramitacioService {
 							parella.getValor());
 			}
 		}
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientIniciar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientIniciar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientIniciar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientIniciar.count",
+						e.getCodi()));
+		countEntorn.inc();
+		final Timer timerExptip = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientIniciar",
+						e.getCodi()));
+		final Timer.Context contextExptip = timerExptip.time();
+		Counter countExptip = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientIniciar.count",
+						e.getCodi()));
+		countExptip.inc();
 		try {
 			ExpedientDto expedient = expedientService.iniciar(
 					e.getId(),
@@ -127,6 +168,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'han pogut iniciar l'expedient", ex);
 			throw new TramitacioException("No s'han pogut iniciar l'expedient: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextExptip.stop();
 		}
 	}
 
@@ -136,6 +181,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaPersona"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaPersona.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaPersona",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaPersona.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
@@ -145,6 +212,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
 			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -154,6 +224,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaGrup"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaGrup.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaGrup",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaGrup.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
@@ -163,6 +255,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
 			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -174,6 +269,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		boolean agafada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAgafar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAgafar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAgafar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAgafar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, usuari)) {
 				tascaService.agafar(e.getId(), usuari, tascaId);
@@ -182,6 +299,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut agafar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut agafar la tasca: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 		if (!agafada)
 			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
@@ -195,6 +315,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		boolean alliberada = false;
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAlliberar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAlliberar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAlliberar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaAlliberar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, false);
 			for (TascaLlistatDto tasca: tasques) {
@@ -207,6 +349,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut alliberar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut alliberar la tasca: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 		if (!alliberada)
 			throw new TramitacioException("L'usuari '" + usuari + "' no té la tasca " + tascaId + " assignada");
@@ -219,19 +364,46 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		TascaDto tasca = tascaService.getById(
-				e.getId(),
-				tascaId,
-				usuari,
-				null,
-				true,
-				false);
-		List<CampTasca> resposta = new ArrayList<CampTasca>();
-		for (net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca: tasca.getCamps())
-			resposta.add(convertirCampTasca(
-					campTasca,
-					tasca.getVariable(campTasca.getCamp().getCodi())));
-		return resposta;
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormConsultar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormConsultar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormConsultar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormConsultar.count",
+						e.getCodi()));
+		countEntorn.inc();
+		try {
+			TascaDto tasca = tascaService.getById(
+					e.getId(),
+					tascaId,
+					usuari,
+					null,
+					true,
+					false);
+			List<CampTasca> resposta = new ArrayList<CampTasca>();
+			for (net.conselldemallorca.helium.core.model.hibernate.CampTasca campTasca: tasca.getCamps())
+				resposta.add(convertirCampTasca(
+						campTasca,
+						tasca.getVariable(campTasca.getCamp().getCodi())));
+			return resposta;
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+		}
 	}
 
 	public void setDadesFormulariTasca(
@@ -242,6 +414,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormGuardar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormGuardar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormGuardar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaFormGuardar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		Map<String, Object> variables = null;
 		if (valors != null) {
 			variables = new HashMap<String, Object>();
@@ -287,6 +481,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'han pogut guardar les variables a la tasca", ex);
 			throw new TramitacioException("No s'han pogut guardar les variables a la tasca: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -297,19 +494,46 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		TascaDto tasca = tascaService.getById(
-				e.getId(),
-				tascaId,
-				usuari,
-				null,
-				true,
-				false);
-		List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
-		for (net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
-			resposta.add(convertirDocumentTasca(
-					documentTasca,
-					tasca.getVarsDocuments().get(documentTasca.getDocument().getCodi())));
-		return resposta;
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentConsultar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentConsultar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentConsultar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentConsultar.count",
+						e.getCodi()));
+		countEntorn.inc();
+		try {
+			TascaDto tasca = tascaService.getById(
+					e.getId(),
+					tascaId,
+					usuari,
+					null,
+					true,
+					false);
+			List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
+			for (net.conselldemallorca.helium.core.model.hibernate.DocumentTasca documentTasca: tasca.getDocuments())
+				resposta.add(convertirDocumentTasca(
+						documentTasca,
+						tasca.getVarsDocuments().get(documentTasca.getDocument().getCodi())));
+			return resposta;
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+		}
 	}
 
 	public void setDocumentTasca(
@@ -323,6 +547,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentGuardar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentGuardar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentGuardar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentGuardar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
 			documentService.guardarDocumentTasca(
@@ -335,6 +581,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document a la tasca", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document a la tasca: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void esborrarDocumentTasca(
@@ -345,6 +594,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentEsborrar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentEsborrar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentEsborrar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaDocumentEsborrar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
 			documentService.esborrarDocument(
@@ -354,6 +625,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document de la tasca", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document de la tasca: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -365,6 +639,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaCompletar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaCompletar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaCompletar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaCompletar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			tascaService.completar(
 					e.getId(),
@@ -375,6 +671,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut completar la tasca", ex);
 			throw new TramitacioException("No s'ha pogut completar la tasca: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -385,6 +684,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableConsultar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableConsultar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableConsultar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableConsultar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			List<CampProces> resposta = new ArrayList<CampProces>();
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
@@ -412,6 +733,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut consultar las variables al procés", ex);
 			throw new TramitacioException("No s'ha pogut consultar las variables al procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void setVariableProces(
@@ -423,6 +747,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableGuardar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableGuardar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableGuardar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableGuardar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			if (valor instanceof Object[]) {
 				Object[] vs = (Object[])valor;
@@ -456,6 +802,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void esborrarVariableProces(
@@ -466,6 +815,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableEsborrar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableEsborrar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableEsborrar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesVariableEsborrar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			expedientService.deleteVariable(
 					processInstanceId,
@@ -473,6 +844,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar la variable al procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar la variable al procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -483,6 +857,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentConsultar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentConsultar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentConsultar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentConsultar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
@@ -493,10 +889,23 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'han pogut consultar el documents del procés", ex);
 			throw new TramitacioException("No s'han pogut consultar el documents del procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public ArxiuProces getArxiuProces(
 			Long documentId) throws TramitacioException {
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentDescarregar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentDescarregar.count"));
+		countTotal.inc();
 		try {
 			ArxiuProces resposta = null;
 			if (documentId != null) {
@@ -511,6 +920,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut obtenir l'arxiu del procés", ex);
 			throw new TramitacioException("No s'ha pogut obtenir l'arxiu del procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
 		}
 	}
 	public Long setDocumentProces(
@@ -524,6 +935,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentGuardar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentGuardar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentGuardar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentGuardar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
 			if (instanciaProces == null)
@@ -544,6 +977,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void esborrarDocumentProces(
@@ -554,6 +990,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentEsborrar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentEsborrar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentEsborrar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesDocumentEsborrar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			documentService.esborrarDocument(
 					null,
@@ -562,6 +1020,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document del procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 
@@ -573,11 +1034,36 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesAccioExecutar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesAccioExecutar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesAccioExecutar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesAccioExecutar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			expedientService.executarAccio(processInstanceId, accio);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'acció", ex);
 			throw new TramitacioException("No s'ha pogut executar l'acció: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void executarScriptProces(
@@ -588,6 +1074,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesScriptExecutar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesScriptExecutar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesScriptExecutar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesScriptExecutar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			expedientService.evaluateScript(
 					processInstanceId,
@@ -596,6 +1104,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'script", ex);
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void aturarExpedient(
@@ -606,6 +1117,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientAturar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientAturar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientAturar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientAturar.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			expedientService.aturar(
 					processInstanceId,
@@ -614,6 +1147,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut aturar l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut aturar l'expedient: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public void reprendreExpedient(
@@ -623,6 +1159,28 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientReprendre"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientReprendre.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientReprendre",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"procesExpedientReprendre.count",
+						e.getCodi()));
+		countEntorn.inc();
 		try {
 			expedientService.reprendre(
 					processInstanceId,
@@ -630,6 +1188,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut reprendre l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut reprendre l'expedient: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
 	}
 	public List<ExpedientInfo> consultaExpedients(
@@ -649,54 +1210,79 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		
-		// Obtencio de dades per a fer la consulta
-		ExpedientTipus expedientTipus = null;
-		Long estatId = null;
-		
-		if (expedientTipusCodi != null && expedientTipusCodi.length() > 0) {
-			expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
-				e.getId(),
-				expedientTipusCodi);
-		
-			if (estatCodi != null && estatCodi.length() > 0) {
-				for (Estat estat: expedientTipus.getEstats()) {
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientConsulta"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientConsulta.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientConsulta",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientConsulta.count",
+						e.getCodi()));
+		countEntorn.inc();
+		try {
+			// Obtencio de dades per a fer la consulta
+			ExpedientTipus expedientTipus = null;
+			Long estatId = null;
+			if (expedientTipusCodi != null && expedientTipusCodi.length() > 0) {
+				expedientTipus = dissenyService.findExpedientTipusAmbEntornICodi(
+					e.getId(),
+					expedientTipusCodi);
+			
+				if (estatCodi != null && estatCodi.length() > 0) {
+					for (Estat estat: expedientTipus.getEstats()) {
+						if (estat.getCodi().equals(estatCodi)) {
+							estatId = estat.getId();
+							break;
+						}
+					}
+				}
+			} else {
+				for (Estat estat: dissenyService.findEstatAmbEntorn(e.getId())) {
 					if (estat.getCodi().equals(estatCodi)) {
 						estatId = estat.getId();
 						break;
 					}
 				}
 			}
-		} else {
-			for (Estat estat: dissenyService.findEstatAmbEntorn(e.getId())) {
-				if (estat.getCodi().equals(estatCodi)) {
-					estatId = estat.getId();
-					break;
-				}
-			}
+			// Estableix l'usuari autenticat
+			establirUsuariAutenticat(usuari);
+			// Consulta d'expedients
+			List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
+					e.getId(),
+					titol,
+					numero,
+					dataInici1,
+					dataInici2,
+					(expedientTipus != null? expedientTipus.getId() : null),
+					estatId,
+					iniciat,
+					finalitzat,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					FiltreAnulat.ACTIUS);
+			// Construcció de la resposta
+			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+			for (ExpedientDto dto: expedients)
+				resposta.add(toExpedientInfo(dto));
+			return resposta;
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
-		// Estableix l'usuari autenticat
-		establirUsuariAutenticat(usuari);
-		// Consulta d'expedients
-		List<ExpedientDto> expedients = expedientService.findAmbEntornConsultaGeneral(
-				e.getId(),
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				(expedientTipus != null? expedientTipus.getId() : null),
-				estatId,
-				iniciat,
-				finalitzat,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				FiltreAnulat.ACTIUS);
-		// Construcció de la resposta
-		List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
-		for (ExpedientDto dto: expedients)
-			resposta.add(toExpedientInfo(dto));
-		return resposta;
 	}
 
 	public void deleteExpedient(
@@ -706,8 +1292,123 @@ public class TramitacioServiceImpl implements TramitacioService {
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
-		expedientService.delete(e.getId(), expedient.getId());
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientEsborrar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientEsborrar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientEsborrar",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"expedientEsborrar.count",
+						e.getCodi()));
+		countEntorn.inc();
+		try {
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			expedientService.delete(e.getId(), expedient.getId());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiPersona"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiPersona.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiPersona",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiPersona.count",
+						e.getCodi()));
+		countEntorn.inc();
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+		}
+	}
+
+	public List<TascaTramitacio> consultaTasquesGrupByCodi(
+			String entorn,
+			String usuari,
+			String codi) throws TramitacioException {
+		Entorn e = findEntornAmbCodi(entorn);
+		if (e == null)
+			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiGrup"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiGrup.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiGrup",
+						e.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						TramitacioService.class,
+						"tascaConsultaByCodiGrup.count",
+						e.getCodi()));
+		countEntorn.inc();
+		try {
+			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, codi, true);
+			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
+			for (TascaLlistatDto tasca: tasques)
+				resposta.add(convertirTascaTramitacio(tasca));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
+			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+		}
 	}
 
 
@@ -889,44 +1590,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 				usuariCodi,
 				null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-	}
-
-	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
-			String entorn,
-			String usuari,
-			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
-		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, codi, true);
-			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
-				resposta.add(convertirTascaTramitacio(tasca));
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
-		}
-	}
-
-	public List<TascaTramitacio> consultaTasquesGrupByCodi(
-			String entorn,
-			String usuari,
-			String codi) throws TramitacioException {
-		Entorn e = findEntornAmbCodi(entorn);
-		if (e == null)
-			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
-		try {
-			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, codi, true);
-			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for (TascaLlistatDto tasca: tasques)
-				resposta.add(convertirTascaTramitacio(tasca));
-			return resposta;
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut obtenir el llistat de tasques", ex);
-			throw new TramitacioException("No s'ha pogut obtenir el llistat de tasques: " + ex.getMessage());
-		}
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);

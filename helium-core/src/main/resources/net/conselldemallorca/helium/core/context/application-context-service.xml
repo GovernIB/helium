@@ -3,13 +3,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-3.1.xsd">
 
-	<bean id="comprovarTerminisTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+	<!--bean id="comprovarTerminisTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
 		<property name="targetObject" ref="terminiService" />
 		<property name="targetMethod" value="comprovarTerminisIniciats" />
 	</bean>
@@ -36,7 +39,9 @@
 				<ref local="syncPersonesTaskScheduledTask" />
 			</list>
 		</property>
-	</bean>
+	</bean-->
+	<task:annotation-driven scheduler="myScheduler"/>
+	<task:scheduler id="myScheduler" pool-size="1"/>
 
 	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
 

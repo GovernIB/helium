@@ -49,6 +49,14 @@ public class AdminServiceBean implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void metricsEmailResponsables() {
+		delegate.metricsEmailResponsables();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	@RolesAllowed({"HEL_ADMIN"})
 	public List<IntegracioDto> monitorIntegracioFindAll() {
 		return delegate.monitorIntegracioFindAll();
