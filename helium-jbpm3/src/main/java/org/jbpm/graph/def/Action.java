@@ -142,7 +142,7 @@ public class Action implements ActionHandler, Parsable, Serializable {
 		Counter countTotal = metricRegistry.counter(
 				MetricRegistry.name(
 						Action.class,
-						"handler"));
+						"handler.count"));
 		countTotal.inc();
 		final Timer timerEntorn = metricRegistry.timer(
 				MetricRegistry.name(
@@ -153,7 +153,7 @@ public class Action implements ActionHandler, Parsable, Serializable {
 		Counter countEntorn = metricRegistry.counter(
 				MetricRegistry.name(
 						Action.class,
-						"handler",
+						"handler.count",
 						expedient.getEntorn().getCodi()));
 		countEntorn.inc();
 		final Timer timerTipexp = metricRegistry.timer(
@@ -166,7 +166,7 @@ public class Action implements ActionHandler, Parsable, Serializable {
 		Counter countTipexp = metricRegistry.counter(
 				MetricRegistry.name(
 						Action.class,
-						"handler",
+						"handler.count",
 						expedient.getEntorn().getCodi(),
 						expedient.getTipus().getCodi()));
 		countTipexp.inc();
