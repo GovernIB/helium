@@ -58,7 +58,7 @@ public class DocumentTokenUtils {
 	public String desxifrarToken(String tokenXifrat) throws Exception {
 		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
 				getEncryptionAlgorithm());
-		Cipher cipher = Cipher.getInstance(DEFAULT_ENCRYPTION_SCHEME);
+		Cipher cipher = Cipher.getInstance(getEncryptionScheme());
 		cipher.init(
 				Cipher.DECRYPT_MODE,
 				secretKeyFactory.generateSecret(new DESKeySpec(getEncryptionKey().getBytes())));

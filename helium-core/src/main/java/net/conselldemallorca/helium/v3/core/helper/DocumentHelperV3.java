@@ -1095,7 +1095,7 @@ public class DocumentHelperV3 {
 			else
 				return Long.parseLong(tokenDesxifrat[1]);
 		} catch (Exception ex) {
-			throw new IllegalArgumentsException("Format de token incorrecte", ex);
+			throw new IllegalArgumentsException("Format de token ('" + token + "') incorrecte", ex);
 		}
 	}
 	

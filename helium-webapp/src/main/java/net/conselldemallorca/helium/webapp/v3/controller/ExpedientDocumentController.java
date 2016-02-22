@@ -11,18 +11,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +35,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -388,10 +388,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	public String arxiuPerSignar(
 		HttpServletRequest request,
 		@RequestParam(value = "token", required = true) String token,
-		ModelMap model) {
+		ModelMap model) throws Exception {
 		ArxiuDto arxiu = null;
 		if (token != null)
-			arxiu = expedientService.arxiuDocumentPerSignar(token);
+			try {
+				arxiu = expedientService.arxiuDocumentPerSignar(token);
+			} catch (Exception ex) {
+				logger.error("Error al obtenir el document a partir del token '" + token + "'");
+				throw ex;
+			}
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
