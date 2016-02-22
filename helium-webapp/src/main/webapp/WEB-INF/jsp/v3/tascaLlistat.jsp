@@ -347,7 +347,7 @@
 								{{if open && !suspended && !agafada && responsables != null && assignadaUsuariActual}}
  										<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
-								{{if open && !suspended && agafada && assignee == "${dadesPersona.codi}"}}
+								{{if open && !suspended && agafada && (permisReassignment || permisWrite || permisAdministration)}}
 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
 								{{if permisRead}}
@@ -382,6 +382,8 @@
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisSupervision" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisReassignment" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>

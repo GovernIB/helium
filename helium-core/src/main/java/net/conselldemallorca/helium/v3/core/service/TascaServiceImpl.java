@@ -819,7 +819,7 @@ public class TascaServiceImpl implements TascaService {
 		// de la tasca sigui l'usuari actual
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				id,
-				true,
+				false,
 				true);
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				id);
