@@ -36,6 +36,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.security.acls.model.Permission;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 /**
  * Utilitats comunes pels serveis
  * 
@@ -52,6 +56,7 @@ public class ServiceUtils {
 	private JbpmHelper jbpmHelper;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
+	private MetricRegistry metricRegistry;
 
 
 
@@ -64,7 +69,8 @@ public class ServiceUtils {
 			DtoConverter dtoConverter,
 			JbpmHelper jbpmHelper,
 			AclServiceDao aclServiceDao,
-			MessageSource messageSource) {
+			MessageSource messageSource,
+			MetricRegistry metricRegistry) {
 		this.expedientDao = expedientDao;
 		this.definicioProcesDao = definicioProcesDao;
 		this.campDao = campDao;
@@ -74,6 +80,7 @@ public class ServiceUtils {
 		this.jbpmHelper = jbpmHelper;
 		this.aclServiceDao = aclServiceDao;
 		this.messageSource = messageSource;
+		this.metricRegistry = metricRegistry;
 	}
 
 
@@ -95,18 +102,77 @@ public class ServiceUtils {
 				isExpedientFinalitzat(expedient),
 				false);
 	}
-	public void expedientIndexLuceneUpdate(String processInstanceId) {
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-		Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-		Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
-		Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-		luceneDao.updateExpedientCampsAsync(
-				expedient,
-				getMapDefinicionsProces(rootProcessInstance.getId()),
-				mapCamps,
-				mapValors,
-				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient));
+	public void expedientIndexLuceneUpdate(
+			String processInstanceId) {
+		expedientIndexLuceneUpdate(
+				processInstanceId,
+				false,
+				null);
+	}
+	public void expedientIndexLuceneUpdate(
+			String processInstanceId,
+			boolean perTasca,
+			Expedient expedientDeLaTasca) {
+		Timer.Context contextTotal = null;
+		Timer.Context contextEntorn = null;
+		Timer.Context contextTipexp = null;
+		if (perTasca) {
+			final Timer timerTotal = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar"));
+			contextTotal = timerTotal.time();
+			Counter countTotal = metricRegistry.counter(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar.count"));
+			countTotal.inc();
+			final Timer timerEntorn = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar",
+							expedientDeLaTasca.getEntorn().getCodi()));
+			contextEntorn = timerEntorn.time();
+			Counter countEntorn = metricRegistry.counter(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar.count",
+							expedientDeLaTasca.getEntorn().getCodi()));
+			countEntorn.inc();
+			final Timer timerTipexp = metricRegistry.timer(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar",
+							expedientDeLaTasca.getEntorn().getCodi(),
+							expedientDeLaTasca.getTipus().getCodi()));
+			contextTipexp = timerTipexp.time();
+			Counter countTipexp = metricRegistry.counter(
+					MetricRegistry.name(
+							TascaService.class,
+							"completar.reindexar.count",
+							expedientDeLaTasca.getEntorn().getCodi(),
+							expedientDeLaTasca.getTipus().getCodi()));
+			countTipexp.inc();
+		}
+		try {
+			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+			Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
+			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
+			luceneDao.updateExpedientCampsAsync(
+					expedient,
+					getMapDefinicionsProces(rootProcessInstance.getId()),
+					mapCamps,
+					mapValors,
+					getMapValorsDomini(mapCamps, mapValors),
+					isExpedientFinalitzat(expedient));
+		} finally {
+			if (perTasca) {
+				contextTotal.stop();
+				contextEntorn.stop();
+				contextTipexp.stop();
+			}
+		}
 	}
 	public void expedientIndexLuceneRecrear(String processInstanceId) {
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);

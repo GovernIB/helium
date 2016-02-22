@@ -14,6 +14,18 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -26,14 +38,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 
 /**
  * Dao pels objectes de tipus Domini
@@ -48,6 +53,12 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private MetricRegistry metricRegistry;
+	@Resource
+	private JbpmHelper jbpmHelper;
+
+
 
 	public DominiDao() {
 		super(Domini.class);
@@ -90,6 +101,100 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			if (dominis.size() > 0)
 				return dominis.get(0);
 			return null;
+		}
+	}
+
+	public List<FilaResultat> getResultat(
+			Domini domini,
+			String dominiConsultaWsId,
+			Map<String, Object> parametres) throws Exception {
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						DominiDao.class,
+						"consultar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						DominiDao.class,
+						"consultar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						DominiDao.class,
+						"consultar",
+						domini.getEntorn().getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						DominiDao.class,
+						"consultar.count",
+						domini.getEntorn().getCodi()));
+		countEntorn.inc();
+		Timer.Context contextTipexp = null;
+		final Timer.Context contextDomini;
+		if (domini.getExpedientTipus() != null) {
+			final Timer timerTipexp = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiDao.class,
+							"consultar",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi()));
+			contextTipexp = timerTipexp.time();
+			Counter countTipexp = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiDao.class,
+							"consultar.count",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi()));
+			countTipexp.inc();
+			final Timer timerDomini = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiDao.class,
+							"consultar",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi(),
+							domini.getCodi()));
+			contextDomini = timerDomini.time();
+			Counter countDomini = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiDao.class,
+							"consultar.count",
+							domini.getEntorn().getCodi(),
+							domini.getExpedientTipus().getCodi(),
+							domini.getCodi()));
+			countDomini.inc();
+		} else {
+			final Timer timerDomini = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiDao.class,
+							"consultar",
+							domini.getEntorn().getCodi(),
+							domini.getCodi()));
+			contextDomini = timerDomini.time();
+			Counter countDomini = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiDao.class,
+							"consultar.count",
+							domini.getEntorn().getCodi(),
+							domini.getCodi()));
+			countDomini.inc();
+		}
+		try {
+			List<FilaResultat> resultat = null;
+			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
+				resultat = consultaWs(domini, dominiConsultaWsId, parametres);
+			else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
+				resultat = consultaSql(domini, parametres);
+			if (resultat == null)
+				resultat = new ArrayList<FilaResultat>();
+			return resultat;
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			if (domini.getExpedientTipus() != null) {
+				contextTipexp.stop();
+			}
+			contextDomini.stop();
 		}
 	}
 
@@ -209,20 +314,6 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 			jdbcTemplates.put(domini.getId(), jdbcTemplate);
 		}
 		return jdbcTemplate;
-	}
-
-	public List<FilaResultat> getResultat(
-			Domini domini,
-			String dominiConsultaWsId,
-			Map<String, Object> parametres) throws Exception {
-		List<FilaResultat> resultat = null;
-		if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
-			resultat = consultaWs(domini, dominiConsultaWsId, parametres);
-		else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
-			resultat = consultaSql(domini, parametres);
-		if (resultat == null)
-			resultat = new ArrayList<FilaResultat>();
-		return resultat;
 	}
 
 	private boolean isDesplegamentTomcat() {

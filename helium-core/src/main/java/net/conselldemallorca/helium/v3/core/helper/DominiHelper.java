@@ -11,10 +11,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
 import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
@@ -30,13 +42,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.DominiConsultaExceptio
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
-
 /**
  * Helper per a fer consultes a dominis i enumeracions.
  * 
@@ -46,10 +51,16 @@ import org.springframework.stereotype.Component;
 public class DominiHelper {
 
 	private static final String CACHE_KEY_SEPARATOR = "#";
+
+	@Resource
+	private MetricRegistry metricRegistry;
+
 	private Ehcache dominiCache;
 
 	private Map<Long, DominiHelium> wsCache = new HashMap<Long, DominiHelium>();
 	private Map<Long, NamedParameterJdbcTemplate> jdbcTemplates = new HashMap<Long, NamedParameterJdbcTemplate>();
+
+
 
 	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
@@ -62,16 +73,96 @@ public class DominiHelper {
 		if (domini.getCacheSegons() > 0 && dominiCache != null)
 			element = dominiCache.get(cacheKey);
 		if (element == null) {
-			if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
-				resultat = consultaWs(domini, id, parametres);
-			else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
-				resultat = consultaSql(domini, parametres);
-			if (domini.getCacheSegons() > 0) {
-				element = new Element(cacheKey, resultat);
-				element.setTimeToLive(domini.getCacheSegons());
-				if (dominiCache != null) {
-					dominiCache.put(element);
+			final Timer timerTotal = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar"));
+			final Timer.Context contextTotal = timerTotal.time();
+			Counter countTotal = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar.count"));
+			countTotal.inc();
+			final Timer timerEntorn = metricRegistry.timer(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar",
+							domini.getEntorn().getCodi()));
+			final Timer.Context contextEntorn = timerEntorn.time();
+			Counter countEntorn = metricRegistry.counter(
+					MetricRegistry.name(
+							DominiHelper.class,
+							"consultar.count",
+							domini.getEntorn().getCodi()));
+			countEntorn.inc();
+			Timer.Context contextTipexp = null;
+			final Timer.Context contextDomini;
+			if (domini.getExpedientTipus() != null) {
+				final Timer timerTipexp = metricRegistry.timer(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi()));
+				contextTipexp = timerTipexp.time();
+				Counter countTipexp = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar.count",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi()));
+				countTipexp.inc();
+				final Timer timerDomini = metricRegistry.timer(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi(),
+								domini.getCodi()));
+				contextDomini = timerDomini.time();
+				Counter countDomini = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar.count",
+								domini.getEntorn().getCodi(),
+								domini.getExpedientTipus().getCodi(),
+								domini.getCodi()));
+				countDomini.inc();
+			} else {
+				final Timer timerDomini = metricRegistry.timer(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar",
+								domini.getEntorn().getCodi(),
+								domini.getCodi()));
+				contextDomini = timerDomini.time();
+				Counter countDomini = metricRegistry.counter(
+						MetricRegistry.name(
+								DominiHelper.class,
+								"consultar.count",
+								domini.getEntorn().getCodi(),
+								domini.getCodi()));
+				countDomini.inc();
+			}
+			try {
+				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
+					resultat = consultaWs(domini, id, parametres);
+				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
+					resultat = consultaSql(domini, parametres);
+				if (domini.getCacheSegons() > 0) {
+					element = new Element(cacheKey, resultat);
+					element.setTimeToLive(domini.getCacheSegons());
+					if (dominiCache != null) {
+						dominiCache.put(element);
+					}
 				}
+			} finally {
+				contextTotal.stop();
+				contextEntorn.stop();
+				if (domini.getExpedientTipus() != null) {
+					contextTipexp.stop();
+				}
+				contextDomini.stop();
 			}
 		} else {
 			resultat = (List<FilaResultat>)element.getValue();

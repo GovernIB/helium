@@ -33,6 +33,8 @@ public class AdminServiceBean implements AdminService {
 	@Autowired
 	AdminService delegate;
 
+
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -40,6 +42,14 @@ public class AdminServiceBean implements AdminService {
 	@RolesAllowed({"HEL_ADMIN"})
 	public String getMetrics() {
 		return delegate.getMetrics();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void metricsEmailResponsables() {
+		delegate.metricsEmailResponsables();
 	}
 
 	/**

@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -219,6 +221,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+
+	@Resource
+	private MetricRegistry metricRegistry;
 
 
 
@@ -1698,6 +1703,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
 	}
 
+	@Override
+	public MetricRegistry getMetricRegistry() {
+		return metricRegistry;
+	}
+
+
+
 	private Expedient getExpedientDonatProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {
 		Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
@@ -1752,4 +1764,5 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumHelper.class);
+
 }

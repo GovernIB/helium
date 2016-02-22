@@ -3,32 +3,35 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 		http://www.springframework.org/schema/context
-		http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-3.1.xsd">
 
-	<bean id="comprovarTerminisTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
-		<property name="targetObject" ref="terminiService" />
-		<property name="targetMethod" value="comprovarTerminisIniciats" />
-	</bean>
-	<bean id="comprovarTerminisScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="timerTask" ref="comprovarTerminisTask" />
+	<!--bean id="comprovarTerminisScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask">
+			<bean class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+				<property name="targetObject" ref="terminiService" />
+				<property name="targetMethod" value="comprovarTerminisIniciats" />
+			</bean>
+		</property>
 		<property name="delay" value="15000" />
 		<property name="period" value="60000" />
 	</bean>
-
-	<bean id="syncPersonesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
-		<property name="targetObject" ref="pluginService" />
-		<property name="targetMethod" value="personesSync" />
-	</bean>
 	<bean id="syncPersonesTaskScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-		<property name="timerTask" ref="syncPersonesTask" />
+		<property name="timerTask">
+			<bean id="syncPersonesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+				<property name="targetObject" ref="pluginService" />
+				<property name="targetMethod" value="personesSync" />
+			</bean>
+		</property>
 		<property name="delay" value="30000" />
 		<property name="period" value="86400000" />
 	</bean>
-
 	<bean class="org.springframework.scheduling.timer.TimerFactoryBean">
 		<property name="scheduledTimerTasks">
 			<list>
@@ -36,7 +39,9 @@
 				<ref local="syncPersonesTaskScheduledTask" />
 			</list>
 		</property>
-	</bean>
+	</bean-->
+	<task:annotation-driven scheduler="myScheduler"/>
+	<task:scheduler id="myScheduler" pool-size="1"/>
 
 	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
 
@@ -57,6 +62,5 @@
 		<constructor-arg type="java.lang.String" value="${app.mesura.temps.actiu?false}"/>
 		<constructor-arg type="java.lang.Integer" value="${app.mesura.temps.mesures?100}"/>
 	</bean>
-	
-	
+
 </beans>

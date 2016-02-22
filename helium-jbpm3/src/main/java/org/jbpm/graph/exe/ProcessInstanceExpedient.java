@@ -26,7 +26,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private String numeroDefault;
 	private Date dataInici;
 	private Date dataFi;
-	private long entornId;
+	private ProcessInstanceEntorn entorn;
 	private ProcessInstanceExpedientTipus tipus;
 	private Long estatId;
 	private Double geoPosX;
@@ -75,11 +75,11 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	public void setDataFi(Date dataFi) {
 		this.dataFi = dataFi;
 	}
-	public long getEntornId() {
-		return entornId;
+	public ProcessInstanceEntorn getEntorn() {
+		return entorn;
 	}
-	public void setEntornId(long entornId) {
-		this.entornId = entornId;
+	public void setEntorn(ProcessInstanceEntorn entorn) {
+		this.entorn = entorn;
 	}
 	public ProcessInstanceExpedientTipus getTipus() {
 		return tipus;

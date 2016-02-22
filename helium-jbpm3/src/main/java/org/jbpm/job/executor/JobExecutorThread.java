@@ -93,9 +93,9 @@ public class JobExecutorThread extends Thread {
 						}
 						if (error) {
 							saveJobException(job, terror);
-							try{ 
+							try {
 								executeJob(job); 
-							}catch(Exception ex){
+							} catch(Exception ex) {
 								log.error("error no controlat en el job executor thread.", ex);
 							}
 							break;
@@ -104,17 +104,15 @@ public class JobExecutorThread extends Thread {
 				} else { // no jobs acquired
 					if (isActive) {
 						long waitPeriod = getWaitPeriod();
-						if (waitPeriod>0) {
+						if (waitPeriod > 0) {
 							synchronized(jobExecutor) {
 								jobExecutor.wait(waitPeriod);
 							}
 						}
 					}
 				}
-
 				// no exception so resetting the currentIdleInterval
 				currentIdleInterval = idleInterval;
-
 			} catch (InterruptedException e) {
 				log.info((isActive? "active" : "inactive")+" job executor thread '"+getName()+"' got interrupted");
 			} catch (Exception e) {
@@ -134,7 +132,7 @@ public class JobExecutorThread extends Thread {
 				}
 			}
 		}
-		log.info(getName()+" leaves cyberspace");
+		log.info(getName() + " leaves cyberspace");
 	}
 	
 	@SuppressWarnings("rawtypes")

@@ -29,6 +29,11 @@ public interface AdminService {
 	public String getMetrics();
 
 	/**
+	 * Envia les mètriques per correu-e als responsables de l'aplicació.
+	 */
+	public void metricsEmailResponsables();
+
+	/**
 	 * Consulta les mesures temporals per família.
 	 * 
 	 * @param familia la familia per a la consulta (pot ser null)

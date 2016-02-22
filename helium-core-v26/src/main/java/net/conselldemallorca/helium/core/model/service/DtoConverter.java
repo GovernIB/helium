@@ -12,6 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
@@ -64,13 +73,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Service;
-
 
 /**
  * Convertidor de dades cap a DTOs
@@ -101,6 +103,7 @@ public class DtoConverter {
 	private DocumentHelper documentHelper;
 	private ServiceUtils serviceUtils;
 	private ExpedientService expedientService;
+	private MetricRegistry metricRegistry;
 
 
 
@@ -656,7 +659,10 @@ public class DtoConverter {
 					processInstanceId,
 					camp,
 					valorsAddicionals);
-			return getResultatConsultaDominiPerCamp(camp, params, textInicial);
+			return getResultatConsultaDominiPerCamp(
+					camp,
+					params,
+					textInicial);
 		}
 		return new ArrayList<FilaResultat>();
 	}
@@ -830,6 +836,10 @@ public class DtoConverter {
 	@Autowired
 	public void setDocumentHelper(DocumentHelper documentHelper) {
 		this.documentHelper = documentHelper;
+	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
 	}
 
 
@@ -1343,7 +1353,8 @@ public class DtoConverter {
 					this,
 					jbpmDao,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

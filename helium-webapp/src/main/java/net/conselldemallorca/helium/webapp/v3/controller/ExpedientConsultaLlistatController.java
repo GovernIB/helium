@@ -67,7 +67,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		}
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-		campsAddicionals.put("consultaId", consultaId);		
+		campsAddicionals.put("consultaId", consultaId);
 		campsAddicionals.put("nomesMeves", false);
 		campsAddicionals.put("nomesAlertes", false);
 		campsAddicionals.put("mostrarAnulats", false);

@@ -25,6 +25,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -35,6 +36,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.model.dao.PluginCustodiaDao;
 import net.conselldemallorca.helium.core.model.dao.PluginGestioDocumentalDao;
@@ -117,6 +122,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFound
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.DocumentHelperV3;
@@ -237,6 +243,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
 	private String textBloqueigIniciExpedient;
+
+	@Autowired
+	private MetricRegistry metricRegistry;
+
+
 
 	@Override
 	@Transactional
@@ -990,98 +1001,125 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		// Comprova l'accés al tipus d'expedient
-		ExpedientTipus expedientTipus = null;
-		if (expedientTipusId != null) {
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistat"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistat.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistat",
+						entorn.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistat.count",
+						entorn.getCodi()));
+		countEntorn.inc();
+		try {
+			// Comprova l'accés al tipus d'expedient
+			ExpedientTipus expedientTipus = null;
+			if (expedientTipusId != null) {
+				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId,
+						true,
+						false,
+						false);
+			}
+			// Comprova l'accés a l'estat
+			Estat estat = null;
+			if (estatId != null) {
+				estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+				if (estat == null) {
+					logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
+					throw new EstatNotFoundException();
+				}
+			}
+			// Calcula la data fi pel filtre
+			if (dataInici2 != null) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dataInici2);
+				cal.set(Calendar.HOUR_OF_DAY, 23);
+				cal.set(Calendar.MINUTE, 59);
+				cal.set(Calendar.SECOND, 59);
+				cal.set(Calendar.MILLISECOND, 999);
+				dataInici2.setTime(cal.getTime().getTime());
+			}
+			// Obté la llista de tipus d'expedient permesos
+			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+			// Calcula l'ordenació
+			String ordre = null;
+			if (!paginacioParams.getOrdres().isEmpty()) {
+				OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
+				if ("identificador".equals(ordreDto.getCamp())) {
+					ordre = "identificador";
+				} else if ("tipus.nom".equals(ordreDto.getCamp())) {
+					ordre = "tipus";
+				} else if ("dataInici".equals(ordreDto.getCamp())) {
+					ordre = "dataInici";
+				} else if ("dataFi".equals(ordreDto.getCamp())) {
+					ordre = "dataFi";
+				} else if ("estat.nom".equals(ordreDto.getCamp())) {
+					ordre = "estat";
+				}
+			}
+			// Executa la consulta amb paginació
+			LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+					entornId,
+					auth.getName(),
+					tipusPermesosIds,
+					titol,
+					numero,
 					expedientTipusId,
-					true,
-					false,
+					dataInici1,
+					dataInici2,
+					estatId,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					EstatTipusDto.INICIAT.equals(estatTipus),
+					EstatTipusDto.FINALITZAT.equals(estatTipus),
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+					nomesAlertes,
+					nomesErrors,
+					nomesTasquesPersonals || nomesTasquesGrup,
+					nomesTasquesPersonals,
+					nomesTasquesGrup,
+					false, //permesTasquesAltresUsuaris,
+					paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
+					paginacioParams.getPaginaTamany(),
+					ordre,
+					!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
 					false);
-		}
-		// Comprova l'accés a l'estat
-		Estat estat = null;
-		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
-			if (estat == null) {
-				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
-				throw new EstatNotFoundException();
+			// Retorna la pàgina amb la resposta
+			List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
+			if (expedientIds.getCount() > 0) {
+				expedients = conversioTipusHelper.convertirList(
+					expedientRepository.findByIdIn(expedientIds.getIds()),
+					ExpedientDto.class);
 			}
-		}
-		// Calcula la data fi pel filtre
-		if (dataInici2 != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dataInici2);
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			cal.set(Calendar.MILLISECOND, 999);
-			dataInici2.setTime(cal.getTime().getTime());
-		}
-		// Obté la llista de tipus d'expedient permesos
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-		// Calcula l'ordenació
-		String ordre = null;
-		if (!paginacioParams.getOrdres().isEmpty()) {
-			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
-			if ("identificador".equals(ordreDto.getCamp())) {
-				ordre = "identificador";
-			} else if ("tipus.nom".equals(ordreDto.getCamp())) {
-				ordre = "tipus";
-			} else if ("dataInici".equals(ordreDto.getCamp())) {
-				ordre = "dataInici";
-			} else if ("dataFi".equals(ordreDto.getCamp())) {
-				ordre = "dataFi";
-			} else if ("estat.nom".equals(ordreDto.getCamp())) {
-				ordre = "estat";
+			// Després de la consulta els expedients es retornen en ordre invers
+			Collections.reverse(expedients);
+			if (expedients.size() > 0) {
+				expedientHelper.omplirPermisosExpedients(expedients);
+				expedientHelper.trobarAlertesExpedients(expedients);
 			}
+			return paginacioHelper.toPaginaDto(
+					expedients,
+					expedientIds.getCount(),
+					paginacioParams);
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
-		// Executa la consulta amb paginació
-		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
-				entornId,
-				auth.getName(),
-				tipusPermesosIds,
-				titol,
-				numero,
-				expedientTipusId,
-				dataInici1,
-				dataInici2,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				EstatTipusDto.INICIAT.equals(estatTipus),
-				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals || nomesTasquesGrup,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				false, //permesTasquesAltresUsuaris,
-				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
-				paginacioParams.getPaginaTamany(),
-				ordre,
-				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
-				false);
-		// Retorna la pàgina amb la resposta
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
-		if (expedientIds.getCount() > 0) {
-			expedients = conversioTipusHelper.convertirList(
-				expedientRepository.findByIdIn(expedientIds.getIds()),
-				ExpedientDto.class);
-		}
-		// Després de la consulta els expedients es retornen en ordre invers
-		Collections.reverse(expedients);
-		if (expedients.size() > 0) {
-			expedientHelper.omplirPermisosExpedients(expedients);
-			expedientHelper.trobarAlertesExpedients(expedients);
-		}
-		return paginacioHelper.toPaginaDto(
-				expedients,
-				expedientIds.getCount(),
-				paginacioParams);
 	}
 
 	@Transactional(readOnly = true)
@@ -1131,66 +1169,93 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		// Comprova l'accés al tipus d'expedient
-		ExpedientTipus expedientTipus = null;
-		if (expedientTipusId != null) {
-			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatIds"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatIds.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatIds",
+						entorn.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatIds.count",
+						entorn.getCodi()));
+		countEntorn.inc();
+		try {
+			// Comprova l'accés al tipus d'expedient
+			ExpedientTipus expedientTipus = null;
+			if (expedientTipusId != null) {
+				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId,
+						true,
+						false,
+						false);
+			}
+			// Comprova l'accés a l'estat
+			Estat estat = null;
+			if (estatId != null) {
+				estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
+				if (estat == null) {
+					logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
+					throw new EstatNotFoundException();
+				}
+			}
+			// Calcula la data fi pel filtre
+			if (dataInici2 != null) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dataInici2);
+				cal.set(Calendar.HOUR_OF_DAY, 23);
+				cal.set(Calendar.MINUTE, 59);
+				cal.set(Calendar.SECOND, 59);
+				cal.set(Calendar.MILLISECOND, 999);
+				dataInici2.setTime(cal.getTime().getTime());
+			}
+			// Obté la llista de tipus d'expedient permesos
+			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+			// Executa la consulta amb paginació
+			LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+					entornId,
+					auth.getName(),
+					tipusPermesosIds,
+					titol,
+					numero,
 					expedientTipusId,
-					true,
+					dataInici1,
+					dataInici2,
+					estatId,
+					geoPosX,
+					geoPosY,
+					geoReferencia,
+					EstatTipusDto.INICIAT.equals(estatTipus),
+					EstatTipusDto.FINALITZAT.equals(estatTipus),
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+					nomesAlertes,
+					nomesErrors,
+					nomesTasquesPersonals || nomesTasquesGrup,
+					nomesTasquesPersonals,
+					nomesTasquesGrup,
+					false, //permesTasquesAltresUsuaris,
+					0,
+					-1,
+					null,
 					false,
 					false);
+			return expedientIds.getIds();
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
 		}
-		// Comprova l'accés a l'estat
-		Estat estat = null;
-		if (estatId != null) {
-			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
-			if (estat == null) {
-				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
-				throw new EstatNotFoundException();
-			}
-		}
-		// Calcula la data fi pel filtre
-		if (dataInici2 != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(dataInici2);
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			cal.set(Calendar.MILLISECOND, 999);
-			dataInici2.setTime(cal.getTime().getTime());
-		}
-		// Obté la llista de tipus d'expedient permesos
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-		// Executa la consulta amb paginació
-		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
-				entornId,
-				auth.getName(),
-				tipusPermesosIds,
-				titol,
-				numero,
-				expedientTipusId,
-				dataInici1,
-				dataInici2,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				EstatTipusDto.INICIAT.equals(estatTipus),
-				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals || nomesTasquesGrup,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				false, //permesTasquesAltresUsuaris,
-				0,
-				-1,
-				null,
-				false,
-				false);
-		return expedientIds.getIds();
 	}
 
 	@Override
@@ -3055,87 +3120,129 @@ public class ExpedientServiceImpl implements ExpedientService {
 					true,
 					false,
 					false);
-		// Obte la llista d'expedients permesos
-		List<Long> expedientIdsPermesos;
-		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
-			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
-		} else {
-			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
-					entorn.getId(),
-					auth.getName(),
-					tipusPermesosIds,
-					null,
-					null,
-					expedientTipus.getId(),
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					false,
-					false,
-					MostrarAnulatsDto.SI.equals(mostrarAnulats),
-					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-					nomesAlertes,
-					nomesErrors,
-					nomesTasquesPersonals || nomesTasquesGrup,
-					nomesTasquesPersonals,
-					nomesTasquesGrup,
-					!nomesMeves,
-					0,
-					-1,
-					null,
-					false,
-					false);
-			expedientIdsPermesos = expedientIds.getIds();
-		}
-		// Obte la llista d'expedients de lucene passant els expedients permesos
-		// com a paràmetres
-		List<Camp> filtreCamps = consultaHelper.toListCamp(
-				consultaHelper.findCampsPerCampsConsulta(
-				consulta,
-				TipusConsultaCamp.FILTRE));
-		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
-		List<Camp> informeCamps = consultaHelper.toListCamp(
-				consultaHelper.findCampsPerCampsConsulta(
-						consulta,
-						TipusConsultaCamp.INFORME));
-		Object[] respostaLucene = luceneHelper.findPaginatAmbDadesV3(
-				entorn,
-				expedientTipus,
-				expedientIdsPermesos,
-				filtreCamps,
-				filtreValors,
-				informeCamps,
-				paginacioParams);
-		@SuppressWarnings("unchecked")
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
-		Long count = (Long)respostaLucene[1];
-		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
-		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
-			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
-			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-			Expedient expedient = expedientRepository.findOne(Long.parseLong(dadaExpedientId.getValorIndex()));
-			if (expedient != null) {
-				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
-				expedientHelper.omplirPermisosExpedient(expedientDto);
-				fila.setExpedient(expedientDto);
-				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
-						dadesExpedient,
-						informeCamps,
-						expedient);
-				fila.setDadesExpedient(dadesExpedient);
-				resposta.add(fila);
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsulta"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsulta.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsulta",
+						entorn.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsulta.count",
+						entorn.getCodi()));
+		countEntorn.inc();
+		final Timer timerTipexp = metricRegistry.timer(
+				MetricRegistry.name(
+						TascaService.class,
+						"llistatConsulta",
+						entorn.getCodi(),
+						expedientTipus.getCodi()));
+		final Timer.Context contextTipexp = timerTipexp.time();
+		Counter countTipexp = metricRegistry.counter(
+				MetricRegistry.name(
+						TascaService.class,
+						"llistatConsulta.count",
+						entorn.getCodi(),
+						expedientTipus.getCodi()));
+		countTipexp.inc();
+		try {
+			// Obte la llista d'expedients permesos
+			List<Long> expedientIdsPermesos;
+			if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
+				expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
+			} else {
+				List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+						entorn.getId(),
+						auth.getName(),
+						tipusPermesosIds,
+						null,
+						null,
+						expedientTipus.getId(),
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						false,
+						false,
+						MostrarAnulatsDto.SI.equals(mostrarAnulats),
+						MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+						nomesAlertes,
+						nomesErrors,
+						nomesTasquesPersonals || nomesTasquesGrup,
+						nomesTasquesPersonals,
+						nomesTasquesGrup,
+						!nomesMeves,
+						0,
+						-1,
+						null,
+						false,
+						false);
+				expedientIdsPermesos = expedientIds.getIds();
 			}
-			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+			// Obte la llista d'expedients de lucene passant els expedients permesos
+			// com a paràmetres
+			List<Camp> filtreCamps = consultaHelper.toListCamp(
+					consultaHelper.findCampsPerCampsConsulta(
+					consulta,
+					TipusConsultaCamp.FILTRE));
+			afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+			List<Camp> informeCamps = consultaHelper.toListCamp(
+					consultaHelper.findCampsPerCampsConsulta(
+							consulta,
+							TipusConsultaCamp.INFORME));
+			Object[] respostaLucene = luceneHelper.findPaginatAmbDadesV3(
+					entorn,
+					expedientTipus,
+					expedientIdsPermesos,
+					filtreCamps,
+					filtreValors,
+					informeCamps,
+					paginacioParams);
+			@SuppressWarnings("unchecked")
+			List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
+			Long count = (Long)respostaLucene[1];
+			List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
+			for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+				DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+				ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+				Expedient expedient = expedientRepository.findOne(Long.parseLong(dadaExpedientId.getValorIndex()));
+				if (expedient != null) {
+					ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
+					expedientHelper.omplirPermisosExpedient(expedientDto);
+					fila.setExpedient(expedientDto);
+					consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+							dadesExpedient,
+							informeCamps,
+							expedient);
+					fila.setDadesExpedient(dadesExpedient);
+					resposta.add(fila);
+				}
+				dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+			}
+			return paginacioHelper.toPaginaDto(
+					resposta,
+					count.intValue(),
+					paginacioParams);
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextTipexp.stop();
 		}
-		return paginacioHelper.toPaginaDto(
-				resposta,
-				count.intValue(),
-				paginacioParams);
 	}
 
 	@Override
@@ -3179,58 +3286,100 @@ public class ExpedientServiceImpl implements ExpedientService {
 					true,
 					false,
 					false);
-		// Obte la llista d'expedients permesos segons els filtres
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
-				entorn.getId(),
-				auth.getName(),
-				tipusPermesosIds,
-				null,
-				null,
-				expedientTipus.getId(),
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				false,
-				false,
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals || nomesTasquesGrup,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				!nomesMeves,
-				0,
-				-1,
-				null,
-				false,
-				false);
-		// Obte la llista d'ids de lucene passant els expedients permesos
-		// com a paràmetres
-		List<Camp> filtreCamps = consultaHelper.toListCamp(
-				consultaHelper.findCampsPerCampsConsulta(
-				consulta,
-				TipusConsultaCamp.FILTRE));
-		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
-		Object[] respostaLucene = luceneHelper.findPaginatNomesIdsV3(
-				entorn,
-				expedientTipus,
-				expedientIds.getIds(),
-				filtreCamps,
-				filtreValors,
-				paginacioParams);
-		@SuppressWarnings("unchecked")
-		List<Long> ids = (List<Long>)respostaLucene[0];
-		Long count = (Long)respostaLucene[1];
-		return paginacioHelper.toPaginaDto(
-				ids,
-				count.intValue(),
-				paginacioParams);
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsultaIds"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsultaIds.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsultaIds",
+						entorn.getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						ExpedientService.class,
+						"llistatConsultaIds.count",
+						entorn.getCodi()));
+		countEntorn.inc();
+		final Timer timerTipexp = metricRegistry.timer(
+				MetricRegistry.name(
+						TascaService.class,
+						"llistatConsultaIds",
+						entorn.getCodi(),
+						expedientTipus.getCodi()));
+		final Timer.Context contextTipexp = timerTipexp.time();
+		Counter countTipexp = metricRegistry.counter(
+				MetricRegistry.name(
+						TascaService.class,
+						"llistatConsultaIds.count",
+						entorn.getCodi(),
+						expedientTipus.getCodi()));
+		countTipexp.inc();
+		try {
+			// Obte la llista d'expedients permesos segons els filtres
+			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+					entorn.getId(),
+					auth.getName(),
+					tipusPermesosIds,
+					null,
+					null,
+					expedientTipus.getId(),
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					false,
+					false,
+					MostrarAnulatsDto.SI.equals(mostrarAnulats),
+					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
+					nomesAlertes,
+					nomesErrors,
+					nomesTasquesPersonals || nomesTasquesGrup,
+					nomesTasquesPersonals,
+					nomesTasquesGrup,
+					!nomesMeves,
+					0,
+					-1,
+					null,
+					false,
+					false);
+			// Obte la llista d'ids de lucene passant els expedients permesos
+			// com a paràmetres
+			List<Camp> filtreCamps = consultaHelper.toListCamp(
+					consultaHelper.findCampsPerCampsConsulta(
+					consulta,
+					TipusConsultaCamp.FILTRE));
+			afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+			Object[] respostaLucene = luceneHelper.findPaginatNomesIdsV3(
+					entorn,
+					expedientTipus,
+					expedientIds.getIds(),
+					filtreCamps,
+					filtreValors,
+					paginacioParams);
+			@SuppressWarnings("unchecked")
+			List<Long> ids = (List<Long>)respostaLucene[0];
+			Long count = (Long)respostaLucene[1];
+			return paginacioHelper.toPaginaDto(
+					ids,
+					count.intValue(),
+					paginacioParams);
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextTipexp.stop();
+		}
 	}
 
 	@Override

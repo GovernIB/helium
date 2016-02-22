@@ -107,6 +107,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
+import com.codahale.metrics.MetricRegistry;
+
 
 /**
  * Servei per gestionar les tasques de disseny
@@ -148,6 +150,7 @@ public class DissenyService {
 	private LuceneDao luceneDao;
 	private AclServiceDao aclServiceDao;
 	private MessageSource messageSource;
+	private MetricRegistry metricRegistry;
 
 	private ServiceUtils serviceUtils;
 
@@ -2344,6 +2347,12 @@ public class DissenyService {
 	public void setDocumentStoreDao(DocumentStoreDao documentStoreDao) {
 		this.documentStoreDao = documentStoreDao;
 	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
+	}
+
+
 
 	private DefinicioProcesDto toDto(
 			DefinicioProces definicioProces,
@@ -3189,7 +3198,8 @@ public class DissenyService {
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

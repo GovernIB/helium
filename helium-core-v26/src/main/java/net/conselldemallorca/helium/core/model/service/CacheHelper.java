@@ -88,10 +88,12 @@ public class CacheHelper {
 		} else if (domini.getCacheSegons() > 0) {
 			cachear = true;
 		}
-
 		List<FilaResultat> resultat;
 		try {
-			resultat = dominiDao.getResultat(domini, dominiConsultaWsId, parametres);
+			resultat = dominiDao.getResultat(
+					domini,
+					dominiConsultaWsId,
+					parametres);
 			if (cachear) {
 				cacheManager.getCache(CACHE_DOMINI_ID).put(cacheKey, resultat);
 				dominiCacheTime.put(cacheKey, new Date().getTime());

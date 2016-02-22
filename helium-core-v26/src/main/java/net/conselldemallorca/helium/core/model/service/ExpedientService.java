@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.dao.AccioDao;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
@@ -161,6 +163,7 @@ public class ExpedientService {
 
 	private DocumentHelper documentHelper;
 	private ExpedientLogHelper expedientLogHelper;
+	private MetricRegistry metricRegistry;
 
 	private ServiceUtils serviceUtils;
 	
@@ -2598,6 +2601,11 @@ public class ExpedientService {
 	public void setExecucioMassivaExpedientDao(ExecucioMassivaExpedientDao execucioMassivaExpedientDao) {
 		this.execucioMassivaExpedientDao = execucioMassivaExpedientDao;
 	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
+	}
+
 
 
 	@SuppressWarnings("rawtypes")
@@ -2934,7 +2942,8 @@ public class ExpedientService {
 					dtoConverter,
 					jbpmHelper,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

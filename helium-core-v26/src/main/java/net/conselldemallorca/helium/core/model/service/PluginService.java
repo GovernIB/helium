@@ -53,8 +53,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.MetricRegistry;
 
 
 /**
@@ -85,9 +88,10 @@ public class PluginService {
 	private LuceneDao luceneDao;
 	private DtoConverter dtoConverter;
 	private AclServiceDao aclServiceDao;
+	private MessageSource messageSource;
+	private MetricRegistry metricRegistry;
 
 	private ServiceUtils serviceUtils;
-	private MessageSource messageSource;
 
 
 
@@ -97,6 +101,7 @@ public class PluginService {
 	public PersonaDto findPersonaAmbCodi(String codi) {
 		return pluginPersonaDao.findAmbCodiPlugin(codi);
 	}
+	@Scheduled(fixedRate = 86400000)
 	public void personesSync() {
 		if (isSyncPersonesActiu()) {
 			List<PersonaDto> persones = pluginPersonaDao.findAllPlugin();
@@ -451,6 +456,10 @@ public class PluginService {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
+	@Autowired
+	public void setMetricRegistry(MetricRegistry metricRegistry) {
+		this.metricRegistry = metricRegistry;
+	}
 
 
 
@@ -654,7 +663,8 @@ public class PluginService {
 					dtoConverter,
 					jbpmDao,
 					aclServiceDao,
-					messageSource);
+					messageSource,
+					metricRegistry);
 		}
 		return serviceUtils;
 	}

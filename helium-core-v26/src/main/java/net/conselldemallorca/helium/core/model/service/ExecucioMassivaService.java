@@ -19,6 +19,25 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.model.dao.DefinicioProcesDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaDao;
 import net.conselldemallorca.helium.core.model.dao.ExecucioMassivaExpedientDao;
@@ -40,21 +59,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.NoSuchMessageException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -80,6 +84,8 @@ public class ExecucioMassivaService {
 	
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
+	@Resource
+	private MetricRegistry metricRegistry;
 
 
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
@@ -354,20 +360,57 @@ public class ExecucioMassivaService {
 	
 	@SuppressWarnings("unchecked")
 	public void executarExecucioMassiva(OperacioMassivaDto dto) throws Exception {
-		logger.debug("Executant la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus());
+		logger.debug(
+				"Executant la acció massiva (" +
+				"expedientTipusId=" + dto.getExpedientTipusId() + ", " +
+				"dataInici=" + dto.getDataInici() + ", " +
+				"expedient=" + dto.getId() + ", " +
+				"acció=" + dto.getTipus());
+		final Timer timerTotal = metricRegistry.timer(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar"));
+		final Timer.Context contextTotal = timerTotal.time();
+		Counter countTotal = metricRegistry.counter(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar.count"));
+		countTotal.inc();
+		final Timer timerEntorn = metricRegistry.timer(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar",
+						dto.getExpedient().getEntorn().getCodi()));
+		final Timer.Context contextEntorn = timerEntorn.time();
+		Counter countEntorn = metricRegistry.counter(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"executar.count",
+						dto.getExpedient().getEntorn().getCodi()));
+		countEntorn.inc();
+		final Timer timerTipexp = metricRegistry.timer(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"completar",
+						dto.getExpedient().getEntorn().getCodi(),
+						dto.getExpedient().getTipus().getCodi()));
+		final Timer.Context contextTipexp = timerTipexp.time();
+		Counter countTipexp = metricRegistry.counter(
+				MetricRegistry.name(
+						ExecucioMassivaService.class,
+						"completar.count",
+						dto.getExpedient().getEntorn().getCodi(),
+						dto.getExpedient().getTipus().getCodi()));
+		countTipexp.inc();
 		try {
 			ExecucioMassivaTipus tipus = dto.getTipus();
-			
 			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
-			
 			final String user = dto.getUsuari();
-			
 	        Principal principal = new Principal() {
 				public String getName() {
 					return user;
 				}
 			};
-			
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
 			
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
@@ -499,6 +542,10 @@ public class ExecucioMassivaService {
 		} catch (Exception ex) {
 			logger.error("Error al executar la acció massiva (expedientTipusId=" + dto.getExpedientTipusId() + ", dataInici=" + dto.getDataInici() + ", expedient=" + dto.getId() + ", acció=" + dto.getTipus(), ex);
 			throw ex;
+		} finally {
+			contextTotal.stop();
+			contextEntorn.stop();
+			contextTipexp.stop();
 		}
 	}
 	

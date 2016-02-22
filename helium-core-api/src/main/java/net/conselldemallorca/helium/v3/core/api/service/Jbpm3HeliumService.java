@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -1029,4 +1031,11 @@ public interface Jbpm3HeliumService {
 	 * @throws Exception
 	 */
 	public void reprendreExpedient(String processInstanceId) throws Exception;
+
+	/**
+	 * Retorna una referència al registre de mètriques
+	 * 
+	 */
+	public MetricRegistry getMetricRegistry();
+
 }

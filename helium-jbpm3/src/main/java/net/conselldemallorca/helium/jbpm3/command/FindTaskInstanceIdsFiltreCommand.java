@@ -150,7 +150,7 @@ public class FindTaskInstanceIdsFiltreCommand extends AbstractBaseCommand {
 					"    else ti.processInstance.expedient.numeroDefault END) like upper(:expedientNumero))");
 		}
 		if (entornId != null) {
-			taskQuerySb.append("and ti.processInstance.expedient.entornId = :entornId ");
+			taskQuerySb.append("and ti.processInstance.expedient.entorn.id = :entornId ");
 		}
 		if (expedientTipusId != null) {
 			taskQuerySb.append("and ti.processInstance.expedient.tipus.id = :expedientTipusId ");
