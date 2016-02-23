@@ -304,6 +304,13 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		}
 		return resposta;
 	}
+	@ModelAttribute("valorsBoolea")
+	public List<ParellaCodiValorDto> valorsBoolea(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto("true", getMessage(request, "comuns.si")));
+		resposta.add(new ParellaCodiValorDto("false", getMessage(request, "comuns.no")));
+		return resposta;
+	}
 
 
 

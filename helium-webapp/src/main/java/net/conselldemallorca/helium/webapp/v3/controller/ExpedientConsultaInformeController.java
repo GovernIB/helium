@@ -165,6 +165,17 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				request);
 	}
 
+	@ModelAttribute("listTerminis")
+	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (int i = 0; i <= 12; i++) {
+			resposta.add(
+					new ParellaCodiValorDto(
+							String.valueOf(i),
+							i));
+		}
+		return resposta;
+	}
 	@ModelAttribute("valorsBoolea")
 	public List<ParellaCodiValorDto> valorsBoolea(HttpServletRequest request) {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
