@@ -49,7 +49,7 @@
 			$('select[name=any]').on('change', function () {
 				if ($(this).val()) {
 					$.ajax({
-					    url:'canviAny/' + $(this).val() + '/${command.entornId}/${expedientTipus.id}',
+					    url:'<c:url value="/v3/expedient/canviAny/"/>' + $(this).val() + '/${command.entornId}/${expedientTipus.id}',
 					    type:'GET',
 					    dataType: 'json',
 					    success: function(json) {
@@ -82,7 +82,9 @@
 			<div class="control-group fila_reducida select2-container-fix">
 				<hel:inputSelect required="true" name="any" textKey="expedient.iniciar.canvi_any"  optionItems="${anysSeleccionables}" optionValueAttribute="valor" optionTextAttribute="codi" inline="false"/>
 			</div>
+			<div style="min-height: 120px;"></div>
 		</c:if>
+		
 		<div id="modal-botons">
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
