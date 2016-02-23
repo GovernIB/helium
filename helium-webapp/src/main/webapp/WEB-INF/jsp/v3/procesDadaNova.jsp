@@ -25,6 +25,7 @@
 	.carregant {margin: 1em 0 2em 0;text-align: center;}
 	.col-xs-3 {width: 20%;}
 	.col-xs-9 {width: 80%;}
+	.pad-left-col-xs-3 {left: 20%;}
 </style>
 	
 <form:form id="command" commandName="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">

@@ -165,6 +165,8 @@ public class JobExecutorThread extends Thread {
 						job = (Job) iter.next();
 						job.setLockOwner(lockOwner);
 						job.setLockTime(lockTime);
+						Hibernate.initialize(job.getProcessInstance().getExpedient().getEntorn());
+						Hibernate.initialize(job.getProcessInstance().getExpedient().getTipus());
 					}
 				} else {
 					log.debug("no acquirable jobs in job table");

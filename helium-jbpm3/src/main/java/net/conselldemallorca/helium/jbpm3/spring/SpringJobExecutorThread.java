@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmException;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.job.ExecuteActionJob;
 import org.jbpm.job.ExecuteNodeJob;
 import org.jbpm.job.Job;
@@ -21,6 +22,9 @@ import org.jbpm.job.executor.JobExecutorThread;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -82,9 +86,47 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 				return jobName;
 			}
 		});
+		final ProcessInstanceExpedient expedient = job.getProcessInstance().getExpedient();
 		try {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
+					MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
+					final com.codahale.metrics.Timer timerTotal = metricRegistry.timer(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job"));
+					final com.codahale.metrics.Timer.Context contextTotal = timerTotal.time();
+					Counter countTotal = metricRegistry.counter(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job.count"));
+					countTotal.inc();
+					final com.codahale.metrics.Timer timerEntorn = metricRegistry.timer(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job",
+									expedient.getEntorn().getCodi()));
+					final com.codahale.metrics.Timer.Context contextEntorn = timerEntorn.time();
+					Counter countEntorn = metricRegistry.counter(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job.count",
+									expedient.getEntorn().getCodi()));
+					countEntorn.inc();
+					final com.codahale.metrics.Timer timerTipexp = metricRegistry.timer(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job",
+									expedient.getEntorn().getCodi(),
+									expedient.getTipus().getCodi()));
+					final com.codahale.metrics.Timer.Context contextTipexp = timerTipexp.time();
+					Counter countTipexp = metricRegistry.counter(
+							MetricRegistry.name(
+									JobExecutorThread.class,
+									"job.count",
+									expedient.getEntorn().getCodi(),
+									expedient.getTipus().getCodi()));
+					countTipexp.inc();
 					try {
 						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
@@ -93,36 +135,19 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedientTipus, null, null);
 						}
 						SpringJobExecutorThread.super.executeJob(job);
-						try {
-							String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
-							Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
-						} catch (Exception ex) {
-							String errorDesc = "S'ha produït un error al reindexar l'expediente en el timer " + jName + ".";	
-							saveJobError(job.getId(), ex, errorDesc);
-							if (exp != null) {
-								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-							} else {
-								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-							}
-						}
+						String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
+						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
 					} catch (Exception ex) {
 						String errorDesc = "S'ha produït un error al executar el timer " + jName + ".";	
-						String errorFull = saveJobError(job.getId(), ex, errorDesc);
-						// He configurat la transacció de updateExpedientError per a que es desi tot i fer rollback...		
-						Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
-								job.getId(), 
-								String.valueOf(job.getProcessInstance().getId()), 
-								errorDesc, 
-								errorFull);
-						if (exp != null) {
-							logger.error("Error al executar el job " + jName + " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-						} else {
-							logger.error("Error al executar el job " + jName + " de l'expedient (processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-						}
-						
+						saveJobError(job.getId(), ex, errorDesc);
+
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
 						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 						throw e;
+					} finally {
+						contextTotal.stop();
+						contextEntorn.stop();
+						contextTipexp.stop();
 					}
 					return null;
 				}
