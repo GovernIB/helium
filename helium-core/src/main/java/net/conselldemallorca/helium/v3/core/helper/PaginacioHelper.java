@@ -9,11 +9,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +16,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 /**
  * Helper per a convertir les dades de paginació entre el DTO
@@ -103,6 +103,31 @@ public class PaginacioHelper {
 		return dto;
 	}
 
+	public <S, T> PaginaDto<T> toPaginaDto(
+			List<S> elements,
+			int elementsTotal,
+			PaginacioParamsDto paginacioParams,
+			Converter<S, T> converter) {
+		PaginaDto<T> dto = new PaginaDto<T>();
+		int paginesTotal = elementsTotal / paginacioParams.getPaginaTamany();
+		dto.setNumero(paginacioParams.getPaginaNum());
+		dto.setTamany(paginacioParams.getPaginaTamany());
+		dto.setTotal(paginesTotal);
+		dto.setElementsTotal(elementsTotal);
+		dto.setAnteriors(paginacioParams.getPaginaNum() > 0);
+		dto.setPrimera(paginacioParams.getPaginaNum() == 0);
+		dto.setPosteriors(paginacioParams.getPaginaNum() < paginesTotal - 1);
+		dto.setDarrera(paginacioParams.getPaginaNum() == paginesTotal - 1);
+		if (elements != null && elements.size() > 0) {
+			List<T> contingut = new ArrayList<T>();
+			for (S element: elements) {
+				contingut.add(
+						converter.convert(element));
+			}
+			dto.setContingut(contingut);
+		}
+		return dto;
+	}
 	public <T> PaginaDto<T> toPaginaDto(
 			List<T> elements,
 			int elementsTotal,
@@ -144,6 +169,10 @@ public class PaginacioHelper {
 							targetType));
 		}
 		return dto;
+	}
+
+	public interface Converter<S, T> {
+		T convert(S source);
 	}
 
 }

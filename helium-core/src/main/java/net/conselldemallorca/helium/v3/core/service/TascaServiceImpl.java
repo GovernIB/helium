@@ -5,25 +5,17 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections.comparators.NullComparator;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,14 +52,13 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -83,6 +74,7 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.FormulariExternHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper.Converter;
 import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
@@ -178,7 +170,8 @@ public class TascaServiceImpl implements TascaService {
 		return tascaHelper.getExpedientTascaDto(
 				task,
 				null,
-				true);
+				true,
+				false);
 	}
 
 	@Override
@@ -194,7 +187,8 @@ public class TascaServiceImpl implements TascaService {
 		return tascaHelper.getExpedientTascaDto(
 				task,
 				null,
-				true);
+				true,
+				false);
 	}
 
 	@Override
@@ -420,24 +414,9 @@ public class TascaServiceImpl implements TascaService {
 				cal.add(Calendar.DATE, 1);
 				dataLimitFi.setTime(cal.getTime().getTime());
 			}
-			String ordre = null;
-			if (!paginacioParams.getOrdres().isEmpty()) {
-				OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
-				if ("expedientIdentificador".equals(ordreDto.getCamp())) {
-					ordre = "expedientTitol";
-				} else if ("expedientTipusNom".equals(ordreDto.getCamp())) {
-					ordre = "expedientTipusNom";
-				} else if ("createTime".equals(ordreDto.getCamp())) {
-					ordre = "dataCreacio";
-				} else if ("dueDate".equals(ordreDto.getCamp())) {
-					ordre = "dataLimit";
-				} else if ("prioritat".equals(ordreDto.getCamp())) {
-					ordre = "prioritat";
-				}
-			}
 			boolean mostrarAssignadesUsuari = (nomesAssignadesUsuari && !nomesAssignadesGrup) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
 			boolean mostrarAssignadesGrup = (nomesAssignadesGrup && !nomesAssignadesUsuari) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
-			LlistatIds ids = jbpmHelper.tascaFindByFiltre(
+			ResultatConsultaPaginadaJbpm<JbpmTask> paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
 					entornId,
 					responsable,
 					tasca,
@@ -454,23 +433,28 @@ public class TascaServiceImpl implements TascaService {
 					mostrarAssignadesUsuari,
 					mostrarAssignadesGrup,
 					true,
-					paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
-					paginacioParams.getPaginaTamany(),
-					ordre,
-					!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
-					false);
-			List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
-			return getPaginaExpedientTascaDto(
-					ids,
-					expedientTasques,
 					paginacioParams);
+			PaginaDto<ExpedientTascaDto> pagina = paginacioHelper.toPaginaDto(
+					paginaTasks.getLlista(),
+					paginaTasks.getCount(),
+					paginacioParams,
+					new Converter<JbpmTask, ExpedientTascaDto>() {
+						public ExpedientTascaDto convert(JbpmTask task) {
+							return tascaHelper.getExpedientTascaDto(
+									task,
+									null,
+									false,
+									true);
+						}
+					});
+			return pagina;
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
 		}
 	}
 
-	private PaginaDto<ExpedientTascaDto> getPaginaExpedientTascaDto(
+	/*private PaginaDto<ExpedientTascaDto> getPaginaExpedientTascaDto(
 			final LlistatIds ids,
 			final List<ExpedientTascaDto> expedientTasques,
 			final PaginacioParamsDto paginacioParams) {
@@ -536,7 +520,8 @@ public class TascaServiceImpl implements TascaService {
 								tascaHelper.getExpedientTascaDto(
 										tasca,
 										null,
-										false));
+										false,
+										true));
 					}
 				}
 				Collections.sort(tasques, comparador);
@@ -587,7 +572,7 @@ public class TascaServiceImpl implements TascaService {
 				paginaResultats,
 				ExpedientTascaDto.class);
 		return resposta;
-	}
+	}*/
 
 	@Override
 	@Transactional(readOnly = true)
@@ -604,7 +589,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids) {
+	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids) {
 		logger.debug("Consultant expedients de las tascas (" +
 				"ids=" + ids + ")");
 
@@ -614,6 +599,7 @@ public class TascaServiceImpl implements TascaService {
 			expedientTasques.add(tascaHelper.getExpedientTascaDto(
 					task,
 					null,
+					false,
 					false));
 		}
 		return expedientTasques;
@@ -865,6 +851,7 @@ public class TascaServiceImpl implements TascaService {
 		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
 				task,
 				null,
+				false,
 				false);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
@@ -899,6 +886,7 @@ public class TascaServiceImpl implements TascaService {
 		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
 				task,
 				null,
+				false,
 				false);
 		registreDao.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),

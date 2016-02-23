@@ -1112,10 +1112,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientHelper.omplirPermisosExpedients(expedients);
 				expedientHelper.trobarAlertesExpedients(expedients);
 			}
-			return paginacioHelper.toPaginaDto(
+			PaginaDto<ExpedientDto> pagina = paginacioHelper.toPaginaDto(
 					expedients,
 					expedientIds.getCount(),
 					paginacioParams);
+			return pagina;
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
@@ -1550,6 +1551,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) {
 		logger.debug("Consulta de tasques de l'expedient (" +
 				"expedientId=" + expedientId + ")");
+		// TODO tasques pendents per expedients refer
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
@@ -1568,6 +1570,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long expedientId,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
+		// TODO tasques pendents per expedients refer
 		logger.debug("Consulta de tasques pendents de l'expedient (" +
 				"id=" + expedientId + ", " +
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
@@ -2623,7 +2626,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 							tascaHelper.getExpedientTascaDto(
 									task,
 									expedient,
-									true));
+									true,
+									false));
 				}
 			}
 		}

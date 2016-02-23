@@ -322,7 +322,8 @@ public class TascaHelper {
 					getExpedientTascaDto(
 							task,
 							expedient,
-							true));
+							true,
+							false));
 		}
 		return resposta;
 	}
@@ -433,10 +434,15 @@ public class TascaHelper {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(
+				processInstanceId);
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
-				ExpedientTascaDto tasca = getExpedientTascaDto(task, expedient, true);
+				ExpedientTascaDto tasca = getExpedientTascaDto(
+						task,
+						expedient,
+						true,
+						false);
 				if (permisosVerOtrosUsuarios || tasca.isAssignadaUsuariActual()) {
 					boolean esTareaGrupo = !tasca.isAgafada() && tasca.getResponsables() != null && !tasca.getResponsables().isEmpty();
 					if (nomesTasquesGrup && esTareaGrupo) {						
@@ -463,7 +469,8 @@ public class TascaHelper {
 			ExpedientTascaDto tasca = getExpedientTascaDto(
 					task,
 					expedient,
-					true);
+					true,
+					false);
 			if ((tasca.isCompleted() == completed) && (mostrarDeOtrosUsuarios || tasca.isAssignadaUsuariActual())) {
 				resposta.add(tasca);
 			}
@@ -484,7 +491,8 @@ public class TascaHelper {
 	public ExpedientTascaDto getExpedientTascaDto(
 			JbpmTask task,
 			Expedient expedient,
-			boolean perTramitacio) {
+			boolean perTramitacio,
+			boolean ambPermisos) {
 		ExpedientTascaDto dto = new ExpedientTascaDto();
 		dto.setId(task.getId());
 		DadesCacheTasca dadesCacheTasca = getDadesCacheTasca(
@@ -578,10 +586,12 @@ public class TascaHelper {
 			}
 			dto.setResponsables(responsables);
 		}
-		permisosHelper.omplirControlPermisosSegonsUsuariActual(
-				expedientNoNull.getTipus().getId(),
-				dto,
-				ExpedientTipus.class);
+		if (ambPermisos) {
+			permisosHelper.omplirControlPermisosSegonsUsuariActual(
+					expedientNoNull.getTipus().getId(),
+					dto,
+					ExpedientTipus.class);
+		}
 		return dto;
 	}
 
