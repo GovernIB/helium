@@ -318,7 +318,7 @@ public interface TascaService {
 
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 	
-	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids);
+	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids);
 
 	public List<Long> findIdsPerFiltre(
 			Long entornId,

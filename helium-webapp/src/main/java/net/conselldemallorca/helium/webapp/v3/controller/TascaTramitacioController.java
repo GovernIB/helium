@@ -707,7 +707,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			Model model) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();		
-		model.addAttribute("tasques", tascaService.findDadesPerIds(seleccio));
+		model.addAttribute("tasques", tascaService.findAmbIds(seleccio));
 		
 		return "v3/import/tasquesMassivaTaula";
 	}

@@ -142,7 +142,8 @@ public class PlantillaHelper {
 					tasca = tascaHelper.getExpedientTascaDto(
 							task,
 							expedient,
-							true);
+							true,
+							false);
 					afegirDadesTascaAlModel(task, model);
 					responsableCodi = task.getAssignee();
 				} else {

@@ -5,25 +5,17 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.collections.comparators.NullComparator;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +35,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.FormulariExternHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper.Converter;
 import net.conselldemallorca.helium.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
@@ -72,14 +65,13 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -183,7 +175,8 @@ public class TascaServiceImpl implements TascaService {
 		return tascaHelper.getExpedientTascaDto(
 				task,
 				null,
-				true);
+				true,
+				false);
 	}
 
 	@Override
@@ -199,7 +192,8 @@ public class TascaServiceImpl implements TascaService {
 		return tascaHelper.getExpedientTascaDto(
 				task,
 				null,
-				true);
+				true,
+				false);
 	}
 
 	@Override
@@ -427,24 +421,9 @@ public class TascaServiceImpl implements TascaService {
 				cal.add(Calendar.DATE, 1);
 				dataLimitFi.setTime(cal.getTime().getTime());
 			}
-			String ordre = null;
-			if (!paginacioParams.getOrdres().isEmpty()) {
-				OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
-				if ("expedientIdentificador".equals(ordreDto.getCamp())) {
-					ordre = "expedientTitol";
-				} else if ("expedientTipusNom".equals(ordreDto.getCamp())) {
-					ordre = "expedientTipusNom";
-				} else if ("createTime".equals(ordreDto.getCamp())) {
-					ordre = "dataCreacio";
-				} else if ("dueDate".equals(ordreDto.getCamp())) {
-					ordre = "dataLimit";
-				} else if ("prioritat".equals(ordreDto.getCamp())) {
-					ordre = "prioritat";
-				}
-			}
 			boolean mostrarAssignadesUsuari = (nomesAssignadesUsuari && !nomesAssignadesGrup) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
 			boolean mostrarAssignadesGrup = (nomesAssignadesGrup && !nomesAssignadesUsuari) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
-			LlistatIds ids = jbpmHelper.tascaFindByFiltre(
+			ResultatConsultaPaginadaJbpm<JbpmTask> paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
 					entornId,
 					responsable,
 					tasca,
@@ -461,139 +440,24 @@ public class TascaServiceImpl implements TascaService {
 					mostrarAssignadesUsuari,
 					mostrarAssignadesGrup,
 					true,
-					paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
-					paginacioParams.getPaginaTamany(),
-					ordre,
-					!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
-					false);
-			List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
-			return getPaginaExpedientTascaDto(
-					ids,
-					expedientTasques,
 					paginacioParams);
+			return paginacioHelper.toPaginaDto(
+					paginaTasks.getLlista(),
+					paginaTasks.getCount(),
+					paginacioParams,
+					new Converter<JbpmTask, ExpedientTascaDto>() {
+						public ExpedientTascaDto convert(JbpmTask task) {
+							return tascaHelper.getExpedientTascaDto(
+									task,
+									null,
+									false,
+									true);
+						}
+					});
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
 		}
-	}
-
-	private PaginaDto<ExpedientTascaDto> getPaginaExpedientTascaDto(
-			final LlistatIds ids,
-			final List<ExpedientTascaDto> expedientTasques,
-			final PaginacioParamsDto paginacioParams) {
-		Page<ExpedientTascaDto> paginaResultats = new Page<ExpedientTascaDto>() {
-			@Override
-			public Iterator<ExpedientTascaDto> iterator() {
-				return getContent().iterator();
-			}
-			@Override
-			public boolean isLastPage() {
-				return false;
-			}
-			@Override
-			public boolean isFirstPage() {
-				return paginacioParams.getPaginaNum() == 0;
-			}
-			@Override
-			public boolean hasPreviousPage() {
-				return paginacioParams.getPaginaNum() > 0;
-			}
-			@Override
-			public boolean hasNextPage() {
-				return false;
-			}
-			@Override
-			public boolean hasContent() {
-				return !ids.getIds().isEmpty();
-			}
-			@Override
-			public int getTotalPages() {
-				return 0;
-			}
-			@Override
-			public long getTotalElements() {
-				return ids.getCount();
-			}
-			@Override
-			public Sort getSort() {
-				List<Order> orders = new ArrayList<Order>();
-				for (OrdreDto or : paginacioParams.getOrdres()) {
-					orders.add(new Order(or.getDireccio().equals(OrdreDireccioDto.ASCENDENT) ? Direction.ASC : Direction.DESC, or.getCamp()));
-				}
-				return new Sort(orders);
-			}
-			@Override
-			public int getSize() {
-				return Math.max(paginacioParams.getPaginaTamany(),ids.getCount());
-			}
-			@Override
-			public int getNumberOfElements() {
-				return 0;
-			}
-			@Override
-			public int getNumber() {
-				return 0;
-			}
-			@Override
-			public List<ExpedientTascaDto> getContent() {
-				List<ExpedientTascaDto> tasques = expedientTasques;
-				if (tasques.isEmpty()) {
-					for (JbpmTask tasca : jbpmHelper.findTasks(ids.getIds())) {
-						tasques.add(
-								tascaHelper.getExpedientTascaDto(
-										tasca,
-										null,
-										false));
-					}
-				}
-				Collections.sort(tasques, comparador);
-				return tasques;
-			}
-			Comparator<ExpedientTascaDto> comparador = new Comparator<ExpedientTascaDto>() {				
-				public int compare(ExpedientTascaDto t1, ExpedientTascaDto t2) {				
-					String finalSort = null;
-					boolean finalAsc = false;
-					for (OrdreDto or : paginacioParams.getOrdres()) {
-						finalAsc = or.getDireccio().equals(OrdreDireccioDto.ASCENDENT);
-						finalSort = or.getCamp();
-						break;
-					}
-					int result = 0;
-					NullComparator nullComparator = new NullComparator();
-					if ("titol".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getExpedientIdentificador(), t2.getExpedientIdentificador());
-						else
-							result = nullComparator.compare(t2.getExpedientIdentificador(), t1.getExpedientIdentificador());
-					} else if ("tipus.nom".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getExpedientTipusNom(), t2.getExpedientTipusNom());
-						else
-							result = nullComparator.compare(t2.getExpedientTipusNom(), t1.getExpedientTipusNom());
-					} else if ("createTime".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getCreateTime(), t2.getCreateTime());
-						else
-							result = nullComparator.compare(t2.getCreateTime(), t1.getCreateTime());
-					} else if ("prioritat".equals(finalSort)) {
-						if (finalAsc)
-							result = t1.getPriority() - t2.getPriority();
-						else
-							result = t2.getPriority() - t1.getPriority();
-					} else if ("dueDate".equals(finalSort)) {
-						if (finalAsc)
-							result = nullComparator.compare(t1.getDueDate(), t2.getDueDate());
-						else
-							result = nullComparator.compare(t2.getDueDate(), t1.getDueDate());
-					}
-					return result;
-				}
-			};
-		};
-		PaginaDto<ExpedientTascaDto> resposta = paginacioHelper.toPaginaDto(
-				paginaResultats,
-				ExpedientTascaDto.class);
-		return resposta;
 	}
 
 	@Override
@@ -611,7 +475,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ExpedientTascaDto> findDadesPerIds(Set<Long> ids) {
+	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids) {
 		logger.debug("Consultant expedients de las tascas (" +
 				"ids=" + ids + ")");
 
@@ -621,6 +485,7 @@ public class TascaServiceImpl implements TascaService {
 			expedientTasques.add(tascaHelper.getExpedientTascaDto(
 					task,
 					null,
+					false,
 					false));
 		}
 		return expedientTasques;
@@ -877,6 +742,7 @@ public class TascaServiceImpl implements TascaService {
 		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
 				task,
 				null,
+				false,
 				false);
 		expedientRegistreHelper.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),
@@ -911,6 +777,7 @@ public class TascaServiceImpl implements TascaService {
 		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
 				task,
 				null,
+				false,
 				false);
 		expedientRegistreHelper.crearRegistreIniciarTasca(
 				tasca.getExpedientId(),

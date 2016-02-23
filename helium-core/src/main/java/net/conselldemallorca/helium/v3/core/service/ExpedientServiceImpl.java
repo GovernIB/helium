@@ -2421,7 +2421,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 							tascaHelper.getExpedientTascaDto(
 									task,
 									expedient,
-									true));
+									true,
+									false));
 				}
 			}
 		}

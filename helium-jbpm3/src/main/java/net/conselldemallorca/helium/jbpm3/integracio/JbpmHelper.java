@@ -62,6 +62,7 @@ import net.conselldemallorca.helium.jbpm3.command.EvaluateScriptCommand;
 import net.conselldemallorca.helium.jbpm3.command.ExecuteActionCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindArrivingNodeNamesCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindExpedientIdsFiltreCommand;
+import net.conselldemallorca.helium.jbpm3.command.FindJbpmTasksFiltreCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
@@ -102,6 +103,8 @@ import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
@@ -164,6 +167,65 @@ public class JbpmHelper {
 				asc,
 				nomesCount);
 		return (LlistatIds)commandService.execute(command);
+	}
+
+	@SuppressWarnings("unchecked")
+	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
+			Long entornId,
+			String actorId,
+			String taskName,
+			String titol,
+			Long expedientId,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Integer prioritat,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			boolean mostrarAssignadesUsuari,
+			boolean mostrarAssignadesGrup,
+			boolean nomesPendents,
+			PaginacioParamsDto paginacioParams) {
+		String ordre = null;
+		if (!paginacioParams.getOrdres().isEmpty()) {
+			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
+			if ("expedientIdentificador".equals(ordreDto.getCamp())) {
+				ordre = "expedientTitol";
+			} else if ("expedientTipusNom".equals(ordreDto.getCamp())) {
+				ordre = "expedientTipusNom";
+			} else if ("createTime".equals(ordreDto.getCamp())) {
+				ordre = "dataCreacio";
+			} else if ("dueDate".equals(ordreDto.getCamp())) {
+				ordre = "dataLimit";
+			} else if ("prioritat".equals(ordreDto.getCamp())) {
+				ordre = "prioritat";
+			}
+		}
+		FindJbpmTasksFiltreCommand command = new FindJbpmTasksFiltreCommand(
+				entornId,
+				actorId,
+				taskName,
+				titol,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				mostrarAssignadesUsuari,
+				mostrarAssignadesGrup,
+				nomesPendents,
+				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
+				paginacioParams.getPaginaTamany(),
+				ordre,
+				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
+				false);
+		return (ResultatConsultaPaginadaJbpm<JbpmTask>)commandService.execute(command);
 	}
 
 	public LlistatIds expedientFindByFiltre(
