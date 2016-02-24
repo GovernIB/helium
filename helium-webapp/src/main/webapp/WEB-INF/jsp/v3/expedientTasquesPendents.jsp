@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:choose>
-<c:when test="${false}">
+<c:when test="${true}">
 <tr class="tasques-pendents">
 	<c:choose>
 		<c:when test="${not empty tasques}">

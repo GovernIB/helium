@@ -239,13 +239,13 @@ public interface ExpedientService {
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
 	 * @param nomesTasquesPersonals
-	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
+	 *            Indica que el resultat només ha d'incloure expedients amb tasques personals pendents.
 	 * @param nomesTasquesGrup
-	 *            Indica que el resultat ha d'incloure expedients amb tasques de grup pendents.
+	 *            Indica que el resultat només ha d'incloure expedients amb tasques de grup pendents.
 	 * @param nomesAlertes
-	 *            Indica que el resultat ha d'incloure expedients amb alertes pendents.
+	 *            Indica que el resultat només ha d'incloure expedients amb alertes pendents.
 	 * @param nomesErrors
-	 *            Indica que el resultat ha d'incloure expedients amb errors.
+	 *            Indica que el resultat només ha d'incloure expedients amb errors.
 	 * @param mostrarAnulats
 	 *            Indica si el resultat ha d'incloure expedients anulats.
 	 * @param paginacioParams
@@ -310,13 +310,13 @@ public interface ExpedientService {
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
 	 * @param nomesTasquesPersonals
-	 *            Indica que el resultat ha d'incloure expedients amb tasques personals pendents.
+	 *            Indica que el resultat només ha d'incloure expedients amb tasques personals pendents.
 	 * @param nomesTasquesGrup
-	 *            Indica que el resultat ha d'incloure expedients amb tasques de grup pendents.
+	 *            Indica que el resultat només ha d'incloure expedients amb tasques de grup pendents.
 	 * @param nomesAlertes
-	 *            Indica que el resultat ha d'incloure expedients amb alertes pendents.
+	 *            Indica que el resultat només ha d'incloure expedients amb alertes pendents.
 	 * @param nomesErrors
-	 *            Indica que el resultat ha d'incloure expedients amb errors.
+	 *            Indica que el resultat només ha d'incloure expedients amb errors.
 	 * @param mostrarAnulats
 	 *            Indica si el resultat ha d'incloure expedients anulats.
 	 * @return La pàgina del llistat d'expedients.

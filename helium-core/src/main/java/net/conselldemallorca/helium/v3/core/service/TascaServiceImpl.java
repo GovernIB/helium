@@ -201,7 +201,6 @@ public class TascaServiceImpl implements TascaService {
 	public List<Long> findIdsPerFiltre(
 			Long entornId,
 			Long expedientTipusId,
-			String usuari,
 			String titol,
 			String tasca,
 			String responsable,
@@ -212,11 +211,11 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitFi,
 			Integer prioritat,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) {
+			boolean nomesTasquesGrup,
+			boolean nomesTasquesMeves) {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
-				"usuari=" + usuari + ", " +
 				"responsable=" + responsable + ", " +
 				"titol=" + titol + ", " +
 				"tasca=" + tasca + ", " +
@@ -226,7 +225,8 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
-				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
+				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
+				"nomesTasquesMeves=" + nomesTasquesMeves + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -264,6 +264,11 @@ public class TascaServiceImpl implements TascaService {
 						true,
 						false,
 						false);
+			}
+			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
+			// a damunt el tipexp es filtra per l'usuari actual.
+			if (expedientTipusId == null || expedientTipusHelper.getExpedientTipusComprovantPermisSupervisio(expedientTipusId) == null) {
+				responsable = SecurityContextHolder.getContext().getAuthentication().getName();
 			}
 			// Obté la llista de tipus d'expedient permesos
 			List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
@@ -304,7 +309,6 @@ public class TascaServiceImpl implements TascaService {
 					null);
 			
 			LlistatIds ids = jbpmHelper.findListTasks(
-					usuari,
 					responsable,
 					titol,
 					tasca,
@@ -329,7 +333,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
-			String consultaTramitacioMassivaTascaId,
+			String tramitacioMassivaTascaId,
 			Long expedientTipusId,
 			String titol,
 			String tasca,
@@ -340,12 +344,13 @@ public class TascaServiceImpl implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesAssignadesUsuari,
-			boolean nomesAssignadesGrup,
-			final PaginacioParamsDto paginacioParams) throws Exception {
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup,
+			boolean nomesTasquesMeves,
+			final PaginacioParamsDto paginacioParams) {
 		logger.debug("Consulta de tasques segons filtre (" +
 				"entornId=" + entornId + ", " +
-				"consultaTramitacioMassivaTascaId=" + consultaTramitacioMassivaTascaId + ", " + 
+				"tramitacioMassivaTascaId=" + tramitacioMassivaTascaId + ", " + 
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"responsable=" + responsable + ", " +
 				"titol=" + titol + ", " +
@@ -355,8 +360,9 @@ public class TascaServiceImpl implements TascaService {
 				"dataLimitInici=" + dataLimitInici + ", " +
 				"dataLimitFi=" + dataLimitFi + ", " +
 				"prioritat=" + prioritat + ", " +
-				"nomesAssignadesUsuari=" + nomesAssignadesUsuari + ", " +
-				"nomesAssignadesGrup=" + nomesAssignadesGrup + ", " +
+				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
+				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
+				"nomesTasquesMeves=" + nomesTasquesMeves + ", " +
 				"paginacioParams=" + paginacioParams + ")");
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
@@ -395,14 +401,14 @@ public class TascaServiceImpl implements TascaService {
 						false,
 						false);
 			}
-			// Si no te permis ASSIGNMENT o ADMIN a damunt el tipus d'exp.
-			// forçar usuari actual
-			if (!(expedientTipusId != null && expedientTipusHelper.getExpedientTipusComprovantPermisosReassignar(expedientTipusId) != null)) {
+			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
+			// a damunt el tipexp es filtra per l'usuari actual.
+			if (expedientTipusId == null || expedientTipusHelper.getExpedientTipusComprovantPermisSupervisio(expedientTipusId) == null) {
 				responsable = SecurityContextHolder.getContext().getAuthentication().getName();
 			}
-			if (consultaTramitacioMassivaTascaId != null) {
+			if (tramitacioMassivaTascaId != null) {
 				JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-						consultaTramitacioMassivaTascaId,
+						tramitacioMassivaTascaId,
 						true,
 						true);
 				tasca = task.getTaskName();
@@ -421,8 +427,8 @@ public class TascaServiceImpl implements TascaService {
 				cal.add(Calendar.DATE, 1);
 				dataLimitFi.setTime(cal.getTime().getTime());
 			}
-			boolean mostrarAssignadesUsuari = (nomesAssignadesUsuari && !nomesAssignadesGrup) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
-			boolean mostrarAssignadesGrup = (nomesAssignadesGrup && !nomesAssignadesUsuari) || (!nomesAssignadesUsuari && !nomesAssignadesGrup);
+			boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
+			boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 			ResultatConsultaPaginadaJbpm<JbpmTask> paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
 					entornId,
 					responsable,

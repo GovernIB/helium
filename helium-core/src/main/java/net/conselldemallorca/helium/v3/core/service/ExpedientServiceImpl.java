@@ -21,6 +21,19 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.common.JbpmVars;
@@ -74,7 +87,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -132,19 +145,6 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -937,24 +937,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-		// Calcula l'ordenació
-		String ordre = null;
-		if (!paginacioParams.getOrdres().isEmpty()) {
-			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
-			if ("identificador".equals(ordreDto.getCamp())) {
-				ordre = "identificador";
-			} else if ("tipus.nom".equals(ordreDto.getCamp())) {
-				ordre = "tipus";
-			} else if ("dataInici".equals(ordreDto.getCamp())) {
-				ordre = "dataInici";
-			} else if ("dataFi".equals(ordreDto.getCamp())) {
-				ordre = "dataFi";
-			} else if ("estat.nom".equals(ordreDto.getCamp())) {
-				ordre = "estat";
-			}
-		}
 		// Executa la consulta amb paginació
-		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
@@ -973,20 +957,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
 				nomesErrors,
-				nomesTasquesPersonals || nomesTasquesGrup,
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
-				false, //permesTasquesAltresUsuaris,
-				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
-				paginacioParams.getPaginaTamany(),
-				ordre,
-				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
+				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+				paginacioParams,
 				false);
 		// Retorna la pàgina amb la resposta
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
-		if (expedientIds.getCount() > 0) {
+		if (expedientsIds.getCount() > 0) {
 			expedients = conversioTipusHelper.convertirList(
-				expedientRepository.findByIdIn(expedientIds.getIds()),
+				expedientRepository.findByIdIn(expedientsIds.getLlista()),
 				ExpedientDto.class);
 		}
 		// Després de la consulta els expedients es retornen en ordre invers
@@ -997,7 +977,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return paginacioHelper.toPaginaDto(
 				expedients,
-				expedientIds.getCount(),
+				expedientsIds.getCount(),
 				paginacioParams);
 	}
 
@@ -1079,7 +1059,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
-		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
@@ -1098,16 +1078,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
 				nomesErrors,
-				nomesTasquesPersonals || nomesTasquesGrup,
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
-				false, //permesTasquesAltresUsuaris,
-				0,
-				-1,
-				null,
-				false,
+				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+				new PaginacioParamsDto(),
 				false);
-		return expedientIds.getIds();
+		return expedientsIds.getLlista();
 	}
 
 	@Override
@@ -1230,7 +1206,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedient(
-				expedient);
+				expedient,
+				false,
+				false);
 		Set<String> codisPersona = new HashSet<String>();
 		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
 		for (ExpedientTascaDto tasca: tasques) {
@@ -2936,7 +2914,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} else {
 			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+			ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 					entorn.getId(),
 					auth.getName(),
 					tipusPermesosIds,
@@ -2955,16 +2933,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 					nomesAlertes,
 					nomesErrors,
-					nomesTasquesPersonals || nomesTasquesGrup,
 					nomesTasquesPersonals,
 					nomesTasquesGrup,
-					!nomesMeves,
-					0,
-					-1,
-					null,
-					false,
+					nomesMeves,
+					new PaginacioParamsDto(),
 					false);
-			expedientIdsPermesos = expedientIds.getIds();
+			expedientIdsPermesos = expedientsIds.getLlista();
 		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
 		// com a paràmetres
@@ -3056,7 +3030,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		LlistatIds expedientIds = jbpmHelper.expedientFindByFiltre(
+		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entorn.getId(),
 				auth.getName(),
 				tipusPermesosIds,
@@ -3075,14 +3049,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
 				nomesAlertes,
 				nomesErrors,
-				nomesTasquesPersonals || nomesTasquesGrup,
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
-				!nomesMeves,
-				0,
-				-1,
-				null,
-				false,
+				nomesMeves,
+				new PaginacioParamsDto(),
 				false);
 		// Obte la llista d'ids de lucene passant els expedients permesos
 		// com a paràmetres
@@ -3094,7 +3064,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Object[] respostaLucene = luceneHelper.findPaginatNomesIdsV3(
 				entorn,
 				expedientTipus,
-				expedientIds.getIds(),
+				expedientsIds.getLlista(),
 				filtreCamps,
 				filtreValors,
 				paginacioParams);
