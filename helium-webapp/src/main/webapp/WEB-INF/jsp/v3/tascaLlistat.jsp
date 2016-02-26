@@ -62,11 +62,19 @@
 			minDate: new Date(),
 			format: "DD/MM/YYYY HH:mm"
 	    });
-		$("button[data-toggle=button]").click(function() {
-			$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
+		$("form#tascaConsultaCommand button[data-toggle=button]").click(function() {
+			var $formulari = $(this).closest('form');
+			$("input[name=" + $(this).data("path") + "]", $formulari).val(!$(this).hasClass('active'));
+			if ($(this).is('#nomesTasquesPersonalsCheck', $formulari)) {
+				$('#nomesTasquesGrupCheck', $formulari).removeClass('active');
+				$("input#nomesTasquesGrup", $formulari).val(false);
+			}
+			if ($(this).is('#nomesTasquesGrupCheck', $formulari)) {
+				$('#nomesTasquesPersonalsCheck', $formulari).removeClass('active');
+				$("input#nomesTasquesPersonals", $formulari).val(false);
+			}
 			$(this).blur();
-			actualizarBotonesFiltros($(this).attr('id'));
-			$("button[value=consultar]").click();
+			$("button#consultar", $formulari).click();
 		});
 		<c:if test="${entornId != null}">
 			$('#expedientTipusId').on('change', function() {
@@ -111,26 +119,11 @@
 		    })
 			$('#expedientTipusId').trigger('change');
 		</c:if>
-		actualizarBotonesFiltros();
 	});
 	function botoMassiuClick(element) {
 		$(element).attr(
 				'href',
 				$(element).attr('href') + "?massiva=${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null}&inici="+$('#inici').val()+"&correu="+$('#correu').is(':checked'));
-	}
-	function actualizarBotonesFiltros(id) {
-		$('#nomesTasquesPersonalsCheck').attr('disabled', false);
-		$('#nomesTasquesGrupCheck').attr('disabled', false);
-		$('#responsable').select2("val", "", true);
-		$('#responsable').attr('disabled', false);
-		var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
-		var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
-		if (nomesTasquesPersonals) {
-			$('#nomesTasquesGrupCheck').attr('disabled', true);
-		}
-		if (nomesTasquesGrup) {
-			$('#nomesTasquesPersonalsCheck').attr('disabled', true);
-		}
 	}
 	function seleccionarMassivaTodos() {
 		var numColumna = $("#taulaDades").data("rdt-seleccionable-columna");
@@ -269,24 +262,24 @@
 						</div>
 					</div>
 				</div>
-				
 				<button style="display:none" type="submit" name="accio" value="consultar"></button>
-				
 				<div class="row">						
 					<div class="col-md-12">
 						<form:hidden path="nomesTasquesPersonals"/>
 						<form:hidden path="nomesTasquesGrup"/>
+						<form:hidden path="nomesTasquesMeves"/>
 						<div class="row">
 							<div class="col-md-6 btn-group">
 								<button id="nomesTasquesPersonalsCheck" data-path="nomesTasquesPersonals" title="<spring:message code="tasca.llistat.filtre.camp.personals"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesTasquesPersonals}"> active</c:if>" data-toggle="button"><span class="fa fa-user"></span></button>
 								<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="tasca.llistat.filtre.camp.grup"/>" class="btn btn-default<c:if test="${tascaConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
+								<%--button id="nomesTasquesMevesCheck" data-path="nomesTasquesMeves" title="<spring:message code="expedient.llistat.filtre.camp.meves"/>" class="btn btn-default<c:if test="${expedientConsultaCommand.nomesTasquesMeves}"> active</c:if>" data-toggle="button"><span class="fa fa-map-marker"></span></button--%>
 							</div>
 							<div class="col-md-6">
-							<div class="pull-right">
-								<input type="hidden" name="consultaRealitzada" value="true"/>
-								<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
-								<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
-							</div>
+								<div class="pull-right">
+									<input type="hidden" name="consultaRealitzada" value="true"/>
+									<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+									<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -347,7 +340,7 @@
 								{{if open && !suspended && !agafada && responsables != null && assignadaUsuariActual}}
  										<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
-								{{if open && !suspended && agafada && (permisReassignment || permisWrite || permisAdministration)}}
+								{{if open && !suspended && agafada && (assignadaUsuariActual || permisReassignment)}}
 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
 								{{if permisRead}}

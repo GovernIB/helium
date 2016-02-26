@@ -62,15 +62,18 @@ public interface TascaService {
 			String id);
 
 	/**
-	 *  Consulta de tasques per entorn paginada.
+	 *  Consulta d'ids de tasques segons el filtre.
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
-	 * @param consultaTramitacioMassiva 
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
-	 * @param tasca
+	 * @param titol
 	 *            Fragment del títol de la tasca.
+	 * @param tasca
+	 *            Tasca que es vol consultar.
+	 * @param responsable
+	 *            Usuari responsable de la tasca.
 	 * @param expedient
 	 *            Fragment del títol de l'expedient.
 	 * @param dataCreacioInici
@@ -87,10 +90,7 @@ public interface TascaService {
 	 *            Check de mostrar només les tasques personals.
 	 * @param nomesTasquesGrup
 	 *            Check de mostrar només les tasques de grup.
-	 * @param paginacioParams
-	 *            Paràmetres de paginació.
-	 * @return La pàgina del llistat de tasques.
-	 * @throws Exception 
+	 * @return La llista d'ids de tasca.
 	 * @throws NotFoundException
 	 *             Si no s'ha trobat algun dels elements especificats
 	 *             mitjançant el seu id (entorn, tipus, estat).
@@ -98,11 +98,10 @@ public interface TascaService {
 	 *             Si no es tenen permisos per a accedir als elements
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
-	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+	public List<Long> findIdsPerFiltre(
 			Long entornId,
-			String consultaTramitacioMassivaTascaId,
 			Long expedientTipusId,
-			String titulo,
+			String titol,
 			String tasca,
 			String responsable,
 			String expedient,
@@ -112,8 +111,69 @@ public interface TascaService {
 			Date dataLimitFi,
 			Integer prioritat,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup,
-			PaginacioParamsDto paginacioParams) throws Exception;
+			boolean nomesTasquesGrup, 
+			boolean nomesTasquesMeves) throws NotFoundException, NotAllowedException;
+
+	/**
+	 *  Consulta de tasques segons el filtre amb paginació.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn l'expedient que es vol consultar.
+	 * @param tramitacioMassivaTascaId 
+	 *            Atribut id de la tasca que es vol tramitar massivament.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param titol
+	 *            Fragment del títol de la tasca.
+	 * @param tasca
+	 *            Tasca que es vol consultar.
+	 * @param responsable
+	 *            Usuari responsable de la tasca.
+	 * @param expedient
+	 *            Fragment del títol de l'expedient.
+	 * @param dataCreacioInici
+	 *            Data de creació inicial.
+	 * @param dataCreacioFi
+	 *            Data de creació final.
+	 * @param dataLimitInici
+	 *            Data límit inicial.
+	 * @param dataLimitFi
+	 *            Data límit final.
+	 * @param prioritat
+	 *            Prioritat de l atasca.
+	 * @param nomesTasquesPersonals
+	 *            Check de mostrar només les tasques personals.
+	 * @param nomesTasquesGrup
+	 *            Check de mostrar només les tasques de grup.
+	 * @param nomesTasquesMeves
+	 *            Check de mostrar només les tasques de l'usuari actual.
+	 * @param paginacioParams
+	 *            Paràmetres de paginació.
+	 * @return La pàgina del llistat de tasques.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat algun dels elements especificats
+	 *             mitjançant el seu id (entorn, tipus, estat).
+	 * @throws NotAllowedException
+	 *             Si no es tenen permisos per a accedir als elements
+	 *             especificats mitjançant el seu id (entorn, tipus, estat).
+	 */
+	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+			Long entornId,
+			String tramitacioMassivaTascaId,
+			Long expedientTipusId,
+			String titol,
+			String tasca,
+			String responsable,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			Integer prioritat,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup, 
+			boolean nomesTasquesMeves,
+			PaginacioParamsDto paginacioParams) throws NotFoundException, NotAllowedException;
 
 	/**
 	 * Retorna els camps i les dades de la tasca per a la construcció
@@ -319,22 +379,6 @@ public interface TascaService {
 	public List<TascaDadaDto> findDadesPerTascaDto(ExpedientTascaDto tasca);
 	
 	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids);
-
-	public List<Long> findIdsPerFiltre(
-			Long entornId,
-			Long expedientTipusId,
-			String usuari,
-			String titulo,
-			String tasca,
-			String responsable,
-			String expedient,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			Integer prioritat,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup);
 
 	/**
 	 * Retorna l'arxiu corresponent a un document de la tasca.

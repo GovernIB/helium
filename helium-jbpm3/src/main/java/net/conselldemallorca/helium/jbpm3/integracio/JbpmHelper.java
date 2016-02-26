@@ -66,7 +66,6 @@ import net.conselldemallorca.helium.jbpm3.command.FindJbpmTasksFiltreCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdsFiltreCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
@@ -121,7 +120,8 @@ public class JbpmHelper {
 		MOSTRAR_TASQUES_NOMES_PERSONALS
 	}
 
-	public LlistatIds tascaFindByFiltre(
+	/*@SuppressWarnings("unchecked")
+	public ResultatConsultaPaginadaJbpm<Long> tascaFindByFiltre(
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -165,10 +165,9 @@ public class JbpmHelper {
 				sort,
 				asc,
 				nomesCount);
-		return (LlistatIds)commandService.execute(command);
-	}
+		return (ResultatConsultaPaginadaJbpm<Long>)commandService.execute(command);
+	}*/
 
-	@SuppressWarnings("unchecked")
 	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
 			Long entornId,
 			String actorId,
@@ -187,8 +186,49 @@ public class JbpmHelper {
 			boolean mostrarAssignadesGrup,
 			boolean nomesPendents,
 			PaginacioParamsDto paginacioParams) {
+		return tascaFindByFiltrePaginat(
+				entornId,
+				actorId,
+				taskName,
+				titol,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				dataCreacioInici,
+				dataCreacioFi,
+				prioritat,
+				dataLimitInici,
+				dataLimitFi,
+				mostrarAssignadesUsuari,
+				mostrarAssignadesGrup,
+				nomesPendents,
+				paginacioParams,
+				false);
+	}
+	@SuppressWarnings("unchecked")
+	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
+			Long entornId,
+			String actorId,
+			String taskName,
+			String titol,
+			Long expedientId,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Integer prioritat,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			boolean mostrarAssignadesUsuari,
+			boolean mostrarAssignadesGrup,
+			boolean nomesPendents,
+			PaginacioParamsDto paginacioParams,
+			boolean nomesCount) {
 		String ordre = null;
-		if (!paginacioParams.getOrdres().isEmpty()) {
+		boolean asc = true;
+		if (paginacioParams.getOrdres() != null && !paginacioParams.getOrdres().isEmpty()) {
 			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
 			if ("expedientIdentificador".equals(ordreDto.getCamp())) {
 				ordre = "expedientTitol";
@@ -201,6 +241,7 @@ public class JbpmHelper {
 			} else if ("prioritat".equals(ordreDto.getCamp())) {
 				ordre = "prioritat";
 			}
+			asc = !OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio());
 		}
 		FindJbpmTasksFiltreCommand command = new FindJbpmTasksFiltreCommand(
 				entornId,
@@ -222,20 +263,13 @@ public class JbpmHelper {
 				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
 				paginacioParams.getPaginaTamany(),
 				ordre,
-				!OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio()),
-				false);
+				asc,
+				nomesCount);
 		return (ResultatConsultaPaginadaJbpm<JbpmTask>)commandService.execute(command);
 	}
 
-	public ProcessInstanceExpedient expedientFindByProcessInstanceId(
-			String processInstanceId) {
-		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
-				Long.parseLong(processInstanceId));
-		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
-		return processInstance.getExpedient();
-	}
-
-	public LlistatIds expedientFindByFiltre(
+	@SuppressWarnings("unchecked")
+	public ResultatConsultaPaginadaJbpm<Long> expedientFindByFiltre(
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
@@ -254,15 +288,28 @@ public class JbpmHelper {
 			boolean mostrarNomesAnulats,
 			boolean nomesAlertes,
 			boolean nomesErrors,
-			boolean nomesAmbTasquesPendents,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			boolean permesTasquesAltresUsuaris,
-			int firstResult,
-			int maxResults,
-			String sort,
-			boolean asc,
+			boolean nomesTasquesMeves,
+			PaginacioParamsDto paginacioParams,
 			boolean nomesCount) {
+		String ordre = null;
+		boolean asc = true;
+		if (paginacioParams.getOrdres() != null && !paginacioParams.getOrdres().isEmpty()) {
+			OrdreDto ordreDto = paginacioParams.getOrdres().get(0);
+			if ("identificador".equals(ordreDto.getCamp())) {
+				ordre = "identificador";
+			} else if ("tipus.nom".equals(ordreDto.getCamp())) {
+				ordre = "tipus";
+			} else if ("dataInici".equals(ordreDto.getCamp())) {
+				ordre = "dataInici";
+			} else if ("dataFi".equals(ordreDto.getCamp())) {
+				ordre = "dataFi";
+			} else if ("estat.nom".equals(ordreDto.getCamp())) {
+				ordre = "estat";
+			}
+			asc = !OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio());
+		}
 		FindExpedientIdsFiltreCommand command = new FindExpedientIdsFiltreCommand(
 				entornId,
 				actorId,
@@ -282,16 +329,23 @@ public class JbpmHelper {
 				mostrarNomesAnulats,
 				nomesAlertes,
 				nomesErrors,
-				nomesAmbTasquesPendents,
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
-				permesTasquesAltresUsuaris,
-				firstResult,
-				maxResults,
-				sort,
+				nomesTasquesMeves,
+				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
+				paginacioParams.getPaginaTamany(),
+				ordre,
 				asc,
 				nomesCount);
-		return (LlistatIds)commandService.execute(command);
+		return (ResultatConsultaPaginadaJbpm<Long>)commandService.execute(command);
+	}
+
+	public ProcessInstanceExpedient expedientFindByProcessInstanceId(
+			String processInstanceId) {
+		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
+				Long.parseLong(processInstanceId));
+		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
+		return processInstance.getExpedient();
 	}
 
 	
@@ -1488,7 +1542,6 @@ public class JbpmHelper {
 	}
 
 	public LlistatIds findListTasks( // 3.0
-			String usuari,
 			String responsable,
 			String tasca,
 			String tascaSel,

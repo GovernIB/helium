@@ -30,8 +30,9 @@ public class TascaConsultaCommand {
 	private Date dataLimitInicial;
 	private Date dataLimitFinal;
 
-	private boolean nomesTasquesPersonals;
-	private boolean nomesTasquesGrup;
+	private boolean nomesTasquesPersonals = false;
+	private boolean nomesTasquesGrup = false;
+	private boolean nomesTasquesMeves = true;
 
 	private boolean filtreDesplegat = false;
 	private boolean consultaRealitzada = false;
@@ -98,6 +99,12 @@ public class TascaConsultaCommand {
 	}
 	public void setNomesTasquesGrup(boolean nomesTasquesGrup) {
 		this.nomesTasquesGrup = nomesTasquesGrup;
+	}
+	public boolean isNomesTasquesMeves() {
+		return nomesTasquesMeves;
+	}
+	public void setNomesTasquesMeves(boolean nomesTasquesMeves) {
+		this.nomesTasquesMeves = nomesTasquesMeves;
 	}
 	public Date getDataCreacioInicial() {
 		return dataCreacioInicial;

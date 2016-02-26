@@ -37,9 +37,11 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
@@ -282,7 +284,9 @@ public class TascaHelper {
 	}
 
 	public List<ExpedientTascaDto> findTasquesPerExpedient(
-			Expedient expedient) {
+			Expedient expedient,
+			boolean perTramitacio,
+			boolean ambPermisos) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		// Si l'usuari te permis de supervisio mostra totes les tasques de
 		// l'expedient de qualsevol usuari
@@ -294,7 +298,11 @@ public class TascaHelper {
 					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.ADMINISTRATION},
 				auth);
-		final LlistatIds ids = jbpmHelper.tascaFindByFiltre(
+		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+		paginacioParams.setPaginaNum(0);
+		paginacioParams.setPaginaTamany(-1);
+		paginacioParams.afegirOrdre("dataCreacio", OrdreDireccioDto.DESCENDENT);
+		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmHelper.tascaFindByFiltrePaginat(
 				expedient.getEntorn().getId(),
 				(isPermisSupervision) ? null : auth.getName(),
 				null,
@@ -311,19 +319,14 @@ public class TascaHelper {
 				true,
 				true,
 				false,
-				0,
-				-1,
-				"dataCreacio",
-				false,
-				false);
-		List<JbpmTask> tasks = jbpmHelper.findTasks(ids.getIds());
-		for (JbpmTask task: tasks) {
+				paginacioParams);
+		for (JbpmTask task: tasks.getLlista()) {
 			resposta.add(
 					getExpedientTascaDto(
 							task,
 							expedient,
-							true,
-							false));
+							perTramitacio,
+							ambPermisos));
 		}
 		return resposta;
 	}

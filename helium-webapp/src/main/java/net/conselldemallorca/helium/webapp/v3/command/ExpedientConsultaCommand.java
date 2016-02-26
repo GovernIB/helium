@@ -36,11 +36,11 @@ public class ExpedientConsultaCommand {
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
 	private boolean consultaRealitzada = false;
-	
+
 	private boolean nomesAlertes;
 	private boolean nomesErrors;
 	private MostrarAnulatsDto mostrarAnulats = MostrarAnulatsDto.NO;
-	
+
 	private boolean nomesTasquesPersonals = false;
 	private boolean nomesTasquesGrup = false;
 

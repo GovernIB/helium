@@ -118,7 +118,8 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
-import net.conselldemallorca.helium.jbpm3.integracio.LlistatIds;
+import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 /**
@@ -677,7 +678,10 @@ public class ExpedientService {
 	 * Actualización de la caché en todas las jbpm_task del expediente
 	 */
 	private void actualizarCacheExpedient(Expedient expedient) {
-		LlistatIds taskIds = jbpmHelper.tascaFindByFiltre(
+		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+		paginacioParams.setPaginaNum(0);
+		paginacioParams.setPaginaTamany(-1);
+		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmHelper.tascaFindByFiltrePaginat(
 				expedient.getEntorn().getId(),
 				null,
 				null,
@@ -694,13 +698,8 @@ public class ExpedientService {
 				true, // tasquesPersona
 				true, // tasquesGrup
 				false, // nomesPendents
-				0,
-				-1,
-				null,
-				true,
-				false);
-		List<JbpmTask> tasks = jbpmHelper.findTasks(taskIds.getIds());
-		for (JbpmTask task: tasks) {
+				paginacioParams);
+		for (JbpmTask task: tasks.getLlista()) {
 			task.setCacheInactiu();
 			/*Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
 					task.getTaskName(),

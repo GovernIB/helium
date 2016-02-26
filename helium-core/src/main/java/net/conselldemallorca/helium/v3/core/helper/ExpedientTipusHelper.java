@@ -105,7 +105,8 @@ public class ExpedientTipusHelper {
 		return expedientTipus;
 	}
 	
-	public ExpedientTipus getExpedientTipusComprovantPermisosReassignar(Long id) throws NotFoundException, NotAllowedException {
+	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(
+			Long id) throws NotFoundException, NotAllowedException {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
 			throw new NotFoundException(
@@ -122,7 +123,26 @@ public class ExpedientTipusHelper {
 				auth)) {
 			return null;
 		}
-		
+		return expedientTipus;
+	}
+	public ExpedientTipus getExpedientTipusComprovantPermisSupervisio(
+			Long id) throws NotFoundException, NotAllowedException {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
+		if (expedientTipus == null) {
+			throw new NotFoundException(
+					id,
+					ExpedientTipus.class);
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!permisosHelper.isGrantedAny(
+				id,
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION},
+				auth)) {
+			return null;
+		}
 		return expedientTipus;
 	}
 	

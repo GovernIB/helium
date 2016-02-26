@@ -54,9 +54,43 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsPerFiltre(
+			Long entornId,
+			Long expedientTipusId,
+			String titol,
+			String tasca,
+			String responsable,
+			String expedient,
+			Date dataCreacioInici,
+			Date dataCreacioFi,
+			Date dataLimitInici,
+			Date dataLimitFi,
+			Integer prioritat,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup, 
+			boolean nomesTasquesMeves) {
+		return delegate.findIdsPerFiltre(
+				entornId,
+				expedientTipusId,
+				titol,
+				tasca,
+				responsable,
+				expedient,
+				dataCreacioInici,
+				dataCreacioFi,
+				dataLimitInici,
+				dataLimitFi,
+				prioritat,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				nomesTasquesMeves);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
-			String consultaTramitacioMassivaTascaId,
+			String tramitacioMassivaTascaId,
 			Long expedientTipusId,
 			String titulo,
 			String tasca,
@@ -67,12 +101,13 @@ public class TascaServiceBean implements TascaService {
 			Date dataLimitInici,
 			Date dataLimitFi,
 			Integer prioritat,
-			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			PaginacioParamsDto paginacioParams) throws Exception {
+			boolean nomesTasquesMeves,
+			PaginacioParamsDto paginacioParams) {
 		return delegate.findPerFiltrePaginat(
 				entornId,
-				consultaTramitacioMassivaTascaId,
+				tramitacioMassivaTascaId,
 				expedientTipusId,
 				titulo,
 				tasca,
@@ -84,7 +119,8 @@ public class TascaServiceBean implements TascaService {
 				dataLimitFi,
 				prioritat,
 				nomesTasquesPersonals, 
-				nomesTasquesGrup,
+				nomesTasquesGrup, 
+				nomesTasquesMeves,
 				paginacioParams);
 	}
 
@@ -219,40 +255,6 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids) {
 		return delegate.findAmbIds(ids);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsPerFiltre(
-			Long entornId,
-			Long expedientTipusId,
-			String usuari,
-			String titulo,
-			String tasca,
-			String responsable,
-			String expedient,
-			Date dataCreacioInici,
-			Date dataCreacioFi,
-			Date dataLimitInici,
-			Date dataLimitFi,
-			Integer prioritat,
-			boolean nomesTasquesPersonals, 
-			boolean nomesTasquesGrup) {
-		return delegate.findIdsPerFiltre(
-				entornId,
-				expedientTipusId,
-				usuari,
-				titulo,
-				tasca,
-				responsable,
-				expedient,
-				dataCreacioInici,
-				dataCreacioFi,
-				dataLimitInici,
-				dataLimitFi,
-				prioritat,
-				nomesTasquesPersonals,
-				nomesTasquesGrup);
 	}
 
 	@Override

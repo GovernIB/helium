@@ -126,34 +126,21 @@ $(document).ready(function() {
 			$('#tramitacioMassivaCount').html(seleccio.length);
 		}
 	});
-	$("button[data-toggle=button]").click(function() {
-		$("input[name="+$(this).data("path")+"]").val(!$(this).hasClass('active'));
+	$("form#expedientConsultaCommand button[data-toggle=button]").click(function() {
+		var $formulari = $(this).closest('form');
+		$("input[name=" + $(this).data("path") + "]", $formulari).val(!$(this).hasClass('active'));
+		if ($(this).is('#nomesTasquesPersonalsCheck', $formulari)) {
+			$('#nomesTasquesGrupCheck', $formulari).removeClass('active');
+			$("input#nomesTasquesGrup", $formulari).val(false);
+		}
+		if ($(this).is('#nomesTasquesGrupCheck', $formulari)) {
+			$('#nomesTasquesPersonalsCheck', $formulari).removeClass('active');
+			$("input#nomesTasquesPersonals", $formulari).val(false);
+		}
 		$(this).blur();
-		actualizarBotonesFiltros($(this).attr('id'));
-		$("button[value=filtrar]").click();
+		$("button#consultar", $formulari).click();
 	});
-	actualizarBotonesFiltros();
 });
-function actualizarBotonesFiltros(id) {
-	$('#nomesMevesCheck').attr('disabled', false);
-	$('#nomesTasquesPersonalsCheck').attr('disabled', false);
-	$('#nomesTasquesGrupCheck').attr('disabled', false);
-
-	var nomesMeves = ($('#nomesMevesCheck').hasClass('active') && id == null) || (!$('#nomesMevesCheck').hasClass('active') && id == 'nomesMevesCheck') || ($('#nomesMevesCheck').hasClass('active') && id != 'nomesMevesCheck'); 
-	var nomesTasquesPersonals = ($('#nomesTasquesPersonalsCheck').hasClass('active') && id == null) || (!$('#nomesTasquesPersonalsCheck').hasClass('active') && id == 'nomesTasquesPersonalsCheck') || ($('#nomesTasquesPersonalsCheck').hasClass('active') && id != 'nomesTasquesPersonalsCheck');
-	var nomesTasquesGrup = ($('#nomesTasquesGrupCheck').hasClass('active') && id == null) || (!$('#nomesTasquesGrupCheck').hasClass('active') && id == 'nomesTasquesGrupCheck') || ($('#nomesTasquesGrupCheck').hasClass('active') && id != 'nomesTasquesGrupCheck');
-
-	if (nomesMeves) {
-		$('#nomesTasquesGrupCheck').attr('disabled', true);
-	}
-	if (nomesTasquesPersonals) {
-		$('#nomesTasquesGrupCheck').attr('disabled', true);
-	}
-	if (nomesTasquesGrup) {
-		$('#nomesTasquesPersonalsCheck').attr('disabled', true);
-		$('#nomesMevesCheck').attr('disabled', true);
-	}
-}
 </script>
 </head>
 <body>		
@@ -172,9 +159,7 @@ function actualizarBotonesFiltros(id) {
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
-				
 				<button style="display:none" type="submit" name="accio" value="filtrar"></button>
-				
 				<div class="row">
 					<div class="col-md-6">
 						<div class="btn-group">
