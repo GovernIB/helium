@@ -51,5 +51,11 @@ public interface TascaRepository extends JpaRepository<Tasca, Long> {
 	Tasca findByJbpmNameAndDefinicioProcesJbpmId(
 			@Param("jbpmName") String name,
 			@Param("jbpmId") String jbpmId);
+	
+	@Query(	"from " +
+			"    Tasca t " +
+			"where " +
+			"concat(t.jbpmName,'.',t.definicioProces.jbpmId) in (:jbpmNameDefinicioProcesJbpmIdPairs)")
+	List<Tasca> findByJbpmNameAndDefinicioProcesJbpmIdPairs(@Param("jbpmNameDefinicioProcesJbpmIdPairs") List<String> jbpmNameDefinicioProcesJbpmIdPairs);
 
 }

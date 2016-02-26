@@ -1977,7 +1977,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	public void evaluateScript(
 			Long expedientId,
-			String script) {
+			String script,
+			String processInstanceId) {
 		logger.debug("Consulta d'expedients relacionats amb l'expedient (" +
 				"id=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1986,16 +1987,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				true,
 				false);
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(expedient.getProcessInstanceId());
+		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu()) {
-			expedient = expedientRepository.findByProcessInstanceId(pi.getId());
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		}
-		jbpmHelper.evaluateScript(expedient.getProcessInstanceId(), script, new HashSet<String>());
+		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
 		verificarFinalitzacioExpedient(expedient, pi);
-		serviceUtils.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
+		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
-				expedient.getProcessInstanceId(),
+				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
 				script);
 		if (MesuresTemporalsHelper.isActiu())
@@ -2396,7 +2397,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (task != null) {
 					tasquesPerLogs.put(
 							log.getTargetId(),
-							tascaHelper.getExpedientTascaDto(
+							tascaHelper.toExpedientTascaDto(
 									task,
 									expedient,
 									true,

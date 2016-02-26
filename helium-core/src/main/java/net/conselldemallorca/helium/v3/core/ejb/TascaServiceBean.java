@@ -332,5 +332,11 @@ public class TascaServiceBean implements TascaService {
 	public boolean isSignaturesComplet(String tascaId) {
 		return delegate.isSignaturesComplet(tascaId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void comprovarTasquesSegonPla() {
+		delegate.comprovarTasquesSegonPla();
+	}
 
 }

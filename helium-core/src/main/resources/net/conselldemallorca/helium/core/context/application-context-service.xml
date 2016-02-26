@@ -31,17 +31,36 @@
 		<property name="delay" value="30000" />
 		<property name="period" value="86400000" />
 	</bean>
+	
+	<bean id="comprovarTasquesSegonPlaTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+		<property name="targetObject" ref="tascaServiceV3" />
+		<property name="targetMethod" value="comprovarTasquesSegonPla" />
+	</bean>
+	<bean id="comprovarTasquesSegonPlaScheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+		<property name="timerTask" ref="comprovarTasquesSegonPlaTask" />
+		<property name="delay" value="30000" />
+		<property name="period" value="120000" />
+		<property name="fixedRate" value="true" />
+	</bean>
 
 	<bean class="org.springframework.scheduling.timer.TimerFactoryBean">
 		<property name="scheduledTimerTasks">
 			<list>
 				<ref local="comprovarTerminisScheduledTask" />
 				<ref local="syncPersonesTaskScheduledTask" />
+				<ref local="comprovarTasquesSegonPlaScheduledTask" />
 			</list>
 		</property>
 	</bean-->
+	
+	<!-- <task:scheduled-tasks scheduler="myScheduler">
+    	<task:scheduled ref="tascaServiceV3" method="comprovarTasquesSegonPla" fixed-rate="30000"/>
+	</task:scheduled-tasks>
+
+	<task:scheduler id="myScheduler" pool-size="100"/>  -->
+	
 	<task:annotation-driven scheduler="myScheduler"/>
-	<task:scheduler id="myScheduler" pool-size="1"/>
+	<task:scheduler id="myScheduler" pool-size="40"/>
 
 	<bean id="openOfficeUtils" class="net.conselldemallorca.helium.core.util.OpenOfficeUtils"/>
 

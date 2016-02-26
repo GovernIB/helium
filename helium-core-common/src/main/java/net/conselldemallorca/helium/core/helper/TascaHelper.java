@@ -321,7 +321,7 @@ public class TascaHelper {
 				paginacioParams);
 		for (JbpmTask task: tasks.getLlista()) {
 			resposta.add(
-					getExpedientTascaDto(
+					toExpedientTascaDto(
 							task,
 							expedient,
 							perTramitacio,
@@ -439,7 +439,7 @@ public class TascaHelper {
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
 		for (JbpmTask task: tasks) {
 			if (!task.isCompleted()) {
-				ExpedientTascaDto tasca = getExpedientTascaDto(
+				ExpedientTascaDto tasca = toExpedientTascaDto(
 						task,
 						expedient,
 						true,
@@ -467,7 +467,7 @@ public class TascaHelper {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(processInstanceId);
 		for (JbpmTask task: tasks) {
-			ExpedientTascaDto tasca = getExpedientTascaDto(
+			ExpedientTascaDto tasca = toExpedientTascaDto(
 					task,
 					expedient,
 					true,
@@ -489,7 +489,7 @@ public class TascaHelper {
 		return resposta;
 	}
 
-	public ExpedientTascaDto getExpedientTascaDto(
+	public ExpedientTascaDto toExpedientTascaDto(
 			JbpmTask task,
 			Expedient expedient,
 			boolean perTramitacio,
@@ -514,6 +514,14 @@ public class TascaHelper {
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
 		dto.setTascaTramitacioMassiva(dadesCacheTasca.isTramitacioMassiva());
+		
+		Tasca tasca = findTascaByJbpmTask(task);
+		
+		dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+		dto.setMarcadaFinalitzar(task.getTask().getMarcadaFinalitzar());
+		dto.setIniciFinalitzacio(task.getTask().getIniciFinalitzacio());
+		dto.setErrorFinalitzacio(task.getTask().getErrorFinalitzacio());
+		
 		Expedient expedientNoNull = expedient;
 		if (expedientNoNull == null) {
 			expedientNoNull = expedientHelper.findExpedientByProcessInstanceId(
@@ -523,7 +531,7 @@ public class TascaHelper {
 			// Opcional outcomes?
 			dto.setOutcomes(jbpmHelper.findTaskInstanceOutcomes(task.getId()));
 			// Opcional dades tasca?
-			Tasca tasca = findTascaByJbpmTask(task);
+			
 			dto.setTascaId(tasca.getId());
 			dto.setTascaNom(tasca.getNom());
 			dto.setTascaTipus(

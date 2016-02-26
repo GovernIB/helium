@@ -418,4 +418,6 @@ public interface TascaService {
 	public boolean isDocumentsComplet(String tascaId);
 
 	public boolean isSignaturesComplet(String tascaId);
+	
+	public void comprovarTasquesSegonPla();
 }

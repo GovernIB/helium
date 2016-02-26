@@ -40,7 +40,8 @@ public class Registre implements Serializable, GenericEntity<Long> {
 		REPRENDRE,
 		FINALITZAR,
 		CANCELAR,
-		ANULAR
+		ANULAR,
+		MARCADA_FINALITZAR
 	}
 	public enum Entitat {
 		EXPEDIENT,

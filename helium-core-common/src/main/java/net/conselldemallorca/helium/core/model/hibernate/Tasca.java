@@ -71,6 +71,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String formExtern;
 	private boolean tramitacioMassiva = false;
+	private boolean finalitzacioSegonPla = false;
 
 	@NotNull
 	private DefinicioProces definicioProces;
@@ -181,6 +182,13 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 		this.tramitacioMassiva = tramitacioMassiva;
 	}
 
+	@Column(name="fin_segon_pla")
+	public boolean isFinalitzacioSegonPla() {
+		return finalitzacioSegonPla;
+	}
+	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
+		this.finalitzacioSegonPla = finalitzacioSegonPla;
+	}
 	@ManyToOne(optional=false)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_tasca_fk")

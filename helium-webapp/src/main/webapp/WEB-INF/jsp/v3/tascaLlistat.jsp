@@ -176,6 +176,9 @@
 	.control-group-mid {width: 48%;}
 	.control-group.left {float: left; margin-right:1%;}
 	#div_timer label {float:left;}
+	.navbar-right {
+		margin-right: 0px;
+	}
 </style>
 </head>
 <body>
@@ -317,6 +320,16 @@
  							{{if !completed && tascaTramitacioMassiva && assignadaUsuariActual}}													
 								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../v3/tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
 							{{/if}}	
+
+							{{if errorFinalitzacio != null}}
+								<i class="fa fa-exclamation-circle fa-lg"></i>
+							{{/if}}
+							{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
+								<i class="fa fa-clock-o fa-lg" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> {{:marcadaFinalitzarFormat}}"></i>
+							{{/if}}
+							{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio != null}}
+								<i class="fa fa-circle-o-notch fa-spin fa-lg" title="<spring:message code="enum.tasca.etiqueta.execucio"/> {{:iniciFinalitzacioFormat}}"></i>
+							{{/if}}
 						</div>
 					</script>
 				</th>
@@ -362,6 +375,20 @@
  						</div>
 					</script>
 				</th>
+				<!-- <th data-rdt-property="id" data-rdt-template="cellSegonPlaTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="4%">
+					<script id="cellSegonPlaTemplate" type="text/x-jsrender">
+						{{if errorFinalitzacio != null}}
+							<i class="fa fa-exclamation-circle" style="font-size: 32px;"></i>
+						{{/if}}
+						{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
+							<i class="fa fa-clock-o" style="font-size: 32px;"></i>
+						{{/if}}
+						{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio != null}}
+							<i class="fa fa-spinner fa-spin" style="font-size: 32px;"></i>
+						{{/if}}
+					</script>
+				</th> -->
+				
 				<th data-rdt-property="agafada" data-rdt-visible="false"></th>
 				<th data-rdt-property="cancelled" data-rdt-visible="false"></th>
 				<th data-rdt-property="assignee" data-rdt-visible="false"></th>
@@ -375,6 +402,10 @@
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisSupervision" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisReassignment" data-rdt-visible="false"></th>
+				<th data-rdt-property="marcadaFinalitzar" data-rdt-visible="false"></th>
+				<th data-rdt-property="iniciFinalitzacio" data-rdt-visible="false"></th>
+				<th data-rdt-property="marcadaFinalitzarFormat" data-rdt-visible="false"></th>
+				<th data-rdt-property="iniciFinalitzacioFormat" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>
 			</tr>

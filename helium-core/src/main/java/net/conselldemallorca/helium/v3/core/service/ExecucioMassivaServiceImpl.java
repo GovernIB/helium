@@ -184,9 +184,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		List<ExecucioMassiva> execucions = null;
 		
 		if (viewAll){
-			execucions = execucioMassivaRepository.findByEntorn(EntornActual.getEntornId(), paginacio);
+			execucions = execucioMassivaRepository.findByEntornOrderByDataIniciDesc(EntornActual.getEntornId(), paginacio);
 		}else{
-			execucions = execucioMassivaRepository.findByUsuariAndEntorn(auth.getName(), EntornActual.getEntornId(), paginacio);
+			execucions = execucioMassivaRepository.findByUsuariAndEntornOrderByDataIniciDesc(auth.getName(), EntornActual.getEntornId(), paginacio);
 		}
 		
 		//Recuperem els resultats
@@ -202,50 +202,52 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");		
 			
-			int i = 0;
 			for (ExecucioMassiva execucio: execucions) {
-				if (i < comptadorsExecucions.size()) {
-				Object[] comptadorsExecucio = comptadorsExecucions.get(i);
-	
-					if (execucio.getId().equals(comptadorsExecucio[0])) {
-						JSONArray ljson_exp = new JSONArray();
-						String tasca = "";
-						
-						Long id = (Long)comptadorsExecucio[ID];
-						Long error = (Long)comptadorsExecucio[ERROR];
-						Long pendent = (Long)comptadorsExecucio[PENDENT];
-						Long total = (Long)comptadorsExecucio[TOTAL];
-						Long ok = (total - error - pendent);
-						
-						Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
-						mjson.put("id", id);
-						mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
-						
-						mjson.put("error", error);
-						mjson.put("pendent", pendent);
-						mjson.put("ok", ok);
-						mjson.put("total", total);
-						
-						mjson.put("executades", getPercent((total - pendent), total));
-						
-						mjson.put("data", sdf.format(execucio.getDataInici()));
-						if (execucio.getDataFi() != null)
-							mjson.put("dataFi", sdf.format(execucio.getDataFi()));
-						mjson.put("tasca", tasca);
-						mjson.put("expedients", ljson_exp);
-						String nomSencer = "";
-						try {
-							nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
-						} catch (Exception e) {
-							logger.error(e);
-							e.printStackTrace();
-						}
-						mjson.put("usuari", nomSencer);
-						ljson.add(mjson);
-						
-						i++;
+				
+				Object[] comptadorTrobat = null;
+				for (Object[] comptadorsExecucio: comptadorsExecucions) {
+					if (execucio.getId().equals(comptadorsExecucio[ID])) {
+						comptadorTrobat = comptadorsExecucio;
+						break;
 					}
 				}
+				
+				if (comptadorTrobat != null) {
+					JSONArray ljson_exp = new JSONArray();
+					String tasca = "";
+					
+					Long id = (Long)comptadorTrobat[ID];
+					Long error = (Long)comptadorTrobat[ERROR];
+					Long pendent = (Long)comptadorTrobat[PENDENT];
+					Long total = (Long)comptadorTrobat[TOTAL];
+					Long ok = (total - error - pendent);
+					
+					Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
+					mjson.put("id", id);
+					mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
+					
+					mjson.put("error", error);
+					mjson.put("pendent", pendent);
+					mjson.put("ok", ok);
+					mjson.put("total", total);
+					
+					mjson.put("executades", getPercent((total - pendent), total));
+					
+					mjson.put("data", sdf.format(execucio.getDataInici()));
+					if (execucio.getDataFi() != null)
+						mjson.put("dataFi", sdf.format(execucio.getDataFi()));
+					mjson.put("tasca", tasca);
+					mjson.put("expedients", ljson_exp);
+					String nomSencer = "";
+					try {
+						nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
+					} catch (Exception e) {
+						logger.error(e);
+						e.printStackTrace();
+					}
+					mjson.put("usuari", nomSencer);
+					ljson.add(mjson);
+				}		
 			}
 		}
 		String ojson = JSONValue.toJSONString(ljson);

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +66,11 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private String tascaFormExternCodi;
 	private boolean tascaDelegable;
 	private boolean tascaTramitacioMassiva;
+	private boolean tascaFinalitzacioSegonPla;
+	
+	private Date marcadaFinalitzar;
+	private Date iniciFinalitzacio;
+	private String errorFinalitzacio;
 
 	private boolean validada;
 	private boolean documentsComplet;
@@ -89,7 +95,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	private boolean assignadaUsuariActual;
 
-
+	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 
 	public String getId() {
 		return id;
@@ -240,6 +246,44 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	}
 	public void setTascaTramitacioMassiva(boolean tascaTramitacioMassiva) {
 		this.tascaTramitacioMassiva = tascaTramitacioMassiva;
+	}
+	public boolean isTascaFinalitzacioSegonPla() {
+		return tascaFinalitzacioSegonPla;
+	}
+	public void setTascaFinalitzacioSegonPla(boolean tascaFinalitzacioSegonPla) {
+		this.tascaFinalitzacioSegonPla = tascaFinalitzacioSegonPla;
+	}
+	public Date getMarcadaFinalitzar() {
+		return marcadaFinalitzar;
+	}
+	public String getMarcadaFinalitzarFormat() {
+		if (marcadaFinalitzar != null) {
+			return formatter.format(marcadaFinalitzar).toString();
+		} else {
+			return "";
+		}
+	}
+	public void setMarcadaFinalitzar(Date marcadaFinalitzar) {
+		this.marcadaFinalitzar = marcadaFinalitzar;
+	}
+	public Date getIniciFinalitzacio() {
+		return iniciFinalitzacio;
+	}
+	public String getIniciFinalitzacioFormat() {
+		if (iniciFinalitzacio != null) {
+			return formatter.format(iniciFinalitzacio).toString();
+		} else {
+			return "";
+		}
+	}
+	public void setIniciFinalitzacio(Date iniciFinalitzacio) {
+		this.iniciFinalitzacio = iniciFinalitzacio;
+	}
+	public String getErrorFinalitzacio() {
+		return errorFinalitzacio;
+	}
+	public void setErrorFinalitzacio(String errorFinalitzacio) {
+		this.errorFinalitzacio = errorFinalitzacio;
 	}
 	public boolean isValidada() {
 		return validada;

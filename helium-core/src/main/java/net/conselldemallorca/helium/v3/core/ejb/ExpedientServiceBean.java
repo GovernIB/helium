@@ -425,8 +425,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void evaluateScript(Long expedientId, String script) {
-		delegate.evaluateScript(expedientId, script);
+	public void evaluateScript(Long expedientId, String script, String processInstanceId) {
+		delegate.evaluateScript(expedientId, script, processInstanceId);
 	}
 
 	@Override

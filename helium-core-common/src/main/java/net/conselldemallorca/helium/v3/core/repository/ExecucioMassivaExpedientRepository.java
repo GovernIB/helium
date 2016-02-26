@@ -35,14 +35,13 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 
 	@Query("select e.execucioMassiva.id, " +
 			"sum(case when e.error is not null then 1 else 0 end) as error, " +
-			"sum(case when e.error is null and e.dataFi is null and e.estat is 'ESTAT_PENDENT' then 1 else 0 end) as pendent, " +
+			"sum(case when e.error is null and e.dataFi is null then 1 else 0 end) as pendent, " +
 			"count(*) as total " +
 			"from ExecucioMassivaExpedient e " +
 			"where e.execucioMassiva in (:execucionsMassives) " +
 			"group by e.execucioMassiva.id, " +
 			"e.execucioMassiva.dataInici " +
 			"order by e.execucioMassiva.dataInici DESC")
-	public List<Object[]> findResultatsExecucionsMassives(
-			@Param("execucionsMassives") List<ExecucioMassiva> execucionsMassives);
+	public List<Object[]> findResultatsExecucionsMassives(@Param("execucionsMassives") List<ExecucioMassiva> execucionsMassives);
 
 }

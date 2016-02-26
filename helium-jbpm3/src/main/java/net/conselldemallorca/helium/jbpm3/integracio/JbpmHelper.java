@@ -78,10 +78,13 @@ import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForExpe
 import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTaskIdFromVariableLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTaskListCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetTasquesSegonPlaPendentsIdsCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTokenByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetVariableIdFromVariableLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
+import net.conselldemallorca.helium.jbpm3.command.MarcarIniciFinalitzacioSegonPlaCommand;
 import net.conselldemallorca.helium.jbpm3.command.ListActionsCommand;
+import net.conselldemallorca.helium.jbpm3.command.MarcarFinalitzarCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReassignTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ReleaseTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstanceTimerCommand;
@@ -606,7 +609,20 @@ public class JbpmHelper {
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 		//adminService.mesuraCalcular("jBPM describeProcessInstance", "jbpmDao");
 	}
+	
+	//Marcar tasca pendent de finalitzar en segón pla
+	public void marcarFinalitzar(String taskId, String outcome) {
+		final long id = Long.parseLong(taskId);
+		MarcarFinalitzarCommand command = new MarcarFinalitzarCommand(id, outcome);
+		commandService.execute(command);
+	}
 
+	//Marcar tasca marcada en segon pla com "en execució"
+	public void marcarIniciFinalitzacioSegonPla(String taskId) {
+		final long id = Long.parseLong(taskId);
+		MarcarIniciFinalitzacioSegonPlaCommand command = new MarcarIniciFinalitzacioSegonPlaCommand(id);
+		commandService.execute(command);
+	}
 	
 	@SuppressWarnings("unchecked")
 	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
@@ -662,6 +678,12 @@ public class JbpmHelper {
 			resultat = new JbpmProcessDefinition(pi.getProcessDefinition());
 		//adminService.mesuraCalcular("jBPM findProcessDefinitionWithProcessInstanceId", "jbpmDao");
 		return resultat;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Object[]> getTasquesSegonPlaPendents() {
+		GetTasquesSegonPlaPendentsIdsCommand command = new GetTasquesSegonPlaPendentsIdsCommand();
+		return (List<Object[]>)commandService.execute(command);
 	}
 
 	

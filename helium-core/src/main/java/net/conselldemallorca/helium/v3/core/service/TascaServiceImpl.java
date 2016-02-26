@@ -12,20 +12,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -38,6 +24,8 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper.Converter;
 import net.conselldemallorca.helium.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper;
+import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
@@ -91,6 +79,21 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 /**
  * Servei per gestionar terminis.
@@ -155,7 +158,9 @@ public class TascaServiceImpl implements TascaService {
 	private FormulariExternHelper formulariExternHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-
+	
+	@Autowired
+	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Autowired
 	private MetricRegistry metricRegistry;
 
@@ -172,9 +177,9 @@ public class TascaServiceImpl implements TascaService {
 		JbpmTask task = tascaHelper.getTascaComprovacionsExpedient(
 				id,
 				expedient);
-		return tascaHelper.getExpedientTascaDto(
+		return tascaHelper.toExpedientTascaDto(
 				task,
-				null,
+				expedient,
 				true,
 				false);
 	}
@@ -189,7 +194,7 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				true,
 				true);
-		return tascaHelper.getExpedientTascaDto(
+		return tascaHelper.toExpedientTascaDto(
 				task,
 				null,
 				true,
@@ -453,7 +458,7 @@ public class TascaServiceImpl implements TascaService {
 					paginacioParams,
 					new Converter<JbpmTask, ExpedientTascaDto>() {
 						public ExpedientTascaDto convert(JbpmTask task) {
-							return tascaHelper.getExpedientTascaDto(
+							return tascaHelper.toExpedientTascaDto(
 									task,
 									null,
 									false,
@@ -488,7 +493,7 @@ public class TascaServiceImpl implements TascaService {
 		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
 		for (Long id : ids) {
 			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(id));
-			expedientTasques.add(tascaHelper.getExpedientTascaDto(
+			expedientTasques.add(tascaHelper.toExpedientTascaDto(
 					task,
 					null,
 					false,
@@ -745,7 +750,7 @@ public class TascaServiceImpl implements TascaService {
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,
 				false,
@@ -767,7 +772,7 @@ public class TascaServiceImpl implements TascaService {
 		// de la tasca sigui l'usuari actual
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				id,
-				true,
+				false,
 				true);
 //		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
@@ -780,7 +785,7 @@ public class TascaServiceImpl implements TascaService {
 		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		ExpedientTascaDto tasca = tascaHelper.getExpedientTascaDto(
+		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,
 				false,
@@ -956,7 +961,8 @@ public class TascaServiceImpl implements TascaService {
 					Registre.Accio.MODIFICAR,
 					Registre.Entitat.TASCA,
 					taskId);
-			registre.setMissatge("Iniciar tasca \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+//			registre.setMissatge("Iniciar tasca \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+			registre.setMissatge("Iniciar tasca \"" + task.getTaskName() + "\"");
 			registreRepository.save(registre);
 		}
 	}
@@ -997,7 +1003,8 @@ public class TascaServiceImpl implements TascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				tascaId);
-		registre.setMissatge("Validar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+//		registre.setMissatge("Validar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+		registre.setMissatge("Validar \"" + task.getTaskName() + "\"");
 		registreRepository.save(registre);
 	}
 
@@ -1023,9 +1030,9 @@ public class TascaServiceImpl implements TascaService {
 				usuari);
 		tascaHelper.restaurarTasca(tascaId);
 		
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				task.getTaskName(),
-				task.getProcessDefinitionId());
+//		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+//				task.getTaskName(),
+//				task.getProcessDefinitionId());
 		Registre registre = new Registre(
 				new Date(),
 				expedientId,
@@ -1033,7 +1040,8 @@ public class TascaServiceImpl implements TascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				tascaId);
-		registre.setMissatge("Restaurar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+//		registre.setMissatge("Restaurar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+		registre.setMissatge("Restaurar \"" + task.getTaskName() + "\"");
 		registreRepository.save(registre);
 	}
 
@@ -1100,6 +1108,37 @@ public class TascaServiceImpl implements TascaService {
 					JbpmTask.class,
 					"firmes_ok");
 		}
+		
+		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
+		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		if (tasca.isFinalitzacioSegonPla()) {
+			//cridar command per a marcar la tasca per a finalitzar en segón pla
+			jbpmHelper.marcarFinalitzar(tascaId, outcome);
+			Registre registre = new Registre(
+					new Date(),
+					expedientId,
+					usuari,
+					Registre.Accio.MARCADA_FINALITZAR,
+					Registre.Entitat.TASCA,
+					tascaId);
+			registre.setMissatge("Marcada per finalitzar \"" + task.getTaskName() + "\"");
+			registreRepository.save(registre);
+		} else {
+			completarTasca(
+					tascaId,
+					expedientId,
+					task,
+					outcome,
+					usuari);
+		}
+	}
+
+	private void completarTasca(
+			String tascaId,
+			Long expedientId,
+			JbpmTask task,
+			String outcome,
+			String usuari) {
 		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
 				task.getProcessInstanceId());
 		Expedient expedient = expedientRepository.findOne(piexp.getId());
@@ -1228,6 +1267,60 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				variableHelper.getVariablesJbpmTascaValor(tascaId));
 		return dto;
+	}
+	
+	@Override
+	@Transactional
+	@Scheduled(fixedRate = 30000)
+	public void comprovarTasquesSegonPla() {
+//		//// PROVES NO BBDD ///////////////
+//		System.out.println("===> THREAD " + Thread.currentThread().getId() + " AMD DATA " + (new Date()).toString());
+//		if(!TascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+//			TascaSegonPlaHelper.loadTasquesSegonPla();
+//			System.out.println("Esperant un minut...");
+////			try {
+////				Thread.sleep(60000);
+////			} catch (InterruptedException e) {
+////				e.printStackTrace();
+////			}
+//			Thread.yield();
+//			System.out.println("Fi d'espera...");
+//		}
+//		///////////////////////////////////
+		
+		System.out.println("Comprovant si hi ha tasques pendents d'executar en segon pla. (" + Thread.currentThread().getId() + ")");
+//		Si encara no hem inicialitzat la variable en memòria ho feim i li carregam les tasques
+		if (!TascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+			TascaSegonPlaHelper.loadTasquesSegonPla();
+			//Primer carregam les ids de les tasques pendents d'executar en segon pla
+			List<Object[]> tasquesSegonPlaIds = jbpmHelper.getTasquesSegonPlaPendents();
+			if(tasquesSegonPlaIds.size() > 0) {
+				for(Object[] taskResult: tasquesSegonPlaIds) {
+					TascaSegonPlaHelper.afegirTasca((Long)taskResult[0], new InfoSegonPla((Date)taskResult[1]));
+				}
+			}
+		}
+		
+		if (TascaSegonPlaHelper.isTasquesSegonPlaLoaded() && TascaSegonPlaHelper.getTasquesSegonPla().size() > 0) {
+			for (Map.Entry<Long, InfoSegonPla> entry : TascaSegonPlaHelper.getTasquesSegonPla().entrySet()) {
+				String tascaId = entry.getKey().toString();
+				JbpmTask task = jbpmHelper.getTaskById(tascaId);
+				if (task.getTask().getMarcadaFinalitzar() != null &&
+					task.getTask().getIniciFinalitzacio() == null &&
+					task.getTask().getErrorFinalitzacio() == null) {
+
+					jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId);
+					completarTasca(
+							tascaId, 
+							task.getTask().getProcessInstance().getExpedient().getId(), 
+							task, 
+							task.getTask().getSelectedOutcome(), 
+							task.getTask().getActorId());
+
+					System.out.println(task.getTask().getMarcadaFinalitzar());
+				}
+			}
+		}
 	}
 	
 	public FormulariExternDto formulariExternObrirTascaInicial(

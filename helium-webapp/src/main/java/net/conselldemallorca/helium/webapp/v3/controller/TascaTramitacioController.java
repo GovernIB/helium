@@ -1150,7 +1150,11 @@ public class TascaTramitacioController extends BaseTascaController {
 		} else {
 			try {
 				tascaService.completar(tascaId, expedientId, transicioSortida);
-				MissatgesHelper.success(request, getMessage(request, "info.tasca.completat"));
+				if (tasca.isTascaFinalitzacioSegonPla()) {
+					MissatgesHelper.success(request, getMessage(request, "info.tasca.finalitza.segon.pla"));
+				} else {
+					MissatgesHelper.success(request, getMessage(request, "info.tasca.completat"));
+				}
 				resposta = true;
 			} catch (Exception ex) {
 				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {

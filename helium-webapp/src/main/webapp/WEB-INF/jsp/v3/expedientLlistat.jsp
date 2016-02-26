@@ -60,6 +60,9 @@
 			text-decoration: none;
 			color: inherit;
 		}
+		.navbar-right {
+			margin-right: 0px;
+		}
 	</style>
 <script>
 $(document).ready(function() {

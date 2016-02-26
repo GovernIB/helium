@@ -92,6 +92,17 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 	protected String previousActorId = null; // not persisted. just extra
 												// information for listeners of
 												// the assign-event
+	
+	//atributs per a finalització de tasques en segon pla
+	protected Date marcadaFinalitzar;
+	protected Date iniciFinalitzacio;
+	protected String errorFinalitzacio;
+	protected String selectedOutcome;
+	//
+	
+	//flag titol actualitzat
+	protected boolean titolActualitzat = false;
+	//
 
 	public TaskInstance() {
 	}
@@ -763,6 +774,38 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 
 	public void setProcessInstance(ProcessInstance processInstance) {
 		this.processInstance = processInstance;
+	}
+
+	public Date getMarcadaFinalitzar() {
+		return marcadaFinalitzar;
+	}
+
+	public void setMarcadaFinalitzar(Date marcadaFinalitzar) {
+		this.marcadaFinalitzar = marcadaFinalitzar;
+	}
+
+	public Date getIniciFinalitzacio() {
+		return iniciFinalitzacio;
+	}
+
+	public void setIniciFinalitzacio(Date iniciFinalitzacio) {
+		this.iniciFinalitzacio = iniciFinalitzacio;
+	}
+
+	public String getErrorFinalitzacio() {
+		return errorFinalitzacio;
+	}
+
+	public void setErrorFinalitzacio(String errorFinalitzacio) {
+		this.errorFinalitzacio = errorFinalitzacio;
+	}
+
+	public String getSelectedOutcome() {
+		return selectedOutcome;
+	}
+
+	public void setSelectedOutcome(String selectedOutcome) {
+		this.selectedOutcome = selectedOutcome;
 	}
 
 	private static final Log log = LogFactory.getLog(TaskInstance.class);
