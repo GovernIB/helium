@@ -23,57 +23,52 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script>
-		$(document).ready(function() {
-			$('select[name=entornCodi]').on('change', function () {
-				$("select[name=expedientTipusId] option").each(function (index, option) {
-		    		if (index > 0 && $("select[name=expedientTipusId] option").size() > 0)
-						$(option).remove();
+	$(document).ready(function() {
+		
+		$('select[name=entornCodi]').on('change', function () {
+			$('select[name=expedientTipusDefecteId]').empty();
+			$("select[name=expedientTipusDefecteId]").append($('<option value=""></option>'));
+			if ($(this).val()) {
+				$.ajax({
+				    url:'perfil/consulta/' + $(this).val(),
+				    type:'GET',
+				    dataType: 'json',
+				    success: function(json) {
+				        $.each(json, function(i, value) {
+				        	$("select[name=expedientTipusDefecteId]").append($('<option>').text(value.nom).attr('value', value.id));
+				        });
+				        $('select[name=expedientTipusDefecteId]').select2({placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>", allowClear: true});
+				        $('select[name=expedientTipusDefecteId]').val(null).trigger("change");
+				    }
 				});
-				if ($(this).val()) {
-					$.ajax({
-					    url:'perfil/consulta/' + $(this).val(),
-					    type:'GET',
-					    dataType: 'json',
-					    success: function(json) {
-					        $.each(json, function(i, value) {
-					        	$('<option>').text(value.nom).attr('value', value.id).insertAfter($("select[name=expedientTipusId] option:eq(" + i + ")"));
-					        });
-					        $('select[name=expedientTipusId]').change();
-					    }
-					});
-				}
-			});	
-	
-			$("select[name=expedientTipusDefecteId]").on('change', function () {
-				if($('select[name=expedientTipusId]').val($(this).val())) {
-					$('select[name=expedientTipusId]').select2("val", $(this).val());
-					$('select[name=expedientTipusId]').change();
-				} else {
-					$('select[name=expedientTipusId]').select2("val", "");
-				}
-			});
-			
-			$('select[name=expedientTipusId]').on('change', function () {
-				$("select[name=consultaId] option").each(function (index, option) {
-		    		if (index > 0 && $("select[name=consultaId] option").size() > 0)
-						$(option).remove();
+			} else {
+				$('select[name=expedientTipusDefecteId]').select2({placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>", allowClear: true});
+				$('select[name=expedientTipusDefecteId]').val(null).trigger("change");
+			}
+		});	
+
+		$('select[name=expedientTipusDefecteId]').on('change', function () {
+			$('select[name=consultaId]').empty();
+			$("select[name=consultaId]").append($('<option value=""></option>'));
+			if ($(this).val()) {
+				$.ajax({
+				    url:'perfil/consulta/' + $(this).val() + '/' + $('#entornCodi').val(),
+				    type:'GET',
+				    dataType: 'json',
+				    success: function(json) {
+				        $.each(json, function(i, value) {
+				        	$("select[name=consultaId]").append($('<option>').text(value.nom).attr('value', value.id));
+				        });
+				        $('select[name=consultaId]').select2({placeholder: "<spring:message code='perfil.usuari.consulta.tipus'/>", allowClear: true});
+				        $('select[name=consultaId]').val(null).trigger("change");
+				    }
 				});
-				if ($(this).val()) {
-					if ($('select[name=expedientTipusDefecteId]').val() != $('select[name=expedientTipusId]').val())
-						$('select[name=expedientTipusDefecteId]').select2("val", "");	
-					$.ajax({
-					    url:'perfil/consulta/' + $(this).val() + '/' + $('#entornCodi').val(),
-					    type:'GET',
-					    dataType: 'json',
-					    success: function(json) {
-					        $.each(json, function(i, value) {
-					        	$('<option>').text(value.nom).attr('value', value.id).insertAfter($("select[name=consultaId] option:eq(" + i + ")"));
-					        });
-					    }
-					});
-				}
-			});	
-		});
+			} else {
+				$('select[name=consultaId]').select2({placeholder: "<spring:message code='perfil.usuari.consulta.tipus'/>", allowClear: true});
+				$('select[name=consultaId]').val(null).trigger("change");
+			}
+		});	
+	});
 	</script>
 	<style type="text/css">
 		.form-horizontal .control-label.col-xs-4 {
@@ -177,15 +172,15 @@
 							</p>
 						</div>
 						<div class="control-group">
-							<hel:inputSelect name="entornCodi" textKey="perfil.usuari.entorn" placeholderKey="perfil.usuari.entorn" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" emptyOption="true" inline="false"/>
-							<p class="help-block">
-								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.entorn"/>
-							</p>
-						</div>
-						<div class="control-group">
 							<hel:inputSelect name="numElementosPagina" textKey="perfil.usuari.elements.page" placeholderKey="perfil.usuari.elements.page" optionItems="${numElementsPagina}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.numelements"/>
+							</p>
+						</div>
+						<div class="control-group">
+							<hel:inputSelect name="entornCodi" textKey="perfil.usuari.entorn" placeholderKey="perfil.usuari.entorn" optionItems="${entorns}" optionValueAttribute="codi" optionTextAttribute="nom" emptyOption="true" inline="false"/>
+							<p class="help-block">
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.entorn"/>
 							</p>
 						</div>
 						<div class="control-group">
@@ -194,18 +189,14 @@
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.tipusexpedientdefecte"/>
 							</p>
 						</div>
-						</div>
-						</div>
 						<div class="control-group">
-							<div class="label-titol">
-								<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.consulta"/></label>
-								<hel:inputSelect name="expedientTipusId" textKey="perfil.usuari.tipus.expedient" placeholderKey="perfil.usuari.tipus.expedient" optionItems="${expedientTipusConConsultas}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
-								<hel:inputSelect name="consultaId" textKey="perfil.usuari.consulta.tipus" placeholderKey="perfil.usuari.consulta.tipus" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" inline="false"/>
-								<p class="help-block">
-									<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.consulta"/>
-								</p>
-							</div>
+							<hel:inputSelect name="consultaId" textKey="perfil.usuari.consulta.tipus" placeholderKey="perfil.usuari.consulta.tipus" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom" emptyOption="true" inline="false"/>
+							<p class="help-block">
+								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.consulta"/>
+							</p>
 						</div>
+					</div>
+				</div>
 				<div class="control-group">
 					<div class="label-titol">
 						<label class="control-label"><spring:message code="perfil.usuari.nota.filtres"/></label>

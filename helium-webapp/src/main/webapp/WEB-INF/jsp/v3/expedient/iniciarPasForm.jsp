@@ -118,6 +118,7 @@
 			</c:choose>
 			<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 		</c:forEach>
+		<div style="min-height: 120px;"></div>
 		<div id="modal-botons">
 			<button type="submit" name="submit" value="cancel" class="botons-iniciar modal-tancar btn btn-default">
 				<spring:message code='comuns.cancelar' />

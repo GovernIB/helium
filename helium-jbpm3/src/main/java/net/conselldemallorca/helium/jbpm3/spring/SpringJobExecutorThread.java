@@ -4,8 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -39,7 +37,6 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 
 	private static final Log logger = LogFactory.getLog(SpringJobExecutorThread.class);
 	private TransactionTemplate transactionTemplate;
-	public static Map<Long, String[]> jobErrors = new HashMap<Long, String[]>();
 
 	public SpringJobExecutorThread(String name,
                             JobExecutor jobExecutor,
@@ -128,29 +125,12 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
 							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedient.getTipus().getNom(), null, null);
 						}
+						
 						SpringJobExecutorThread.super.executeJob(job);
-						try {
-							String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
-							Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
-						} catch (Exception ex) {
-							String errorDesc = "S'ha produït un error al reindexar l'expediente en el timer " + jName + ".";	
-							saveJobError(job.getId(), ex, errorDesc);
-							if (expedient != null) {
-								logger.error("JOB " + job.getId() + ": Error al indexar l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-							}
-						}
+						String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
+						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
 					} catch (Exception ex) {
-						String errorDesc = "S'ha produït un error al executar el timer " + jName + ".";	
-						String errorFull = saveJobError(job.getId(), ex, errorDesc);
-						// He configurat la transacció de updateExpedientError per a que es desi tot i fer rollback...		
-						Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
-								job.getId(), 
-								String.valueOf(job.getProcessInstance().getId()), 
-								errorDesc, 
-								errorFull);
-						if (expedient != null) {
-							logger.error("Error al executar el job " + jName + " de l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ", processInstanceId=" + job.getProcessInstance().getId() + ")", ex);
-						}
+						saveJobError(job.getId(), ex, "S'ha produït un error al executar el timer " + jName + ".");
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
 						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 						throw e;
@@ -175,18 +155,22 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			}
 			Jbpm3HeliumBridge.getInstanceService().updateExpedientError(
 					job.getId(),
-					String.valueOf(job.getProcessInstance().getId()), 
+					expedient.getId(), 
 					errorDesc, 
 					errorFull);
-			String msgError = "Error al executar la transaccio del job '" + jName + "' con processInstanceId=" + job.getProcessInstance().getId();
-			if (expedient != null) {
-				msgError += " de l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ")";
-			}
+			String msgError = 	"Error al executar la transaccio del job '" + jName + 
+								"' con processInstanceId=" + job.getProcessInstance().getId() + 
+								" de l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ")";
 			logger.error(msgError, ex);
 			JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 			throw e;
 		}
 		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedient.getTipus().getNom(), null, null);
+	}
+
+	public void decrementJobRetries(Job job) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

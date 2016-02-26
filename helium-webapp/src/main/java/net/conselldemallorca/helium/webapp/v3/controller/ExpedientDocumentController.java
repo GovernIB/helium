@@ -311,6 +311,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 	
+	@RequestMapping(value="/{expedientId}/document/{processInstanceId}/{documentStoreId}/descarregar", method = RequestMethod.GET)
+	public String documentDesacarregarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		ArxiuDto arxiu = expedientService.getArxiuPerDocument(expedientId, documentStoreId);
+		if (arxiu != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		}
+		return "arxiuView";
+	}
+	
 	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}/{documentStoreId}/esborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean documentProcesEsborrar(
@@ -372,10 +387,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	public String arxiuPerSignar(
 		HttpServletRequest request,
 		@RequestParam(value = "token", required = true) String token,
-		ModelMap model) {
+		ModelMap model) throws Exception {
 		ArxiuDto arxiu = null;
 		if (token != null)
-			arxiu = expedientService.arxiuDocumentPerSignar(token);
+			try {
+				arxiu = expedientService.arxiuDocumentPerSignar(token);
+			} catch (Exception ex) {
+				logger.error("Error al obtenir el document a partir del token '" + token + "'");
+				throw ex;
+			}	
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());

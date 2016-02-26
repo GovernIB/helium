@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.codahale.metrics.MetricRegistry;
@@ -1748,20 +1747,23 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+//	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void updateExpedientError(
 			Long jobId,
-			String processInstanceId,
+			Long expedientId,
 			String errorDesc,
 			String errorFull) {
 		logger.error("JOB (" + jobId + "): Actualitzant error de l'expedient");
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		expedientHelper.updateError(
-				expedient,
-				errorDesc,
-				errorFull);
-		if (jobId != null)
-			jbpmHelper.retryJob(jobId);
+//		if (jobId != null)
+//			jbpmHelper.retryJob(jobId);
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		expedient.setErrorDesc(errorDesc);
+		expedient.setErrorFull(errorFull);
+		expedientRepository.save(expedient);
+//		expedientHelper.updateError(
+//				expedient,
+//				errorDesc,
+//				errorFull);
 	}
 
 	@Override

@@ -1100,7 +1100,7 @@ public class DocumentHelperV3 {
 			else
 				return Long.parseLong(tokenDesxifrat[1]);
 		} catch (Exception ex) {
-			throw new RuntimeException("Format de token incorrecte", ex);
+			throw new RuntimeException("Format de token ('" + token + "') incorrecte", ex);
 		}
 	}
 	

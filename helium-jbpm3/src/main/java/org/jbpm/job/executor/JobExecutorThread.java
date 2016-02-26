@@ -2,11 +2,14 @@ package org.jbpm.job.executor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -56,6 +59,8 @@ public class JobExecutorThread extends Thread {
 
 	int currentIdleInterval;
 	volatile boolean isActive = true;
+	
+	protected static Map<Long, String[]> jobErrors = new HashMap<Long, String[]>();
 
 	@SuppressWarnings("rawtypes")
 	public void run() {
@@ -143,6 +148,7 @@ public class JobExecutorThread extends Thread {
 		synchronized (jobExecutor) {
 			log.debug("acquiring jobs for execution...");
 			List jobsToLock = Collections.EMPTY_LIST;
+			List<Job> jobs = new ArrayList<Job>();
 			JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
 			try {
 				JobSession jobSession = jbpmContext.getJobSession();
@@ -164,9 +170,27 @@ public class JobExecutorThread extends Thread {
 
 					Date lockTime = new Date();
 					for (Iterator iter = jobsToLock.iterator(); iter.hasNext();) {
+						boolean deleted = false;
 						job = (Job) iter.next();
-						job.setLockOwner(lockOwner);
-						job.setLockTime(lockTime);
+						if (jobErrors.get(job.getId()) != null) {
+							int retries = job.getRetries() - 1;
+							if (retries <= 0) {
+								jobSession.deleteJob(job);
+								log.error("Job (" + job.getId() + ") eliminat.");
+								deleted = true;
+							} else {
+								job.setRetries(job.getRetries() - 1);
+								jobSession.saveJob(job);
+							}
+							jobErrors.remove(job.getId());
+						}
+						if (!deleted) {
+							job.setLockOwner(lockOwner);
+							job.setLockTime(lockTime);
+							Hibernate.initialize(job.getProcessInstance().getExpedient().getEntorn());
+							Hibernate.initialize(job.getProcessInstance().getExpedient().getTipus());
+							jobs.add(job);
+						}
 					}
 				} else {
 					log.debug("no acquirable jobs in job table");
@@ -174,7 +198,8 @@ public class JobExecutorThread extends Thread {
 			} finally {
 				try {
 					jbpmContext.close();
-					acquiredJobs = jobsToLock;
+//					acquiredJobs = jobsToLock;
+					acquiredJobs = jobs;
 					log.debug("obtained lock on jobs: "+acquiredJobs);
 				}
 				catch (JbpmPersistenceException e) {
@@ -198,8 +223,13 @@ public class JobExecutorThread extends Thread {
 			job = jobSession.loadJob(job.getId());
 			
 			try {
+				if (jobErrors.get(job.getId()) != null) {
+					job.setRetries(job.getRetries() - 1);
+					jobErrors.remove(job.getId());
+				}
 				if (job.getRetries() <= 0) {
 					jobSession.deleteJob(job);
+					log.error("Job (" + job.getId() + ") eliminat.");
 					return;
 				}
 			} catch (EntityNotFoundException enf) {
@@ -242,6 +272,35 @@ public class JobExecutorThread extends Thread {
 			}
 		}
 	}
+	
+	protected void decrementJobRetries(Job job) {
+		log.error("Job (" + job.getId() + ") >> decrementant reintents després d'un error.");
+		JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
+		JobSession jobSession = jbpmContext.getJobSession();
+		int retries = job.getRetries() - 1;
+		if (retries <= 0) {
+			jobSession.deleteJob(job);
+			log.error("Job (" + job.getId() + ") eliminat.");
+		} else { 
+			job.setRetries(retries);
+			jobSession.saveJob(job);
+			log.error("Job (" + job.getId() + ") decrementat.");
+		}
+	}
+//	private boolean jobHasBeenExecutedWithError(Job job) {
+//		if (SpringJobExecutorThread.jobErrors.containsKey(job.getId())) 
+//			return true;
+//		return job.getException() != null;
+//	}
+//	
+//	private String getJobException(Job job) {
+//		if (SpringJobExecutorThread.jobErrors.containsKey(job.getId())) {
+//			String excepcio = SpringJobExecutorThread.jobErrors.get(job.getId())[1];
+//			SpringJobExecutorThread.jobErrors.remove(job.getId());
+//			return excepcio;
+//		}
+//		return job.getException();
+//	}
 	
 	protected void saveJobException(Job job, Throwable exception) {
 		StringWriter out = new StringWriter();
