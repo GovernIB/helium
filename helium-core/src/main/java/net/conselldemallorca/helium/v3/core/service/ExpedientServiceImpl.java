@@ -794,6 +794,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional
 	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false,
+				false);
 		boolean creat = false;
 		String arxiuNomAntic = null;
 		boolean adjunt = false;
@@ -875,14 +881,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Registra l'acció
 		if (creat) {
 			registreDao.crearRegistreCrearDocumentInstanciaProces(
-					expedientId,
+					expedient.getId(),
 					processInstanceId,
 					user,
 					codi,
 					nomArxiu);
 		} else {
 			registreDao.crearRegistreModificarDocumentInstanciaProces(
-					expedientId,
+					expedient.getId(),
 					processInstanceId,
 					user,
 					codi,
@@ -1665,6 +1671,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void deleteSignatura(
 			Long expedientId,
 			Long documentStoreId) throws Exception {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false,
+				false);
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 		if (documentStore != null && documentStore.isSignat()) {
 			try {
@@ -1673,7 +1685,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String jbpmVariable = documentStore.getJbpmVariable();
 			documentStore.setReferenciaCustodia(null);
 			documentStore.setSignat(false);
-			Expedient expedient = expedientRepository.findOne(expedientId);
 			registreDao.crearRegistreEsborrarSignatura(
 					expedient.getId(),
 					expedient.getProcessInstanceId(),
