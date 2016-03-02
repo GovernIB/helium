@@ -78,6 +78,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 			documents.put(instanciaProces, documentsInstancia);
 		}
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		if (!NodecoHelper.isNodeco(request)) {
@@ -101,6 +102,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		List<ExpedientDocumentDto> dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		documents.put(instanciaProces, dadesInstancia);
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		return "v3/procesDocuments";
@@ -138,6 +140,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setData(new Date());
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("documentExpedientCommand", command);
 		return "v3/expedientDocumentNou";
@@ -250,6 +254,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			command.setNom(document.getDocumentNom());
 		command.setCodi(document.getDocumentCodi());
 		command.setData(document.getDataDocument());
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("documentExpedientCommand", command);
 		model.addAttribute("document", document);	
 		model.addAttribute("expedientId", expedientId);
