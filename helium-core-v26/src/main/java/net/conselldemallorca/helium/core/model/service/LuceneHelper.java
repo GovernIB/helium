@@ -603,8 +603,9 @@ public class LuceneHelper extends LuceneIndexSupport {
 		bquery.add(new BooleanClause(queryFromCampFiltre(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, expedientTipus.getCodi(), null), BooleanClause.Occur.MUST));
 		for (String clau : filtreValors.keySet()) {
 			Query query = queryFromCampFiltre(clau, filtreValors.get(clau), filtreCamps);
-			if (query != null)
+			if (query != null) {
 				bquery.add(new BooleanClause(query, BooleanClause.Occur.MUST));
+			}
 		}
 		return (bquery.getClauses().length > 0) ? bquery : new MatchAllDocsQuery();
 	}

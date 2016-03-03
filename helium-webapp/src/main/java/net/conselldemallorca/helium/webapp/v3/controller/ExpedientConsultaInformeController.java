@@ -57,6 +57,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
@@ -106,14 +107,17 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			@PathVariable Long consultaId,
 			HttpSession session,
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> valors = (Map<String, Object>)session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES + consultaId);
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
+		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+		Map<String, Object> filtreValors = TascaFormHelper.getValorsFromCommand(
+				campsFiltre,
+				filtreCommand,
+				true);
 		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients = expedientService.consultaFindPaginat(
 				consultaId,
-				valors,
+				processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
 				null,
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
@@ -129,7 +133,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	}
 
 	@RequestMapping(value = "/{consultaId}/informeParams", method = RequestMethod.GET)
-	public  String  informeParams(
+	public String informeParams(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -353,17 +357,19 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			Long consultaId,
 			Model model,
 			HttpServletRequest request) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-		@SuppressWarnings("unchecked")
-		Map<String, Object> valors = (Map<String, Object>)session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
-		// Només volem mostrar els expedients seleccionats (o tots si no se n'ha seleccionat cap)
-		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> expedientsIds = sessionManager.getSeleccioInforme(consultaId);
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
+		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
+		Map<String, Object> filtreValors = TascaFormHelper.getValorsFromCommand(
+				campsFiltre,
+				filtreCommand,
+				true);
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> expedientsIds = sessionManager.getSeleccioInforme(consultaId);
 		PaginaDto<ExpedientConsultaDissenyDto> paginaExpedients = expedientService.consultaFindPaginat(
 				consultaId,
-				valors,
+				processarValorsFiltre(filtreCommand, campsFiltre, filtreValors),
 				expedientsIds,
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesPersonals"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesTasquesGrup"),
@@ -492,6 +498,31 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		}
 		field.setMultiple(dadaIndex.isMultiple());
 		return field;
+	}
+
+	private Map<String, Object> processarValorsFiltre(
+			Object filtreCommand,
+			List<TascaDadaDto> dadesFiltre,
+			Map<String, Object> valors) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		Map<String, Object> valorsPerService = new HashMap<String, Object>();
+		for (TascaDadaDto dada: dadesFiltre) {
+			String clau = (dada.getDefinicioProcesKey() == null) ? dada.getVarCodi() : dada.getDefinicioProcesKey() + "." + dada.getVarCodi();
+			clau = clau.replace(
+					ExpedientCamps.EXPEDIENT_PREFIX_JSP,
+					ExpedientCamps.EXPEDIENT_PREFIX);
+			if (CampTipusDto.BOOLEAN.equals(dada.getCampTipus()) && PropertyUtils.isReadable(filtreCommand, dada.getVarCodi())) {
+				Boolean valor = (Boolean) PropertyUtils.getSimpleProperty(
+						filtreCommand,
+						dada.getVarCodi());
+				valors.put(
+						dada.getVarCodi(),
+						valor);
+			}
+			valorsPerService.put(
+					clau,
+					valors.get(dada.getVarCodi()));
+		}
+		return valorsPerService;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientConsultaInformeController.class);
