@@ -6,30 +6,46 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TascaSegonPlaHelper {
-	private static Map<Long,InfoSegonPla> tasquesSegonPla;
 	
-	public static void loadTasquesSegonPla () {
+	@Autowired
+	private TascaService tascaService;
+	
+	private Map<Long,InfoSegonPla> tasquesSegonPla;
+	
+	public void loadTasquesSegonPla () {
 		tasquesSegonPla = new HashMap<Long,InfoSegonPla>();
 	}
 	
-	public static boolean isTasquesSegonPlaLoaded() {
+	public boolean isTasquesSegonPlaLoaded() {
 		return tasquesSegonPla != null;
 	}
 	
-	public static boolean afegirTasca(Long taskInstanceId, InfoSegonPla info) {
+	public boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
 		if (tasquesSegonPla != null) {
-			tasquesSegonPla.put(taskInstanceId, info);
+			tasquesSegonPla.put(taskInstanceId, new InfoSegonPla(marcadaFinalitzar, iniciFinalitzacio, error));
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	public static boolean eliminarTasca(Long taskInstanceId) {
+	public boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar) {
+		if (tasquesSegonPla != null) {
+			tasquesSegonPla.put(taskInstanceId, new InfoSegonPla(marcadaFinalitzar));
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean eliminarTasca(Long taskInstanceId) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.remove(taskInstanceId);
 			return true;
@@ -38,25 +54,54 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public static void setTasquesSegonPla(Map<Long,InfoSegonPla> tasquesSegonPla) {
-		TascaSegonPlaHelper.tasquesSegonPla = tasquesSegonPla;
+	public void completarTasca(Long taskInstanceId) {
+		if (tasquesSegonPla != null && tasquesSegonPla.containsKey(taskInstanceId)) {
+			InfoSegonPla infoSegonPla = tasquesSegonPla.get(taskInstanceId);
+			infoSegonPla.completada = true;
+		}
 	}
 	
-	public static Map<Long,InfoSegonPla> getTasquesSegonPla() {
-		return TascaSegonPlaHelper.tasquesSegonPla;
+	public void setTasquesSegonPla(Map<Long,InfoSegonPla> tasquesSegonPla) {
+		this.tasquesSegonPla = tasquesSegonPla;
 	}
 	
-	public static class InfoSegonPla {
+	public Map<Long,InfoSegonPla> getTasquesSegonPla() {
+		return this.tasquesSegonPla;
+	}
+	
+	public void carregaTasquesSegonPla() {
+		tascaService.carregaTasquesSegonPla();
+	}
+	
+	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
+		tascaService.completaTascaSegonPla(tascaId, iniciFinalitzacio);
+	}
+	
+	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
+		tascaService.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+	}
+	
+	public class InfoSegonPla {
 		private Date marcadaFinalitzar;
 		private Date iniciFinalitzacio;
-		private List<String> errors;
+		private String error;
+		private boolean completada;
 		private List<String> messages;
 		
 		public InfoSegonPla (Date marcadaFinalitzar) {
 			super();
-			this.errors = new ArrayList<String>();
 			this.messages = new ArrayList<String>();
 			this.marcadaFinalitzar = marcadaFinalitzar;
+			this.completada = false;
+		}
+		
+		public InfoSegonPla (Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
+			super();
+			this.messages = new ArrayList<String>();
+			this.marcadaFinalitzar = marcadaFinalitzar;
+			this.iniciFinalitzacio = iniciFinalitzacio;
+			this.error = error;
+			this.completada = false;
 		}
 		
 		public Date getMarcadaFinalitzar() {
@@ -75,16 +120,28 @@ public class TascaSegonPlaHelper {
 			this.iniciFinalitzacio = iniciFinalitzacio;
 		}
 
-		public List<String> getErrors() {
-			return errors;
+		public String getError() {
+			return error;
 		}
 
-		public boolean addError(String error) {
-			return this.errors.add(error);
+		public void setError(String error) {
+			this.error = error;
+		}
+
+		public boolean isCompletada() {
+			return completada;
+		}
+
+		public void setCompletada(boolean completada) {
+			this.completada = completada;
 		}
 
 		public List<String> getMessages() {
 			return messages;
+		}
+		
+		public void setMessages(List<String> messages) {
+			this.messages = messages;
 		}
 
 		public boolean addMessage(String message) {

@@ -338,5 +338,22 @@ public class TascaServiceBean implements TascaService {
 	public void comprovarTasquesSegonPla() {
 		delegate.comprovarTasquesSegonPla();
 	}
-
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void carregaTasquesSegonPla() {
+		delegate.carregaTasquesSegonPla();
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
+		delegate.completaTascaSegonPla(tascaId, iniciFinalitzacio);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
+		delegate.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+	}
 }

@@ -95,7 +95,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	private boolean assignadaUsuariActual;
 
-	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 	public String getId() {
 		return id;

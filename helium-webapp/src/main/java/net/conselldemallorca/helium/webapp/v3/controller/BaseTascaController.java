@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -94,6 +95,11 @@ public class BaseTascaController extends BaseController {
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			model.addAttribute("tasquesTramitar", datosTramitacionMasiva.get("tasquesTramitar"));
+		}
+		
+		//Si tenim error d'execució en segón pla, el mostrarem
+		if (tasca.getErrorFinalitzacio() != null && pipellaActiva != null) {
+			MissatgesHelper.error(request, "Error execució segon pla: " + tasca.getErrorFinalitzacio());
 		}
 		
 		if (pipellaActiva != null && 

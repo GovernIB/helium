@@ -22,7 +22,7 @@ public class GetTasquesSegonPlaPendentsIdsCommand extends AbstractBaseCommand
  	}
 
 	@SuppressWarnings("unchecked")
-	public Object execute(JbpmContext jbpmContext) throws Exception {
+	public List<Object[]> execute(JbpmContext jbpmContext) throws Exception {
 		StringBuilder taskQuerySb = new StringBuilder();
 		
 		taskQuerySb.append(
@@ -30,14 +30,14 @@ public class GetTasquesSegonPlaPendentsIdsCommand extends AbstractBaseCommand
 				"	 org.jbpm.taskmgmt.exe.TaskInstance ti " +
 				"where " +
 				"	 ti.marcadaFinalitzar is not null " +
-				"and ti.iniciFinalitzacio is null " + 
-				"and ti.errorFinalitzacio is null " + 
+				"and ti.isSuspended = false " +
+				"and ti.isOpen = true " +
 				"order by " + 
 				"	 ti.marcadaFinalitzar asc");
 		
 //		LlistatIds resposta = new LlistatIds();
 		
-		StringBuilder selectSb = new StringBuilder("select distinct ti.id, ti.marcadaFinalitzar ");
+		StringBuilder selectSb = new StringBuilder("select distinct ti.id, ti.marcadaFinalitzar, ti.iniciFinalitzacio, ti.errorFinalitzacio ");
 		
 		taskQuerySb.insert(0, selectSb);
 		Query queryIds = jbpmContext.getSession().createQuery(taskQuerySb.toString());

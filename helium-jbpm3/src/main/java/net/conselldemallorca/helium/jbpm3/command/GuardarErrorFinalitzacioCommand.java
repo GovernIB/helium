@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
-import java.util.Date;
-
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractBaseCommand;
 import org.jbpm.taskmgmt.exe.TaskInstance;
@@ -14,23 +12,23 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class MarcarIniciFinalitzacioSegonPlaCommand extends AbstractBaseCommand {
+public class GuardarErrorFinalitzacioCommand extends AbstractBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private long id;
-	private Date iniciFinalitzacio;
+	private String errorFinalitzacio;
 
-	public MarcarIniciFinalitzacioSegonPlaCommand(
+	public GuardarErrorFinalitzacioCommand(
 			long id,
-			Date iniciFinalitzacio) {
+			String errorFinalitzacio) {
 		super();
 		this.id = id;
-		this.setIniciFinalitzacio(iniciFinalitzacio);
+		this.errorFinalitzacio = errorFinalitzacio;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		TaskInstance ti = jbpmContext.getTaskInstance(id);
-		ti.setIniciFinalitzacio(iniciFinalitzacio);
+		ti.setErrorFinalitzacio(errorFinalitzacio);
 		return null;
 	}
 
@@ -40,23 +38,24 @@ public class MarcarIniciFinalitzacioSegonPlaCommand extends AbstractBaseCommand 
 	public void setId(long id) {
 		this.id = id;
 	}
-
-	public Date getIniciFinalitzacio() {
-		return iniciFinalitzacio;
+	
+	public String getErrorFinalitzacio() {
+		return errorFinalitzacio;
 	}
 
-	public void setIniciFinalitzacio(Date iniciFinalitzacio) {
-		this.iniciFinalitzacio = iniciFinalitzacio;
+	public void setErrorFinalitzacio(String errorFinalitzacio) {
+		this.errorFinalitzacio = errorFinalitzacio;
 	}
 
 	@Override
 	public String getAdditionalToStringInformation() {
-	    return "id=" + id;
+		return "id=" + id + ", errorFinalitzacio=" + errorFinalitzacio;
 	}
 
 	//methods for fluent programming
-	public MarcarIniciFinalitzacioSegonPlaCommand id(long id) {
+	public GuardarErrorFinalitzacioCommand id(long id, String errorFinalitzacio) {
 		setId(id);
+		setErrorFinalitzacio(errorFinalitzacio);
 	    return this;
 	}
 

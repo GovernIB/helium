@@ -322,7 +322,7 @@
 							{{/if}}	
 
 							{{if errorFinalitzacio != null}}
-								<i class="fa fa-exclamation-circle fa-lg"></i>
+								<i class="fa fa-exclamation-circle fa-lg" title="<spring:message code="error.finalitzar.tasca"/>: {{:errorFinalitzacio}}"></i>
 							{{/if}}
 							{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
 								<i class="fa fa-clock-o fa-lg" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> {{:marcadaFinalitzarFormat}}"></i>
@@ -404,6 +404,7 @@
 				<th data-rdt-property="permisReassignment" data-rdt-visible="false"></th>
 				<th data-rdt-property="marcadaFinalitzar" data-rdt-visible="false"></th>
 				<th data-rdt-property="iniciFinalitzacio" data-rdt-visible="false"></th>
+				<th data-rdt-property="errorFinalitzacio" data-rdt-visible="false"></th>
 				<th data-rdt-property="marcadaFinalitzarFormat" data-rdt-visible="false"></th>
 				<th data-rdt-property="iniciFinalitzacioFormat" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>

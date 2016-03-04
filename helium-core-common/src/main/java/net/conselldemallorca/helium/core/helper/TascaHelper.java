@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -76,6 +77,8 @@ public class TascaHelper {
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private TascaSegonPlaHelper tascaSegonPlaHelper;
 
 
 
@@ -518,9 +521,14 @@ public class TascaHelper {
 		Tasca tasca = findTascaByJbpmTask(task);
 		
 		dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
-		dto.setMarcadaFinalitzar(task.getTask().getMarcadaFinalitzar());
-		dto.setIniciFinalitzacio(task.getTask().getIniciFinalitzacio());
-		dto.setErrorFinalitzacio(task.getTask().getErrorFinalitzacio());
+		if (tasca.isFinalitzacioSegonPla() && 
+			tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
+			tascaSegonPlaHelper.getTasquesSegonPla().containsKey(task.getTask().getId())) {
+			InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(task.getTask().getId());
+			dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
+			dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
+			dto.setErrorFinalitzacio(infoSegonPla.getError());
+		}
 		
 		Expedient expedientNoNull = expedient;
 		if (expedientNoNull == null) {

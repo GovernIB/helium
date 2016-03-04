@@ -199,6 +199,7 @@ jQuery(document).ready(function(){
 				<c:when test="${registre.accioTipus == 'TASCA_DOCUMENT_ESBORRAR'}"><fmt:message key="expedient.log.info.document"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'TASCA_DOCUMENT_SIGNAR'}"><fmt:message key="expedient.log.info.document"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'TASCA_COMPLETAR'}"><c:if test="${not empty registre.accioParams}"><fmt:message key="expedient.log.info.opcio"/>: ${registre.accioParams}</c:if></c:when>
+				<c:when test="${registre.accioTipus == 'TASCA_MARCAR_FINALITZAR'}"><c:if test="${not empty registre.accioParams}"><fmt:message key="expedient.log.info.opcio"/>: ${registre.accioParams}</c:if></c:when>
 				<c:when test="${registre.accioTipus == 'EXPEDIENT_ATURAR'}"><fmt:message key="expedient.log.info.missatges"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'EXPEDIENT_ACCIO'}"><fmt:message key="expedient.log.info.accio"/>: ${registre.accioParams}</c:when>
 				<c:when test="${registre.accioTipus == 'EXPEDIENT_RETROCEDIR' or registre.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">

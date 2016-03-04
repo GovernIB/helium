@@ -420,4 +420,10 @@ public interface TascaService {
 	public boolean isSignaturesComplet(String tascaId);
 	
 	public void comprovarTasquesSegonPla();
+
+	public void carregaTasquesSegonPla();
+	
+	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio);
+	
+	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio);
 }

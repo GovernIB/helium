@@ -81,6 +81,7 @@ import net.conselldemallorca.helium.jbpm3.command.GetTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTasquesSegonPlaPendentsIdsCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetTokenByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetVariableIdFromVariableLogCommand;
+import net.conselldemallorca.helium.jbpm3.command.GuardarErrorFinalitzacioCommand;
 import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
 import net.conselldemallorca.helium.jbpm3.command.MarcarIniciFinalitzacioSegonPlaCommand;
 import net.conselldemallorca.helium.jbpm3.command.ListActionsCommand;
@@ -611,16 +612,23 @@ public class JbpmHelper {
 	}
 	
 	//Marcar tasca pendent de finalitzar en segón pla
-	public void marcarFinalitzar(String taskId, String outcome) {
+	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome) {
 		final long id = Long.parseLong(taskId);
-		MarcarFinalitzarCommand command = new MarcarFinalitzarCommand(id, outcome);
+		MarcarFinalitzarCommand command = new MarcarFinalitzarCommand(id, marcadaFinalitzar, outcome);
 		commandService.execute(command);
 	}
 
 	//Marcar tasca marcada en segon pla com "en execució"
-	public void marcarIniciFinalitzacioSegonPla(String taskId) {
+	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) {
 		final long id = Long.parseLong(taskId);
-		MarcarIniciFinalitzacioSegonPlaCommand command = new MarcarIniciFinalitzacioSegonPlaCommand(id);
+		MarcarIniciFinalitzacioSegonPlaCommand command = new MarcarIniciFinalitzacioSegonPlaCommand(id, iniciFinalitzacio);
+		commandService.execute(command);
+	}
+	
+	//Guardar l'error de finalitzacio a BBDD
+	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) {
+		final long id = Long.parseLong(taskId);
+		GuardarErrorFinalitzacioCommand command = new GuardarErrorFinalitzacioCommand(id, errorFinalitzacio);
 		commandService.execute(command);
 	}
 	
@@ -1860,6 +1868,9 @@ public class JbpmHelper {
 					autoSaveTipus);
 			return commandService.execute(autoSaveCommand);
 		} catch (JbpmException ex) {
+			//Inserim l'error a la tasca si aquesta s'ha executat en segon pla
+			Jbpm3HeliumBridge.getInstanceService().setErrorTascaSegonPla(id, ex);
+			//
 			throw tractarExceptionJbpm(
 					ex,
 					id,

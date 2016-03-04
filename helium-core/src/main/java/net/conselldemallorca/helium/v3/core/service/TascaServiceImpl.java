@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1113,16 +1114,16 @@ public class TascaServiceImpl implements TascaService {
 		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
 		if (tasca.isFinalitzacioSegonPla()) {
 			//cridar command per a marcar la tasca per a finalitzar en segón pla
-			jbpmHelper.marcarFinalitzar(tascaId, outcome);
-			Registre registre = new Registre(
-					new Date(),
+			Date marcadaFinalitzar = new Date();
+			jbpmHelper.marcarFinalitzar(tascaId, marcadaFinalitzar, outcome);
+			checkFinalitzarSegonPla(tascaId, marcadaFinalitzar);
+			
+			expedientLoggerHelper.afegirLogExpedientPerTasca(
+					tascaId,
 					expedientId,
-					usuari,
-					Registre.Accio.MARCADA_FINALITZAR,
-					Registre.Entitat.TASCA,
-					tascaId);
-			registre.setMissatge("Marcada per finalitzar \"" + task.getTaskName() + "\"");
-			registreRepository.save(registre);
+					ExpedientLogAccioTipus.TASCA_MARCAR_FINALITZAR,
+					outcome,
+					usuari);
 		} else {
 			completarTasca(
 					tascaId,
@@ -1130,6 +1131,41 @@ public class TascaServiceImpl implements TascaService {
 					task,
 					outcome,
 					usuari);
+		}
+	}
+	
+	/**
+	 * Es comprova si tenim carregades les dades de les tasques en segon
+	 * pla en memòria. Si ja tenim la tasca (s'ha provat d'executar algún cop)
+	 * s'actualitzaran les dades.
+	 * Si no, es crea una entrada al Map per aquesta tasca que s'ha d'executar en segón pla.
+	 */
+	private void checkFinalitzarSegonPla(String id, Date marcadaFinalitzar) {
+		Long taskId = Long.parseLong(id);
+		if (!tascaSegonPlaHelper.isTasquesSegonPlaLoaded())
+			tascaSegonPlaHelper.loadTasquesSegonPla();
+		
+		Map<Long,InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+		if (map.containsKey(taskId)) {
+			InfoSegonPla infoSegonPla = map.get(taskId);
+			infoSegonPla.setMarcadaFinalitzar(marcadaFinalitzar);
+			infoSegonPla.setIniciFinalitzacio(null);
+			infoSegonPla.setError(null);
+			infoSegonPla.setMessages(new ArrayList<String>());
+		} else { 
+			tascaSegonPlaHelper.afegirTasca(taskId, marcadaFinalitzar);
+		}
+	}
+	
+	/**
+	 * Si tenim carregades les tasques en segon pla
+	 * s'elimina aquesta tasca del Map en momòria
+	 */
+	private void checkCompletarTasca(String id) {
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+//			Long taskId = Long.parseLong(id);
+//			TascaSegonPlaHelper.eliminarTasca(taskId);
+			tascaSegonPlaHelper.completarTasca(Long.parseLong(id));
 		}
 	}
 
@@ -1187,6 +1223,7 @@ public class TascaServiceImpl implements TascaService {
 					usuari);
 			jbpmHelper.startTaskInstance(tascaId);
 			jbpmHelper.endTaskInstance(tascaId, outcome);
+			checkCompletarTasca(tascaId);
 			// Accions per a una tasca delegada
 			DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
 			if (delegationInfo != null) {
@@ -1270,7 +1307,6 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Override
-	@Transactional
 	@Scheduled(fixedRate = 30000)
 	public void comprovarTasquesSegonPla() {
 //		//// PROVES NO BBDD ///////////////
@@ -1290,37 +1326,79 @@ public class TascaServiceImpl implements TascaService {
 		
 		System.out.println("Comprovant si hi ha tasques pendents d'executar en segon pla. (" + Thread.currentThread().getId() + ")");
 //		Si encara no hem inicialitzat la variable en memòria ho feim i li carregam les tasques
-		if (!TascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			TascaSegonPlaHelper.loadTasquesSegonPla();
+		tascaSegonPlaHelper.carregaTasquesSegonPla();
+		
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && tascaSegonPlaHelper.getTasquesSegonPla().size() > 0) {
+//			for (Map.Entry<Long, InfoSegonPla> entry : TascaSegonPlaHelper.getTasquesSegonPla().entrySet()) {
+//			for (Long key : TascaSegonPlaHelper.getTasquesSegonPla().keySet()) {
+			Iterator<Map.Entry<Long, InfoSegonPla>> iter = tascaSegonPlaHelper.getTasquesSegonPla().entrySet().iterator();
+			while (iter.hasNext()) {
+			    Map.Entry<Long, InfoSegonPla> entry = iter.next();
+				String tascaId = entry.getKey().toString();
+				InfoSegonPla infoSegonPla = entry.getValue();
+				if (infoSegonPla.getMarcadaFinalitzar() != null &&
+					infoSegonPla.getIniciFinalitzacio() == null &&
+					infoSegonPla.getError() == null &&
+					!infoSegonPla.isCompletada()) {
+					
+					Date iniciFinalitzacio = new Date();
+					infoSegonPla.setIniciFinalitzacio(iniciFinalitzacio);
+					
+					try {
+						tascaSegonPlaHelper.completaTascaSegonPla(tascaId, iniciFinalitzacio);
+					} catch (Exception ex) {
+						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
+						if (ex.getCause() != null) {
+							System.out.println(">>> Excepció segon pla: " + ex.getCause().getMessage());
+						}
+			        }
+
+				} else if (infoSegonPla.getError() == null && infoSegonPla.isCompletada()) {
+					try {
+						iter.remove();
+					} catch (Exception ex) {
+						if (ex.getCause() != null) {
+							System.out.println(">>> No es pot eliminar l'iteració: " + ex.getCause().getMessage());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void carregaTasquesSegonPla() {
+		if (!tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 			//Primer carregam les ids de les tasques pendents d'executar en segon pla
 			List<Object[]> tasquesSegonPlaIds = jbpmHelper.getTasquesSegonPlaPendents();
+			tascaSegonPlaHelper.loadTasquesSegonPla();
 			if(tasquesSegonPlaIds.size() > 0) {
 				for(Object[] taskResult: tasquesSegonPlaIds) {
-					TascaSegonPlaHelper.afegirTasca((Long)taskResult[0], new InfoSegonPla((Date)taskResult[1]));
+					tascaSegonPlaHelper.afegirTasca((Long)taskResult[0], (Date)taskResult[1], (Date)taskResult[2], (String)taskResult[3]);
 				}
 			}
 		}
+	}
+	
+	@Override
+	@Transactional
+	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
+		JbpmTask task = jbpmHelper.getTaskById(tascaId);
+		jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
 		
-		if (TascaSegonPlaHelper.isTasquesSegonPlaLoaded() && TascaSegonPlaHelper.getTasquesSegonPla().size() > 0) {
-			for (Map.Entry<Long, InfoSegonPla> entry : TascaSegonPlaHelper.getTasquesSegonPla().entrySet()) {
-				String tascaId = entry.getKey().toString();
-				JbpmTask task = jbpmHelper.getTaskById(tascaId);
-				if (task.getTask().getMarcadaFinalitzar() != null &&
-					task.getTask().getIniciFinalitzacio() == null &&
-					task.getTask().getErrorFinalitzacio() == null) {
-
-					jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId);
-					completarTasca(
-							tascaId, 
-							task.getTask().getProcessInstance().getExpedient().getId(), 
-							task, 
-							task.getTask().getSelectedOutcome(), 
-							task.getTask().getActorId());
-
-					System.out.println(task.getTask().getMarcadaFinalitzar());
-				}
-			}
-		}
+		completarTasca(
+				tascaId, 
+				task.getTask().getProcessInstance().getExpedient().getId(), 
+				task, 
+				task.getTask().getSelectedOutcome(), 
+				task.getTask().getActorId());
+	}
+	
+	@Override
+	@Transactional
+	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
+		jbpmHelper.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
 	}
 	
 	public FormulariExternDto formulariExternObrirTascaInicial(

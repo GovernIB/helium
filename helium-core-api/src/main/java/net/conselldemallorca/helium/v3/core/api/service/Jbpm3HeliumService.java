@@ -1036,5 +1036,11 @@ public interface Jbpm3HeliumService {
 	 * 
 	 */
 	public MetricRegistry getMetricRegistry();
+	
+	/**
+	 * Error completar tasca en segon pla
+	 * 
+	 */
+	public void setErrorTascaSegonPla(Long taskId, Exception ex);
 
 }

@@ -24,6 +24,7 @@ import com.codahale.metrics.MetricRegistry;
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
@@ -253,6 +254,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Resource
 	private MetricRegistry metricRegistry;
+	
+	@Resource
+	private TascaSegonPlaHelper tascaSegonPlaHelper;
 
 
 
@@ -1801,6 +1805,16 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public MetricRegistry getMetricRegistry() {
 		return metricRegistry;
+	}
+	
+	@Override
+	public void setErrorTascaSegonPla(Long taskId, Exception ex) {
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+		Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			if (map.containsKey(taskId)) {
+				map.get(taskId).setError((ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+			}
+		}
 	}
 
 
