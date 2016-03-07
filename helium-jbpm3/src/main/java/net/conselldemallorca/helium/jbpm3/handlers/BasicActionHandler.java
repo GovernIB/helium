@@ -8,12 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.JbpmException;
-import org.jbpm.context.exe.ContextInstance;
-import org.jbpm.graph.def.ActionHandler;
-import org.jbpm.graph.exe.ExecutionContext;
-import org.jbpm.graph.exe.Token;
-
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
@@ -60,6 +54,14 @@ import net.conselldemallorca.helium.v3.core.api.exception.DefinicioProcesNotFoun
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
+
+import org.jbpm.JbpmException;
+import org.jbpm.context.exe.ContextInstance;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.Token;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**
@@ -188,27 +190,32 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			boolean iniciat,
 			boolean finalitzat) {
 		try {
-			ExpedientDto expedient = getExpedientActual(executionContext);
-			EstatDto estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
-					expedient.getEntorn().getId(),
-					expedientTipusCodi,
-					estatCodi);
-			// Consulta d'expedients
-			List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
-					expedient.getEntorn().getId(),
-					titol,
-					numero,
-					dataInici1,
-					dataInici2,
-					expedient.getTipus().getId(),
-					estat == null ? null : estat.getId(),
-					iniciat,
-					finalitzat);
-			// Construcció de la resposta
-			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
-			for (ExpedientDto dto: resultats)
-				resposta.add(toExpedientInfo(dto));
-			return resposta;
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (auth != null) {
+				ExpedientDto expedient = getExpedientActual(executionContext);
+				EstatDto estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
+						expedient.getEntorn().getId(),
+						expedientTipusCodi,
+						estatCodi);
+				// Consulta d'expedients
+				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+						expedient.getEntorn().getId(),
+						titol,
+						numero,
+						dataInici1,
+						dataInici2,
+						expedient.getTipus().getId(),
+						estat == null ? null : estat.getId(),
+						iniciat,
+						finalitzat);
+				// Construcció de la resposta
+				List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+				for (ExpedientDto dto: resultats)
+					resposta.add(toExpedientInfo(dto));
+				return resposta;
+			} else {
+				throw new JbpmException("No hi ha usuari autenticat");
+			}
 		} catch (Exception ex) {
 			throw new JbpmException("Error en la consulta d'expedients", ex);
 		}
