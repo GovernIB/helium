@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
 
 /**
@@ -22,6 +23,8 @@ import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
 @Service("entornServiceV3")
 public class EntornServiceImpl implements EntornService {
 
+	@Autowired
+	private EntornHelper entornHelper;
 	@Autowired
 	private UsuariActualHelper usuariActualHelper;
 
@@ -34,6 +37,15 @@ public class EntornServiceImpl implements EntornService {
 		logger.debug("Consulta d'entorns amb accés per a l'usuari actual ("
 				+ "usuariActual=" + usuariActual + ")");
 		return usuariActualHelper.findEntornsPermesos(usuariActual);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<EntornDto> findAll() {
+		logger.debug("Consulta d'entorns del sistema)");
+		return entornHelper.findAll();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(EntornServiceImpl.class);

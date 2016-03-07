@@ -199,6 +199,7 @@
 									<c:if test="${globalProperties['app.expedient.monitor']}">
 										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
+									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMetriques" href="<c:url value="/modal/v3/metriques"/>"><spring:message code='expedient.metriques' /></a></li>
 									<li><a data-rdt-link-modal="true" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>
@@ -216,8 +217,6 @@
 									});
 								</script>
 							</div>
-
-							
 						</c:if>
 					</div>
 					<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">

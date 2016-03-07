@@ -27,7 +27,6 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 /**
  * Extension of the default jBPM Job executor thread.
@@ -41,8 +40,8 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 	private static final Log logger = LogFactory.getLog(SpringJobExecutorThread.class);
 	private TransactionTemplate transactionTemplate;
 	public static Map<Long, String[]> jobErrors = new HashMap<Long, String[]>();
-	private String expedientTipus = null;
-	private ExpedientDto exp = null;
+//	private String expedientTipus = null;
+//	private ExpedientDto exp = null;
 	
 	public SpringJobExecutorThread(String name,
                             JobExecutor jobExecutor,
@@ -128,19 +127,18 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 									expedient.getTipus().getCodi()));
 					countTipexp.inc();
 					try {
-						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
+//						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
 						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
-							if (exp != null)
-								expedientTipus = exp.getTipus().getNom();
-							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedientTipus, null, null);
+							if (expedient != null)
+//								expedientTipus = expedient.getTipus().getNom();
+							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedient.getTipus().getNom(), null, null);
 						}
 						SpringJobExecutorThread.super.executeJob(job);
 						String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
 						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
 					} catch (Exception ex) {
-						String errorDesc = "S'ha produït un error al executar el timer " + jName + ".";	
-						saveJobError(job.getId(), ex, errorDesc);
-
+//						String errorDesc = "S'ha produït un error al executar el timer " + jName + ".";	
+						saveJobError(job.getId(), ex, "S'ha produït un error al executar el timer " + jName + ".");
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
 						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 						throw e;
@@ -169,14 +167,14 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 					errorDesc, 
 					errorFull);
 			String msgError = "Error al executar la transaccio del job '" + jName + "' con processInstanceId=" + job.getProcessInstance().getId();
-			if (exp != null) {
-				msgError += " de l'expedient (id=" + exp.getId() + ", identificador=" + exp.getIdentificador() + ")";
+			if (expedient != null) {
+				msgError += " de l'expedient (id=" + expedient.getId() + ", identificador=" + expedient.getIdentificador() + ")";
 			}
 			logger.error(msgError, ex);
 			JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 			throw e;
 		}
-		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedientTipus, null, null);
+		Jbpm3HeliumBridge.getInstanceService().mesuraCalcular(jName, "timer", expedient.getTipus().getNom(), null, null);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

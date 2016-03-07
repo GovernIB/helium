@@ -3,19 +3,23 @@
  */
 package net.conselldemallorca.helium.v3.core.helper;
 
-import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
-import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
+import javax.annotation.Resource;
 
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 /**
  * Helper per a gestionar els entorns.
@@ -85,5 +89,24 @@ public class EntornHelper {
 			}
 		}
 		return entorn;
+	}
+	
+	public List<EntornDto> findAll() {
+		List<EntornDto> entornsDto = new ArrayList<EntornDto>();
+		List<Entorn> entorns = entornRepository.findAll();
+		for (Entorn entorn: entorns) {
+			entornsDto.add(toEntornDto(entorn));
+		}
+		return entornsDto;
+	}
+	
+	public EntornDto toEntornDto(Entorn entorn) {
+		EntornDto dto = new EntornDto();
+		dto.setId(entorn.getId());
+		dto.setCodi(entorn.getCodi());
+		dto.setNom(entorn.getNom());
+		dto.setActiu(entorn.isActiu());
+		dto.setDescripcio(entorn.getDescripcio());
+		return dto;
 	}
 }

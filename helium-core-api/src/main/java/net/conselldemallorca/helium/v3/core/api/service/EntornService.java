@@ -22,4 +22,11 @@ public interface EntornService {
 	 */
 	public List<EntornDto> findAmbPermisAcces();
 
+	/**
+	 * Retorna una llista de tots els entorns del sistema
+	 * 
+	 * @return El llistat d'entorns.
+	 */
+	public List<EntornDto> findAll();
+
 }
