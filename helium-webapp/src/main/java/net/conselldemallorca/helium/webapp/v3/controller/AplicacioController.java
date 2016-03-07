@@ -7,12 +7,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
@@ -25,7 +27,8 @@ public class AplicacioController {
 
 	@Autowired
 	private AdminService adminService;
-
+	@Autowired
+	private EntornService entornService;
 
 
 	@RequestMapping(value = "/v3", method = RequestMethod.GET)
@@ -66,4 +69,12 @@ public class AplicacioController {
 		return adminService.getMetrics();
 	}
 
+	@RequestMapping(value = "/v3/metriques", method = RequestMethod.GET)
+	public String metricsView(
+			HttpServletRequest request,
+			Model model) {
+		model.addAttribute("metriques", adminService.getMetrics());
+		model.addAttribute("entorns", entornService.findActiusAll());
+		return "v3/metrics";
+	}
 }
