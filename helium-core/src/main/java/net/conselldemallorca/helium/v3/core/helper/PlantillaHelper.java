@@ -424,7 +424,7 @@ public class PlantillaHelper {
 				"personaAmbCarrecArea",
 				new TemplateMethodModel() {
 					public TemplateModel exec(List args) throws TemplateModelException {
-						if (args.size() == 1) {
+						if (args.size() == 2) {
 							Object arg0 = args.get(0);
 							Object arg1 = args.get(1);
 							if (arg0 != null && arg0 instanceof String && arg1 != null && arg1 instanceof String) {
