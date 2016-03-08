@@ -38,4 +38,12 @@ public class EntornServiceBean implements EntornService {
 		return delegate.findAmbPermisAcces();
 	}
 
+
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EntornDto> findAll() {
+		return delegate.findAll();
+	}
+
 }
