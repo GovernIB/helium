@@ -134,7 +134,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			expedientQuerySb.append("and pie.dataInici <= :dataIniciFi ");
 		}
 		if (estatId != null) {
-			expedientQuerySb.append("and pie.estatId = :estatId ");
+			expedientQuerySb.append("and pie.estatId = :estatId and pie.dataFi is null ");
 		}
 		if (geoPosX != null) {
 			expedientQuerySb.append("and pie.geoPosX = :geoPosX ");
