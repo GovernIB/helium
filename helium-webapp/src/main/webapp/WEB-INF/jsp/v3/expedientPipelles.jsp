@@ -17,6 +17,8 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 <style type="text/css">
 	#expedient-info h3 {
 		font-weight: bold;
@@ -78,21 +80,7 @@
 			var loaded = $(targetHref).data('loaded')
 			//if (!loaded) {	//Condició per carregar només un cop cada pipella
 			if (true) {			//Condició per carregar cada vegada les pipelles
-				
-				//mostrem cada cop l'icona de càrrega
-				$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
-				///////////////
-				
-				$(targetHref).load(
-					$(targetHref).data('href'),
-					function (responseText, textStatus, jqXHR) {
-						if (textStatus == 'error') {
-							modalAjaxErrorFunction(jqXHR, textStatus);
-						} else {
-							$(this).data('loaded', 'true');
-						}
-					}
-				);
+				carregaTab(targetHref);
 			}
 		})
 		<c:choose>
@@ -121,7 +109,91 @@
 		    allowClear: true,
 		    minimumResultsForSearch: 10
 		});
+
+		//Per defecte, si no s'especifica al fitxer de properties
+		//tendrem un interval que executa una funció cada 10 segons per a refrescar les
+		//ícones d'estat de les tasques en segon pla
+		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
+		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+		<c:if test="${refrescaSegonPla}">
+			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
+		</c:if>
 	});
+
+	function refrescaEstatSegonPla() {
+		var tasquesSegonPlaIds = [];
+		$('span.segon-pla-icona').each(function (index, value) {
+			var id = $(value).attr('id').split('spi-')[1]; 
+		 	tasquesSegonPlaIds.push(id);	
+		});
+		if (tasquesSegonPlaIds.length > 0) {
+			$.ajax({
+			    url: "../tasca/actualitzaEstatsSegonPla",
+			    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
+			    type: "POST",
+			    success: function(data) {
+				    //recorrem de nou les icones de les tasques per 
+				    //actualitzar-ne l'estat
+				    if (data != undefined) {
+					    $.each(tasquesSegonPlaIds, function(ind,val) {
+						    var canviar = false;
+						    var previousClass = "";
+						    var iconContent = "";
+						    var tascaEstat = data[val];
+						    if (tascaEstat != undefined) {
+						    	if (!tascaEstat['completada'] && (tascaEstat['error'] != undefined || tascaEstat['marcadaFinalitzar'] != undefined || tascaEstat['iniciFinalitzacio'] != undefined)) {
+									if (tascaEstat['error'] != undefined){
+										iconContent = '<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: ' + tascaEstat['error'] + '"></i>';
+										previousClass = "error";
+									}
+									if (tascaEstat['error'] == undefined && tascaEstat['marcadaFinalitzar'] != undefined && tascaEstat['iniciFinalitzacio'] == undefined) {
+										iconContent = '<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> ' + (moment(new Date(tascaEstat['marcadaFinalitzar'])).format("DD/MM/YYYY HH:mm:ss")) + '"></i>';
+										previousClass = "programada";
+									}
+									if (tascaEstat['error'] == undefined && tascaEstat['marcadaFinalitzar'] != undefined && tascaEstat['iniciFinalitzacio'] != undefined) {
+										iconContent = '<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> ' + (moment(new Date(tascaEstat['iniciFinalitzacio'])).format("DD/MM/YYYY HH:mm:ss")) + '"></i>';
+										previousClass = "executant";
+									}
+						    	} else if (tascaEstat['completada']) {
+						    		iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
+						    		//refrescam el datatable
+						    		carregaTab("#contingut-tasques");
+							    }				    	
+							} else {
+								iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
+								//refrescam el datatable
+								carregaTab("#contingut-tasques");
+							}
+
+							if ($('#spi-' + val).length > 0 && !$('#spi-' + val + ' > i').hasClass(previousClass)) {
+								$('#spi-' + val).html(iconContent);
+								$('#spi-' + val + ' > i').tooltip('hide')
+						          .attr('data-original-title', $('#spi-' + val).attr('title'))
+						          .tooltip('fixTitle');
+							}
+						});
+				    }
+				}
+			});
+		}
+	}
+	
+	function carregaTab(targetHref) {
+		//mostrem cada cop l'icona de càrrega
+		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
+		///////////////
+		
+		$(targetHref).load(
+			$(targetHref).data('href'),
+			function (responseText, textStatus, jqXHR) {
+				if (textStatus == 'error') {
+					modalAjaxErrorFunction(jqXHR, textStatus);
+				} else {
+					$(this).data('loaded', 'true');
+				}
+			}
+		);
+	}
 
 	function reestructura (proces, correcte) {
 		if (correcte) {
