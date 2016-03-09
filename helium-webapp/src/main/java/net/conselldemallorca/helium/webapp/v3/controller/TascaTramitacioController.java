@@ -110,6 +110,13 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			Model model) {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
+		
+		boolean bloquejarEdicioTasca = tascaService.isEnSegonPla(tascaId);
+		model.addAttribute("bloquejarEdicioTasca", bloquejarEdicioTasca);
+		if (bloquejarEdicioTasca) {
+			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.bloquejada"));
+		}
+		
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				expedientId,
@@ -126,6 +133,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String pipellaActiva,
 			Model model) {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
+		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		return mostrarInformacioTascaPerPipelles(
 				request,
 				expedientId,
@@ -140,6 +148,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
+		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
@@ -349,6 +358,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
+		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
@@ -413,6 +423,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
+		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,

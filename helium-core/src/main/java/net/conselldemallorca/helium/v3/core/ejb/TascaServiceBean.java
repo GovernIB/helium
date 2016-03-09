@@ -356,4 +356,16 @@ public class TascaServiceBean implements TascaService {
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
 		delegate.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds) {
+		return delegate.obtenirEstatsPerIds(tasquesSegonPlaIds);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean isEnSegonPla(String tascaSegonPlaId) {
+		return delegate.isEnSegonPla(tascaSegonPlaId);
+	}
 }

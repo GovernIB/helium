@@ -70,7 +70,7 @@
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-		 			<c:if test="${document.plantilla and tasca.validada}">
+		 			<c:if test="${document.plantilla and tasca.validada and !bloquejarEdicioTasca}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
 							href="${documentGenerarAction}"
@@ -82,13 +82,15 @@
 					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/expedient/${expedientId}/document/${document.documentStoreId}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
-					<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
-						id="removeUrl${document.id}" 
-						href="${documentBorrarAction}"
-						data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
-						title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
-						<i class="fa fa-trash-o"></i>
-					</a>
+					<c:if test="${!bloquejarEdicioTasca}">
+						<a 	class="icon <c:if test="${empty document.tokenSignatura or not tasca.validada}">hide</c:if>" 
+							id="removeUrl${document.id}" 
+							href="${documentBorrarAction}"
+							data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
+							title="<spring:message code='expedient.massiva.tasca.doc.borrar' />">
+							<i class="fa fa-trash-o"></i>
+						</a>
+					</c:if>
 					<div id="hideData${document.id}" class="comentari small <c:if test="${empty document.tokenSignatura}">hide</c:if>">
 						<p><label><spring:message code='tasca.doc.adjunt.arxiu' /></label>: <label id="docNom${document.id}">${document.arxiuNom}</label></p>
 						<p><label><spring:message code='tasca.doc.adjunt.adjuntat.el' /></label>: <label id="docDataAdj${document.id}"><fmt:formatDate value="${document.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></label></p>
@@ -96,7 +98,7 @@
 					</div>
 				</h4>
 			</div>
-			<c:if test="${tasca.validada}">
+			<c:if test="${tasca.validada and !bloquejarEdicioTasca}">
 				<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 					<label class="control-label col-xs-4" for="nom"><spring:message code='expedient.document.arxiu' /></label>
 			        <div class="col-xs-10 arxiu">

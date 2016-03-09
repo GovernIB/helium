@@ -426,4 +426,16 @@ public interface TascaService {
 	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio);
 	
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio);
+
+	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds);
+	
+	/**
+	 * Retorna si la TaskInstance està registrada en segon pla
+	 * en execució o per ser executada
+	 * 
+	 * @param tascaId
+	 *            Atribut id de la tasca que es vol consultar.
+	 * @return Retorna si està registrada en segón pla o no
+	 */ 
+	public boolean isEnSegonPla(String tascaSegonPlaId);
 }

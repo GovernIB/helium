@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +46,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Controlador per al llistat de tasques.
@@ -291,6 +294,25 @@ public class TascaLlistatV3Controller extends BaseController {
 			Model model) {		
 		model.addAttribute("tasques", adminService.getTasquesCompletar());
 		return "v3/pendentsCompletar"; 
+	}
+	
+//	@RequestMapping(value = "/actualitzaEstatsSegonPla", 
+//					method = RequestMethod.POST,
+//			        produces = MediaType.APPLICATION_JSON_VALUE,
+//			        consumes = MediaType.APPLICATION_JSON_VALUE)
+//	@ResponseBody
+//	public Map<Long,Object> actualitzaEstatsSegonPla(
+//			HttpServletRequest request,
+//			@RequestParam(value = "tasquesSegonPlaIds", required = true) String[] tasquesSegonPlaIds) {
+//		return tascaService.obtenirEstatsPerIds(new ArrayList<String>());
+//	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/actualitzaEstatsSegonPla", method = RequestMethod.POST)
+    public Object actualitzaEstatsSegonPla(@RequestParam("tasquesSegonPlaIds[]") String[] tasquesSegonPlaIds){     
+		@SuppressWarnings("unchecked")
+		Map<Long,Object>result = tascaService.obtenirEstatsPerIds((List<String>)Arrays.asList(tasquesSegonPlaIds));
+        return result;
 	}
 	
 	@InitBinder

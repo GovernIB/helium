@@ -49,6 +49,23 @@
 												<c:otherwise><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></c:otherwise>
 											</c:choose>
 										</c:if>
+										<c:if test="${not empty tasca.errorFinalitzacio or not empty tasca.marcadaFinalitzar or not empty tasca.iniciFinalitzacio}">
+											<div class="pull-right">
+												<span class="segon-pla-icona" id="spi-${tasca.id}">
+												<c:choose>
+													<c:when test="${not empty tasca.errorFinalitzacio}">
+														<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: ${tasca.errorFinalitzacio}"></i>
+													</c:when>
+													<c:when test="${empty tasca.errorFinalitzacio and not empty tasca.marcadaFinalitzar and empty tasca.iniciFinalitzacio}">
+														<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> ${tasca.marcadaFinalitzarFormat}"></i>
+													</c:when>
+													<c:when test="${empty tasca.errorFinalitzacio and not empty tasca.marcadaFinalitzar and not empty tasca.iniciFinalitzacio}">
+														<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> ${tasca.iniciFinalitzacioFormat}"></i>
+													</c:when>
+												</c:choose>
+												</span>
+											</div>
+										</c:if>
 									</div>
 								</td>
 								<td class="columna-info-tasca">${tasca.responsableString}</td>

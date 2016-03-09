@@ -226,8 +226,11 @@ function refrescarAlertesFunction() {
 			<div class="well"><span class="fa fa-info-circle"></span> <spring:message code="tasca.tramitacio.sense.pipelles"/></div>
 		</c:otherwise>
 	</c:choose>
-	<div id="guardarValidarTarea">
-		<%@ include file="campsTascaBotons.jsp" %>
-	</div>
+	
+	<c:if test="${!bloquejarEdicioTasca}">
+		<div id="guardarValidarTarea">
+			<%@ include file="campsTascaBotons.jsp" %>
+		</div>
+	</c:if>
 </body>
 </html>

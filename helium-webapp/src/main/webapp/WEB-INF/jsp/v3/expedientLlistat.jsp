@@ -102,21 +102,7 @@ $(document).ready(function() {
 					$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
 					$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>');
 				} else {
-					var jqxhr = $.ajax({
-						url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#nomesTasquesPersonals').val()+"/"+$('#nomesTasquesGrup').val(),
-						beforeSend: function(xhr) {
-							$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
-						}
-					}).done(function(data) {
-						$(row).next(".tasques-pendents").remove();
-						$(row).after(data);
-						$('td:first', $(row).next(".tasques-pendents")).attr('colspan', numTds);
-						$(row).next(".tasques-pendents").slideDown(1000);
-						$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
-						$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
-					}).fail(function(jqXHR, exception) {
-						modalAjaxErrorFunction(jqXHR, exception);
-					});
+					carregaTasques(row,numTds);
 				}
 			}
 		},
@@ -170,7 +156,36 @@ $(document).ready(function() {
     })
 	
 	$('#expedientTipusId').trigger('change');
+
+	//Per defecte, si no s'especifica al fitxer de properties
+	//tendrem un interval que executa una funció cada 10 segons per a refrescar les
+	//ícones d'estat de les tasques en segon pla
+	<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
+	<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+	<c:if test="${refrescaSegonPla}">
+		setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
+	</c:if>
 });
+
+function carregaTasques(row, numTds) {
+	var jqxhr = $.ajax({
+		url: "<c:url value="/nodeco/v3/expedient/"/>" + $(row).find(".rdt-seleccio").val() + "/tasquesPendents/"+$('#nomesTasquesPersonals').val()+"/"+$('#nomesTasquesGrup').val(),
+		beforeSend: function(xhr) {
+			$(row).after('<tr class="tasques-pendents"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
+		}
+	}).done(function(data) {
+		$(row).next(".tasques-pendents").remove();
+		$(row).after(data);
+		$('td:first', $(row).next(".tasques-pendents")).attr('colspan', numTds);
+		$(row).next(".tasques-pendents").slideDown(1000);
+		$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
+		$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
+		$('span.segon-pla-icona > i').tooltip({container: 'body'});
+	}).fail(function(jqXHR, exception) {
+		modalAjaxErrorFunction(jqXHR, exception);
+	});
+}
+
 function recarregarTaula(tableId, correcte) {
 	if (correcte) {
 		refrescarAlertes($("#"+tableId));
@@ -227,6 +242,84 @@ function filtreActiu() {
 		$('#expedientConsultaCommand').addClass("filtrat");
 	} else {
 		$('#expedientConsultaCommand').removeClass("filtrat");
+	}
+}
+
+function refrescaEstatSegonPla() {
+	var tasquesSegonPlaIds = [];
+	$('span.segon-pla-icona').each(function (index, value) {
+		var id = $(value).attr('id').split('spi-')[1]; 
+	 	tasquesSegonPlaIds.push(id);	
+	});
+	if (tasquesSegonPlaIds.length > 0) {
+		$.ajax({
+		    url: "tasca/actualitzaEstatsSegonPla",
+		    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
+		    type: "POST",
+		    success: function(data) {
+			    //recorrem de nou les icones de les tasques per 
+			    //actualitzar-ne l'estat
+			    if (data != undefined) {
+				    $.each(tasquesSegonPlaIds, function(ind,val) {
+					    var canviar = false;
+					    var previousClass = "";
+					    var iconContent = "";
+					    var tascaEstat = data[val];
+					    if (tascaEstat != undefined) {
+					    	if (!tascaEstat['completada'] && (tascaEstat['error'] != undefined || tascaEstat['marcadaFinalitzar'] != undefined || tascaEstat['iniciFinalitzacio'] != undefined)) {
+								if (tascaEstat['error'] != undefined){
+									iconContent = '<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: ' + tascaEstat['error'] + '"></i>';
+									previousClass = "error";
+								}
+								if (tascaEstat['error'] == undefined && tascaEstat['marcadaFinalitzar'] != undefined && tascaEstat['iniciFinalitzacio'] == undefined) {
+									iconContent = '<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> ' + (moment(new Date(tascaEstat['marcadaFinalitzar'])).format("DD/MM/YYYY HH:mm:ss")) + '"></i>';
+									previousClass = "programada";
+								}
+								if (tascaEstat['error'] == undefined && tascaEstat['marcadaFinalitzar'] != undefined && tascaEstat['iniciFinalitzacio'] != undefined) {
+									iconContent = '<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> ' + (moment(new Date(tascaEstat['iniciFinalitzacio'])).format("DD/MM/YYYY HH:mm:ss")) + '"></i>';
+									previousClass = "executant";
+								}
+					    	} else if (tascaEstat['completada']) {
+					    		iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
+					    		//refrescam el datatable
+					    		var row = $('#spi-' + val).parents('.tasques-pendents').prev()[0];
+					    		var numTds = $('td', $('#spi-' + val).parents('.tasques-pendents').prev()).length;
+					    		if ($(row).next().hasClass('table-pendents') || $(row).next().hasClass('tasques-pendents')) {
+									while ($(row).next().hasClass('table-pendents') || $(row).next().hasClass('tasques-pendents')) {
+										$(row).next().remove();
+									}
+									$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
+									$('.icona-tasques-pendents', row).attr('title', 'Mostrar tasques pendents');
+									
+									carregaTasques(row,numTds);
+								}
+						    }				    	
+						} else {
+							iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
+							//refrescam el datatable
+							var row = $('#spi-' + val).parents('.tasques-pendents').prev()[0];
+				    		var numTds = $('td', $('#spi-' + val).parents('.tasques-pendents').prev()).length;
+				    		if ($(row).next().hasClass('table-pendents') || $(row).next().hasClass('tasques-pendents')) {
+								while ($(row).next().hasClass('table-pendents') || $(row).next().hasClass('tasques-pendents')) {
+									$(row).next().remove();
+								}
+								$('.icona-tasques-pendents', row).removeClass('fa-chevron-up').addClass('fa-chevron-down');
+								$('.icona-tasques-pendents', row).attr('title', 'Mostrar tasques pendents');
+
+								carregaTasques(row,numTds);
+							}
+						}
+
+						if ($('#spi-' + val).length > 0 && !$('#spi-' + val + ' > i').hasClass(previousClass)) {
+							$('#spi-' + val).html(iconContent);
+							$('#spi-' + val + ' > i').tooltip('hide')
+					          .attr('data-original-title', $('#spi-' + val).attr('title'))
+					          .tooltip('fixTitle');
+						}
+					});
+			    }
+			}
+		});
 	}
 }
 </script>

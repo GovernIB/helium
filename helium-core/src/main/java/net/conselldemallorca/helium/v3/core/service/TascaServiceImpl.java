@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1309,22 +1310,8 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Scheduled(fixedRate = 30000)
 	public void comprovarTasquesSegonPla() {
-//		//// PROVES NO BBDD ///////////////
-//		System.out.println("===> THREAD " + Thread.currentThread().getId() + " AMD DATA " + (new Date()).toString());
-//		if(!TascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-//			TascaSegonPlaHelper.loadTasquesSegonPla();
-//			System.out.println("Esperant un minut...");
-////			try {
-////				Thread.sleep(60000);
-////			} catch (InterruptedException e) {
-////				e.printStackTrace();
-////			}
-//			Thread.yield();
-//			System.out.println("Fi d'espera...");
-//		}
-//		///////////////////////////////////
-		
 		System.out.println("Comprovant si hi ha tasques pendents d'executar en segon pla. (" + Thread.currentThread().getId() + ")");
+		
 //		Si encara no hem inicialitzat la variable en memòria ho feim i li carregam les tasques
 		tascaSegonPlaHelper.carregaTasquesSegonPla();
 		
@@ -1399,6 +1386,39 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
 		jbpmHelper.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+	}
+	
+	@Override
+	public Map<Long,Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds){
+		Map<Long,Object> result = new LinkedHashMap<Long, Object>();
+		for (String id: tasquesSegonPlaIds) {
+			Long taskId = Long.parseLong(id);
+			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
+				result.put(taskId, tascaSegonPlaHelper.getTasquesSegonPla().get(taskId));
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public boolean isEnSegonPla(String tascaSegonPlaId){
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+			Long taskId = Long.parseLong(tascaSegonPlaId);
+			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(taskId);
+				if (!infoSegonPla.isCompletada() && 
+					infoSegonPla.getError() == null && 
+					(infoSegonPla.getMarcadaFinalitzar() !=null || infoSegonPla.getIniciFinalitzacio() != null)) {
+						return true;
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 	
 	public FormulariExternDto formulariExternObrirTascaInicial(

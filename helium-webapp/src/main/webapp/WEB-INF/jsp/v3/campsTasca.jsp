@@ -116,7 +116,7 @@
 			</c:if>
 			
 <%-- ACCIO --------------------------------------------------------------------------------------%>					
-			<c:if test="${dada.campTipus == 'ACCIO'}">
+			<c:if test="${!bloquejarEdicioTasca and dada.campTipus == 'ACCIO'}">
 				<button  class="btn btn-primary pull-lef btn_accio tasca-boto" name="accio" type="submit" value="accio" data-action="${dada.jbpmAction}" data-confirmacio="<spring:message code='js.helforms.confirmacio' />">
 					<spring:message code="common.camptasca.executar" />
 				</button>

@@ -2,7 +2,7 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,15 +19,15 @@ public class TascaSegonPlaHelper {
 	
 	private Map<Long,InfoSegonPla> tasquesSegonPla;
 	
-	public void loadTasquesSegonPla () {
-		tasquesSegonPla = new HashMap<Long,InfoSegonPla>();
+	public synchronized void loadTasquesSegonPla () {
+		tasquesSegonPla = new LinkedHashMap<Long,InfoSegonPla>();
 	}
 	
 	public boolean isTasquesSegonPlaLoaded() {
 		return tasquesSegonPla != null;
 	}
 	
-	public boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
+	public synchronized boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.put(taskInstanceId, new InfoSegonPla(marcadaFinalitzar, iniciFinalitzacio, error));
 			return true;
@@ -36,7 +36,7 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar) {
+	public synchronized boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.put(taskInstanceId, new InfoSegonPla(marcadaFinalitzar));
 			return true;
@@ -45,7 +45,7 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public boolean eliminarTasca(Long taskInstanceId) {
+	public synchronized boolean eliminarTasca(Long taskInstanceId) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.remove(taskInstanceId);
 			return true;
@@ -54,18 +54,18 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public void completarTasca(Long taskInstanceId) {
+	public synchronized void completarTasca(Long taskInstanceId) {
 		if (tasquesSegonPla != null && tasquesSegonPla.containsKey(taskInstanceId)) {
 			InfoSegonPla infoSegonPla = tasquesSegonPla.get(taskInstanceId);
 			infoSegonPla.completada = true;
 		}
 	}
 	
-	public void setTasquesSegonPla(Map<Long,InfoSegonPla> tasquesSegonPla) {
+	public synchronized void setTasquesSegonPla(Map<Long,InfoSegonPla> tasquesSegonPla) {
 		this.tasquesSegonPla = tasquesSegonPla;
 	}
 	
-	public Map<Long,InfoSegonPla> getTasquesSegonPla() {
+	public synchronized Map<Long,InfoSegonPla> getTasquesSegonPla() {
 		return this.tasquesSegonPla;
 	}
 	

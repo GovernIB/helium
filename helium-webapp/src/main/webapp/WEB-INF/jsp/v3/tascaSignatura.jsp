@@ -59,35 +59,37 @@
 							</a>
 							<div id="iconos${document.id}" class="iconos"></div>							
 							</h4>
-							<div id="firmar${document.id}">
-								<c:if test="${not document.signat}">
-									<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
-										<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
-										<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
-										<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
-										
-										<div class="form-group">
-											<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
-											<div class="col-xs-10">
-								            	<select id="certs${document.id}" name="certs">
-													<option value=""><spring:message code="expedient.document.signat.carregant"/></option>
-												</select>
-									       </div>
-							        	</div>
-							        	
-										<div class="form-group">
-											<label class="control-label col-xs-4" for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
-											<div class="col-xs-10">
-								           		<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+							<c:if test="${!bloquejarEdicioTasca}">
+								<div id="firmar${document.id}">
+									<c:if test="${not document.signat}">
+										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+											<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
+											<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
+											<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
+											
+											<div class="form-group">
+												<label class="control-label col-xs-4" id="lcerts${document.id}" for="certs${document.id}"><spring:message code="tasca.signa.camp.cert"/></label>
+												<div class="col-xs-10">
+									            	<select id="certs${document.id}" name="certs">
+														<option value=""><spring:message code="expedient.document.signat.carregant"/></option>
+													</select>
+										       </div>
+								        	</div>
+								        	
+											<div class="form-group">
+												<label class="control-label col-xs-4" for="passwd${document.id}"><spring:message code="tasca.signa.camp.passwd"/></label>
+												<div class="col-xs-10">
+									           		<input type="password" id="passwd${document.id}" name="passwd" class="form-control"/>
+												</div>
+								        	</div>
+								        	
+											<div id="modal-botons${document.id}" class="modal-botons">
+												<button class="hide pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
 											</div>
-							        	</div>
-							        	
-										<div id="modal-botons${document.id}" class="modal-botons">
-											<button class="hide pull-right btn btn-primary right" onclick="signarCaib('${document.tokenSignatura}', this.form, '1');"><spring:message code="tasca.signa.signar"/></button>
-										</div>
-									</form:form>
-								</c:if>
-							</div>
+										</form:form>
+									</c:if>
+								</div>
+							</c:if>
 							<script type="text/javascript">
 							// <![CDATA[
 								$(document).ready( function() {

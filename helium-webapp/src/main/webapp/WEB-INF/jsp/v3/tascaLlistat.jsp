@@ -119,7 +119,73 @@
 		    })
 			$('#expedientTipusId').trigger('change');
 		</c:if>
+
+		//Per defecte, si no s'especifica al fitxer de properties
+		//tendrem un interval que executa una funció cada 10 segons per a refrescar les
+		//ícones d'estat de les tasques en segon pla
+		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
+		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+		<c:if test="${refrescaSegonPla}">
+			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
+		</c:if>
 	});
+	function refrescaEstatSegonPla() {
+		var tasquesSegonPlaIds = [];
+		$('span.segon-pla-icona').each(function (index, value) {
+			var id = $(value).attr('id').split('spi-')[1]; 
+		 	tasquesSegonPlaIds.push(id);	
+		});
+		if (tasquesSegonPlaIds.length > 0) {
+			$.ajax({
+			    url: "tasca/actualitzaEstatsSegonPla",
+			    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
+			    type: "POST",
+			    success: function(data) {
+				    //recorrem de nou les icones de les tasques per 
+				    //actualitzar-ne l'estat
+				    if (data != undefined) {
+					    $.each(tasquesSegonPlaIds, function(ind,val) {
+						    var canviar = false;
+						    var previousClass = "";
+						    var iconContent = "";
+						    var tascaEstat = data[val];
+						    if (tascaEstat != undefined) {
+						    	if (!tascaEstat['completada'] && (tascaEstat['error'] != undefined || tascaEstat['marcadaFinalitzar'] != undefined || tascaEstat['iniciFinalitzacio'] != undefined)) {
+									if (tascaEstat['error'] != undefined){
+										iconContent = '<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: ' + tascaEstat['error'] + '"></i>';
+										previousClass = "error";
+									}
+									if (tascaEstat['error'] == undefined && tascaEstat['marcadaFinalitzar'] != undefined && tascaEstat['iniciFinalitzacio'] == undefined) {
+										iconContent = '<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> ' + (moment(new Date(tascaEstat['marcadaFinalitzar'])).format("DD/MM/YYYY HH:mm:ss")) + '"></i>';
+										previousClass = "programada";
+									}
+									if (tascaEstat['error'] == undefined && tascaEstat['marcadaFinalitzar'] != undefined && tascaEstat['iniciFinalitzacio'] != undefined) {
+										iconContent = '<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> ' + (moment(new Date(tascaEstat['iniciFinalitzacio'])).format("DD/MM/YYYY HH:mm:ss")) + '"></i>';
+										previousClass = "executant";
+									}
+						    	} else if (tascaEstat['completada']) {
+						    		iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
+						    		//refrescam el datatable
+						    		$('#consultar').trigger('click');
+							    }				    	
+							} else {
+								iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
+								//refrescam el datatable
+								$('#consultar').trigger('click');
+							}
+
+							if ($('#spi-' + val).length > 0 && !$('#spi-' + val + ' > i').hasClass(previousClass)) {
+								$('#spi-' + val).html(iconContent);
+								$('#spi-' + val + ' > i').tooltip('hide')
+						          .attr('data-original-title', $('#spi-' + val).attr('title'))
+						          .tooltip('fixTitle');
+							}
+						});
+				    }
+				}
+			});
+		}
+	}
 	function botoMassiuClick(element) {
 		$(element).attr(
 				'href',
@@ -321,14 +387,18 @@
 								<span <c:if test="${tascaConsultaCommand.consultaTramitacioMassivaTascaId == null}">onclick="javascript: $('td').unbind('click');window.location='../v3/tasca/{{:id}}/massiva';"</c:if>><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></span>
 							{{/if}}	
 
-							{{if errorFinalitzacio != null}}
-								<i class="fa fa-exclamation-circle fa-lg" title="<spring:message code="error.finalitzar.tasca"/>: {{:errorFinalitzacio}}"></i>
-							{{/if}}
-							{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
-								<i class="fa fa-clock-o fa-lg" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> {{:marcadaFinalitzarFormat}}"></i>
-							{{/if}}
-							{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio != null}}
-								<i class="fa fa-circle-o-notch fa-spin fa-lg" title="<spring:message code="enum.tasca.etiqueta.execucio"/> {{:iniciFinalitzacioFormat}}"></i>
+							{{if errorFinalitzacio != null || marcadaFinalitzar != null || iniciFinalitzacio != null}}
+								<span class="segon-pla-icona" id="spi-{{:id}}">
+									{{if errorFinalitzacio != null}}
+										<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: {{:errorFinalitzacio}}"></i>
+									{{/if}}
+									{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
+										<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> {{:marcadaFinalitzarFormat}}"></i>
+									{{/if}}
+									{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio != null}}
+										<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> {{:iniciFinalitzacioFormat}}"></i>
+									{{/if}}
+								</span>
 							{{/if}}
 						</div>
 					</script>
@@ -375,19 +445,6 @@
  						</div>
 					</script>
 				</th>
-				<!-- <th data-rdt-property="id" data-rdt-template="cellSegonPlaTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="4%">
-					<script id="cellSegonPlaTemplate" type="text/x-jsrender">
-						{{if errorFinalitzacio != null}}
-							<i class="fa fa-exclamation-circle" style="font-size: 32px;"></i>
-						{{/if}}
-						{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
-							<i class="fa fa-clock-o" style="font-size: 32px;"></i>
-						{{/if}}
-						{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio != null}}
-							<i class="fa fa-spinner fa-spin" style="font-size: 32px;"></i>
-						{{/if}}
-					</script>
-				</th> -->
 				
 				<th data-rdt-property="agafada" data-rdt-visible="false"></th>
 				<th data-rdt-property="cancelled" data-rdt-visible="false"></th>
