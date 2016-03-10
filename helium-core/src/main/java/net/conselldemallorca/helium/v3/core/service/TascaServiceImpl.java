@@ -86,6 +86,7 @@ import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -1309,6 +1310,7 @@ public class TascaServiceImpl implements TascaService {
 	
 	@Override
 	@Scheduled(fixedRate = 30000)
+	@Async
 	public void comprovarTasquesSegonPla() {
 		System.out.println("Comprovant si hi ha tasques pendents d'executar en segon pla. (" + Thread.currentThread().getId() + ")");
 		
