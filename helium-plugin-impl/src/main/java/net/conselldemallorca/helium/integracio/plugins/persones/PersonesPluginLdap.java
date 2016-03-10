@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -60,27 +61,52 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		}
 	}
 
+	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
+		List<String> roles = new ArrayList<String>();
+		
+		String userFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.filter.user");
+		String filter = new String(userFilter).replace("###", codi);
+		
+		String roleAtt = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attribute.role");
+		String roleName = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attribute.role.name");
+		
+		if (roleAtt != null && roleName != null) {
+			LdapContext ctx = null;
+			
+			try {
+				ctx = getContext();
+				SearchControls searchCtls = new SearchControls();
+				searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+				NamingEnumeration<SearchResult> answer = ctx.search(
+						GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.searchbase"),
+						filter,
+						searchCtls);
+				
+				if (answer.hasMoreElements()) {
+					SearchResult sr = (SearchResult)answer.next();
+					Attribute memberOf = sr.getAttributes().get(roleAtt);
+					if (memberOf != null) {
+						for (int i = 0; i < memberOf.size(); i++) {
+							Attributes atts = ctx.getAttributes(memberOf.get(i).toString(), new String[] {roleName});
+							Attribute att = atts.get(roleName);
+							if (att.get() != null)
+								roles.add(att.get().toString());
+						}
+					}
+				}
+				ctx.close();
+			} catch (Exception ex) {
+				throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+			}
+		}
+		
+		return roles;
+	}
 
 
 	private List<DadesPersona> findPersonesLdap(String filter) throws Exception {
-		Hashtable<String, String> envDC = new Hashtable<String, String>();
-		envDC.put(
-				Context.INITIAL_CONTEXT_FACTORY,
-				"com.sun.jndi.ldap.LdapCtxFactory");
-		envDC.put(
-				Context.PROVIDER_URL,
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.url"));
-		envDC.put(
-				Context.SECURITY_AUTHENTICATION,
-				"simple");
-		envDC.put(
-				Context.SECURITY_PRINCIPAL,
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.principal"));
-		envDC.put(
-				Context.SECURITY_CREDENTIALS,
-				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.credentials"));
-		LdapContext ctx = new InitialLdapContext(envDC, null);
 		String[] returnedAtts = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attributes").split(",");
+		LdapContext ctx = getContext();
 		SearchControls searchCtls = new SearchControls();
 		//searchCtls.setReturningAttributes(returnedAtts);
 		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -118,6 +144,26 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		}
 		ctx.close();
 		return resposta;
+	}
+	
+	private LdapContext getContext() throws Exception {
+		Hashtable<String, String> envDC = new Hashtable<String, String>();
+		envDC.put(
+				Context.INITIAL_CONTEXT_FACTORY,
+				"com.sun.jndi.ldap.LdapCtxFactory");
+		envDC.put(
+				Context.PROVIDER_URL,
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.url"));
+		envDC.put(
+				Context.SECURITY_AUTHENTICATION,
+				"simple");
+		envDC.put(
+				Context.SECURITY_PRINCIPAL,
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.principal"));
+		envDC.put(
+				Context.SECURITY_CREDENTIALS,
+				GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.credentials"));
+		return new InitialLdapContext(envDC, null);
 	}
 
 	private Sexe sexePerNom(String nom) {

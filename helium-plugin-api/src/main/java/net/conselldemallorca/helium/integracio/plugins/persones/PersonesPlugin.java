@@ -37,4 +37,11 @@ public interface PersonesPlugin {
 	 */
 	public List<DadesPersona> findAll() throws PersonesPluginException;
 
+	/**
+	 * Retorna els rols d'una persona amb el codi especificat
+	 * 
+	 * @param codi el codi de la persona
+	 * @return els rols de la persona
+	 */
+	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException;
 }

@@ -180,6 +180,10 @@ public class PluginHelper {
 		}
 	}
 
+	public List<String> personaFindRolsAmbCodi(String codi) throws Exception {
+		return getPersonesPlugin().findRolsAmbCodi(codi);
+	}
+	
 	public boolean personaIsPluginActiu() {
 		return getPersonesPlugin() != null;
 	}

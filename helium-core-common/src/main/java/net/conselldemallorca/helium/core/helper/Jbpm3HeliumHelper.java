@@ -1808,6 +1808,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
+	public List<String> getRolsByCodi(String codi) {
+		List<String> rols = new ArrayList<String>();
+		try {
+			if (pluginHelper.personaIsPluginActiu())
+				rols = pluginHelper.personaFindRolsAmbCodi(codi);
+		} catch (Exception ex) {
+			// En cas que hi hagi una excepció,retornarem la llista buida 
+		}
+		return rols;
+	}
+	
+	@Override
 	public void setErrorTascaSegonPla(Long taskId, Exception ex) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 		Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
