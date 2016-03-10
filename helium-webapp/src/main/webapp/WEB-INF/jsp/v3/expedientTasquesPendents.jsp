@@ -130,7 +130,9 @@
 	$(document).ready(function() {
 		$('tr.tasques-pendents .dropdown-menu a').heliumEvalLink({
 			refrescarAlertes: true,
-			refrescarPagina: true,
+			refrescarPagina: false,
+			refrescarTaula: true,
+			dataTable: $("#taulaDades"),
 			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 			maximize: true
 		});

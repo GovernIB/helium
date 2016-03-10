@@ -166,12 +166,12 @@
 						    	} else if (tascaEstat['completada']) {
 						    		iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 						    		//refrescam el datatable
-						    		$('#consultar').trigger('click');
+						    		refrescaPaginacio();
 							    }				    	
 							} else {
 								iconContent = '<i class="fa fa-check-circle-o fa-lg"></i>';
 								//refrescam el datatable
-								$('#consultar').trigger('click');
+								refrescaPaginacio();
 							}
 
 							if ($('#spi-' + val).length > 0 && !$('#spi-' + val + ' > i').hasClass(previousClass)) {
@@ -185,6 +185,14 @@
 				}
 			});
 		}
+	}
+	function refrescaPaginacio() {
+		$('.dataTables_paginate li', $('#taulaDades').parent()).each(function() {
+			if ($(this).hasClass('active')) {
+				$('a', this).click();
+				refrescat = true;
+			}
+		});
 	}
 	function botoMassiuClick(element) {
 		$(element).attr(
