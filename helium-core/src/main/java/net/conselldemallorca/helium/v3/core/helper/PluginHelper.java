@@ -116,6 +116,10 @@ public class PluginHelper {
 				PersonaDto.class);
 	}
 	
+	public List<String> findRolsPersonaAmbCodi(String codi) throws Exception {
+		return getPersonesPlugin().findRolsAmbCodi(codi);
+	}
+	
 	public boolean isPersonesPluginActiu() {
 		try {
 			return getPersonesPlugin() != null;

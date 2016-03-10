@@ -5,8 +5,10 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -20,16 +22,21 @@ import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.db.JobSession;
 import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.graph.node.TaskNode;
 import org.jbpm.job.Job;
+import org.jbpm.job.Timer;
 import org.jbpm.persistence.JbpmPersistenceException;
 import org.jbpm.persistence.db.StaleObjectLogConfigurer;
 import org.jbpm.svc.Services;
+import org.jbpm.taskmgmt.exe.TaskInstance;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 public class JobExecutorThread extends Thread {
 
 	private static Log log = LogFactory.getLog(JobExecutorThread.class);
+	protected static Map<Long, String> jobUser = new HashMap<Long, String>();
+	
 	
 	public JobExecutorThread( String name,
 			JobExecutor jobExecutor,
@@ -167,6 +174,49 @@ public class JobExecutorThread extends Thread {
 						job.setLockTime(lockTime);
 						Hibernate.initialize(job.getProcessInstance().getExpedient().getEntorn());
 						Hibernate.initialize(job.getProcessInstance().getExpedient().getTipus());
+						
+						if (job instanceof Timer) {
+							Timer timer = (Timer)job;
+							
+							if (job.getTaskInstance() == null) {
+								Long tiId = 0L;
+								String user = null;
+								if (timer.getGraphElement() != null && timer.getGraphElement() instanceof TaskNode) {
+									TaskNode tn = (TaskNode)timer.getGraphElement();
+									for (TaskInstance ti: job.getProcessInstance().getTaskMgmtInstance().getTaskInstances()) {
+										if (ti.getToken().equals(job.getToken()) && ti.getTask() != null && ti.getTask().getTaskNode() != null && ti.getTask().getTaskNode().equals(tn)) {
+											if (ti.getId() > tiId) {
+												if (ti.getActorId() != null) {
+													tiId = ti.getId();
+													user = ti.getActorId();
+												} else if (ti.getPooledActors() != null && !ti.getPooledActors().isEmpty()) {
+													tiId = ti.getId();
+													user = ti.getPooledActors().iterator().next().getActorId();
+												}
+											}
+											jobUser.put(job.getId(), user);
+										}
+									}
+								}
+							}
+							
+//						} else if (job instanceof ExecuteActionJob) {
+//							ExecuteActionJob exAction = (ExecuteActionJob)job;
+//							Hibernate.initialize(exAction.getAction());
+//						} else if (job instanceof ExecuteNodeJob) {
+//							ExecuteNodeJob exNode = (ExecuteNodeJob) job;
+//							Hibernate.initialize(exNode.getNode());
+//							
+//							if (job.getTaskInstance() == null) {
+//								Node n = exNode.getNode();
+//								for (TaskInstance ti: job.getProcessInstance().getTaskMgmtInstance().getTaskInstances()) {
+//									if (ti.getTask() != null && ti.getTask().getTaskNode() != null && ti.getTask().getTaskNode().getId() == n.getId()) {
+//										job.setTaskInstance(ti);
+//									}
+//								}
+//							}
+						}
+						
 					}
 				} else {
 					log.debug("no acquirable jobs in job table");

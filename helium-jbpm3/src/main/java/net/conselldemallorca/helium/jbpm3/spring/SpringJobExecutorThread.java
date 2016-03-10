@@ -2,9 +2,12 @@ package net.conselldemallorca.helium.jbpm3.spring;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -19,6 +22,11 @@ import org.jbpm.job.Job;
 import org.jbpm.job.Timer;
 import org.jbpm.job.executor.JobExecutor;
 import org.jbpm.job.executor.JobExecutorThread;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -126,23 +134,41 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 									expedient.getEntorn().getCodi(),
 									expedient.getTipus().getCodi()));
 					countTipexp.inc();
+					Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
 					try {
-//						exp = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(String.valueOf(job.getProcessInstance().getId()));
+						final String user = jobUser.get(job.getId()); 
+						if (user != null) {
+					        Principal principal = new Principal() {
+								public String getName() {
+									return user;
+								}
+							};
+							Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
+							Object credentials = "N/A";
+							List<String> rols = Jbpm3HeliumBridge.getInstanceService().getRolsByCodi(user);
+							List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+							if (rols != null && !rols.isEmpty()) {
+								for (String rol: rols) {
+									authorities.add(new SimpleGrantedAuthority(rol));
+								}
+								authentication =  new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+							}
+							SecurityContextHolder.getContext().setAuthentication(authentication);
+						}
 						if (Jbpm3HeliumBridge.getInstanceService().mesuraIsActiu()) {
 							if (expedient != null)
-//								expedientTipus = expedient.getTipus().getNom();
 							Jbpm3HeliumBridge.getInstanceService().mesuraIniciar(jName, "timer", expedient.getTipus().getNom(), null, null);
 						}
 						SpringJobExecutorThread.super.executeJob(job);
 						String processInstanceId = new Long(job.getProcessInstance().getId()).toString();
 						Jbpm3HeliumBridge.getInstanceService().expedientReindexar(processInstanceId);
 					} catch (Exception ex) {
-//						String errorDesc = "S'ha produït un error al executar el timer " + jName + ".";	
 						saveJobError(job.getId(), ex, "S'ha produït un error al executar el timer " + jName + ".");
 						// Vaig a provocar la excepció des d'aquí, per a forçar el rollback...
 						JbpmException e = new JbpmException(ex.getMessage(), ex.getCause());
 						throw e;
 					} finally {
+						SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 						contextTotal.stop();
 						contextEntorn.stop();
 						contextTipexp.stop();

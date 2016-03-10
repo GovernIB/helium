@@ -1038,4 +1038,11 @@ public interface Jbpm3HeliumService {
 	 */
 	public MetricRegistry getMetricRegistry();
 
+	/**
+	 * Obtenir la llista de rols a partir del codi d'un usuari
+	 * 
+	 * @param codi
+	 * @return llista de rols. En cas que el plugin de persones no estigui actiu retorna una llista buida
+	 */
+	public List<String> getRolsByCodi(String codi);
 }

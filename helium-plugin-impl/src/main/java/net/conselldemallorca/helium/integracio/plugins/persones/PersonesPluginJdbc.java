@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.integracio.plugins.persones;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,39 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 		}
 	}
 
-
+	@SuppressWarnings("unchecked")
+	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
+		List<String> rols = new ArrayList<String>();
+		try {
+			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.roles");
+			if (query != null && !query.isEmpty()) {
+				Map<String, Object> parametres = new HashMap<String, Object>();
+				parametres.put("codi", codi);
+				
+				String jndi = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.jndi.parameter");
+				Context initContext = new InitialContext();
+				DataSource ds = (DataSource)initContext.lookup(jndi);
+				namedJdbcTemplate = new NamedParameterJdbcTemplate(ds);
+				MapSqlParameterSource parameterSource = new MapSqlParameterSource(parametres) {
+					public boolean hasValue(String paramName) {
+						return true;
+					}
+				};
+				
+				rols = namedJdbcTemplate.query(
+						query,
+						parameterSource,
+						new RowMapper() {
+							public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+								return rs.getString(1);
+							}
+						});
+			}
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar la persona", ex);
+		}
+		return rols;
+	}
 
 	@SuppressWarnings("unchecked")
 	private List<DadesPersona> consultaSql(
