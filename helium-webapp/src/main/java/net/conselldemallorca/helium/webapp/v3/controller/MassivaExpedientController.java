@@ -370,7 +370,6 @@ public class MassivaExpedientController extends BaseExpedientController {
 				}
 			} else if ("executar_accio".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_ACCIO);
-				execucioMassivaService.crearExecucioMassiva(dto);
 					
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				Object[] params = new Object[3];
