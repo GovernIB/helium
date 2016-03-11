@@ -8,7 +8,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 	<head>
-		<title><spring:message code="expedient.massiva.titol"/></title>
+		<title><spring:message code="expedient.massiva.reassignacio"/></title>
 		<hel:modalHead/>
 	
 		<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>

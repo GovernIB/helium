@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -690,12 +691,12 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		String tascaId = guardarDatosTramitacionMasiva(request, seleccio, inici, correu);
 
-		Object command = inicialitzarTascaFormCommand(
-				request,
-				tascaId,
-				model);	
-		
-		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
+//		Object command = inicialitzarTascaFormCommand(
+//				request,
+//				tascaId,
+//				model);	
+//		
+//		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		return getReturnUrl(request, tasca.getExpedientId(), tascaId, "form");
 	}
@@ -1108,16 +1109,19 @@ public class TascaTramitacioController extends BaseTascaController {
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				
+				tascaService.completar(tascaId, expedientId, transicioSortida);
+				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
 //				dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Completar");
 				Object[] params = new Object[4];
 				params[0] = entorn.getId();
-				params[1] = transicio;
+				params[1] = transicioSortida;
 				params[2] = auth.getCredentials();
 				List<String> rols = new ArrayList<String>();
 				for (GrantedAuthority gauth : auth.getAuthorities()) {
@@ -1125,9 +1129,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				}
 				params[3] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
+				
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				tascaService.completar(tascaId, expedientId, transicioSortida);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.completar", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {				
