@@ -114,7 +114,7 @@ public class TascaHelper {
 		}
 		return task;
 	}
-	
+
 	public DadesCacheTasca getDadesCacheTasca(
 			JbpmTask task,
 			Expedient expedient) {
@@ -131,7 +131,7 @@ public class TascaHelper {
 		}
 		return dadesCache;
 	}
-	
+
 	private void setTascaCache(
 			JbpmTask task,
 			Expedient expedient) {
@@ -368,7 +368,7 @@ public class TascaHelper {
 		return dto;
 	}
 
-	public String getTitolPerTasca(
+	private String getTitolPerTasca(
 			JbpmTask task,
 			Tasca tasca) {
 		String titol = null;

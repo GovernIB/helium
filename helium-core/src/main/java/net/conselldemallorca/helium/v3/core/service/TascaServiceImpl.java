@@ -12,20 +12,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
 import net.conselldemallorca.helium.core.model.dao.RegistreDao;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -89,6 +75,20 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 /**
  * Servei per gestionar terminis.
@@ -1061,7 +1061,8 @@ public class TascaServiceImpl implements TascaService {
 					Registre.Accio.MODIFICAR,
 					Registre.Entitat.TASCA,
 					taskId);
-			registre.setMissatge("Iniciar tasca \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+			Expedient expedient = expedientRepository.findOne(expedientId);
+			registre.setMissatge("Iniciar tasca \"" + tascaHelper.getDadesCacheTasca(task, expedient).getTitol() + "\"");
 			registreRepository.save(registre);
 		}
 	}
@@ -1102,7 +1103,8 @@ public class TascaServiceImpl implements TascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				tascaId);
-		registre.setMissatge("Validar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		registre.setMissatge("Validar \"" + tascaHelper.getDadesCacheTasca(task, expedient).getTitol() + "\"");
 		registreRepository.save(registre);
 	}
 
@@ -1128,9 +1130,9 @@ public class TascaServiceImpl implements TascaService {
 				usuari);
 		tascaHelper.restaurarTasca(tascaId);
 		
-		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-				task.getTaskName(),
-				task.getProcessDefinitionId());
+//		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+//				task.getTaskName(),
+//				task.getProcessDefinitionId());
 		Registre registre = new Registre(
 				new Date(),
 				expedientId,
@@ -1138,7 +1140,9 @@ public class TascaServiceImpl implements TascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				tascaId);
-		registre.setMissatge("Restaurar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+		
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		registre.setMissatge("Restaurar \"" + tascaHelper.getDadesCacheTasca(task, expedient).getTitol() + "\"");
 		registreRepository.save(registre);
 	}
 
@@ -1277,9 +1281,9 @@ public class TascaServiceImpl implements TascaService {
 					expedient.getProcessInstanceId(),
 					true,
 					expedient);
-			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
-					task.getTaskName(),
-					task.getProcessDefinitionId());
+//			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+//					task.getTaskName(),
+//					task.getProcessDefinitionId());
 			Registre registre = new Registre(
 					new Date(),
 					expedientId,
@@ -1287,7 +1291,7 @@ public class TascaServiceImpl implements TascaService {
 					Registre.Accio.FINALITZAR,
 					Registre.Entitat.TASCA,
 					tascaId);
-			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
+			registre.setMissatge("Finalitzar \"" + tascaHelper.getDadesCacheTasca(task, expedient).getTitol() + "\"");
 			registreRepository.save(registre);
 		} finally {
 			contextTotal.stop();

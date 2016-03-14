@@ -171,6 +171,9 @@ public class ExpedientService {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	
+	@Resource
+	private TascaService tascaService;
+	
 	public ExpedientDto getById(Long id) {
 		Expedient expedient = expedientDao.getById(id, false);
 		if (expedient != null)
@@ -700,48 +703,7 @@ public class ExpedientService {
 				false, // nomesPendents
 				paginacioParams);
 		for (JbpmTask task: tasks.getLlista()) {
-			task.setCacheInactiu();
-			/*Tasca tasca = tascaDao.findAmbActivityNameIProcessDefinitionId(
-					task.getTaskName(),
-					task.getProcessDefinitionId());
-			String titol = tasca.getNom();
-			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
-				titol = dtoConverter.getTitolPerTasca(task, tasca);
-			task.setFieldFromDescription(
-					"entornId",
-					expedient.getEntorn().getId().toString());
-			task.setFieldFromDescription(
-					"titol",
-					titol);
-			task.setFieldFromDescription(
-					"identificador",
-					expedient.getIdentificador());
-			task.setFieldFromDescription(
-					"identificadorOrdenacio",
-					expedient.getIdentificadorOrdenacio());
-			task.setFieldFromDescription(
-					"numeroIdentificador",
-					expedient.getNumeroIdentificador());
-			task.setFieldFromDescription(
-					"expedientTipusId",
-					expedient.getTipus().getId().toString());
-			task.setFieldFromDescription(
-					"expedientTipusNom",
-					expedient.getTipus().getNom());
-			task.setFieldFromDescription(
-					"processInstanceId",
-					expedient.getProcessInstanceId());
-			task.setFieldFromDescription(
-					"tramitacioMassiva",
-					new Boolean(tasca.isTramitacioMassiva()).toString());
-			task.setFieldFromDescription(
-					"definicioProcesJbpmKey",
-					tasca.getDefinicioProces().getJbpmKey());
-			task.setCacheActiu();*/
-			jbpmHelper.describeTaskInstance(
-					task.getId(),
-					task.getTaskName(),
-					task.getDescriptionWithFields());
+			tascaService.updteTascaExpedientCache(task, expedient);
 		}		
 	}
 

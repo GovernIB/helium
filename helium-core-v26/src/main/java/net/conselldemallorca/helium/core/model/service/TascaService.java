@@ -2588,6 +2588,19 @@ public class TascaService {
 			return definicioProcesJbpmKey;
 		}
 	}
+	
+	public void updteTascaExpedientCache(JbpmTask task, Expedient expedient) {
+		task.setFieldFromDescription(
+				"identificador",
+				expedient.getIdentificador());
+		task.setFieldFromDescription(
+				"identificadorOrdenacio",
+				expedient.getIdentificadorOrdenacio());
+		task.setFieldFromDescription(
+				"numeroIdentificador",
+				expedient.getNumeroIdentificador());
+	}
+	
 	/*private class DadesTascaOrdenacio {
 		private String taskId;
 		private String titol;
