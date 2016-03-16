@@ -797,9 +797,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
-				true,
 				false,
-				false);
+				false,
+				false,
+				false,
+				false,
+				true);
 		boolean creat = false;
 		String arxiuNomAntic = null;
 		boolean adjunt = false;
@@ -3058,6 +3061,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				true,
+				false,
 				false);
 		jbpmHelper.reassignTaskInstance(taskId, expression, expedientLog.getExpedient().getEntorn().getId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
