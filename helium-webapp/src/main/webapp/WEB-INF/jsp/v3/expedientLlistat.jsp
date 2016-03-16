@@ -226,6 +226,33 @@ function filtreActiu() {
 		$('#expedientConsultaCommand').removeClass("filtrat");
 	}
 }
+
+function refrescarPanell(expedientId, tascaId, tramitar, correcte) {
+	if (correcte) {
+		var row = $('#tasques-pendents-' + expedientId).prev();
+		var numTds = $('td', $(row)).length;
+		var jqxhr = $.ajax({
+			url: "<c:url value="/nodeco/v3/expedient/"/>" + expedientId + "/tasquesPendents/"+$('#nomesTasquesPersonals').val()+"/"+$('#nomesTasquesGrup').val(),
+			beforeSend: function(xhr) {
+				$(row).next(".tasques-pendents").remove();
+				$(row).after('<tr class="tasques-pendents" id="tasques-pendents-' + expedientId + '"><td colspan="' + (numTds - 1) + '" style="text-align:center"><span class="fa fa-circle-o-notch fa-spin"></span></td></tr>');
+			}
+		}).done(function(data) {
+			$(row).next(".tasques-pendents").remove();
+			$(row).after(data);
+			$('td:first', $(row).next(".tasques-pendents")).attr('colspan', numTds);
+			$(row).next(".tasques-pendents").slideDown(1000);
+			$('.icona-tasques-pendents', row).removeClass('fa-chevron-down').addClass('fa-chevron-up');
+			$('.icona-tasques-pendents', row).attr('title', '<spring:message code="expedient.llistat.tasques.pendents.ocultar"/>');
+
+			if (tramitar == 'true')
+				$('#dropdown-menu-tasca-'+tascaId+' #tramitar-tasca-'+tascaId).click();
+		}).fail(function(jqXHR, exception) {
+			modalAjaxErrorFunction(jqXHR, exception);
+		});
+	}
+}
+
 </script>
 </head>
 <body>

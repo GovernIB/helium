@@ -122,7 +122,13 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%') ");
 		}
 		if (numero != null && !numero.isEmpty()) {
-			expedientQuerySb.append("and lower(pie.numero) like lower('%'||:numero||'%') ");
+//			expedientQuerySb.append("and lower(pie.numero) like lower('%'||:numero||'%') ");
+			expedientQuerySb.append(
+					" and (upper(case " +
+					"     when (pie.numero is not null and pie.titol is not null) then ('['||pie.numero||'] ' || pie.titol) " +
+					"     when (pie.numero is not null and pie.titol is null) then pie.numero " +
+					"     when (pie.numero is null and pie.titol is not null) then pie.titol " +
+					"     else pie.numeroDefault end) like upper(:numero)) ");
 		}
 		if (tipusId != null) {
 			expedientQuerySb.append("and pie.tipus.id = :tipusId ");
@@ -343,10 +349,11 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			query.setParameter("actorId", actorId);
 		}
 		if (titol != null && !titol.isEmpty()) {
-			query.setParameter("titol", titol);
+			query.setParameter("titol", "%" + titol + "%");
 		}
 		if (numero != null && !numero.isEmpty()) {
-			query.setParameter("numero", numero);
+//			query.setParameter("numero", numero);
+			query.setParameter("numero", "%" + numero + "%");
 		}
 		if (tipusId != null) {
 			query.setParameter("tipusId", tipusId);

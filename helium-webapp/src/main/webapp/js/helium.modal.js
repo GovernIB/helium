@@ -12,7 +12,8 @@
 				callback: false,
 				ajax: false,
 				buttonContainerId: "modal-botons",
-				buttonCloseClass: "modal-tancar"
+				buttonCloseClass: "modal-tancar",
+				dataTable: null
 			}, options);
 			$(this).html(
 					'<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">' +
@@ -209,7 +210,8 @@
 				callback: false,
 				ajax: false,
 				buttonContainerId: "modal-botons",
-				buttonCloseClass: "modal-tancar"
+				buttonCloseClass: "modal-tancar",
+				dataTable: null
 			}, options);
 			$(this).on('click', function() {
 				var confirmat = true;
@@ -283,9 +285,6 @@
 							minHeight:  $(this).data("rdt-link-modal-min-height"),
 							callback:  $(this).data("rdt-link-callback"),
 							ajax:  $(this).data("rdt-link-ajax"),
-							dataTable: settings.dataTable,
-							/*modalCloseFunction: modalCloseFunction,*/
-							refrescarTaula: settings.refrescarTaula,
 							dataTable: settings.dataTable,
 							refrescarTaula: settings.refrescarTaula,
 							refrescarPagina: settings.refrescarPagina,
