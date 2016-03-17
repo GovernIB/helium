@@ -9,6 +9,19 @@ DELETE 	FROM JBPM_LOG L
  );
  
  
+ --Buidar logs d'un tipus d'expedient
+DELETE 	FROM JBPM_LOG L
+ WHERE 	L.TOKEN_ IN (
+		SELECT 	TK.ID_ 
+		  FROM 	HEL_EXPEDIENT EX,
+				JBPM_PROCESSINSTANCE PI,
+				JBPM_TOKEN TK
+		 WHERE 	EX.ID = PI.EXPEDIENT_ID_
+		   AND	TK.PROCESSINSTANCE_ = PI.ID_
+		   AND	EX.TIPUS_ID = ???
+ );
+ 
+ 
  --Buidar logs d'un entorn
 DELETE 	FROM JBPM_LOG L
  WHERE 	L.TOKEN_ IN (
@@ -20,4 +33,3 @@ DELETE 	FROM JBPM_LOG L
 		   AND	TK.PROCESSINSTANCE_ = PI.ID_
 		   AND	EX.ENTORN_ID = ???
  );
- 
