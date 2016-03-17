@@ -5,11 +5,11 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:choose>
 <c:when test="${true}">
-<tr class="tasques-pendents">
+<tr class="tasques-pendents" id="tasques-pendents-${expedient.id}">
 	<c:choose>
 		<c:when test="${not empty tasques}">
 			<td colspan="8" style="background-color:#eee; padding-left: 30px">
-				<table class="table table-striped table-bordered table-condensed">
+				<table class="table table-striped table-bordered table-condensed" id="table-tasques-pendents-${expedient.id}">
 					<thead>
 						<tr>
 							<th><spring:message code="expedient.tasca.columna.tasca.activa"/></th>
@@ -77,28 +77,28 @@
 											<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
 											<ul id="dropdown-menu-tasca-${tasca.id}" class="dropdown-menu">
 												<c:if test="${tasca.open and not tasca.suspended and tasca.assignee == dadesPersona.codi and tasca.assignadaUsuariActual}">
-													<li><a id="tramitar-tasca-${tasca.id}" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-callback="recarregarLlistatTasques(${procesId},${tasca.id});" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+													<li><a id="tramitar-tasca-${tasca.id}" href="../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 													<c:if test="${tasca.tascaTramitacioMassiva}">
 														<li><a href="../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 													</c:if>
 												</c:if>
 												<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
-													<li><a data-rdt-link-callback="agafar(${procesId},${tasca.id});" data-rdt-link-ajax=true class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
+													<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},true);" href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>" class="icon tasca-accio-agafar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" ><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 												</c:if>
-												<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and tasca.assignee == dadesPersona.codi}">
-													<li><a data-rdt-link-ajax=true data-rdt-link-callback="alliberar(${procesId},${tasca.id});" href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
+												<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and (tasca.assignadaUsuariActual or expedient.permisReassignment)}">
+													<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon tasca-accio-alliberar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 												</c:if>
 												<c:if test="${tasca.open}">
-													<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
+													<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
 												</c:if>
-												<c:if test="${tasca.open and not tasca.suspended}">
-													<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li></c:if>
+												<c:if test="${tasca.open and not tasca.suspended and expedient.permisSupervision}">
+													<li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 												</c:if>
-												<c:if test="${tasca.suspended}">
-													<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li></c:if>
+												<c:if test="${tasca.suspended and expedient.permisSupervision}">
+													<li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 												</c:if>
-												<c:if test="${not tasca.completed and not tasca.cancelled}">
-													<c:if test="${expedient.permisSupervision}"><li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li></c:if>
+												<c:if test="${not tasca.completed and not tasca.cancelled and expedient.permisSupervision}">
+													<li><a href="<c:url value="../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 												</c:if>
 											</ul>
 											<script type="text/javascript">
@@ -131,7 +131,6 @@
 		$('tr.tasques-pendents .dropdown-menu a').heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
-			refrescarTaula: true,
 			dataTable: $("#taulaDades"),
 			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 			maximize: true
@@ -186,24 +185,6 @@
 </style>
 <script type="text/javascript">
 	// <![CDATA[		
-		function agafar(tascaId, correcte) {
-			if (correcte) {
-				var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tascaPendent/'+tascaId+'"/>';
-				var panell = $("#table-pendents-"+tascaId);
-				panell.load(url, function() {
-					$('#dropdown-menu-'+tascaId+' #tramitar-tasca-'+tascaId).click();
-				});
-			}
-		}
-
-		function alliberar(tascaId, correcte) {
-			if (correcte) {	
-				var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tascaPendent/'+tascaId+'"/>';
-				var panell = $("#table-pendents-"+tascaId);
-				panell.load(url, function() {});
-			}
-		}
-
 		$(document).ready(function() {
 			$('[title]').tooltip({container: 'body'});
 		});
