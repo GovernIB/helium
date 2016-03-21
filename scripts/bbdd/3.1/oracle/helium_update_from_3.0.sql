@@ -19,6 +19,10 @@ SELECT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 310) = 0;
 
+-- Per a permetre desar informació per a poder realitzar la retroacció de l'expedient
+ALTER TABLE HEL_EXPEDIENT_TIPUS ADD AMB_RETROACCIO NUMBER(1) DEFAULT 0 NOT NULL;
+ALTER TABLE HEL_EXPEDIENT ADD AMB_RETROACCIO NUMBER(1) DEFAULT 1 NOT NULL;
+
 
 --------------------------------------------------------
 -- TASQUES EN SEGÓN PLA
