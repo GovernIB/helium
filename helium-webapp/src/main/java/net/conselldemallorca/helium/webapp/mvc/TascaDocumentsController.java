@@ -385,6 +385,7 @@ public class TascaDocumentsController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			boolean adjuntarAuto = false;
+			boolean esPlantilla = false;
 			TascaDto tasca;
 			try {
 				tasca = tascaService.getById(
@@ -402,10 +403,11 @@ public class TascaDocumentsController extends BaseController {
 			for (DocumentTasca document: tasca.getDocuments()) {
 				if (document.getDocument().getId().longValue() == documentId.longValue()) {
 					adjuntarAuto = document.getDocument().isAdjuntarAuto();
+					esPlantilla = document.getDocument().isPlantilla();
 					break;
 				}
 			}
-			if (adjuntarAuto) {
+			if (esPlantilla && adjuntarAuto) {
 				accioDocumentGenerar(
 						request,
 						entorn.getId(),
