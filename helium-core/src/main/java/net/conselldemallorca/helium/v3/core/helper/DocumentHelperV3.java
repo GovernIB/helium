@@ -726,6 +726,7 @@ public class DocumentHelperV3 {
 		dto.setPlantilla(document.isPlantilla());
 		dto.setExtensionsPermeses(document.getExtensionsPermeses());
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
+		dto.setArxiuNom(document.getArxiuNom());
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTask().getId()), task.getProcessInstanceId(), document.getCodi());
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);

@@ -51,11 +51,11 @@
 		return false;
 	}
 	function generarDocumentAmbPlantilla(link, formId, adjuntarAuto) {
-		var conf;
-		if (adjuntarAuto)
+		var conf = true;
+		/*if (adjuntarAuto)
 			conf = confirm("<fmt:message key="tasca.doc.generar.auto.confirm"/>");
 		else
-			conf = true;
+			conf = true;*/
 		if (conf) {
 			var valData = $("#" + formId).find("input[name='data']").val();
 			window.location = link.href + "&data=" + valData;
