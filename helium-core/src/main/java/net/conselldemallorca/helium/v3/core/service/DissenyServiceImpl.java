@@ -307,6 +307,7 @@ public class DissenyServiceImpl implements DissenyService {
 				entornId,
 				new Permission[] {
 						ExtendedPermission.READ,
+						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
 	}
 	
