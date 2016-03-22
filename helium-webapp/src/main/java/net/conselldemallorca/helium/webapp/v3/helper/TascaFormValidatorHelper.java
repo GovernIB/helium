@@ -16,7 +16,6 @@ import javax.servlet.jsp.jstl.core.LoopTagStatus;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -115,8 +114,9 @@ public class TascaFormValidatorHelper implements Validator {
 											boolean emptyVal = true;
 											Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
 											if (oValor != null) {
-												if (oValor instanceof TerminiDto) {
-													emptyVal = ((TerminiDto)oValor).isEmpty();
+												if (oValor instanceof String[]) {
+													String[] oValor_arr = (String[])oValor;
+													emptyVal = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
 												} else if (oValor instanceof String && "".equals(oValor)) {
 													emptyVal = true;
 												} else {
@@ -143,7 +143,8 @@ public class TascaFormValidatorHelper implements Validator {
 					} else if (!camp.isCampMultiple()) {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 							Object termini = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-							if (termini == null || ((TerminiDto)termini).isEmpty())
+							String[] termini_arr = (String[])termini;
+							if (termini == null || termini_arr.length < 3 || (termini_arr[0].equalsIgnoreCase("0") && termini_arr[1].equalsIgnoreCase("0") && (termini_arr[2].equalsIgnoreCase("") || termini_arr[2] == null)))
 								errors.rejectValue(camp.getVarCodi(), "not.blank");
 						} else {
 							ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
@@ -156,7 +157,8 @@ public class TascaFormValidatorHelper implements Validator {
 							for (int i = 0; i < Array.getLength(valors); i++) {
 								Object valor = Array.get(valors, i);
 								if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
-									if (valor == null || ((TerminiDto)valor).isEmpty())
+									String[] valor_arr = (String[])valor;
+									if (valor == null || (valor_arr).length < 3 || (valor_arr[0].equalsIgnoreCase("0") && valor_arr[1].equalsIgnoreCase("0") && (valor_arr[2].equalsIgnoreCase("0") || valor_arr[2] == null)))
 										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
 								} else {
 									if ((valor instanceof String && "".equals(valor)) || (!(valor instanceof String) && valor == null)) {
@@ -202,8 +204,9 @@ public class TascaFormValidatorHelper implements Validator {
 					for (TascaDadaDto campRegistre : registreDades) {
 						Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
 						if (oValor != null) {
-							if (oValor instanceof TerminiDto) {
-								empty = ((TerminiDto)oValor).isEmpty();
+							if (oValor instanceof String[]) {
+								String[] oValor_arr = (String[])oValor;
+								empty = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
 							} else {
 								empty = false;
 							}
@@ -216,8 +219,9 @@ public class TascaFormValidatorHelper implements Validator {
 				for (TascaDadaDto campRegistre : registreDades) {
 					Object oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
 					if (oValor != null) {
-						if (oValor instanceof TerminiDto) {
-							empty = ((TerminiDto)oValor).isEmpty();
+						if (oValor instanceof String[]) {
+							String[] oValor_arr = (String[])oValor;
+							empty = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
 						} else {
 							empty = false;
 						}
