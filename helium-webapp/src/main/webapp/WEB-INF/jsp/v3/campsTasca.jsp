@@ -69,34 +69,34 @@
 						<label class="control-label label-term" for="${campCodi}_anys"><spring:message code="common.camptasca.anys"/></label>
 						<c:choose>
 							<c:when test='${dada.campMultiple or isMultiple}'>
-								<select id="${tercodi}_anys" name="${tercodi}.anys" class="termini">
+								<select id="${tercodi}_anys" name="${tercodi}[0]" class="termini">
 									<c:forEach var="opt" items="${listTerminis}">
-										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex].anys}"> selected</c:if>>${opt.valor}</option>
+										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][0]}"> selected</c:if>>${opt.valor}</option>
 									</c:forEach>
 								</select>
 							</c:when>
-							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}.anys" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
+							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[0]" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
 						</c:choose>
 					</div>
 					<div class="tercmig">
 	 					<label class="control-label label-term" for="${campCodi}_mesos"><spring:message code="common.camptasca.mesos"/></label>
  						<c:choose>
 							<c:when test='${dada.campMultiple or isMultiple}'>
-								<select id="${tercodi}_mesos" name="${tercodi}.mesos" class="termini">
+								<select id="${tercodi}_mesos" name="${tercodi}[1]" class="termini">
 									<c:forEach var="opt" items="${listTerminis}">
-										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex].mesos}"> selected</c:if>>${opt.valor}</option>
+										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][1]}"> selected</c:if>>${opt.valor}</option>
 									</c:forEach>
 								</select>
 							</c:when>
-							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}.mesos" id="${campCodi}_mesos" cssClass="termini" /></c:otherwise>
+							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[1]" id="${campCodi}_mesos" cssClass="termini" /></c:otherwise>
 						</c:choose>
 	 				</div>
 	 				<div class="tercpost">
 	 					<label class="control-label label-term" for="${campCodi}_dies"><spring:message code="common.camptasca.dies"/></label>
 	 					<c:set var="placeholderDies"><spring:message code='common.camptasca.dies'/></c:set>
  						<c:choose>
-							<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${tercodi}_dies" name="${tercodi}.dies" class="form-control" data-required="${dada.required}" value="${command[campNom][campIndex].dies}" placeholder="${placeholderDies}"/></c:when>
-							<c:otherwise><form:input path="${campCodi}.dies" id="${campCodi}_dies" cssClass="form-control" placeholder="${placeholderDies}" data-required="${dada.required}"/></c:otherwise>
+							<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${tercodi}_dies" name="${tercodi}[2]" class="form-control" data-required="${dada.required}" value="${command[campNom][campIndex][2]}" placeholder="${placeholderDies}"/></c:when>
+							<c:otherwise><form:input path="${campCodi}[2]" id="${campCodi}_dies" cssClass="form-control" placeholder="${placeholderDies}" data-required="${dada.required}"/></c:otherwise>
 						</c:choose>
 	 				</div>
 	 			</div>
@@ -205,16 +205,7 @@
 <%-- Fi VARIABLES MULTIPLES -------------------------------------------------------------------------%>
 <%---------------------------------------------------------------------------------------------------%>
 <%-- </c:if> --%>
-<!-- 
-<c:if test="${dada.readOnly}">
-	<div class="controls">
-		<label class="control-label-value"><c:out value="${dada.text}"/></label>
-	</div>
-	
-	<c:if test="${dada.campTipus == 'TERMINI' && not empty dada.varValor}">
-		<c:out value="${dada.varValor.anys}/${dada.varValor.mesos}/${dada.varValor.dies}"/>
-	</c:if>	
-</c:if> -->
+
 <c:set var="campCodi" value=""/>
 <c:set var="campInline" value="${false}"/>
 <c:set var="campErrors" value=""/>

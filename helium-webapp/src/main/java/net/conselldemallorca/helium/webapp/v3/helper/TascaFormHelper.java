@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.sf.cglib.beans.BeanGenerator;
 
@@ -110,7 +109,11 @@ public class TascaFormHelper {
 					    		}
 			    				if (!empty(va)) {
 			    					if (tascaDada.getCampTipus().equals(CampTipusDto.TERMINI)) {
-				    					va = ((TerminiDto)va).toSavinString();
+			    						String[] pre_va = (String[])va; 
+				    					if((pre_va).length < 3)
+				    						va = null;
+				    					else
+				    						va = obtenirValorTermini(pre_va);
 				    				}
 			    					valorSenseBuits.add(va);
 			    				}
@@ -132,7 +135,11 @@ public class TascaFormHelper {
 		    			}
 		    		} else {
 		    			if (tascaDada.getCampTipus().equals(CampTipusDto.TERMINI) && valor != null) {
-	    					valor = ((TerminiDto)valor).toSavinString();
+	    					String[] pre_valor = (String[])valor; 
+	    					if((pre_valor).length < 3)
+	    						valor = null;
+	    					else
+	    						valor = obtenirValorTermini(pre_valor);
 	    				}
 		    			if (tascaDada.getCampTipus().equals(CampTipusDto.BOOLEAN) && valor == null) {
 			    			valor = Boolean.FALSE;
@@ -284,14 +291,15 @@ public class TascaFormHelper {
 								int mida = 1;
 								if (valor instanceof Object[]) {
 									mida = ((Object[])valor).length;
-									TerminiDto[] terminis = new TerminiDto[mida];
+									String[][] terminis = new String[mida][3];
 									int i = 0;
 									for (String term: (String[])valor) {
-										terminis[i++] = new TerminiDto(term);
+										terminis[i++] = crearTermini(term);
 									}
 									valorMultiple = terminis;
 								} else {
-									valorMultiple = new TerminiDto[] {new TerminiDto((String)valor)};
+									String[] prevalor = ((String)valor).split("/");
+									valorMultiple = new String[][] {prevalor};
 								}
 							} else if (!(valor instanceof Object[])) {
 								valorMultiple = Array.newInstance(camp.getJavaClass(), 1);
@@ -304,18 +312,25 @@ public class TascaFormHelper {
 									camp.getVarCodi(),
 									valorMultiple);
 						} else {
+							Object final_valor;
+							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+								String[][] terminis = new String[][]{new String[]{"0","0",""}};
+								final_valor = terminis;
+							} else {
+								final_valor = Array.newInstance(camp.getJavaClass(), esConsultaPerTipus ? 2 : 1);
+							}
 							setSimpleProperty(
 									command,
 									camp.getVarCodi(),
-									Array.newInstance(camp.getJavaClass(), esConsultaPerTipus ? 2 : 1));
+									final_valor);
 						}
 					// Camps senzills
 					} else {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							if (valor != null) {
-								valor = new TerminiDto((String)valor);
+								valor = crearTermini(valor);
 							} else {
-								valor = new TerminiDto();
+								valor = new String[3];
 							}
 						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null) {
 							valor = "";
@@ -425,14 +440,19 @@ public class TascaFormHelper {
 				Object valor = null;
 				try {
 					if (isCampMultiple(camp, esConsultaPerTipus)) {
-						valor = Array.newInstance(camp.getJavaClass(), esConsultaPerTipus ? 2 : 1);
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+							String[][] terminis = new String[][]{new String[]{"0","0",""}};
+							valor = terminis;
+						} else {
+							valor = Array.newInstance(camp.getJavaClass(), esConsultaPerTipus ? 2 : 1);
+						}
 						setSimpleProperty(
 								command,
 								camp.getVarCodi(),
 								valor);
 					} else {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
-							valor = new TerminiDto();
+							valor = new String[3];
 						}
 						setSimpleProperty(
 								command,
@@ -694,8 +714,13 @@ public class TascaFormHelper {
 						} else {
 							oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
 						}
-						if (oValor instanceof TerminiDto)
-							oValor = ((TerminiDto)oValor).toSavinString();
+						if (oValor instanceof String[])
+							if (((String[])oValor).length < 3) {
+								oValor = null;
+							} else {
+								String[] pre_oValor = (String[])oValor; 
+								oValor = obtenirValorTermini(pre_oValor);
+							}
 						if (!esIniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 							varIncloure = true;
 						oValor = compatibilitat26(campRegistre, oValor);
@@ -715,8 +740,14 @@ public class TascaFormHelper {
 					if (camp.isReadOnly()) {
 						oValor = campRegistre.getVarValor();
 					}
-					if (oValor instanceof TerminiDto)
-						oValor = ((TerminiDto)oValor).toSavinString();
+					if (oValor instanceof String[]) {
+						if (((String[])oValor).length < 3) {
+							oValor = null;
+						} else {
+							String[] pre_oValor = (String[])oValor; 
+							oValor = obtenirValorTermini(pre_oValor);
+						}
+					}
 					if (!esIniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 						varIncloure = true;
 					oValor = compatibilitat26(campRegistre, oValor);
@@ -740,8 +771,8 @@ public class TascaFormHelper {
 				}
 			}
 		} else {
-			if (valor instanceof TerminiDto)
-				empty = ((TerminiDto)valor).isEmpty();
+			if (valor instanceof String[])
+				empty = ((String[])valor).length < 3;
 			else if (valor != null && !"".equals(valor))
 				empty = false;
 		}
@@ -800,6 +831,25 @@ public class TascaFormHelper {
 				return "";
 		}
 		return valor;
+	}
+	
+	private static String obtenirValorTermini(String[] termini) {
+		String anys = termini[0] == null ? "0" : termini[0];
+		String mesos = termini[1] == null ? "0" : termini[1];
+		String dies = termini[2] == null ? "" : termini[2];
+		
+		return anys + "/" + mesos + "/" + dies;
+	}
+	
+	private static String[] crearTermini(Object valor) {
+		String[] prevalor = ((String)valor).split("/");
+		String anys = prevalor.length > 0 ? prevalor[0] : "0";
+		String mesos = prevalor.length > 1 ? prevalor[1] : "0";
+		String dies = prevalor.length > 2 ? prevalor[2] : "";
+		
+		String[] termini = new String[]{anys, mesos, dies}; 
+		
+		return termini;
 	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);

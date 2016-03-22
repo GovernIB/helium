@@ -254,7 +254,7 @@ public class TascaDadaDto {
 		} else if (CampTipusDto.PRICE.equals(campTipus)) {
 			return BigDecimal.class;
 		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
-			return TerminiDto.class;
+			return String[].class;
 		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
 			return Object[].class;
 		} else {
