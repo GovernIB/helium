@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
+<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <html>
 <head>
 	<title><c:choose><c:when test="${empty command.id}"><fmt:message key="expedient.tipus.form.crear_nou"/></c:when><c:otherwise><fmt:message key="expedient.tipus.form.crear_nou"/></c:otherwise></c:choose></title>
@@ -189,11 +189,14 @@
 				<c:param name="type" value="checkbox"/>
 				<c:param name="label"><fmt:message key="expedient.tipus.form.seleccionar_any"/></c:param>
 			</c:import>
-			<c:import url="../common/formElement.jsp">
-				<c:param name="property" value="ambRetroaccio"/>
-				<c:param name="type" value="checkbox"/>
-				<c:param name="label"><fmt:message key="expedient.tipus.form.amb_retroaccio"/></c:param>
-			</c:import>
+			
+			<security:accesscontrollist domainObject="${entornActual}" hasPermission="16">
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="ambRetroaccio"/>
+					<c:param name="type" value="checkbox"/>
+					<c:param name="label"><fmt:message key="expedient.tipus.form.amb_retroaccio"/></c:param>
+				</c:import>
+			</security:accesscontrollist>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>
