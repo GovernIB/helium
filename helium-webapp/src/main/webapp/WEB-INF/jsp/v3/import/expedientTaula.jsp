@@ -105,6 +105,12 @@
 						</c:when>
 					</c:choose>
 					<c:if test="${condicioValor}">
+					
+						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto') and dada.campTipus == 'TEXTAREA' and posicioActual != '0'}">
+							</tr>
+							<c:set var="posicioActual" value="0"/>
+						</c:if>
+					
 						<c:if test="${posicioActual == 0}"><tr></c:if>
 						<c:set var="dadaTipusRegistre" value="${false}"/>
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
