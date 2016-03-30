@@ -53,6 +53,9 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			@Param("documentStoreId") Long documentStoreId);
 
 	Portasignatures findByDocumentId(Integer documentId);
+	
+	@Query("select p from Portasignatures p where processInstanceId=:processInstanceId")
+	List<Portasignatures> findPendentsPerProcessInstanceId(@Param("processInstanceId") String processInstanceId);
 
 	List<Portasignatures> findByExpedientAndEstat(
 			Expedient expedient,

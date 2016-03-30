@@ -6,16 +6,10 @@ package net.conselldemallorca.helium.core.helper;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
@@ -79,6 +73,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
  * 
@@ -141,6 +142,21 @@ public class PluginHelper {
 					"No s'han pogut consultar persones amb el text (text=" + text + ")",
 					ex);
 		}
+	}
+	
+	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
+		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
+		Iterator<Portasignatures> it = psignas.iterator();
+		while (it.hasNext()) {
+			Portasignatures psigna = it.next();
+			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
+					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
+					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
+					!TipusEstat.ERROR.equals(psigna.getEstat())) {
+				it.remove();
+			}
+		}
+		return psignas;
 	}
 
 	public PersonaDto personaFindAmbCodi(String codi) {

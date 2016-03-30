@@ -21,19 +21,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.common.JbpmVars;
@@ -76,6 +63,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -115,6 +103,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDire
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
@@ -145,6 +134,19 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -3402,6 +3404,48 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}
 		}
+	}
+	
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId) {
+		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();
+		List<Portasignatures> pendents = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId);
+		for (Portasignatures pendent: pendents) {
+			PortasignaturesDto dto = new PortasignaturesDto();
+			dto.setId(pendent.getId());
+			dto.setDocumentId(pendent.getDocumentId());
+			dto.setTokenId(pendent.getTokenId());
+			dto.setDataEnviat(pendent.getDataEnviat());
+			if (TipusEstat.ERROR.equals(pendent.getEstat())) {
+				if (Transicio.SIGNAT.equals(pendent.getTransition()))
+					dto.setEstat(TipusEstat.SIGNAT.toString());
+				else
+					dto.setEstat(TipusEstat.REBUTJAT.toString());
+				dto.setError(true);
+			} else {
+				dto.setEstat(pendent.getEstat().toString());
+				dto.setError(false);
+			}
+			if (pendent.getTransition() != null)
+				dto.setTransicio(pendent.getTransition().toString());
+			dto.setDocumentStoreId(pendent.getDocumentStoreId());
+			dto.setMotiuRebuig(pendent.getMotiuRebuig());
+			dto.setTransicioOK(pendent.getTransicioOK());
+			dto.setTransicioKO(pendent.getTransicioKO());
+			dto.setDataProcessamentPrimer(pendent.getDataProcessamentPrimer());
+			dto.setDataProcessamentDarrer(pendent.getDataProcessamentDarrer());
+			dto.setDataSignatRebutjat(pendent.getDataSignatRebutjat());
+			dto.setDataCustodiaIntent(pendent.getDataCustodiaIntent());
+			dto.setDataCustodiaOk(pendent.getDataCustodiaOk());
+			dto.setDataSignalIntent(pendent.getDataSignalIntent());
+			dto.setDataSignalOk(pendent.getDataSignalOk());
+			dto.setErrorProcessant(pendent.getErrorCallbackProcessant());
+			dto.setProcessInstanceId(pendent.getProcessInstanceId());
+			resposta.add(dto);
+		}
+		return resposta;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
