@@ -4,6 +4,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:set var="document" value="${dada}"/>
+<c:set var="psignaPendentActual" value="${null}" scope="request"/>
+<c:forEach var="pendent" items="${portasignaturesPendent}">
+	<c:if test="${pendent.documentStoreId == document.id}"><c:set var="psignaPendentActual" value="${pendent}" scope="request"/></c:if>
+</c:forEach>
 <td id="cela-${expedientId}-${document.id}">									
 	<c:choose>
 		<c:when test="${not empty document.error}">
@@ -85,7 +89,37 @@
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 														title="<spring:message code='expedient.document.esborrar'/>">
 													</a>
-												</c:if>																				
+												</c:if>	
+												
+												
+												<!-- FRAGMENT INFO FIRMA PENDENT -->
+												<c:if test="${not empty psignaPendentActual}">
+													<c:choose>
+														<c:when test="${psignaPendentActual.error}">
+															<a 	data-psigna = "${document.id}"
+																class="icon fa fa-exclamation-triangle fa-2x psigna-info" 
+																style="cursor:pointer"
+																title="<spring:message code='expedient.document.pendent.psigna.error'/>">
+															</a>
+															<c:if test="${psignaPendentActual.error}">
+																<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+																	<form id="form_psigna_${document.id}" action="<c:url value='/expedient/documentPsignaReintentar.html'/>">
+																		<input type="hidden" name="id" value="${document.processInstanceId}"/>
+																		<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
+																	</form>
+																</c:if>
+															</c:if>
+														</c:when>
+														<c:otherwise>
+															<a 	data-psigna = "${document.id}"
+																class="icon fa fa-clock-o fa-2x psigna-info"
+																style="cursor:pointer" 
+																title="<spring:message code='expedient.document.pendent.psigna'/>">
+															</a>
+														</c:otherwise>
+													</c:choose>
+												</c:if>
+												<!-- FI FRAGMENT -->
 											</td>
 										</tr>
 										<tr>
@@ -122,3 +156,59 @@
 		</c:otherwise>
 	</c:choose>
 </td>
+<c:if test="${not empty psignaPendentActual}">
+	<div id="psigna_${document.id}" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Document pendent del portasignatures</h4>
+				</div>
+				<div class="modal-body">
+					<ul class="list-group">
+					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/></strong><span class="pull-right">${psignaPendentActual.documentId}</span></li>
+					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
+					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.estat"/></strong><span class="pull-right">${psignaPendentActual.estat}</span></li>
+						<c:if test="${not empty psignaPendentActual.motiuRebuig}">
+							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${psignaPendentActual.motiuRebuig}</span></li>
+						</c:if>
+						<c:if test="${not empty psignaPendentActual.dataProcessamentPrimer}">
+							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/></span></li>
+						</c:if>
+						<c:if test="${not empty psignaPendentActual.dataProcessamentDarrer}">
+							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/></span></li>
+						</c:if>
+					</ul>
+					<c:if test="${psignaPendentActual.error}">
+						<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+							<div class="panel panel-default">
+								<div class="panel-heading" role="tab" id="headingOne">
+									<h4 class="panel-title">
+										<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+											<strong><spring:message code="common.icones.doc.psigna.error.processant"/></strong>
+										</a>
+									</h4>
+								</div>
+								<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+									<div class="panel-body panell-error">
+										${psignaPendentActual.errorProcessant}
+									</div>
+								</div>
+							</div>
+						</div>
+					</c:if>
+				</div>
+				<div class="modal-footer">
+					<c:if test="${psignaPendentActual.error}">
+						<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+							<button type="button" class="btn btn-primary"  onclick="reprocessar(${document.id})">
+								<i class="fa fa-file-text-o"></i> <spring:message code="common.icones.doc.psigna.reintentar"/>
+							</button>
+						</c:if>
+					</c:if>
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>
+</c:if>

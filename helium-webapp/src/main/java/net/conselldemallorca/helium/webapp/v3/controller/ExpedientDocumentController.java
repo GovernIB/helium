@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
@@ -70,6 +71,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		List<PortasignaturesDto> portasignaturesPendent = expedientService.findDocumentsPendentsPortasignatures(expedient.getProcessInstanceId());
 		// Per a cada instància de procés ordenem les dades per agrupació  
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -82,6 +84,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
+		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
 					request,
@@ -102,10 +105,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 		List<ExpedientDocumentDto> dadesInstancia = expedientService.findDocumentsPerInstanciaProces(expedientId, instanciaProces.getId());
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		List<PortasignaturesDto> portasignaturesPendent = expedientService.findDocumentsPendentsPortasignatures(expedient.getProcessInstanceId());
 		documents.put(instanciaProces, dadesInstancia);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
+		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
 		return "v3/procesDocuments";
 	}
 

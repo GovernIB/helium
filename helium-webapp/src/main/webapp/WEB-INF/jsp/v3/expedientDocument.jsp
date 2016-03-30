@@ -29,6 +29,10 @@ div.proces:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
+.panell-error {
+	max-height: 180px;
+	overflow-y: scroll;
+}
 #dataTables_new {padding-top: 5px;padding-bottom: 10px;}
 
 </style>
@@ -48,6 +52,11 @@ $(document).ready(function() {
 			recargarPanel (processInstanceId, true);
 		}
 	});
+
+	$('.psigna-info').click(function(element){
+		var docId = $(this).data('psigna');
+		$('#psigna_' + docId).modal();
+	});
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
@@ -61,6 +70,10 @@ function esborrarSignatura(documentStoreId, correcte) {
 	if (correcte) {
 		$("#document_"+documentStoreId).find(".signature").remove();
 	}
+}
+
+function reprocessar(documentId) {
+	$('#form_psigna_' + documentId).submit();
 }
 //]]>
 </script>

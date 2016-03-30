@@ -101,6 +101,10 @@ div.procesDocument:hover {
 					refrescarPagina: false,
 					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 				});
+				$('.psigna-info').click(function(element){
+					var docId = $(this).data('psigna');
+					$('#psigna_' + docId).modal();
+				});
 			</script>
 		</c:forEach>
 	</c:when>

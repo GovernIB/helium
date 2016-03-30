@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
@@ -913,5 +914,7 @@ public interface ExpedientService {
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId);
 
 	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi);
+	
+	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId);
 
 }
