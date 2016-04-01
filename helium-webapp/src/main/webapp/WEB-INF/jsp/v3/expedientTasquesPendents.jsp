@@ -51,6 +51,7 @@
 										</c:if>
 										<c:if test="${not empty tasca.errorFinalitzacio or not empty tasca.marcadaFinalitzar or not empty tasca.iniciFinalitzacio}">
 											<div class="pull-right">
+												<a class="segon-pla-link" data-rdt-link-modal="true" href="<c:url value="/modal/v3/expedient/${expedient.id}/execucioInfo/${tasca.id}"/>">
 												<span class="segon-pla-icona" id="spi-${tasca.id}">
 												<c:choose>
 													<c:when test="${not empty tasca.errorFinalitzacio}">
@@ -64,6 +65,7 @@
 													</c:when>
 												</c:choose>
 												</span>
+												</a>
 											</div>
 										</c:if>
 									</div>
@@ -134,6 +136,11 @@
 			dataTable: $("#taulaDades"),
 			alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
 			maximize: true
+		});
+		$("a.segon-pla-link").heliumEvalLink({
+			refrescarPagina: false,
+			refrescarAlertes: false,
+			refrescarTaula: false	
 		});
 	});
 </script>

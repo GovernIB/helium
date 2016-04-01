@@ -216,6 +216,18 @@ public class ExpedientTascaController extends BaseExpedientController {
 		}
 		return resultado;
 	}
+	
+	@RequestMapping(value = "/{expedientId}/execucioInfo/{tascaId}", method = RequestMethod.GET)
+	public String execucioInfo(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tascaId,
+			Model model) {
+		List<String> missatges = tascaService.getMissatgesExecucioSegonPla(tascaId);
+		model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
+		model.addAttribute("missatges", missatges);
+		return "v3/missatgesExecucioSegonPla";
+	}
 
 	private boolean veureTasquesAltresUsuaris(HttpServletRequest request, ExpedientDto expedient) {
 		return (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();

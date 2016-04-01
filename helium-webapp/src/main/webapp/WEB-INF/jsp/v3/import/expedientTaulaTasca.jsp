@@ -49,6 +49,7 @@
 				</c:if>
 			</div>
 			<c:if test="${not empty tasca.errorFinalitzacio or not empty tasca.marcadaFinalitzar or not empty tasca.iniciFinalitzacio}">
+				<a class="segon-pla-link" data-rdt-link-modal="true" href="<c:url value="/modal/v3/expedient/${expedient.id}/execucioInfo/${tasca.id}"/>">
 				<span class="segon-pla-icona" id="spi-${tasca.id}">
 				<c:choose>
 					<c:when test="${not empty tasca.errorFinalitzacio}">
@@ -62,6 +63,7 @@
 					</c:when>
 				</c:choose>
 				</span>
+				</a>
 			</c:if>
 		</td>
 		<td>${tasca.responsableString}</td>
@@ -184,6 +186,11 @@
 			$('#${procesId}-titol-tasques-finalitzats .icona-collapse').toggleClass('fa-chevron-down');
 			$('#${procesId}-titol-tasques-finalitzats .icona-collapse').toggleClass('fa-chevron-up');
 		});
+	});
+	$("a.segon-pla-link").heliumEvalLink({
+		refrescarPagina: false,
+		refrescarAlertes: false,
+		refrescarTaula: false	
 	});
 	//]]>
 	</script>

@@ -438,4 +438,6 @@ public interface TascaService {
 	 * @return Retorna si està registrada en segón pla o no
 	 */ 
 	public boolean isEnSegonPla(String tascaSegonPlaId);
+	
+	public List<String> getMissatgesExecucioSegonPla(String tascaSegonPlaId);
 }

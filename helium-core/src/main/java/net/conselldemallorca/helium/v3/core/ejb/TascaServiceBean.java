@@ -368,4 +368,10 @@ public class TascaServiceBean implements TascaService {
 	public boolean isEnSegonPla(String tascaSegonPlaId) {
 		return delegate.isEnSegonPla(tascaSegonPlaId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
+		return delegate.getMissatgesExecucioSegonPla(tascaSegonPlaId);
+	}
 }

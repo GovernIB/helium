@@ -1426,6 +1426,20 @@ public class TascaServiceImpl implements TascaService {
 		}
 	}
 	
+	@Override
+	public List<String> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
+		List<String> result = new ArrayList<String>();
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+			Long taskId = Long.parseLong(tascaSegonPlaId);
+			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(taskId);
+				result = infoSegonPla.getMessages();
+			}
+		}
+		
+		return result;
+	}
+	
 	public FormulariExternDto formulariExternObrirTascaInicial(
 			String tascaIniciId,
 			Long expedientTipusId,

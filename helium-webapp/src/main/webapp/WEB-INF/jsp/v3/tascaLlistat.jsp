@@ -396,6 +396,7 @@
 							{{/if}}	
 
 							{{if errorFinalitzacio != null || marcadaFinalitzar != null || iniciFinalitzacio != null}}
+								<a data-rdt-link-modal="true" href="<c:url value="/modal/v3/expedient/{{:expedientId}}/execucioInfo/{{:id}}"/>">
 								<span class="segon-pla-icona" id="spi-{{:id}}">
 									{{if errorFinalitzacio != null}}
 										<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: {{:errorFinalitzacio}}"></i>
@@ -407,6 +408,7 @@
 										<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> {{:iniciFinalitzacioFormat}}"></i>
 									{{/if}}
 								</span>
+								</a>
 							{{/if}}
 						</div>
 					</script>
