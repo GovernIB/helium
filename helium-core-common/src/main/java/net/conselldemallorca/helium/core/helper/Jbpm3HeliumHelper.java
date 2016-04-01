@@ -1822,14 +1822,27 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public void setErrorTascaSegonPla(Long taskId, Exception ex) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-		Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
 				map.get(taskId).setError((ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 			}
 		}
 	}
 
-
+	@Override
+	public Long getTaskInstanceIdByTokenId(Long tokenId) {
+		return jbpmHelper.getTaskInstanceIdByTokenId(tokenId);
+	}
+	
+	@Override
+	public void addMissatgeExecucioTascaSegonPla(Long taskId, String message) {
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			if (map.containsKey(taskId)) {
+				map.get(taskId).addMessage(message);
+			}
+		}
+	}
 
 	private Expedient getExpedientDonatProcessInstanceId(
 			String processInstanceId) throws ProcessInstanceNotFoundException {

@@ -1336,6 +1336,9 @@ public class TascaServiceImpl implements TascaService {
 					try {
 						tascaSegonPlaHelper.completaTascaSegonPla(tascaId, iniciFinalitzacio);
 					} catch (Exception ex) {
+						if (infoSegonPla.getError() == null || infoSegonPla.getError() == "") {
+							infoSegonPla.setError( ex.getCause().getMessage());
+						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
 						if (ex.getCause() != null) {
 							System.out.println(">>> Excepció segon pla: " + ex.getCause().getMessage());

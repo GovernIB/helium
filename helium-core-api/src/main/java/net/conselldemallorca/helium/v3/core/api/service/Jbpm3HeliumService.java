@@ -1042,6 +1042,18 @@ public interface Jbpm3HeliumService {
 	 * 
 	 */
 	public void setErrorTascaSegonPla(Long taskId, Exception ex);
+	
+	/**
+	 * Obtenir id de tasca a partir de Token
+	 * 
+	 */
+	public Long getTaskInstanceIdByTokenId(Long tokenId);
+	
+	/**
+	 * Afegir missatge d'execució a la informació de la tasca en segón pla
+	 * 
+	 */
+	public void addMissatgeExecucioTascaSegonPla(Long taskId, String message);
 
 	/**
 	 * Obtenir la llista de rols a partir del codi d'un usuari

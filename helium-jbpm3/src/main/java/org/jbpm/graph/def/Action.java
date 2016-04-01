@@ -24,6 +24,8 @@ package org.jbpm.graph.def;
 import java.io.Serializable;
 import java.util.Map;
 
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+
 import org.dom4j.Element;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -37,8 +39,6 @@ import org.jbpm.util.EqualsUtil;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 public class Action implements ActionHandler, Parsable, Serializable {
 
@@ -54,7 +54,7 @@ public class Action implements ActionHandler, Parsable, Serializable {
   protected String actionExpression = null;
   protected Event event = null;
   protected ProcessDefinition processDefinition = null;
-
+  
   public Action() {
   }
 
@@ -121,7 +121,9 @@ public class Action implements ActionHandler, Parsable, Serializable {
   public void execute(ExecutionContext executionContext) throws Exception {
     ClassLoader surroundingClassLoader = Thread.currentThread().getContextClassLoader();
     try {
-      // set context class loader correctly for delegation class (https://jira.jboss.org/jira/browse/JBPM-1448) 
+      Long tokenId = executionContext.getToken().getId();
+      Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByTokenId(tokenId);
+      
       Thread.currentThread().setContextClassLoader(JbpmConfiguration.getProcessClassLoader(executionContext.getProcessDefinition()));
 
       if (referencedAction != null) {
@@ -134,6 +136,9 @@ public class Action implements ActionHandler, Parsable, Serializable {
         ActionHandler actionHandler = (ActionHandler) actionDelegation.getInstance();
         MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
         ProcessInstanceExpedient expedient = executionContext.getProcessInstance().getExpedient();
+        
+        Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, "Executant handler " + actionHandler.getClass().getName());
+        
         final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
 						Action.class,
