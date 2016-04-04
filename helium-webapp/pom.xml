@@ -397,6 +397,17 @@
 					<version>${helium.version}</version>
 				</dependency>
 			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>META-INF/context.xml</packagingExcludes>
+							<packagingExcludes>WEB-INF/classes/META-INF/resources/**</packagingExcludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 		<profile>
 			<id>jboss</id>
@@ -445,14 +456,21 @@
 				</dependency>
 			</dependencies>
 			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<excludes>
-							<exclude>**/log4j.xml</exclude>
-						</excludes>
-					</resource>
-				</resources>
+				<plugins>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<packagingExcludes>META-INF/context.xml,WEB-INF/classes/log4j.xml,WEB-INF/classes/META-INF/resources/**</packagingExcludes>
+							<webResources>
+								<resource>
+									<filtering>false</filtering>
+									<targetPath>META-INF/resources</targetPath>
+									<directory>src/main/resources/META-INF/resources</directory>
+								</resource>
+							</webResources>
+						</configuration>
+					</plugin>
+				</plugins>
 			</build>
 		</profile>
 	</profiles>
