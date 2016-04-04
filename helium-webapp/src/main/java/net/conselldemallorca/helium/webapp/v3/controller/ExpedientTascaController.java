@@ -223,7 +223,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
-		List<String> missatges = tascaService.getMissatgesExecucioSegonPla(tascaId);
+		List<String[]> missatges = tascaService.getMissatgesExecucioSegonPla(tascaId);
 		model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
 		model.addAttribute("missatges", missatges);
 		return "v3/missatgesExecucioSegonPla";

@@ -371,7 +371,7 @@ public class TascaServiceBean implements TascaService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<String> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
+	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
 		return delegate.getMissatgesExecucioSegonPla(tascaSegonPlaId);
 	}
 }

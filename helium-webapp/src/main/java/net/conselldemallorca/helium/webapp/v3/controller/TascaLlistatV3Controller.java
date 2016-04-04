@@ -296,17 +296,6 @@ public class TascaLlistatV3Controller extends BaseController {
 		return "v3/pendentsCompletar"; 
 	}
 	
-//	@RequestMapping(value = "/actualitzaEstatsSegonPla", 
-//					method = RequestMethod.POST,
-//			        produces = MediaType.APPLICATION_JSON_VALUE,
-//			        consumes = MediaType.APPLICATION_JSON_VALUE)
-//	@ResponseBody
-//	public Map<Long,Object> actualitzaEstatsSegonPla(
-//			HttpServletRequest request,
-//			@RequestParam(value = "tasquesSegonPlaIds", required = true) String[] tasquesSegonPlaIds) {
-//		return tascaService.obtenirEstatsPerIds(new ArrayList<String>());
-//	}
-	
 	@ResponseBody
 	@RequestMapping(value = "/actualitzaEstatsSegonPla", method = RequestMethod.POST)
     public Object actualitzaEstatsSegonPla(@RequestParam("tasquesSegonPlaIds[]") String[] tasquesSegonPlaIds){     

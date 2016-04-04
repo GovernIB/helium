@@ -1153,7 +1153,7 @@ public class TascaServiceImpl implements TascaService {
 			infoSegonPla.setMarcadaFinalitzar(marcadaFinalitzar);
 			infoSegonPla.setIniciFinalitzacio(null);
 			infoSegonPla.setError(null);
-			infoSegonPla.setMessages(new ArrayList<String>());
+			infoSegonPla.setMessages(new ArrayList<String[]>());
 		} else { 
 			tascaSegonPlaHelper.afegirTasca(taskId, marcadaFinalitzar);
 		}
@@ -1427,8 +1427,8 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Override
-	public List<String> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
-		List<String> result = new ArrayList<String>();
+	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
+		List<String[]> result = new ArrayList<String[]>();
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 			Long taskId = Long.parseLong(tascaSegonPlaId);
 			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {

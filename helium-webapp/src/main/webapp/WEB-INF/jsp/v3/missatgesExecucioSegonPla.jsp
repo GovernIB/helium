@@ -15,7 +15,7 @@
 	<c:choose>
 	<c:when test="${not empty missatges}">
 		<c:forEach var="missatge" items="${missatges}">
-			<li class="list-group-item">${missatge}</li>
+			<li class="list-group-item">${missatge[0]}<span class="pull-right">${missatge[1]}</span></li>
 		</c:forEach>
 	</c:when>
 	<c:otherwise>

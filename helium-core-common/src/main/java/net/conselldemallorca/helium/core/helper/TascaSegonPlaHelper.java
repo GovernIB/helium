@@ -86,18 +86,18 @@ public class TascaSegonPlaHelper {
 		private Date iniciFinalitzacio;
 		private String error;
 		private boolean completada;
-		private List<String> messages;
+		private List<String[]> messages;
 		
 		public InfoSegonPla (Date marcadaFinalitzar) {
 			super();
-			this.messages = new ArrayList<String>();
+			this.messages = new ArrayList<String[]>();
 			this.marcadaFinalitzar = marcadaFinalitzar;
 			this.completada = false;
 		}
 		
 		public InfoSegonPla (Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
 			super();
-			this.messages = new ArrayList<String>();
+			this.messages = new ArrayList<String[]>();
 			this.marcadaFinalitzar = marcadaFinalitzar;
 			this.iniciFinalitzacio = iniciFinalitzacio;
 			this.error = error;
@@ -136,15 +136,15 @@ public class TascaSegonPlaHelper {
 			this.completada = completada;
 		}
 
-		public List<String> getMessages() {
+		public List<String[]> getMessages() {
 			return messages;
 		}
 		
-		public void setMessages(List<String> messages) {
+		public void setMessages(List<String[]> messages) {
 			this.messages = messages;
 		}
 
-		public boolean addMessage(String message) {
+		public boolean addMessage(String[] message) {
 			return this.messages.add(message);
 		}
 	}

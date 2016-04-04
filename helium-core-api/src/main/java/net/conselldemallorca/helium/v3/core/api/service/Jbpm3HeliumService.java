@@ -1053,7 +1053,7 @@ public interface Jbpm3HeliumService {
 	 * Afegir missatge d'execució a la informació de la tasca en segón pla
 	 * 
 	 */
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String message);
+	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message);
 
 	/**
 	 * Obtenir la llista de rols a partir del codi d'un usuari
@@ -1062,4 +1062,12 @@ public interface Jbpm3HeliumService {
 	 * @return llista de rols. En cas que el plugin de persones no estigui actiu retorna una llista buida
 	 */
 	public List<String> getRolsByCodi(String codi);
+	
+	/**
+	 * La tasca esta en segon pla
+	 * 
+	 * @param codi taska
+	 * @return booleà si la tasca està en segón pla o no
+	 */
+	public boolean isTascaEnSegonPla(Long taskId);
 }

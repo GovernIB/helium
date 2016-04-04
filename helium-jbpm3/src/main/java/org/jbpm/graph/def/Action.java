@@ -22,6 +22,9 @@
 package org.jbpm.graph.def;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
@@ -121,9 +124,6 @@ public class Action implements ActionHandler, Parsable, Serializable {
   public void execute(ExecutionContext executionContext) throws Exception {
     ClassLoader surroundingClassLoader = Thread.currentThread().getContextClassLoader();
     try {
-      Long tokenId = executionContext.getToken().getId();
-      Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByTokenId(tokenId);
-      
       Thread.currentThread().setContextClassLoader(JbpmConfiguration.getProcessClassLoader(executionContext.getProcessDefinition()));
 
       if (referencedAction != null) {
@@ -137,7 +137,17 @@ public class Action implements ActionHandler, Parsable, Serializable {
         MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
         ProcessInstanceExpedient expedient = executionContext.getProcessInstance().getExpedient();
         
-        Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, "Executant handler " + actionHandler.getClass().getName());
+//        missatge d'execució en segón pla
+        Long tokenId = executionContext.getToken().getId();
+        Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByTokenId(tokenId);
+        boolean isTascaEnSegonPla =  Jbpm3HeliumBridge.getInstanceService().isTascaEnSegonPla(taskId);
+        
+        if (isTascaEnSegonPla) {
+        	DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        	String dataHandler = df.format(new Date());
+        	String errorText = "Executant handler " + actionHandler.getClass().getName() + "...";
+        	Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, errorText});
+        }
         
         final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(

@@ -1835,13 +1835,24 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String message) {
+	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
 				map.get(taskId).addMessage(message);
 			}
 		}
+	}
+	
+	@Override
+	public boolean isTascaEnSegonPla(Long taskId) {
+		boolean result = false;
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
+			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			result = map.containsKey(taskId);
+		}
+		
+		return result;
 	}
 
 	private Expedient getExpedientDonatProcessInstanceId(
