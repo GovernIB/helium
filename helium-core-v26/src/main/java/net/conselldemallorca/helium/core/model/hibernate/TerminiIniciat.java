@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -240,7 +241,7 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 	@Column(name="alerta_previa")
 	public boolean isAlertaPrevia() {
 		return alertaPrevia;
-	}
+	}	
 	public void setAlertaPrevia(boolean alertaPrevia) {
 		this.alertaPrevia = alertaPrevia;
 	}
@@ -261,7 +262,7 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.alertaCompletat = alertaCompletat;
 	}
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(name="termini_id")
 	@ForeignKey(name="hel_termini_terminic_fk")
 	public Termini getTermini() {
