@@ -331,58 +331,61 @@ public class TerminiService {
 		return festiuDao.findAmbData(data);
 	}
 
-	@Scheduled(cron="*/10 * * * * *")
+	@Scheduled(cron="0 */10 * * * *")
 	public void comprovarTerminisIniciats() {
+		
 		logger.debug("Inici de la comprovació de terminis");
-		List<TerminiIniciat> iniciatsActius = terminiIniciatDao.findIniciatsActius();
-		for (TerminiIniciat terminiIniciat: iniciatsActius) {
-			if (terminiIniciat.getTaskInstanceId() != null) {
-				if (terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
-					esborrarAlertesAntigues(terminiIniciat);
-					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-					if (task.getAssignee() != null) {
-						crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
-					} else {
-						for (String actor: task.getPooledActors())
-							crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
-					}
-					terminiIniciat.setAlertaFinal(true);
-				} else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
-					JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
-					if (task.getAssignee() != null) {
-						crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
-					} else {
-						for (String actor: task.getPooledActors())
-							crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
-					}
-					terminiIniciat.setAlertaPrevia(true);
+		List<TerminiIniciat> iniciatsActiusAlertesPrevies = terminiIniciatDao.findIniciatsAmbAlertesPrevies();
+		List<TerminiIniciat> iniciatsActiusAlertesFinals = terminiIniciatDao.findIniciatsAmbAlertesFinals();
+		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesFinals) {
+			if (terminiIniciat.getTaskInstanceId() != null && terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT) {
+				esborrarAlertesAntigues(terminiIniciat);
+				JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+				if (task.getAssignee() != null) {
+					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+				} else {
+					for (String actor: task.getPooledActors())
+						crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
 				}
-			} else {
-				if (terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT && terminiIniciat.getTermini().isAlertaFinal() && ! terminiIniciat.isAlertaFinal()) {
-					esborrarAlertesAntigues(terminiIniciat);
-					Expedient expedient = getExpedientForProcessInstanceId(
-							terminiIniciat.getProcessInstanceId());
-					if (expedient != null && expedient.getResponsableCodi() != null) {
-						crearAlertaAmbTerminiAssociat(
-								terminiIniciat,
-								expedient.getResponsableCodi(),
-								expedient);
-					}
-					terminiIniciat.setAlertaFinal(true);
-				} else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS && terminiIniciat.getTermini().isAlertaPrevia() && ! terminiIniciat.isAlertaPrevia()) {
-					Expedient expedient = getExpedientForProcessInstanceId(
-							terminiIniciat.getProcessInstanceId());
-					if (expedient != null && expedient.getResponsableCodi() != null) {
-						crearAlertaAmbTerminiAssociat(
-								terminiIniciat,
-								expedient.getResponsableCodi(),
-								expedient);
-					}
-					terminiIniciat.setAlertaPrevia(true);
+				terminiIniciat.setAlertaFinal(true);
+			} else if(terminiIniciat.getEstat() == TerminiIniciatEstat.CADUCAT) {
+				esborrarAlertesAntigues(terminiIniciat);
+				Expedient expedient = getExpedientForProcessInstanceId(
+						terminiIniciat.getProcessInstanceId());
+				if (expedient != null && expedient.getResponsableCodi() != null) {
+					crearAlertaAmbTerminiAssociat(
+							terminiIniciat,
+							expedient.getResponsableCodi(),
+							expedient);
 				}
+				terminiIniciat.setAlertaFinal(true);
+			}
+		}
+		
+		for (TerminiIniciat terminiIniciat: iniciatsActiusAlertesPrevies) {
+			if (terminiIniciat.getTaskInstanceId() != null && terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS) {
+				JbpmTask task = jbpmDao.getTaskById(terminiIniciat.getTaskInstanceId());
+				if (task.getAssignee() != null) {
+					crearAlertaAmbTerminiAssociat(terminiIniciat, task.getAssignee(), getExpedientPerTask(task));
+				} else {
+					for (String actor: task.getPooledActors())
+						crearAlertaAmbTerminiAssociat(terminiIniciat, actor, getExpedientPerTask(task));
+				}
+				terminiIniciat.setAlertaPrevia(true);
+			} else if (terminiIniciat.getEstat() == TerminiIniciatEstat.AVIS) {
+				Expedient expedient = getExpedientForProcessInstanceId(
+						terminiIniciat.getProcessInstanceId());
+				if (expedient != null && expedient.getResponsableCodi() != null) {
+					crearAlertaAmbTerminiAssociat(
+							terminiIniciat,
+							expedient.getResponsableCodi(),
+							expedient);
+				}
+				terminiIniciat.setAlertaPrevia(true);
 			}
 		}
 		logger.debug("Fi de la comprovació de terminis");
+		
 	}
 
 	public void modificarTerminiIniciat(

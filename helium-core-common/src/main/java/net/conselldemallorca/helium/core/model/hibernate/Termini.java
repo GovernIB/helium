@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,13 +21,13 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import net.conselldemallorca.helium.core.common.TerminiStringUtil;
+
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
-import net.conselldemallorca.helium.core.common.TerminiStringUtil;
 
 /**
  * Objecte de domini que representa un termini de la definició
@@ -207,7 +208,7 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		this.alertaCompletat = alertaCompletat;
 	}
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_termini_fk")
 	public DefinicioProces getDefinicioProces() {

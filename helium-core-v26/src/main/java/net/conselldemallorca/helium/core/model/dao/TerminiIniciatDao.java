@@ -3,10 +3,12 @@
  */
 package net.conselldemallorca.helium.core.model.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 
+import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Component;
 
@@ -49,10 +51,38 @@ public class TerminiIniciatDao extends HibernateGenericDao<TerminiIniciat, Long>
 				Restrictions.in("taskInstanceId", taskInstanceIds));
 	}
 
-	public List<TerminiIniciat> findIniciatsActius() {
-		return findByCriteria(
-				Restrictions.isNull("dataAturada"),
-				Restrictions.isNull("dataCancelacio"));
+	public List<TerminiIniciat> findIniciatsAmbAlertesPrevies() {
+		List<TerminiIniciat> resultat = new ArrayList<TerminiIniciat>();
+		
+		String hql = "from TerminiIniciat as ti "
+				+ "where "
+				+ "    ti.dataCompletat is null " 
+				+ "and (ti.termini.alertaPrevia = true and ti.alertaPrevia = false) " 
+				+ "and ti.dataAturada is null "
+				+ "and ti.dataCancelacio is null";
+		
+		Query query = getSession().createQuery(hql);
+		
+		resultat = (List<TerminiIniciat>) query.list();
+		
+		return resultat;
+	}
+	
+	public List<TerminiIniciat> findIniciatsAmbAlertesFinals() {
+		List<TerminiIniciat> resultat = new ArrayList<TerminiIniciat>();
+		
+		String hql = "from TerminiIniciat as ti "
+				+ "where "
+				+ "    ti.dataCompletat is null " 
+				+ "and (ti.termini.alertaFinal = true and ti.alertaFinal = false) " 
+				+ "and ti.dataAturada is null "
+				+ "and ti.dataCancelacio is null";
+		
+		Query query = getSession().createQuery(hql);
+		
+		resultat = (List<TerminiIniciat>) query.list();
+		
+		return resultat;
 	}
 
 }

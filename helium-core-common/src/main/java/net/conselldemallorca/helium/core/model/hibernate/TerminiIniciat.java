@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,13 +28,13 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import net.conselldemallorca.helium.core.common.TerminiStringUtil;
+
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
-
-import net.conselldemallorca.helium.core.common.TerminiStringUtil;
 
 /**
  * Objecte de domini que representa un termini iniciat per a un expedient
@@ -263,7 +264,7 @@ public class TerminiIniciat implements Serializable, GenericEntity<Long> {
 		this.alertaCompletat = alertaCompletat;
 	}
 	
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(name="termini_id")
 	@ForeignKey(name="hel_termini_terminic_fk")
 	public Termini getTermini() {
