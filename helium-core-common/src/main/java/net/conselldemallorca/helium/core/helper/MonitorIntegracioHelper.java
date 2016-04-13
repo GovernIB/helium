@@ -58,22 +58,33 @@ public class MonitorIntegracioHelper {
 						INTCODI_PFIRMA));
 		integracions.add(
 				novaIntegracio(
-						INTCODI_CUSTODIA));
+						INTCODI_PFIRMA_CB));
 		integracions.add(
 				novaIntegracio(
-						INTCODI_PFIRMA_CB));
+						INTCODI_CUSTODIA));
 		integracions.add(
 				novaIntegracio(
 						INTCODI_REGISTRE));
 		integracions.add(
 				novaIntegracio(
 						INTCODI_SISTRA));
-		integracions.add(
+		/*integracions.add(
 				novaIntegracio(
-						INTCODI_GESDOC));
+						INTCODI_GESDOC));*/
 		integracions.add(
 				novaIntegracio(
 						INTCODI_CONVDOC));
+		for (IntegracioDto integracio: integracions) {
+			LinkedList<IntegracioAccioDto> accions = accionsIntegracio.get(integracio.getCodi());
+			if (accions != null) {
+				int numErrors = 0;
+				for (IntegracioAccioDto accio: accions) {
+					if (accio.isEstatError())
+						numErrors++;
+				}
+				integracio.setNumErrors(numErrors);
+			}
+		}
 		return integracions;
 	}
 
@@ -86,12 +97,14 @@ public class MonitorIntegracioHelper {
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
+			long tempsResposta,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
 				integracioCodi,
 				descripcio,
 				tipus,
 				IntegracioAccioEstatEnumDto.OK,
+				tempsResposta,
 				null,
 				null,
 				parametres);
@@ -100,6 +113,7 @@ public class MonitorIntegracioHelper {
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
+			long tempsResposta,
 			String errorDescripcio,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
@@ -107,6 +121,7 @@ public class MonitorIntegracioHelper {
 				descripcio,
 				tipus,
 				IntegracioAccioEstatEnumDto.ERROR,
+				tempsResposta,
 				errorDescripcio,
 				null,
 				parametres);
@@ -115,6 +130,7 @@ public class MonitorIntegracioHelper {
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
+			long tempsResposta,
 			String errorDescripcio,
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
@@ -123,6 +139,7 @@ public class MonitorIntegracioHelper {
 				descripcio,
 				tipus,
 				IntegracioAccioEstatEnumDto.ERROR,
+				tempsResposta,
 				errorDescripcio,
 				throwable,
 				parametres);
@@ -163,6 +180,7 @@ public class MonitorIntegracioHelper {
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			IntegracioAccioEstatEnumDto estat,
+			long tempsResposta,
 			String errorDescripcio,
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
@@ -170,6 +188,7 @@ public class MonitorIntegracioHelper {
 		accio.setIntegracioCodi(integracioCodi);
 		accio.setData(new Date());
 		accio.setDescripcio(descripcio);
+		accio.setTempsResposta(tempsResposta);
 		accio.setTipus(tipus);
 		accio.setEstat(estat);
 		if (IntegracioAccioEstatEnumDto.ERROR.equals(estat)) {
@@ -198,11 +217,11 @@ public class MonitorIntegracioHelper {
 		IntegracioDto integracio = new IntegracioDto();
 		integracio.setCodi(codi);
 		if (INTCODI_REGISTRE.equals(codi)) {
-			integracio.setDescripcio("Registre");
+			integracio.setDescripcio("REGWEB");
 		} else if (INTCODI_FIRMA.equals(codi)) {
 			integracio.setDescripcio("Firma digital");
 		} else if (INTCODI_PFIRMA.equals(codi)) {
-			integracio.setDescripcio("Portafirmes");
+			integracio.setDescripcio("Portafib");
 		} else if (INTCODI_CUSTODIA.equals(codi)) {
 			integracio.setDescripcio("Custòdia");
 		} else if (INTCODI_GESDOC.equals(codi)) {
@@ -212,9 +231,9 @@ public class MonitorIntegracioHelper {
 		} else if (INTCODI_PERSONA.equals(codi)) {
 			integracio.setDescripcio("SEYCON");
 		} else if (INTCODI_SISTRA.equals(codi)) {
-			integracio.setDescripcio("Tramitació");
+			integracio.setDescripcio("SISTRA");
 		} else if (INTCODI_PFIRMA_CB.equals(codi)) {
-			integracio.setDescripcio("Callback PF");
+			integracio.setDescripcio("Portafib CB");
 		}
 		return integracio;
 	}

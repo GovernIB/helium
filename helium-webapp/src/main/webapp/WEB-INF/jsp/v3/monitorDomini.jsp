@@ -68,7 +68,12 @@ $(document).ready(function() {
 			<button id="domini-seleccio" class="btn btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>${dominiActual.codi} - ${dominiActual.nom}</span> <span class="caret"></span></button>
 			<ul id="domini-seleccio-dropdown" class="dropdown-menu" aria-labelledby="domini-seleccio">
 				<c:forEach var="domini" items="${dominis}">
-					<li><a href="monitorDomini/${domini.id}/datatable">${domini.codi} - ${domini.nom}</a></li>
+					<li>
+						<a href="monitorDomini/${domini.id}/datatable">
+							${domini.codi} - ${domini.nom}
+							<c:if test="${integracio.numErrors gt 0}"><span class="badge" style="background-color: #d9534f;">${integracio.numErrors}</span></c:if>
+						</a>
+					</li>
 				</c:forEach>
 			</ul>
 		</div>
@@ -76,12 +81,22 @@ $(document).ready(function() {
 	<table id="accions-domini"<c:if test="${not empty dominis}"> data-toggle="datatable"</c:if> data-url="monitorDomini/${dominiActual.id}/datatable" data-paging-enabled="false" data-ordering="false" data-row-info="true" class="table table-striped table-bordered" style="width:100%">
 	<thead>
 		<tr>
-			<th data-col-name="data" data-converter="datetime" width="25%"><spring:message code="monitor.domini.columna.data"/></th>
-			<th data-col-name="descripcio" width="25%"><spring:message code="monitor.domini.columna.descripcio"/></th>
-			<th data-col-name="tipus" width="25%"><spring:message code="monitor.domini.columna.tipus"/></th>
-			<th data-col-name="estat" width="25%" data-template="#estatTemplate">
+			<th data-col-name="data" data-converter="datetime" width="15%"><spring:message code="monitor.domini.columna.data"/></th>
+			<th data-col-name="descripcio" width="50%"><spring:message code="monitor.domini.columna.descripcio"/></th>
+			<th data-col-name="tempsResposta" width="15%" data-template="#tempsRespostaTemplate">
+				<spring:message code="monitor.domini.columna.temps.resposta"/>
+				<script id="tempsRespostaTemplate" type="text/x-jsrender">{{:tempsResposta}}ms</script>
+			</th>
+			<th data-col-name="tipus" width="10%"><spring:message code="monitor.domini.columna.tipus"/></th>
+			<th data-col-name="estat" width="10%" data-template="#estatTemplate">
 				<spring:message code="monitor.domini.columna.estat"/>
-				<script id="estatTemplate" type="text/x-jsrender"><span title="{{:errorDescripcio}}">{{:estat}}</span></script>
+				<script id="estatTemplate" type="text/x-jsrender">
+					{{if estat == 'OK'}}
+						<span class="label label-success"><span class="fa fa-check"/> {{:estat}}</span>
+					{{else}}
+						<span class="label label-danger" title="{{:errorDescripcio}}"><span class="fa fa-warning"/> {{:estat}}</span>
+					{{/if}}
+				</script>
 			</th>
 			<th data-col-name="parametres" data-visible="false"></th>
 			<th data-col-name="errorDescripcio" data-visible="false"></th>

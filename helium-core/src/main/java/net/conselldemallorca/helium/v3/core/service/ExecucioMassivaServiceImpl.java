@@ -437,7 +437,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				label = messageHelper.getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
 			}
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
-			String script = ((String) deserialize(execucioMassiva.getParam2())).replace("'", "&#39;").replace("\"", "&#34;");
+			Object deserialitzat = deserialize(execucioMassiva.getParam2());
+			String script;
+			if (deserialitzat instanceof String) {
+				script = ((String)deserialitzat).replace("'", "&#39;").replace("\"", "&#34;");
+			} else {
+				script = deserialitzat.toString();
+			}
 			label = messageHelper.getMessage("expedient.massiva.executarScriptMas") + " " + (script.length() > 20 ? script.substring(0,20) : script);
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_ACCIO)){
 			String accio = "";
