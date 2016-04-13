@@ -13,10 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -26,6 +24,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.report.FieldValue;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -55,25 +72,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.report.FieldValue;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.webapp.mvc.JasperReportsView;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-
 /**
  * Controlador per al llistat d'expedients.
  * 
@@ -82,7 +80,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 @Controller
 @RequestMapping("/v3/expedient/consulta")
 public class ExpedientConsultaInformeController extends BaseExpedientController {
-
+	
 	@ModelAttribute("expedientInformeParametrosCommand")
 	public Object getFiltreParameterCommand(
 			HttpServletRequest request,
@@ -129,7 +127,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		generarExcel(
 				request,
 				response,
-				paginaExpedients.getContingut());
+				paginaExpedients.getContingut(),
+				consultaId);
 	}
 
 	@RequestMapping(value = "/{consultaId}/informeParams", method = RequestMethod.GET)
@@ -229,7 +228,11 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	private void generarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto,
+			Long consultaId) {
+		
+		List<TascaDadaDto> informeCamps = expedientService.findConsultaInforme(consultaId);
+		
 		HSSFWorkbook wb;
 		HSSFCellStyle cellStyle;
 		HSSFCellStyle dStyle;
@@ -272,7 +275,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			createHeader(
 					wb,
 					sheet,
-					expedientsConsultaDissenyDto);
+					informeCamps);
 		int rowNum = 1;
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			try {
@@ -295,14 +298,20 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				HSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
-				Iterator<Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
-					sheet.autoSizeColumn(colNum);
-					cell = xlsRow.createCell(colNum++);
-					DadaIndexadaDto val = e.getValue();
-					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
-					cell.setCellStyle(dStyle);
+				
+				for (TascaDadaDto camp: informeCamps) {
+					if(dades.containsKey(camp.getVarCodi())) {
+						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
+						sheet.autoSizeColumn(colNum);
+						cell = xlsRow.createCell(colNum++);
+						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+							cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+						} else {
+							cell.setCellValue(StringEscapeUtils.unescapeHtml(dada.getValorMostrar()));
+						}
+						
+						cell.setCellStyle(dStyle);
+					}
 				}
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
@@ -324,7 +333,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	private void createHeader(
 			HSSFWorkbook wb,
 			HSSFSheet sheet,
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+			List<TascaDadaDto> informeCamps) {
 		HSSFFont bold;
 		bold = wb.createFont();
 		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
@@ -342,12 +351,10 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
-		Iterator<Entry<String, DadaIndexadaDto>> it = expedientsConsultaDissenyDto.get(0).getDadesExpedient().entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
+		for (TascaDadaDto camp : informeCamps) {
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
+			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}
