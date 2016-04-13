@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -844,7 +846,32 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		return getVarValue(ci.getVariable(varCodi));
 	}
 
-
+	/**
+	 * Insereix el @missatge amb la data actual com a 
+	 * informació d'execució de la tasca
+	 * en segón pla.
+	 * 
+	 * @param executionContext
+	 * @param missatge
+	 */
+	public void desarInformacioExecucio(
+			ExecutionContext executionContext, 
+			String missatge) throws Exception {
+		  ClassLoader surroundingClassLoader = Thread.currentThread().getContextClassLoader();
+		  try {
+			Long tokenId = executionContext.getToken().getId();
+			Long taskId = Jbpm3HeliumBridge.getInstanceService().getTaskInstanceIdByTokenId(tokenId);
+			boolean isTascaEnSegonPla =  Jbpm3HeliumBridge.getInstanceService().isTascaEnSegonPla(taskId);
+			
+			if (isTascaEnSegonPla) {
+				DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				String dataHandler = df.format(new Date());
+				Jbpm3HeliumBridge.getInstanceService().addMissatgeExecucioTascaSegonPla(taskId, new String[]{dataHandler, missatge});
+			}
+		  } finally {
+			  Thread.currentThread().setContextClassLoader(surroundingClassLoader);
+		  }
+	  }
 
 	private ExpedientInfo toExpedientInfo(ExpedientDto expedient) {
 		if (expedient != null) {
