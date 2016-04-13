@@ -13,10 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -129,7 +127,8 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		generarExcel(
 				request,
 				response,
-				paginaExpedients.getContingut());
+				paginaExpedients.getContingut(),
+				consultaId);
 	}
 
 	@RequestMapping(value = "/{consultaId}/informeParams", method = RequestMethod.GET)
@@ -218,7 +217,11 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	private void generarExcel(
 			HttpServletRequest request,
 			HttpServletResponse response,
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto,
+			Long consultaId) {
+		
+		List<TascaDadaDto> informeCamps = expedientService.findConsultaInforme(consultaId);
+		
 		HSSFWorkbook wb;
 		HSSFCellStyle cellStyle;
 		HSSFCellStyle dStyle;
@@ -261,7 +264,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			createHeader(
 					wb,
 					sheet,
-					expedientsConsultaDissenyDto);
+					informeCamps);
 		int rowNum = 1;
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			try {
@@ -284,14 +287,20 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				HSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
-				Iterator<Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
-					sheet.autoSizeColumn(colNum);
-					cell = xlsRow.createCell(colNum++);
-					DadaIndexadaDto val = e.getValue();
-					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
-					cell.setCellStyle(dStyle);
+
+				for (TascaDadaDto camp: informeCamps) {
+					if(dades.containsKey(camp.getVarCodi())) {
+						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
+						sheet.autoSizeColumn(colNum);
+						cell = xlsRow.createCell(colNum++);
+						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+							cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+						} else {
+							cell.setCellValue(StringEscapeUtils.unescapeHtml(dada.getValorMostrar()));
+						}
+						
+						cell.setCellStyle(dStyle);
+					}
 				}
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
@@ -313,7 +322,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	private void createHeader(
 			HSSFWorkbook wb,
 			HSSFSheet sheet,
-			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+			List<TascaDadaDto> informeCamps) {
 		HSSFFont bold;
 		bold = wb.createFont();
 		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
@@ -331,12 +340,10 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
-		Iterator<Entry<String, DadaIndexadaDto>> it = expedientsConsultaDissenyDto.get(0).getDadesExpedient().entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
+		for (TascaDadaDto camp : informeCamps) {
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
+			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}
