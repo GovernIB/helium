@@ -4052,10 +4052,25 @@ public class DissenyService {
 	public List<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesEntorn(Long entornId) {
 		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
 		List<String> noUtilitzades = jbpmDao.findDefinicionsProcesIdNoUtilitzadesByEntorn(entornId);
-		List<DefinicioProces> definicionsProces = definicioProcesDao.findAmbEntornIJbpmIds(entornId, noUtilitzades);
-		for (DefinicioProces definicioProces: definicionsProces) {
-			resposta.add(toDto(definicioProces, false));
+		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
+			List<DefinicioProces> definicionsProces = definicioProcesDao.findAmbEntornIJbpmIds(entornId, noUtilitzades);
+			for (DefinicioProces definicioProces: definicionsProces) {
+				resposta.add(toDto(definicioProces, false));
+			}
 		}
 		return resposta;
 	}
+	
+	public List<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(Long expedientTipusId) {
+		List<DefinicioProcesDto> resposta = new ArrayList<DefinicioProcesDto>();
+		List<String> noUtilitzades = jbpmDao.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
+			List<DefinicioProces> definicionsProces = definicioProcesDao.findAmbExpedientTipusIJbpmIds(expedientTipusId, noUtilitzades);
+			for (DefinicioProces definicioProces: definicionsProces) {
+				resposta.add(toDto(definicioProces, false));
+			}
+		}
+		return resposta;
+	}
+	
 }

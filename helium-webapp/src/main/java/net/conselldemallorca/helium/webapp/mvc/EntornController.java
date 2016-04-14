@@ -232,6 +232,11 @@ public class EntornController extends BaseController {
 		return "redirect:/entorn/llistat.html";
 	}
 
+	@Resource(name = "annotationValidator")
+	public void setAnnotationValidator(Validator annotationValidator) {
+		this.annotationValidator = annotationValidator;
+	}
+	
 	@RequestMapping(value = "/entorn/netejar_df", method = RequestMethod.GET)
 	public String netejar_df(
 			HttpServletRequest request,
@@ -296,14 +301,6 @@ public class EntornController extends BaseController {
 		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesEntorn(entornId));
 		return "/entorn/llistatDpNoUs";
 	}
-	
-
-	@Resource(name = "annotationValidator")
-	public void setAnnotationValidator(Validator annotationValidator) {
-		this.annotationValidator = annotationValidator;
-	}
-
-
 
 	protected class EntornValidator implements Validator {
 		private EntornService entornService;

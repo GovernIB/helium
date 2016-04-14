@@ -52,6 +52,12 @@ function confirmar(e) {
 		</display:column--%>
 		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
 			<display:column>
+	 	    	<form action="netejar_df.html"> <%-- onsubmit="return confirmarNetejarDf(event)"> --%>
+					<input type="hidden" name="id" value="${registre.id}"/>
+					<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.definicions.proces' /></button>
+				</form>
+		    </display:column>
+			<display:column>
 		    	<form action="<c:url value="/permisos/expedientTipus.html"/>">
 					<input type="hidden" name="id" value="${registre.id}"/>
 					<button type="submit" class="submitButton">Permisos</button>

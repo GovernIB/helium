@@ -16,28 +16,25 @@ import org.jbpm.graph.def.ProcessDefinition;
  * 
  * @author Bernd Ruecker (bernd.ruecker@camunda.com)
  */
-public class GetProcesDefinitionNotUsedListCommand extends AbstractGetObjectBaseCommand {
+public class GetProcesDefinitionEntornNotUsedListCommand extends AbstractGetObjectBaseCommand {
 
 	private static final long serialVersionUID = -5601050489405283851L;
 
-	private Long expedientTipusId;
+	private Long entornId;
 
-	public GetProcesDefinitionNotUsedListCommand(Long expedientTipusId) {
-		this.expedientTipusId = expedientTipusId;
+	public GetProcesDefinitionEntornNotUsedListCommand(Long entornId) {
+		this.entornId = entornId;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		setJbpmContext(jbpmContext);
-		StringBuffer queryText = new StringBuffer(
-				  "  select	pd" 
-				+ "    from org.jbpm.graph.def.ProcessDefinition as pd,"
-				+ "	   		net.conselldemallorca.helium.core.model.hibernate.DefinicioProces dp "
-				+ "   where	pd.id not in (select distinct p.processDefinition.id from org.jbpm.graph.exe.ProcessInstance as p) "
-				+ "     and pd.id = cast(dp.jbpmId as long) " 
-				+ "     and dp.expedientTipus.id = :expedientTipusId "
-				+ "order by dp.jbpmKey asc, dp.versio desc");
+		StringBuffer queryText = new StringBuffer("select pd" + " from org.jbpm.graph.def.ProcessDefinition as pd,"
+				+ "	   net.conselldemallorca.helium.core.model.hibernate.DefinicioProces dp "
+				+ " where pd.id not in (select distinct p.processDefinition.id from org.jbpm.graph.exe.ProcessInstance as p) "
+				+ " and pd.id = cast(dp.jbpmId as long) " + " and dp.entorn.id = :entornId "
+				+ " order by dp.jbpmKey asc, dp.versio desc");
 
-		Query query = jbpmContext.getSession().createQuery(queryText.toString()).setLong("expedientTipusId", expedientTipusId);
+		Query query = jbpmContext.getSession().createQuery(queryText.toString()).setLong("entornId", entornId);
 
 		// return retrieveProcessInstanceDetails(query.list());
 		return query.list();
@@ -51,16 +48,17 @@ public class GetProcesDefinitionNotUsedListCommand extends AbstractGetObjectBase
 		return processDefinitionList;
 	}
 
-	public long getExpedientTipusId() {
-		return expedientTipusId;
+	public long getEntornId() {
+		return entornId;
 	}
 
-	public void setExpedientTipusId(Long expedientTipusId) {
-		this.expedientTipusId = expedientTipusId;
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
 	}
 
 	@Override
 	public String getAdditionalToStringInformation() {
-		return "expedientTipusId=" + expedientTipusId;
+		return "entornId=" + entornId;
 	}
+
 }

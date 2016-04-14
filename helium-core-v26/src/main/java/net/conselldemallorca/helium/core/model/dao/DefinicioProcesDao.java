@@ -56,6 +56,16 @@ public class DefinicioProcesDao extends HibernateGenericDao<DefinicioProces, Lon
 				Restrictions.eq("entorn.id", entornId),
 				Restrictions.in("jbpmId", jbpmIds));
 	}
+	public List<DefinicioProces> findAmbExpedientTipusIJbpmIds(
+			Long expedientTipusId,
+			List<String> jbpmIds) {
+		
+		return findOrderedByCriteria(
+				new String[] {"jbpmKey", "versio"},
+				true,
+				Restrictions.eq("expedientTipus.id", expedientTipusId),
+				Restrictions.in("jbpmId", jbpmIds));
+	}
 	public List<DefinicioProces> findAmbEntornExpedientTipusIJbpmKey(
 			Long entornId,
 			Long expedientTipusId,

@@ -17,6 +17,34 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.jbpm.JbpmException;
+import org.jbpm.command.CancelTokenCommand;
+import org.jbpm.command.ChangeProcessInstanceVersionCommand;
+import org.jbpm.command.Command;
+import org.jbpm.command.CommandService;
+import org.jbpm.command.DeleteProcessDefinitionCommand;
+import org.jbpm.command.DeployProcessCommand;
+import org.jbpm.command.GetProcessInstanceCommand;
+import org.jbpm.command.GetProcessInstancesCommand;
+import org.jbpm.command.GetTaskInstanceCommand;
+import org.jbpm.command.SignalCommand;
+import org.jbpm.command.TaskInstanceEndCommand;
+import org.jbpm.file.def.FileDefinition;
+import org.jbpm.graph.def.DelegationException;
+import org.jbpm.graph.def.Node;
+import org.jbpm.graph.def.Node.NodeType;
+import org.jbpm.graph.def.ProcessDefinition;
+import org.jbpm.graph.def.Transition;
+import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.graph.exe.Token;
+import org.jbpm.job.Timer;
+import org.jbpm.logging.log.ProcessLog;
+import org.jbpm.taskmgmt.def.Task;
+import org.jbpm.taskmgmt.exe.TaskInstance;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.jbpm3.command.AddProcessInstanceMessageLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.AddTaskInstanceMessageLogCommand;
 import net.conselldemallorca.helium.jbpm3.command.AddToAutoSaveCommand;
@@ -41,6 +69,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTas
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdForTokenIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetProcesDefinitionEntornNotUsedListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcesDefinitionNotUsedListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesEntornCommand;
@@ -81,34 +110,6 @@ import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-
-import org.jbpm.JbpmException;
-import org.jbpm.command.CancelTokenCommand;
-import org.jbpm.command.ChangeProcessInstanceVersionCommand;
-import org.jbpm.command.Command;
-import org.jbpm.command.CommandService;
-import org.jbpm.command.DeleteProcessDefinitionCommand;
-import org.jbpm.command.DeployProcessCommand;
-import org.jbpm.command.GetProcessInstanceCommand;
-import org.jbpm.command.GetProcessInstancesCommand;
-import org.jbpm.command.GetTaskInstanceCommand;
-import org.jbpm.command.SignalCommand;
-import org.jbpm.command.TaskInstanceEndCommand;
-import org.jbpm.file.def.FileDefinition;
-import org.jbpm.graph.def.DelegationException;
-import org.jbpm.graph.def.Node;
-import org.jbpm.graph.def.Node.NodeType;
-import org.jbpm.graph.def.ProcessDefinition;
-import org.jbpm.graph.def.Transition;
-import org.jbpm.graph.exe.ProcessInstance;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.jbpm.graph.exe.Token;
-import org.jbpm.job.Timer;
-import org.jbpm.logging.log.ProcessLog;
-import org.jbpm.taskmgmt.def.Task;
-import org.jbpm.taskmgmt.exe.TaskInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Dao per a l'accés a la funcionalitat de jBPM3
@@ -1813,7 +1814,18 @@ public class JbpmHelper {
 	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId) {
 		List<String> resultat = new ArrayList<String>();
 		
-		GetProcesDefinitionNotUsedListCommand command = new GetProcesDefinitionNotUsedListCommand(entornId);
+		GetProcesDefinitionEntornNotUsedListCommand command = new GetProcesDefinitionEntornNotUsedListCommand(entornId);
+		for (ProcessDefinition pd : (List<ProcessDefinition>)commandService.execute(command))
+			resultat.add(String.valueOf(pd.getId()));
+		//adminService.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
+		return resultat;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId) {
+		List<String> resultat = new ArrayList<String>();
+		
+		GetProcesDefinitionNotUsedListCommand command = new GetProcesDefinitionNotUsedListCommand(expedientTipusId);
 		for (ProcessDefinition pd : (List<ProcessDefinition>)commandService.execute(command))
 			resultat.add(String.valueOf(pd.getId()));
 		//adminService.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");

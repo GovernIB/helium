@@ -15,22 +15,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.dto.PersonaDto;
-import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.model.service.PersonaService;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ReassignacioService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +31,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+
+import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.model.service.PersonaService;
+import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.model.service.ReassignacioService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 
 
@@ -349,6 +351,72 @@ public class ExpedientTipusController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/expedientTipus/netejar_df", method = RequestMethod.GET)
+	public String netejar_df(
+			HttpServletRequest request,
+			@RequestParam(value = "id", required = true) Long id,
+			ModelMap model) {
+		model.addAttribute("expedientTipusId", id);
+		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(id));
+		return "/expedientTipus/llistatDpNoUs";
+	}
+
+	@RequestMapping(value = "/expedientTipus/netejar_df", method = RequestMethod.POST)
+	public String netejar_df(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "dpId", required = false) Long[] dpId,
+			ModelMap model) {
+		Entorn entorn = getEntornActiu(request);
+//		ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		List<Long> dfBorrar = new ArrayList<Long>();
+		String msg = "";
+		for (Long definicioProcesId : dpId) {
+			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
+				try {
+					List<Consulta> consultes = dissenyService.findConsultesAmbEntorn(entorn.getId());
+					boolean esborrar = true;
+					if (consultes.isEmpty()) {
+						dfBorrar.add(definicioProcesId);
+						msg += definicioProces.getJbpmName() + " v." +  definicioProces.getVersio() + ", ";
+					} else {
+						for(Consulta consulta: consultes){
+							Set<ConsultaCamp> llistat = consulta.getCamps();
+							for(ConsultaCamp c: llistat){
+								if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
+									esborrar = false;
+								}
+							}
+							if(!esborrar){
+								missatgeError(request, getMessage("error.exist.cons.df", new Object[]{consulta.getNom(), definicioProces.getJbpmName(), definicioProces.getVersio()}) );
+							} else {
+								dfBorrar.add(definicioProcesId);
+								msg += definicioProces.getJbpmName() + " v." +  definicioProces.getVersio() + ", ";
+							}
+						}
+					}
+		        } catch (Exception ex) {
+		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+		        	logger.error("No s'han pogut esborrar les definicions de procés", ex);
+		        }
+		}
+		
+		try {
+			if (!dfBorrar.isEmpty()) {
+				dissenyService.undeploy(entorn.getId(), dfBorrar);
+				if (msg.length() > 0) 
+					msg = msg.substring(0, msg.length() - 2);
+				missatgeInfo(request, getMessage("info.defproc.esborrades", new Object[]{msg}) );
+			}
+		} catch (Exception ex) {
+			missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+			logger.error("No s'han pogut esborrar les definicions de procés", ex);
+		}
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(expedientTipusId));
+		return "/entorn/llistatDpNoUs";
+	}
+	
 	@Autowired
 	public ReassignacioService getReassignacioService() {
 		return reassignacioService;
