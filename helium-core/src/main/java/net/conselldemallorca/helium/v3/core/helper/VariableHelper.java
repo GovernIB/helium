@@ -592,6 +592,7 @@ public class VariableHelper {
 		tascaDadaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
 		tascaDadaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
 		tascaDadaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		tascaDadaDto.setLlistar(expedientDadaDto.isLlistar());
 		if (camp != null) {
 			tascaDadaDto.setReadOnly(readOnly);
 			tascaDadaDto.setReadFrom(readFrom);
@@ -798,6 +799,7 @@ public class VariableHelper {
 									false);
 							dtoRegistre.setRequired(campRegistre.isObligatori());
 							dtoRegistre.setOrdre(campRegistre.getOrdre());
+							dtoRegistre.setLlistar(campRegistre.isLlistar());
 							index += 1;
 							registreDades.add(dtoRegistre);
 						}

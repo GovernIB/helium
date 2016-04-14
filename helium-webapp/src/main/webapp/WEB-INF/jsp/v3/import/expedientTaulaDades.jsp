@@ -11,7 +11,9 @@
 					<thead>
 						<tr>
 							<c:forEach var="dadaFila0" items="${registreFilesTaula[0].registreDades}">
-								<th><label <c:if test='${dadaFila0.required}'> class="control-label obligatori"</c:if>>${dadaFila0.campEtiqueta}</label></th>
+								<c:if test="${dadaFila0.llistar}">
+									<th><label <c:if test='${dadaFila0.required}'> class="control-label obligatori"</c:if>>${dadaFila0.campEtiqueta}</label></th>
+								</c:if>
 							</c:forEach>
 						</tr>
 					</thead>
@@ -19,7 +21,9 @@
 						<c:forEach var="registreFila" items="${registreFilesTaula}">
 							<tr>
 								<c:forEach var="registreDada" items="${registreFila.registreDades}">
-									<td>${registreDada.text}</td>
+									<c:if test="${registreDada.llistar}">
+										<td>${registreDada.text}</td>
+									</c:if>
 								</c:forEach>
 							</tr>
 						</c:forEach>
