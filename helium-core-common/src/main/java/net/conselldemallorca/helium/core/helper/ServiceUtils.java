@@ -57,17 +57,50 @@ public class ServiceUtils {
 	 * Mètodes per a la reindexació d'expedients
 	 */
 	public void expedientIndexLuceneCreate(String processInstanceId) {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
-		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneHelper.createExpedient(
-				expedient,
-				getMapDefinicionsProces(expedient.getProcessInstanceId()),
-				mapCamps,
-				mapValors,
-				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient),
-				false);
+		// Timers LUCENE
+		Timer.Context contextDades = null;
+		Timer.Context contextIndexar = null;
+		final Timer timerDades = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.create.dades"));
+		contextDades = timerDades.time();
+		Counter countDades = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.create.dades.count"));
+		countDades.inc();
+		final Timer timerIndexar = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.create.indexar"));
+		contextIndexar = timerIndexar.time();
+		Counter countIndexar = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.create.indexar.count"));
+		countIndexar.inc();
+		boolean ctxDadesStoped = false;
+		
+		try {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
+			Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
+			contextDades.stop();
+			ctxDadesStoped = true;
+			luceneHelper.createExpedient(
+					expedient,
+					getMapDefinicionsProces(expedient.getProcessInstanceId()),
+					mapCamps,
+					mapValors,
+					getMapValorsDomini(mapCamps, mapValors),
+					isExpedientFinalitzat(expedient),
+					false);
+		} finally {
+			if (!ctxDadesStoped)
+				contextDades.stop();
+			contextIndexar.stop();
+		}
 	}
 
 	public void expedientIndexLuceneUpdate(
@@ -122,11 +155,39 @@ public class ServiceUtils {
 							expedientDeLaTasca.getTipus().getCodi()));
 			countTipexp.inc();
 		}
+		
+		// Timers LUCENE
+		Timer.Context contextDades = null;
+		Timer.Context contextIndexar = null;
+		final Timer timerDades = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.update.dades"));
+		contextDades = timerDades.time();
+		Counter countDades = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.update.dades.count"));
+		countDades.inc();
+		final Timer timerIndexar = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.update.indexar"));
+		contextIndexar = timerIndexar.time();
+		Counter countIndexar = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.update.indexar.count"));
+		countIndexar.inc();
+		boolean ctxDadesStoped = false;
+				
 		try {
 			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
 			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
+			contextDades.stop();
+			ctxDadesStoped = true;
 			luceneHelper.updateExpedientCamps(
 					expedient,
 					getMapDefinicionsProces(rootProcessInstance.getId()),
@@ -140,26 +201,95 @@ public class ServiceUtils {
 				contextEntorn.stop();
 				contextTipexp.stop();
 			}
+			if (!ctxDadesStoped)
+				contextDades.stop();
+			contextIndexar.stop();
 		}
 	}
 
 	public void expedientIndexLuceneDelete(String processInstanceId) {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		luceneHelper.deleteExpedient(expedient);
+		// Timers LUCENE
+		Timer.Context contextDades = null;
+		Timer.Context contextIndexar = null;
+		final Timer timerDades = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.delete.dades"));
+		contextDades = timerDades.time();
+		Counter countDades = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.delete.dades.count"));
+		countDades.inc();
+		final Timer timerIndexar = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.delete.indexar"));
+		contextIndexar = timerIndexar.time();
+		Counter countIndexar = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.delete.indexar.count"));
+		countIndexar.inc();
+		boolean ctxDadesStoped = false;
+		
+		try {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			contextDades.stop();
+			ctxDadesStoped = true;
+			luceneHelper.deleteExpedient(expedient);
+		} finally {
+			if (!ctxDadesStoped)
+				contextDades.stop();
+			contextIndexar.stop();
+		}
 	}
 
 	public void expedientIndexLuceneRecrear(Expedient expedient) {
-		luceneHelper.deleteExpedient(expedient);
-		Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
-		Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-		luceneHelper.createExpedient(
-				expedient,
-				getMapDefinicionsProces(expedient.getProcessInstanceId()),
-				mapCamps,
-				mapValors,
-				getMapValorsDomini(mapCamps, mapValors),
-				isExpedientFinalitzat(expedient),
-				false);
+		// Timers LUCENE
+		Timer.Context contextDades = null;
+		Timer.Context contextIndexar = null;
+		final Timer timerDades = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.recreate.dades"));
+		contextDades = timerDades.time();
+		Counter countDades = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.recreate.dades.count"));
+		countDades.inc();
+		final Timer timerIndexar = metricRegistry.timer(
+				MetricRegistry.name(
+						LuceneHelper.class, 
+						"lucene.recreate.indexar"));
+		contextIndexar = timerIndexar.time();
+		Counter countIndexar = metricRegistry.counter(
+				MetricRegistry.name(
+						LuceneHelper.class,
+						"lucene.recreate.indexar.count"));
+		countIndexar.inc();
+		boolean ctxDadesStoped = false;
+		
+		try {
+			Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
+			Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
+			contextDades.stop();
+			ctxDadesStoped = true;
+			luceneHelper.deleteExpedient(expedient);
+			luceneHelper.createExpedient(
+					expedient,
+					getMapDefinicionsProces(expedient.getProcessInstanceId()),
+					mapCamps,
+					mapValors,
+					getMapValorsDomini(mapCamps, mapValors),
+					isExpedientFinalitzat(expedient),
+					false);
+		} finally {
+			if (!ctxDadesStoped)
+				contextDades.stop();
+			contextIndexar.stop();
+		}
 	}
 
 	public Object getVariableJbpmProcesValor(
