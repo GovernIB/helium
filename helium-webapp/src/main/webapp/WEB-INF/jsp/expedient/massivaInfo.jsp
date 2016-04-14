@@ -314,7 +314,7 @@ $(document).ready(function(){
 	
 			<h3 class="titol-tab titol-canvi-versio mass"><fmt:message key="expedient.massiva.executarScriptMas"/></h3>
 			<c:set var="tePermisExecutarScript" value="${false}"/>
-			<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16,2"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
+			<security:accesscontrollist domainObject="${instanciaProces.expedient.tipus}" hasPermission="16"><c:set var="tePermisAccions" value="${true}"/></security:accesscontrollist>
 			<c:if test="${tePermisAccions}">
 				<form:form action="scriptMas.html" cssClass="uniForm" commandName="scriptCommandMas" onsubmit="return confirmarScript(event)" onclick="javascript:massiva(this)">
 						

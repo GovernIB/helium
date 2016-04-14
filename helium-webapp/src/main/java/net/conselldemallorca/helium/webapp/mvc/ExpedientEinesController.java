@@ -5,16 +5,6 @@ package net.conselldemallorca.helium.webapp.mvc;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +20,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
+
+import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.PermissionService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 
 
@@ -115,7 +115,7 @@ public class ExpedientEinesController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potAdministrarExpedient(expedient)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {
 		        	return "expedient/eines";
@@ -126,6 +126,11 @@ public class ExpedientEinesController extends BaseController {
 							command.getScript(),
 							null);
 					missatgeInfo(request, getMessage("info.script.executat"));
+				// Si es vol comprovar que l'usuari té permisos per executar scripts,
+				// un cop ja s'ha comprovat en el controlador, s'han de descomentar les següents línies:
+				// } catch (NotAllowedException ex) {
+				// 	missatgeError(request, getMessage("error.permisos.script.expedient"));
+				// 	return "redirect:/expedient/eines.html?id=" + id;
 				} catch (Exception ex) {
 					Long entornId = entorn.getId();
 					String numeroExpedient = id;
@@ -135,8 +140,8 @@ public class ExpedientEinesController extends BaseController {
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
 			} else {
-				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-				return "redirect:/expedient/consulta.html";
+				missatgeError(request, getMessage("error.permisos.script.expedient"));
+				return "redirect:/expedient/eines.html?id=" + id;
 			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -374,6 +379,14 @@ public class ExpedientEinesController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
+	}
+	
+	private boolean potAdministrarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION}) != null;
 	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientEinesController.class);

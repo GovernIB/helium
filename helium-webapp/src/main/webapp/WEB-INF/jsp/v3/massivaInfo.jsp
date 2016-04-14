@@ -246,7 +246,7 @@
 						<label><spring:message code="expedient.tramitacio.massiva"/></label>
 						<select name="opciones_tramitaci">
 							<option value="aturarMas"><spring:message code='expedient.massiva.aturar' /></option>
-							<option value="scriptMas"><spring:message code='expedient.massiva.executarScriptMas' /></option>
+							<c:if test="${permisAdministrador}"><option value="scriptMas"><spring:message code='expedient.massiva.executarScriptMas' /></option></c:if>
 							<option value="massivaCanviVersio"><spring:message code='expedient.massiva.actualitzar' /></option>
 							<option value="massivaExecutarAccio"><spring:message code='expedient.massiva.accions' /></option>
 							<option value="reindexarMas"><spring:message code='expedient.eines.reindexar.expedients' /></option>

@@ -413,7 +413,8 @@ public class ExecucioMassivaService {
 			};
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
 			
-			if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
+			if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO || 
+				tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
 				Object param2 = deserialize(dto.getParam2());
 				if (param2 instanceof Object[]) {
 					Object credentials = ((Object[])param2)[1];
@@ -858,7 +859,14 @@ public class ExecucioMassivaService {
 		try {
 			eme = execucioMassivaExpedientDao.getById(dto.getId(), true);
 			eme.setDataInici(new Date());
-			String script = (String) deserialize(dto.getParam2());
+			Object param2 = deserialize(dto.getParam2());
+			String script = "";
+			if (param2 instanceof Object[]) {
+				script = (String)((Object[])param2)[0];
+			} else {
+				script = (String)param2;
+			}
+			//String script = (String) deserialize(dto.getParam2());
 			expedientService.evaluateScript(exp.getProcessInstanceId(), script,	null);
 			eme.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			eme.setDataFi(new Date());

@@ -2214,9 +2214,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
-				true,
 				false,
-				false);
+				false,
+				true);
 		
 		expedientHelper.comprovarInstanciaProces(expedient.getId(), processInstanceId);
 		

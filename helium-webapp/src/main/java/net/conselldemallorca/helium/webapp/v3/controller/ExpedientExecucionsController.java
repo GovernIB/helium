@@ -10,9 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
@@ -71,14 +73,21 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			return "v3/expedient/execucions";
 		}
 		try {
+//			if (expedient.isPermisAdministration()) {
 			expedientService.evaluateScript(
 					expedientId,
 					expedientEinesScriptCommand.getScript(),
 					expedientEinesScriptCommand.getScriptProcessId());
 			MissatgesHelper.success(request, getMessage(request, "info.script.executat"));
+//			} else {
+		} catch (NotAllowedException ex) {
+			logger.error("ENTORNID:"+entorn.getId()+" NUMEROEXPEDIENT:"+expedientId+" No disposa de permisos per a executar scripts");
+			MissatgesHelper.error(request, getMessage(request, "error.executar.script.permis.no"));
+			if (!ModalHelper.isModal(request))
+				return "redirect:/v3/expedient/" + expedientId;
 		} catch (Exception ex) {
-			Long entornId = entorn.getId();
-			logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
+//			Long entornId = entorn.getId();
+			logger.error("ENTORNID:"+entorn.getId()+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);
 			MissatgesHelper.error(request, getMessage(request, "error.executar.script") +": "+ expedientEinesScriptCommand.getScript());
         }
 		return modalUrlTancar();

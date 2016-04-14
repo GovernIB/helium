@@ -34,10 +34,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.datatables.DatatablesPagina;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.PaginacioHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
@@ -80,6 +82,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 		return "redirect:expedient";
 	}
+	
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesPagina<ExpedientDto> datatable(
@@ -88,28 +91,41 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
-		DatatablesPagina<ExpedientDto> result = PaginacioHelper.getPaginaPerDatatables(
-				request,
-				expedientService.findAmbFiltrePaginat(
-						entornActual.getId(),
-						filtreCommand.getExpedientTipusId(),
-						filtreCommand.getTitol(),
-						filtreCommand.getNumero(),
-						filtreCommand.getDataIniciInicial(),
-						filtreCommand.getDataIniciFinal(),
-						filtreCommand.getDataFiInicial(),
-						filtreCommand.getDataFiFinal(),
-						filtreCommand.getEstatTipus(),
-						filtreCommand.getEstatId(),
-						filtreCommand.getGeoPosX(),
-						filtreCommand.getGeoPosY(),
-						filtreCommand.getGeoReferencia(),
-						filtreCommand.isNomesTasquesPersonals(),
-						filtreCommand.isNomesTasquesGrup(),
-						filtreCommand.isNomesAlertes(),
-						filtreCommand.isNomesErrors(),
-						filtreCommand.getMostrarAnulats(),
-						PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+		DatatablesPagina<ExpedientDto> result = null;
+		try {
+			result = PaginacioHelper.getPaginaPerDatatables(
+					request,
+					expedientService.findAmbFiltrePaginat(
+							entornActual.getId(),
+							filtreCommand.getExpedientTipusId(),
+							filtreCommand.getTitol(),
+							filtreCommand.getNumero(),
+							filtreCommand.getDataIniciInicial(),
+							filtreCommand.getDataIniciFinal(),
+							filtreCommand.getDataFiInicial(),
+							filtreCommand.getDataFiFinal(),
+							filtreCommand.getEstatTipus(),
+							filtreCommand.getEstatId(),
+							filtreCommand.getGeoPosX(),
+							filtreCommand.getGeoPosY(),
+							filtreCommand.getGeoReferencia(),
+							filtreCommand.isNomesTasquesPersonals(),
+							filtreCommand.isNomesTasquesGrup(),
+							filtreCommand.isNomesAlertes(),
+							filtreCommand.isNomesErrors(),
+							filtreCommand.getMostrarAnulats(),
+							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+		} catch (Exception e) {
+			if (entornActual == null)
+				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
+			else {
+				MissatgesHelper.error(request, e.getMessage());
+				logger.error("No se pudo obtener la lista de expedientes", e);
+			}
+			result = PaginacioHelper.getPaginaPerDatatables(
+					request,
+					new PaginaDto<ExpedientDto>());
+		}
 		return result;
 	}
 	

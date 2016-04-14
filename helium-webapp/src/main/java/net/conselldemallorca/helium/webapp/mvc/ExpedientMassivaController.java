@@ -637,7 +637,7 @@ public class ExpedientMassivaController extends BaseController {
 			if (correu != null && correu.equals("true")) bCorreu = true;
 			
 			ExpedientDto expedientPrimer = expedientService.getById(ids.get(1));
-			if (potModificarExpedient(expedientPrimer)) {
+			if (potAdministrarExpedient(expedientPrimer)) {
 				try {
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
@@ -658,7 +658,7 @@ public class ExpedientMassivaController extends BaseController {
 					logger.error("Error al programar les accions massives", e);
 				}
 			} else {
-				missatgeError(request, getMessage("info.massiu.permisos.no"));
+				missatgeError(request, getMessage("info.massiu.script.permisos.no"));
 			}
 			return getRedirMassius(request);	
 		} else {
@@ -1645,6 +1645,14 @@ public class ExpedientMassivaController extends BaseController {
 				new Permission[] {
 					ExtendedPermission.ADMINISTRATION,
 					ExtendedPermission.WRITE}) != null;
+	}
+	
+	private boolean potAdministrarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION}) != null;
 	}
 //	private boolean potModificarOReassignarExpedient(ExpedientDto expedient) {
 //		return permissionService.filterAllowed(

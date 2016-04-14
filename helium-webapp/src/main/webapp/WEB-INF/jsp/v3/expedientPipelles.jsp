@@ -269,8 +269,9 @@
 							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
 								<li><a data-rdt-link-modal-min-height="190" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
 							</c:if>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
-							<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
+<%-- 							<c:if test="${expedient.permisWrite or expedient.permisAdministration}"> --%>
+							<c:if test="${expedient.permisAdministration}">
+								<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 							</c:if>
 							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
 								<c:if test="${not empty expedient.dataFi}">

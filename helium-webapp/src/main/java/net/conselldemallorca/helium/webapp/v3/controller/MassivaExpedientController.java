@@ -196,6 +196,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 			
+			//Permisos
+			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
+			
 			return "v3/massivaInfo";
 		}
 	}
@@ -350,11 +353,27 @@ public class MassivaExpedientController extends BaseExpedientController {
 					model.addAttribute("expedientEinesScriptCommand", command);
 					MissatgesHelper.error(request, getMessage(request, "error.executar.script"));
 				} else {
-					dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_SCRIPT);
-					dto.setParam2(execucioMassivaService.serialize(((ExpedientEinesScriptCommand) command).getScript()));
-					execucioMassivaService.crearExecucioMassiva(dto);
-					MissatgesHelper.success(request, getMessage(request, "info.script.massiu.executat", new Object[] {listIds.size()}));
-					model.addAttribute("expedientEinesScriptCommand", command);
+					ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
+					if (expedient.isPermisAdministration()) {
+						dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_SCRIPT);
+						
+						Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+						Object[] params = new Object[3];
+						params[0] = ((ExpedientEinesScriptCommand) command).getScript();
+						params[1] = auth.getCredentials();
+						List<String> rols = new ArrayList<String>();
+						for (GrantedAuthority gauth : auth.getAuthorities()) {
+							rols.add(gauth.getAuthority());
+						}
+						params[2] = rols;
+						dto.setParam2(execucioMassivaService.serialize(params));
+						execucioMassivaService.crearExecucioMassiva(dto);
+						MissatgesHelper.success(request, getMessage(request, "info.script.massiu.executat", new Object[] {listIds.size()}));
+						model.addAttribute("expedientEinesScriptCommand", command);
+					} else {
+						model.addAttribute("expedientEinesScriptCommand", command);
+						MissatgesHelper.error(request, getMessage(request, "error.executar.script.permis.no"));
+					}
 				}
 			} else if ("aturar".equals(accio)) {
 				new ExpedientAturarValidator().validate(command, result);
