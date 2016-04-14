@@ -443,8 +443,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					Object param2 = deserialize(execucioMassiva.getParam2());
 					if (param2 instanceof Object[]) {
 						script = (String)((Object[])param2)[0];
+					} else if (param2 instanceof String) {
+						script = (String)param2;
 					} else {
-						script = (String) param2;
+						script = deserialitzat.toString();
 					}
 					script = script.replace("'", "&#39;").replace("\"", "&#34;");
 				} catch (Exception ex) {
