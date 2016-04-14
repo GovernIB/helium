@@ -191,3 +191,8 @@ form .btn-group > .btn-default:hover:HOVER {
 	border-width: 1px;
 	border-style: solid;
 }
+
+.table-bordered>tbody>tr>td {
+	overflow-wrap: break-word; 
+	max-width: 100px;
+}

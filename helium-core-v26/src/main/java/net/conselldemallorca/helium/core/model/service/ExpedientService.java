@@ -1962,6 +1962,21 @@ public class ExpedientService {
 			expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		}
+		
+		// Si es vol comprovar que l'usuari té permisos per executar scripts,
+		// un cop ja s'ha comprovat en el controlador, s'han de descomentar les següents línies:
+		//
+		// ExpedientTipus expedientTipus = expedient.getTipus();
+		// if (getServiceUtils().filterAllowed(
+		// 		expedientTipus,
+		// 		ExpedientTipus.class,
+		// 		new Permission[] {ExtendedPermission.ADMINISTRATION}) == null) {
+		// 	throw new NotAllowedException(
+		// 			expedient.getId(),
+		// 			Expedient.class,
+		// 			PermisTipusEnumDto.ADMINISTRATION);
+		// }
+		
 		Set<String> outputVars = new HashSet<String>();
 		if (outputVar != null)
 			outputVars.add(outputVar);

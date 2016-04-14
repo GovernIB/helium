@@ -197,6 +197,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 			
+			//Permisos
+			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
+			
 			return "v3/massivaInfo";
 		}
 	}

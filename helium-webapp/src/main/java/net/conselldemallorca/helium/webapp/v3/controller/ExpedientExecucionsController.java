@@ -7,14 +7,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +20,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.support.SessionStatus;
+
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -76,6 +78,11 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 					expedientEinesScriptCommand.getScript(),
 					expedientEinesScriptCommand.getScriptProcessId());
 			MissatgesHelper.success(request, getMessage(request, "info.script.executat"));
+		} catch (NotAllowedException ex) {
+			logger.error("ENTORNID:"+entorn.getId()+" NUMEROEXPEDIENT:"+expedientId+" No disposa de permisos per a executar scripts");
+			MissatgesHelper.error(request, getMessage(request, "error.executar.script.permis.no"));
+			if (!ModalHelper.isModal(request))
+				return "redirect:/v3/expedient/" + expedientId;
 		} catch (Exception ex) {
 			Long entornId = entorn.getId();
 			logger.error("ENTORNID:"+entornId+" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar l'script", ex);

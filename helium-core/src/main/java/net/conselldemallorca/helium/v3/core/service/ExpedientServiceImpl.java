@@ -1999,10 +1999,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"id=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				true,
-				true,
-				true,
-				false);
+				false,
+				false,
+				false,
+				true);
 		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
 		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu()) {

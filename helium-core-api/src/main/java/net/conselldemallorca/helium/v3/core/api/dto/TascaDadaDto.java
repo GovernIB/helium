@@ -43,7 +43,8 @@ public class TascaDadaDto {
 	private boolean writeTo;
 	private boolean required;
 
-
+	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
+	
 
 	public TascaDadaDto(String codi, CampTipusDto tipus, String etiqueta) {
 		this.varCodi = codi;
@@ -167,6 +168,12 @@ public class TascaDadaDto {
 	}
 	public void setError(String error) {
 		this.error = error;
+	}
+	public boolean isLlistar() {
+		return llistar;
+	}
+	public void setLlistar(boolean llistar) {
+		this.llistar = llistar;
 	}
 
 	public Object[] getMultipleValor() {

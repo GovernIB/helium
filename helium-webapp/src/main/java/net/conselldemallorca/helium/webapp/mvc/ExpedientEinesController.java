@@ -115,7 +115,7 @@ public class ExpedientEinesController extends BaseController {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(id);
-			if (potModificarExpedient(expedient)) {
+			if (potAdministrarExpedient(expedient)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {
 		        	return "expedient/eines";
@@ -126,6 +126,12 @@ public class ExpedientEinesController extends BaseController {
 							command.getScript(),
 							null);
 					missatgeInfo(request, getMessage("info.script.executat"));
+					// Si es vol comprovar que l'usuari té permisos per executar scripts,
+					// un cop ja s'ha comprovat en el controlador, s'han de descomentar les següents línies:
+					//
+					// } catch (NotAllowedException ex) {
+					// 	missatgeError(request, getMessage("error.permisos.script.expedient"));
+					// 	return "redirect:/expedient/eines.html?id=" + id;
 				} catch (Exception ex) {
 					Long entornId = entorn.getId();
 					String numeroExpedient = id;
@@ -135,8 +141,8 @@ public class ExpedientEinesController extends BaseController {
 				}
 				return "redirect:/expedient/eines.html?id=" + id;
 			} else {
-				missatgeError(request, getMessage("error.permisos.modificar.expedient"));
-				return "redirect:/expedient/consulta.html";
+				missatgeError(request, getMessage("error.permisos.script.expedient"));
+				return "redirect:/expedient/eines.html?id=" + id;
 			}
 		} else {
 			missatgeError(request, getMessage("error.no.entorn.selec") );
@@ -376,6 +382,14 @@ public class ExpedientEinesController extends BaseController {
 					ExtendedPermission.WRITE}) != null;
 	}
 
+	private boolean potAdministrarExpedient(ExpedientDto expedient) {
+		return permissionService.filterAllowed(
+				expedient.getTipus(),
+				ExpedientTipus.class,
+				new Permission[] {
+					ExtendedPermission.ADMINISTRATION}) != null;
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExpedientEinesController.class);
 
 }

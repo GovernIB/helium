@@ -39,6 +39,7 @@ public class ExpedientDadaDto {
 	private String error;
 
 	private boolean required; // Si es obligatori a dins camp tipus registre
+	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
 	private int ordre;
 	private Long agrupacioId;
 
@@ -145,6 +146,12 @@ public class ExpedientDadaDto {
 	}
 	public void setRequired(boolean required) {
 		this.required = required;
+	}
+	public boolean isLlistar() {
+		return llistar;
+	}
+	public void setLlistar(boolean llistar) {
+		this.llistar = llistar;
 	}
 	public int getOrdre() {
 		return ordre;
