@@ -44,11 +44,13 @@
 		}
 		
 		.min_width {
-			width: 120px;
+			width: 95;
 		}
-		.mid_width {
-			width: 240px;
+		
+		.top-buffer {
+			margin-top: 10px;
 		}
+		
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -65,10 +67,15 @@
 		        async: false,
 		        success: function(data){
 		            var content = "";
-		            content += '<div class="mesures_monitor_sistema">';
+		            content += '<ul class="nav nav-tabs" role="tablist">' +
+		                '<li role="presentation" class="active"><a id="tab_sistema" href="#sistema" aria-controls="home" role="tab" data-toggle="tab"><spring:message code="expedient.monitor.sistema"/></a></li>' +
+		                '<li role="presentation"><a id="tab_fils" href="#fils" aria-controls="profile" role="tab" data-toggle="tab"><spring:message code="expedient.monitor.fils"/></a></li>' +
+		              '</ul>';
+		            content += '<div class="tab-content">';
+		            content += '<div role="tabpanel" class="tab-pane active" id="sistema">';
+		            content += '<div class="top-buffer mesures_monitor_sistema">';
 			            content += '<table class="table-monitor-titol table table-striped table-bordered dataTable">';
 			            content += '<thead><tr>';
-			            content += '<th>Sistema</th>';
 			            content += '</thead></tr>';
 			            for (var i = 0; i < data.sistema.length; i++) {
 			            	content += '<tr class="monitor_fila">';
@@ -77,8 +84,10 @@
 			            }
 			            content += '</table>';
 		            content +=  '</div>';
-		            
-		            content +=  '<div id="mesures_monitor">' +
+		            content +=  '</div>';
+
+		            content += '<div role="tabpanel" class="tab-pane" id="fils">';
+		            content +=  '<div id="mesures_monitor" class="top-buffer">' +
 			                        '<table class="table-monitor table table-striped table-bordered dataTable">' +
 			                        '<thead><tr>' +
 			                        '<th class="monitor_hilo"><spring:message code="expedient.monitor.hilo"/></th>' +
@@ -97,6 +106,8 @@
 			                            '</tr>';
 			            }
 			            content +=  '</table>' +
+		                        '</div>'+
+		                        '</div>'+
 		                        '</div>';
 		           
 		            $("#monitor_contens").html(content);
