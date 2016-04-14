@@ -117,12 +117,14 @@ public class PluginHelper {
 
 
 	public List<PersonaDto> personaFindLikeNomSencer(String text) {
+		long t0 = System.currentTimeMillis();
 		try {
 			List<DadesPersona> persones = getPersonesPlugin().findLikeNomSencer(text);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PERSONA,
 					"Consulta d'usuaris amb like",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto("text", text));
 			if (persones == null)
 				return new ArrayList<PersonaDto>();
@@ -132,6 +134,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_PERSONA,
 					"Consulta d'usuaris amb like",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					"El plugin ha retornat una excepció",
 					ex,
 					new IntegracioParametreDto("text", text));
@@ -162,12 +165,14 @@ public class PluginHelper {
 	public PersonaDto personaFindAmbCodi(String codi) {
 		Cache personaCache = cacheManager.getCache(CACHE_PERSONA_ID);
 		if (personaCache.get(codi) == null) {
+			long t0 = System.currentTimeMillis();
 			try {
 				DadesPersona dadesPersona = getPersonesPlugin().findAmbCodi(codi);
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_PERSONA,
 						"Consulta d'usuari amb codi",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						new IntegracioParametreDto("codi", codi));
 				PersonaDto dto = conversioTipusHelper.convertir(
 						dadesPersona,
@@ -181,6 +186,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_PERSONA,
 						"Consulta d'usuari amb codi",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						"El plugin ha retornat una excepció",
 						ex,
 						new IntegracioParametreDto("codi", codi));
@@ -226,6 +232,7 @@ public class PluginHelper {
 						"descripcio",
 						dadesExpedient.getDescripcio())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			PublicarExpedientRequest request = conversioTipusHelper.convertir(
 					dadesExpedient,
@@ -235,6 +242,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Creació d'expedient",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 		} catch (TramitacioPluginException ex) {
 			String errorDescripcio = "No s'ha pogut crear l'expedient (" +
@@ -246,6 +254,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Creació d'expedient",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -293,12 +302,14 @@ public class PluginHelper {
 				conversioTipusHelper.convertir(
 						dadesEvent,
 						Event.class));
+		long t0 = System.currentTimeMillis();
 		try {
 			getTramitacioPlugin().publicarEvent(request);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Creació d'event",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 		} catch (TramitacioPluginException ex) {
 			String errorDescripcio = "No s'ha pogut crear l'event (" +
@@ -312,6 +323,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Creació d'event",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -334,6 +346,7 @@ public class PluginHelper {
 						"clau",
 						clau)
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			ObtenirDadesTramitRequest request = new ObtenirDadesTramitRequest();
 			request.setNumero(numero);
@@ -343,6 +356,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir dades del tràmit",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 			return toTramitDto(dadesTramit);
 		} catch (TramitacioPluginException ex) {
@@ -353,6 +367,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir dades del tràmit",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -391,12 +406,14 @@ public class PluginHelper {
 						"assumpte",
 						registreNotificacio.getDadesNotificacio().getAssumpte())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaAnotacioRegistre resposta = getTramitacioPlugin().registrarNotificacio(registreNotificacio);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Registrar notificació",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 			return resposta;
 		} catch (TramitacioPluginException ex) {
@@ -416,12 +433,14 @@ public class PluginHelper {
 
 	public RespostaJustificantRecepcio tramitacioObtenirJustificant(
 			String registreNumero) {
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaJustificantRecepcio resposta = getTramitacioPlugin().obtenirJustificantRecepcio(registreNumero);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir justificant",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"registreNumero",
 							registreNumero));
@@ -433,6 +452,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir justificant",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -449,12 +469,14 @@ public class PluginHelper {
 
 	public RespostaJustificantDetallRecepcio tramitacioObtenirJustificantDetall(
 			String registreNumero) {
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaJustificantDetallRecepcio resposta = getTramitacioPlugin().obtenirJustificantDetallRecepcio(registreNumero);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir detall justificant",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"registreNumero",
 							registreNumero));
@@ -466,6 +488,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"Obtenir detall justificant",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -502,6 +525,7 @@ public class PluginHelper {
 						"assumpteExtracte",
 						anotacio.getAssumpteExtracte())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarEntrada(
 					toRegistreEntrada(anotacio));
@@ -514,6 +538,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Anotació d'entrada",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						parametres);
 				throw new PluginException(errorDescripcio);
@@ -522,6 +547,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Anotació d'entrada",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
 				registreId.setNumero(resposta.getNumero());
@@ -535,6 +561,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"Anotació d'entrada",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -568,6 +595,7 @@ public class PluginHelper {
 						"assumpteExtracte",
 						anotacio.getAssumpteExtracte())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarSortida(
 					toRegistreSortida(anotacio));
@@ -580,6 +608,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Anotació de sortida",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						parametres);
 				throw new PluginException(errorDescripcio);
@@ -588,6 +617,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Anotació de sortida",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
 				registreId.setNumero(resposta.getNumero());
@@ -601,6 +631,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"Anotació de sortida",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -634,6 +665,7 @@ public class PluginHelper {
 						"assumpteExtracte",
 						notificacio.getAssumpteExtracte())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarNotificacio(
 					toRegistreNotificacio(notificacio));
@@ -646,6 +678,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Notificació",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						parametres);
 				throw new PluginException(errorDescripcio);
@@ -654,6 +687,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Notificació",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						parametres);
 				RegistreIdDto registreId = new RegistreIdDto();
 				registreId.setNumero(resposta.getNumero());
@@ -667,6 +701,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"Notificació",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -680,6 +715,7 @@ public class PluginHelper {
 	}
 	public Date registreDataJustificantRecepcio(
 			String numeroRegistre) {
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaJustificantRecepcio resposta = getRegistrePlugin().obtenirJustificantRecepcio(numeroRegistre);
 			if (!resposta.isOk()) {
@@ -691,6 +727,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Obtenir data del justificant de recepció",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						new IntegracioParametreDto(
 								"numeroRegistre",
@@ -701,6 +738,7 @@ public class PluginHelper {
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Obtenir data del justificant de recepció",
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
 						new IntegracioParametreDto(
 								"numeroRegistre",
 								numeroRegistre));
@@ -713,6 +751,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"Obtenir data del justificant de recepció",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -728,12 +767,14 @@ public class PluginHelper {
 	}
 	public String registreOficinaNom(
 			String codi) {
+		long t0 = System.currentTimeMillis();
 		try {
 			String oficinaNom = getRegistrePlugin().obtenirNomOficina(codi);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"Obtenir nom de l'oficina",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"oficinaCodi",
 							codi));
@@ -745,6 +786,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"Obtenir nom de l'oficina",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -786,6 +828,7 @@ public class PluginHelper {
 						"documentArxiuNom",
 						documentArxiuNom)
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			String expedientTipus = null;
 			if (gestionDocumentalIsTipusExpedientDirecte()) {
@@ -807,6 +850,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"Pujar document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 			return documentId;
 		} catch (GestioDocumentalPluginException ex) {
@@ -820,6 +864,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"Pujar document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -833,12 +878,14 @@ public class PluginHelper {
 	}
 	public byte[] gestioDocumentalObtenirDocument(
 			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			byte[] contingut = getGestioDocumentalPlugin().retrieveDocument(documentId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"Obtenir document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -849,6 +896,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"Obtenir document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -864,6 +912,7 @@ public class PluginHelper {
 	}
 	public void gestioDocumentalDeleteDocument(
 			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			if (getGestioDocumentalPlugin() != null)
 				getGestioDocumentalPlugin().deleteDocument(documentId);
@@ -871,6 +920,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"Esborrar document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -880,6 +930,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"Obtenir document",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -935,6 +986,7 @@ public class PluginHelper {
 						"personaCodi",
 						persona.getCodi())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			Integer resposta = getPortasignaturesPlugin().uploadDocument(
 					getDocumentPortasignatures(document, expedient),
@@ -955,6 +1007,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Enviar document a firmar",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
@@ -978,6 +1031,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Enviar document a firmar",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -1001,6 +1055,7 @@ public class PluginHelper {
 				ids.append(", ");
 			ids.append(documentId.toString());
 		}
+		long t0 = System.currentTimeMillis();
 		try {
 			getPortasignaturesPlugin().deleteDocuments(
 					documentIds);
@@ -1008,6 +1063,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Cancel·lació d'enviaments de documents",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentIds",
 							ids.toString()));
@@ -1024,6 +1080,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Cancel·lació d'enviaments de documents",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -1058,6 +1115,7 @@ public class PluginHelper {
 						"codiTipusCustodia",
 						codiTipusCustodia)
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			String custodiaId = getCustodiaPlugin().addSignature(
 					documentId.toString(),
@@ -1069,6 +1127,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Enviament de document a custòdia",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 			return custodiaId;
 		} catch (CustodiaPluginException ex) {
@@ -1081,6 +1140,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Enviament de document a custòdia",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);
@@ -1095,6 +1155,7 @@ public class PluginHelper {
 
 	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(
 			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			List<RespostaValidacioSignatura> validacions = getCustodiaPlugin().dadesValidacioSignatura(
 					documentId);
@@ -1102,6 +1163,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de dades de validació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -1112,6 +1174,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de dades de validació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -1128,12 +1191,14 @@ public class PluginHelper {
 
 	public List<byte[]> custodiaObtenirSignatures(
 			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			List<byte[]> signatures = getCustodiaPlugin().getSignatures(documentId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -1144,6 +1209,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -1160,12 +1226,14 @@ public class PluginHelper {
 
 	public byte[] custodiaObtenirSignaturesAmbArxiu(
 			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			byte[] signaturesAmbArxiu = getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures amb arxiu",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -1176,6 +1244,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures amb arxiu",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -1190,13 +1259,16 @@ public class PluginHelper {
 		}
 	}
 
-	public void custodiaEsborrarSignatures(String documentId) {
+	public void custodiaEsborrarSignatures(
+			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			getCustodiaPlugin().deleteSignatures(documentId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Esborrar documents custodiats",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -1206,6 +1278,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Esborrar documents custodiats",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -1222,12 +1295,14 @@ public class PluginHelper {
 
 	public String custodiaObtenirUrlComprovacioSignatura(
 			String documentId) {
+		long t0 = System.currentTimeMillis();
 		try {
 			String url = getCustodiaPlugin().getUrlComprovacioSignatura(documentId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenir URL de comprovació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
@@ -1238,6 +1313,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenir URL de comprovació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
@@ -1279,6 +1355,7 @@ public class PluginHelper {
 						"obtenirDadesCertificat",
 						new Boolean(obtenirDadesCertificat).toString())
 		};
+		long t0 = System.currentTimeMillis();
 		try {
 			RespostaValidacioSignatura resposta = getSignaturaPlugin().verificarSignatura(
 					document,
@@ -1288,6 +1365,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_FIRMA,
 					"Validació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					parametres);
 			return resposta;
 		} catch (SignaturaPluginException ex) {
@@ -1296,6 +1374,7 @@ public class PluginHelper {
 					MonitorIntegracioHelper.INTCODI_FIRMA,
 					"Validació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
 					parametres);

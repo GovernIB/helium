@@ -67,12 +67,14 @@ public class MonitorDominiHelper {
 			Domini domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
+			long tempsResposta,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
 				domini,
 				descripcio,
 				tipus,
 				IntegracioAccioEstatEnumDto.OK,
+				tempsResposta,
 				null,
 				null,
 				parametres);
@@ -81,6 +83,7 @@ public class MonitorDominiHelper {
 			Domini domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
+			long tempsResposta,
 			String errorDescripcio,
 			IntegracioParametreDto ... parametres) {
 		addAccio(
@@ -88,6 +91,7 @@ public class MonitorDominiHelper {
 				descripcio,
 				tipus,
 				IntegracioAccioEstatEnumDto.ERROR,
+				tempsResposta,
 				errorDescripcio,
 				null,
 				parametres);
@@ -96,6 +100,7 @@ public class MonitorDominiHelper {
 			Domini domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
+			long tempsResposta,
 			String errorDescripcio,
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
@@ -104,6 +109,7 @@ public class MonitorDominiHelper {
 				descripcio,
 				tipus,
 				IntegracioAccioEstatEnumDto.ERROR,
+				tempsResposta,
 				errorDescripcio,
 				throwable,
 				parametres);
@@ -146,6 +152,7 @@ public class MonitorDominiHelper {
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
 			IntegracioAccioEstatEnumDto estat,
+			long tempsResposta,
 			String errorDescripcio,
 			Throwable throwable,
 			IntegracioParametreDto ... parametres) {
@@ -157,6 +164,7 @@ public class MonitorDominiHelper {
 		accio.setDescripcio(descripcio);
 		accio.setTipus(tipus);
 		accio.setEstat(estat);
+		accio.setTempsResposta(tempsResposta);
 		if (IntegracioAccioEstatEnumDto.ERROR.equals(estat)) {
 			accio.setErrorDescripcio(errorDescripcio);
 			if (throwable != null) {
@@ -188,6 +196,16 @@ public class MonitorDominiHelper {
 				domini.getNom(),
 				entorn);
 		dto.setId(domini.getId());
+		LinkedList<IntegracioAccioDto> accions = accionsDomini.get(domini.getId());
+		if (accions != null) {
+			int numErrors = 0;
+			for (IntegracioAccioDto accio: accions) {
+				if (accio.isEstatError())
+					numErrors++;
+			}
+			System.out.println(">>> numErrors: " + numErrors);
+			dto.setNumErrors(numErrors);
+		}
 		return dto;
 	}
 

@@ -201,6 +201,11 @@ public abstract class BasicActionHandler implements ActionHandler {
 		return null;
 	}
 	
+	public void desarInformacioExecucio(
+			ExecutionContext executionContext,
+			String missatge) throws Exception {
+	}
+	
 	static final long serialVersionUID = 1L;
 
 }

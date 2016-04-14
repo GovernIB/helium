@@ -12,6 +12,7 @@ public class IntegracioDto {
 
 	private String codi;
 	private String descripcio;
+	private int numErrors;
 
 	public IntegracioDto() {
 	}
@@ -31,6 +32,12 @@ public class IntegracioDto {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+	public int getNumErrors() {
+		return numErrors;
+	}
+	public void setNumErrors(int numErrors) {
+		this.numErrors = numErrors;
 	}
 
 }

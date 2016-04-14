@@ -40,8 +40,12 @@ public class DominiDto implements Serializable {
 	private String descripcio;
 	private int cacheSegons = 0;
 	private String ordreParams;
-	
+
 	private EntornDto entorn;
+
+	private int numErrors;
+
+
 
 	public DominiDto() {}
 	public DominiDto(String codi, String nom) {
@@ -146,6 +150,13 @@ public class DominiDto implements Serializable {
 	public void setEntorn(EntornDto entorn) {
 		this.entorn = entorn;
 	}
+	public int getNumErrors() {
+		return numErrors;
+	}
+	public void setNumErrors(int numErrors) {
+		this.numErrors = numErrors;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

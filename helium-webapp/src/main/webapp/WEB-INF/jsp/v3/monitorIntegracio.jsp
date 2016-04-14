@@ -46,7 +46,10 @@ $(document).ready(function() {
 	<ul id="pipelles" class="nav nav-tabs" role="tablist">
 	<c:forEach var="integracio" items="${integracions}">
 		<li role="presentation">
-			<a href="#${integracio.codi}" aria-controls="${integracio.codi}" role="tab" data-toggle="tab">${integracio.descripcio}</a>
+			<a href="#${integracio.codi}" aria-controls="${integracio.codi}" role="tab" data-toggle="tab">
+				${integracio.descripcio}
+				<c:if test="${integracio.numErrors gt 0}"><span class="badge" style="background-color: #d9534f;">${integracio.numErrors}</span></c:if>
+			</a>
 		</li>
 	</c:forEach>
 	</ul>
@@ -57,12 +60,22 @@ $(document).ready(function() {
 				<table id="accions-${integracio.codi}" data-url="monitorIntegracio/${integracio.codi}/datatable" data-paging-enabled="false" data-ordering="false" data-row-info="true" class="table table-striped table-bordered table-hover accions-integracio" style="width:100%">
 				<thead>
 					<tr>
-						<th data-col-name="data" data-converter="datetime" width="25%"><spring:message code="monitor.integracio.columna.data"/></th>
-						<th data-col-name="descripcio" width="25%"><spring:message code="monitor.integracio.columna.descripcio"/></th>
-						<th data-col-name="tipus" width="25%"><spring:message code="monitor.integracio.columna.tipus"/></th>
-						<th data-col-name="estat" width="25%" data-template="#estatTemplate">
+						<th data-col-name="data" data-converter="datetime" width="15%"><spring:message code="monitor.integracio.columna.data"/></th>
+						<th data-col-name="descripcio" width="50%"><spring:message code="monitor.integracio.columna.descripcio"/></th>
+						<th data-col-name="tempsResposta" width="15%" data-template="#tempsRespostaTemplate">
+							<spring:message code="monitor.integracio.columna.temps.resposta"/>
+							<script id="tempsRespostaTemplate" type="text/x-jsrender">{{:tempsResposta}}ms</script>
+						</th>
+						<th data-col-name="tipus" width="10%"><spring:message code="monitor.integracio.columna.tipus"/></th>
+						<th data-col-name="estat" width="10%" data-template="#estatTemplate">
 							<spring:message code="monitor.integracio.columna.estat"/>
-							<script id="estatTemplate" type="text/x-jsrender"><span title="{{:errorDescripcio}}">{{:estat}}</span></script>
+							<script id="estatTemplate" type="text/x-jsrender">
+								{{if estat == 'OK'}}
+									<span class="label label-success"><span class="fa fa-check"/> {{:estat}}</span>
+								{{else}}
+									<span class="label label-danger" title="{{:errorDescripcio}}"><span class="fa fa-warning"/> {{:estat}}</span>
+								{{/if}}
+							</script>
 						</th>
 						<th data-col-name="parametres" data-visible="false"></th>
 						<th data-col-name="errorDescripcio" data-visible="false"></th>

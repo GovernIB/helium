@@ -20,6 +20,7 @@ public class IntegracioAccioDto implements Serializable {
 	private Long index;
 	private Date data;
 	private String descripcio;
+	private long tempsResposta;
 	private List<IntegracioParametreDto> parametres;
 	private IntegracioAccioTipusEnumDto tipus;
 	private IntegracioAccioEstatEnumDto estat;
@@ -59,6 +60,12 @@ public class IntegracioAccioDto implements Serializable {
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
 	}
+	public long getTempsResposta() {
+		return tempsResposta;
+	}
+	public void setTempsResposta(long tempsResposta) {
+		this.tempsResposta = tempsResposta;
+	}
 	public List<IntegracioParametreDto> getParametres() {
 		return parametres;
 	}
@@ -96,6 +103,12 @@ public class IntegracioAccioDto implements Serializable {
 		this.excepcioStacktrace = excepcioStacktrace;
 	}
 
+	public boolean isEstatOk() {
+		return IntegracioAccioEstatEnumDto.OK.equals(estat);
+	}
+	public boolean isEstatError() {
+		return IntegracioAccioEstatEnumDto.ERROR.equals(estat);
+	}
 	public int getParametresCount() {
 		if (parametres == null) {
 			return 0;

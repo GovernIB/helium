@@ -253,6 +253,7 @@ public class DominiHelper {
 						parametres.get(codi)));
 			}
 		}
+		long t0 = System.currentTimeMillis();
 		try {
 			logger.debug("Petició de domini de tipus WS (" +
 					"id=" + domini.getId() + ", " +
@@ -263,6 +264,7 @@ public class DominiHelper {
 					domini,
 					"Consulta WS (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					toIntegracioParametres(parametres));
 			return resposta;
 		} catch (DominiHeliumException ex) {
@@ -270,6 +272,7 @@ public class DominiHelper {
 					domini,
 					"Consulta WS (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					ex.getMessage(),
 					ex,
 					toIntegracioParametres(parametres));
@@ -285,6 +288,7 @@ public class DominiHelper {
 	private List<FilaResultat> consultaSql(
 			Domini domini,
 			Map<String, Object> parametres) {
+		long t0 = System.currentTimeMillis();
 		try {
 			logger.debug("Petició de domini de tipus SQL (" +
 					"id=" + domini.getId() + ", " +
@@ -315,6 +319,7 @@ public class DominiHelper {
 					domini,
 					"Consulta SQL",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					toIntegracioParametres(parametres));
 			return resultat;
 		} catch (Exception ex) {
@@ -322,6 +327,7 @@ public class DominiHelper {
 					domini,
 					"Consulta SQL",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
 					ex.getMessage(),
 					ex,
 					toIntegracioParametres(parametres));
