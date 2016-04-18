@@ -197,7 +197,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		return "v3/expedientConsultaLlistat";
 	}
 
-	@RequestMapping(value = "/{consultaId}/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{consultaId}/datatable")
 	@ResponseBody
 	public  DatatablesPagina<ExpedientConsultaDissenyDto> datatable(
 			HttpServletRequest request,

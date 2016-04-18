@@ -149,7 +149,7 @@
 							<c:otherwise>[Tipus desconegut]</c:otherwise>
 						</c:choose>
 						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
-						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1)) or dada.campTipus == 'TEXTAREA'}"></tr></c:if>
+						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1)) or (fn:endsWith(dada['class'].name, 'DadaDto') and dada.campTipus == 'TEXTAREA')}"></tr></c:if>
 						<c:set var="index" value="${index + 1}"/>
 					</c:if>
 				</c:forEach>

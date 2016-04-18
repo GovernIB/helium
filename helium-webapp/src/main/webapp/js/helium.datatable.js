@@ -66,7 +66,8 @@
 				ajaxRefrescarPagina: false,
 				modalRefrescarTaula: true,
 				modalRefrescarAlertes: true,
-				modalRefrescarPagina: false
+				modalRefrescarPagina: false,
+				ajaxRequestType: "GET"
 			}, options);
 			var taula = $(this);
 			var aoColumns = [];
@@ -474,13 +475,14 @@
 			};
 			if (settings.ajaxSourceUrl !== null) {
 				dataTableParams.sAjaxSource = settings.ajaxSourceUrl;
+				var ajaxRequestType = settings.ajaxRequestType;
 				dataTableParams.fnServerData = function (sSource, aoData, fnCallback, oSettings) {
 					for (var i = 0; i < aProps.length; i++) {
 						aoData.push({"name": "aProp_" + i, "value": aProps[i]});
 					}
 					$.ajax({
 						dataType: "json",
-						type: "GET",
+						type: ajaxRequestType,
 						url: sSource,
 						data: aoData,
 						success: fnCallback,
