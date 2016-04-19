@@ -305,10 +305,16 @@ public class VariableHelper {
 		// al formulari no es mostraran.
 		for (CampTasca campTasca: campsTasca) {
 			Camp camp = campTasca.getCamp();
+			Object varValor;
+			if (varsInstanciaTasca.get(camp.getCodi()) instanceof DominiCodiDescripcio) {
+				varValor = ((DominiCodiDescripcio)varsInstanciaTasca.get(camp.getCodi())).getCodi();
+			} else {
+				varValor = varsInstanciaTasca.get(camp.getCodi());
+			}
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
 					camp,
 					camp.getCodi(),
-					varsInstanciaTasca.get(camp.getCodi()),
+					varValor,
 					task.getId(),
 					task.getProcessInstanceId(),
 					false);
