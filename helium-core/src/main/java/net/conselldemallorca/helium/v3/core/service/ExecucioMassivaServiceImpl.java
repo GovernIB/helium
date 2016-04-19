@@ -446,7 +446,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					} else if (param2 instanceof String) {
 						script = (String)param2;
 					} else {
-						script = deserialitzat.toString();
+						script = param2.toString();
 					}
 					script = script.replace("'", "&#39;").replace("\"", "&#34;");
 				} catch (Exception ex) {
