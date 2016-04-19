@@ -72,6 +72,7 @@ $(document).ready(function() {
 		ajaxSourceUrl: "<c:url value="/v3/expedient/consulta/${consulta.id}/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+		ajaxRequestType: "POST",
 		drawCallback: function() {
 			$('.show-modal-error').click(function(e) {
 				$('#modal-error .modal-title').html($(this).data('error-titol'));
