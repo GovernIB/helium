@@ -13,10 +13,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -53,6 +49,10 @@ import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar les variables dels expedients.
@@ -301,10 +301,16 @@ public class VariableHelper {
 		// al formulari no es mostraran.
 		for (CampTasca campTasca: campsTasca) {
 			Camp camp = campTasca.getCamp();
+			Object varValor;
+			if (varsInstanciaTasca.get(camp.getCodi()) instanceof DominiCodiDescripcio) {
+				varValor = ((DominiCodiDescripcio)varsInstanciaTasca.get(camp.getCodi())).getCodi();
+			} else {
+				varValor = varsInstanciaTasca.get(camp.getCodi());
+			}
 			ExpedientDadaDto expedientDadaDto = getDadaPerVariableJbpm(
 					camp,
 					camp.getCodi(),
-					varsInstanciaTasca.get(camp.getCodi()),
+					varValor,
 					task.getId(),
 					task.getProcessInstanceId(),
 					false);

@@ -13,14 +13,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -34,7 +26,6 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -50,6 +41,15 @@ import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundEx
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -688,16 +688,9 @@ public class TascaHelper {
 				if (campValor != null) {
 					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						String text = variableHelper.getTextPerCamp(
-								campTasca.getCamp(), 
-								campValor, null, 
-								task.getId(), 
-								task.getProcessInstanceId());
 						variables.put(
 								campTasca.getCamp().getCodi(),
-								new DominiCodiDescripcio(
-										(String)campValor,
-										text));
+								campValor);
 					}
 				}
 			}
