@@ -12,15 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Service;
-
-import com.codahale.metrics.MetricRegistry;
-
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dao.CampAgrupacioDao;
@@ -72,6 +63,15 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.MetricRegistry;
 
 
 /**
@@ -1050,8 +1050,15 @@ public class DtoConverter {
 						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}
-			for (String codi: codisEsborrar)
+			for (String codi: codisEsborrar) {
 				variables.remove(codi);
+			}
+			for (String codi: variables.keySet()) {
+				if (variables.get(codi) instanceof DominiCodiDescripcio) {
+					DominiCodiDescripcio dcd = (DominiCodiDescripcio)variables.get(codi);
+					variables.put(codi, dcd.getCodi());
+				}
+			}
 		}
 	}
 
