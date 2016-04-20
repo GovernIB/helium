@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -137,8 +138,14 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			Object value, String var) {
 		if (value != null)
 			return value;
-		if (var != null && var.length() > 0)
-			return executionContext.getVariable(var);
+		if (var != null && var.length() > 0) {
+			Object returnVal;
+			if (executionContext.getVariable(var) instanceof DominiCodiDescripcio)
+				returnVal = ((DominiCodiDescripcio)executionContext.getVariable(var)).getCodi();
+			else
+				returnVal = executionContext.getVariable(var);
+			return returnVal;
+		}
 		return null;
 	}
 
