@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -255,48 +256,58 @@ public class EntornController extends BaseController {
 			ModelMap model) {
 		Entorn entorn = entornService.getById(entornId);
 		List<Long> dfBorrar = new ArrayList<Long>();
-		String msg = "";
 		for (Long definicioProcesId : dpId) {
 			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entornId, definicioProcesId);
-				try {
-					List<Consulta> consultes = dissenyService.findConsultesAmbEntorn(entorn.getId());
-					boolean esborrar = true;
-					if (consultes.isEmpty()) {
+			try {
+				List<Consulta> consultes = dissenyService.findConsultesAmbEntorn(entorn.getId());
+				boolean esborrar = true;
+				if (consultes.isEmpty()) {
+					if (!dfBorrar.contains(definicioProcesId)) {
 						dfBorrar.add(definicioProcesId);
-						msg += definicioProces.getJbpmName() + " v." +  definicioProces.getVersio() + ", ";
-					} else {
-						for(Consulta consulta: consultes){
-							Set<ConsultaCamp> llistat = consulta.getCamps();
-							for(ConsultaCamp c: llistat){
-								if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
-									esborrar = false;
-								}
+					}
+				} else {
+					for(Consulta consulta: consultes){
+						Set<ConsultaCamp> llistat = consulta.getCamps();
+						for(ConsultaCamp c: llistat){
+							if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
+								esborrar = false;
 							}
-							if(!esborrar){
-								missatgeError(request, getMessage("error.exist.cons.df", new Object[]{consulta.getNom(), definicioProces.getJbpmName(), definicioProces.getVersio()}) );
-							} else {
+						}
+						if(!esborrar){
+							missatgeError(request, getMessage("error.exist.cons.df", new Object[]{consulta.getNom(), definicioProces.getJbpmName(), definicioProces.getVersio()}) );
+						} else {
+							if (!dfBorrar.contains(definicioProcesId)) {
 								dfBorrar.add(definicioProcesId);
-								msg += definicioProces.getJbpmName() + " v." +  definicioProces.getVersio() + ", ";
 							}
 						}
 					}
-		        } catch (Exception ex) {
-		        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-		        	logger.error("No s'han pogut esborrar les definicions de procés", ex);
-		        }
+				}
+				if (dfBorrar.contains(definicioProcesId)) {
+					try {
+						dissenyService.undeploy(entorn.getId(), null, definicioProcesId);
+						missatgeInfo(request, getMessage("info.defproc.esborrada", new Object[]{definicioProces.getJbpmName(), definicioProces.getVersio()}) );
+					} catch (DataIntegrityViolationException ex) {
+						missatgeError(request, getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getJbpmName(), definicioProces.getVersio()}));
+						logger.error("No s'han pogut esborrar les definicions de procés", ex);
+					}
+				}
+	        } catch (Exception ex) {
+	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+	        	logger.error("No s'han pogut esborrar les definicions de procés", ex);
+	        }
 		}
 		
-		try {
-			if (!dfBorrar.isEmpty()) {
-				dissenyService.undeploy(entorn.getId(), dfBorrar);
-				if (msg.length() > 0) 
-					msg = msg.substring(0, msg.length() - 2);
-				missatgeInfo(request, getMessage("info.defproc.esborrades", new Object[]{msg}) );
-			}
-		} catch (Exception ex) {
-			missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-			logger.error("No s'han pogut esborrar les definicions de procés", ex);
-		}
+//		try {
+//			if (!dfBorrar.isEmpty()) {
+//				dissenyService.undeploy(entorn.getId(), dfBorrar);
+//				if (msg.length() > 0) 
+//					msg = msg.substring(0, msg.length() - 2);
+//				missatgeInfo(request, getMessage("info.defproc.esborrades", new Object[]{msg}) );
+//			}
+//		} catch (Exception ex) {
+//			missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+//			logger.error("No s'han pogut esborrar les definicions de procés", ex);
+//		}
 		model.addAttribute("entornId", entornId);
 		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesEntorn(entornId));
 		return "/entorn/llistatDpNoUs";
