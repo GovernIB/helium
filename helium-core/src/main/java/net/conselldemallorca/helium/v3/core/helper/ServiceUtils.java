@@ -453,7 +453,6 @@ public class ServiceUtils {
 							camp,
 							valor,
 							null,
-							null,
 							processInstanceId);
 					textDominis.put(
 							camp.getCodi() + "@" + valor.toString(),

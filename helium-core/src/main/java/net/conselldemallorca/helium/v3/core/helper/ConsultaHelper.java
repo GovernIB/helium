@@ -203,7 +203,6 @@ public class ConsultaHelper {
 							camp,
 							dadaIndexada.getValorIndex(),
 							null,
-							null,
 							expedient.getProcessInstanceId());	
 					dadaIndexada.setValorMostrar(text);
 				} 

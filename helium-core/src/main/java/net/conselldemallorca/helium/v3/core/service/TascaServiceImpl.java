@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1049,9 +1050,10 @@ public class TascaServiceImpl implements TascaService {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 				task.getTaskName(),
 				task.getProcessDefinitionId());
-		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variables);
+		Map<String, Object> variablesProcessades = new HashMap<String, Object>(variables);
+		tascaHelper.processarCampsAmbDominiCacheActivat(task, tasca, variablesProcessades);
 		jbpmHelper.startTaskInstance(taskId);
-		jbpmHelper.setTaskInstanceVariables(taskId, variables, false);		
+		jbpmHelper.setTaskInstanceVariables(taskId, variablesProcessades, false);		
 		
 		if (task.getStartTime() == null) {
 			Registre registre = new Registre(

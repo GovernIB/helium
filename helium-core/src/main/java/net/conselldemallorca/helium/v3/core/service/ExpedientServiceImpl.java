@@ -3454,7 +3454,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 							camp, 
 							varValue, 
 							null, 
-							null, 
 							processInstanceId);
 					return new DominiCodiDescripcio(
 							(String)varValue,
