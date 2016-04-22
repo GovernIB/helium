@@ -1649,7 +1649,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						camp, 
 						valor, 
 						null, 
-						null, 
 						processInstanceId));
 		return resposta;
 	}
