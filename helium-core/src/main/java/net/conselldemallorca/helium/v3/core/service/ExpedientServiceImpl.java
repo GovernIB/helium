@@ -3394,7 +3394,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varName);
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, value);
+		
+		Object valorOptimitzat = optimitzarValorPerConsultesDomini(processInstanceId, varName, value);
+		
+		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
 		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
