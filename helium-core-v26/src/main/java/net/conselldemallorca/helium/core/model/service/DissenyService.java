@@ -2557,6 +2557,8 @@ public class DissenyService {
 			nou.setJbpmAction(camp.getJbpmAction());
 			nou.setOrdre(camp.getOrdre());
 			nou.setIgnored(camp.isIgnored());
+			nou.setDominiCacheText(camp.isDominiCacheText());
+			
 			campDao.saveOrUpdate(nou);
 			camps.put(nou.getCodi(), nou);
 			// Copia les validacions dels camps
