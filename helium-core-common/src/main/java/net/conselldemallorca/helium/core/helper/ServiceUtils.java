@@ -298,9 +298,9 @@ public class ServiceUtils {
 		Timer.Context contextIndexarTotal = null;
 		Timer.Context contextIndexarEntorn = null;
 		Timer.Context contextIndexarTipExp = null;
-		Timer.Context contextMongoTotal = null;
-		Timer.Context contextMongoEntorn = null;
-		Timer.Context contextMongoTipExp = null;
+//		Timer.Context contextMongoTotal = null;
+//		Timer.Context contextMongoEntorn = null;
+//		Timer.Context contextMongoTipExp = null;
 		
 		final Timer timerDadesTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.dades"));
 		final Timer timerDadesEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.dades", expedient.getEntorn().getCodi()));
@@ -308,9 +308,9 @@ public class ServiceUtils {
 		final Timer timerIndexarTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.indexar"));
 		final Timer timerIndexarEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.indexar", expedient.getEntorn().getCodi()));
 		final Timer timerIndexarTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
-		final Timer timerMongoTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar"));
-		final Timer timerMongoEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar", expedient.getEntorn().getCodi()));
-		final Timer timerMongoTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+//		final Timer timerMongoTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar"));
+//		final Timer timerMongoEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar", expedient.getEntorn().getCodi()));
+//		final Timer timerMongoTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 		
 		// Mètriques - Comptadors
 		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count"));
@@ -318,7 +318,7 @@ public class ServiceUtils {
 		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 		
 		boolean ctxDadesStoped = false;
-		boolean ctxLuceneStoped = false;
+//		boolean ctxLuceneStoped = false;
 		
 		try {
 			
@@ -366,22 +366,22 @@ public class ServiceUtils {
 			contextIndexarEntorn.stop();
 			contextIndexarTipExp.stop();
 						
-			ctxLuceneStoped = true;
+//			ctxLuceneStoped = true;
 			
-			// Iniciam els timers de indexació amb Lucene
-			contextMongoTotal = timerMongoTotal.time();
-			contextMongoEntorn = timerMongoEntorn.time();
-			contextMongoTipExp = timerMongoTipExp.time();
-			
-			mongoDBHelper.deleteExpedient(expedient);
-			mongoDBHelper.createExpedient(
-					expedient,
-					mapDefinicioProces,
-					mapCamps,
-					mapValors,
-					mapValorsDomini,
-					isExpedientFinalitzat,
-					false);
+//			// Iniciam els timers de indexació amb MongoDB
+//			contextMongoTotal = timerMongoTotal.time();
+//			contextMongoEntorn = timerMongoEntorn.time();
+//			contextMongoTipExp = timerMongoTipExp.time();
+//			
+//			mongoDBHelper.deleteExpedient(expedient);
+//			mongoDBHelper.createExpedient(
+//					expedient,
+//					mapDefinicioProces,
+//					mapCamps,
+//					mapValors,
+//					mapValorsDomini,
+//					isExpedientFinalitzat,
+//					false);
 		} finally {
 			if (!ctxDadesStoped) {
 				// Aturam els timers de obtenció de dades
@@ -389,16 +389,16 @@ public class ServiceUtils {
 				contextDadesEntorn.stop();
 				contextDadesTipExp.stop();
 			}
-			if (!ctxLuceneStoped) {
+//			if (!ctxLuceneStoped) {
 				// Aturam els timers de indexació amb Lucene
 				contextIndexarTotal.stop();
 				contextIndexarEntorn.stop();
 				contextIndexarTipExp.stop();
-			}
-			// Aturam els timers de indexació amb MongoDB
-			contextMongoTotal.stop();
-			contextMongoEntorn.stop();
-			contextMongoTipExp.stop();
+//			}
+//			// Aturam els timers de indexació amb MongoDB
+//			contextMongoTotal.stop();
+//			contextMongoEntorn.stop();
+//			contextMongoTipExp.stop();
 		}
 	}
 

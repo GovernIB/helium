@@ -10,7 +10,8 @@ package net.conselldemallorca.helium.core.util;
  */
 public class ExpedientCamps {
 
-	public static final String EXPEDIENT_PREFIX = "expedient$";
+	public static final String EXPEDIENT_PREFIX_SEPARADOR = "$";
+	public static final String EXPEDIENT_PREFIX = "expedient" + EXPEDIENT_PREFIX_SEPARADOR;
 	public static final String EXPEDIENT_CAMP_ENTORN = EXPEDIENT_PREFIX + "entorn";
 	public static final String EXPEDIENT_CAMP_ID = EXPEDIENT_PREFIX + "id";
 	public static final String EXPEDIENT_CAMP_NUMERO = EXPEDIENT_PREFIX + "numero";
