@@ -47,6 +47,8 @@ public class ServiceUtils {
 	@Resource
 	private LuceneHelper luceneHelper;
 	@Resource
+	private MongoDBHelper mongoDBHelper;
+	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private MetricRegistry metricRegistry;
@@ -57,49 +59,81 @@ public class ServiceUtils {
 	 * Mètodes per a la reindexació d'expedients
 	 */
 	public void expedientIndexLuceneCreate(String processInstanceId) {
-		// Timers LUCENE
-		Timer.Context contextDades = null;
-		Timer.Context contextIndexar = null;
-		final Timer timerDades = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.create.dades"));
-		contextDades = timerDades.time();
-		Counter countDades = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.create.dades.count"));
-		countDades.inc();
-		final Timer timerIndexar = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.create.indexar"));
-		contextIndexar = timerIndexar.time();
-		Counter countIndexar = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.create.indexar.count"));
-		countIndexar.inc();
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
+		// Mètriques - Timers
+		Timer.Context contextDadesTotal = null;
+		Timer.Context contextDadesEntorn = null;
+		Timer.Context contextDadesTipExp = null;
+		Timer.Context contextIndexarTotal = null;
+		Timer.Context contextIndexarEntorn = null;
+		Timer.Context contextIndexarTipExp = null;
+		
+		final Timer timerDadesTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.create.dades"));
+		final Timer timerDadesEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.create.dades", expedient.getEntorn().getCodi()));
+		final Timer timerDadesTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.create.dades", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		final Timer timerIndexarTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.create.indexar"));
+		final Timer timerIndexarEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.create.indexar", expedient.getEntorn().getCodi()));
+		final Timer timerIndexarTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.create.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
+		// Mètriques - Comptadors
+		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.create.count"));
+		Counter countEntorn = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.create.count", expedient.getEntorn().getCodi()));
+		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.create.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
 		boolean ctxDadesStoped = false;
 		
 		try {
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			
+			// Incrementam els comptadors de les mètriques
+			countTotal.inc();
+			countEntorn.inc();
+			countTipExp.inc();
+			
+			// Iniciam els timers de obtenció de dades
+			contextDadesTotal = timerDadesTotal.time();
+			contextDadesEntorn = timerDadesEntorn.time();
+			contextDadesTipExp = timerDadesTipExp.time();
+			
+			// Obtenim les dades
 			Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-			contextDades.stop();
+			Map<String, DefinicioProces> mapDefinicioProces = getMapDefinicionsProces(expedient.getProcessInstanceId());
+			Map<String, Map<String, String>> mapValorsDomini = getMapValorsDomini(mapCamps, mapValors);
+			boolean isExpedientFinalitzat = isExpedientFinalitzat(expedient);
+			
+			// Aturam els timers de obtenció de dades
+			contextDadesTotal.stop();
+			contextDadesEntorn.stop();
+			contextDadesTipExp.stop();
+			
 			ctxDadesStoped = true;
+			
+			// Iniciam els timers de indexació amb Lucene
+			contextIndexarTotal = timerIndexarTotal.time();
+			contextIndexarEntorn = timerIndexarEntorn.time();
+			contextIndexarTipExp = timerIndexarTipExp.time();
+			
 			luceneHelper.createExpedient(
 					expedient,
-					getMapDefinicionsProces(expedient.getProcessInstanceId()),
+					mapDefinicioProces,
 					mapCamps,
 					mapValors,
-					getMapValorsDomini(mapCamps, mapValors),
-					isExpedientFinalitzat(expedient),
+					mapValorsDomini,
+					isExpedientFinalitzat,
 					false);
 		} finally {
-			if (!ctxDadesStoped)
-				contextDades.stop();
-			contextIndexar.stop();
+			if (!ctxDadesStoped) {
+				// Aturam els timers de obtenció de dades
+				contextDadesTotal.stop();
+				contextDadesEntorn.stop();
+				contextDadesTipExp.stop();
+			}
+			// Aturam els timers de indexació amb Lucene
+			contextIndexarTotal.stop();
+			contextIndexarEntorn.stop();
+			contextIndexarTipExp.stop();
 		}
 	}
 
@@ -110,185 +144,261 @@ public class ServiceUtils {
 				false,
 				null);
 	}
+	
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId,
 			boolean perTasca,
 			Expedient expedientDeLaTasca) {
+		
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
+		
 		Timer.Context contextTotal = null;
 		Timer.Context contextEntorn = null;
 		Timer.Context contextTipexp = null;
 		if (perTasca) {
-			final Timer timerTotal = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"completar.reindexar"));
-			contextTotal = timerTotal.time();
-			Counter countTotal = metricRegistry.counter(
-					MetricRegistry.name(
-							TascaService.class,
-							"completar.reindexar.count"));
+			final Timer timerTotal = metricRegistry.timer(MetricRegistry.name(TascaService.class, "completar.reindexar"));
+			final Timer timerEntorn = metricRegistry.timer(MetricRegistry.name(TascaService.class, "completar.reindexar", expedientDeLaTasca.getEntorn().getCodi()));
+			final Timer timerTipexp = metricRegistry.timer(MetricRegistry.name(TascaService.class, "completar.reindexar", expedientDeLaTasca.getEntorn().getCodi(), expedientDeLaTasca.getTipus().getCodi()));
+			
+			Counter countTotal = metricRegistry.counter(MetricRegistry.name(TascaService.class, "completar.reindexar.count"));
+			Counter countEntorn = metricRegistry.counter(MetricRegistry.name(TascaService.class, "completar.reindexar.count", expedientDeLaTasca.getEntorn().getCodi()));
+			Counter countTipexp = metricRegistry.counter(MetricRegistry.name(TascaService.class, "completar.reindexar.count", expedientDeLaTasca.getEntorn().getCodi(), expedientDeLaTasca.getTipus().getCodi()));
+		
 			countTotal.inc();
-			final Timer timerEntorn = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"completar.reindexar",
-							expedientDeLaTasca.getEntorn().getCodi()));
-			contextEntorn = timerEntorn.time();
-			Counter countEntorn = metricRegistry.counter(
-					MetricRegistry.name(
-							TascaService.class,
-							"completar.reindexar.count",
-							expedientDeLaTasca.getEntorn().getCodi()));
 			countEntorn.inc();
-			final Timer timerTipexp = metricRegistry.timer(
-					MetricRegistry.name(
-							TascaService.class,
-							"completar.reindexar",
-							expedientDeLaTasca.getEntorn().getCodi(),
-							expedientDeLaTasca.getTipus().getCodi()));
-			contextTipexp = timerTipexp.time();
-			Counter countTipexp = metricRegistry.counter(
-					MetricRegistry.name(
-							TascaService.class,
-							"completar.reindexar.count",
-							expedientDeLaTasca.getEntorn().getCodi(),
-							expedientDeLaTasca.getTipus().getCodi()));
 			countTipexp.inc();
+			
+			contextTotal = timerTotal.time();
+			contextEntorn = timerEntorn.time();
+			contextTipexp = timerTipexp.time();
 		}
 		
-		// Timers LUCENE
-		Timer.Context contextDades = null;
-		Timer.Context contextIndexar = null;
-		final Timer timerDades = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.update.dades"));
-		contextDades = timerDades.time();
-		Counter countDades = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.update.dades.count"));
-		countDades.inc();
-		final Timer timerIndexar = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.update.indexar"));
-		contextIndexar = timerIndexar.time();
-		Counter countIndexar = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.update.indexar.count"));
-		countIndexar.inc();
+		// Mètriques - Timers
+		Timer.Context contextDadesTotal = null;
+		Timer.Context contextDadesEntorn = null;
+		Timer.Context contextDadesTipExp = null;
+		Timer.Context contextIndexarTotal = null;
+		Timer.Context contextIndexarEntorn = null;
+		Timer.Context contextIndexarTipExp = null;
+		
+		final Timer timerDadesTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.update.dades"));
+		final Timer timerDadesEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.update.dades", expedient.getEntorn().getCodi()));
+		final Timer timerDadesTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.update.dades", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		final Timer timerIndexarTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.update.indexar"));
+		final Timer timerIndexarEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.update.indexar", expedient.getEntorn().getCodi()));
+		final Timer timerIndexarTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.update.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
+		// Mètriques - Comptadors
+		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.update.count"));
+		Counter countEntorn = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.update.count", expedient.getEntorn().getCodi()));
+		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.update.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
 		boolean ctxDadesStoped = false;
 				
 		try {
-			JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(rootProcessInstance.getId());
+			// Incrementam els comptadors de les mètriques
+			countTotal.inc();
+			countEntorn.inc();
+			countTipExp.inc();
+			
+			// Iniciam els timers de obtenció de dades
+			contextDadesTotal = timerDadesTotal.time();
+			contextDadesEntorn = timerDadesEntorn.time();
+			contextDadesTipExp = timerDadesTipExp.time();
+			
+			// Obtenim les dades
 			Map<String, Set<Camp>> mapCamps = getMapCamps(rootProcessInstance.getId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(rootProcessInstance.getId());
-			contextDades.stop();
+			Map<String, DefinicioProces> mapDefinicioProces = getMapDefinicionsProces(rootProcessInstance.getId());
+			Map<String, Map<String, String>> mapValorsDomini = getMapValorsDomini(mapCamps, mapValors);
+			boolean isExpedientFinalitzat = isExpedientFinalitzat(expedient);
+
+			// Aturam els timers de obtenció de dades
+			contextDadesTotal.stop();
+			contextDadesEntorn.stop();
+			contextDadesTipExp.stop();
+			
 			ctxDadesStoped = true;
+			
+			// Iniciam els timers de indexació amb Lucene
+			contextIndexarTotal = timerIndexarTotal.time();
+			contextIndexarEntorn = timerIndexarEntorn.time();
+			contextIndexarTipExp = timerIndexarTipExp.time();
+			
 			luceneHelper.updateExpedientCamps(
 					expedient,
-					getMapDefinicionsProces(rootProcessInstance.getId()),
+					mapDefinicioProces,
 					mapCamps,
 					mapValors,
-					getMapValorsDomini(mapCamps, mapValors),
-					isExpedientFinalitzat(expedient));
+					mapValorsDomini,
+					isExpedientFinalitzat);
 		} finally {
 			if (perTasca) {
 				contextTotal.stop();
 				contextEntorn.stop();
 				contextTipexp.stop();
 			}
-			if (!ctxDadesStoped)
-				contextDades.stop();
-			contextIndexar.stop();
+			if (!ctxDadesStoped) {
+				// Aturam els timers de obtenció de dades
+				contextDadesTotal.stop();
+				contextDadesEntorn.stop();
+				contextDadesTipExp.stop();
+			}
+			// Aturam els timers de indexació amb Lucene
+			contextIndexarTotal.stop();
+			contextIndexarEntorn.stop();
+			contextIndexarTipExp.stop();
 		}
 	}
 
 	public void expedientIndexLuceneDelete(String processInstanceId) {
-		// Timers LUCENE
-		Timer.Context contextDades = null;
-		Timer.Context contextIndexar = null;
-		final Timer timerDades = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.delete.dades"));
-		contextDades = timerDades.time();
-		Counter countDades = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.delete.dades.count"));
-		countDades.inc();
-		final Timer timerIndexar = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.delete.indexar"));
-		contextIndexar = timerIndexar.time();
-		Counter countIndexar = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.delete.indexar.count"));
-		countIndexar.inc();
-		boolean ctxDadesStoped = false;
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
+		// Mètriques - Timers
+		Timer.Context contextIndexarTotal = null;
+		Timer.Context contextIndexarEntorn = null;
+		Timer.Context contextIndexarTipExp = null;
+		
+		final Timer timerIndexarTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.delete.indexar"));
+		final Timer timerIndexarEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.delete.indexar", expedient.getEntorn().getCodi()));
+		final Timer timerIndexarTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.delete.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
+		// Mètriques - Comptadors
+		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.delete.count"));
+		Counter countEntorn = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.delete.count", expedient.getEntorn().getCodi()));
+		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.delete.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
 		
 		try {
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			contextDades.stop();
-			ctxDadesStoped = true;
+			// Incrementam els comptadors de les mètriques
+			countTotal.inc();
+			countEntorn.inc();
+			countTipExp.inc();
+						
+			// Iniciam els timers de indexació amb Lucene
+			contextIndexarTotal = timerIndexarTotal.time();
+			contextIndexarEntorn = timerIndexarEntorn.time();
+			contextIndexarTipExp = timerIndexarTipExp.time();
+						
 			luceneHelper.deleteExpedient(expedient);
 		} finally {
-			if (!ctxDadesStoped)
-				contextDades.stop();
-			contextIndexar.stop();
+			// Aturam els timers de indexació amb Lucene
+			contextIndexarTotal.stop();
+			contextIndexarEntorn.stop();
+			contextIndexarTipExp.stop();
 		}
 	}
 
 	public void expedientIndexLuceneRecrear(Expedient expedient) {
-		// Timers LUCENE
-		Timer.Context contextDades = null;
-		Timer.Context contextIndexar = null;
-		final Timer timerDades = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.recreate.dades"));
-		contextDades = timerDades.time();
-		Counter countDades = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.recreate.dades.count"));
-		countDades.inc();
-		final Timer timerIndexar = metricRegistry.timer(
-				MetricRegistry.name(
-						LuceneHelper.class, 
-						"lucene.recreate.indexar"));
-		contextIndexar = timerIndexar.time();
-		Counter countIndexar = metricRegistry.counter(
-				MetricRegistry.name(
-						LuceneHelper.class,
-						"lucene.recreate.indexar.count"));
-		countIndexar.inc();
+		// Mètriques - Timers
+		Timer.Context contextDadesTotal = null;
+		Timer.Context contextDadesEntorn = null;
+		Timer.Context contextDadesTipExp = null;
+		Timer.Context contextIndexarTotal = null;
+		Timer.Context contextIndexarEntorn = null;
+		Timer.Context contextIndexarTipExp = null;
+		Timer.Context contextMongoTotal = null;
+		Timer.Context contextMongoEntorn = null;
+		Timer.Context contextMongoTipExp = null;
+		
+		final Timer timerDadesTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.dades"));
+		final Timer timerDadesEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.dades", expedient.getEntorn().getCodi()));
+		final Timer timerDadesTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.dades", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		final Timer timerIndexarTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.indexar"));
+		final Timer timerIndexarEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.indexar", expedient.getEntorn().getCodi()));
+		final Timer timerIndexarTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		final Timer timerMongoTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar"));
+		final Timer timerMongoEntorn = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar", expedient.getEntorn().getCodi()));
+		final Timer timerMongoTipExp = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "mongoDB.recreate.indexar", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
+		// Mètriques - Comptadors
+		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count"));
+		Counter countEntorn = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count", expedient.getEntorn().getCodi()));
+		Counter countTipExp = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "lucene.recreate.count", expedient.getEntorn().getCodi(), expedient.getTipus().getCodi()));
+		
 		boolean ctxDadesStoped = false;
+		boolean ctxLuceneStoped = false;
 		
 		try {
+			
+			// Incrementam els comptadors de les mètriques
+			countTotal.inc();
+			countEntorn.inc();
+			countTipExp.inc();
+			
+			// Iniciam els timers de obtenció de dades
+			contextDadesTotal = timerDadesTotal.time();
+			contextDadesEntorn = timerDadesEntorn.time();
+			contextDadesTipExp = timerDadesTipExp.time();
+			
+			// Obtenim les dades
 			Map<String, Set<Camp>> mapCamps = getMapCamps(expedient.getProcessInstanceId());
 			Map<String, Map<String, Object>> mapValors = getMapValors(expedient.getProcessInstanceId());
-			contextDades.stop();
+			Map<String, DefinicioProces> mapDefinicioProces = getMapDefinicionsProces(expedient.getProcessInstanceId());
+			Map<String, Map<String, String>> mapValorsDomini = getMapValorsDomini(mapCamps, mapValors);
+			boolean isExpedientFinalitzat = isExpedientFinalitzat(expedient);
+
+			// Aturam els timers de obtenció de dades
+			contextDadesTotal.stop();
+			contextDadesEntorn.stop();
+			contextDadesTipExp.stop();
+						
 			ctxDadesStoped = true;
+			
+			// Iniciam els timers de indexació amb Lucene
+			contextIndexarTotal = timerIndexarTotal.time();
+			contextIndexarEntorn = timerIndexarEntorn.time();
+			contextIndexarTipExp = timerIndexarTipExp.time();
+			
 			luceneHelper.deleteExpedient(expedient);
 			luceneHelper.createExpedient(
 					expedient,
-					getMapDefinicionsProces(expedient.getProcessInstanceId()),
+					mapDefinicioProces,
 					mapCamps,
 					mapValors,
-					getMapValorsDomini(mapCamps, mapValors),
-					isExpedientFinalitzat(expedient),
+					mapValorsDomini,
+					isExpedientFinalitzat,
+					false);
+			
+			// Aturam els timers de obtenció de dades
+			contextIndexarTotal.stop();
+			contextIndexarEntorn.stop();
+			contextIndexarTipExp.stop();
+						
+			ctxLuceneStoped = true;
+			
+			// Iniciam els timers de indexació amb Lucene
+			contextMongoTotal = timerMongoTotal.time();
+			contextMongoEntorn = timerMongoEntorn.time();
+			contextMongoTipExp = timerMongoTipExp.time();
+			
+			mongoDBHelper.deleteExpedient(expedient);
+			mongoDBHelper.createExpedient(
+					expedient,
+					mapDefinicioProces,
+					mapCamps,
+					mapValors,
+					mapValorsDomini,
+					isExpedientFinalitzat,
 					false);
 		} finally {
-			if (!ctxDadesStoped)
-				contextDades.stop();
-			contextIndexar.stop();
+			if (!ctxDadesStoped) {
+				// Aturam els timers de obtenció de dades
+				contextDadesTotal.stop();
+				contextDadesEntorn.stop();
+				contextDadesTipExp.stop();
+			}
+			if (!ctxLuceneStoped) {
+				// Aturam els timers de indexació amb Lucene
+				contextIndexarTotal.stop();
+				contextIndexarEntorn.stop();
+				contextIndexarTipExp.stop();
+			}
+			// Aturam els timers de indexació amb MongoDB
+			contextMongoTotal.stop();
+			contextMongoEntorn.stop();
+			contextMongoTipExp.stop();
 		}
 	}
 
@@ -418,7 +528,6 @@ public class ServiceUtils {
 					String valorDomini = variableHelper.getTextPerCamp(
 							camp,
 							valor,
-							null,
 							null,
 							processInstanceId);
 					textDominis.put(

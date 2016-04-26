@@ -229,6 +229,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
+	private MassivaHelper massivaHelper;
+	@Resource
 	private TerminiHelper terminiHelper;
 	@Resource
 	private PluginHelper pluginHelper;
@@ -1649,7 +1651,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						camp, 
 						valor, 
 						null, 
-						null, 
 						processInstanceId));
 		return resposta;
 	}
@@ -1777,29 +1778,22 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
-		/*net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto dto = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
-		return conversioTipusHelper.convertir(
-				dto,
-				OperacioMassivaDto.class);*/
-		return null;
+		return massivaHelper.getExecucionsMassivesActiva(ultimaExecucioMassiva);
 	}
 
 	@Override
 	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception {
-		/*execucioMassivaService.executarExecucioMassiva(
-				conversioTipusHelper.convertir(
-						operacioMassiva,
-						net.conselldemallorca.helium.core.model.dto.OperacioMassivaDto.class));*/
+		massivaHelper.executarExecucioMassiva(operacioMassiva);
 	}
 
 	@Override
 	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e) {
-		//execucioMassivaService.generaInformeError(operacioMassiva, e);
+		massivaHelper.generaInformeError(operacioMassiva, e);
 	}
 
 	@Override
 	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
-		//execucioMassivaService.actualitzaUltimaOperacio(operacioMassiva);
+		massivaHelper.actualitzaUltimaOperacio(operacioMassiva);
 	}
 
 	@Override
