@@ -46,8 +46,8 @@ public class ServiceUtils {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private LuceneHelper luceneHelper;
-	@Resource
-	private MongoDBHelper mongoDBHelper;
+//	@Resource
+//	private MongoDBHelper mongoDBHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
