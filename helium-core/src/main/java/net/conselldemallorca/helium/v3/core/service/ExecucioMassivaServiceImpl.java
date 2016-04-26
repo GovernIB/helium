@@ -21,6 +21,8 @@ import org.json.simple.JSONValue;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -78,6 +80,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private PluginHelper pluginHelper;
 
 
+//	@Transactional
+//	@Override
+//	@Scheduled(fixedRate = 300000)
+//	public void comprovarExecucionsMassives() {
+//		
+//	}
 
 	@Transactional
 	@Override
