@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -688,9 +689,22 @@ public class TascaHelper {
 				if (campValor != null) {
 					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
 							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						variables.put(
-								campTasca.getCamp().getCodi(),
-								campValor);
+						if (campValor instanceof DominiCodiDescripcio) {
+							variables.put(
+									campTasca.getCamp().getCodi(),
+									campValor);
+						} else {
+							String text = variableHelper.getTextPerCamp(
+									campTasca.getCamp(),
+									campValor,
+									null,
+									task.getProcessInstanceId());
+							variables.put(
+									campTasca.getCamp().getCodi(),
+									new DominiCodiDescripcio(
+											(String)campValor,
+											text));
+						}
 					}
 				}
 			}
