@@ -1396,6 +1396,35 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Override
+	@Transactional
+	public void updateVariable(
+			Long expedientId,
+			String taskId,
+			String codiVariable,
+			Object valor) throws NotFoundException, IllegalStateException {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
+		Object valorVell = variableHelper.getVariableJbpmTascaValor(task.getId(), codiVariable);
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put(codiVariable, valor);
+		jbpmHelper.setTaskInstanceVariables(task.getId(), variables, false);
+		
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				auth.getName(),
+				Registre.Accio.MODIFICAR,
+				Registre.Entitat.TASCA,
+				task.getProcessInstanceId());
+		registreRepository.save(registre);
+		registre.setMissatge("Modificar variable '" + codiVariable + "'");
+		if (valorVell != null)
+			registre.setValorVell(valorVell.toString());
+		if (valor != null)
+			registre.setValorNou(valor.toString());
+	}
+	
+	@Override
 	public Map<Long,Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds){
 		Map<Long,Object> result = new LinkedHashMap<Long, Object>();
 		for (String id: tasquesSegonPlaIds) {

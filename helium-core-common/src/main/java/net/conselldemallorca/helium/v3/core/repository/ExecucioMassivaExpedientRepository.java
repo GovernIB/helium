@@ -3,14 +3,15 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.Date;
 import java.util.List;
+
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 
 /**
  * Dao pels objectes del tipus ExecucioMassivaExpedient.
@@ -43,5 +44,22 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 			"e.execucioMassiva.dataInici " +
 			"order by e.execucioMassiva.dataInici DESC")
 	public List<Object[]> findResultatsExecucionsMassives(@Param("execucionsMassives") List<ExecucioMassiva> execucionsMassives);
-
+	
+	@Query("select min(e.id) " +
+			"from	ExecucioMassivaExpedient e " +
+			"where	e.execucioMassiva.id =	" +
+			"			(select min(id) " +
+			"			 from 	ExecucioMassiva " +
+			"			 where 	dataInici <= :ara " +
+			"					and dataFi is null) " +
+			"	and	e.dataFi is null " +
+			" order by e.ordre")
+	public Long findExecucioMassivaExpedientId(@Param("ara") Date ara);
+	
+	@Query("select min(e.id) " +
+			"from	ExecucioMassivaExpedient e " +
+			"where	e.execucioMassiva.id = :nextMassiu " +
+			"   and	e.dataFi is null " +
+			" order by e.ordre")
+	public Long findNextExecucioMassivaExpedient(@Param("nextMassiu") Long nextMassiu);
 }

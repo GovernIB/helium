@@ -440,4 +440,6 @@ public interface TascaService {
 	public boolean isEnSegonPla(String tascaSegonPlaId);
 	
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId);
+	
+	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor);
 }

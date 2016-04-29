@@ -61,5 +61,28 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	public String getExecucioMassivaDetall(Long execucioMassivaId) {
 		return delegate.getExecucioMassivaDetall(execucioMassivaId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Long getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
+		return delegate.getExecucionsMassivesActiva(ultimaExecucioMassiva);
+	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void executarExecucioMassiva(Long ome_id) throws Exception {
+		delegate.executarExecucioMassiva(ome_id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void generaInformeError(Long ome_id, Exception exception) {
+		delegate.generaInformeError(ome_id, exception);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void actualitzaUltimaOperacio(Long ome_id) {
+		delegate.actualitzaUltimaOperacio(ome_id);
+	}
 }

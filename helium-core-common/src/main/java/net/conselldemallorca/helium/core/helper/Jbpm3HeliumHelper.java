@@ -10,17 +10,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.hibernate.Hibernate;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
-
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -72,7 +61,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
@@ -126,6 +114,17 @@ import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
+import org.hibernate.Hibernate;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.MetricRegistry;
+
 /**
  * Service que implementa la funcionalitat necessària per
  * a integrar Helium i jBPM.
@@ -172,50 +171,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
 
-	/*@Resource
-	private ExpedientTipusDao expedientTipusDao;
-	@Resource
-	private ExpedientDao expedientDao;
-	@Resource
-	private DefinicioProcesDao definicioProcesDao;
-	@Resource
-	private AreaDao areaDao;
-	@Resource
-	private CarrecDao carrecDao;
-	@Resource
-	private FestiuDao festiuDao;
-	@Resource
-	private ReassignacioDao reassignacioDao;
-	@Resource
-	private EstatDao estatDao;
-	@Resource
-	private DocumentDao documentDao;
-	@Resource
-	private CampDao campDao;
-	@Resource
-	private TerminiIniciatDao terminiIniciatDao;
-	@Resource
-	private EnumeracioDao enumeracioDao;
-	@Resource
-	private TascaDao tascaDao;
-	@Resource
-	private CampTascaDao campTascaDao;
-	@Resource
-	private DocumentTascaDao documentTascaDao;
-	@Resource
-	private MailDao mailDao;
-	@Resource
-	private PluginRegistreDao pluginRegistreDao;
-	@Resource
-	private PluginGestioDocumentalDao pluginGestioDocumentalDao;
-	@Resource
-	private PluginTramitacioDao pluginTramitacioDao;
-	@Resource
-	private PluginPersonaDao pluginPersonaDao;
-	@Resource
-	private PluginService pluginService;
-	@Resource
-	private AlertaDao alertaDao;*/
+	
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -229,8 +185,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private TascaHelper tascaHelper;
 	@Resource
-	private MassivaHelper massivaHelper;
-	@Resource
 	private TerminiHelper terminiHelper;
 	@Resource
 	private PluginHelper pluginHelper;
@@ -238,13 +192,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private MailHelper mailHelper;
 	@Resource
 	private NotificacioElectronicaHelper notificacioElectronicaHelper;
-
-	/*@Resource
-	private ExpedientService expedientService;
-	@Resource
-	private DocumentService documentService;
-	@Resource
-	private ExecucioMassivaService execucioMassivaService;*/
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -1774,26 +1721,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public String getHeliumProperty(String propertyName) {
 		return GlobalProperties.getInstance().getProperty(propertyName);
-	}
-
-	@Override
-	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
-		return massivaHelper.getExecucionsMassivesActiva(ultimaExecucioMassiva);
-	}
-
-	@Override
-	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception {
-		massivaHelper.executarExecucioMassiva(operacioMassiva);
-	}
-
-	@Override
-	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e) {
-		massivaHelper.generaInformeError(operacioMassiva, e);
-	}
-
-	@Override
-	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva) {
-		massivaHelper.actualitzaUltimaOperacio(operacioMassiva);
 	}
 
 	@Override
