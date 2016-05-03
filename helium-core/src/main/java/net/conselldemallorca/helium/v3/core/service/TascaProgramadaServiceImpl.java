@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
@@ -28,10 +29,17 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private ExecucioMassivaService execucioMassivaService;
 	
 	@Override
-	@Scheduled(fixedDelayString = "${app.scheduled.execucions.massives.delay}")
+	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
 		boolean active = true;
 		Long ultimaExecucioMassiva = null;
+		
+		int timeBetweenExecutions = 500;
+		try {
+			timeBetweenExecutions = Integer.parseInt(
+					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions")); 
+		} catch (Exception ex) {}
+		
 		while (active) {
 			try {
 				Long ome_id = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
@@ -49,7 +57,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				} else {
 					active = false;
 				}
-				Thread.sleep(500);
+				Thread.sleep(timeBetweenExecutions);
 			} catch (Exception e) {
 				logger.error("La execució de execucions massives ha estat interromput");
 				active = false;
