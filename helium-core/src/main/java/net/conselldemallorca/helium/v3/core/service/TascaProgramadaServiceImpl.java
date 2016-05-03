@@ -28,9 +28,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private ExecucioMassivaService execucioMassivaService;
 	
 	@Override
-	@Scheduled(fixedDelay = 30000)
+	@Scheduled(fixedDelayString = "${app.scheduled.execucions.massives.delay}")
 	public void comprovarExecucionsMassives() {
-		System.out.println(">>> Comprovant execucions massives");
 		boolean active = true;
 		Long ultimaExecucioMassiva = null;
 		while (active) {
@@ -56,7 +55,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				active = false;
 			}
 		}
-		System.out.println("<<< Fi execucions massives");
 	}
 	
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
