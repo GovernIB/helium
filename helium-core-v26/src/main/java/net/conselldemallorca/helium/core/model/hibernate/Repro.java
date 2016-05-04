@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -37,15 +35,24 @@ public class Repro implements Serializable {
 	@MaxLength(255)
 	private String usuari;
 	@NotNull
-	private Entorn entorn;
-	@NotNull
 	private ExpedientTipus expedientTipus;
 	@NotBlank
 	private String nom;
-	private byte[] valors;
+	private String valors;
 	
 	
 
+	public Repro(
+			String usuari, 
+			ExpedientTipus expedientTipus, 
+			String nom,
+			String valors) {
+		super();
+		this.usuari = usuari;
+		this.expedientTipus = expedientTipus;
+		this.nom = nom;
+		this.valors = valors;
+	}
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_repro")
 	@TableGenerator(name="gen_repro", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
@@ -66,16 +73,6 @@ public class Repro implements Serializable {
 	}
 	
 	@ManyToOne(optional=false, fetch=FetchType.LAZY)
-	@JoinColumn(name="entorn_id")
-	@ForeignKey(name="hel_entorn_repro_fk")
-	public Entorn getEntorn() {
-		return entorn;
-	}
-	public void setEntorn(Entorn entorn) {
-		this.entorn = entorn;
-	}
-	
-	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(name="exptip_id")
 	@ForeignKey(name="hel_exptip_repro_fk")
 	public ExpedientTipus getExpedientTipus() {
@@ -93,13 +90,11 @@ public class Repro implements Serializable {
 		this.nom = nom;
 	}
 	
-	@Lob
-	@Basic(fetch=FetchType.LAZY)
 	@Column(name="valors")
-	public byte[] getValors() {
+	public String getValors() {
 		return valors;
 	}
-	public void setValors(byte[] valors) {
+	public void setValors(String valors) {
 		this.valors = valors;
 	}
 
