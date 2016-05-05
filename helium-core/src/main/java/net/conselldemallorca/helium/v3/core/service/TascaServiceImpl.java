@@ -1182,6 +1182,9 @@ public class TascaServiceImpl implements TascaService {
 		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
 				task.getProcessInstanceId());
 		Expedient expedient = expedientRepository.findOne(piexp.getId());
+
+		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, tascaId, task.getTaskName());
+		
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
 						TascaService.class,
@@ -1265,6 +1268,7 @@ public class TascaServiceImpl implements TascaService {
 			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registreRepository.save(registre);
 		} finally {
+			mesuresTemporalsHelper.tascaCompletarFinalitzar(tascaId);
 			contextTotal.stop();
 			contextEntorn.stop();
 			contextTipexp.stop();
