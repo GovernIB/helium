@@ -1339,7 +1339,15 @@ public class TascaServiceImpl implements TascaService {
 						tascaSegonPlaHelper.completaTascaSegonPla(tascaId, iniciFinalitzacio);
 					} catch (Exception ex) {
 						if (infoSegonPla.getError() == null || infoSegonPla.getError() == "") {
-							infoSegonPla.setError( ex.getCause().getMessage());
+							String nouError;
+							if (ex.getCause() != null && ex.getCause().getMessage() != null && ex.getCause().getMessage() != "") {
+								nouError = ex.getCause().getMessage();
+							} else if (ex.toString() != null && ex.toString() != "") {
+								nouError = ex.toString();
+							} else {
+								nouError = "Error desconegut.";
+							}
+							infoSegonPla.setError(nouError);
 						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
 						if (ex.getCause() != null) {
