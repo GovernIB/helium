@@ -293,13 +293,25 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
 						sheet.autoSizeColumn(colNum);
 						cell = xlsRow.createCell(colNum++);
-						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE) ) {
 							cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+							if(dada.getValor() != null) {
+								if( camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
+									cell.setCellValue((Long) dada.getValor());
+								} else if (camp.getCampTipus().equals(CampTipusDto.FLOAT)) {
+									cell.setCellValue((Double) dada.getValor());
+									cell.setCellStyle(dStyle);
+								} else if (camp.getCampTipus().equals(CampTipusDto.PRICE)) {
+									cell.setCellValue(((BigDecimal) dada.getValor()).doubleValue());
+									cell.setCellStyle(dStyle);
+								} else {
+									cell.setCellValue(dada.getValorMostrar());
+								}
+							}
 						} else {
 							cell.setCellValue(StringEscapeUtils.unescapeHtml(dada.getValorMostrar()));
+							cell.setCellStyle(dStyle);
 						}
-						
-						cell.setCellStyle(dStyle);
 					}
 				}
 			} catch (Exception e) {
