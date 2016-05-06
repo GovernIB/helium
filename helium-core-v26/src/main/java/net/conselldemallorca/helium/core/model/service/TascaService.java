@@ -1425,7 +1425,7 @@ public class TascaService {
 		//JbpmProcessInstance pi = jbpmDao.getRootProcessInstance(task.getProcessInstanceId());
 		//Expedient expedient = expedientDao.findAmbProcessInstanceId(pi.getId());
 		//DadesCacheTasca dct = getDadesCacheTasca(task);
-		//mesuresTemporalsHelper.tascaCompletarIniciar(expedient, taskId, dct.getTitol());
+		mesuresTemporalsHelper.tascaCompletarIniciar(expedient, taskId, task.getTaskName());
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
 						TascaService.class,
@@ -1522,7 +1522,7 @@ public class TascaService {
 			//mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName(), "REG");
 			//mesuresTemporalsHelper.mesuraCalcular("Completar tasca", "tasques", expedient.getTipus().getNom(), task.getTaskName());
 		} finally {
-			//mesuresTemporalsHelper.tascaCompletarFinalitzar(taskId);
+			mesuresTemporalsHelper.tascaCompletarFinalitzar(taskId);
 			contextTotal.stop();
 			contextEntorn.stop();
 			contextTipexp.stop();
