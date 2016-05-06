@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -16,6 +17,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,6 +94,7 @@ public class ConsultaCampController extends BaseController {
 			@ModelAttribute("command") ConsultaCamp command,
 			BindingResult result,
 			SessionStatus status,
+			HttpSession session,
 			ModelMap model) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
@@ -111,6 +114,7 @@ public class ConsultaCampController extends BaseController {
 				
 				try {
 					dissenyService.createConsultaCamp(command);
+					session.removeAttribute(SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + id);
 					missatgeInfo(request, getMessage("info.camp.consulta.afegit") );
 					status.setComplete();
 				} catch (Exception ex) {
@@ -133,11 +137,13 @@ public class ConsultaCampController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long id,
 			@RequestParam(value = "consultaId", required = true) Long consultaId,
-			@RequestParam(value = "tipus", required = true) TipusConsultaCamp tipus) {
+			@RequestParam(value = "tipus", required = true) TipusConsultaCamp tipus,
+			HttpSession session) {
 		Entorn entorn = getEntornActiu(request);
 		if (entorn != null) {
 			try {
 				dissenyService.deleteConsultaCamp(id);
+				session.removeAttribute(SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 				missatgeInfo(request, getMessage("info.camp.consulta.esborrat") );
 			} catch (Exception ex) {
 				missatgeError(request, getMessage("error.esborrar.camp.consulta"), ex.getLocalizedMessage());
