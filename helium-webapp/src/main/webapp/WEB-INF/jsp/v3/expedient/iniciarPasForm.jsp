@@ -59,6 +59,7 @@
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
 		<form:hidden path="definicioProcesId"/>
+<%-- 		<form:hidden path="reproNom"/> --%>
 		<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 			<c:set var="inline" value="${false}"/>
 			<c:set var="isRegistre" value="${false}"/>
@@ -120,6 +121,9 @@
 		</c:forEach>
 		<div style="min-height: 120px;"></div>
 		<div id="modal-botons">
+<!-- 			<button type="submit" id="guardarRepro" name="guardarRepro" value="guardar-repro" class="btn btn-default"> -->
+<!-- 				Guardar repro -->
+<!-- 			</button> -->
 			<button type="submit" name="submit" value="cancel" class="botons-iniciar modal-tancar btn btn-default">
 				<spring:message code='comuns.cancelar' />
 			</button>			
@@ -128,11 +132,21 @@
 			</button>
 			<script type="text/javascript">
 			// <![CDATA[
+// 				$('#guardarRepro').click(function(e) {
+// 					var e = e || window.event;
+// 					e.cancelBubble = true;
+// 					if (e.stopPropagation) e.stopPropagation();
+// 					debugger;
+// 					$('#command').attr('action','<c:url value="/v3/repro/"/>${expedientTipus.id}/guardarRepro/${definicioProces.id}');
+// 					return true;
+// 				});
+			
 		        $(".botons-iniciar").click(function(e) {
 					var e = e || window.event;
 					e.cancelBubble = true;
 					if (e.stopPropagation) e.stopPropagation();
 					var accio = $(this).attr('value');
+					debugger;
 					if (accio.indexOf('cancel') == 0 || accio.indexOf('guardar') == 0) {
 						return true;
 					}
