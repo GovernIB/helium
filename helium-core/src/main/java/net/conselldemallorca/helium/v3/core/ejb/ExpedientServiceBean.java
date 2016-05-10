@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -818,5 +819,19 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId) {
 		return delegate.findDocumentsPendentsPortasignatures(processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void canviVersioDefinicionsProces(
+			Long expedientId, 
+			Long definicioProcesId, 
+			Long[] subProcesIds,
+			List<DefinicioProcesExpedientDto> subDefinicioProces) {
+		delegate.canviVersioDefinicionsProces(
+				expedientId, 
+				definicioProcesId, 
+				subProcesIds, 
+				subDefinicioProces);
 	}
 }
