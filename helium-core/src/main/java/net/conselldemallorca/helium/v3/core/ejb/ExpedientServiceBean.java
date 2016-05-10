@@ -418,10 +418,10 @@ public class ExpedientServiceBean implements ExpedientService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public String canviVersioDefinicioProces(
-			Long id,
+			String processInstanceId,
 			int versio) {
 		return delegate.canviVersioDefinicioProces(
-				id,
+				processInstanceId,
 				versio);
 	}
 

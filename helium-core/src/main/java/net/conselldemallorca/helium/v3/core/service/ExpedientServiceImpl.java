@@ -1954,26 +1954,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional
 	public String canviVersioDefinicioProces(
-			Long id,
+			String processInstanceId,
 			int versio) {
 		logger.debug("Canviant versió de la definició de procés (" +
-				"id=" + id + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
 				"versio=" + versio + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
-		if (!expedient.isAmbRetroaccio()) {
-			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
-		}
-		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-		jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), versio);
+//		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+//				id,
+//				false,
+//				true,
+//				false,
+//				false);
+//		if (!expedient.isAmbRetroaccio()) {
+//			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+//		}
+//		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
+//		jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), versio);
+		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		jbpmHelper.changeProcessInstanceVersion(processInstanceId, versio);
 		// Apunta els terminis iniciats cap als terminis
 		// de la nova definició de procés
-		DefinicioProces defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-		updateTerminis(expedient.getProcessInstanceId(),defprocAntiga, defprocNova);
+		DefinicioProces defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		updateTerminis(processInstanceId,defprocAntiga, defprocNova);
 		return defprocNova.getEtiqueta();
 	}
 

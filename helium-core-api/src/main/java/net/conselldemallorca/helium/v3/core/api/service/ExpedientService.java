@@ -679,7 +679,7 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public String canviVersioDefinicioProces(
-			Long id,
+			String processInstanceId,
 			int versio);
 
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);

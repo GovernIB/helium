@@ -65,7 +65,7 @@ function selecTots() {
 		<input type="hidden" id="novaDefinicioProcesId" name="novaDefinicioProcesId"/>
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
 			<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selecTots()'>"  style="width:1%;">
-				<input type="checkbox" name="expedientId" value="${registre.id}"/>
+				<input type="checkbox" name="expedientId" value="${registre.id}-${registre.processInstanceId}"/>
 			</display:column>
 	<%-- 		<display:column property="identificador" titleKey="expedient.llistat.expedient" sortable="true" url="/expedient/info.html" paramId="id" paramProperty="processInstanceId"/> --%>
 			<display:column titleKey="expedient.llistat.expedient" sortable="true">

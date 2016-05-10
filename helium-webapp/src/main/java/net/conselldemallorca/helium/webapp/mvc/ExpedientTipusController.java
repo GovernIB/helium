@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -474,35 +473,43 @@ public class ExpedientTipusController extends BaseController {
 		return "/expedientTipus/llistatExpedientsDpNoUs";
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@RequestMapping(value = "/expedientTipus/canvi_versio", method = RequestMethod.POST)
 	public String canvi_versio(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
 			@RequestParam(value = "novaDefinicioProcesId", required = true) Long novaDefinicioProcesId,
-			@RequestParam(value = "expedientId", required = false) Long[] expedientId,
+			@RequestParam(value = "expedientId", required = false) String[] expedients,
 			ModelMap model) {
 		
-		if (expedientId == null || expedientId.length == 0) {
+		if (expedients == null || expedients.length == 0) {
 			missatgeError(request, getMessage("error.no.exp.selec"));
 		} else {
 			try {
+				DefinicioProcesDto definicioProces = dissenyService.getById(novaDefinicioProcesId, false);
+				List<String> processInstanceIds = new ArrayList<String>();
+				for (String expedient: expedients) {
+					String processInstanceId = expedient.substring(expedient.indexOf("-") + 1, expedient.length());
+					processInstanceIds.add(processInstanceId);
+				}
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici(new Date());
 				dto.setEnviarCorreu(false);
 				
-				dto.setExpedientIds(Arrays.asList(expedientId));
-				dto.setExpedientTipusId(expedientTipusId);
+				dto.setProcInstIds(processInstanceIds);
+//				dto.setExpedientTipusId(expedientTipusId);
 				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
 				
-				Object[] params = new Object[3];
-				params[0] = novaDefinicioProcesId;
-				params[1] = null;
-				dto.setParam2(execucioMassivaService.serialize(params));
+				dto.setParam1(definicioProces.getJbpmKey());
+				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
+				
+//				Object[] params = new Object[3];
+//				params[0] = novaDefinicioProcesId;
+//				params[1] = null;
+//				dto.setParam2(execucioMassivaService.serialize(params));
 
 				execucioMassivaService.crearExecucioMassiva(dto);
-				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {expedientId.length}));
+				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {expedients.length}));
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
 				logger.error("Error al programar les accions massives", e);
@@ -513,26 +520,30 @@ public class ExpedientTipusController extends BaseController {
 		
 	}
 	
-	@SuppressWarnings({ "unchecked" })
 	@RequestMapping(value = "/expedientTipus/borrar_logs", method = RequestMethod.POST)
 	public String borrar_logs(
 			HttpServletRequest request,
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
-			@RequestParam(value = "expedientId", required = false) Long[] expedientId,
+			@RequestParam(value = "expedientId", required = false) String[] expedients,
 			ModelMap model) {
-		if (expedientId == null || expedientId.length == 0) {
+		if (expedients == null || expedients.length == 0) {
 			missatgeError(request, getMessage("error.no.exp.selec"));
 		} else {
+			List<Long> expedientIds = new ArrayList<Long>();
+			for (String expedient: expedients) {
+				Long expedientId = Long.parseLong(expedient.substring(0, expedient.indexOf("-")));
+				expedientIds.add(expedientId);
+			}
 			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 			dto.setDataInici(new Date());
 			dto.setEnviarCorreu(false);
-			dto.setExpedientIds(Arrays.asList(expedientId));
+			dto.setExpedientIds(expedientIds);
 			dto.setExpedientTipusId(expedientTipusId);
 			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
 			try {
 				execucioMassivaService.crearExecucioMassiva(dto);
-				missatgeInfo(request, getMessage("info.buidarlog.massiu.executat", new Object[] {expedientId.length}));
+				missatgeInfo(request, getMessage("info.buidarlog.massiu.executat", new Object[] {expedients.length}));
 			} catch (Exception e) {
 				missatgeError(request, getMessage("error.no.massiu"));
 				logger.error("Error al programar les accions massives", e);

@@ -982,7 +982,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				Long definicioProcesId = (Long)param2[0];
 				Long expedientProcesInstanceId = Long.parseLong(exp.getProcessInstanceId());
 				DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
-				expedientService.canviVersioDefinicioProces(expedientProcesInstanceId, definicioProces.getVersio());
+				expedientService.canviVersioDefinicioProces(exp.getProcessInstanceId(), definicioProces.getVersio());
 				
 				// Subprocessos
 				Long[] subProcesIds = (Long[])param2[1];
@@ -992,14 +992,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					for (InstanciaProcesDto ip : arbreProcessos) {
 						int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
 						if (versio != -1)
-							expedientService.canviVersioDefinicioProces(Long.parseLong(ip.getId()), versio);
+							expedientService.canviVersioDefinicioProces(ip.getId(), versio);
 					}
 				}
 			} else {
 				Integer versio = (Integer)deserialize(ome.getExecucioMassiva().getParam2());
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 				ome.setExpedient(expedient);
-				expedientService.canviVersioDefinicioProces(Long.parseLong(ome.getProcessInstanceId()), versio);
+				expedientService.canviVersioDefinicioProces(ome.getProcessInstanceId(), versio);
 			}
 			
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
