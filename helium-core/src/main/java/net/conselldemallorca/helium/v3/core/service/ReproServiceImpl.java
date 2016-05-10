@@ -37,8 +37,12 @@ public class ReproServiceImpl implements ReproService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<ReproDto> findReprosByUsuariEntornTipusExpedient(String usuari, Long entornId, Long expedientTipusId) {
-		return conversioTipusHelper.convertirList(reproRepository.findByUsuariAndExpedientTipusId(usuari, expedientTipusId), ReproDto.class);
+	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId) {
+		return conversioTipusHelper.convertirList(
+				reproRepository.findByUsuariAndExpedientTipusIdOrderByIdDesc(
+						usuariActualHelper.getUsuariActual(), 
+						expedientTipusId), 
+				ReproDto.class);
 	}
 	
 	@Transactional(readOnly=true)
@@ -49,11 +53,18 @@ public class ReproServiceImpl implements ReproService {
 	
 	@Transactional
 	@Override
-	public void create(Long expedientTipusId, String nom, Map<String, Object> valors) {
+	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		String valors_s = JSONValue.toJSONString(valors);
 		String usuariActual = usuariActualHelper.getUsuariActual();
 		Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s);
-		reproRepository.save(repro);
+		reproRepository.saveAndFlush(repro);
+		return conversioTipusHelper.convertir(repro, ReproDto.class);
+	}
+	
+	@Transactional
+	@Override
+	public void deleteById(Long id) {
+		reproRepository.delete(id);
 	}
 }

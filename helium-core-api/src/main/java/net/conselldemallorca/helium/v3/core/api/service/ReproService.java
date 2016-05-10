@@ -6,7 +6,8 @@ import java.util.Map;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 
 public interface ReproService {
-	public List<ReproDto> findReprosByUsuariEntornTipusExpedient(String usuari, Long entornId, Long expedientTipusId);
+	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId);
 	public ReproDto findById(Long id);
-	public void create(Long expedientTipusId, String nom, Map<String, Object> valors);
+	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors);
+	public void deleteById(Long id);
 }

@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -64,9 +65,9 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 	@Autowired
 	protected ExpedientService expedientService;
 	@Autowired
+	private ReproService reproService;
+	@Autowired
 	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
-
-
 
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
@@ -131,8 +132,10 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model));
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+//		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("dades", dades);
+//		model.addAttribute("repros", repros);
 		model.addAttribute("entornId", entorn.getId());
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());

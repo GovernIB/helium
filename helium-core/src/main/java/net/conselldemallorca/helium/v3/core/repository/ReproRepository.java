@@ -17,5 +17,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface ReproRepository extends JpaRepository<Repro, Long> {
-	List<Repro> findByUsuariAndExpedientTipusId(String usuari,Long expedientTipusId);
+	List<Repro> findByUsuariAndExpedientTipusIdOrderByIdDesc(String usuari,Long expedientTipusId);
 }

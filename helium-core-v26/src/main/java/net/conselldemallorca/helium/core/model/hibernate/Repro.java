@@ -40,7 +40,9 @@ public class Repro implements Serializable {
 	private String nom;
 	private String valors;
 	
-	
+	public Repro() {
+		super();
+	};
 
 	public Repro(
 			String usuari, 

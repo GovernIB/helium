@@ -32,6 +32,14 @@
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	</c:if>
+	<style>
+		.repros {
+			position: absolute;
+		}	
+		li.flex {
+    		display: flex;
+		}	
+	</style>
 </head>
 <body>
 	<c:if test="${not empty tasca.tascaFormExternCodi}">
@@ -59,7 +67,33 @@
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
 		<form:hidden path="definicioProcesId"/>
-<%-- 		<form:hidden path="reproNom"/> --%>
+		
+<!-- 		<div class="btn-group repros"> -->
+<!-- 		  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> -->
+<!-- 		    Repros <span class="caret"></span> -->
+<!-- 		  </button> -->
+<!-- 		  <ul class="dropdown-menu"> -->
+<!-- 			<li class="reproForm"> -->
+<!-- 					<div class="form-group"> -->
+<!-- 						<input id="nomRepro" name="nomRepro" type="text" class="form-control" placeholder="Nom repro"> -->
+<!-- 					</div> -->
+<!-- 					<button id="guardarRepro" name="guardarRepro" value="guardar-repro" class="btn btn-primary" type="submit"> -->
+<!-- 						Guardar repro -->
+<!-- 					</button> -->
+<!-- 			</li> -->
+<%-- 			<c:if test="${not empty repros}"> --%>
+<!-- 				<li role="separator" class="divider"></li> -->
+<!-- 			    <li class="dropdown-header">Repros guardats</li> -->
+<%-- 			    <c:forEach var="repro" items="${repros}"> --%>
+<!-- 				    <li class="flex"> -->
+<%-- 				    	<a id="repro-${repro.id}" href="<c:url value="/modal/v3/repro/"/>${expedientTipus.id}/${definicioProces.id}/getRepro/${repro.id}">${repro.nom}</a> --%>
+<%-- 				    	<a href='<c:url value="/v3/repro/borrarRepro"/>/${repro.id}'><i class="fa fa-trash-o" aria-hidden="true"></i></a> --%>
+<!-- 				    </li> -->
+<%-- 			    </c:forEach> --%>
+<%-- 		    </c:if> --%>
+<!-- 		  </ul> -->
+<!-- 		</div> -->
+		
 		<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 			<c:set var="inline" value="${false}"/>
 			<c:set var="isRegistre" value="${false}"/>
@@ -120,10 +154,8 @@
 			<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 		</c:forEach>
 		<div style="min-height: 120px;"></div>
-		<div id="modal-botons">
-<!-- 			<button type="submit" id="guardarRepro" name="guardarRepro" value="guardar-repro" class="btn btn-default"> -->
-<!-- 				Guardar repro -->
-<!-- 			</button> -->
+			<div id="modal-botons">
+			
 			<button type="submit" name="submit" value="cancel" class="botons-iniciar modal-tancar btn btn-default">
 				<spring:message code='comuns.cancelar' />
 			</button>			
@@ -132,13 +164,20 @@
 			</button>
 			<script type="text/javascript">
 			// <![CDATA[
+// 				$('.dropdown-menu').find('.reproForm').click(function (e) {
+// 				  e.stopPropagation();
+// 				});
+			
 // 				$('#guardarRepro').click(function(e) {
 // 					var e = e || window.event;
 // 					e.cancelBubble = true;
 // 					if (e.stopPropagation) e.stopPropagation();
-// 					debugger;
-// 					$('#command').attr('action','<c:url value="/v3/repro/"/>${expedientTipus.id}/guardarRepro/${definicioProces.id}');
-// 					return true;
+// 					if ($('#nomRepro').val() != '') {
+// 						$('#command').attr('action','<c:url value="/v3/repro/"/>${expedientTipus.id}/${definicioProces.id}/guardarRepro');
+// 						return true;
+// 					} else {
+// 						return false;
+// 					}
 // 				});
 			
 		        $(".botons-iniciar").click(function(e) {
@@ -146,7 +185,6 @@
 					e.cancelBubble = true;
 					if (e.stopPropagation) e.stopPropagation();
 					var accio = $(this).attr('value');
-					debugger;
 					if (accio.indexOf('cancel') == 0 || accio.indexOf('guardar') == 0) {
 						return true;
 					}

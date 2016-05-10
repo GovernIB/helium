@@ -23,8 +23,8 @@ public class ReproServiceBean implements ReproService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ReproDto> findReprosByUsuariEntornTipusExpedient(String usuari, Long entornId, Long expedientTipusId) {
-		return delegate.findReprosByUsuariEntornTipusExpedient(usuari, entornId, expedientTipusId);
+	public List<ReproDto> findReprosByUsuariTipusExpedient(Long expedientTipusId) {
+		return delegate.findReprosByUsuariTipusExpedient(expedientTipusId);
 	}
 
 	@Override
@@ -35,7 +35,13 @@ public class ReproServiceBean implements ReproService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void create(Long expedientTipusId, String nom, Map<String, Object> valors) {
-		delegate.create(expedientTipusId, nom, valors);
+	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) {
+		return delegate.create(expedientTipusId, nom, valors);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void deleteById(Long id) {
+		delegate.deleteById(id);
 	}
 }
