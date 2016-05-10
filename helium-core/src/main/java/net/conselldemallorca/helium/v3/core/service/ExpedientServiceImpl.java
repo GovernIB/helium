@@ -84,6 +84,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -1972,7 +1973,71 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Apunta els terminis iniciats cap als terminis
 		// de la nova definició de procés
 		DefinicioProces defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		updateTerminis(expedient.getProcessInstanceId(),defprocAntiga, defprocNova);
+		return defprocNova.getEtiqueta();
+	}
+
+	@Override
+	@Transactional
+	public void canviVersioDefinicionsProces(
+			Long expedientId,
+			Long definicioProcesId,
+			Long[] subProcesIds,
+			List<DefinicioProcesExpedientDto> subDefinicioProces) {
+		logger.debug("Canviant versió de les definicións de procés de l'expedient (" +
+				"expedientId" + expedientId + ", " +
+				"definicioProcesId" + definicioProcesId + ", " +
+				"subProcesIds=" + subProcesIds + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false,
+				false);
+		if (!expedient.isAmbRetroaccio()) {
+			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+		}
+		if (definicioProcesId != null) {
+			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
+			DefinicioProces defprocNova = definicioProcesRepository.findById(definicioProcesId);
+			if (!defprocAntiga.equals(defprocNova)) {
+				jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), defprocNova.getVersio());
+				updateTerminis(expedient.getProcessInstanceId(), defprocAntiga, defprocNova);
+			}
+		}
+		
+		// Subprocessos
+		if (subProcesIds != null && subProcesIds.length > 0) {
+			// Arriben amb el mateix ordre??
+			List<JbpmProcessInstance> instanciesProces = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+			for (JbpmProcessInstance instanciaProces: instanciesProces) {
+				DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
+				int versio = findVersioDefProcesActualitzar(subDefinicioProces, subProcesIds, instanciaProces.getProcessInstance().getProcessDefinition().getName());
+				if (versio != -1 && versio != defprocAntiga.getVersio()) {
+					jbpmHelper.changeProcessInstanceVersion(instanciaProces.getId(), versio);
+					DefinicioProces defprocNova =  expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
+//					DefinicioProces defprocNova = definicioProcesRepository.findById(subProcesIds[i]);
+					updateTerminis(instanciaProces.getId(), defprocAntiga, defprocNova);
+				}
+			}
+		}
+	}
+	
+	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {
+		int versio = -1;
+		int i = 0;
+		while (i < definicionsProces.size() && !definicionsProces.get(i).getJbpmKey().equals(key)) 
+			i++;
+		if (i < definicionsProces.size() && definicionsProcesId[i] != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findById(definicionsProcesId[i]);
+			if (definicioProces != null) 
+				versio = definicioProces.getVersio();
+		}
+		return versio;
+	}
+	// Apunta els terminis iniciats cap als terminis de la nova definició de procés
+	private void updateTerminis(String procesInstanceId, DefinicioProces defprocAntiga, DefinicioProces defprocNova) {
+		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(procesInstanceId);
 		for (TerminiIniciat terminiIniciat: terminisIniciats) {
 			Termini termini = terminiIniciat.getTermini();
 			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
@@ -1986,9 +2051,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				}
 			}
 		}
-		return defprocNova.getEtiqueta();
 	}
-
+	
 	@Override
 	@Transactional
 	public void evaluateScript(

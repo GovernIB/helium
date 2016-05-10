@@ -53,12 +53,12 @@ function confirmarReindexar(e) {
 				<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.reindexar' /></button>
 			</form>
 	    </display:column>
-	    <display:column>
- 	    	<form action="netejar_df.html"> <%-- onsubmit="return confirmarNetejarDf(event)"> --%>
-				<input type="hidden" name="id" value="${registre.id}"/>
-				<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.definicions.proces' /></button>
-			</form>
-	    </display:column>
+<%-- 	    <display:column> --%>
+<%--  	    	<form action="netejar_df.html"> onsubmit="return confirmarNetejarDf(event)"> --%>
+<%-- 				<input type="hidden" name="id" value="${registre.id}"/> --%>
+<%-- 				<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.definicions.proces' /></button> --%>
+<%-- 			</form> --%>
+<%-- 	    </display:column> --%>
 	    <display:column>
 	    	<a href="<c:url value="/entorn/delete.html"><c:param name="id" value="${registre.id}"/></c:url>" onclick="return confirmarEsborrar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='comuns.esborrar' />" title="<fmt:message key='comuns.esborrar' />" border="0"/></a>
 	    </display:column>

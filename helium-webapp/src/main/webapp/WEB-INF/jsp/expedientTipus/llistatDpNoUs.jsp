@@ -30,11 +30,11 @@ function selecTots() {
 </script>
 </head>
 <body>
-
+	<c:set var="msg_afectats"><fmt:message key='defproc.llistat.llistar.afectats'/> <img src='/helium/img/bullet_error.png' title='Aquesta consulta pot resultar molt costosa!'/></c:set>
 	<form action="netejar_df.html" method="post">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipusId}"/>
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
-			<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selecTots()'>">
+			<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selecTots()'>"  style="width:1%;">
 				<input type="checkbox" name="dpId" value="${registre.id}"/>
 			</display:column>
 			<display:column property="jbpmName" titleKey="comuns.nom" sortable="true" url="/definicioProces/info.html" paramId="definicioProcesId" paramProperty="id"/>
@@ -43,6 +43,13 @@ function selecTots() {
 <%-- 			<display:column> --%>
 <%-- 				<a href="<c:url value="/definicioProces/delete.html"><c:param name="definicioProcesId" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='defproc.llistat.esborrar_darrera' />" title="<fmt:message key='defproc.llistat.esborrar_darrera' />" border="0"/></a> --%>
 <%-- 			</display:column> --%>
+			<display:column title="${msg_afectats}" style="width:10%;">
+				<form action="afectats_df.html"> <%-- onsubmit="return confirmarNetejarDf(event)"> --%>
+					<input type="hidden" name="expedientTipusId" value="${expedientTipusId}"/>
+					<input type="hidden" name="definicioProcesId" value="${registre.id}"/>
+					<button type="submit" class="submitButton"><span><img src="/helium/img/magnifier.png"/></span></button>
+				</form>
+			</display:column>
 		</display:table>
 	<%-- 	<script type="text/javascript">initSelectable();</script> --%>
 	

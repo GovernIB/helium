@@ -583,7 +583,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 			identificador = getNumero();
 		else if (!tipus.getTeNumero().booleanValue() && tipus.getTeTitol().booleanValue())
 			identificador = getTitol();
-		if (identificador == null)
+		if (identificador == null || "[null] null".equals(identificador))
 			return this.getNumeroDefault();
 		else
 			return identificador;

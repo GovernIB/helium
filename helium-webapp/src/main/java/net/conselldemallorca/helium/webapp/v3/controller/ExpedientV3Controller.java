@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -25,21 +24,23 @@ import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ChangeLogException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -164,31 +165,80 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "arxiuView";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/updateDefinicioProces/{versio}", method = RequestMethod.GET)
-	@ResponseBody
+	@RequestMapping(value = "/{expedientId}/canviVersio", method = RequestMethod.GET)
 	public String changeDefProc(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable int versio,
 			ModelMap model) {
-		String nom = null;
 		try {
-			nom = expedientService.canviVersioDefinicioProces(
-					expedientId,
-					versio);
-			MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.realitzat") );
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
+			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
+			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
+			canviVersioProcesCommand.setDefinicioProcesId(definicioProces.getId());		
+
+			model.addAttribute("expedient", expedient);
+			model.addAttribute(canviVersioProcesCommand);
+			model.addAttribute("definicioProces",definicioProces);
+			model.addAttribute("subDefinicioProces", subDefinicioProces);
 		} catch (Exception ex) {
-			logger.error("Canviant versió de la definició de procés (" +
-					"id=" + expedientId + ", " +
-					"versio=" + versio + ")", ex);
-			if (ex.getCause() instanceof ChangeLogException)
-				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces.logs") + "<br/> " + ex.getCause().getMessage());
-			else
-				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+			logger.error("Canviant versió de la definició de procés (" + "id=" + expedientId + ")", ex);
+			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
 		}
-	        	
-		return JSONValue.toJSONString(nom);
+		return "v3/expedient/canviVersio";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/canviVersio", method = RequestMethod.POST)
+	public String changeDefProc(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@ModelAttribute CanviVersioProcesCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			ModelMap model) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
+			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
+			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
+			
+			expedientService.canviVersioDefinicionsProces(
+					expedientId, 
+					command.getDefinicioProcesId(), 
+					command.getSubprocesId(), 
+					subDefinicioProces);
+			MissatgesHelper.success(request, getMessage(request, "info.expedient.canviversio"));
+			
+		} catch (Exception ex) {
+			logger.error("Canviant versió de la definició de procés (" + "id=" + expedientId + ")", ex);
+			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+		}
+		return modalUrlTancar();
+	}
+	
+//	@RequestMapping(value = "/{expedientId}/updateDefinicioProces/{versio}", method = RequestMethod.GET)
+//	@ResponseBody
+//	public String changeDefProc(
+//			HttpServletRequest request,
+//			@PathVariable Long expedientId,
+//			@PathVariable int versio,
+//			ModelMap model) {
+//		String nom = null;
+//		try {
+//			nom = expedientService.canviVersioDefinicioProces(
+//					expedientId,
+//					versio);
+//			MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.realitzat") );
+//		} catch (Exception ex) {
+//			logger.error("Canviant versió de la definició de procés (" +
+//					"id=" + expedientId + ", " +
+//					"versio=" + versio + ")", ex);
+//			if (ex.getCause() instanceof ChangeLogException)
+//				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces.logs") + "<br/> " + ex.getCause().getMessage());
+//			else
+//				MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+//		}
+//	        	
+//		return JSONValue.toJSONString(nom);
+//	}
 	
 	@RequestMapping(value = "/{expedientId}/buidalog", method = RequestMethod.GET)
 	public String buidaLog(

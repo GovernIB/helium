@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.MessageSource;
@@ -53,6 +54,7 @@ import net.conselldemallorca.helium.core.model.dao.TascaDao;
 import net.conselldemallorca.helium.core.model.dao.TerminiDao;
 import net.conselldemallorca.helium.core.model.dao.ValidacioDao;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.exception.DeploymentException;
 import net.conselldemallorca.helium.core.model.exception.ExportException;
 import net.conselldemallorca.helium.core.model.exportacio.AccioExportacio;
@@ -4072,5 +4074,30 @@ public class DissenyService {
 		}
 		return resposta;
 	}
+
+	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long expedientTipusId,
+			Long processDefinitionId) {
+		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
+		ExpedientTipus tipus = expedientTipusDao.getById(expedientTipusId, false);
+		List<ProcessInstanceExpedient> afectats = jbpmDao.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+				expedientTipusId,
+				processDefinitionId);
+		
+		for (ProcessInstanceExpedient pie : afectats) {
+			ExpedientDto exp = new ExpedientDto();
+			exp.setId(pie.getId());
+			exp.setTitol(pie.getTitol());
+			exp.setNumero(pie.getNumero());
+			exp.setNumeroDefault(pie.getNumeroDefault());
+			exp.setDataInici(pie.getDataInici());
+			exp.setDataFi(pie.getDataFi());
+			exp.setTipus(tipus);
+			exp.setProcessInstanceId(pie.getProcessInstanceId());
+			resposta.add(exp);
+		}
+		return resposta;
+	}
+	
 	
 }

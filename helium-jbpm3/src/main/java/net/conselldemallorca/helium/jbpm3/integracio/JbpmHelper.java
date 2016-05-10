@@ -67,6 +67,7 @@ import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand
 import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdForTokenIdCommand;
+import net.conselldemallorca.helium.jbpm3.command.GetExpedientsAfectatsListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
 import net.conselldemallorca.helium.jbpm3.command.GetProcesDefinitionEntornNotUsedListCommand;
@@ -1831,6 +1832,14 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM findGroupTasks", "jbpmDao");
 		return resultat;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ProcessInstanceExpedient> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long expedientTipusId,
+			Long processDefinitionId) {
+		GetExpedientsAfectatsListCommand command = new GetExpedientsAfectatsListCommand(expedientTipusId, processDefinitionId);
+		return (List<ProcessInstanceExpedient>)commandService.execute(command);
+	}
 
 	public void reprendreExpedient(String processInstanceId) throws Exception{
 		//adminService.mesuraIniciar("jBPM reprendreExpedient", "jbpmDao");
@@ -1955,5 +1964,4 @@ public class JbpmHelper {
 		}
 		return ex;
 	}
-
 }

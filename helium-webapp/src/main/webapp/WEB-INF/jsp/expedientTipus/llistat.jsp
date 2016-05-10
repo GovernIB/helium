@@ -54,7 +54,8 @@ function confirmar(e) {
 			<display:column>
 	 	    	<form action="netejar_df.html"> <%-- onsubmit="return confirmarNetejarDf(event)"> --%>
 					<input type="hidden" name="id" value="${registre.id}"/>
-					<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.definicions.proces' /></button>
+					<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.definicions.proces'/></button>
+					
 				</form>
 		    </display:column>
 			<display:column>

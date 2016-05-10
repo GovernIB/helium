@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,8 +17,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,16 +37,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
@@ -68,16 +76,19 @@ public class ExpedientTipusController extends BaseController {
 	private ReassignacioService reassignacioService;
 //	private Validator additionalValidator;
 	private PersonaService  personaService;
+	private ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	public ExpedientTipusController(
 			DissenyService dissenyService,
 			ExpedientService expedientService,
 			PermissionService permissionService,
-			PluginService pluginService) {
+			PluginService pluginService,
+			ExecucioMassivaService execucioMassivaService) {
 		this.dissenyService = dissenyService;
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 		this.pluginService = pluginService;
+		this.execucioMassivaService = execucioMassivaService;
 	}
 	
 	public PersonaService getPersonaService() {
@@ -361,7 +372,7 @@ public class ExpedientTipusController extends BaseController {
 		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(id));
 		return "/expedientTipus/llistatDpNoUs";
 	}
-
+	
 	@RequestMapping(value = "/expedientTipus/netejar_df", method = RequestMethod.POST)
 	public String netejar_df(
 			HttpServletRequest request,
@@ -401,8 +412,17 @@ public class ExpedientTipusController extends BaseController {
 					try {
 						dissenyService.undeploy(entorn.getId(), expedientTipusId, definicioProcesId);
 						missatgeInfo(request, getMessage("info.defproc.esborrada", new Object[]{definicioProces.getJbpmName(), definicioProces.getVersio()}) );
-					} catch (DataIntegrityViolationException ex) {
-						missatgeError(request, getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getJbpmName(), definicioProces.getVersio()}));
+					} catch (Exception ex) {
+						if (ex instanceof DataIntegrityViolationException || ex.getCause() instanceof DataIntegrityViolationException || (ex.getCause() != null && ex.getCause().getCause() instanceof DataIntegrityViolationException) ||
+							ex instanceof ConstraintViolationException || ex.getCause() instanceof ConstraintViolationException || (ex.getCause() != null && ex.getCause().getCause() instanceof ConstraintViolationException)) {
+							String msg = (ex instanceof DataIntegrityViolationException || ex instanceof ConstraintViolationException) ? getErrorMsg(ex) : 
+										  (ex.getCause() instanceof DataIntegrityViolationException || ex.getCause() instanceof ConstraintViolationException) ? getErrorMsg(ex.getCause()) : getErrorMsg(ex.getCause().getCause());
+							if (msg.contains("HELIUM.FK_TASKINST_TASK"))
+								msg = getMessage("error.defpro.eliminar.constraint.taskinstance");
+							missatgeError(request, getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getJbpmName(), definicioProces.getVersio()}), msg);
+						} else { 
+							missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+						}
 						logger.error("No s'han pogut esborrar les definicions de procés", ex);
 					}
 				}
@@ -430,6 +450,96 @@ public class ExpedientTipusController extends BaseController {
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(expedientTipusId));
 		return "/expedientTipus/llistatDpNoUs";
+	}
+	
+	private String getErrorMsg(Throwable ex) {
+		StringWriter errors = new StringWriter();
+		ex.printStackTrace(new PrintWriter(errors));
+		String errorFull = errors.toString();	
+		errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+		return errorFull;
+	}
+	@RequestMapping(value = "/expedientTipus/afectats_df", method = RequestMethod.GET)
+	public String afectats_df(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			ModelMap model) {
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		DefinicioProcesDto definicioProces = dissenyService.getById(definicioProcesId, false);
+		model.addAttribute("definicioProces", definicioProces);
+		model.addAttribute("llistat", dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(expedientTipusId, Long.parseLong(definicioProces.getJbpmId())));
+		return "/expedientTipus/llistatExpedientsDpNoUs";
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@RequestMapping(value = "/expedientTipus/canvi_versio", method = RequestMethod.POST)
+	public String canvi_versio(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			@RequestParam(value = "novaDefinicioProcesId", required = true) Long novaDefinicioProcesId,
+			@RequestParam(value = "expedientId", required = false) Long[] expedientId,
+			ModelMap model) {
+		
+		if (expedientId == null || expedientId.length == 0) {
+			missatgeError(request, getMessage("error.no.exp.selec"));
+		} else {
+			try {
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(new Date());
+				dto.setEnviarCorreu(false);
+				
+				dto.setExpedientIds(Arrays.asList(expedientId));
+				dto.setExpedientTipusId(expedientTipusId);
+				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
+				
+				Object[] params = new Object[3];
+				params[0] = novaDefinicioProcesId;
+				params[1] = null;
+				dto.setParam2(execucioMassivaService.serialize(params));
+
+				execucioMassivaService.crearExecucioMassiva(dto);
+				missatgeInfo(request, getMessage("info.canvi.versio.massiu", new Object[] {expedientId.length}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+				logger.error("Error al programar les accions massives", e);
+			}
+		}
+		
+		return "redirect:/expedientTipus/afectats_df.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
+		
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@RequestMapping(value = "/expedientTipus/borrar_logs", method = RequestMethod.POST)
+	public String borrar_logs(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			@RequestParam(value = "expedientId", required = false) Long[] expedientId,
+			ModelMap model) {
+		if (expedientId == null || expedientId.length == 0) {
+			missatgeError(request, getMessage("error.no.exp.selec"));
+		} else {
+			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+			dto.setDataInici(new Date());
+			dto.setEnviarCorreu(false);
+			dto.setExpedientIds(Arrays.asList(expedientId));
+			dto.setExpedientTipusId(expedientTipusId);
+			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				missatgeInfo(request, getMessage("info.buidarlog.massiu.executat", new Object[] {expedientId.length}));
+			} catch (Exception e) {
+				missatgeError(request, getMessage("error.no.massiu"));
+				logger.error("Error al programar les accions massives", e);
+			}
+		}
+		
+		return "redirect:/expedientTipus/afectats_df.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 	}
 	
 	@Autowired

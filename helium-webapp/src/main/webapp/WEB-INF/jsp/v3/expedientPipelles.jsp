@@ -268,20 +268,21 @@
 					<dd>	
 						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
-						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if>
+<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
+						<c:if test="${expedient.permisWrite}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
 						<%-- 				
 						<div id="imgDefinicioProcesJbpm" class="hide">
 							<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
 						</div> 
 						--%>
 					</dd>
-					<div id="canviDefinicioProcesJbpm" class="hide">
-						<select id="definicioProcesVersio">
-							<c:forEach var="opt" items="${definicioProces.listVersioAmbEtiqueta}">
-								<option value="${opt.versio}" <c:if test="${opt.versio == definicioProces.versio}"> selected</c:if>>${opt.etiqueta}</option>
-							</c:forEach>
-						</select>
-					</div>
+<%-- 					<div id="canviDefinicioProcesJbpm" class="hide">
+ 						<select id="definicioProcesVersio">
+ 							<c:forEach var="opt" items="${definicioProces.listVersioAmbEtiqueta}">
+ 								<option value="${opt.versio}" <c:if test="${opt.versio == definicioProces.versio}"> selected</c:if>>${opt.etiqueta}</option>
+ 							</c:forEach>
+ 						</select>
+ 					</div> --%>
 				</dl>
 				<c:if test="${not empty relacionats}">
 					<h4 id="expedient-info-relacionats"><spring:message code="expedient.info.relacionats"/></h4>
@@ -449,6 +450,10 @@
 	</div>
 	<script type="text/javascript">
 	// <![CDATA[
+	    $("#canviversio").heliumEvalLink({
+			refrescarAlertes: true,
+			refrescarPagina: true
+		});
 		$("#expedient-info-accio a").heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false
