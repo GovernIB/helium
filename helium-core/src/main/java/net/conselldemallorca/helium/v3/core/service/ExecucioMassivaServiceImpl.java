@@ -986,12 +986,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				
 				// Subprocessos
 				Long[] subProcesIds = (Long[])param2[1];
-				String[] keys = (String[])param2[2];
-				List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedientProcesInstanceId);
-				for (InstanciaProcesDto ip : arbreProcessos) {
-					int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
-					if (versio != -1)
-						expedientService.canviVersioDefinicioProces(Long.parseLong(ip.getId()), versio);
+				if (subProcesIds != null) {
+					String[] keys = (String[])param2[2];
+					List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedientProcesInstanceId);
+					for (InstanciaProcesDto ip : arbreProcessos) {
+						int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
+						if (versio != -1)
+							expedientService.canviVersioDefinicioProces(Long.parseLong(ip.getId()), versio);
+					}
 				}
 			} else {
 				Integer versio = (Integer)deserialize(ome.getExecucioMassiva().getParam2());
