@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.codahale.metrics.MetricRegistry;
-
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -24,7 +22,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.OperacioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -55,6 +52,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
+
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -1004,32 +1003,32 @@ public interface Jbpm3HeliumService {
 	 */
 	public void reprendreExpedient(String processInstanceId) throws Exception;
 
-	/**
-	 * Obté la propera operació a realitzar massivament
-	 * 
-	 * @param ultimaExecucioMassiva
-	 * @return
-	 */
-	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) throws Exception;
-
-	/**
-	 * Executa la operació massiva
-	 * 
-	 * @param operacioMassiva
-	 * @throws Exception 
-	 */
-	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception;
-
-	/**
-	 * @param operacioMassiva
-	 * @param e
-	 */
-	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e);
-
-	/**
-	 * @param operacioMassiva
-	 */
-	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva);
+//	/**
+//	 * Obté la propera operació a realitzar massivament
+//	 * 
+//	 * @param ultimaExecucioMassiva
+//	 * @return
+//	 */
+//	public OperacioMassivaDto getExecucionsMassivesActiva(Long ultimaExecucioMassiva) throws Exception;
+//
+//	/**
+//	 * Executa la operació massiva
+//	 * 
+//	 * @param operacioMassiva
+//	 * @throws Exception 
+//	 */
+//	public void executarExecucioMassiva(OperacioMassivaDto operacioMassiva) throws Exception;
+//
+//	/**
+//	 * @param operacioMassiva
+//	 * @param e
+//	 */
+//	public void generaInformeError(OperacioMassivaDto operacioMassiva, Exception e);
+//
+//	/**
+//	 * @param operacioMassiva
+//	 */
+//	public void actualitzaUltimaOperacio(OperacioMassivaDto operacioMassiva);
 
 	/**
 	 * Retorna una referència al registre de mètriques

@@ -23,5 +23,12 @@ public interface ExecucioMassivaService {
 	public String getJsonExecucionsMassivesByUser(int numResults, boolean viewAll);
 	
 	public String getExecucioMassivaDetall(Long execucioMassivaId);
-
+	
+	public Long getExecucionsMassivesActiva(Long ultimaExecucioMassiva);
+	
+	public void executarExecucioMassiva(Long ome_id) throws Exception;
+	
+	public void generaInformeError(Long ome_id, Exception exception);
+	
+	public void actualitzaUltimaOperacio(Long ome_id);
 }

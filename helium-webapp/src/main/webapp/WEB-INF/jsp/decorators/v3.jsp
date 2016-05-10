@@ -192,9 +192,6 @@
 							<div class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
-									<c:if test="${globalProperties['app.mesura.temps.actiu']}">
-										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoTemps" href="<c:url value="/modal/v3/mesuresTemps"/>"><spring:message code='expedient.mesura.temps' /></a></li>
-									</c:if>
 									<c:if test="${globalProperties['app.expedient.monitor']}">
 										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>

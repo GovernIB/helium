@@ -34,6 +34,7 @@
 		<property name="lockBufferTime" value="5000" /><!-- 5 seconds -->
 	</bean>
 
+<!-- 
 	<bean id="jbpm.massiva.executor" class="net.conselldemallorca.helium.jbpm3.spring.SpringMassiuExecutor">
 		<property name="name" value="SpringJbpmMassiuExecutor" />
 		<property name="nbrOfThreads" value="1" />
@@ -43,6 +44,7 @@
 		<property name="lockMonitorInterval" value="5000" />
 		<property name="lockBufferTime" value="5000" />
 	</bean>
+-->
 
 	<bean id="jbpmHelper" class="net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper">
 		<property name="commandService" ref="jbpm3CommandService" />

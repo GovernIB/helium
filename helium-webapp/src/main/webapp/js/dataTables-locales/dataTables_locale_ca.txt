@@ -8,7 +8,7 @@
     "sInfoPostFix":  "",
     "sSearch":       "Filtrar:",
     "sUrl":          "",
-    "sInfoThousands":  ",",
+    "sInfoThousands":  ".",
     "sLoadingRecords": "Carregant...",
     "oPaginate": {
         "sFirst":    "Primer",

@@ -374,4 +374,10 @@ public class TascaServiceBean implements TascaService {
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
 		return delegate.getMissatgesExecucioSegonPla(tascaSegonPlaId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor){
+		delegate.updateVariable(expedientId, taskId, codiVariable, valor);
+	}
 }
