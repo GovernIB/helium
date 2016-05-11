@@ -29,7 +29,6 @@ import org.jbpm.job.Job;
 import org.jbpm.job.Timer;
 import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
-import org.jbpm.taskmgmt.def.TaskMgmtDefinition;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
 import net.conselldemallorca.helium.v3.core.api.exception.ChangeLogException;
@@ -296,12 +295,12 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 			
 			log.debug("change dependent task-instance with id " + oldTask.getId());
 			
-			// Canviam el processDefinition dels tasksMgmtInstance dels tasksInstance de la versió que s'intenta esborrar a la de la tasca.
-			TaskMgmtDefinition tmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
-			tmd.setProcessDefinition(newDef);
-			if (tmd.getStartTask() != null) {
-				tmd.setStartTask(newDef.getTaskMgmtDefinition().getStartTask());
-			}
+//			// Canviam el processDefinition dels tasksMgmtInstance dels tasksInstance de la versió que s'intenta esborrar a la de la tasca.
+//			TaskMgmtDefinition tmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
+//			tmd.setProcessDefinition(newDef);
+//			if (tmd.getStartTask() != null) {
+//				tmd.setStartTask(newDef.getTaskMgmtDefinition().getStartTask());
+//			}
 //			getJbpmContext().getSession().save(tmd);
 		}
 		
