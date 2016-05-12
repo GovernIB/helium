@@ -38,8 +38,6 @@ public class ConsultaHelper {
 	private VariableHelper variableHelper;	
 	@Resource
 	private MessageHelper messageHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
 	@Resource
 	private CampRepository campRepository;
 	@Resource

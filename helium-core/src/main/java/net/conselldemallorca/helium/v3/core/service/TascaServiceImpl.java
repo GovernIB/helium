@@ -59,10 +59,10 @@ import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.FormulariExternHelper;
+import net.conselldemallorca.helium.v3.core.helper.IndexHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper.Converter;
-import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -137,8 +137,8 @@ public class TascaServiceImpl implements TascaService {
 	private VariableHelper variableHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
+	@Resource
+	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -851,7 +851,7 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmHelper.takeTaskInstance(id, auth.getName());
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
@@ -886,7 +886,7 @@ public class TascaServiceImpl implements TascaService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		jbpmHelper.releaseTaskInstance(id);
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(
 				id);
 		expedientLog.setAccioParams(previousActors + "::" + currentActors);
@@ -1283,7 +1283,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 			actualitzarTerminisIAlertes(tascaId, expedient);
 			verificarFinalitzacioExpedient(expedient);
-			serviceUtils.expedientIndexLuceneUpdate(
+			indexHelper.expedientIndexLuceneUpdate(
 					expedient.getProcessInstanceId(),
 					true,
 					expedient);
@@ -1327,7 +1327,7 @@ public class TascaServiceImpl implements TascaService {
 				accio,
 				usuari);
 		jbpmHelper.executeActionInstanciaTasca(tascaId, accio);
-		serviceUtils.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 	}
 
 	@Override

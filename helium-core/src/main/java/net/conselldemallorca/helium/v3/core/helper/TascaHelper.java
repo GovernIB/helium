@@ -676,7 +676,10 @@ public class TascaHelper {
 						if (campValor instanceof DominiCodiDescripcio) {
 							variables.put(
 									campTasca.getCamp().getCodi(),
-									campValor);
+									((DominiCodiDescripcio)campValor).getCodi());
+							variables.put(
+									VariableHelper.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+									((DominiCodiDescripcio)campValor).getDescripcio());
 						} else {
 							String text = variableHelper.getTextPerCamp(
 									campTasca.getCamp(),
@@ -684,10 +687,8 @@ public class TascaHelper {
 									null,
 									task.getProcessInstanceId());
 							variables.put(
-									campTasca.getCamp().getCodi(),
-									new DominiCodiDescripcio(
-											(String)campValor,
-											text));
+									VariableHelper.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+									text);
 						}
 					}
 				}

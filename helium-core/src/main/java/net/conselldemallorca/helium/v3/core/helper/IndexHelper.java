@@ -36,7 +36,7 @@ import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("serviceUtilsV3")
-public class ServiceUtils {
+public class IndexHelper {
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -323,17 +323,6 @@ public class ServiceUtils {
 			contextIndexarTotal.stop();
 			contextIndexarEntorn.stop();
 			contextIndexarTipExp.stop();
-		}
-	}
-	
-	public Object getVariableJbpmProcesValor(
-			String processInstanceId,
-			String varCodi) {
-		Object valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, varCodi);
-		if (valor instanceof DominiCodiDescripcio) {
-			return ((DominiCodiDescripcio)valor).getCodi();
-		} else {
-			return valor;
 		}
 	}
 	

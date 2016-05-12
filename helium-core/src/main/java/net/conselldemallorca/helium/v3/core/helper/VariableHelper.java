@@ -65,6 +65,7 @@ public class VariableHelper {
 	public static final String PREFIX_VAR_DOCUMENT = DocumentHelper.PREFIX_VAR_DOCUMENT;
 	public static final String PREFIX_VAR_ADJUNT = DocumentHelper.PREFIX_ADJUNT;
 	public static final String PREFIX_VAR_SIGNATURA = DocumentHelper.PREFIX_SIGNATURA;
+	public static final String PREFIX_VAR_DESCRIPCIO = "H3l1um#descripcio.";
 
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
@@ -745,7 +746,14 @@ public class VariableHelper {
 		return tascaDto;
 	}
 
-
+	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) {
+		Object valor = null;
+		if (taskId != null)
+			valor = jbpmHelper.getTaskInstanceVariable(taskId, PREFIX_VAR_DESCRIPCIO + codi);
+		if (valor == null)
+			valor = jbpmHelper.getProcessInstanceVariable(processInstanceId, PREFIX_VAR_DESCRIPCIO + codi);
+		return valor;
+	}
 
 	private ExpedientDadaDto getDadaPerVariableJbpm(
 			Camp camp,
@@ -881,6 +889,7 @@ public class VariableHelper {
 				if (	codi.startsWith(PREFIX_VAR_DOCUMENT) ||
 						codi.startsWith(PREFIX_VAR_SIGNATURA) ||
 						codi.startsWith(PREFIX_VAR_ADJUNT) ||
+						codi.startsWith(PREFIX_VAR_DESCRIPCIO) ||
 						codi.startsWith(BasicActionHandler.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
 					codisEsborrar.add(codi);
 			}
@@ -954,6 +963,18 @@ public class VariableHelper {
 			String processInstanceId) throws Exception {
 		if (valor == null)
 			return null;
+		
+		//mirem si hi ha una variable amb la texte, utilitzant el prefix PREFIX_VAR_DESCRIPCIO
+		if (camp.isDominiCacheText()) {
+			Object descVariable = getDescripcioVariable(taskInstanceId, processInstanceId, camp.getCodi());
+			if (descVariable != null) {
+				return new ParellaCodiValorDto(
+						(String)valor,
+						(String)descVariable);
+			}
+		}
+		//////////
+		
 		if (valor instanceof DominiCodiDescripcio) {
 			return new ParellaCodiValorDto(
 					((DominiCodiDescripcio)valor).getCodi(),

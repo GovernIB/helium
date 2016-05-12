@@ -42,7 +42,6 @@ import net.conselldemallorca.helium.v3.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
-import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -95,8 +94,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private ConsultaRepository consultaRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource

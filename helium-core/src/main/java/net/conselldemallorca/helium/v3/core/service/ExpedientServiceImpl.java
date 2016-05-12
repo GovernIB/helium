@@ -57,7 +57,6 @@ import net.conselldemallorca.helium.core.model.service.DocumentHelper;
 import net.conselldemallorca.helium.core.model.service.LuceneHelper;
 import net.conselldemallorca.helium.core.model.service.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -113,12 +112,12 @@ import net.conselldemallorca.helium.v3.core.helper.EntornHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.v3.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.v3.core.helper.IndexHelper;
 import net.conselldemallorca.helium.v3.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.v3.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.v3.core.helper.PluginHelper;
-import net.conselldemallorca.helium.v3.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.v3.core.helper.TascaHelper;
 import net.conselldemallorca.helium.v3.core.helper.VariableHelper;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
@@ -224,8 +223,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private TascaHelper tascaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
+	@Resource
+	private IndexHelper indexHelper;
 	@Resource
 	private LuceneHelper luceneHelper;
 	@Resource(name="permisosHelperV3")
@@ -505,7 +504,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
-			serviceUtils.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
@@ -734,7 +733,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					true,
 					false,
 					false);
-			serviceUtils.expedientIndexLuceneRecrear(expedient);
+			indexHelper.expedientIndexLuceneRecrear(expedient);
 			return true;
 		} catch (Exception ex) {
 			return false;
@@ -1466,7 +1465,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
 			}
 			verificarFinalitzacioExpedient(processInstanceId, expedient);
-			serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
 			throw new NotAllowedException(expedientId, Expedient.class, PermisTipusEnumDto.WRITE);
@@ -2226,7 +2225,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
 		verificarFinalitzacioExpedient(expedient, pi);
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
@@ -2911,7 +2910,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedientLogId.toString());
 		expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
 		logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-		serviceUtils.expedientIndexLuceneUpdate(
+		indexHelper.expedientIndexLuceneUpdate(
 				log.getExpedient().getProcessInstanceId());
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}
@@ -3395,10 +3394,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varName);
 		
-		Object valorOptimitzat = optimitzarValorPerConsultesDomini(processInstanceId, varName, value);
+		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varName, value);
 		
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -3423,11 +3421,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varName);
-		Object valorVell = serviceUtils.getVariableJbpmProcesValor(processInstanceId, varName);
-		Object valorOptimitzat = optimitzarValorPerConsultesDomini(processInstanceId, varName, varValue);
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
+		Object valorVell = variableHelper.getVariableJbpmProcesValor(processInstanceId, varName);
+		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varName, varValue);
 		
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -3440,7 +3437,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			registre.setValorNou(varValue.toString());
 	}
 	
-	private Object optimitzarValorPerConsultesDomini(
+	private void optimitzarValorPerConsultesDominiGuardar(
 			String processInstanceId,
 			String varName,
 			Object varValue) {
@@ -3451,20 +3448,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 				varName);
 		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
-				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
-						camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
+					camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					
 					String text = variableHelper.getTextPerCamp(
 							camp, 
 							varValue, 
 							null, 
 							processInstanceId);
-					return new DominiCodiDescripcio(
-							(String)varValue,
-							text);
+					
+					jbpmHelper.setProcessInstanceVariable(processInstanceId, VariableHelper.PREFIX_VAR_DESCRIPCIO + varName, text);
 				}
 			}
 		}
-		return varValue;
+		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, varValue);
 	}
 	
 	@Override
@@ -3482,7 +3479,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varName);
 		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varName);
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
