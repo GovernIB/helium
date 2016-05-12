@@ -101,6 +101,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundExceptio
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -2933,17 +2934,31 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void suspendreTasca(
 			Long expedientId,
 			Long taskId) {
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
-				ExpedientLogAccioTipus.TASCA_SUSPENDRE,
-				null);
-		jbpmHelper.suspendTaskInstance(String.valueOf(taskId));
-		crearRegistreTasca(
+		logger.debug("Reprende tasca l'expedient (id=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				String.valueOf(taskId),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.ATURAR);
+				false,
+				true,
+				false,
+				false);
+		if (!expedient.isAnulat()) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
+					null);
+			jbpmHelper.suspendTaskInstance(String.valueOf(taskId));
+			crearRegistreTasca(
+					expedientId,
+					String.valueOf(taskId),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					Registre.Accio.ATURAR);
+		} else {
+			throw new IllegalStateException(
+					expedientId,
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 
 	@Override
@@ -2966,6 +2981,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				entorn,
 				expedientTipus,
 				any);
+		
 	}
 
 	@Override
@@ -3002,23 +3018,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long expedientId,
 			Long taskId) {
 		logger.debug("Reprende tasca l'expedient (id=" + expedientId + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
 				true,
 				false,
 				false);
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
-				ExpedientLogAccioTipus.TASCA_CONTINUAR,
-				null);
-		jbpmHelper.resumeTaskInstance(String.valueOf(taskId));
-		crearRegistreTasca(
-				expedientId,
-				String.valueOf(taskId),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.REPRENDRE);
+		if (!expedient.isAnulat()) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.TASCA_CONTINUAR,
+					null);
+			jbpmHelper.resumeTaskInstance(String.valueOf(taskId));
+			crearRegistreTasca(
+					expedientId,
+					String.valueOf(taskId),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					Registre.Accio.REPRENDRE);
+		} else {
+			throw new IllegalStateException(
+					expedientId,
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 	
 	@Override
@@ -3027,23 +3050,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long expedientId,
 			Long taskId) {
 		logger.debug("Cancelar tasca l'expedient (id=" + expedientId + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
 				true,
 				false,
 				false);
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
-				ExpedientLogAccioTipus.TASCA_CANCELAR,
-				null);
-		jbpmHelper.cancelTaskInstance(String.valueOf(taskId));
-		crearRegistreTasca(
-				expedientId,
-				String.valueOf(taskId),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.CANCELAR);
+		if (!expedient.isAnulat()) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.TASCA_CANCELAR,
+					null);
+			jbpmHelper.cancelTaskInstance(String.valueOf(taskId));
+			crearRegistreTasca(
+					expedientId,
+					String.valueOf(taskId),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					Registre.Accio.CANCELAR);
+		} else {
+			throw new IllegalStateException(
+					expedientId,
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 
 	@Override
@@ -3055,7 +3085,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
 		logger.debug("Reassignar tasca l'expedient (id=" + expedientLog.getExpedient().getId() + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientLog.getExpedient().getId(),
 				false,
 				false,
@@ -3064,15 +3094,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		jbpmHelper.reassignTaskInstance(taskId, expression, expedientLog.getExpedient().getEntorn().getId());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		crearRegistreRedirigirTasca(
-				expedientLog.getExpedient().getId(),
-				taskId,
-				usuari,
-				expression);
+		if (!expedient.isAturat()) {
+			jbpmHelper.reassignTaskInstance(taskId, expression, expedientLog.getExpedient().getEntorn().getId());
+			String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+			expedientLog.setAccioParams(previousActors + "::" + currentActors);
+			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+			crearRegistreRedirigirTasca(
+					expedientLog.getExpedient().getId(),
+					taskId,
+					usuari,
+					expression);
+		} else {
+			throw new IllegalStateException(
+					expedient.getId(),
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 
 	@Override

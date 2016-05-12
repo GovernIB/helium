@@ -100,6 +100,24 @@ public class ExpedientTascaController extends BaseExpedientController {
 		return "v3/procesTasques";
 	}
 
+	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesTasquesPersonals}/{nomesTasquesGrup}/consultesTipus", method = RequestMethod.GET)
+	public String tasquesPendents2(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable boolean nomesTasquesPersonals,
+			@PathVariable boolean nomesTasquesGrup,
+			Model model) {
+		model.addAttribute(
+				"retrocedirModalPath",
+				true);
+		return tasquesPendents(
+				request,
+				expedientId,
+				nomesTasquesPersonals,
+				nomesTasquesGrup,
+				model);
+	}
+	
 	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesTasquesPersonals}/{nomesTasquesGrup}", method = RequestMethod.GET)
 	public String tasquesPendents(
 			HttpServletRequest request,

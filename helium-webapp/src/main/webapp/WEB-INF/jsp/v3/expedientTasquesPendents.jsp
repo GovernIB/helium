@@ -3,6 +3,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<c:set var="modalPrefix" value=""/>
+<c:if test="${retrocedirModalPath}">
+	<c:set var="modalPrefix" value="../../"/>
+</c:if>
 <c:choose>
 <c:when test="${true}">
 <tr class="tasques-pendents" id="tasques-pendents-${expedient.id}">
@@ -16,7 +20,9 @@
 							<th><spring:message code="expedient.tasca.columna.asignada_a"/></th>			
 							<th><spring:message code="expedient.tasca.columna.datcre"/></th>
 							<th><spring:message code="expedient.tasca.columna.datlim"/></th>
-							<th width="10%"></th>
+							<c:if test="${not expedient.aturat}">
+								<th width="10%"></th>
+							</c:if>
 						</tr>
 					</thead>
 					<tbody>
@@ -45,7 +51,7 @@
 										</c:if>
 										<c:if test="${not tasca.completed and tasca.tascaTramitacioMassiva}">
 											<c:choose>
-												<c:when test="${tasca.assignadaUsuariActual}"><a href="../../../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
+												<c:when test="${tasca.assignadaUsuariActual}"><a href="${modalPrefix}../v3/tasca/${tasca.id}/massiva"><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></a></c:when>
 												<c:otherwise><span class="label label-default" title="<spring:message code="tasca.llistat.accio.tramitar_massivament"/>"><i class="fa fa-files-o"></i></span></c:otherwise>
 											</c:choose>
 										</c:if>
@@ -54,48 +60,50 @@
 								<td class="columna-info-tasca">${tasca.responsableString}</td>
 								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
 								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>
-								<td class="columna-accio-tasca">
-									<c:if test='${not tasca.completed}'>
-										<div class="btn-group">
-											<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
-											<ul id="dropdown-menu-tasca-${tasca.id}" class="dropdown-menu">
-												<c:if test="${tasca.open and not tasca.suspended and tasca.assignee == dadesPersona.codi and tasca.assignadaUsuariActual}">
-													<li><a id="tramitar-tasca-${tasca.id}" href="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
-													<c:if test="${tasca.tascaTramitacioMassiva}">
-														<li><a href="../../../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
+								<c:if test="${not expedient.aturat}">
+									<td class="columna-accio-tasca">
+										<c:if test='${not tasca.completed}'>
+											<div class="btn-group">
+												<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
+												<ul id="dropdown-menu-tasca-${tasca.id}" class="dropdown-menu">
+													<c:if test="${tasca.open and not tasca.suspended and tasca.assignee == dadesPersona.codi and tasca.assignadaUsuariActual}">
+														<li><a id="tramitar-tasca-${tasca.id}" href="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+														<c:if test="${tasca.tascaTramitacioMassiva}">
+															<li><a href="${modalPrefix}../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
+														</c:if>
 													</c:if>
-												</c:if>
-												<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
-													<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},true);" href="<c:url value="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>" class="icon tasca-accio-agafar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" ><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
-												</c:if>
-												<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and (tasca.assignadaUsuariActual or expedient.permisReassignment)}">
-													<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" href="<c:url value="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon tasca-accio-alliberar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
-												</c:if>
-												<c:if test="${tasca.open}">
-													<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
-												</c:if>
-												<c:if test="${tasca.open and not tasca.suspended and expedient.permisSupervision}">
-													<li><a href="<c:url value="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
-												</c:if>
-												<c:if test="${tasca.suspended and expedient.permisSupervision}">
-													<li><a href="<c:url value="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
-												</c:if>
-												<c:if test="${not tasca.completed and not tasca.cancelled and expedient.permisSupervision}">
-													<li><a href="<c:url value="../../../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
-												</c:if>
-											</ul>
-											<script type="text/javascript">
-												$("#fila-tasca-${tasca.id}").append('<ul class="dropdown-menu" id="dropdown-menu-context-${tasca.id}" style="display:none">'+$("#fila-tasca-${tasca.id}").find('.dropdown-menu').html()+'</ul>');
-												$("#fila-tasca-${tasca.id}").contextMenu({
-												    menuSelector: "#dropdown-menu-context-${tasca.id}",
-												});
-												$("#fila-tasca-${tasca.id} td.columna-info-tasca").click(function() {
-													$('#tramitar-tasca-${tasca.id}').click();
-												});
-											</script>
-										</div>
-									</c:if>
-								</td>
+													<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
+														<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},true);" href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>" class="icon tasca-accio-agafar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>" ><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
+													</c:if>
+													<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and (tasca.assignadaUsuariActual or expedient.permisReassignment)}">
+														<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/alliberar"/>" class="icon tasca-accio-alliberar" data-tasca-id="${tasca.id}" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
+													</c:if>
+													<c:if test="${tasca.open}">
+														<c:if test="${expedient.permisReassignment}"><li><a href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/reassignar"/>" class="icon" data-rdt-link-modal="true" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);"><span class="fa fa-share-square-o"></span> <spring:message code="tasca.llistat.accio.reassignar"/></a></li></c:if>
+													</c:if>
+													<c:if test="${tasca.open and not tasca.suspended and expedient.permisSupervision}">
+														<li><a href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/suspendre"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
+													</c:if>
+													<c:if test="${tasca.suspended and expedient.permisSupervision}">
+														<li><a href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/reprendre"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
+													</c:if>
+													<c:if test="${not tasca.completed and not tasca.cancelled and expedient.permisSupervision}">
+														<li><a href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/cancelar"/>" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
+													</c:if>
+												</ul>
+												<script type="text/javascript">
+													$("#fila-tasca-${tasca.id}").append('<ul class="dropdown-menu" id="dropdown-menu-context-${tasca.id}" style="display:none">'+$("#fila-tasca-${tasca.id}").find('.dropdown-menu').html()+'</ul>');
+													$("#fila-tasca-${tasca.id}").contextMenu({
+													    menuSelector: "#dropdown-menu-context-${tasca.id}",
+													});
+													$("#fila-tasca-${tasca.id} td.columna-info-tasca").click(function() {
+														$('#tramitar-tasca-${tasca.id}').click();
+													});
+												</script>
+											</div>
+										</c:if>
+									</td>
+								</c:if>
 							</tr>
 						</c:forEach>
 					</tbody>
