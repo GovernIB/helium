@@ -568,9 +568,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@SuppressWarnings("unchecked")
 	public void executarExecucioMassiva(Long ome_id) throws Exception {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
+		
+		Expedient expedient;
+		if (ome.getExpedient() != null) {
+			expedient = ome.getExpedient();
+		} else {
+			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
+		}
+		
 		logger.debug(
 				"Executant la acció massiva (" +
-				"expedientTipusId=" + ome.getExpedient().getTipus() + ", " +
+				"expedientTipusId=" + expedient.getTipus() + ", " +
 				"dataInici=" + ome.getDataInici() + ", " +
 				"expedient=" + ome.getId() + ", " +
 				"acció=" + ome.getExecucioMassiva().getTipus());
@@ -589,27 +597,27 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"executar",
-						ome.getExpedient().getEntorn().getCodi()));
+						expedient.getEntorn().getCodi()));
 		final Timer.Context contextEntorn = timerEntorn.time();
 		Counter countEntorn = metricRegistry.counter(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"executar.count",
-						ome.getExpedient().getEntorn().getCodi()));
+						expedient.getEntorn().getCodi()));
 		countEntorn.inc();
 		final Timer timerTipexp = metricRegistry.timer(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"completar",
-						ome.getExpedient().getEntorn().getCodi(),
-						ome.getExpedient().getTipus().getCodi()));
+						expedient.getEntorn().getCodi(),
+						expedient.getTipus().getCodi()));
 		final Timer.Context contextTipexp = timerTipexp.time();
 		Counter countTipexp = metricRegistry.counter(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"completar.count",
-						ome.getExpedient().getEntorn().getCodi(),
-						ome.getExpedient().getTipus().getCodi()));
+						expedient.getEntorn().getCodi(),
+						expedient.getTipus().getCodi()));
 		countTipexp.inc();
 		try {
 			ExecucioMassivaTipus tipus = ome.getExecucioMassiva().getTipus();
@@ -644,11 +652,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			String expedient = null;
+			String expedient_s = null;
 	        if (MesuresTemporalsHelper.isActiu()) {
 	        	try {
-		        	if (ome.getExpedient() != null)
-		        		expedient = ome.getExpedient().getTipus().getNom();
+	        		expedient_s = expedient.getTipus().getNom();
 	        	} catch (Exception e) {}
 			}
 	        
@@ -707,54 +714,54 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 
 				gestioTasca(ome);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
-				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient_s);
 				actualitzarVersio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
-				mesuresTemporalsHelper.mesuraIniciar("Executar script", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Executar script", "massiva", expedient_s);
 				executarScript(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Executar script", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Executar script", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO){
-				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva", expedient_s);
 				executarAccio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.ATURAR_EXPEDIENT){
-				mesuresTemporalsHelper.mesuraIniciar("Aturar expedient", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Aturar expedient", "massiva", expedient_s);
 				aturarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Aturar expedient", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Aturar expedient", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_VARIABLE){
-				mesuresTemporalsHelper.mesuraIniciar("Modificar variable", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Modificar variable", "massiva", expedient_s);
 				modificarVariable(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Modificar variable", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Modificar variable", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.MODIFICAR_DOCUMENT){
-				mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", expedient_s);
 				modificarDocument(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Modificar document", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.REINDEXAR){
-				mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Reindexar", "massiva", expedient_s);
 				reindexarExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Reindexar", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.BUIDARLOG){
-				mesuresTemporalsHelper.mesuraIniciar("Buidar log", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Buidar log", "massiva", expedient_s);
 				buidarLogExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Buidar log", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Buidar log", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.REPRENDRE_EXPEDIENT){
-				mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("desfer fi process instance", "massiva", expedient_s);
 				reprendreExpedient(ome);
-				mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("desfer fi process instance", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.REPRENDRE){
-				mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("reprendre tramitació process instance", "massiva", expedient_s);
 				reprendreTramitacio(ome);
-				mesuresTemporalsHelper.mesuraCalcular("reprendre tramitació process instance", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("reprendre tramitació process instance", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.REASSIGNAR){
-				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraIniciar("Reassignar", "massiva", expedient_s);
 				//reassignarExpedient(ome);
 				reassignarTasca(ome);
-				mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient);
+				mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient_s);
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
-			logger.error("Error al executar la acció massiva (expedientTipusId=" + ome.getExpedient().getTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + ome.getExpedient().getId() + ", acció=" + ome, ex);
+			logger.error("Error al executar la acció massiva (expedientTipusId=" + expedient.getTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + expedient.getId() + ", acció=" + ome, ex);
 			throw ex;
 		} finally {
 			contextTotal.stop();
