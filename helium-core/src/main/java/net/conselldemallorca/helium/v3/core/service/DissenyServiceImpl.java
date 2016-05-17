@@ -10,17 +10,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
@@ -61,6 +54,12 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Servei per gestionar les tasques de disseny.
  * 
@@ -95,8 +94,6 @@ public class DissenyServiceImpl implements DissenyService {
 	private ConsultaRepository consultaRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
 	@Resource
 	private PermisosHelper permisosHelper;
 	@Resource

@@ -686,25 +686,24 @@ public class TascaHelper {
 		for (CampTasca campTasca: campsTasca) {
 			if (campTasca.getCamp().isDominiCacheText()) {
 				Object campValor = variables.get(campTasca.getCamp().getCodi());
-				if (campValor != null) {
-					if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
-							campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
-						if (campValor instanceof DominiCodiDescripcio) {
-							variables.put(
-									campTasca.getCamp().getCodi(),
-									campValor);
-						} else {
-							String text = variableHelper.getTextPerCamp(
-									campTasca.getCamp(),
-									campValor,
-									null,
-									task.getProcessInstanceId());
-							variables.put(
-									campTasca.getCamp().getCodi(),
-									new DominiCodiDescripcio(
-											(String)campValor,
-											text));
-						}
+				if (	campTasca.getCamp().getTipus().equals(TipusCamp.SELECCIO) ||
+						campTasca.getCamp().getTipus().equals(TipusCamp.SUGGEST)) {
+					if (campValor instanceof DominiCodiDescripcio) {
+						variables.put(
+								campTasca.getCamp().getCodi(),
+								((DominiCodiDescripcio)campValor).getCodi());
+						variables.put(
+								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+								((DominiCodiDescripcio)campValor).getDescripcio());
+					} else {
+						String text = variableHelper.getTextPerCamp(
+								campTasca.getCamp(),
+								campValor,
+								null,
+								task.getProcessInstanceId());
+						variables.put(
+								JbpmVars.PREFIX_VAR_DESCRIPCIO + campTasca.getCamp().getCodi(),
+								text);
 					}
 				}
 			}

@@ -17,5 +17,6 @@ public class JbpmVars {
 	public static final String PREFIX_DOCUMENT = "H3l1um#document.";
 	public static final String PREFIX_ADJUNT = "H3l1um#adjunt.";
 	public static final String PREFIX_SIGNATURA = "H3l1um#signatura.";
+	public static final String PREFIX_VAR_DESCRIPCIO = "H3l1um#descripcio.";
 
 }

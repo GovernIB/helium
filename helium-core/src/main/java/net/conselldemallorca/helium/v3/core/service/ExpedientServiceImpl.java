@@ -32,12 +32,12 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.ServiceUtils;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
@@ -68,7 +68,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -114,6 +113,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientRepetitException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -231,8 +231,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource(name="serviceUtilsV3")
-	private ServiceUtils serviceUtils;
+	@Resource
+	private IndexHelper indexHelper;
 
 
 
@@ -494,7 +494,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
-			serviceUtils.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
@@ -640,7 +640,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					true,
 					false,
 					false);
-			serviceUtils.expedientIndexLuceneRecrear(expedient);
+			indexHelper.expedientIndexLuceneRecrear(expedient);
 			return true;
 		} catch (Exception ex) {
 			return false;
@@ -1286,7 +1286,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
 			}
 			verificarFinalitzacioExpedient(processInstanceId, expedient);
-			serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
 			throw new NotAllowedException(
@@ -2076,7 +2076,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
 		verificarFinalitzacioExpedient(expedient, pi);
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
@@ -2778,7 +2778,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					expedientLogId.toString());
 			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
 			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-			serviceUtils.expedientIndexLuceneUpdate(
+			indexHelper.expedientIndexLuceneUpdate(
 					log.getExpedient().getProcessInstanceId());
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
@@ -2802,17 +2802,31 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void suspendreTasca(
 			Long expedientId,
 			Long taskId) {
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
-				ExpedientLogAccioTipus.TASCA_SUSPENDRE,
-				null);
-		jbpmHelper.suspendTaskInstance(String.valueOf(taskId));
-		crearRegistreTasca(
+		logger.debug("Reprende tasca l'expedient (id=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				String.valueOf(taskId),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.ATURAR);
+				false,
+				true,
+				false,
+				false);
+		if (!expedient.isAnulat()) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
+					null);
+			jbpmHelper.suspendTaskInstance(String.valueOf(taskId));
+			crearRegistreTasca(
+					expedientId,
+					String.valueOf(taskId),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					Registre.Accio.ATURAR);
+		} else {
+			throw new IllegalStateException(
+					expedientId,
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 
 	@Override
@@ -2871,23 +2885,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long expedientId,
 			Long taskId) {
 		logger.debug("Reprende tasca l'expedient (id=" + expedientId + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
 				true,
 				false,
 				false);
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
-				ExpedientLogAccioTipus.TASCA_CONTINUAR,
-				null);
-		jbpmHelper.resumeTaskInstance(String.valueOf(taskId));
-		crearRegistreTasca(
-				expedientId,
-				String.valueOf(taskId),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.REPRENDRE);
+		if (!expedient.isAnulat()) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.TASCA_CONTINUAR,
+					null);
+			jbpmHelper.resumeTaskInstance(String.valueOf(taskId));
+			crearRegistreTasca(
+					expedientId,
+					String.valueOf(taskId),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					Registre.Accio.REPRENDRE);
+		} else {
+			throw new IllegalStateException(
+					expedientId,
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 	
 	@Override
@@ -2896,23 +2917,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long expedientId,
 			Long taskId) {
 		logger.debug("Cancelar tasca l'expedient (id=" + expedientId + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
 				true,
 				false,
 				false);
-		JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				task.getProcessInstanceId(),
-				ExpedientLogAccioTipus.TASCA_CANCELAR,
-				null);
-		jbpmHelper.cancelTaskInstance(String.valueOf(taskId));
-		crearRegistreTasca(
-				expedientId,
-				String.valueOf(taskId),
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.CANCELAR);
+		if (!expedient.isAnulat()) {
+			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					task.getProcessInstanceId(),
+					ExpedientLogAccioTipus.TASCA_CANCELAR,
+					null);
+			jbpmHelper.cancelTaskInstance(String.valueOf(taskId));
+			crearRegistreTasca(
+					expedientId,
+					String.valueOf(taskId),
+					SecurityContextHolder.getContext().getAuthentication().getName(),
+					Registre.Accio.CANCELAR);
+		} else {
+			throw new IllegalStateException(
+					expedientId,
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 
 	@Override
@@ -2937,15 +2965,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		jbpmHelper.reassignTaskInstance(taskId, expression, expedient.getEntorn().getId());
-		String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		expedientLog.setAccioParams(previousActors + "::" + currentActors);
-		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		crearRegistreRedirigirTasca(
-				expedient.getId(),
-				taskId,
-				usuari,
-				expression);
+		if (!expedient.isAturat()) {
+			jbpmHelper.reassignTaskInstance(taskId, expression, expedient.getEntorn().getId());
+			String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
+			expedientLog.setAccioParams(previousActors + "::" + currentActors);
+			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+			crearRegistreRedirigirTasca(
+					expedient.getId(),
+					taskId,
+					usuari,
+					expression);
+		} else {
+			throw new IllegalStateException(
+					expedient.getId(),
+					JbpmTask.class,
+					"aturat");
+		}
 	}
 
 	@Override
@@ -3182,8 +3217,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varName);
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, value);
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varName, value);
+		
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -3208,11 +3244,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varName);
-		Object valorVell = serviceUtils.getVariableJbpmProcesValor(processInstanceId, varName);
-		Object valorOptimitzat = optimitzarValorPerConsultesDomini(processInstanceId, varName, varValue);
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, valorOptimitzat);
+		Object valorVell = variableHelper.getVariableJbpmProcesValor(processInstanceId, varName);
+		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varName, varValue);
 		
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -3225,7 +3260,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			registre.setValorNou(varValue.toString());
 	}
 	
-	private Object optimitzarValorPerConsultesDomini(
+	private void optimitzarValorPerConsultesDominiGuardar(
 			String processInstanceId,
 			String varName,
 			Object varValue) {
@@ -3236,20 +3271,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 				varName);
 		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
-				if (	camp.getTipus().equals(TipusCamp.SELECCIO) ||
-						camp.getTipus().equals(TipusCamp.SUGGEST)) {
+				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
+					camp.getTipus().equals(TipusCamp.SUGGEST)) {
+					
 					String text = variableHelper.getTextPerCamp(
 							camp, 
 							varValue, 
 							null, 
 							processInstanceId);
-					return new DominiCodiDescripcio(
-							(String)varValue,
-							text);
+					
+					jbpmHelper.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
 				}
 			}
 		}
-		return varValue;
+		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, varValue);
 	}
 	
 	@SuppressWarnings("unused")
@@ -3267,7 +3302,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
 				varName);
 		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varName);
-		serviceUtils.expedientIndexLuceneUpdate(processInstanceId);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,

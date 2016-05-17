@@ -199,7 +199,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 
 	@Resource
-	private ServiceUtils serviceUtils;
+	private IndexHelper serviceUtils;
 
 	@Resource
 	private MetricRegistry metricRegistry;
