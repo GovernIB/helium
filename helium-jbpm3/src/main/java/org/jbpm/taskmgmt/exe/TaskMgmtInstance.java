@@ -577,7 +577,12 @@ public class TaskMgmtInstance extends ModuleInstance
     return taskMgmtDefinition;
   }
 
-  /**
+  // Afegit per a modificar quan s'elimina la definició de procés o canvia versió de procés
+  public void setTaskMgmtDefinition(TaskMgmtDefinition taskMgmtDefinition) {
+	this.taskMgmtDefinition = taskMgmtDefinition;
+}
+
+/**
    * suspends all task instances for this process instance.
    */
   public void suspend(Token token)

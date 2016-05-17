@@ -76,8 +76,8 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void generaInformeError(Long ome_id, Exception exception) {
-		delegate.generaInformeError(ome_id, exception);
+	public void generaInformeError(Long ome_id, String error) {
+		delegate.generaInformeError(ome_id, error);
 	}
 	
 	@Override

@@ -1,18 +1,23 @@
 package net.conselldemallorca.helium.v3.core.service;
 
-import javax.annotation.Resource;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
+import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
+import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -27,6 +32,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	
+	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
 	@Override
 	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
@@ -49,7 +56,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					}
 					catch (Exception e) {
 						// si s'ha produit una excepció, deseram l'error a la operació
-						execucioMassivaService.generaInformeError(ome_id, e);
+						execucioMassivaService.generaInformeError(ome_id, getError(ome_id));
 					}
 					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 					ultimaExecucioMassiva = ome.getExecucioMassiva().getId();
@@ -63,6 +70,18 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				active = false;
 			}
 		}
+	}
+	
+	public static void saveError(Long operacioMassivaId, Throwable error) {
+		StringWriter out = new StringWriter();
+		error.printStackTrace(new PrintWriter(out));
+		errorsMassiva.put(operacioMassivaId, out.toString());
+	}
+	
+	private static String getError(Long operacioMassivaId) {
+		String error = errorsMassiva.get(operacioMassivaId);
+		errorsMassiva.remove(operacioMassivaId);
+		return error;
 	}
 	
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);

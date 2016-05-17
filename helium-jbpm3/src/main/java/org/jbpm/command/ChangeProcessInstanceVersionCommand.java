@@ -292,7 +292,9 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 
 			Task newTask = findReplacementTask(newDef, oldNode, oldTask);
 			ti.setTask(newTask);
-			
+			// Canviam el TaskMngmtInstance per a associar-lo a la nova definició de procés
+			ti.getTaskMgmtInstance().setTaskMgmtDefinition(newDef.getTaskMgmtDefinition());
+
 			log.debug("change dependent task-instance with id " + oldTask.getId());
 			
 //			// Canviam el processDefinition dels tasksMgmtInstance dels tasksInstance de la versió que s'intenta esborrar a la de la tasca.

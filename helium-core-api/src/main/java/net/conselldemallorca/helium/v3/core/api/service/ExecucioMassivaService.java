@@ -28,7 +28,7 @@ public interface ExecucioMassivaService {
 	
 	public void executarExecucioMassiva(Long ome_id) throws Exception;
 	
-	public void generaInformeError(Long ome_id, Exception exception);
+	public void generaInformeError(Long ome_id, String error);
 	
 	public void actualitzaUltimaOperacio(Long ome_id);
 }

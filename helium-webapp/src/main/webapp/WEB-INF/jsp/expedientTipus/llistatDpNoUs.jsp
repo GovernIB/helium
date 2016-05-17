@@ -33,6 +33,12 @@ function selecTots() {
 	<c:set var="msg_afectats"><fmt:message key='defproc.llistat.llistar.afectats'/> <img src='/helium/img/bullet_error.png' title='Aquesta consulta pot resultar molt costosa!'/></c:set>
 	<form action="netejar_df.html" method="post">
 		<input type="hidden" name="expedientTipusId" value="${expedientTipusId}"/>
+		<div class="buttonHolder" style="margin-bottom:10px;">
+			<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.seleccionats' /></button>
+			<a href='<c:url value="/expedientTipus/llistat.html"/>'>
+				<button type="button" class="submitButton"><fmt:message key='comuns.tornar' /></button>
+			</a>
+		</div>
 		<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
 			<display:column title="<input id='selTots' type='checkbox' value='false' onclick='selecTots()'>"  style="width:1%;">
 				<input type="checkbox" name="dpId" value="${registre.id}"/>

@@ -5,9 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,7 +30,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -762,6 +759,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
 			logger.error("Error al executar la acció massiva (expedientTipusId=" + expedient.getTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + expedient.getId() + ", acció=" + ome, ex);
+			TascaProgramadaServiceImpl.saveError(ome_id, ex);
 			throw ex;
 		} finally {
 			contextTotal.stop();
@@ -806,19 +804,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void generaInformeError(Long ome_id, Exception exception) {
+	public void generaInformeError(Long ome_id, String error) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 		Date ara = new Date();
 		ome.setDataInici(new Date());
 		ome.setDataFi(ara);
 		ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
-		Throwable ex = exception;
-		while (ex.getCause() != null && (ex instanceof TransactionSystemException || ex.getClass().getName().contains("RollbackException"))) {
-			ex = exception.getCause();
-		}
-		StringWriter out = new StringWriter();
-		ex.printStackTrace(new PrintWriter(out));
-		ome.setError(out.toString());
+//		StringWriter out = new StringWriter();
+//		exception.printStackTrace(new PrintWriter(out));
+//		ome.setError(out.toString());
+		ome.setError(error);
 		execucioMassivaExpedientRepository.save(ome);
 	}
 	
