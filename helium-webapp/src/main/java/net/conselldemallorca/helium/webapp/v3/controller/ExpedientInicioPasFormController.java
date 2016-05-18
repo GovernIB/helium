@@ -21,9 +21,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -64,6 +66,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 	@Autowired
 	protected ExpedientService expedientService;
 	@Autowired
+	private ReproService reproService;
+	@Autowired
 	private net.conselldemallorca.helium.core.model.service.TascaService tascaInicialService;
 
 
@@ -74,7 +78,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
-			Model model) {
+			Model model,
+			Map<String, Object> valors) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
@@ -105,12 +110,21 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 				}
 			}
-			return TascaFormHelper.getCommandForCamps(
-					tascaService.findDadesPerTascaDto(tasca),
-					valorsFormulariExtern,
-					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
+			if (valors == null) {
+				return TascaFormHelper.getCommandForCamps(
+						tascaService.findDadesPerTascaDto(tasca),
+						valorsFormulariExtern,
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
+			} else {
+				return TascaFormHelper.getCommandForCamps(
+						tascaService.findDadesPerTascaDto(tasca),
+						valors,
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
+			}
 		} catch (TascaNotFoundException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
@@ -128,15 +142,34 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		if (!model.containsAttribute("command") || model.asMap().get("command") == null)
-			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model));
+			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model,null));
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
 		model.addAttribute("tasca", tasca);
 		model.addAttribute("dades", dades);
+		model.addAttribute("repros", repros);
 		model.addAttribute("entornId", entorn.getId());
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
 		return "v3/expedient/iniciarPasForm";
+	}
+	
+	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}/fromRepro/{reproId}", method = RequestMethod.GET)
+	public String getRepro(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long reproId,
+			Model model) {
+		
+		try {
+			Map<String,Object> valors = reproService.findValorsById(reproId);
+			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, valors));
+		} catch (Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.carregat"));
+		}
+		return iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
 	}
 
 	@RequestMapping(value = "/iniciarForm/{expedientTipusId}/{definicioProcesId}", method = RequestMethod.POST)

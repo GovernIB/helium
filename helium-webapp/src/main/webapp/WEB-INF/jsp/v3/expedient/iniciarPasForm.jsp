@@ -32,6 +32,37 @@
 		<script type="text/javascript" src="<c:url value="/dwr/interface/formulariExternDwrService.js"/>"></script>
 		<script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
 	</c:if>
+	
+	<style>
+		.reproForm {
+			margin: 2px;
+		}
+		.repro-group {
+			margin-right: 0px !important;
+			margin-bottom: 6px;
+		}
+		.repros {
+			z-index: 1000;
+		    float: right;
+		    bottom: 5px;
+		    position: fixed;
+		    right: 15px;
+		}	
+		.repros ul.dropdown-menu {
+			width: 250px;
+		}
+		li.flex {
+    		display: flex;
+		}
+		li.flex > a {
+			width: 100%;
+		}	
+		.borrarRepro {
+			position: absolute;
+		    right: 5px;
+		    padding: 0px 5px;
+		}
+	</style>
 </head>
 <body>
 	<c:if test="${not empty tasca.tascaFormExternCodi}">
@@ -54,11 +85,14 @@
 		</script--%>
 	</c:if>
 	
-	<form:form id="command" name="command" action="../../iniciarForm/${expedientTipus.id}/${definicioProces.id}" cssClass="form-horizontal form-tasca" method="post">
+	<c:url var="post_url" value="/modal/v3/expedient" />
+	
+	<form:form id="command" name="command" action="${post_url}/iniciarForm/${expedientTipus.id}/${definicioProces.id}" cssClass="form-horizontal form-tasca" method="post">
 		<form:hidden path="id"/>
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
 		<form:hidden path="definicioProcesId"/>
+		
 		<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 			<c:set var="inline" value="${false}"/>
 			<c:set var="isRegistre" value="${false}"/>
@@ -118,8 +152,39 @@
 			</c:choose>
 			<c:if test="${not varStatusMain.last}"><div class="clearForm"></div></c:if>
 		</c:forEach>
-		<div style="min-height: 120px;"></div>
+		<div style="min-height: 120px;">
+		</div>
+		
+		<!-- REPROS -->
+		<div class="btn-group repros dropup">
+		  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <spring:message code='repro.texte.repros' /> <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu dropdown-menu-right">
+			<li class="reproForm">
+					<div class="form-group repro-group">
+						<input id="nomRepro" name="nomRepro" type="text" class="form-control" placeholder="<spring:message code='repro.texte.nom' />">
+					</div>
+					<button id="guardarRepro" name="guardarRepro" value="guardar-repro" class="btn btn-primary" type="submit">
+						<spring:message code='repro.texte.guardar' />
+					</button>
+			</li>
+			<c:if test="${not empty repros}">
+				<li role="separator" class="divider"></li>
+			    <strong><li class="dropdown-header">---- <spring:message code='repro.texte.guardats' /> ----</li></strong>
+			    <c:forEach var="repro" items="${repros}">
+				    <li class="flex">
+				    	<a id="repro-${repro.id}" href="<c:url value="/modal/v3/expedient/iniciarForm/"/>${expedientTipus.id}/${definicioProces.id}/fromRepro/${repro.id}">${repro.nom}</a>
+				    	<button class="btn btn-danger borrarRepro" type="submit" data-reproid="${repro.id}"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+				    </li>
+			    </c:forEach>
+		    </c:if>
+		  </ul>
+		</div>
+		<!-- FI REPROS -->
+		
 		<div id="modal-botons">
+		
 			<button type="submit" name="submit" value="cancel" class="botons-iniciar modal-tancar btn btn-default">
 				<spring:message code='comuns.cancelar' />
 			</button>			
@@ -128,6 +193,31 @@
 			</button>
 			<script type="text/javascript">
 			// <![CDATA[
+				$('.dropdown-menu').find('.reproForm').click(function (e) {
+					e.stopPropagation();
+				});
+			
+				$('#guardarRepro').click(function(e) {
+					var e = e || window.event;
+					e.cancelBubble = true;
+					if (e.stopPropagation) e.stopPropagation();
+					if ($('#nomRepro').val() != '') {
+						$('#command').attr('action','<c:url value="/modal/v3/repro/"/>${expedientTipus.id}/${definicioProces.id}/guardarRepro');
+						return true;
+					} else {
+						return false;
+					}
+				});
+	
+				$('.borrarRepro').click(function(e) {
+					var e = e || window.event;
+					e.cancelBubble = true;
+					if (e.stopPropagation) e.stopPropagation();
+					var reproId = $(this).data('reproid');
+					$('#command').attr('action','<c:url value="/modal/v3/repro/"/>${expedientTipus.id}/${definicioProces.id}/borrarRepro/' + reproId);
+					return true;
+				});
+			
 		        $(".botons-iniciar").click(function(e) {
 					var e = e || window.event;
 					e.cancelBubble = true;
