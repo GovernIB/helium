@@ -1,9 +1,14 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.xml.bind.DatatypeConverter;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Repro;
@@ -14,7 +19,6 @@ import net.conselldemallorca.helium.v3.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReproRepository;
 
-import org.json.simple.JSONValue;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,11 +55,40 @@ public class ReproServiceImpl implements ReproService {
 		return conversioTipusHelper.convertir(reproRepository.findOne(id), ReproDto.class);
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly=true)
+	@Override
+	public Map<String,Object> findValorsById(Long id) throws Exception {
+		Repro repro = reproRepository.findOne(id);
+		
+		byte[] bytes = DatatypeConverter.parseBase64Binary(repro.getValors());
+		ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
+        ObjectInputStream ois = new ObjectInputStream(bytesIn);
+        
+        Object valors = ois.readObject();
+        
+        bytesIn.close();
+        ois.close();
+		
+		return (Map<String,Object>)valors;
+	}
+	
 	@Transactional
 	@Override
-	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) {
+	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) throws Exception {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		String valors_s = JSONValue.toJSONString(valors);
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    ObjectOutputStream oos = new ObjectOutputStream(baos);
+	    oos.writeObject(valors);
+	    byte[] buf = baos.toByteArray();
+	    baos.close();
+        oos.close();
+	    
+	    String valors_s = DatatypeConverter.printBase64Binary(buf);
+		
+		if (valors_s.getBytes("UTF-8").length > 4000)
+			throw new Exception("El contingut del formulari és massa llarg");
 		String usuariActual = usuariActualHelper.getUsuariActual();
 		Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s);
 		reproRepository.saveAndFlush(repro);
@@ -64,7 +97,10 @@ public class ReproServiceImpl implements ReproService {
 	
 	@Transactional
 	@Override
-	public void deleteById(Long id) {
+	public String deleteById(Long id) {
+		Repro repro = reproRepository.findOne(id);
+		String nom = repro.getNom();
 		reproRepository.delete(id);
+		return nom;
 	}
 }

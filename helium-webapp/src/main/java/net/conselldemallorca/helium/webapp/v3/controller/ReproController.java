@@ -3,17 +3,19 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -21,16 +23,21 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +53,9 @@ import org.springframework.web.bind.support.SessionStatus;
 @Controller
 @RequestMapping("/v3/repro")
 public class ReproController extends BaseController {
+	
+	@Autowired
+	private ExpedientInicioPasFormController expedientInicioPasFormController;
 
 	@Autowired
 	private ReproService reproService;
@@ -64,8 +74,7 @@ public class ReproController extends BaseController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
-			Model model,
-			Map<String, Object> valors) {
+			Model model) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
@@ -96,21 +105,12 @@ public class ReproController extends BaseController {
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 				}
 			}
-			if (valors == null) {
-				return TascaFormHelper.getCommandForCamps(
-						tascaService.findDadesPerTascaDto(tasca),
-						valorsFormulariExtern,
-						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
-			} else {
-				return TascaFormHelper.getCommandForCamps(
-						tascaService.findDadesPerTascaDto(tasca),
-						valors,
-						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
-			}
+			return TascaFormHelper.getCommandForCamps(
+					tascaService.findDadesPerTascaDto(tasca),
+					valorsFormulariExtern,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
 		} catch (TascaNotFoundException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
@@ -130,61 +130,48 @@ public class ReproController extends BaseController {
 			Model model) {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
 		
-		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
-				tascaDades,
-				command,
-				false,
-				true);
+		try {
+			ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
+			List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
+			
+			Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
+					tascaDades,
+					command,
+					false,
+					true);
+			
+			reproService.create(expedientTipus.getId(), nomRepro, valors);
+			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.creat"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, "repro.missatge.repro") + 
+					" " + nomRepro + " " + 
+					getMessage(request, "repro.missatge.error.creat") +
+					": " + ex.getMessage());
+		}
 		
-		reproService.create(expedientTipus.getId(), nomRepro, valors);
-		
-//		return "redirect:/modal/v3/repro/" + expedientTipusId + "/" + definicioProcesId + "/getRepro/" + repro.getId();
-		return "v3/expedient/iniciarPasForm";
+		return expedientInicioPasFormController.iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
 	}
 	
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/getRepro/{reproId}", method = RequestMethod.GET)
-	public String getRepro(
+	@RequestMapping(value = "/{expedientTipusId}/{definicioProcesId}/borrarRepro/{reproId}", method = RequestMethod.POST)
+	public String deleteRepro(
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long reproId,
+			@ModelAttribute("command") Object command,
+			BindingResult result,
+			SessionStatus status,
 			Model model) {
-		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
-		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
-		ReproDto repro = reproService.findById(reproId);
-		Map<String,Object> valors = ((Map<String,Object>)JSONValue.parse(repro.getValors()));
-		
-		Object command = populateCommand(request, expedientTipusId, definicioProcesId, model, valors);
-		
-		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
-		List<TascaDadaDto> dades = tascaService.findDadesPerTascaDto(tasca);
-		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
-		
-		if (!model.containsAttribute("command") || model.asMap().get("command") == null) {
-			model.addAttribute("command", command);
+		try {
+			String nomRepro = reproService.deleteById(reproId);
+			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.eliminat"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
 		}
-		
-		model.addAttribute("tasca", tasca);
-		model.addAttribute("dades", dades);
-		model.addAttribute("repros", repros);
-		model.addAttribute("entornId", entorn.getId());
-		model.addAttribute("expedientTipus", expedientTipus);
-		model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
-		return "v3/expedient/iniciarPasForm";
-	}
-	
-	@RequestMapping(value = "/borrarRepro/{reproId}", method = RequestMethod.GET)
-	public String deleteRepro(
-			HttpServletRequest request,
-			@PathVariable Long reproId,
-			Model model) {
-		reproService.deleteById(reproId);
-		return "v3/expedient/iniciarPasForm";
+		return expedientInicioPasFormController.iniciarFormGet(request, expedientTipusId, definicioProcesId, model);
 	}
 	
 	private ExpedientTascaDto obtenirTascaInicial(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors, HttpServletRequest request) {
@@ -195,16 +182,34 @@ public class ReproController extends BaseController {
 		return tasca;
 	}
 	
-	private void definicioProcesToModel(Long expedientTipusId, Long definicioProcesId, Model model){
-		// Si l'expedient requereix dades inicials redirigeix al pas per demanar aquestes dades
-		DefinicioProcesDto definicioProces = null;
-		if (definicioProcesId != null) {
-			definicioProces = dissenyService.getById(definicioProcesId);
-		} else {
-			definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId);
-		}
-		model.addAttribute("definicioProces", definicioProces);
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,##0.00"),
+						true));
+		binder.registerCustomEditor(
+				Boolean.class,
+//				new CustomBooleanEditor(false));
+				new CustomBooleanEditor(true));
+		binder.registerCustomEditor(
+				Date.class,
+				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
+//		binder.registerCustomEditor(
+//				TerminiDto.class,
+//				new TerminiTypeEditorHelper());
+		binder.registerCustomEditor(
+				Object.class,
+				new ObjectTypeEditorHelper());
 	}
-
+	
 	private static final Log logger = LogFactory.getLog(ReproController.class);
 }
