@@ -39,6 +39,7 @@ public class DominiDto implements Serializable {
 	private String jndiDatasource;
 	private String descripcio;
 	private int cacheSegons = 0;
+	private Integer timeout = 0;
 	private String ordreParams;
 
 	private EntornDto entorn;
@@ -137,6 +138,12 @@ public class DominiDto implements Serializable {
 	}
 	public void setCacheSegons(int cacheSegons) {
 		this.cacheSegons = cacheSegons;
+	}
+	public Integer getTimeout() {
+		return timeout;
+	}
+	public void setTimeout(Integer timeout) {
+		this.timeout = timeout;
 	}
 	public String getOrdreParams() {
 		return ordreParams;
