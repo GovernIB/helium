@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.service.DissenyService;
@@ -27,7 +26,7 @@ public class DominiDwrService {
 
 	// Domini SQL sense paràmetres
 	// -----------------------------------------------------------------
-	public String ping(String domini ) throws DominiHeliumException {
+	public String ping(String domini ) throws Exception {
 		try{
 			Long dominiId = Long.parseLong(domini);
 			List<FilaResultat> resultat= dissenyService.consultaDomini(
@@ -51,7 +50,7 @@ public class DominiDwrService {
 	
 	// Domini SQL amb paràmetres
 	// -----------------------------------------------------------------
-	public String pingParams(String domini, String[] params ) throws DominiHeliumException {
+	public String pingParams(String domini, String[] params ) throws Exception {
 		Map<String, Object> parametres= new HashMap<String, Object>();
 		int j=0;
 		for(int i=0;i<params.length/2;i++){
@@ -79,7 +78,7 @@ public class DominiDwrService {
 	
 	// Domini WS amb paràmetres
 	// -----------------------------------------------------------------
-	public String pingWSParams(String domini, String idWS, String[] params ) throws DominiHeliumException {
+	public String pingWSParams(String domini, String idWS, String[] params ) throws Exception {
 		Map<String, Object> parametres= new HashMap<String, Object>();
 		
 		//convertim els valor que ens arriban
@@ -136,7 +135,7 @@ public class DominiDwrService {
 	
 	// Domini WS sense paràmetres
 	// -----------------------------------------------------------------
-	public String pingWS(String domini, String idWS ) throws DominiHeliumException {
+	public String pingWS(String domini, String idWS ) throws Exception {
 		try{
 			Long dominiId = Long.parseLong(domini);
 			List<FilaResultat> resultat= dissenyService.consultaDomini(null, dominiId, idWS);

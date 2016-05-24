@@ -45,7 +45,8 @@ public class GuardarFormulariTest {
 				"NONE",
 				false,
 				true,
-				true);
+				true,
+				null);
 	}
 	private ParellaCodiValor newParellaCodiValor(
 			String codi,

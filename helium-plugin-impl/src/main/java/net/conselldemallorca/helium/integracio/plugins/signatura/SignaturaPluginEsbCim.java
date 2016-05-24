@@ -96,7 +96,8 @@ public class SignaturaPluginEsbCim implements SignaturaPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (ServicioFirmaPortType)wsClientProxy;
 	}
 

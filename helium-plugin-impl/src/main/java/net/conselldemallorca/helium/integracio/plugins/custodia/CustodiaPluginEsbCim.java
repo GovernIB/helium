@@ -120,7 +120,8 @@ public class CustodiaPluginEsbCim implements CustodiaPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (ServicioGestorDocumentalPortType)wsClientProxy;
 	}
 

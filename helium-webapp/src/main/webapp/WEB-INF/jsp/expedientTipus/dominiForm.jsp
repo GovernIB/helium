@@ -78,7 +78,7 @@ function canviTipusAuth(input) {
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="timeout"/>
 				<c:param name="required" value="false"/>
-				<c:param name="label"><fmt:message key="domini.form.temps_cache"/></c:param>
+				<c:param name="label"><fmt:message key="domini.form.timeout"/></c:param>
 				<c:param name="comment"><fmt:message key="domini.form.timeout.en_segons"/></c:param>
 			</c:import>
 			<c:import url="../common/formElement.jsp">

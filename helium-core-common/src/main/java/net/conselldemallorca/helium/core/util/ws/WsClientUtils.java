@@ -37,7 +37,8 @@ public class WsClientUtils {
 			String authType,
 			boolean generateTimestamp,
 			boolean logCalls,
-			boolean disableCnCheck) {
+			boolean disableCnCheck,
+			Integer timeout) {
 		ClientProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 		factory.setAddress(wsUrl);
 		factory.setServiceClass(clientClass);
@@ -71,6 +72,10 @@ public class WsClientUtils {
 		Client client = ClientProxy.getClient(c);
         HTTPConduit httpConduit = (HTTPConduit)client.getConduit();
         HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+        if (timeout != null) {
+        	httpClientPolicy.setConnectionTimeout(timeout);
+        	httpClientPolicy.setReceiveTimeout(timeout);
+        }
         // Envi­o chunked
 		httpClientPolicy.setAllowChunking(isWsClientChunked());
         httpConduit.setClient(httpClientPolicy);

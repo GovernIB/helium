@@ -17,7 +17,6 @@ import javax.jws.WebService;
  */
 @WebService(targetNamespace="http://domini.integracio.helium.conselldemallorca.net/")
 public interface DominiHelium {
-
-	public List<FilaResultat> consultaDomini(String id, List<ParellaCodiValor> parametres) throws DominiHeliumException;
+	public List<FilaResultat> consultaDomini(String id, List<ParellaCodiValor> parametres) throws Exception;
 
 }

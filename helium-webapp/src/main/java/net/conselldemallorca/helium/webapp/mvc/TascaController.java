@@ -14,23 +14,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -47,6 +30,22 @@ import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controlador per la gestió de tasques
@@ -212,7 +211,7 @@ public class TascaController extends BaseController {
 			@RequestParam(value = "id", required = true) String id,
 			@RequestParam(value = "massiva", required = false) String massiva,
 			@RequestParam(value = "ini", required = false) String ini,
-			ModelMap model) throws DominiHeliumException {
+			ModelMap model) throws Exception {
 		Entorn entorn = getEntornActiu(request);
 		TascaDto tasca = tascaService.getByIdSenseComprovacio(id);
 		Long tid = tasca.getExpedient().getTipus().getId();

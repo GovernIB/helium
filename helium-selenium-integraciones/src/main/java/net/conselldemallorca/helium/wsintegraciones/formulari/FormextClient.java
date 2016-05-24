@@ -41,7 +41,8 @@ public class FormextClient {
 				"NONE",
 				false,
 				true,
-				true);
+				true,
+				null);
 	}
 	private ParellaCodiValor newParellaCodiValor(
 			String codi,

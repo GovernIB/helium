@@ -228,7 +228,8 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (ServicioTramitacionPortType)wsClientProxy;
 	}
 
@@ -250,7 +251,8 @@ public class TramitacioPluginEsbCim implements TramitacioPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (ServicioGestorDocumentalPortType)wsClientProxy;
 	}
 
