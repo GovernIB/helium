@@ -279,8 +279,9 @@ public class DominiHelper {
 					ex,
 					toIntegracioParametres(parametres));
 			
-			if(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
-			   ExceptionUtils.getRootCause(ex).getClass().getName().contains("timeout")) {
+			if(ExceptionUtils.getRootCause(ex) != null && 
+					(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
+					 ExceptionUtils.getRootCause(ex).getClass().getName().contains("timeout"))) {
 				
 				throw new SistemaExternTimeoutException(
 						domini.getEntorn().getId(),
@@ -359,8 +360,9 @@ public class DominiHelper {
 					ex,
 					toIntegracioParametres(parametres));
 			
-			if(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
-			   ExceptionUtils.getRootCause(ex).getClass().getName().contains("timeout")) {
+			if(ExceptionUtils.getRootCause(ex) != null && 
+					(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
+					 ExceptionUtils.getRootCause(ex).getClass().getName().contains("timeout"))) {
 						
 					throw new SistemaExternTimeoutException(
 							domini.getEntorn().getId(),

@@ -315,6 +315,7 @@ CREATE TABLE HEL_DOMINI
 (
   ID                  NUMBER(19)                NOT NULL,
   CACHE_SEGONS        NUMBER(10),
+  TIMEOUT        	  NUMBER(10),
   CODI                VARCHAR2(64 CHAR)         NOT NULL,
   CONTRASENYA         VARCHAR2(255 CHAR),
   DESCRIPCIO          VARCHAR2(255 CHAR),

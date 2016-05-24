@@ -84,6 +84,9 @@ SELECT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 310) = 0;
 
+--Afegim la columan TIMEOUT per a la taula de dominis
+ALTER TABLE HEL_DOMINI ADD TIMEOUT NUMBER(10);
+
 -- Index per a consulta d'operaicons massives pendents --
 CREATE INDEX HEL_EXMASEXP_EXEMAS_I ON HEL_EXEC_MASEXP (EXECMAS_ID);
 
