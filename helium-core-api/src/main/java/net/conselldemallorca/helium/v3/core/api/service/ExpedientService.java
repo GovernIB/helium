@@ -36,11 +36,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDt
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
 import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+
+import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -835,7 +834,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 
@@ -856,7 +855,7 @@ public interface ExpedientService {
 	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
+			String documentCodi) throws NoTrobatException, DocumentGenerarException, DocumentConvertirException;
 
 	/**
 	 * Genera un document amb plantilla.
@@ -875,7 +874,7 @@ public interface ExpedientService {
 	 */
 	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
+			String documentCodi) throws NoTrobatException, DocumentGenerarException, DocumentConvertirException;
 
 	public boolean isExtensioDocumentPermesa(String extensio);
 

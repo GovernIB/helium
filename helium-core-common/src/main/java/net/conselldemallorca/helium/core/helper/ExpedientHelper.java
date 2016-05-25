@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusD
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -182,12 +183,12 @@ public class ExpedientHelper {
 			boolean comprovarPermisSupervision,
 			boolean comprovarPermisReassignment,
 			boolean comprovarPermisAdministration,
-			boolean comprovarPermisReassignmentOrWrite) throws NotFoundException, NotAllowedException {
+			boolean comprovarPermisReassignmentOrWrite) {
 		Expedient expedient = expedientRepository.findOne(id);
 		if (expedient == null) {
-			throw new NotFoundException(
-					id,
-					Expedient.class);
+			throw new NoTrobatException(
+					Expedient.class, 
+					id);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Entorn entorn = expedient.getEntorn();

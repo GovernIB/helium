@@ -811,7 +811,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public ExpedientDto findAmbId(Long id) throws ExpedientNotFoundException {
+	public ExpedientDto findAmbId(Long id) {
 		logger.debug("Consultant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
@@ -2119,7 +2119,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			 final PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+			 final PaginacioParamsDto paginacioParams) {
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta");
 		mesuresTemporalsHelper.mesuraIniciar("CONSULTA INFORME EXPEDIENTS v3", "consulta", null, null, "0");
 		
@@ -2250,7 +2250,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String taskInstanceId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+			String documentCodi) {
 		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskInstanceId,
 				true,
@@ -2289,7 +2289,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+			String documentCodi) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,

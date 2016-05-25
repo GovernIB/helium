@@ -37,10 +37,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
@@ -104,7 +102,7 @@ public class DissenyServiceImpl implements DissenyService {
 	private AccioRepository accioRepository;
 	@Resource
 	private AreaRepository areaRepository;
-
+	
 	@Transactional(readOnly=true)
 	@Override
 	public AreaDto findAreaById(Long areaId) {
@@ -115,12 +113,13 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<EstatDto> findEstatByExpedientTipus(
-			Long expedientTipusId) throws ExpedientTipusNotFoundException {
+	public List<EstatDto> findEstatByExpedientTipus(Long expedientTipusId){
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
 				expedientTipusId);
 		if (expedientTipus == null)
-			throw new ExpedientTipusNotFoundException();
+			throw new NoTrobatException(
+					ExpedientTipus.class, 
+					expedientTipusId);
 		return conversioTipusHelper.convertirList(
 				estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus),
 				EstatDto.class);
@@ -299,7 +298,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisReadUsuariActual(
-			Long entornId) throws EntornNotFoundException {
+			Long entornId){
 		return findExpedientTipusAmbPermisosUsuariActual(
 				entornId,
 				new Permission[] {
@@ -311,7 +310,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(
-			Long entornId) throws EntornNotFoundException {
+			Long entornId) {
 		return findExpedientTipusAmbPermisosUsuariActual(
 				entornId,
 				new Permission[] {
@@ -322,7 +321,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(
-			Long entornId) throws EntornNotFoundException {
+			Long entornId) {
 		return findExpedientTipusAmbPermisosUsuariActual(
 				entornId,
 				new Permission[] {
@@ -333,7 +332,7 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
-			Long entornId) throws EntornNotFoundException {
+			Long entornId) {
 		return findExpedientTipusAmbPermisosUsuariActual(
 				entornId,
 				new Permission[] {
@@ -345,12 +344,12 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId,
-			Long expedientTipusId) throws NotFoundException, NotAllowedException {
+			Long expedientTipusId) {
 		Entorn entorn = entornRepository.findOne(entornId);
 		if (entorn == null) {
-			throw new NotFoundException(
-					entornId,
-					Entorn.class);
+			throw new NoTrobatException(
+					Entorn.class, 
+					entornId);
 		}
 		boolean permes = permisosHelper.isGrantedAny(
 				expedientTipusId,
@@ -368,9 +367,9 @@ public class DissenyServiceImpl implements DissenyService {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
 				expedientTipusId);
 		if (expedientTipus.getEntorn() != entorn) {
-			throw new NotFoundException(
-					expedientTipusId,
-					ExpedientTipus.class);
+			throw new NoTrobatException(
+					ExpedientTipus.class, 
+					expedientTipusId);
 		}
 		List<ExpedientTipusDto> dtos = new ArrayList<ExpedientTipusDto>();
 		dtos.add(conversioTipusHelper.convertir(
@@ -385,7 +384,9 @@ public class DissenyServiceImpl implements DissenyService {
 			Permission[] permisos) {
 		Entorn entorn = entornRepository.findOne(entornId);
 		if (entorn == null)
-			throw new EntornNotFoundException();
+			throw new NoTrobatException(
+					Entorn.class, 
+					entornId);
 		List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		permisosHelper.filterGrantedAny(
 				expedientsTipus,
@@ -408,7 +409,18 @@ public class DissenyServiceImpl implements DissenyService {
 	@Cacheable(value="consultaCache", key="{#entornId, #expedientTipusId}")
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			Long entornId,
-			Long expedientTipusId) throws EntornNotFoundException {
+			Long expedientTipusId) throws NoTrobatException {
+		Entorn entorn = entornRepository.findOne(entornId);
+		if (entorn == null)
+			throw new NoTrobatException(
+					Entorn.class, 
+					entornId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
+				expedientTipusId);
+		if (expedientTipus == null)
+			throw new NoTrobatException(
+					ExpedientTipus.class, 
+					expedientTipusId);
 		return conversioTipusHelper.convertirList(
 				consultaRepository.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId),
 				ConsultaDto.class);

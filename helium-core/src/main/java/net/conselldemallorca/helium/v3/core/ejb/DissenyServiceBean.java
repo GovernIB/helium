@@ -9,9 +9,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -22,11 +19,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 /**
  * Servei que proporciona la funcionalitat de disseny d'expedients.
@@ -48,7 +44,7 @@ public class DissenyServiceBean implements DissenyService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<EstatDto> findEstatByExpedientTipus(Long expedientTipusId) throws ExpedientTipusNotFoundException {
+	public List<EstatDto> findEstatByExpedientTipus(Long expedientTipusId) {
 		return delegate.findEstatByExpedientTipus(expedientTipusId);
 	}
 
@@ -61,7 +57,7 @@ public class DissenyServiceBean implements DissenyService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTipusDto> findExpedientTipusAmbPermisReadUsuariActual(Long entornId) throws EntornNotFoundException {
+	public List<ExpedientTipusDto> findExpedientTipusAmbPermisReadUsuariActual(Long entornId) {
 		return delegate.findExpedientTipusAmbPermisReadUsuariActual(entornId);
 	}
 
@@ -74,7 +70,7 @@ public class DissenyServiceBean implements DissenyService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(Long entornId) throws EntornNotFoundException {
+	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(Long entornId) {
 		return delegate.findExpedientTipusAmbPermisDissenyUsuariActual(entornId);
 	}
 
@@ -87,7 +83,7 @@ public class DissenyServiceBean implements DissenyService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(Long entornId) throws EntornNotFoundException {
+	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(Long entornId) {
 		return delegate.findExpedientTipusAmbPermisGestioUsuariActual(entornId);
 	}
 
@@ -100,7 +96,7 @@ public class DissenyServiceBean implements DissenyService {
 	 */
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(Long entornId) throws EntornNotFoundException {
+	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(Long entornId) {
 		return delegate.findExpedientTipusAmbPermisCrearUsuariActual(entornId);
 	}
 
@@ -108,7 +104,7 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId,
-			Long expedientTipusId) throws NotFoundException, NotAllowedException {
+			Long expedientTipusId) {
 		return findExpedientTipusAmbPermisReadUsuariActual(
 				entornId,
 				expedientTipusId);
@@ -144,13 +140,13 @@ public class DissenyServiceBean implements DissenyService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) throws EntornNotFoundException {
+	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(Long entornId, Long expedientTipusId) {
 		return delegate.findConsultesActivesAmbEntornIExpedientTipusOrdenat(entornId, expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException {
+	public ConsultaDto findConsulteById(Long id) {
 		return delegate.findConsulteById(id);
 	}
 	

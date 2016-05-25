@@ -15,10 +15,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+
 
 
 /**
@@ -37,7 +36,7 @@ public interface DissenyService {
 	 * @throws ExpedientTipusNotFoundException
 	 */
 	public List<EstatDto> findEstatByExpedientTipus(
-			Long expedientTipusId) throws ExpedientTipusNotFoundException;
+			Long expedientTipusId) throws NoTrobatException;
 
 	/**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual
@@ -48,7 +47,7 @@ public interface DissenyService {
 	 * @throws EntornNotFoundException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisReadUsuariActual(
-			Long entornId) throws EntornNotFoundException;
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual
@@ -59,7 +58,7 @@ public interface DissenyService {
 	 * @throws EntornNotFoundException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisDissenyUsuariActual(
-			Long entornId) throws EntornNotFoundException;
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual
@@ -70,7 +69,7 @@ public interface DissenyService {
 	 * @throws EntornNotFoundException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisGestioUsuariActual(
-			Long entornId) throws EntornNotFoundException;
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual
@@ -81,7 +80,7 @@ public interface DissenyService {
 	 * @throws EntornNotFoundException
 	 */
 	public List<ExpedientTipusDto> findExpedientTipusAmbPermisCrearUsuariActual(
-			Long entornId) throws EntornNotFoundException;
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna un tipus d'expedient comprovant el permís read per a
@@ -100,7 +99,7 @@ public interface DissenyService {
 	 */
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId,
-			Long expedientTipusId) throws NotFoundException, NotAllowedException;
+			Long expedientTipusId) throws NoTrobatException, NotAllowedException;
 
 	/**
 	 * Retorna les consultes d'un tipus d'expedient per les quals l'usuari actual
@@ -113,7 +112,7 @@ public interface DissenyService {
 	 */
 	public List<ConsultaDto> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			Long entornId,
-			Long expedientTipusId) throws EntornNotFoundException;
+			Long expedientTipusId) throws NoTrobatException;
 
 	public byte[] getDeploymentResource(Long id, String recursForm);
 
@@ -139,7 +138,7 @@ public interface DissenyService {
 			Long entornId,
 			Long expedientTipusId);
 
-	public ConsultaDto findConsulteById(Long id) throws EntornNotFoundException;
+	public ConsultaDto findConsulteById(Long id);
 
 	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId);
 
