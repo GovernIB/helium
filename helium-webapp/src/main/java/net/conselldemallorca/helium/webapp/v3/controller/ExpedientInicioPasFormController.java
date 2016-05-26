@@ -77,7 +77,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			Model model,
-			Map<String, Object> valors) {
+			Map<String, Object> valorsRepro) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
@@ -108,7 +108,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 				}
 			}
-			if (valors == null) {
+			if (valorsRepro == null || valorsRepro.isEmpty()) {
 				return TascaFormHelper.getCommandForCamps(
 						tascaService.findDadesPerTascaDto(tasca),
 						valorsFormulariExtern,
@@ -118,7 +118,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			} else {
 				return TascaFormHelper.getCommandForCamps(
 						tascaService.findDadesPerTascaDto(tasca),
-						valors,
+						valorsRepro,
 						campsAddicionals,
 						campsAddicionalsClasses,
 						false);
@@ -184,6 +184,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
@@ -207,6 +208,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			model.addAttribute(command);
 			model.addAttribute("tasca", tasca);
 			model.addAttribute("dades", tascaDades);
+			model.addAttribute("repros", repros);
 			model.addAttribute("entornId", entorn.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
