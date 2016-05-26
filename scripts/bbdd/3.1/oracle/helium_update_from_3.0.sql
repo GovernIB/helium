@@ -64,6 +64,15 @@ MODIFY (
 	FIN_SEGON_PLA NUMBER(1) DEFAULT 1 NOT NULL
 );
 
+--Afegim la columan TIMEOUT per a la taula de dominis
+ALTER TABLE HEL_DOMINI ADD TIMEOUT NUMBER(10);
+
+-- Index per a consulta d'operaicons massives pendents --
+CREATE INDEX HEL_EXMASEXP_EXEMAS_I ON HEL_EXEC_MASEXP (EXECMAS_ID);
+
+-- Index per a swimlaneinstance de jbpm --
+CREATE INDEX JBPM_SWIMLANEINSTANCE_I ON JBPM_SWIMLANEINSTANCE (TASKMGMTINSTANCE_);
+
 -- Actualització a la nova versió --
 INSERT INTO HEL_VERSIO (
     ID,
@@ -83,12 +92,3 @@ SELECT
     SYSDATE DATA_EXECUCIO_SCRIPT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 310) = 0;
-
---Afegim la columan TIMEOUT per a la taula de dominis
-ALTER TABLE HEL_DOMINI ADD TIMEOUT NUMBER(10);
-
--- Index per a consulta d'operaicons massives pendents --
-CREATE INDEX HEL_EXMASEXP_EXEMAS_I ON HEL_EXEC_MASEXP (EXECMAS_ID);
-
--- Index per a swimlaneinstance de jbpm --
-CREATE INDEX JBPM_SWIMLANEINSTANCE_I ON JBPM_SWIMLANEINSTANCE (TASKMGMTINSTANCE_);
