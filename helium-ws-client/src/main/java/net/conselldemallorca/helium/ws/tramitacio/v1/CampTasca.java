@@ -4,6 +4,7 @@ package net.conselldemallorca.helium.ws.tramitacio.v1;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
@@ -383,6 +384,9 @@ public class CampTasca {
      *     
      */
     public Object getValor() {
+    	if (valor != null && valor instanceof XMLGregorianCalendar) {
+    		return ((XMLGregorianCalendar)valor).toGregorianCalendar().getTime();
+    	}
         return valor;
     }
 
