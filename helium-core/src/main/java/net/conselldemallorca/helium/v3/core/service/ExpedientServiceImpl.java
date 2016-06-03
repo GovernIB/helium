@@ -3314,11 +3314,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
 					camp.getTipus().equals(TipusCamp.SUGGEST)) {
 					
-					String text = variableHelper.getTextPerCamp(
-							camp, 
-							varValue, 
-							null, 
-							processInstanceId);
+					String text;
+					try {
+						text = variableHelper.getTextPerCamp(
+								camp, 
+								varValue, 
+								null, 
+								processInstanceId);
+					} catch (Exception e) {
+						text = "";
+					}
 					
 					jbpmHelper.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
 				}
