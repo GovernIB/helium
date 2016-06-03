@@ -4,6 +4,7 @@ package net.conselldemallorca.helium.integracio.tramitacio;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
@@ -323,6 +324,9 @@ public class CampProces {
      *     
      */
     public Object getValor() {
+    	if (valor != null && valor instanceof XMLGregorianCalendar) {
+    		return ((XMLGregorianCalendar)valor).toGregorianCalendar().getTime();
+    	}
         return valor;
     }
 
