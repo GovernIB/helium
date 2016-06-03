@@ -10,24 +10,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.JbpmException;
+import org.jbpm.context.exe.ContextInstance;
+import org.jbpm.graph.def.ActionHandler;
+import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.Token;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentPresencial;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTelematic;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentTramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo.IniciadorTipus;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.FilaResultat;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ParellaCodiValor;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ReferenciaRDSJustificante;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
-import net.conselldemallorca.helium.jbpm3.handlers.tipus.Signatura;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
+import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusInfoHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
@@ -40,30 +44,17 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TramitDto.TramitAutenticacioTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ArxiuNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.DefinicioProcesNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
-
-import org.jbpm.JbpmException;
-import org.jbpm.context.exe.ContextInstance;
-import org.jbpm.graph.def.ActionHandler;
-import org.jbpm.graph.exe.ExecutionContext;
-import org.jbpm.graph.exe.Token;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**
@@ -88,7 +79,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @return
 	 */
 	public ExpedientInfo getExpedient(ExecutionContext executionContext) {
-		return toExpedientInfo(getExpedientActual(executionContext));
+		return ConversioTipusHelper.toExpedientInfo(getExpedientActual(executionContext));
 	}
 
 	/**
@@ -213,7 +204,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				// Construcció de la resposta
 				List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 				for (ExpedientDto dto: resultats)
-					resposta.add(toExpedientInfo(dto));
+					resposta.add(ConversioTipusHelper.toExpedientInfo(dto));
 				return resposta;
 			} else {
 				throw new JbpmException("No hi ha usuari autenticat");
@@ -639,7 +630,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			String numero,
 			String clau) {
 		try {
-			return toTramit(
+			return ConversioTipusHelper.toTramit(
 					Jbpm3HeliumBridge.getInstanceService().getTramit(numero, clau));
 		} catch (Exception ex) {
 			throw new JbpmException("No s'ha pogut obtenir el tràmit (numero=" + numero + ", clau=" + clau + ")", ex);
@@ -873,143 +864,6 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		  }
 	  }
 
-	private ExpedientInfo toExpedientInfo(ExpedientDto expedient) {
-		if (expedient != null) {
-			ExpedientInfo resposta = new ExpedientInfo();
-			resposta.setId(expedient.getId());
-			resposta.setTitol(expedient.getTitol());
-			resposta.setNumero(expedient.getNumero());
-			resposta.setNumeroDefault(expedient.getNumeroDefault());
-			resposta.setDataInici(expedient.getDataInici());
-			resposta.setDataFi(expedient.getDataFi());
-			resposta.setComentari(expedient.getComentari());
-			resposta.setComentariAnulat(expedient.getComentariAnulat());
-			resposta.setInfoAturat(expedient.getInfoAturat());
-			if (expedient.getIniciadorTipus().equals(IniciadorTipusDto.INTERN))
-				resposta.setIniciadorTipus(IniciadorTipus.INTERN);
-			else if (expedient.getIniciadorTipus().equals(IniciadorTipusDto.SISTRA))
-				resposta.setIniciadorTipus(IniciadorTipus.SISTRA);
-			resposta.setIniciadorCodi(expedient.getIniciadorCodi());
-			resposta.setResponsableCodi(expedient.getResponsableCodi());
-			resposta.setGeoPosX(expedient.getGeoPosX());
-			resposta.setGeoPosY(expedient.getGeoPosY());
-			resposta.setGeoReferencia(expedient.getGeoReferencia());
-			resposta.setRegistreNumero(expedient.getRegistreNumero());
-			resposta.setRegistreData(expedient.getRegistreData());
-			resposta.setUnitatAdministrativa(expedient.getUnitatAdministrativa());
-			resposta.setIdioma(expedient.getIdioma());
-			resposta.setAutenticat(expedient.isAutenticat());
-			resposta.setTramitadorNif(expedient.getTramitadorNif());
-			resposta.setTramitadorNom(expedient.getTramitadorNom());
-			resposta.setInteressatNif(expedient.getInteressatNif());
-			resposta.setInteressatNom(expedient.getInteressatNom());
-			resposta.setRepresentantNif(expedient.getRepresentantNif());
-			resposta.setRepresentantNom(expedient.getRepresentantNom());
-			resposta.setAvisosHabilitats(expedient.isAvisosHabilitats());
-			resposta.setAvisosEmail(expedient.getAvisosEmail());
-			resposta.setAvisosMobil(expedient.getAvisosMobil());
-			resposta.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
-			resposta.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
-			resposta.setTramitExpedientClau(expedient.getTramitExpedientClau());
-			resposta.setExpedientTipusCodi(expedient.getTipus().getCodi());
-			resposta.setExpedientTipusNom(expedient.getTipus().getNom());
-			resposta.setEntornCodi(expedient.getEntorn().getCodi());
-			resposta.setEntornNom(expedient.getEntorn().getNom());
-			if (expedient.getEstat() != null) {
-				resposta.setEstatCodi(expedient.getEstat().getCodi());
-				resposta.setEstatNom(expedient.getEstat().getNom());
-			}
-			resposta.setProcessInstanceId(new Long(expedient.getProcessInstanceId()).longValue());
-			resposta.setAmbRetroaccio(expedient.isAmbRetroaccio());
-			return resposta;
-		}
-		return null;
-	}
-
-	private Tramit toTramit(TramitDto dadesTramit) {
-		if (dadesTramit == null)
-			return null;
-		Tramit tramit = new Tramit();
-		tramit.setNumero(dadesTramit.getNumero());
-		tramit.setClauAcces(dadesTramit.getClauAcces());
-		tramit.setIdentificador(dadesTramit.getIdentificador());
-		tramit.setUnitatAdministrativa(dadesTramit.getUnitatAdministrativa());
-		tramit.setVersio(dadesTramit.getVersio());
-		tramit.setData(dadesTramit.getData());
-		tramit.setIdioma(dadesTramit.getIdioma());
-		tramit.setRegistreNumero(dadesTramit.getRegistreNumero());
-		tramit.setRegistreData(dadesTramit.getRegistreData());
-		tramit.setPreregistreTipusConfirmacio(dadesTramit.getPreregistreTipusConfirmacio());
-		tramit.setPreregistreNumero(dadesTramit.getPreregistreNumero());
-		tramit.setPreregistreData(dadesTramit.getPreregistreData());
-		if (dadesTramit.getAutenticacioTipus() != null) {
-			if (TramitAutenticacioTipusDto.ANONIMA.equals(dadesTramit.getAutenticacioTipus()))
-				tramit.setAutenticacioTipus(AutenticacioTipus.ANONIMA);
-			if (TramitAutenticacioTipusDto.USUARI.equals(dadesTramit.getAutenticacioTipus()))
-				tramit.setAutenticacioTipus(AutenticacioTipus.USUARI);
-			if (TramitAutenticacioTipusDto.CERTIFICAT.equals(dadesTramit.getAutenticacioTipus()))
-				tramit.setAutenticacioTipus(AutenticacioTipus.CERTIFICAT);
-		}
-		tramit.setTramitadorNif(dadesTramit.getTramitadorNif());
-		tramit.setTramitadorNom(dadesTramit.getTramitadorNom());
-		tramit.setInteressatNif(dadesTramit.getInteressatNif());
-		tramit.setInteressatNom(dadesTramit.getInteressatNom());
-		tramit.setRepresentantNif(dadesTramit.getRepresentantNif());
-		tramit.setRepresentantNom(dadesTramit.getRepresentantNom());
-		tramit.setSignat(dadesTramit.isSignat());
-		tramit.setAvisosHabilitats(dadesTramit.isAvisosHabilitats());
-		tramit.setAvisosEmail(dadesTramit.getAvisosEmail());
-		tramit.setAvisosSms(dadesTramit.getAvisosSms());
-		tramit.setNotificacioTelematicaHabilitada(dadesTramit.isNotificacioTelematicaHabilitada());
-		if (dadesTramit.getDocuments() != null) {
-			List<DocumentTramit> documents = new ArrayList<DocumentTramit>();
-			for (TramitDocumentDto documento: dadesTramit.getDocuments()) {
-				DocumentTramit document = new DocumentTramit();
-				document.setNom(documento.getNom());
-				document.setIdentificador(documento.getIdentificador());
-				document.setInstanciaNumero(documento.getInstanciaNumero());
-				if (documento.isPresencial()) {
-					DocumentPresencial documentPresencial = new DocumentPresencial();
-					documentPresencial.setDocumentCompulsar(
-							documento.getPresencialDocumentCompulsar());
-					documentPresencial.setSignatura(
-							documento.getPresencialSignatura());
-					documentPresencial.setFotocopia(
-							documento.getPresencialFotocopia());
-					documentPresencial.setTipus(
-							documento.getPresencialTipus());
-					document.setDocumentPresencial(documentPresencial);
-				}
-				if (documento.isTelematic()) {
-					DocumentTelematic documentTelematic = new DocumentTelematic();
-					documentTelematic.setArxiuNom(
-							documento.getTelematicArxiuNom());
-					documentTelematic.setArxiuExtensio(
-							documento.getTelematicArxiuExtensio());
-					documentTelematic.setArxiuContingut(
-							documento.getTelematicArxiuContingut());
-					documentTelematic.setReferenciaCodi(
-							documento.getTelematicReferenciaCodi());
-					documentTelematic.setReferenciaClau(
-							documento.getTelematicReferenciaClau());
-					if (documento.getTelematicSignatures() != null) {
-						List<Signatura> signatures = new ArrayList<Signatura>();
-						for (TramitDocumentSignaturaDto firma: documento.getTelematicSignatures()) {
-							Signatura signatura = new Signatura();
-							signatura.setFormat(firma.getFormat());
-							signatura.setSignatura(firma.getSignatura());
-							signatures.add(signatura);
-						}
-						documentTelematic.setSignatures(signatures);
-					}
-					document.setDocumentTelematic(documentTelematic);
-				}
-				documents.add(document);
-			}
-			tramit.setDocuments(documents);
-		}
-		return tramit;
-	}
 
 	private ContextInstance getContextInstanceGlobal(
 			ExecutionContext executionContext) {

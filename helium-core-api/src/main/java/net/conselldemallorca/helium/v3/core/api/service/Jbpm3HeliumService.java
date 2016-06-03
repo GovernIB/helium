@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -29,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -52,8 +55,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException
 import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiIniciatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
-
-import com.codahale.metrics.MetricRegistry;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -907,6 +908,19 @@ public interface Jbpm3HeliumService {
 	 */
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
+			String varCodi);
+	
+
+	/**
+	 * Obté el text d'una variable de la tasca.
+	 * 
+	 * @param taskInstanceId
+	 * @param varCodi
+	 * @return
+	 */
+	public TascaDadaDto getDadaPerTaskInstance(
+			String processInstanceId,
+			String taskInstanceId,
 			String varCodi);
 
 	/**

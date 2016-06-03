@@ -223,6 +223,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private LuceneHelper luceneHelper;
+//	@Resource
+//	private MongoDBHelper mongoDBHelper;
 	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
@@ -233,6 +235,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private IndexHelper indexHelper;
+//	@Resource
+//	private MetricRegistry metricRegistry;
 
 
 
@@ -3007,6 +3011,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"nomesErrors=" + nomesErrors + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"paginacioParams=" + paginacioParams + ")");
+//		
+//		// Mètriques - Timers
+//		Timer.Context contextConsultaLuceneTotal = null;
+//		Timer.Context contextConsultaMongoTotal = null;
+//		
+//		final Timer timerConsultaLuceneTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "consulta.lucene"));
+//		final Timer timerConsultaMongoTotal = metricRegistry.timer(MetricRegistry.name(LuceneHelper.class, "consulta.mongoDB"));
+//		
+//		Counter countTotal = metricRegistry.counter(MetricRegistry.name(LuceneHelper.class, "consulta.count"));
+//		countTotal.inc();
+//		
 		// Comprova l'accés a la consulta
 		Consulta consulta = consultaRepository.findById(consultaId);
 		if (consulta == null) {
@@ -3070,14 +3085,39 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consultaHelper.findCampsPerCampsConsulta(
 						consulta,
 						TipusConsultaCamp.INFORME));
-		Object[] respostaLucene = luceneHelper.findPaginatAmbDadesV3(
-				entorn,
-				expedientTipus,
-				expedientIdsPermesos,
-				filtreCamps,
-				filtreValors,
-				informeCamps,
-				paginacioParams);
+
+		Object[] respostaLucene = null;
+		
+//		boolean ctxLuceneStoped = false;
+//		try {
+//			contextConsultaLuceneTotal = timerConsultaLuceneTotal.time();
+			
+			respostaLucene = luceneHelper.findPaginatAmbDadesV3(
+					entorn,
+					expedientTipus,
+					expedientIdsPermesos,
+					filtreCamps,
+					filtreValors,
+					informeCamps,
+					paginacioParams);
+			
+//			contextConsultaLuceneTotal.stop();
+//			ctxLuceneStoped = true;
+//			contextConsultaMongoTotal = timerConsultaMongoTotal.time();
+//			
+//			mongoDBHelper.findPaginatAmbDadesV3(
+//					expedientIdsPermesos, 
+//					filtreCamps, 
+//					filtreValors, 
+//					informeCamps, 
+//					paginacioParams);
+//		} finally {
+//			if (!ctxLuceneStoped) {
+//				contextConsultaLuceneTotal.stop();
+//			}
+//			contextConsultaMongoTotal.stop();
+//		}
+		
 		@SuppressWarnings("unchecked")
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
 		Long count = (Long)respostaLucene[1];

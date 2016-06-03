@@ -8,6 +8,7 @@
 //import java.text.DateFormat;
 //import java.text.SimpleDateFormat;
 //import java.util.ArrayList;
+//import java.util.Collection;
 //import java.util.Date;
 //import java.util.HashSet;
 //import java.util.List;
@@ -19,18 +20,24 @@
 //
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
+//import org.apache.lucene.search.BooleanClause;
+//import org.apache.lucene.search.Query;
 //import org.bson.Document;
 //import org.bson.codecs.configuration.CodecRegistries;
 //import org.bson.codecs.configuration.CodecRegistry;
+//import org.bson.conversions.Bson;
 //import org.springframework.stereotype.Component;
 //
+//import com.mongodb.Block;
 //import com.mongodb.MongoClient;
 //import com.mongodb.MongoClientOptions;
 //import com.mongodb.MongoClientURI;
 //import com.mongodb.MongoCredential;
 //import com.mongodb.ServerAddress;
+//import com.mongodb.client.FindIterable;
 //import com.mongodb.client.MongoCollection;
 //import com.mongodb.client.MongoDatabase;
+//import com.mongodb.client.model.Filters;
 //
 //import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 //import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -41,6 +48,7 @@
 //import net.conselldemallorca.helium.core.model.hibernate.Termini;
 //import net.conselldemallorca.helium.core.util.ExpedientCamps;
 //import net.conselldemallorca.helium.core.util.TimestampCodec;
+//import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 //
 ///**
 // * Helper per a gestionar la informació dels expedients emprant Lucene.
@@ -309,7 +317,53 @@
 //			}
 //		}
 //	}
+//
 //	
+//	// Funció per a la ralització d'una CONSULTA
+//	public List<Object> findPaginatAmbDadesV3(
+//			final Collection<Long> expedientIds,
+//			List<Camp> filtreCamps,
+//			Map<String, Object> filtreValors,
+//			List<Camp> informeCamps,
+//			PaginacioParamsDto paginacioParams) {
+//		try {
+//			final int firstRow;
+//			final int maxResults;
+//			if (paginacioParams != null) {
+//				firstRow = paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany();
+//				maxResults = paginacioParams.getPaginaTamany();
+//			} else {
+//				firstRow = 0;
+//				maxResults = -1;
+//			}
+//				
+//			initializeMongoConnection();
+//			MongoCollection<Document> expedients = mongoDb.getCollection("expedients");
+//			Bson filter = Filters.in("_id", expedientIds);
+//			for (String clau : filtreValors.keySet()) {
+//				if (filtreValors.get(clau) != null && !"".equals(filtreValors.get(clau))) {
+//					String mclau = clau.replace(".", "$");
+//					filter = Filters.and(
+//							filter,
+//							Filters.eq(mclau, filtreValors.get(clau)));
+//				}
+//			}
+//			System.out.println(filter.toString());
+//			FindIterable<Document> iterable = expedients.find(filter).skip(firstRow).limit(maxResults - firstRow);
+//			
+//			iterable.forEach(new Block<Document>(){
+//				 @Override
+//			    public void apply(final Document document) {
+//			        System.out.println(document);
+//			    }
+//			});
+//		} catch (Exception ex) {
+//			logger.error("No s'ha pogut desar l'expedient al MongoDB", ex);
+//		}
+//		
+//		return null;
+//	}
+//
 //
 //	protected static final Log logger = LogFactory.getLog(MongoDBHelper.class);
 //}
