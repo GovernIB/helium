@@ -9,16 +9,38 @@ package net.conselldemallorca.helium.v3.core.api.exception;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @SuppressWarnings("serial")
-public class SistemaExternException extends RuntimeException {
+public class SistemaExternException extends HeliumException {
 
-	public SistemaExternException(String message) {
-		super(message);
+	private String sistemaExtern;
+	
+	public SistemaExternException(
+			Long entornId,
+			String entornCodi,
+			String entornNom,
+			Long expedientId, 
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			String expedientTipusCodi,
+			String expedientTipusNom,
+			String sistemaExtern,
+			Throwable cause) {
+		super(	entornId,
+				entornCodi,
+				entornNom,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				expedientTipusCodi,
+				expedientTipusNom,
+				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + cause.getMessage(),
+				cause);
+		this.sistemaExtern = sistemaExtern;
 	}
-	public SistemaExternException(String message, Throwable cause) {
-		super(message, cause);
-	}
-	public SistemaExternException(Throwable cause) {
-		super(cause);
+
+	public String getSistemaExtern() {
+		return sistemaExtern;
 	}
 
 }

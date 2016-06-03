@@ -707,7 +707,8 @@ public class RegistrePluginAjuntament implements RegistrePlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (BackofficeFacade)wsClientProxy;
 	}
 

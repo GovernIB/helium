@@ -436,7 +436,8 @@ public class TramitacioPluginSistraSelenium implements TramitacioPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (es.caib.bantel.ws.v2.services.BackofficeFacade)wsClientProxy;
 	}
 
@@ -458,7 +459,8 @@ public class TramitacioPluginSistraSelenium implements TramitacioPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (es.caib.zonaper.ws.v2.services.BackofficeFacade)wsClientProxy;
 	}
 
@@ -480,7 +482,8 @@ public class TramitacioPluginSistraSelenium implements TramitacioPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (es.caib.redose.ws.v2.services.BackofficeFacade)wsClientProxy;
 	}
 

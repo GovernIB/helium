@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
@@ -382,16 +383,12 @@ public class VariableHelper {
 			return null;
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
-			try {					
-				valorFontExterna = (String)(getTextPerCampAmbValor(
-						camp,
-						valor,
-						null,
-						taskInstanceId,
-						processInstanceId).getValor());
-			} catch (Exception e) {
-				return null;
-			}
+			valorFontExterna = (String)(getTextPerCampAmbValor(
+					camp,
+					valor,
+					null,
+					taskInstanceId,
+					processInstanceId).getValor());
 		}
 		return Camp.getComText(
 				camp.getTipus(),
@@ -818,8 +815,8 @@ public class VariableHelper {
 							if (dto.getText() == null || dto.getText().isEmpty()) {
 								dto.setText("");
 							}							
-						} catch (Exception ex) {
-							dto.setText("[!]");
+						} catch (SistemaExternException ex) {
+							dto.setText("");
 							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
 							dto.setError(ex.getMessage());
 						}
@@ -955,7 +952,7 @@ public class VariableHelper {
 			Object valor,
 			Map<String, Object> valorsAddicionals,
 			String taskInstanceId,
-			String processInstanceId) throws Exception {
+			String processInstanceId){
 		if (valor == null)
 			return null;
 		

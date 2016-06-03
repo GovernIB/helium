@@ -118,6 +118,10 @@
 					<artifactId>spring-beans</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>spring-tx</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -232,43 +236,31 @@
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-core-v26</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-core</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-ws</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-selenium-integraciones</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-api</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.conselldemallorca</groupId>
 			<artifactId>helium-plugin-impl</artifactId>
 			<version>${helium.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>

@@ -19,6 +19,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
 import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -238,7 +240,7 @@ public interface TascaService {
 			String textFiltre,
 			Long registreCampId,
 			Integer registreIndex,
-			Map<String, Object> valorsFormulari);
+			Map<String, Object> valorsFormulari) throws SistemaExternException, SistemaExternTimeoutException;
 
 	/**
 	 * Agafa una tasca assignada a aquest usuari com a tasca de grup.

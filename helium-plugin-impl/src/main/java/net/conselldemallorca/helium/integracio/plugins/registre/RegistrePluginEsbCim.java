@@ -294,7 +294,8 @@ public class RegistrePluginEsbCim implements RegistrePlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (ServicioRegistroPortType)wsClientProxy;
 	}
 

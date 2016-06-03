@@ -94,6 +94,8 @@ function initSeleccio(element) {
 			var carregant = input.data('select2-refresh') == 'true';
 			var refrescar = input.data('select2-refresh') != 'false';
 			if (refrescar) {
+				$(input).parents().closest(".form-group").removeClass('has-error');
+				$(input).parents().closest(".form-group").find('.help-block').remove();
 				$.ajax({
 					url: input.data("urlconsultallistat"),
 					data: desplegableObtenirParams(input),
@@ -113,6 +115,14 @@ function initSeleccio(element) {
 							input.select2("close");
 							input.select2("open");
 						}
+					},
+					error: function(data) {
+						var select2 = input.data('select2');
+						$(input).parents().closest(".form-group").addClass('has-error');
+						if($(input).parents().closest(".form-group").find('.help-block').length == 0) {
+							$(input).parents().closest(".controls").append('<p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;' + data.responseText + '</p>');
+						}
+						input.select2("close");
 					},
 					async: true
 				});

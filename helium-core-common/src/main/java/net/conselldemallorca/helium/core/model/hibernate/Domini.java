@@ -78,6 +78,7 @@ public class Domini implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String descripcio;
 	private int cacheSegons = 0;
+	private Integer timeout = 0;
 	@MaxLength(255)
 	private String ordreParams;
 
@@ -207,6 +208,12 @@ public class Domini implements Serializable, GenericEntity<Long> {
 		this.cacheSegons = cacheSegons;
 	}
 
+	public Integer getTimeout() {
+		return timeout;
+	}
+	public void setTimeout(Integer timeout) {
+		this.timeout = timeout;
+	}
 	@Column(name="ordre_params", length=255)
 	public String getOrdreParams() {
 		return ordreParams;

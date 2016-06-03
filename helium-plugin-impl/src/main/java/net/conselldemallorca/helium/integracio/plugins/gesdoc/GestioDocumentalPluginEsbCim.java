@@ -102,7 +102,8 @@ public class GestioDocumentalPluginEsbCim implements GestioDocumentalPlugin {
 				getWsClientAuthType(),
 				isWsClientGenerateTimestamp(),
 				isWsClientLogCalls(),
-				isWsClientDisableCnCheck());
+				isWsClientDisableCnCheck(),
+				null);
 		return (ServicioGestorDocumentalPortType)wsClientProxy;
 	}
 

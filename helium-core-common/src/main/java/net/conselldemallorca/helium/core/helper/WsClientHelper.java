@@ -27,7 +27,8 @@ public class WsClientHelper {
 			String serviceUrl,
 			WsClientAuth auth,
 			String username,
-			String password) {
+			String password,
+			Integer timeout) {
 		return (DominiHelium)WsClientUtils.getWsClientProxy(
 				DominiHelium.class,
 				serviceUrl,
@@ -36,7 +37,8 @@ public class WsClientHelper {
 				getAuthAsString(auth),
 				false,
 				false,
-				true);
+				true,
+				timeout);
 	}
 
 	/*public IniciFormulari getIniciFormulariService(
@@ -74,7 +76,8 @@ public class WsClientHelper {
 				getAuthAsString(auth),
 				false,
 				false,
-				true);
+				true,
+				null);
 	}
 
 

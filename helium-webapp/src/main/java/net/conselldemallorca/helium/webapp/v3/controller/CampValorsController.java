@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
@@ -10,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +68,11 @@ public class CampValorsController extends BaseExpedientController {
 			@PathVariable(value = "processInstanceId") String processInstanceId,
 			@RequestParam(value = "q", required = false) String textFiltre,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
-		return tascaService.findValorsPerCampDesplegable(
+			ModelMap model,
+			HttpServletResponse response) throws IOException  {
+		List<SeleccioOpcioDto> resposta = null;
+		try {
+		resposta = tascaService.findValorsPerCampDesplegable(
 				null,
 				processInstanceId,
 				campId,
@@ -75,6 +81,19 @@ public class CampValorsController extends BaseExpedientController {
 				null,
 				null,
 				getMapDelsValors(valors));
+		} catch (SistemaExternException see) {
+			response.setStatus(500);
+			response.getWriter().write(see.getMessage());
+		} catch (Exception ex) {
+			response.setStatus(500);
+			String errorText = "Error en la comunicació amb el sistema extern per un error intern: ";
+			if (ex.getCause() != null && ex.getCause().getMessage() != null)
+				errorText += ex.getCause().getMessage();
+			else
+				errorText += ex.toString();
+			response.getWriter().write(errorText);
+		}
+		return resposta;
 	}
 
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valors", method = RequestMethod.GET)
@@ -85,8 +104,12 @@ public class CampValorsController extends BaseExpedientController {
 			@PathVariable(value = "tascaId") String tascaId,
 			@RequestParam(value = "q", required = false) String textFiltre,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
-		return tascaService.findValorsPerCampDesplegable(
+			ModelMap model, 
+			HttpServletResponse response) throws IOException {
+		
+		List<SeleccioOpcioDto> resposta = null;
+		try {
+		resposta = tascaService.findValorsPerCampDesplegable(
 				tascaId,
 				null,
 				campId,
@@ -95,6 +118,19 @@ public class CampValorsController extends BaseExpedientController {
 				null,
 				null,
 				getMapDelsValors(valors));
+		} catch (SistemaExternException see) {
+			response.setStatus(500);
+			response.getWriter().write(see.getMessage());
+		} catch (Exception ex) {
+			response.setStatus(500);
+			String errorText = "Error en la comunicació amb el sistema extern per un error intern: ";
+			if (ex.getCause() != null && ex.getCause().getMessage() != null)
+				errorText += ex.getCause().getMessage();
+			else
+				errorText += ex.toString();
+			response.getWriter().write(errorText);
+		}
+		return resposta;
 	}
 
 	@RequestMapping(value = "/{campId}/tasca/{tascaId}/valors/{valor}", method = RequestMethod.GET)

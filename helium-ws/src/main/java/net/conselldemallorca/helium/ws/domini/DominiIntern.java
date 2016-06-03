@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.jws.WebService;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
-import net.conselldemallorca.helium.core.extern.domini.DominiHeliumException;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
@@ -51,7 +50,7 @@ public class DominiIntern implements DominiHelium {
 
 	public List<FilaResultat> consultaDomini(
 			String id,
-			List<ParellaCodiValor> parametres) throws DominiHeliumException {
+			List<ParellaCodiValor> parametres) throws Exception {
 		Map<String, Object> parametersMap = getParametersMap(parametres);
 		if ("PERSONA_AMB_CODI".equals(id)) {
 			return personaAmbCodi(parametersMap);
