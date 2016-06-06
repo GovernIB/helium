@@ -92,6 +92,14 @@
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>
 		<form:hidden path="definicioProcesId"/>
+
+		<!-- 
+		<spring:hasBindErrors name="command">
+            <c:forEach items="${errors.allErrors}" var="error">
+               - ${error} <br>
+            </c:forEach>
+		</spring:hasBindErrors>
+		 -->
 		
 		<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 			<c:set var="inline" value="${false}"/>
