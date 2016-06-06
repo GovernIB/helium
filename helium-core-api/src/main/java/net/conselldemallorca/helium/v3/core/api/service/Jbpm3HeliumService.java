@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -40,6 +41,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
 import com.codahale.metrics.MetricRegistry;
+
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -898,6 +900,19 @@ public interface Jbpm3HeliumService {
 	 */
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
+			String varCodi);
+	
+
+	/**
+	 * Obté el text d'una variable de la tasca.
+	 * 
+	 * @param taskInstanceId
+	 * @param varCodi
+	 * @return
+	 */
+	public TascaDadaDto getDadaPerTaskInstance(
+			String processInstanceId,
+			String taskInstanceId,
 			String varCodi);
 
 	/**

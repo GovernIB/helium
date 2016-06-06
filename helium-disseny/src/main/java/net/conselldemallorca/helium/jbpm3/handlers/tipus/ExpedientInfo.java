@@ -304,4 +304,14 @@ public class ExpedientInfo {
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
 	}
+	
+	@Override
+	public String toString() {
+		return "{ " +
+				"id: " + getId() + ", " +
+				"titol" + getTitol() + ", " +
+				"numero" + getNumero() + ", " +
+				"numeroDefault" + getNumeroDefault() +
+				"}";
+	}
 }

@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantRecepcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -1617,6 +1618,34 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						valor, 
 						null, 
 						processInstanceId));
+		return resposta;
+	}
+	
+	@Override
+	public TascaDadaDto getDadaPerTaskInstance(
+			String processInstanceId,
+			String taskInstanceId,
+			String varCodi) {
+		logger.debug("Obtenint la dada de l'instància de tasca (taskInstanceId=" + taskInstanceId + ")");
+		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(
+				processInstanceId);
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class);
+		Camp camp = campRepository.findByDefinicioProcesAndCodi(
+				definicioProces,
+				varCodi);
+		if (camp == null)
+			throw new NoTrobatException(Camp.class,varCodi);
+		TascaDadaDto resposta = new TascaDadaDto();
+		Object valor = jbpmHelper.getTaskInstanceVariable(
+				taskInstanceId,
+				varCodi);
+		resposta.setText(
+				variableHelper.getTextPerCamp(
+						camp, 
+						valor, 
+						taskInstanceId, 
+						null));
 		return resposta;
 	}
 
