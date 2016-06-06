@@ -15,6 +15,8 @@ import java.util.concurrent.TimeoutException;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -128,7 +130,18 @@ public class OpenOfficeUtils {
 			else
 				future.get();
 		} catch (TimeoutException e) {
-			throw new RuntimeException("Conversió OpenOffice timeout");
+			throw new SistemaExternTimeoutException(
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(Conversió OpenOffice)", 
+					e);
 		} finally {
 			if (connection.isConnected())
 				connection.disconnect();

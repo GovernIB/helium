@@ -35,7 +35,7 @@
 			</c:when>
 			<c:otherwise>
 				<c:if test="${not empty dada.varValor}">
-					<!-- ${dada.varValorClass} -->
+					<%-- ${dada.varValorClass} --%>
 					<strong>${dada.textMultiple}</strong>
 				</c:if>
 				<c:if test="${not empty dada.error}">

@@ -31,8 +31,6 @@ import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
-import net.conselldemallorca.helium.v3.core.api.exception.ChangeLogException;
-
 /**
  * Modificat per Límit per evitar el problema de nodes amb el nom que conté un
  * caràcter '/'.
@@ -156,12 +154,8 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 			}
 		}
 		
-		try {
-			// change log references
-			adjustLogsForToken(newDef, token);
-		} catch (JbpmException e) {
-			throw new ChangeLogException(e);
-		}
+		// change log references
+		adjustLogsForToken(newDef, token);
 	}
 	
 	private void adjustLogsForToken(ProcessDefinition newDef, Token token) {

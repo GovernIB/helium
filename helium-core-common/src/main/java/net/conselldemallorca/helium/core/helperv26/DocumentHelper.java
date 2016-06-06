@@ -10,11 +10,6 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
@@ -22,6 +17,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
@@ -32,12 +28,17 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -109,7 +110,7 @@ public class DocumentHelper {
 			if (documentStore.isAdjunt())
 				documentStore.setAdjuntTitol(documentNom);
 			if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont());
+				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
 		}
 		// Crea el document a dins la gestió documental
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
@@ -158,13 +159,12 @@ public class DocumentHelper {
 			if (documentStore != null) {
 				if (documentStore.isSignat()) {
 					if (pluginHelper.custodiaIsPluginActiu()) {
-						try {
-							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia());
-						} catch (PluginException ignored) {}
+						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(),
+								expedientRepository.findByProcessInstanceId(processInstanceId));
 					}
 				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont());
+					pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
 				if (processInstanceId != null) {
 					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
@@ -200,13 +200,12 @@ public class DocumentHelper {
 			if (documentStore != null) {
 				if (documentStore.isSignat()) {
 					if (pluginHelper.custodiaIsPluginActiu()) {
-						try {
-							pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia());
-						} catch (PluginException ignored) {}
+						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(),
+								expedientRepository.findByProcessInstanceId(processInstanceId));
 					}
 				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-					pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont());
+					pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
 				if (processInstanceId != null) {
 					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
@@ -226,7 +225,7 @@ public class DocumentHelper {
 
 	public boolean signarDocumentTascaAmbToken(
 			String token,
-			byte[] signatura) throws Exception {
+			byte[] signatura) {
 		String taskInstanceId = getTaskInstanceIdPerToken(token);
 		Long documentStoreId = getDocumentStoreIdPerToken(token);
 		DocumentDto dto = toDocumentDto(
@@ -490,7 +489,7 @@ public class DocumentHelper {
 			boolean ambContingutSignat,
 			boolean ambContingutVista,
 			boolean perSignar,
-			boolean ambSegellSignatura) throws Exception {
+			boolean ambSegellSignatura) {
 		if (documentStoreId != null) {
 			DocumentStore document = documentStoreRepository.findOne(documentStoreId);
 			if (document != null) {
@@ -596,26 +595,35 @@ public class DocumentHelper {
 							if (document.getRegistreData() != null)
 								dataRegistre = df.format(document.getRegistreData());
 							String numeroRegistre = document.getRegistreNumero();
-							try {
-								getPdfUtils().estampar(
-										arxiuOrigenNom,
-										arxiuOrigenContingut,
-										(ambSegellSignatura) ? !document.isSignat() : false,
-										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
-										document.isRegistrat(),
-										numeroRegistre,
-										dataRegistre,
-										document.getRegistreOficinaNom(),
-										document.isRegistreEntrada(),
-										vistaContingut,
-										extensioDesti);
-							} catch (Exception ex) {
-								throw new Exception(ex);
-							}
+							getPdfUtils().estampar(
+									arxiuOrigenNom,
+									arxiuOrigenContingut,
+									(ambSegellSignatura) ? !document.isSignat() : false,
+									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+									document.isRegistrat(),
+									numeroRegistre,
+									dataRegistre,
+									document.getRegistreOficinaNom(),
+									document.isRegistreEntrada(),
+									vistaContingut,
+									extensioDesti);
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
-							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
-							throw new Exception("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+							Expedient expedient = expedientRepository.findByProcessInstanceId(document.getProcessInstanceId());
+							String errorDescripcio = "No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'";
+							logger.error(errorDescripcio, ex);
+							throw SistemaExternException.tractarSistemaExternException(
+									expedient.getEntorn().getId(),
+									expedient.getEntorn().getCodi(), 
+									expedient.getEntorn().getNom(), 
+									expedient.getId(), 
+									expedient.getTitol(), 
+									expedient.getNumero(), 
+									expedient.getTipus().getId(), 
+									expedient.getTipus().getCodi(), 
+									expedient.getTipus().getNom(), 
+									"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
+									ex);
 						}
 					} else {
 						// Si no és un pdf retornam la vista directament

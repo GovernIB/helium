@@ -9,8 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.JbpmException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 import org.apache.commons.logging.Log;
@@ -76,18 +75,19 @@ public class ExpedientAccioController extends BaseExpedientController {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 			expedientService.accioExecutar(expedientId, instanciaProces.getId(), accioId);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
-		} catch (NotAllowedException ex) {
+		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(
 	    			request,
 	    			getMessage(request, "error.executar.accio") + ": " + getMessage(request, "error.permisos.modificar.expedient"));
 			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
-		} catch (JbpmException ex) {
+		} catch (Exception ex) {
 			String nomAccio = accioId.toString();
 			AccioDto accio = expedientService.findAccioAmbId(accioId);
 			nomAccio = accio.getNom();
 			MissatgesHelper.error(
 	    			request,
 	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getMessage());
+			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

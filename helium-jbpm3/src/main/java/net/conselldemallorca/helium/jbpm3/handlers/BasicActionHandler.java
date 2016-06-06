@@ -51,11 +51,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto.TramitAutenticacioTipusDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ArxiuNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.DefinicioProcesNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.DominiNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EnumeracioNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
 
 import org.jbpm.JbpmException;
 import org.jbpm.context.exe.ContextInstance;
@@ -114,28 +109,24 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			String id,
 			Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-		try {
-			List<DominiRespostaFilaDto> files = Jbpm3HeliumBridge.getInstanceService().dominiConsultar(
-					getProcessInstanceId(executionContext),
-					codiDomini,
-					id,
-					parametres);
-			if (files != null) {
-				for (DominiRespostaFilaDto fila: files) {
-					FilaResultat fres = new FilaResultat();
-					for (DominiRespostaColumnaDto columna: fila.getColumnes()) {
-						fres.addColumna(
-								new ParellaCodiValor(
-										columna.getCodi(),
-										columna.getValor()));
-					}
-					resposta.add(fres);
+		List<DominiRespostaFilaDto> files = Jbpm3HeliumBridge.getInstanceService().dominiConsultar(
+				getProcessInstanceId(executionContext),
+				codiDomini,
+				id,
+				parametres);
+		if (files != null) {
+			for (DominiRespostaFilaDto fila: files) {
+				FilaResultat fres = new FilaResultat();
+				for (DominiRespostaColumnaDto columna: fila.getColumnes()) {
+					fres.addColumna(
+							new ParellaCodiValor(
+									columna.getCodi(),
+									columna.getValor()));
 				}
+				resposta.add(fres);
 			}
-			return resposta;
-		} catch (DominiNotFoundException ex) {
-			throw new JbpmException("No s'ha trobat el domini (codi=" + codiDomini + ")", ex);
 		}
+		return resposta;
 	}
 
 	/**
@@ -148,23 +139,19 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public List<ParellaCodiValor> consultaEnumeracio(
 			ExecutionContext executionContext,
 			String codiEnumeracio) {
-		try {
-			List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
-			List<EnumeracioValorDto> valors = Jbpm3HeliumBridge.getInstanceService().enumeracioConsultar(
-					getProcessInstanceId(executionContext),
-					codiEnumeracio);
-			if (valors != null) {
-				for (EnumeracioValorDto valor: valors) {
-					resposta.add(
-							new ParellaCodiValor(
-									valor.getCodi(),
-									valor.getNom()));
-				}
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		List<EnumeracioValorDto> valors = Jbpm3HeliumBridge.getInstanceService().enumeracioConsultar(
+				getProcessInstanceId(executionContext),
+				codiEnumeracio);
+		if (valors != null) {
+			for (EnumeracioValorDto valor: valors) {
+				resposta.add(
+						new ParellaCodiValor(
+								valor.getCodi(),
+								valor.getNom()));
 			}
-			return resposta;
-		} catch (EnumeracioNotFoundException ex) {
-			throw new JbpmException("No s'ha trobat l'enumeració (codi=" + codiEnumeracio + ")", ex);
 		}
+		return resposta;
 	}
 
 	/**
@@ -249,26 +236,22 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	public DocumentDisseny getDocumentDisseny(
 			ExecutionContext executionContext,
 			String codiDocument) {
-		try {
-			DefinicioProcesDto definicioProces = getDefinicioProces(executionContext);
-			DocumentDissenyDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentDisseny(
-					definicioProces.getId(),
-					codiDocument);
-			if (document == null)
-				return null;
-			DocumentDisseny resposta = new DocumentDisseny();
-			resposta.setId(document.getId());
-			resposta.setCodi(document.getCodi());
-			resposta.setNom(document.getNom());
-			resposta.setDescripcio(document.getDescripcio());
-			resposta.setPlantilla(document.isPlantilla());
-			resposta.setContentType(document.getContentType());
-			resposta.setCustodiaCodi(document.getCustodiaCodi());
-			resposta.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
-			return resposta;
-		} catch (DefinicioProcesNotFoundException ex) {
-			throw new JbpmException("No s'ha trobat la definició de procés per a l'instància de proces (id=" + executionContext.getProcessInstance().getId() + ")", ex);
-		}
+		DefinicioProcesDto definicioProces = getDefinicioProces(executionContext);
+		DocumentDissenyDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentDisseny(
+				definicioProces.getId(),
+				codiDocument);
+		if (document == null)
+			return null;
+		DocumentDisseny resposta = new DocumentDisseny();
+		resposta.setId(document.getId());
+		resposta.setCodi(document.getCodi());
+		resposta.setNom(document.getNom());
+		resposta.setDescripcio(document.getDescripcio());
+		resposta.setPlantilla(document.isPlantilla());
+		resposta.setContentType(document.getContentType());
+		resposta.setCustodiaCodi(document.getCustodiaCodi());
+		resposta.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+		return resposta;
 	}
 
 	/**
@@ -379,15 +362,11 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			annexos.add(annex);
 		}
 		anotacio.setAnnexos(annexos);
-		try {
-			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioEntrada(anotacio);
-			RespostaRegistre resposta = new RespostaRegistre();
-			resposta.setNumero(anotacioId.getNumero());
-			resposta.setData(anotacioId.getData());
-			return resposta;
-		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut registrar l'anotació d'entrada", ex);
-		}
+		RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioEntrada(anotacio,executionContext.getProcessInstance().getExpedient().getId());
+		RespostaRegistre resposta = new RespostaRegistre();
+		resposta.setNumero(anotacioId.getNumero());
+		resposta.setData(anotacioId.getData());
+		return resposta;
 	}
 	/**
 	 * Registra un document de sortida
@@ -430,15 +409,11 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			annexos.add(annex);
 		}
 		anotacio.setAnnexos(annexos);
-		try {
-			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioSortida(anotacio);
-			RespostaRegistre resposta = new RespostaRegistre();
-			resposta.setNumero(anotacioId.getNumero());
-			resposta.setData(anotacioId.getData());
-			return resposta;
-		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut registrar l'anotació de sortida", ex);
-		}
+		RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioSortida(anotacio, getExpedient(executionContext).getId());
+		RespostaRegistre resposta = new RespostaRegistre();
+		resposta.setNumero(anotacioId.getNumero());
+		resposta.setData(anotacioId.getData());
+		return resposta;
 	}
 
 	/**
@@ -507,19 +482,15 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			annexos.add(annex);
 		}
 		notificacio.setAnnexos(annexos);
-		try {
-			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio);
-			RespostaRegistre resposta = new RespostaRegistre();
-			resposta.setNumero(anotacioId.getNumero());
-			resposta.setData(anotacioId.getData());
-			ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
-			referenciaRDSJustificante.setClave(anotacioId.getReferenciaRDSJustificante().getClave());
-			referenciaRDSJustificante.setCodigo(anotacioId.getReferenciaRDSJustificante().getCodigo());
-			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
-			return resposta;
-		} catch (PluginException ex) {
-			throw new JbpmException("S'ha produït un error en enviar la notificació: " + ex.getLocalizedMessage(), ex);
-		}
+		RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio, getExpedient(executionContext).getId());
+		RespostaRegistre resposta = new RespostaRegistre();
+		resposta.setNumero(anotacioId.getNumero());
+		resposta.setData(anotacioId.getData());
+		ReferenciaRDSJustificante referenciaRDSJustificante = new ReferenciaRDSJustificante();
+		referenciaRDSJustificante.setClave(anotacioId.getReferenciaRDSJustificante().getClave());
+		referenciaRDSJustificante.setCodigo(anotacioId.getReferenciaRDSJustificante().getCodigo());
+		resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);
+		return resposta;
 	}
 
 	/**
@@ -530,12 +501,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @throws Exception 
 	 */
 	public RespostaJustificantRecepcioDto obtenirJustificantRecepcio(String registreNumero) throws Exception {
-		try {
-			return Jbpm3HeliumBridge.getInstanceService().notificacioElectronicaJustificant(
-					registreNumero);
-		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
-		}
+		return Jbpm3HeliumBridge.getInstanceService().notificacioElectronicaJustificant(
+				registreNumero);
 	}
 
 	/**
@@ -546,12 +513,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @throws Exception 
 	 */
 	public RespostaJustificantDetallRecepcioDto obtenirJustificantDetallRecepcio(String registreNumero) throws Exception {
-		try {
-			return Jbpm3HeliumBridge.getInstanceService().notificacioElectronicaJustificantDetall(
-					registreNumero);
-		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
-		}
+		return Jbpm3HeliumBridge.getInstanceService().notificacioElectronicaJustificantDetall(
+				registreNumero);
 	}
 
 	/**
@@ -561,12 +524,8 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @return
 	 */
 	public Date registreObtenirJustificantRecepcio(String registreNumero) {
-		try {
-			return Jbpm3HeliumBridge.getInstanceService().registreNotificacioComprovarRecepcio(
-					registreNumero);
-		} catch (PluginException ex) {
-			throw new JbpmException("No s'ha pogut obtenir el justificant de recepció", ex);
-		}
+		return Jbpm3HeliumBridge.getInstanceService().registreNotificacioComprovarRecepcio(
+				registreNumero, null);
 	}
 
 	/**
@@ -747,15 +706,11 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @return
 	 */
 	public byte[] obtenirArxiuGestorDocumental(String id) {
-		try {
-			ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuGestorDocumental(id);
-			if (arxiu != null)
-				return arxiu.getContingut();
-			else
-				return null;
-		} catch (ArxiuNotFoundException ex) {
-			throw new JbpmException("Arxiu no trobat a la gestió documental (id=" + id + ")");
-		}
+		ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuGestorDocumental(id);
+		if (arxiu != null)
+			return arxiu.getContingut();
+		else
+			return null;
 	}
 
 	/**

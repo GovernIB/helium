@@ -194,5 +194,5 @@ form .btn-group > .btn-default:hover:HOVER {
 
 .table-bordered>tbody>tr>td {
 	overflow-wrap: break-word; 
-	max-width: 100px;
+	max-width: 120px;
 }

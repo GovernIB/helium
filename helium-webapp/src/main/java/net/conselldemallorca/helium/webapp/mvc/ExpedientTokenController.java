@@ -12,7 +12,10 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.PermissionService;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.apache.commons.logging.Log;
@@ -167,19 +170,34 @@ public class ExpedientTokenController extends BaseController {
 								command.isCancelTasks());
 						missatgeInfo(request, getMessage("info.token.retrocedit") );
 						status.setComplete();
+						
+					} catch (ValidacioException ex) {
+						missatgeError(
+			        			request,
+			        			getMessage("error.validacio.token") + " : " + ex.getMessage());
+						logger.error("No s'ha pogut retrocedit el token", ex);
+					} catch (TramitacioValidacioException ex) {
+						missatgeError(
+			        			request,
+			        			getMessage("error.validacio.token") + " : " + ex.getMessage());
+						logger.error("No s'ha pogut retrocedit el token", ex);
+					} catch (TramitacioHandlerException ex) {
+						missatgeError(
+			        			request,
+			        			getMessage("error.retrocedir.token") + " : " + ex.getPublicMessage());
+						logger.error("No s'ha pogut retrocedit el token", ex);
+					} catch (TramitacioException ex) {
+						missatgeError(
+			        			request,
+			        			getMessage("error.retrocedir.token") + " : " + ex.getPublicMessage());
+						logger.error("No s'ha pogut retrocedit el token", ex);
 					} catch (Exception ex) {
-						if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
-							missatgeError(
-				        			request,
-				        			ex.getCause().getMessage());
-						} else {
-							missatgeError(
-				        			request,
-				        			getMessage("error.retrocedir.token"),
-				        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
-						}
-			        	logger.error("No s'ha pogut retrocedit el token", ex);
-					}
+						missatgeError(
+			        			request,
+			        			getMessage("error.retrocedir.token"),
+			        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
+						logger.error("No s'ha pogut retrocedit el token", ex);
+					}	
 				}
 				return "redirect:/expedient/tokens.html?id=" + id;
 			} else {

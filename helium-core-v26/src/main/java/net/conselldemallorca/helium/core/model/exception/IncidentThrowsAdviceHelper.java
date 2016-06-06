@@ -19,9 +19,9 @@ public class IncidentThrowsAdviceHelper {
 	
 	private static ThreadLocal<DadesAdvice> dadesAdviceThreadLocal = new ThreadLocal<DadesAdvice>();
 
-	public static void setDadesAdvice(DadesAdvice dadesAdvice) {
+	/*public static void setDadesAdvice(DadesAdvice dadesAdvice) {
 		dadesAdviceThreadLocal.set(dadesAdvice);
-	}
+	}*/
 	public static DadesAdvice getDadesAdvice() {
 		return dadesAdviceThreadLocal.get();
 	}

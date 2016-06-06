@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,9 +243,21 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
-		List<String[]> missatges = tascaService.getMissatgesExecucioSegonPla(tascaId);
-		model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
-		model.addAttribute("missatges", missatges);
+		
+		try {
+			List<String[]> missatges = tascaService.getMissatgesExecucioSegonPla(tascaId);
+			model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
+			model.addAttribute("missatges", missatges);
+		} catch (NoTrobatException ex) {
+			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
+			if (ModalHelper.isModal(request)) {
+				return modalUrlTancar(false);
+			} else {
+				String referer = request.getHeader("Referer");
+				return "redirect:"+ referer;
+			}
+		}
+		
 		return "v3/missatgesExecucioSegonPla";
 	}
 

@@ -12,8 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaMembreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.AreaNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -165,7 +164,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 			if (area == null)
 				logger.warn("No s'ha pogut trobar l'àrea amb el codi \"" + codi + "\"");
 			return area;
-		} catch (EntornNotFoundException ex) {
+		} catch (NoTrobatException ex) {
 			logger.error("No s'ha pogut trobar l'entorn (id=" + entornId + ")", ex);
 			return null;
 		}
@@ -197,11 +196,8 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 			if (carrec != null && carrec.getPersonaCodi() != null)
 				return getPersonaAmbCodi(carrec.getPersonaCodi());
 			return null;
-		} catch (EntornNotFoundException ex) {
-			logger.error("No s'ha pogut trobar l'entorn (id=" + entornId + ")", ex);
-			return null;
-		} catch (AreaNotFoundException ex) {
-			logger.error("No s'ha pogut trobar l'area (codi=" + areaCodi + ")", ex);
+		} catch (NoTrobatException ex) {
+			logger.error("No s'ha pogut trobar " + ex.getClass().getName() + " (id/codi=" + ex.getObjectId().toString() + ")", ex);
 			return null;
 		}
 	}

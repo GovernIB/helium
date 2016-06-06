@@ -26,7 +26,10 @@ import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.PersonaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.model.service.TerminiService;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
@@ -828,17 +831,32 @@ public class TascaController extends BaseController {
 				missatgeInfo(request, getMessage("info.tasca.completat"));
 			} catch (Exception ex) {
 				String tascaIdLog = getIdTascaPerLogs(entornId, id);
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
+				
+				if (ex instanceof ValidacioException) {
 					missatgeError(
 		        			request,
-		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage());
+				}  else if (ex instanceof TramitacioValidacioException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage());
+				} else if (ex instanceof TramitacioHandlerException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog + ": " + ((TramitacioHandlerException)ex).getPublicMessage());
+				} else if (ex instanceof TramitacioException) {
+					missatgeError(
+		        			request,
+		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog + ": " + ((TramitacioException)ex).getPublicMessage());
 				} else {
 					missatgeError(
 		        			request,
-		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog,
-		        			(ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage());
-					logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
-				}
+		        			getMessage("error.finalitzar.tasca") + " " + tascaIdLog + ": " + 
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+		        }
+				
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaIdLog, ex);
+				
 				resposta = false;
 	        }
 		}

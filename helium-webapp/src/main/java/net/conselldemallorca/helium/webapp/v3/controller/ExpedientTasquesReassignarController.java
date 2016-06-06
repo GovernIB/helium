@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -81,11 +80,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 						expedientTascaReassignarCommand.getExpression());
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.reassignada"));
 			} catch (Exception ex) {
-				if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
-					MissatgesHelper.error(request, getMessage(request, ex.getCause().getMessage()));
-				} else {
-					MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { expedientTascaReassignarCommand.getTaskId() } ));
-				}
+				MissatgesHelper.error(request, getMessage(request, "error.reassignar.tasca", new Object[] { expedientTascaReassignarCommand.getTaskId() } ));
 				atributsModel(
 	        			expedientId,
 	        			tascaId,
