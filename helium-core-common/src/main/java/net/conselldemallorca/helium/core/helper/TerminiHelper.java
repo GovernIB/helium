@@ -16,7 +16,7 @@ import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.TerminiNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -48,10 +48,10 @@ public class TerminiHelper {
 			Long terminiId,
 			String processInstanceId,
 			Date data,
-			boolean esDataFi) throws TerminiNotFoundException {
+			boolean esDataFi) {
 		Termini termini = terminiRepository.findOne(terminiId);
 		if (termini == null)
-			throw new TerminiNotFoundException();
+			throw new NoTrobatException(Termini.class, terminiId);
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(
 				termini,
 				processInstanceId);
@@ -82,10 +82,10 @@ public class TerminiHelper {
 			int anys,
 			int mesos,
 			int dies,
-			boolean esDataFi) throws TerminiNotFoundException {
+			boolean esDataFi) {
 		Termini termini = terminiRepository.findOne(terminiId);
 		if (termini == null)
-			throw new TerminiNotFoundException();
+			throw new NoTrobatException(Termini.class, terminiId);
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findByTerminiAndProcessInstanceId(
 				termini,
 				processInstanceId);

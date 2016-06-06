@@ -30,7 +30,7 @@ import java.util.Set;
 
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -524,7 +524,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 		}
 		try {
 			Jbpm3HeliumBridge.getInstanceService().alertaEsborrarAmbTaskInstanceId(this.getId());
-		} catch (TaskInstanceNotFoundException ex) {
+		} catch (NoTrobatException ex) {
 			log.error("No s'ha trobat la taskInstance (id=" + this.getId() + ")", ex);
 		}
 	}

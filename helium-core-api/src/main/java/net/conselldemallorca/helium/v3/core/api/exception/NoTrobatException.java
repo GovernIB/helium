@@ -3,10 +3,15 @@ package net.conselldemallorca.helium.v3.core.api.exception;
 @SuppressWarnings("serial")
 public class NoTrobatException extends RuntimeException {
 	private Class<?> objectType;
-	private Long objectId;
+	private Object objectId;
 	
-	public NoTrobatException(Class<?> objectType, Long objectId) {
-		super();
+	public NoTrobatException(Class<?> objectType) {
+		super("No s'ha trobat l'objecte de tipus " + objectType.getName());
+		this.objectType = objectType;
+	}
+	
+	public NoTrobatException(Class<?> objectType, Object objectId) {
+		super("No s'ha trobat l'objecte de tipus (" + objectType.getSimpleName() + ") amb identificador (" + objectId + ")");
 		this.objectType = objectType;
 		this.objectId = objectId;
 	}
@@ -15,7 +20,7 @@ public class NoTrobatException extends RuntimeException {
 		return objectType;
 	}
 
-	public Long getObjectId() {
+	public Object getObjectId() {
 		return objectId;
 	}
 

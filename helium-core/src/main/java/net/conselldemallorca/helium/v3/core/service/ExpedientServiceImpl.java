@@ -68,6 +68,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -101,21 +102,16 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientRepetitException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -281,11 +277,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		if (usuari != null)
 			comprovarUsuari(usuari);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
 		String usuariBo = (usuari != null) ? usuari : auth.getName();
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		if (expedientTipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
@@ -309,10 +309,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"entornCodi=" + entornId + ", " +
 				"expedientTipusCodi=" + expedientTipus.getCodi() + ", " +
 				"data=" + new Date() + ")";
+		
+		Expedient expedient = new Expedient();
 		try {
 			
 			String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
-			Expedient expedient = new Expedient();
 			expedient.setTipus(expedientTipus);
 			expedient.setIniciadorTipus(conversioTipusHelper.convertir(iniciadorTipus, IniciadorTipus.class));
 			expedient.setIniciadorCodi(iniciadorCodiCalculat);
@@ -368,7 +369,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					entorn.getId(),
 					expedientTipus.getId(),
 					expedient.getNumero()) != null)) {
-				throw new ExpedientRepetitException(
+				throw new ValidacioException(
 						messageHelper.getMessage(
 								"error.expedientService.jaExisteix",
 								new Object[]{expedient.getNumero()}) );
@@ -515,6 +516,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ExpedientIniciantDto.setExpedient(null);
 			logger.debug("textBloqueigIniciExpedient: " + textBloqueigIniciExpedient);
 			return dto;
+		} catch (ExecucioHandlerException ex) {
+			throw new TramitacioHandlerException(
+					(expedient != null) ? expedient.getEntorn().getId() : null, 
+					(expedient != null) ? expedient.getEntorn().getCodi() : null,
+					(expedient != null) ? expedient.getEntorn().getNom() : null, 
+					(expedient != null) ? expedient.getId() : null, 
+					(expedient != null) ? expedient.getTitol() : null,
+					(expedient != null) ? expedient.getNumero() : null,
+					(expedient != null) ? expedient.getTipus().getId() : null, 
+					(expedient != null) ? expedient.getTipus().getCodi() : null,
+					(expedient != null) ? expedient.getTipus().getNom() : null,
+					ex.getProcessInstanceId(),
+					ex.getTaskInstanceId(),
+					ex.getTokenId(),
+					ex.getClassName(),
+					ex.getMethodName(),
+					ex.getFileName(),
+					ex.getLineNumber(),
+					"", 
+					ex.getCause());
+		} catch (ValidationException ex) {
+			throw new TramitacioValidacioException("Error de validació en Handler", ex);
 		} finally {
 			textBloqueigIniciExpedient = null;
 		}
@@ -615,6 +638,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		expedientHelper.update(
 				expedient,
 				numero,
@@ -633,24 +657,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly = true)
 	@Override
 	public boolean luceneReindexarExpedient(Long expedientId) {
-		try {
-			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-					expedientId,
-					false,
-					true,
-					false,
-					false);
-			indexHelper.expedientIndexLuceneRecrear(expedient);
-			return true;
-		} catch (Exception ex) {
-			return false;
-		}
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false,
+				false);
+		
+		indexHelper.expedientIndexLuceneRecrear(expedient);
+		return true;
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
+		if (documentStore == null)
+			throw new NoTrobatException(DocumentStore.class, documentStoreId);
 		return documentHelper.getRespostasValidacioSignatura(documentStore);
 	}
 
@@ -664,6 +687,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				true,
 				false);
+		
 		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
 		for (JbpmProcessInstance pi: processInstancesTree){
 			for (TerminiIniciat ti: terminiIniciatRepository.findByProcessInstanceId(pi.getId()))
@@ -674,12 +698,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(pi.getId())) {
 				if (documentStore.isSignat()) {
 					try {
-						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia());
+						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
 					} catch (Exception ignored) {}
 				}
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont());
+							documentStore.getReferenciaFont(), expedient);
 				documentStoreRepository.delete(documentStore.getId());
 			}
 		}
@@ -702,7 +726,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional
-	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
+	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
@@ -712,6 +736,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				true);
+		
 		boolean creat = false;
 		String arxiuNomAntic = null;
 		boolean adjunt = false;
@@ -721,6 +746,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			adjunt = true;
 		} else {
 			documentStore = documentStoreRepository.findById(documentStoreId);
+			if (documentStore == null)
+				throw new NoTrobatException(DocumentStore.class, documentStoreId);
+			
 			arxiuNomAntic = documentStore.getArxiuNom();
 			adjunt = documentStore.isAdjunt();
 		}
@@ -892,6 +920,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
 		logger.debug("Consulta general d'expedients paginada (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
@@ -919,6 +948,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
@@ -934,7 +964,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
-				throw new EstatNotFoundException();
+				throw new NoTrobatException(Estat.class,estatId);
 			}
 		}
 		// Calcula la data fi pel filtre
@@ -1055,7 +1085,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			estat = estatRepository.findByExpedientTipusAndId(expedientTipus, estatId);
 			if (estat == null) {
 				logger.debug("No s'ha trobat l'estat (expedientTipusId=" + expedientTipusId + ", estatId=" + estatId + ")");
-				throw new EstatNotFoundException();
+				throw new NoTrobatException(Estat.class, estatId);
 			}
 		}
 		// Calcula la data fi pel filtre
@@ -1185,6 +1215,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		DefinicioProces definicioProces;
 		if (processInstanceId != null) {
 			expedientHelper.comprovarInstanciaProces(
@@ -1217,6 +1248,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedient(
 				expedient,
 				false,
@@ -1255,9 +1287,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 			String processInstanceId,
 			Long accioId) {
 		Accio accio = accioRepository.findOne(accioId);
+		if (accio == null)
+			throw new NoTrobatException(Accio.class, accioId);
 		
 		if (this.permetreExecutarAccioExpedient(accio, expedientId)) {
 			Expedient expedient = expedientRepository.findOne(expedientId);
+			if (expedient == null)
+				throw new NoTrobatException(Expedient.class, expedientId);
 			
 			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 			expedientLoggerHelper.afegirLogExpedientPerProces(
@@ -1278,21 +1314,28 @@ public class ExpedientServiceImpl implements ExpedientService {
 							"Error al executa l'acció '" + accio.getCodi() + "'",
 							ex);
 				}
-				throw new net.conselldemallorca.helium.v3.core.api.exception.JbpmException(
-						expedient.getId(),
-						expedient.getIdentificador(),
-						expedient.getTipus().getId(),
-						processInstanceId,
-						(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
+				throw new TramitacioException(
+						expedient.getEntorn().getId(), 
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"Error al executa l'acció '" + accio.getCodi() + "'", 
+						ex);
 			}
 			verificarFinalitzacioExpedient(processInstanceId, expedient);
 			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
-			throw new NotAllowedException(
-					expedientId,
-					Expedient.class,
-					PermisTipusEnumDto.WRITE);
+			throw new PermisDenegatException(
+					expedientId, 
+					Expedient.class, 
+					new Permission[]{ExtendedPermission.WRITE},
+					null);
 		}
 	}
 
@@ -1313,12 +1356,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				expedient.getProcessInstanceId());
 		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
 		// Filtra les accions restringides per rol que
 		// no estan permeses per a l'usuari actual
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
 		Iterator<Accio> it = accions.iterator();
 		while (it.hasNext()) {
 			Accio accio = it.next();
@@ -1350,6 +1395,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, false, mostrarDeOtrosUsuarios);
 		tasques.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, true, mostrarDeOtrosUsuarios));
 		return tasques;
@@ -1372,7 +1418,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
 		boolean tasquesAltresUsuaris = permisosHelper.isGrantedAny(
 					expedient.getTipus().getId(),
 					ExpedientTipus.class,
@@ -1407,6 +1455,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		if (processInstanceId == null) {
 			return variableHelper.findDadesPerInstanciaProces(
 					expedient.getProcessInstanceId(), 
@@ -1435,6 +1484,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		DefinicioProces definicioProces;
 		if (processInstanceId == null) {
 			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
@@ -1451,45 +1501,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 				CampAgrupacioDto.class);
 	}
 
-	/*@Override
-	@Transactional(readOnly = true)
-	public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(
-			Long expedientId,
-			Long documentStoreId,
-			String docCodi) {
-		logger.debug("Consulta el document de l'expedient (" +
-				"expedientId=" + expedientId + ", " +
-				"docCodi=" + docCodi + ", " +
-				"documentStoreId=" + documentStoreId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		return documentHelper.findDocumentPerExpedientDocumentStoreId(
-				expedient,
-				documentStoreId,
-				docCodi);
-	}*/
-
 	@Override
 	@Transactional
 	public void deleteSignatura(
 			Long expedientId,
-			Long documentStoreId) throws Exception {
+			Long documentStoreId) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				false,
 				true,
 				false,
 				false);
+		
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId);
 		if (documentStore != null && documentStore.isSignat()) {
-			try {
 				pluginHelper.custodiaEsborrarSignatures(
-						documentStore.getReferenciaCustodia());
-			} catch (Exception ignored) {}
+						documentStore.getReferenciaCustodia(),
+						expedient);
 			String jbpmVariable = documentStore.getJbpmVariable();
 			documentStore.setReferenciaCustodia(null);
 			documentStore.setSignat(false);
@@ -1531,6 +1559,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		if (processInstanceId == null) {
 			return documentHelper.findDocumentsPerInstanciaProces(
 					expedient.getProcessInstanceId());
@@ -1561,6 +1590,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		if (processInstanceId == null) {
 			return documentHelper.findDocumentPerInstanciaProces(
 					expedient.getProcessInstanceId(),
@@ -1590,6 +1620,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		if (processInstanceId == null) {
 			return documentHelper.findDocumentPerDocumentStoreId(
 					expedient.getProcessInstanceId(),
@@ -1617,6 +1648,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		if (processInstanceId == null) {
 			documentHelper.esborrarDocument(
 					null,
@@ -1647,6 +1679,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly = true)
 	public DocumentDto findDocumentsPerId(Long id) {
 		Document document = documentRepository.findOne(id);
+		if (document == null)
+			throw new NoTrobatException(Document.class, id);
+		
 		return conversioTipusHelper.convertir(
 				document,
 				DocumentDto.class);
@@ -1666,11 +1701,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
-			throw new NotFoundException(
-					documentStoreId,
-					DocumentStore.class);
+			throw new NoTrobatException(DocumentStore.class,documentStoreId);
 		}
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
@@ -1695,21 +1729,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		expedientHelper.aturar(expedient, motiu, null);
-		/*ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_ATURAR,
-				motiu);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		logger.debug("Suspenent les instàncies de procés associades a l'expedient (id=" + id + ")");
-		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
-				expedient.getProcessInstanceId());
-		String[] ids = new String[processInstancesTree.size()];
-		int i = 0;
-		for (JbpmProcessInstance pi: processInstancesTree)
-			ids[i++] = pi.getId();
-		jbpmHelper.suspendProcessInstances(ids);
-		expedient.setInfoAturat(motiu);*/
 	}
 
 	@Override
@@ -1722,6 +1743,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
@@ -1740,7 +1762,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	
 	@Override
 	@Transactional
-	public void reprendre(Long id) throws Exception {
+	public void reprendre(Long id) {
 		logger.debug("Reprenent l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
@@ -1748,35 +1770,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		expedientHelper.reprendre(expedient, null);
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
-				null);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		logger.debug("Reprenent les instàncies de procés associades a l'expedient (id=" + id + ")");
-		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
-				expedient.getProcessInstanceId());
-		String[] ids = new String[processInstancesTree.size()];
-		int i = 0;
-		for (JbpmProcessInstance pi: processInstancesTree)
-			ids[i++] = pi.getId();
-		jbpmHelper.resumeProcessInstances(ids);
-		expedient.setInfoAturat(null);
-		expedientRegistreHelper.crearRegistreReprendreExpedient(
-				expedient.getId(),
-				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());*/
 	}
 	
 	@Override
 	@Transactional
-	public void desfinalitzar(Long id) throws Exception {
+	public void desfinalitzar(Long id) {
 		logger.debug("Reprenent l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
@@ -1784,6 +1784,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
@@ -1812,6 +1813,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		mesuresTemporalsHelper.mesuraIniciar(
 				"Anular",
 				"expedient",
@@ -1849,12 +1851,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
 				destiId,
 				true,
 				false,
 				false,
 				false);
+		
 		expedientHelper.relacioCrear(origen, desti);
 	}
 
@@ -1878,12 +1882,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
+		
 		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
 				destiId,
 				false,
 				false,
 				false,
 				false);
+		
 		origen.removeRelacioOrigen(desti);
 		desti.removeRelacioOrigen(origen);		
 	}
@@ -1899,6 +1905,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
+		
 		List<ExpedientDto> list = new ArrayList<ExpedientDto>();
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {			
 			list.add(findAmbId(relacionat.getId()));
@@ -1959,18 +1966,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Canviant versió de la definició de procés (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"versio=" + versio + ")");
-//		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-//				id,
-//				false,
-//				true,
-//				false,
-//				false);
-//		if (!expedient.isAmbRetroaccio()) {
-//			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
-//		}
-//		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-//		jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), versio);
 		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		if (defprocAntiga == null)
+			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
+		
 		jbpmHelper.changeProcessInstanceVersion(processInstanceId, versio);
 		// Apunta els terminis iniciats cap als terminis
 		// de la nova definició de procés
@@ -2822,10 +2821,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.ATURAR);
 		} else {
-			throw new IllegalStateException(
-					expedientId,
-					JbpmTask.class,
-					"aturat");
+			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
 	}
 
@@ -2904,10 +2900,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.REPRENDRE);
 		} else {
-			throw new IllegalStateException(
-					expedientId,
-					JbpmTask.class,
-					"aturat");
+			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
 	}
 	
@@ -2936,10 +2929,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.CANCELAR);
 		} else {
-			throw new IllegalStateException(
-					expedientId,
-					JbpmTask.class,
-					"aturat");
+			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
 	}
 
@@ -2976,10 +2966,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					usuari,
 					expression);
 		} else {
-			throw new IllegalStateException(
-					expedient.getId(),
-					JbpmTask.class,
-					"aturat");
+			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
 		}
 	}
 
@@ -3010,9 +2997,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a la consulta
 		Consulta consulta = consultaRepository.findById(consultaId);
 		if (consulta == null) {
-			throw new NotFoundException(
-					consultaId,
-					Consulta.class);
+			throw new NoTrobatException(Consulta.class,consultaId);
 		}
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
@@ -3130,9 +3115,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a la consulta
 		Consulta consulta = consultaRepository.findById(consultaId);
 		if (consulta == null) {
-			throw new NotFoundException(
-					consultaId,
-					Consulta.class);
+			throw new NoTrobatException(Consulta.class,consultaId);
 		}
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
@@ -3381,7 +3364,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Integer any) {
 		long increment = 0;
 		String numero = null;
-		//ExpedientTipusDto expedientTipusDto = conversioTipusHelper.convertir(expedientTipus, ExpedientTipusDto.class);
+		
 		Expedient expedient = null;
 		if (any == null) 
 			any = Calendar.getInstance().get(Calendar.YEAR);
@@ -3396,9 +3379,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 					numero);
 			increment++;
 		} while (expedient != null);
-		/*if (increment > 1) {
-			expedientTipusDto.updateSequencia(any, increment - 1);
-		}*/
 		return numero;
 	}
 	
@@ -3446,17 +3426,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private PersonaDto comprovarUsuari(String usuari) {
 		try {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);
-			if (persona == null) {
-				throw new NotFoundException(
-						usuari,
-						PersonaDto.class);
-			}
 			return persona;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut comprovar l'usuari (codi=" + usuari + ")");
-			throw new NotFoundException(
-					usuari,
-					PersonaDto.class);
+			throw new NoTrobatException(PersonaDto.class,usuari);
 		}
 	}
 
@@ -3472,7 +3445,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					true,
 					false,
 					false);
-			} catch (NotAllowedException ex) {
+			} catch (PermisDenegatException ex) {
 				permesa =  false;
 			}
 		}

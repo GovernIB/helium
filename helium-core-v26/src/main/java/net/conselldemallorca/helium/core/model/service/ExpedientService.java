@@ -20,20 +20,6 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dom4j.Element;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import com.codahale.metrics.MetricRegistry;
-
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -122,7 +108,23 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dom4j.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * 
@@ -2095,22 +2097,42 @@ public class ExpedientService {
 			jbpmHelper.executeActionInstanciaProces(
 					processInstanceId,
 					accio.getJbpmAction());
+		} catch (ExecucioHandlerException ex) {
+			throw new TramitacioHandlerException(
+					(expedient != null) ? expedient.getEntorn().getId() : null, 
+					(expedient != null) ? expedient.getEntorn().getCodi() : null,
+					(expedient != null) ? expedient.getEntorn().getNom() : null, 
+					(expedient != null) ? expedient.getId() : null, 
+					(expedient != null) ? expedient.getTitol() : null,
+					(expedient != null) ? expedient.getNumero() : null,
+					(expedient != null) ? expedient.getTipus().getId() : null, 
+					(expedient != null) ? expedient.getTipus().getCodi() : null,
+					(expedient != null) ? expedient.getTipus().getNom() : null,
+					ex.getProcessInstanceId(),
+					ex.getTaskInstanceId(),
+					ex.getTokenId(),
+					ex.getClassName(),
+					ex.getMethodName(),
+					ex.getFileName(),
+					ex.getLineNumber(),
+					"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(), 
+					ex.getCause());
 		} catch (Exception ex) {
-			if (ex instanceof ExecucioHandlerException) {
-				logger.error(
-						"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
-						ex.getCause());
-			} else {
-				logger.error(
-						"Error al executa l'acció '" + accio.getCodi() + "'",
-						ex);
-			}
-			throw new net.conselldemallorca.helium.v3.core.api.exception.JbpmException(
-					expedient.getId(),
-					expedient.getIdentificador(),
-					expedient.getTipus().getId(),
-					processInstanceId,
-					(ex instanceof ExecucioHandlerException) ? ex.getCause() : ex);
+			logger.error(
+					"Error al executa l'acció '" + accio.getCodi() + "'",
+					ex);
+			throw new TramitacioException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"Error al executa l'acció '" + accio.getCodi(), 
+					ex);
 		}
 		verificarFinalitzacioExpedient(processInstanceId);
 		getServiceUtils().expedientIndexLuceneUpdate(processInstanceId);

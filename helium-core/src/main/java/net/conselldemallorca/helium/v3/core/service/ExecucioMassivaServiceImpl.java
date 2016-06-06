@@ -16,6 +16,45 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.MailHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
@@ -36,41 +75,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.MailHelper;
-import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.Persona;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -121,7 +125,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 
 	@Transactional
 	@Override
-	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
+	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
 		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) ||
 			(dto.getTascaIds() != null && dto.getTascaIds().length > 0) ||
 			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty())) {
@@ -134,6 +138,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			log += ")";
 			logger.debug(log);
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			
 			ExecucioMassiva execucioMassiva = new ExecucioMassiva(
 					auth.getName(),
 					ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
@@ -146,9 +151,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			execucioMassiva.setParam1(dto.getParam1());
 			execucioMassiva.setParam2(dto.getParam2());
 			if (dto.getExpedientTipusId() != null) {
-				execucioMassiva.setExpedientTipus(
-						expedientTipusRepository.findById(dto.getExpedientTipusId())
-				);
+				ExpedientTipus expedientTipus = expedientTipusRepository.findById(dto.getExpedientTipusId());
+				execucioMassiva.setExpedientTipus(expedientTipus);
 			}
 			int ordre = 0;
 			boolean expedients = false;
@@ -193,13 +197,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			if (expedients)
 				execucioMassivaRepository.save(execucioMassiva);
 			else 
-				throw new Exception("S'ha intentat crear una execució massiva sense assignar expedients.");
+				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
 	}
 	
 	@Transactional
 	@Override
-	public void cancelarExecucio(Long id) throws Exception {
+	public void cancelarExecucio(Long id) {
 		ExecucioMassivaExpedient eme = null;
 		try {
 			eme = execucioMassivaExpedientRepository.findOne(id);
@@ -207,8 +211,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			eme.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(eme);
 		} catch (Exception ex) {
-			logger.error("OPERACIO:" +id + ". No s'ha pogut canviar el estat del procés", ex);
-			throw ex;
+			logger.error("OPERACIO:" + id + ". No s'ha pogut canviar el estat del procés", ex);
+			throw new ValidacioException("OPERACIO:" + id + ". No s'ha pogut canviar el estat del procés", ex);
 		}
 	}
 	
@@ -314,15 +318,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	}
 	
 	@Override
-	public byte[] serialize(Object obj) throws Exception{
+	public byte[] serialize(Object obj){
 		byte[] bytes = null;
 		if (obj != null) {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream(bos);
-			oos.writeObject(obj);
-			oos.flush();
-			oos.close();
-			bos.close();
+			try {
+				ObjectOutputStream oos = new ObjectOutputStream(bos);
+				oos.writeObject(obj);
+				oos.flush();
+				oos.close();
+				bos.close();
+			} catch (IOException e) {
+				logger.error(e);
+				e.printStackTrace();
+			}
 			bytes = bos.toByteArray();
 		}
 		return bytes;
@@ -334,6 +343,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	public String getExecucioMassivaDetall(Long execucioMassivaId) {		
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");		
 		ExecucioMassiva execucio = execucioMassivaRepository.findOne(execucioMassivaId);
+		if (execucio == null)
+			throw new NoTrobatException(ExecucioMassiva.class, execucioMassivaId);
+		
 		List<ExecucioMassivaExpedient> expedients = execucio.getExpedients();
 		JSONArray ljson_exp = new JSONArray();
 		String tasca = "";
@@ -404,12 +416,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		mjson.put("tasca", tasca);
 		mjson.put("expedients", ljson_exp);
 		String nomSencer = "";
-		try {
-			nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
-		} catch (Exception e) {
-			logger.error(e);
-			e.printStackTrace();
-		}
+		
+		nomSencer = pluginHelper.personaFindAmbCodi(execucio.getUsuari()).getNomSencer();
+		
 		mjson.put("usuari", nomSencer);
 		String ojson = JSONValue.toJSONString(mjson);
 		return ojson;
@@ -563,8 +572,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public void executarExecucioMassiva(Long ome_id) throws Exception {
+	public void executarExecucioMassiva(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
+		if (ome == null)
+			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
 		
 		Expedient expedient;
 		if (ome.getExpedient() != null) {
@@ -650,11 +661,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			String expedient_s = null;
-	        if (MesuresTemporalsHelper.isActiu()) {
-	        	try {
-	        		expedient_s = expedient.getTipus().getNom();
-	        	} catch (Exception e) {}
-			}
+	        if (MesuresTemporalsHelper.isActiu())
+        		expedient_s = expedient.getTipus().getNom();
 	        
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
 				// Authentication
@@ -760,7 +768,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} catch (Exception ex) {
 			logger.error("Error al executar la acció massiva (expedientTipusId=" + expedient.getTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + expedient.getId() + ", acció=" + ome, ex);
 			TascaProgramadaServiceImpl.saveError(ome_id, ex);
-			throw ex;
+			throw new ExecucioMassivaException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					ome.getExecucioMassiva().getId(), 
+					ome.getId(), 
+					"Error al executar la acció massiva", 
+					ex);
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
@@ -771,6 +792,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Override
 	public void actualitzaUltimaOperacio(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
+		if (ome == null)
+			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
+		
 		if(ome.getExecucioMassiva().getExpedients().size() == ome.getOrdre() + 1) {
 			try {
 				ExecucioMassiva em = ome.getExecucioMassiva();
@@ -778,6 +802,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				execucioMassivaRepository.save(em);
 			} catch (Exception ex) {
 				logger.error("EXPEDIENTMASSIU:" + ome.getExecucioMassiva().getId() + ". No s'ha pogut finalitzar l'expedient massiu", ex);
+				throw new ExecucioMassivaException(
+						ome.getExpedient().getEntorn().getId(), 
+						ome.getExpedient().getEntorn().getCodi(), 
+						ome.getExpedient().getEntorn().getNom(), 
+						ome.getExpedient().getId(), 
+						ome.getExpedient().getTitol(), 
+						ome.getExpedient().getNumero(), 
+						ome.getExpedient().getTipus().getId(), 
+						ome.getExpedient().getTipus().getCodi(), 
+						ome.getExpedient().getTipus().getNom(), 
+						ome.getExecucioMassiva().getId(), 
+						ome.getId(), 
+						"EXPEDIENTMASSIU: No s'ha pogut finalitzar l'expedient massiu", 
+						ex);
 			}
 			try {
 				if (ome.getExecucioMassiva().getEnviarCorreu()) {
@@ -798,6 +836,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			} catch (Exception ex) {
 				logger.error("EXPEDIENTMASSIU: No s'ha pogut enviar el correu de finalització", ex);
+				throw new ExecucioMassivaException(
+						ome.getExpedient().getEntorn().getId(), 
+						ome.getExpedient().getEntorn().getCodi(), 
+						ome.getExpedient().getEntorn().getNom(), 
+						ome.getExpedient().getId(), 
+						ome.getExpedient().getTitol(), 
+						ome.getExpedient().getNumero(), 
+						ome.getExpedient().getTipus().getId(), 
+						ome.getExpedient().getTipus().getCodi(), 
+						ome.getExpedient().getTipus().getNom(), 
+						ome.getExecucioMassiva().getId(), 
+						ome.getId(), 
+						"EXPEDIENTMASSIU: No s'ha pogut enviar el correu de finalització", 
+						ex);
 			}
 		}
 	}
@@ -806,29 +858,28 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void generaInformeError(Long ome_id, String error) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
+		if (ome == null)
+			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
+		
 		Date ara = new Date();
 		ome.setDataInici(new Date());
 		ome.setDataFi(ara);
 		ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
-//		StringWriter out = new StringWriter();
-//		exception.printStackTrace(new PrintWriter(out));
-//		ome.setError(out.toString());
+		
 		ome.setError(error);
 		execucioMassivaExpedientRepository.save(ome);
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void gestioTasca(ExecucioMassivaExpedient ome) throws Exception {
+	private void gestioTasca(ExecucioMassivaExpedient ome) {
 		String tascaId = ome.getTascaId();
 		String accio = ome.getExecucioMassiva().getParam1();
 		String tasca = null;
 		String expedient = null;
 		if (MesuresTemporalsHelper.isActiu()) {
-			try {
-				ExpedientTascaDto task = tascaService.findAmbIdPerTramitacio(tascaId);
-				if (task != null) tasca = task.getTascaNom(); 
-				expedient = ome.getExpedient().getTipus().getNom();
-			} catch (Exception e) {}
+			ExpedientTascaDto task = tascaService.findAmbIdPerTramitacio(tascaId);
+			if (task != null) tasca = task.getTascaNom(); 
+			expedient = ome.getExpedient().getTipus().getNom();
 		}
 		try {
 			Long expedientId = ome.getExpedient().getId();
@@ -837,58 +888,33 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Guardar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Map<String, Object> valors = (Map<String, Object>)param2[1]; 
-				try {
-					tascaService.guardar(tascaId, expedientId, valors);
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'han pogut guardar les dades del formulari en la tasca.");
-					throw e;
-		        }
+				tascaService.guardar(tascaId, expedientId, valors);
 				mesuresTemporalsHelper.mesuraCalcular("Guardar", "massiva_tasca", expedient, tasca);
 			} else if ("Validar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Validar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Map<String, Object> valors = (Map<String, Object>)param2[1];
-				try {
-					tascaService.validar(tascaId, expedientId, valors);
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut validar el formulari en la tasca.");
-					throw e;
-		        }
+				tascaService.validar(tascaId, expedientId, valors);
 				mesuresTemporalsHelper.mesuraCalcular("Validar", "massiva_tasca", expedient, tasca);
 			} else if ("Completar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Completar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Long entornId = (Long)param2[0];
 				String transicio = (String)param2[1];
-				try {
-					Long ea = EntornActual.getEntornId();
-					EntornActual.setEntornId(entornId);
-					tascaService.completar(tascaId, expedientId, transicio);
-					EntornActual.setEntornId(ea);
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut finalitzar la tasca.");
-					throw e;
-		        }
+				Long ea = EntornActual.getEntornId();
+				EntornActual.setEntornId(entornId);
+				tascaService.completar(tascaId, expedientId, transicio);
+				EntornActual.setEntornId(ea);
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Restaurar", "massiva_tasca", expedient, tasca);
-				try {
-					tascaService.restaurar(tascaId, expedientId);
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
-					throw e;
-		        }
+				tascaService.restaurar(tascaId, expedientId);
 				mesuresTemporalsHelper.mesuraCalcular("Restaurar", "massiva_tasca", expedient, tasca);
 			} else if ("Accio".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				String accio_exec = (String)param2[1];
-				try {
-					tascaService.executarAccio(tascaId, accio_exec);
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut executar l'acció '" + accio_exec + "' en la tasca.");
-					throw e;
-		        }
+				tascaService.executarAccio(tascaId, accio_exec);
 				mesuresTemporalsHelper.mesuraCalcular("Executar accio", "massiva_tasca", expedient, tasca);
 			} else if ("DocGuardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Guardar document", "massiva_tasca", expedient, tasca);
@@ -898,82 +924,50 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				Date data = (Date)param2[2];
 				byte[] contingut = (byte[])param2[3];
 				String nomArxiu = (String)param2[4];
-				try {
-					if (tascaService.isTascaValidada(tascaId)) {
-						tascaService.guardarDocumentTasca(entornId, tascaId, codi, data, nomArxiu, contingut, ome.getExecucioMassiva().getUsuari());
-					} else {
-						throw new Exception();
-					}
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut guardar el document a la tasca.");
-					throw e;
-		        }
+				if (tascaService.isTascaValidada(tascaId)) {
+					tascaService.guardarDocumentTasca(entornId, tascaId, codi, data, nomArxiu, contingut, ome.getExecucioMassiva().getUsuari());
+				} else {
+					throw new ValidacioException("OPERACIO:" + ome.getId() + ". No s'ha pogut guardar el document a la tasca. Perquè la tasca no està validada");
+				}
 				mesuresTemporalsHelper.mesuraCalcular("Guardar document", "massiva_tasca", expedient, tasca);
 			} else if ("DocEsborrar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Esborrar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				String codi = (String)param2[1];
-				try {
-					if (tascaService.isTascaValidada(tascaId)) {
-						tascaService.esborrarDocument(tascaId, codi, ome.getExecucioMassiva().getUsuari());
+				if (tascaService.isTascaValidada(tascaId)) {
+					tascaService.esborrarDocument(tascaId, codi, ome.getExecucioMassiva().getUsuari());
 				} else {
-					throw new Exception();
+					throw new ValidacioException("OPERACIO:" + ome.getId() + ". No s'ha pogut esborrar el document a la tasca perquè la tasca no està validada");
 				}
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut esborrar el document de la tasca.");
-					throw e;
-		        }
 				mesuresTemporalsHelper.mesuraCalcular("Esborrar document", "massiva_tasca", expedient, tasca);
 			} else if ("DocGenerar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Generar document", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Long documentId = (Long)param2[1];
-				try {
-					TascaDocumentDto document = tascaService.findDocument(tascaId, documentId);
-					expedientService.generarDocumentAmbPlantillaTasca(tascaId, document.getDocumentCodi());
-				} catch (Exception e) {
-					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut restaurar el formulari en la tasca.");
-					throw e;
-		        }
+				TascaDocumentDto document = tascaService.findDocument(tascaId, documentId);
+				expedientService.generarDocumentAmbPlantillaTasca(tascaId, document.getDocumentCodi());
 				mesuresTemporalsHelper.mesuraCalcular("Generar document", "massiva_tasca", expedient, tasca);
 			}
-//			TODO: Operacions massives exclusives de la versió 2.6
-//			 else if ("RegEsborrar".equals(accio)) {
-//				mesuresTemporalsHelper.mesuraIniciar("Esborrar registre", "massiva_tasca", expedient, tasca);
-//				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
-//				Long entornId = (Long)param2[0];
-//				String campCodi = (String)param2[1];
-//				Integer index = (Integer)param2[2];
-//				try {
-//					
-//					tascaService.esborrarRegistre(entornId, tascaId, campCodi, index, ome.getExecucioMassiva().getUsuari());
-//				} catch (Exception e) {
-//					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut esborrar el registe en la tasca.");
-//					throw e;
-//		        }
-//				mesuresTemporalsHelper.mesuraCalcular("Esborrar registre", "massiva_tasca", expedient, tasca);
-//			} else if ("RegGuardar".equals(accio)) {
-//				mesuresTemporalsHelper.mesuraIniciar("Guardar registre", "massiva_tasca", expedient, tasca);
-//				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
-//				Long entornId = (Long)param2[0];
-//				String campCodi = (String)param2[1];
-//				Object[] valors = (Object[])param2[2];
-//				Integer index = (Integer)param2[3];
-//				try {
-//					tascaService.guardarRegistre(entornId, tascaId, campCodi, valors, index, ome.getExecucioMassiva().getUsuari());
-//				} catch (Exception e) {
-//					logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut guardar el registre en la tasca.");
-//					throw e;
-//		        }
-//				mesuresTemporalsHelper.mesuraCalcular("Guardar registre", "massiva_tasca", expedient, tasca);
-//			}
 
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut executar '" + accio + "' de la tasca.", ex);
-			throw ex;
+			throw new ExecucioMassivaException(
+					ome.getExpedient().getEntorn().getId(), 
+					ome.getExpedient().getEntorn().getCodi(), 
+					ome.getExpedient().getEntorn().getNom(), 
+					ome.getExpedient().getId(), 
+					ome.getExpedient().getTitol(), 
+					ome.getExpedient().getNumero(), 
+					ome.getExpedient().getTipus().getId(), 
+					ome.getExpedient().getTipus().getCodi(), 
+					ome.getExpedient().getTipus().getNom(), 
+					ome.getExecucioMassiva().getId(), 
+					ome.getId(), 
+					"OPERACIO:" + ome.getId() + ". No s'ha pogut executar '" + accio + "' de la tasca.", 
+					ex);
 		}
 	}
 	

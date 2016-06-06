@@ -8,23 +8,22 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els entorns.
@@ -50,66 +49,66 @@ public class ExpedientTipusHelper {
 			Long id,
 			boolean comprovarPermisRead,
 			boolean comprovarPermisWrite,
-			boolean comprovarPermisDelete) throws NotFoundException, NotAllowedException {
+			boolean comprovarPermisDelete) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
-			throw new NotFoundException(
-					id,
-					ExpedientTipus.class);
+			throw new NoTrobatException(ExpedientTipus.class,id);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Permission[] permisos = null;
 		if (comprovarPermisRead) {
+			permisos = new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.SUPERVISION,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						ExpedientTipus.class,
-						PermisTipusEnumDto.READ);
+						permisos);
 			}
 		}
 		if (comprovarPermisWrite) {
+			permisos = new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.WRITE,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						ExpedientTipus.class,
-						PermisTipusEnumDto.WRITE);
+						permisos);
 			}
 		}
 		if (comprovarPermisDelete) {
+			permisos = new Permission[] {
+					ExtendedPermission.DELETE,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.DELETE,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						ExpedientTipus.class,
-						PermisTipusEnumDto.DELETE);
+						permisos);
 			}
 		}
 		return expedientTipus;
 	}
 	
-	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(Long id) throws NotFoundException, NotAllowedException {
+	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(Long id) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
-			throw new NotFoundException(
-					id,
-					ExpedientTipus.class);
+			throw new NoTrobatException(ExpedientTipus.class,id);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!permisosHelper.isGrantedAny(
@@ -124,12 +123,10 @@ public class ExpedientTipusHelper {
 		
 		return expedientTipus;
 	}
-	public ExpedientTipus getExpedientTipusComprovantPermisSupervisio(Long id) throws NotFoundException, NotAllowedException {
+	public ExpedientTipus getExpedientTipusComprovantPermisSupervisio(Long id) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
-			throw new NotFoundException(
-					id,
-					ExpedientTipus.class);
+			throw new NoTrobatException(ExpedientTipus.class,id);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!permisosHelper.isGrantedAny(

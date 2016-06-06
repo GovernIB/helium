@@ -15,6 +15,8 @@ import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Repro;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReproRepository;
@@ -52,53 +54,73 @@ public class ReproServiceImpl implements ReproService {
 	@Transactional(readOnly=true)
 	@Override
 	public ReproDto findById(Long id) {
+		Repro repro = reproRepository.findOne(id);
+		if (repro == null)
+			throw new NoTrobatException(Repro.class, id);
+		
 		return conversioTipusHelper.convertir(reproRepository.findOne(id), ReproDto.class);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly=true)
 	@Override
-	public Map<String,Object> findValorsById(Long id) throws Exception {
+	public Map<String,Object> findValorsById(Long id) {
 		Repro repro = reproRepository.findOne(id);
+		if (repro == null)
+			throw new NoTrobatException(Repro.class, id);
 		
 		byte[] bytes = DatatypeConverter.parseBase64Binary(repro.getValors());
 		ByteArrayInputStream bytesIn = new ByteArrayInputStream(bytes);
-        ObjectInputStream ois = new ObjectInputStream(bytesIn);
-        
-        Object valors = ois.readObject();
-        
-        bytesIn.close();
-        ois.close();
-		
-		return (Map<String,Object>)valors;
+        ObjectInputStream ois;
+		try {
+			ois = new ObjectInputStream(bytesIn);
+			Object valors = ois.readObject();
+	        
+	        bytesIn.close();
+	        ois.close();
+	        
+	        return (Map<String,Object>)valors;
+		} catch (Exception e) {
+			throw new ValidacioException("Error recuperant els valros de la repro " + repro.getNom(), e);
+		}
 	}
 	
 	@Transactional
 	@Override
-	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) throws Exception {
+	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		if (expedientTipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    ObjectOutputStream oos = new ObjectOutputStream(baos);
-	    oos.writeObject(valors);
-	    byte[] buf = baos.toByteArray();
-	    baos.close();
-        oos.close();
-	    
-	    String valors_s = DatatypeConverter.printBase64Binary(buf);
-		
-		if (valors_s.getBytes("UTF-8").length > 4000)
-			throw new Exception("El contingut del formulari és massa llarg");
-		String usuariActual = usuariActualHelper.getUsuariActual();
-		Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s);
-		reproRepository.saveAndFlush(repro);
-		return conversioTipusHelper.convertir(repro, ReproDto.class);
+	    ObjectOutputStream oos;
+		try {
+			oos = new ObjectOutputStream(baos);
+			oos.writeObject(valors);
+		    byte[] buf = baos.toByteArray();
+		    baos.close();
+	        oos.close();
+	        
+	        String valors_s = DatatypeConverter.printBase64Binary(buf);
+			
+			if (valors_s.getBytes("UTF-8").length > 4000)
+				throw new ValidacioException("El contingut del formulari és massa llarg");
+			String usuariActual = usuariActualHelper.getUsuariActual();
+			Repro repro = new Repro(usuariActual, expedientTipus, nom, valors_s);
+			reproRepository.saveAndFlush(repro);
+			return conversioTipusHelper.convertir(repro, ReproDto.class);
+		} catch (Exception e) {
+			throw new ValidacioException("Error recuperant els valros de la repro " + nom, e);
+		}
 	}
 	
 	@Transactional
 	@Override
 	public String deleteById(Long id) {
 		Repro repro = reproRepository.findOne(id);
+		if (repro == null)
+			throw new NoTrobatException(Repro.class, id);
+		
 		String nom = repro.getNom();
 		reproRepository.delete(id);
 		return nom;

@@ -12,17 +12,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.StringUtils;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.jbpm.jpdl.el.ELException;
-import org.jbpm.jpdl.el.ExpressionEvaluator;
-import org.jbpm.jpdl.el.VariableResolver;
-import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -52,15 +41,23 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+
+import org.apache.commons.lang.StringUtils;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.jpdl.el.ELException;
+import org.jbpm.jpdl.el.ExpressionEvaluator;
+import org.jbpm.jpdl.el.VariableResolver;
+import org.jbpm.jpdl.el.impl.ExpressionEvaluatorImpl;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els expedients.
@@ -164,7 +161,7 @@ public class ExpedientHelper {
 			boolean comprovarPermisRead,
 			boolean comprovarPermisWrite,
 			boolean comprovarPermisDelete,
-			boolean comprovarPermisAdministration) throws NotFoundException, NotAllowedException {
+			boolean comprovarPermisAdministration) {
 		return getExpedientComprovantPermisos(
 				id,
 				comprovarPermisRead,
@@ -192,115 +189,124 @@ public class ExpedientHelper {
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Entorn entorn = expedient.getEntorn();
+		
+		Permission[] permisos = new Permission[] {
+				ExtendedPermission.READ,
+				ExtendedPermission.ADMINISTRATION};
 		if (!permisosHelper.isGrantedAny(
 				entorn.getId(),
 				Entorn.class,
-				new Permission[] {
-					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION},
+				permisos,
 				auth)) {
-			throw new NotAllowedException(
+			throw new PermisDenegatException(
 					id,
 					Entorn.class,
-					PermisTipusEnumDto.READ);
+					permisos);
 		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		if (comprovarPermisRead) {
+			permisos = new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.READ);
+						permisos);
 			}
 		}
 		if (comprovarPermisWrite) {
+			permisos = new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.WRITE,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.WRITE);
+						permisos);
 			}
 		}
 		if (comprovarPermisDelete) {
+			permisos = new Permission[] {
+					ExtendedPermission.DELETE,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.DELETE,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.DELETE);
+						permisos);
 			}
 		}
 		if (comprovarPermisSupervision) {
+			permisos = new Permission[] {
+					ExtendedPermission.SUPERVISION,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.SUPERVISION,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.SUPERVISION);
+						permisos);
 			}
 		}
 		if (comprovarPermisReassignment) {
+			permisos = new Permission[] {
+					ExtendedPermission.REASSIGNMENT,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.REASSIGNMENT,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.REASSIGNMENT);
+						permisos);
 			}
 		}
 		if (comprovarPermisAdministration) {
+			permisos = new Permission[] {
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.ADMINISTRATION);
+						permisos);
 			}
 		}
 		if (comprovarPermisReassignmentOrWrite) {
+			permisos = new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.REASSIGNMENT,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.WRITE,
-						ExtendedPermission.REASSIGNMENT,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Expedient.class,
-						PermisTipusEnumDto.WRITE);
+						permisos);
 			}
 		}
 		return expedient;
@@ -384,7 +390,7 @@ public class ExpedientHelper {
 						expedient.getTipus(),
 						estatId);
 				if (estat == null)
-					throw new EstatNotFoundException();
+					throw new NoTrobatException(Estat.class, estatId);
 				expedient.setEstat(estat);
 			}
 		} else if (expedient.getEstat() != null) {
@@ -615,9 +621,7 @@ public class ExpedientHelper {
 				}
 			}
 			if (!trobada) {
-				throw new NotFoundException(
-						new Long(processInstanceId),
-						JbpmProcessInstance.class);
+				throw new NoTrobatException(JbpmProcessInstance.class, new Long(processInstanceId));
 			}
 		}
 	}
@@ -632,12 +636,18 @@ public class ExpedientHelper {
 				processInstanceId);
 		if (piexp != null)
 			expedient = expedientRepository.findOne(piexp.getId());
+//		else
+//			throw new NoTrobatException(ProcessInstanceExpedient.class, processInstanceId);
+			
 		if (expedient == null) {
 			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
 				expedient = expedientIniciant;
+			} else {
+				throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
 			}
 		}
+		
 		return expedient;
 	}
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(String processInstanceId) {

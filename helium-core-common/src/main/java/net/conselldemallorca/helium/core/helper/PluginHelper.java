@@ -18,7 +18,6 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
-import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPluginException;
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
@@ -70,7 +69,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocu
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
 import org.apache.commons.logging.Log;
@@ -141,7 +141,16 @@ public class PluginHelper {
 			logger.error(
 					"No s'han pogut consultar persones amb el text (text=" + text + ")",
 					ex);
-			throw new PluginException(
+			throw new SistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
 					"No s'han pogut consultar persones amb el text (text=" + text + ")",
 					ex);
 		}
@@ -174,6 +183,10 @@ public class PluginHelper {
 						IntegracioAccioTipusEnumDto.ENVIAMENT,
 						System.currentTimeMillis() - t0,
 						new IntegracioParametreDto("codi", codi));
+				
+				if (dadesPersona == null)
+					throw new NoTrobatException(DadesPersona.class, codi);
+				
 				PersonaDto dto = conversioTipusHelper.convertir(
 						dadesPersona,
 						PersonaDto.class);
@@ -193,7 +206,16 @@ public class PluginHelper {
 				logger.error(
 						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
 						ex);
-				throw new PluginException(
+				throw new SistemaExternException(
+						null,
+						null, 
+						null, 
+						null, 
+						null, 
+						null, 
+						null, 
+						null, 
+						null, 
 						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
 						ex);
 			}
@@ -217,7 +239,7 @@ public class PluginHelper {
 
 	public void tramitacioZonaperExpedientCrear(
 			ExpedientDto expedient,
-			ZonaperExpedientDto dadesExpedient) throws Exception {
+			ZonaperExpedientDto dadesExpedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientIdentificador",
@@ -261,14 +283,23 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Crear expedient: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 	public void tramitacioZonaperEventCrear(
 			Expedient expedient,
-			ZonaperEventDto dadesEvent) throws Exception {
+			ZonaperEventDto dadesEvent) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientIdentificador",
@@ -290,7 +321,17 @@ public class PluginHelper {
 						dadesEvent.getText())
 		};
 		if (expedient.getTramitExpedientIdentificador() == null || expedient.getTramitExpedientClau() == null)
-			throw new PluginException(
+			throw new SistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Crear event)", 
 					"Abans s'ha de crear un expedient per a poder publicar un event");
 		PublicarEventRequest request = new PublicarEventRequest();
 		request.setExpedientIdentificador(expedient.getTramitExpedientIdentificador());
@@ -330,8 +371,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Crear event: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -372,20 +422,26 @@ public class PluginHelper {
 					ex,
 					parametres);
 			logger.error(
-					"No s'ha pogut obtenir la informació del tràmit (" +
-					"numero=" + numero + ", " +
-					"clau=" + clau + ")",
+					errorDescripcio,
 					ex);
-			throw new PluginException(
-					"No s'ha pogut obtenir la informació del tràmit (" +
-					"numero=" + numero + ", " +
-					"clau=" + clau + ")",
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Tramitació: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 
 	public RespostaAnotacioRegistre tramitacioRegistrarNotificacio(
-			RegistreNotificacio registreNotificacio) {
+			RegistreNotificacio registreNotificacio,
+			Expedient expedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientIdentificador",
@@ -425,8 +481,18 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(SISTRA. Registrar notificació: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -445,7 +511,7 @@ public class PluginHelper {
 							"registreNumero",
 							registreNumero));
 			return resposta;
-		} catch (TramitacioPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut obtenir el justificant de recepció (" +
 					"registreNumero=" + registreNumero + ")";
 			monitorIntegracioHelper.addAccioError(
@@ -461,8 +527,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Obtenir justificant: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -481,7 +556,7 @@ public class PluginHelper {
 							"registreNumero",
 							registreNumero));
 			return resposta;
-		} catch (TramitacioPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut obtenir el detall del justificant de recepció (" +
 					"registreNumero=" + registreNumero + ")";
 			monitorIntegracioHelper.addAccioError(
@@ -497,14 +572,24 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(SISTRA. Obtenir justificant detall: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 
 	public RegistreIdDto registreAnotacioEntrada(
-			RegistreAnotacioDto anotacio) throws PluginException {
+			RegistreAnotacioDto anotacio,
+			Expedient expedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"organCodi",
@@ -541,7 +626,19 @@ public class PluginHelper {
 						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						parametres);
-				throw new PluginException(errorDescripcio);
+				
+				throw new SistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"(Registre d'entrada)", 
+						errorDescripcio);
 			} else {
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
@@ -568,13 +665,23 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre d'entrada: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 	public RegistreIdDto registreAnotacioSortida(
-			RegistreAnotacioDto anotacio) throws PluginException {
+			RegistreAnotacioDto anotacio,
+			Expedient expedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"organCodi",
@@ -611,7 +718,18 @@ public class PluginHelper {
 						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						parametres);
-				throw new PluginException(errorDescripcio);
+				throw new SistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"(Registre de sortida)", 
+						errorDescripcio);
 			} else {
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
@@ -638,13 +756,23 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre de sortida: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 	public RegistreIdDto registreNotificacio(
-			RegistreNotificacioDto notificacio) throws PluginException {
+			RegistreNotificacioDto notificacio,
+			Expedient expedient) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"organCodi",
@@ -681,7 +809,18 @@ public class PluginHelper {
 						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						parametres);
-				throw new PluginException(errorDescripcio);
+				throw new SistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"(Registre de notificació)", 
+						errorDescripcio);
 			} else {
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
@@ -708,13 +847,23 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre de notificacio: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 	public Date registreDataJustificantRecepcio(
-			String numeroRegistre) {
+			String numeroRegistre,
+			Expedient expedient) {
 		long t0 = System.currentTimeMillis();
 		try {
 			RespostaJustificantRecepcio resposta = getRegistrePlugin().obtenirJustificantRecepcio(numeroRegistre);
@@ -732,7 +881,18 @@ public class PluginHelper {
 						new IntegracioParametreDto(
 								"numeroRegistre",
 								numeroRegistre));
-				throw new PluginException(errorDescripcio);
+				throw new SistemaExternException(
+						expedient != null ? expedient.getEntorn().getId() : null,
+						expedient != null ? expedient.getEntorn().getCodi() : null,
+						expedient != null ? expedient.getEntorn().getNom() : null,
+						expedient != null ? expedient.getId() : null,
+						expedient != null ? expedient.getTitol() : null,
+						expedient != null ? expedient.getNumero() : null,
+						expedient != null ? expedient.getTipus().getId() : null,
+						expedient != null ? expedient.getTipus().getCodi() : null,
+						expedient != null ? expedient.getTipus().getNom() : null,
+						"(Registre data de justificant)", 
+						errorDescripcio);
 			} else {
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
@@ -760,13 +920,23 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre data de justificant: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 	public String registreOficinaNom(
-			String codi) {
+			String codi,
+			Expedient expedient) {
 		long t0 = System.currentTimeMillis();
 		try {
 			String oficinaNom = getRegistrePlugin().obtenirNomOficina(codi);
@@ -795,8 +965,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(Registre oficina nom: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -853,7 +1032,7 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					parametres);
 			return documentId;
-		} catch (GestioDocumentalPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut guardar el document a la gestió documental (" +
 					"expedientIdentificador=" + expedient.getIdentificador() + ", " +
 					"documentCodi=" + documentCodi + ", " +
@@ -871,8 +1050,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(GESTIÓ DOCUMENTAL. Crear document: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -890,7 +1078,7 @@ public class PluginHelper {
 							"documentId",
 							documentId));
 			return contingut;
-		} catch (GestioDocumentalPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut llegir el document de la gestió documental (documentId=" + documentId + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_GESDOC,
@@ -905,13 +1093,23 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(GESTIÓ DOCUMENTAL. Crear document: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 	public void gestioDocumentalDeleteDocument(
-			String documentId) {
+			String documentId,
+			Expedient expedient) {
 		long t0 = System.currentTimeMillis();
 		try {
 			if (getGestioDocumentalPlugin() != null)
@@ -924,7 +1122,7 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-		} catch (GestioDocumentalPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut esborrar el document de la gestió documental (documentId=" + documentId + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_GESDOC,
@@ -939,8 +1137,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(GESTIÓ DOCUMENTAL. Delete document: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1022,7 +1229,7 @@ public class PluginHelper {
 			portasignatures.setProcessInstanceId(processInstanceId.toString());
 			portasignaturesRepository.save(portasignatures);
 			return resposta;
-		} catch (PortasignaturesPluginException ex) {
+		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut enviar el document al portafirmes (" +
 					"documentId=" + document.getId() + ", " +
 					"destinatari=" + persona.getCodi() + ", " +
@@ -1038,8 +1245,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1089,8 +1305,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(PORTASIGNATURES. Cancelar: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1147,8 +1372,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(CUSTÒDIA. Afegir signatura: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1183,8 +1417,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(CUSTÒDIA. Dades validació signatura: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1218,8 +1461,17 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(CUSTÒDIA. Obtenir signatures: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1253,14 +1505,24 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw new PluginException(
-					errorDescripcio,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(CUSTÒDIA. Obtenir signatures amb arxiu: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
 
 	public void custodiaEsborrarSignatures(
-			String documentId) {
+			String documentId,
+			Expedient expedient) {
 		long t0 = System.currentTimeMillis();
 		try {
 			getCustodiaPlugin().deleteSignatures(documentId);
@@ -1284,11 +1546,19 @@ public class PluginHelper {
 					new IntegracioParametreDto(
 							"documentId",
 							documentId));
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw new PluginException(
-					errorDescripcio,
+			logger.error(errorDescripcio,ex);
+			
+			throw SistemaExternException.tractarSistemaExternException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"(CUSTÒDIA: Esborrar signatures: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1322,8 +1592,17 @@ public class PluginHelper {
 			logger.error(
 					documentId,
 					ex);
-			throw new PluginException(
-					documentId,
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(CUSTÒDIA. Obtenir URL comprovació: " + errorDescripcio + ")", 
 					ex);
 		}
 	}
@@ -1343,7 +1622,7 @@ public class PluginHelper {
 	public RespostaValidacioSignatura signaturaVerificar(
 			byte[] document,
 			byte[] signatura,
-			boolean obtenirDadesCertificat) throws PluginException {
+			boolean obtenirDadesCertificat) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"document",
@@ -1379,7 +1658,18 @@ public class PluginHelper {
 					ex,
 					parametres);
 			logger.error(errorDescripcio, ex);
-			throw new PluginException(errorDescripcio, ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					"(PLUGIN SIGNATURA. Validació de signatura: " + errorDescripcio + ")", 
+					ex);
 		}
 	}
 
@@ -1718,8 +2008,17 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					personesPlugin = (PersonesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
-							"No s'ha pogut instanciar el plugin de persones (class=" + pluginClass + ")",
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							"No s'ha pogut instanciar el plugin de persones (class=" + pluginClass + ")", 
 							ex);
 				}
 			}
@@ -1743,7 +2042,16 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					tramitacioPlugin = (TramitacioPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null,
 							"No s'ha pogut instanciar el plugin de tramitació (class=" + pluginClass + ")",
 							ex);
 				}
@@ -1759,7 +2067,16 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					registrePlugin = (RegistrePlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null,
 							"No s'ha pogut instanciar el plugin de registre (class=" + pluginClass + ")",
 							ex);
 				}
@@ -1775,7 +2092,16 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null,
 							"No s'ha pogut instanciar el plugin de gestió documental (class=" + pluginClass + ")",
 							ex);
 				}
@@ -1792,7 +2118,16 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					portasignaturesPlugin = (PortasignaturesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null,
 							"No s'ha pogut instanciar el plugin de portafirmes (class=" + pluginClass + ")",
 							ex);
 				}
@@ -1808,7 +2143,16 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null,
 							"No s'ha pogut instanciar el plugin de custòdia (class=" + pluginClass + ")",
 							ex);
 				}
@@ -1824,7 +2168,16 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw new PluginException(
+					throw SistemaExternException.tractarSistemaExternException(
+							null,
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null, 
+							null,
 							"No s'ha pogut instanciar el plugin de signatura (class=" + pluginClass + ")",
 							ex);
 				}

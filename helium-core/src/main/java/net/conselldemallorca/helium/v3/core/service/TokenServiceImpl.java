@@ -12,14 +12,15 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.TokenService;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
@@ -118,7 +119,7 @@ public class TokenServiceImpl implements TokenService{
 				false,
 				false,
 				true);
-		if( expedient!= null)
+		if( expedient != null)
 			return conversioTipusHelper.convertir(jbpmHelper.getTokenById(tokenId), TokenDto.class);
 		else
 			return null;
@@ -134,8 +135,11 @@ public class TokenServiceImpl implements TokenService{
 				false,
 				false,
 				true);
-		if( expedient!= null){
+		if( expedient != null){
 			JbpmToken token = jbpmHelper.getTokenById(tokenId);
+			if (token == null)
+				throw new NoTrobatException(JbpmToken.class, tokenId);
+			
 			String nodeNameVell = token.getNodeName();
 			jbpmHelper.tokenRedirect(new Long(tokenId).longValue(), nodeName, cancelTasks, true, false);
 			

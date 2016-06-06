@@ -17,7 +17,9 @@ import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -36,9 +38,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
@@ -106,8 +107,14 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public AreaDto findAreaById(Long areaId) {
+		
+		Area area = areaRepository.findById(areaId);
+		
+		if (area == null)
+			throw new NoTrobatException(Area.class, areaId);
+		
 		return conversioTipusHelper.convertir(
-				areaRepository.findById(areaId),
+				area,
 				AreaDto.class);
 	}
 
@@ -145,7 +152,13 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (pi == null)
+			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+		
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, pi.getProcessDefinitionId());
+		
 		DefinicioProcesVersioDto dto = new DefinicioProcesVersioDto();
 		dto.setId(definicioProces.getId());
 		dto.setVersio(definicioProces.getVersio());
@@ -162,14 +175,19 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId) {
-		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
 				JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
-				return getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), expedientTipus);
+				return getDefinicioProcesByEntornIdAmbJbpmId(
+						definicioProces.getEntorn().getId(), 
+						jb.getKey(), 
+						conversioTipusHelper.convertir(
+								expedientTipus,
+								ExpedientTipusDto.class));
 			}
 		}
 		return null;
@@ -179,6 +197,10 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jbpmId);
+		
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, jbpmId);
+		
 		List<String> jbpmIds = new ArrayList<String>(); 
 		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(jbpmId), jbpmIds, false);
 		List<DefinicioProcesExpedientDto> subprocessos = new ArrayList<DefinicioProcesExpedientDto>();
@@ -290,8 +312,11 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public ExpedientTipusDto getExpedientTipusById(Long id) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(id);
+		if (expedientTipus == null)
+			throw new NoTrobatException(ExpedientTipus.class, id);
 		return conversioTipusHelper.convertir(
-				expedientTipusRepository.findById(id),
+				expedientTipus,
 				ExpedientTipusDto.class);
 	}
 
@@ -351,18 +376,20 @@ public class DissenyServiceImpl implements DissenyService {
 					Entorn.class, 
 					entornId);
 		}
+		Permission[] permisosRequerits= new Permission[] {
+				ExtendedPermission.READ,
+				ExtendedPermission.ADMINISTRATION};
 		boolean permes = permisosHelper.isGrantedAny(
 				expedientTipusId,
 				ExpedientTipus.class,
-				new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION},
+				permisosRequerits,
 				SecurityContextHolder.getContext().getAuthentication());
 		if (!permes) {
-			throw new NotAllowedException(
+			throw new PermisDenegatException(
 					expedientTipusId,
 					ExpedientTipus.class,
-					PermisTipusEnumDto.READ);
+					permisosRequerits,
+					null);
 		}
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
 				expedientTipusId);
@@ -430,7 +457,12 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public ConsultaDto findConsulteById(
 			Long id) {
-		return conversioTipusHelper.convertir(consultaRepository.findById(id), ConsultaDto.class);
+		Consulta consulta = consultaRepository.findOne(id);
+		
+		if (consulta == null)
+			throw new NoTrobatException(Consulta.class, id);
+		
+		return conversioTipusHelper.convertir(consulta, ConsultaDto.class);
 	}
 
 	@Transactional(readOnly=true)
@@ -439,6 +471,10 @@ public class DissenyServiceImpl implements DissenyService {
 			Long definicioProcesId,
 			String resourceName) {
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		
 		return jbpmHelper.getResourceBytes(
 				definicioProces.getJbpmId(),
 				resourceName);
@@ -448,6 +484,8 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entornDto) {
 		Entorn entorn = conversioTipusHelper.convertir(entornDto, Entorn.class);
+		if (entorn == null)
+			throw new NoTrobatException(Entorn.class, entornDto.getCodi());
 		return getExpedientTipusAmbEntorn(entorn);
 	}
 
@@ -469,7 +507,7 @@ public class DissenyServiceImpl implements DissenyService {
 				tasques.addAll(
 						tascaRepository.findIdNomByExpedientTipusOrderByExpedientTipusNomAndNomAsc(ids));
 		}
-		ExpedientTipusDto expedientTipus = getExpedientTipusById(expedientTipusId);
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
 			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIJbpmKey(
 					expedientTipus.getEntorn().getId(),
@@ -504,7 +542,11 @@ public class DissenyServiceImpl implements DissenyService {
 	@Transactional(readOnly=true)
 	@Override
 	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
-		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		
 		return conversioTipusHelper.convertirList(campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), CampDto.class);
 	}
 

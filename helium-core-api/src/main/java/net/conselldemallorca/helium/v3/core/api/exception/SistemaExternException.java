@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.exception;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 /**
  * Excepció que es llança si hi ha algun error crindant al plugin.
  * 
@@ -12,6 +14,7 @@ package net.conselldemallorca.helium.v3.core.api.exception;
 public class SistemaExternException extends HeliumException {
 
 	private String sistemaExtern;
+	private String publicMessage;
 	
 	public SistemaExternException(
 			Long entornId,
@@ -37,6 +40,85 @@ public class SistemaExternException extends HeliumException {
 				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + cause.getMessage(),
 				cause);
 		this.sistemaExtern = sistemaExtern;
+		this.publicMessage = "Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + cause.getMessage();
+	}
+	
+	public SistemaExternException(
+			Long entornId,
+			String entornCodi,
+			String entornNom,
+			Long expedientId, 
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			String expedientTipusCodi,
+			String expedientTipusNom,
+			String sistemaExtern,
+			String causa) {
+		super(	entornId,
+				entornCodi,
+				entornNom,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				expedientTipusCodi,
+				expedientTipusNom,
+				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + causa,
+				null);
+		this.sistemaExtern = sistemaExtern;
+		this.publicMessage = "Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + causa;
+	}
+	
+	public static SistemaExternException tractarSistemaExternException(
+			Long entornId,
+			String entornCodi,
+			String entornNom,
+			Long expedientId, 
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			String expedientTipusCodi,
+			String expedientTipusNom,
+			String sistemaExtern,
+			Throwable cause) {
+		
+		if(ExceptionUtils.getRootCause(cause) != null && 
+				(ExceptionUtils.getRootCause(cause).getClass().getName().contains("Timeout") ||
+				 ExceptionUtils.getRootCause(cause).getClass().getName().contains("timeout"))) {
+			
+			return new SistemaExternTimeoutException(
+					entornId,
+					entornCodi, 
+					entornNom, 
+					expedientId, 
+					expedientTitol, 
+					expedientNumero, 
+					expedientTipusId, 
+					expedientTipusCodi, 
+					expedientTipusNom, 
+					sistemaExtern, 
+					cause);
+			
+		} else {
+			return new SistemaExternException(
+					entornId,
+					entornCodi, 
+					entornNom, 
+					expedientId, 
+					expedientTitol, 
+					expedientNumero, 
+					expedientTipusId, 
+					expedientTipusCodi, 
+					expedientTipusNom, 
+					sistemaExtern, 
+					cause);
+		}
+		
+	}
+	
+	public String getPublicMessage() {
+		return publicMessage;
 	}
 
 	public String getSistemaExtern() {

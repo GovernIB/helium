@@ -13,18 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.json.MetricsModule;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.HibernateHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
@@ -47,13 +35,25 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.json.MetricsModule;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.
@@ -172,7 +172,7 @@ public class AdminServiceImpl implements AdminService {
 		if (entornId != null) {
 			entorn = entornRepository.findOne(entornId);
 			if (entorn == null) {
-				throw new NotFoundException(entornId, Entorn.class);
+				throw new NoTrobatException(Entorn.class,entornId);
 			}
 		}
 		return monitorDominiHelper.findByEntorn(entorn);
@@ -188,7 +188,7 @@ public class AdminServiceImpl implements AdminService {
 				"dominiId=" + dominiId + ")");
 		Domini domini = dominiRepository.findOne(dominiId);
 		if (domini == null) {
-			throw new NotFoundException(dominiId, Domini.class);
+			throw new NoTrobatException(Domini.class,dominiId);
 		}
 		return monitorDominiHelper.findAccionsByDomini(domini);
 	}

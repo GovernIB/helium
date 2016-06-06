@@ -34,7 +34,17 @@ public abstract class HeliumException extends RuntimeException {
 			Long expedientTipusId,
 			String expedientTipusCodi,
 			String expedientTipusNom) {
-		super();
+		super(getCommonMessage(
+				entornId,
+				entornCodi,
+				entornNom,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				expedientTipusCodi,
+				expedientTipusNom,
+				null));
 		this.entornId = entornId;
 		this.entornCodi = entornCodi;
 		this.entornNom = entornNom;
@@ -58,7 +68,17 @@ public abstract class HeliumException extends RuntimeException {
 			String expedientTipusNom,
 			String message,
 			Throwable cause) {
-		super(message, cause);
+		super(getCommonMessage(
+				entornId,
+				entornCodi,
+				entornNom,
+				expedientId,
+				expedientTitol,
+				expedientNumero,
+				expedientTipusId,
+				expedientTipusCodi,
+				expedientTipusNom,
+				message), cause);
 		this.entornId = entornId;
 		this.entornCodi = entornCodi;
 		this.entornNom = entornNom;
@@ -68,6 +88,41 @@ public abstract class HeliumException extends RuntimeException {
 		this.expedientTipusId = expedientTipusId;
 		this.expedientTipusCodi = expedientTipusCodi;
 		this.expedientTipusNom = expedientTipusNom;
+	}
+	
+	private static String getCommonMessage (
+			Long entornId,
+			String entornCodi,
+			String entornNom,
+			Long expedientId,
+			String expedientTitol,
+			String expedientNumero,
+			Long expedientTipusId,
+			String expedientTipusCodi,
+			String expedientTipusNom,
+			String message) {
+		String finalMessage = " ===> ";
+		finalMessage += (message != null ? message : "");
+		if (entornId != null)
+			finalMessage += " entornID: " + entornId + ".";
+		if (entornCodi != null)
+			finalMessage += " entornCodi: " + entornCodi + ".";
+		if (entornNom != null)
+			finalMessage += " entornNom: " + entornNom + ".";
+		if (expedientId != null)
+			finalMessage += " expedientID: " + expedientId + ".";
+		if (expedientTitol != null)
+			finalMessage += " expedientTitol: " + expedientTitol + ".";
+		if (expedientNumero != null)
+			finalMessage += " expedientNumero: " + expedientNumero + ".";
+		if (expedientTipusId != null)
+			finalMessage += " expedientTipusID: " + expedientTipusId + ".";
+		if (expedientTipusCodi != null)
+			finalMessage += " expedientTipusCodi: " + expedientTipusCodi + ".";
+		if (expedientTipusNom != null)
+			finalMessage += " expedientTipusNom: " + expedientTipusNom + ".";
+		
+		return finalMessage;
 	}
 
 	public Long getEntornId() {

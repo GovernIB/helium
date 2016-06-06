@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaCompleteDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -60,7 +61,7 @@ public interface AdminService {
 	 * @return la llista de dominis
 	 */
 	public List<DominiDto> monitorDominiFindByEntorn(
-			Long entornId);
+			Long entornId) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista de les darreres accions d'un domini
@@ -69,7 +70,7 @@ public interface AdminService {
 	 * @return la llista d'accions
 	 */
 	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
-			Long dominiId);
+			Long dominiId) throws NoTrobatException;
 
 	/**
 	 * Consulta les mesures temporals per família.

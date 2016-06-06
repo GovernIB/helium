@@ -13,10 +13,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
-
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -42,9 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentDescarregarException;
-import net.conselldemallorca.helium.v3.core.api.exception.PluginException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -52,6 +46,10 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -103,24 +101,17 @@ public class DocumentHelperV3 {
 			boolean ambSegellSignatura) {
 		ArxiuDto resposta = new ArxiuDto();
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientRepository.findByProcessInstanceId(documentStore.getProcessInstanceId());
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
 		if (documentStore.isSignat() && isSignaturaFileAttached()) {
-			try {
-				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
-			} catch (Exception ex) {
-				throw new DocumentDescarregarException("Error al obtenir l'arxiu de la custòdia (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", ex);
-			}
+			arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 		} else {
 			if (documentStore.getFont().equals(DocumentFont.INTERNA)) {
 				arxiuOrigenContingut = documentStore.getArxiuContingut();
 			} else {
-				try {
-					arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
-							documentStore.getReferenciaFont());
-				} catch (Exception ex) {
-					throw new DocumentDescarregarException("Error al obtenir l'arxiu de la gestió documental (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", ex);
-				}
+				arxiuOrigenContingut = pluginHelper.gestioDocumentalObtenirDocument(
+						documentStore.getReferenciaFont());
 			}
 		}
 		// Calculam el nom de l'arxiu
@@ -146,25 +137,33 @@ public class DocumentHelperV3 {
 				String urlComprovacioSignatura = null;
 				if (ambSegellSignatura)
 					urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
-				try {
-					getPdfUtils().estampar(
-							arxiuNomOriginal,
-							arxiuOrigenContingut,
-							(ambSegellSignatura) ? !documentStore.isSignat() : false,
-							urlComprovacioSignatura,
-							documentStore.isRegistrat(),
-							numeroRegistre,
-							dataRegistre,
-							documentStore.getRegistreOficinaNom(),
-							documentStore.isRegistreEntrada(),
-							vistaContingut,
-							extensioDesti);
-				} catch (Exception ex) {
-					throw new Exception(ex);
-				}
+				
+				getPdfUtils().estampar(
+						arxiuNomOriginal,
+						arxiuOrigenContingut,
+						(ambSegellSignatura) ? !documentStore.isSignat() : false,
+						urlComprovacioSignatura,
+						documentStore.isRegistrat(),
+						numeroRegistre,
+						dataRegistre,
+						documentStore.getRegistreOficinaNom(),
+						documentStore.isRegistreEntrada(),
+						vistaContingut,
+						extensioDesti);
 				resposta.setContingut(vistaContingut.toByteArray());
 			} catch (Exception ex) {
-				throw new DocumentDescarregarException("No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", ex);
+				throw SistemaExternException.tractarSistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", 
+						ex);
 			}
 		} else {
 			// Si no és un pdf retornam la vista directament
@@ -1067,11 +1066,24 @@ public class DocumentHelperV3 {
 										vistaContingut,
 										extensioDesti);
 							} catch (Exception ex) {
-								throw new Exception(ex);
+								throw ex;
 							}
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
+							Expedient expedient = expedientRepository.findByProcessInstanceId(document.getProcessInstanceId());
+							throw SistemaExternException.tractarSistemaExternException(
+									expedient.getEntorn().getId(),
+									expedient.getEntorn().getCodi(), 
+									expedient.getEntorn().getNom(), 
+									expedient.getId(), 
+									expedient.getTitol(),
+									expedient.getNumero(), 
+									expedient.getTipus().getId(), 
+									expedient.getTipus().getCodi(), 
+									expedient.getTipus().getNom(), 
+									"Estampar PDF '" + document.getCodiDocument() + "'", 
+									ex);
 						}
 					} else {
 						// Si no és un pdf retornam la vista directament
@@ -1252,7 +1264,7 @@ public class DocumentHelperV3 {
 			if (!pluginHelper.gestioDocumentalIsPluginActiu())
 				documentStore.setArxiuContingut(arxiuContingut);
 			if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont());
+				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
 		}
 		// Crea el document a dins la gestió documental
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
@@ -1306,7 +1318,7 @@ public class DocumentHelperV3 {
 		if (!pluginHelper.gestioDocumentalIsPluginActiu())
 			documentStore.setArxiuContingut(arxiuContingut);
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-			pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont());
+			pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
 		// Guarda la referència al nou document a dins el jBPM
 		jbpmHelper.setProcessInstanceVariable(
 				processInstanceId,
@@ -1345,13 +1357,12 @@ public class DocumentHelperV3 {
 		if (documentStore != null) {
 			if (documentStore.isSignat()) {
 				if (pluginHelper.custodiaIsPluginActiu()) {
-					try {
-						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia());
-					} catch (PluginException ignored) {}
+					pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), 
+							expedientRepository.findByProcessInstanceId(processInstanceId));
 				}
 			}
 			if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont());
+				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
 			if (processInstanceId != null) {
 				for (Portasignatures psigna: portasignaturesRepository.findByProcessInstanceIdAndPendent(processInstanceId)) {
 					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
@@ -1493,8 +1504,17 @@ public class DocumentHelperV3 {
 									getExtensioVista(document)));
 					resultat.setContingut(baos.toByteArray());
 				} catch (Exception ex) {
-					throw new DocumentConvertirException(
-							"Error en la conversió del document",
+					throw SistemaExternException.tractarSistemaExternException(
+							expedient.getEntorn().getId(),
+							expedient.getEntorn().getCodi(), 
+							expedient.getEntorn().getNom(), 
+							expedient.getId(), 
+							expedient.getTitol(), 
+							expedient.getNumero(), 
+							expedient.getTipus().getId(), 
+							expedient.getTipus().getCodi(), 
+							expedient.getTipus().getNom(), 
+							"Error en la conversió del document", 
 							ex);
 				}
 			}

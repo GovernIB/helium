@@ -10,6 +10,7 @@ import javax.interceptor.Interceptors;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,7 @@ public class TerminiServiceBean implements TerminiService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public void deleteFestiu(String data) throws Exception {
+	public void deleteFestiu(String data) throws ValidacioException, Exception {
 		delegate.deleteFestiu(data);
 	}
 }

@@ -16,7 +16,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+
+import org.springframework.security.acls.model.NotFoundException;
 
 
 
@@ -99,7 +101,7 @@ public interface DissenyService {
 	 */
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId,
-			Long expedientTipusId) throws NoTrobatException, NotAllowedException;
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna les consultes d'un tipus d'expedient per les quals l'usuari actual
@@ -114,15 +116,15 @@ public interface DissenyService {
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException;
 
-	public byte[] getDeploymentResource(Long id, String recursForm);
+	public byte[] getDeploymentResource(Long id, String recursForm) throws NoTrobatException;
 
-	public ExpedientTipusDto getExpedientTipusById(Long id);
+	public ExpedientTipusDto getExpedientTipusById(Long id) throws NoTrobatException;
 
 	public DefinicioProcesDto getById(Long id);
 
-	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId);
+	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) throws NoTrobatException;
 
-	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entorn);
+	public List<ExpedientTipusDto> findExpedientTipusAmbEntorn(EntornDto entorn) throws NoTrobatException;
 
 	/**
 	 * Consulta les tasques disponibles per entorn i expedient tipus per emplenar
@@ -138,16 +140,16 @@ public interface DissenyService {
 			Long entornId,
 			Long expedientTipusId);
 
-	public ConsultaDto findConsulteById(Long id);
+	public ConsultaDto findConsulteById(Long id) throws NoTrobatException;
 
-	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId);
+	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
 
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId);
 
-	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId);
+	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) throws NoTrobatException;
 
-	public AreaDto findAreaById(Long areaId);
+	public AreaDto findAreaById(Long areaId) throws NoTrobatException;
 
-	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId);
+	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) throws NoTrobatException;
 
 }

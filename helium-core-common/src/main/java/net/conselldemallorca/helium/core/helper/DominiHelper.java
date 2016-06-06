@@ -279,37 +279,18 @@ public class DominiHelper {
 					ex,
 					toIntegracioParametres(parametres));
 			
-			if(ExceptionUtils.getRootCause(ex) != null && 
-					(ExceptionUtils.getRootCause(ex).getClass().getName().contains("Timeout") ||
-					 ExceptionUtils.getRootCause(ex).getClass().getName().contains("timeout"))) {
-				
-				throw new SistemaExternTimeoutException(
-						domini.getEntorn().getId(),
-						domini.getEntorn().getCodi(), 
-						domini.getEntorn().getNom(), 
-						null, 
-						null, 
-						null, 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
-						"(Domini '" + domini.getCodi() + "')", 
-						ex);
-				
-			} else {
-				throw new SistemaExternException(
-						domini.getEntorn().getId(),
-						domini.getEntorn().getCodi(), 
-						domini.getEntorn().getNom(), 
-						null, 
-						null, 
-						null, 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
-						"(Domini '" + domini.getCodi() + "')", 
-						ex);
-			}
+			throw SistemaExternException.tractarSistemaExternException(
+					domini.getEntorn().getId(),
+					domini.getEntorn().getCodi(), 
+					domini.getEntorn().getNom(), 
+					null, 
+					null, 
+					null, 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					"(Domini '" + domini.getCodi() + "')", 
+					ex);
 		}
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })

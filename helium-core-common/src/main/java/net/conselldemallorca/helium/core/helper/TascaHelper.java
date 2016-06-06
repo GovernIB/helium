@@ -37,8 +37,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.TaskInstanceNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -92,27 +91,21 @@ public class TascaHelper {
 		if (task == null) {
 			logger.debug("No s'ha trobat la tasca (" +
 					"id=" + id + ")");
-			throw new NotFoundException(
-					id,
-					JbpmTask.class);
+			throw new NoTrobatException(JbpmTask.class, id);
 		}
 		if (comprovarAssignacio) {
 			if (task.getAssignee() == null || !task.getAssignee().equals(auth.getName())) {
 				logger.debug("La persona no té la tasca assignada (" +
 						"id=" + id + ", " +
 						"personaCodi=" + auth.getName() + ")");
-				throw new NotFoundException(
-						id,
-						JbpmTask.class);
+				throw new NoTrobatException(JbpmTask.class, id);
 			}
 		}
 		if (comprovarPendent) {
 			if (!task.isOpen() || task.isCancelled() || task.isSuspended()) {
 				logger.debug("La tasca no està en estat pendent (" +
 						"id=" + id + ")");
-				throw new NotFoundException(
-						id,
-						JbpmTask.class);
+				throw new NoTrobatException(JbpmTask.class, id);
 			}
 		}
 		return task;
@@ -271,9 +264,7 @@ public class TascaHelper {
 		if (task == null) {
 			logger.debug("No s'ha trobat la tasca (" +
 					"id=" + id + ")");
-			throw new NotFoundException(
-					id,
-					JbpmTask.class);
+			throw new NoTrobatException(JbpmTask.class, id);
 		}
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(
 				task.getProcessInstanceId());
@@ -281,7 +272,7 @@ public class TascaHelper {
 			logger.debug("La tasca no pertany a l'expedient (" +
 					"id=" + id + ", " +
 					"expedientId=" + expedient.getId() + ")");
-			throw new TaskInstanceNotFoundException();
+			throw new NoTrobatException(JbpmTask.class, id);
 		}
 		return task;
 	}

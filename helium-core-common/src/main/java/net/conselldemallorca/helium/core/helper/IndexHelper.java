@@ -11,12 +11,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Service;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -27,8 +21,15 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
+import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 /**
  * Utilitats comunes pels serveis
@@ -123,6 +124,8 @@ public class IndexHelper {
 					mapValorsDomini,
 					isExpedientFinalitzat,
 					false);
+		} catch (Exception ex) {
+			throw new IndexacioException("Crear Indexació", ex);
 		} finally {
 			if (!ctxDadesStoped) {
 				// Aturam els timers de obtenció de dades
@@ -233,6 +236,8 @@ public class IndexHelper {
 					mapValors,
 					mapValorsDomini,
 					isExpedientFinalitzat);
+		} catch (Exception ex) {
+			throw new IndexacioException("Update Indexació", ex);
 		} finally {
 			if (perTasca) {
 				contextTotal.stop();
@@ -282,6 +287,8 @@ public class IndexHelper {
 			contextIndexarTipExp = timerIndexarTipExp.time();
 						
 			luceneHelper.deleteExpedient(expedient);
+		} catch (Exception ex) {
+			throw new IndexacioException("Delete indexació", ex);
 		} finally {
 			// Aturam els timers de indexació amb Lucene
 			contextIndexarTotal.stop();
@@ -382,6 +389,8 @@ public class IndexHelper {
 //					mapValorsDomini,
 //					isExpedientFinalitzat,
 //					false);
+		} catch (Exception ex) {
+			throw new IndexacioException("Indexació", ex);
 		} finally {
 			if (!ctxDadesStoped) {
 				// Aturam els timers de obtenció de dades

@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 /**
  * Servei per a gestionar els entorns de l'aplicació.
@@ -20,7 +21,7 @@ public interface EntornService {
 	 * 
 	 * @return la llista d'entorns.
 	 */
-	public List<EntornDto> findActiusAmbPermisAcces();
+	public List<EntornDto> findActiusAmbPermisAcces() throws NoTrobatException;
 
 	/**
 	 * Retorna una llista amb tots els entorns.

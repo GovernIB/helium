@@ -467,37 +467,7 @@ public class VariableHelper {
 						}
 					}
 				}
-			}/* else if (camp.getConsulta() != null) {
-				Consulta consulta = camp.getConsulta();
-				List<ExpedientConsultaDissenyDto> dadesExpedients = expedientService.findAmbEntornConsultaDisseny(
-						consulta.getEntorn().getId(),
-						consulta.getId(),
-						new HashMap<String, Object>(),
-						null);
-				Iterator<ExpedientConsultaDissenyDto> it = dadesExpedients.iterator();
-				while(it.hasNext()){
-					ExpedientConsultaDissenyDto exp = it.next();
-					DadaIndexadaDto valorDto = exp.getDadesExpedient().get(camp.getConsultaCampValor());
-					if (valorDto == null){
-						valorDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampValor());
-					}
-					if (valorDto != null){
-						if (valorDto.getValor().toString().equals(valor)){
-							DadaIndexadaDto textDto = exp.getDadesExpedient().get(camp.getConsultaCampText());
-							if(textDto == null){
-								textDto = exp.getDadesExpedient().get(consulta.getExpedientTipus().getJbpmProcessDefinitionKey()+"/"+camp.getConsultaCampText());
-							}
-							resposta.add(
-									new ParellaCodiValorDto(
-											valorDto.getValorMostrar(),
-											textDto.getValorMostrar()));
-							if (valor != null) {
-								break;
-							}
-						}
-					}
-				}
-			}*/
+			}
 		}
 		return resposta;
 	}
@@ -818,7 +788,7 @@ public class VariableHelper {
 						} catch (SistemaExternException ex) {
 							dto.setText("");
 							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
-							dto.setError(ex.getMessage());
+							dto.setError(ex.getPublicMessage());
 						}
 					}
 				} else {

@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.jbpm3.handlers;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
@@ -13,7 +12,6 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
-import org.dom4j.DocumentHelper;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
@@ -143,7 +141,8 @@ public class RegistreSortidaHandler extends BasicActionHandler implements Regist
 				resposta.getData(),
 				anotacio.getOficinaCodi(),
 				Jbpm3HeliumBridge.getInstanceService().registreObtenirOficinaNom(
-						anotacio.getOficinaCodi()),
+						anotacio.getOficinaCodi(),
+						expedient.getId()),
 				false);
 		if (varNumeroAnyRegistre != null)
 			executionContext.setVariable(

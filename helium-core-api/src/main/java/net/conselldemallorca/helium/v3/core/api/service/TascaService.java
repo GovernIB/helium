@@ -16,11 +16,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+
+import org.springframework.security.acls.model.NotFoundException;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
@@ -47,7 +49,7 @@ public interface TascaService {
 	 */
 	public ExpedientTascaDto findAmbIdPerExpedient(
 			String id,
-			Long expedientId);
+			Long expedientId) throws NoTrobatException;
 
 	/**
 	 * Consulta d'informació d'una tasca per a tramitar-la.
@@ -55,13 +57,13 @@ public interface TascaService {
 	 * @param id
 	 *            Atribut id de la tasca que es vol consultar.
 	 * @return La informació de la tasca.
-	 * @throws NotFoundException
+	 * @throws NoTrobat
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTascaDto findAmbIdPerTramitacio(
-			String id);
+			String id) throws NoTrobatException;
 
 	/**
 	 *  Consulta d'ids de tasques segons el filtre.
@@ -114,7 +116,7 @@ public interface TascaService {
 			Integer prioritat,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup, 
-			boolean nomesTasquesMeves) throws NotFoundException, NotAllowedException;
+			boolean nomesTasquesMeves) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 *  Consulta de tasques segons el filtre amb paginació.
@@ -175,7 +177,7 @@ public interface TascaService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup, 
 			boolean nomesTasquesMeves,
-			PaginacioParamsDto paginacioParams) throws NotFoundException, NotAllowedException;
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna els camps i les dades de la tasca per a la construcció
@@ -255,7 +257,7 @@ public interface TascaService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public ExpedientTascaDto agafar(
-			String id);
+			String id) throws NoTrobatException;
 
 	/**
 	 * Allibera una tasca assignada a aquest usuari.
@@ -343,7 +345,7 @@ public interface TascaService {
 	public void completar(
 			String tascaId,
 			Long expedientId,
-			String outcome);
+			String outcome) throws NoTrobatException, ValidacioException;
 
 	/**
 	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer
@@ -443,5 +445,5 @@ public interface TascaService {
 	
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId);
 	
-	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor);
+	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor) throws NotFoundException, IllegalStateException;
 }

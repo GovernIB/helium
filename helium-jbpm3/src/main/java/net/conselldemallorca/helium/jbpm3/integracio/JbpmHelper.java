@@ -1841,7 +1841,7 @@ public class JbpmHelper {
 		return (List<ProcessInstanceExpedient>)commandService.execute(command);
 	}
 
-	public void reprendreExpedient(String processInstanceId) throws Exception{
+	public void reprendreExpedient(String processInstanceId){
 		//adminService.mesuraIniciar("jBPM reprendreExpedient", "jbpmDao");
 		
 		// Recuperamos el token EndState más reciente
