@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -1379,6 +1380,9 @@ public class TascaServiceImpl implements TascaService {
 							} else if (ex instanceof TramitacioHandlerException) {
 								nouError = ((TramitacioHandlerException)ex).getPublicMessage();
 								logError = ex.getMessage();
+							} else if (ex instanceof SistemaExternException) {
+								nouError = ((SistemaExternException)ex).getPublicMessage();
+								logError = ex.getMessage();
 							} else if (ex.getCause() != null && ex.getCause().getMessage() != null && ex.getCause().getMessage() != "") {
 								logError = ex.getCause().getMessage();
 								nouError = logError;
@@ -1391,7 +1395,7 @@ public class TascaServiceImpl implements TascaService {
 							}
 							
 							infoSegonPla.setError(nouError);
-							logger.error(logError);
+							logger.error(logError, ex);
 						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
 			        }

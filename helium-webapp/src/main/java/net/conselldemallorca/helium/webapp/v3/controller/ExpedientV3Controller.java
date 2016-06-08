@@ -57,7 +57,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	private ExpedientService expedientService;
 
 	@Autowired
-	private AplicacioService aplicacioService ;
+	private AplicacioService aplicacioService;
 
 	@RequestMapping(value = "/{expedientId}", method = RequestMethod.GET)
 	public String info(

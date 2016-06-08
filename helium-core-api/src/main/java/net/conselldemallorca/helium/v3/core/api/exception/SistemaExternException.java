@@ -37,10 +37,10 @@ public class SistemaExternException extends HeliumException {
 				expedientTipusId,
 				expedientTipusCodi,
 				expedientTipusNom,
-				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + cause.getMessage(),
+				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + ExceptionUtils.getRootCauseMessage(cause),
 				cause);
 		this.sistemaExtern = sistemaExtern;
-		this.publicMessage = "Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + cause.getMessage();
+		this.publicMessage = "Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + ExceptionUtils.getRootCauseMessage(cause);
 	}
 	
 	public SistemaExternException(
