@@ -3,12 +3,18 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.Collection;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -29,6 +35,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 
 	ExpedientTipus findByEntornAndCodi(Entorn entorn, String codi);
 
+	ExpedientTipus findByEntornAndId(Entorn entorn, Long id);
+
 	ExpedientTipus findById(Long expedientTipusId);
 
 	/*Entitat findByCif(String cif);
@@ -41,5 +49,17 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			"    eu.entitat.id = ?1 " +
 			"and eu.usuari.nif = ?2")
 	EntitatUsuari findUsuariAmbNif(Long id, String nif);*/
+	
+	@Query(	"from ExpedientTipus e " +
+			"where " +
+			"    e.entorn = :entorn " +
+			"and e.id in (:tipusPermesosIds) " +
+			"and (:esNullFiltre = true or lower(e.nom) like lower('%'||:filtre||'%') or lower(e.codi) like lower('%'||:filtre||'%')) ")
+	Page<Expedient> findByFiltreGeneralPaginat(
+			@Param("entorn") Entorn entorn,
+			@Param("tipusPermesosIds") Collection<Long> tipusPermesosIds,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);
 
 }

@@ -157,7 +157,7 @@ public class ExpedientTipusHelper {
 	public List<ExpedientTipus> findAmbPermisRead(
 			Entorn entorn) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipusPermesos = this.findAmbEntorn(entorn);
 		permisosHelper.filterGrantedAny(
 				tipusPermesos,
 				new ObjectIdentifierExtractor<ExpedientTipus>() {
@@ -179,6 +179,21 @@ public class ExpedientTipusHelper {
 		List<Long> ids = new ArrayList<Long>();
 		for (ExpedientTipus tipus: tipusPermesos) {
 			ids.add(tipus.getId());
+		}
+		return ids;
+	}
+	
+	public List<ExpedientTipus> findAmbEntorn(
+			Entorn entorn) {
+		return  expedientTipusRepository.findByEntorn(entorn);
+	}
+
+	public List<Long> findIdsAmbEntorn(
+			Entorn entorn) {
+		List<ExpedientTipus> tipus = findAmbEntorn(entorn);
+		List<Long> ids = new ArrayList<Long>();
+		for (ExpedientTipus t: tipus) {
+			ids.add(t.getId());
 		}
 		return ids;
 	}
