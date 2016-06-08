@@ -8,8 +8,6 @@
 
 <c:set var="campInline" value="${inline}"/>
 <c:set var="obligatorio"><c:if test="${dada.required}"> data-required="true"</c:if></c:set>
-<%-- <c:if test="${!dada.readOnly}"> --%>
-	
 	<c:set var="campErrors"><form:errors path="${campCodi}"/></c:set>
 	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if><c:if test="${not empty tasca.tascaFormExternCodi}"> formext</c:if>">
 		<label for="${dada.varCodi}" class="control-label<c:choose><c:when test='${inline}'> sr-only</c:when><c:otherwise> col-xs-3<c:if test="${dada.required}"> obligatori</c:if></c:otherwise></c:choose>">${dada.campEtiqueta}</label>
@@ -192,7 +190,7 @@
 					</button>
 			</c:if>
 			<c:if test="${not inline and not empty dada.observacions}"><p class="help-block"><span class="label label-info">Nota</span> ${dada.observacions}</p></c:if>
-			<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campCodi}"/></p></c:if>				
+			<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;${campErrors}</p></c:if>
 		</div>	<%-- Fi div controls--%>
 	</div>	<%-- Fi div form-group--%>
 
