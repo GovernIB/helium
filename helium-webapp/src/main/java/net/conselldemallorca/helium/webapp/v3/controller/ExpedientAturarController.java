@@ -56,24 +56,26 @@ public class ExpedientAturarController extends BaseExpedientController {
 			ExpedientEinesAturarCommand aturarExpedient, 
 			BindingResult result, 
 			SessionStatus status) {
+		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		if (!expedient.isAturat()) {
-			new ExpedientAturarValidator().validate(aturarExpedient, result);
-			if (result.hasErrors()) {
-				MissatgesHelper.error(request, getMessage(request, "error.validacio"));
-				model.addAttribute("expedientId", expedientId);
-				model.addAttribute(aturarExpedient);
-				return "v3/expedient/aturar";
-			}
-			try {
+			if (!expedient.isAturat()) {
+				new ExpedientAturarValidator().validate(aturarExpedient, result);
+				if (result.hasErrors()) {
+					MissatgesHelper.error(request, getMessage(request, "error.validacio"));
+					model.addAttribute("expedientId", expedientId);
+					model.addAttribute(aturarExpedient);
+					return "v3/expedient/aturar";
+				}
+				
 				expedientService.aturar(expedientId, aturarExpedient.getMotiu());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.aturat"));
-			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
-				ex.getLocalizedMessage();
+				
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.aturat"));
 			}
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.aturat"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
+			ex.getLocalizedMessage();
 		}
 		return modalUrlTancar();
 	}

@@ -44,6 +44,15 @@
 
 <form:form onsubmit="return confirmar(this)" action="${tascaFormAction}" cssClass="form-horizontal form-tasca" method="post" commandName="command">
 	<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
+	
+	<!-- 
+	<spring:hasBindErrors name="command">
+           <c:forEach items="${errors.allErrors}" var="error">
+              - ${error} <br>
+           </c:forEach>
+	</spring:hasBindErrors>
+	 -->
+	
 	<c:forEach var="dada" items="${dades}" varStatus="varStatusMain">
 		<c:set var="inline" value="${false}"/>
 		<c:set var="isRegistre" value="${false}"/>

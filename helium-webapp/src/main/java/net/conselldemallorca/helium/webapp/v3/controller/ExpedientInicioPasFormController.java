@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -23,7 +22,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -79,7 +81,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			Model model,
-			Map<String, Object> valors) {
+			Map<String, Object> valorsRepro) {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
@@ -110,7 +112,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 							ExpedientIniciController.CLAU_SESSIO_FORM_VALORS);
 				}
 			}
-			if (valors == null) {
+			if (valorsRepro == null || valorsRepro.isEmpty()) {
 				return TascaFormHelper.getCommandForCamps(
 						tascaService.findDadesPerTascaDto(tasca),
 						valorsFormulariExtern,
@@ -120,12 +122,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			} else {
 				return TascaFormHelper.getCommandForCamps(
 						tascaService.findDadesPerTascaDto(tasca),
-						valors,
+						valorsRepro,
 						campsAddicionals,
 						campsAddicionalsClasses,
 						false);
 			}
-		} catch (TascaNotFoundException ex) {
+		} catch (NoTrobatException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
 		}
@@ -186,6 +188,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(tasca);
+		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(expedientTipus.getId());
 		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
@@ -209,6 +212,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 			model.addAttribute(command);
 			model.addAttribute("tasca", tasca);
 			model.addAttribute("dades", tascaDades);
+			model.addAttribute("repros", repros);
 			model.addAttribute("entornId", entorn.getId());
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());
@@ -242,20 +246,30 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
-				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
+				if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
+				}  else if (ex instanceof TramitacioValidacioException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
+				} else if (ex instanceof TramitacioHandlerException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.iniciar.expedient") + " : " + ((TramitacioHandlerException)ex).getPublicMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.iniciar.expedient") + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut iniciar l'expedient", ex);
 		        }
+				
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
 				model.addAttribute(command);
 				model.addAttribute("tasca", tasca);
 				model.addAttribute("dades", tascaDades);
+				model.addAttribute("repros", repros);
 				model.addAttribute("entornId", entorn.getId());
 				model.addAttribute("expedientTipus", expedientTipus);
 				model.addAttribute("responsableCodi", expedientTipus.getResponsableDefecteCodi());

@@ -35,7 +35,7 @@ public class ReproServiceBean implements ReproService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) throws Exception {
+	public ReproDto create(Long expedientTipusId, String nom, Map<String, Object> valors) {
 		return delegate.create(expedientTipusId, nom, valors);
 	}
 	
@@ -47,7 +47,7 @@ public class ReproServiceBean implements ReproService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<String,Object> findValorsById(Long id) throws Exception {
+	public Map<String,Object> findValorsById(Long id) {
 		return delegate.findValorsById(id);
 	}
 }

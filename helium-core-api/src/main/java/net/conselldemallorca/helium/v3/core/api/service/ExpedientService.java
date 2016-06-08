@@ -34,13 +34,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+
+import org.springframework.security.acls.model.NotFoundException;
 
 
 /**
@@ -125,7 +125,7 @@ public interface ExpedientService {
 			String iniciadorCodi,
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts);
+			List<DadesDocumentDto> adjunts) throws NoTrobatException;
 
 	/**
 	 * Modifica la informació d'un expedient.
@@ -171,7 +171,7 @@ public interface ExpedientService {
 			Double geoPosY,
 			String geoReferencia,
 			String grupCodi,
-			boolean execucioDinsHandler);
+			boolean execucioDinsHandler) throws NoTrobatException;
 
 	/**
 	 * Esborra un expedient.
@@ -183,7 +183,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void delete(Long id);
+	public void delete(Long id) throws NoTrobatException;
 
 	/**
 	 * Retorna un expedient donat el seu id.
@@ -280,7 +280,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats,
-			PaginacioParamsDto paginacioParams);
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	/**
 	 * Consulta només ids d'expedient per entorn.
@@ -366,7 +366,7 @@ public interface ExpedientService {
 	 */
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
-			String processInstanceId);
+			String processInstanceId) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista de persones que han fet alguna tasca de
@@ -380,7 +380,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<PersonaDto> findParticipants(Long id);
+	public List<PersonaDto> findParticipants(Long id) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista d'accions visibles de l'expedient especificat.
@@ -393,7 +393,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<AccioDto> findAccionsVisibles(Long id);
+	public List<AccioDto> findAccionsVisibles(Long id) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista de tasques pendents de l'expedient.
@@ -409,7 +409,7 @@ public interface ExpedientService {
 	public List<ExpedientTascaDto> findTasquesPendents(
 			Long id,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup);
+			boolean nomesTasquesGrup) throws NoTrobatException;
 	/**
 	 * Retorna la llista de dades d'una instància de procés de
 	 * l'expedient.
@@ -427,7 +427,7 @@ public interface ExpedientService {
 	 */
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
 			Long id,
-			String processInstanceId);
+			String processInstanceId) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista d'agrupacions de dades d'una instància
@@ -446,7 +446,7 @@ public interface ExpedientService {
 	 */
 	public List<CampAgrupacioDto> findAgrupacionsDadesPerInstanciaProces(
 			Long id,
-			String processInstanceId);
+			String processInstanceId) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista de documents d'una instància de procés de
@@ -465,7 +465,7 @@ public interface ExpedientService {
 	 */
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
 			Long expedientId,
-			String processInstanceId);
+			String processInstanceId) throws NoTrobatException;
 
 	/**
 	 * Retorna un document d'una instància de procés de
@@ -491,7 +491,7 @@ public interface ExpedientService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId,
-			String documentCodi);
+			String documentCodi) throws NoTrobatException;
 	
 	/**
 	 * Retorna un document d'una instància de procés de
@@ -514,7 +514,7 @@ public interface ExpedientService {
 	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
 			Long expedientId,
 			String processInstanceId,
-			Long documentStoreId);
+			Long documentStoreId) throws NoTrobatException;
 
 	/**
 	 * Esborra un document d'una instància de procés de
@@ -537,7 +537,7 @@ public interface ExpedientService {
 	public void esborrarDocument(
 			Long expedientId,
 			String processInstanceId,
-			Long documentStoreId);
+			Long documentStoreId) throws NoTrobatException, SistemaExternException;
 
 	/**
 	 * Retorna l'arxiu del document.
@@ -555,7 +555,7 @@ public interface ExpedientService {
 	 */
 	public ArxiuDto getArxiuPerDocument(
 			Long id,
-			Long documentStoreId);
+			Long documentStoreId) throws NoTrobatException;
 
 	/**
 	 * Atura la tramitació d'un expedient.
@@ -571,7 +571,7 @@ public interface ExpedientService {
 	 */
 	public void aturar(
 			Long id,
-			String motiu);
+			String motiu) throws NoTrobatException;
 
 	/**
 	 * Anula un expedient.
@@ -587,7 +587,7 @@ public interface ExpedientService {
 	 */
 	public void cancel(
 			Long id,
-			String motiu);
+			String motiu) throws NoTrobatException;
 
 	/**
 	 * Crea una relació entre dos expedients.
@@ -603,7 +603,7 @@ public interface ExpedientService {
 	 */
 	public void createRelacioExpedient(
 			Long origenId,
-			Long destiId);
+			Long destiId) throws NoTrobatException;
 
 	/**
 	 * Esborra una relació entre dos expedients.
@@ -619,7 +619,7 @@ public interface ExpedientService {
 	 */
 	public void deleteRelacioExpedient(
 			Long origenId,
-			Long destiId);
+			Long destiId) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista d'expedients relacionats amb l'expedient
@@ -633,7 +633,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientDto> findRelacionats(Long id);
+	public List<ExpedientDto> findRelacionats(Long id) throws NoTrobatException;
 	
 	/**
 	 * Retorna la llista d'alertes no eliminades de l'expedient
@@ -647,7 +647,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<AlertaDto> findAlertes(Long id);
+	public List<AlertaDto> findAlertes(Long id) throws NoTrobatException;
 	
 	/**
 	 * Retorna la llista d'errors relacionats amb
@@ -661,7 +661,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	Object[] findErrorsExpedient(Long id);
+	Object[] findErrorsExpedient(Long id) throws NoTrobatException;
 
 	/**
 	 * Canvia la versió de la definició de procés.
@@ -680,7 +680,7 @@ public interface ExpedientService {
 	 */
 	public String canviVersioDefinicioProces(
 			String processInstanceId,
-			int versio);
+			int versio) throws NoTrobatException;
 
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
 
@@ -699,13 +699,13 @@ public interface ExpedientService {
 
 	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId);
 
-	public void cancelarTasca(Long expedientId, Long taskId);
+	public void cancelarTasca(Long expedientId, Long taskId) throws NoTrobatException, ValidacioException;
 
-	public void suspendreTasca(Long expedientId, Long taskId);
+	public void suspendreTasca(Long expedientId, Long taskId) throws NoTrobatException, ValidacioException;
 
-	public void reprendreTasca(Long expedientId, Long taskId);
+	public void reprendreTasca(Long expedientId, Long taskId) throws NoTrobatException, ValidacioException;
 
-	public void reassignarTasca(String taskId, String expression);
+	public void reassignarTasca(String taskId, String expression) throws NoTrobatException, ValidacioException;
 
 	/**
 	 * Fa una consulta per tipus damunt un tipus d'expedient.
@@ -835,7 +835,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException;
+			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
 
@@ -847,16 +847,16 @@ public interface ExpedientService {
 
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId);
 
-	public DocumentDto findDocumentsPerId(Long id);
+	public DocumentDto findDocumentsPerId(Long id) throws NoTrobatException;
 
 	public ArxiuDto arxiuDocumentPerMostrar(String token);
 
-	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception;
+	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws NoTrobatException;
 
 	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
+			String documentCodi) throws NoTrobatException;
 
 	/**
 	 * Genera un document amb plantilla.
@@ -875,7 +875,7 @@ public interface ExpedientService {
 	 */
 	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException;
+			String documentCodi) throws NoTrobatException;
 
 	public boolean isExtensioDocumentPermesa(String extensio);
 
@@ -887,31 +887,29 @@ public interface ExpedientService {
 
 	public void deleteVariable(Long expedientId, String processInstanceId, String varName);
 
-	//public ExpedientDocumentDto findDocumentPerInstanciaProcesDocumentStoreId(Long expedientId, Long documentStoreId, String docCodi);
-
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
 
-	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception;
+	public void deleteSignatura(Long expedientId, Long documentStoreId) throws NoTrobatException, SistemaExternException;
 
 	public ExpedientLogDto findLogById(Long logId);
 
-	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios);
+	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) throws NoTrobatException;
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
-	public void activa(Long id);
+	public void activa(Long id) throws NoTrobatException;
 	
-	public void reprendre(Long id) throws Exception;
+	public void reprendre(Long id) throws NoTrobatException;
 	
-	public void desfinalitzar(Long id) throws Exception;
+	public void desfinalitzar(Long id) throws NoTrobatException;
 
-	public boolean luceneReindexarExpedient(Long expedientId);
+	public boolean luceneReindexarExpedient(Long expedientId) throws PermisDenegatException, NoTrobatException;
 
 	public ArxiuDto arxiuDocumentPerSignar(String token);
 
 	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId);
 	
-	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId);
+	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId) throws NoTrobatException, TramitacioException, PermisDenegatException;
 	
 	public AccioDto findAccioAmbId(Long idAccio);
 

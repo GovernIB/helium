@@ -38,12 +38,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentConvertirException;
-import net.conselldemallorca.helium.v3.core.api.exception.DocumentGenerarException;
-import net.conselldemallorca.helium.v3.core.api.exception.EntornNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.EstatNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.ExpedientTipusNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -624,7 +618,7 @@ public class ExpedientServiceBean implements ExpedientService {
 	public ArxiuDto generarDocumentAmbPlantillaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+			String documentCodi) {
 		return delegate.generarDocumentAmbPlantillaProces(
 				expedientId,
 				processInstanceId,
@@ -635,7 +629,7 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto generarDocumentAmbPlantillaTasca(
 			String tascaId,
-			String documentCodi) throws NotFoundException, DocumentGenerarException, DocumentConvertirException {
+			String documentCodi) {
 		return delegate.generarDocumentAmbPlantillaTasca(
 				tascaId,
 				documentCodi);
@@ -643,7 +637,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws Exception {
+	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) {
 		delegate.crearModificarDocument(expedientId, processInstanceId, documentStoreId, nom, nomArxiu, docId, arxiu, data);
 	}
 
@@ -683,15 +677,9 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.verificarSignatura(documentStoreId);
 	}
 
-	/*@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void esborrarDocument(Long expedientId, Long documentStoreId, String docCodi) throws Exception {
-		delegate.esborrarDocument(expedientId, documentStoreId, docCodi);
-	}*/
-
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void deleteSignatura(Long expedientId, Long documentStoreId) throws Exception {
+	public void deleteSignatura(Long expedientId, Long documentStoreId) {
 		delegate.deleteSignatura(expedientId, documentStoreId);
 	}
 
@@ -727,13 +715,13 @@ public class ExpedientServiceBean implements ExpedientService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reprendre(Long id) throws Exception {
+	public void reprendre(Long id) {
 		delegate.reprendre(id);
 	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void desfinalitzar(Long id) throws Exception {
+	public void desfinalitzar(Long id) {
 		delegate.desfinalitzar(id);
 	}
 
@@ -751,7 +739,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, boolean nomesMeves, boolean nomesAlertes, boolean mostrarAnulats, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws EntornNotFoundException, ExpedientTipusNotFoundException, EstatNotFoundException {
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, boolean nomesMeves, boolean nomesAlertes, boolean mostrarAnulats, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) {
 		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup, paginacioParams);
 	}
 

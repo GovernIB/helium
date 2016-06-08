@@ -131,7 +131,8 @@ public class RegistreEntradaHandler extends BasicActionHandler implements Regist
 				resposta.getData(),
 				anotacio.getOficinaCodi(),
 				Jbpm3HeliumBridge.getInstanceService().registreObtenirOficinaNom(
-						anotacio.getOficinaCodi()),
+						anotacio.getOficinaCodi(),
+						expedient.getId()),
 				true);
 		if (varNumeroAnyRegistre != null)
 			executionContext.setVariable(

@@ -20,6 +20,21 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,21 +54,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
-
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 /**
  * Controlador per a la pipella de dades de l'expedient.
@@ -180,7 +180,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			expedientService.deleteVariable(expedientId, procesId, URLDecoder.decode(varCodi,"UTF-8"));
 			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.esborrada") );
 			return true;
-		} catch (NotAllowedException ex) {
+		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.dada.borrar.error"));
@@ -285,7 +285,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			}
 			expedientService.updateVariable(expedientId, procesId, varCodi, varValue);
 			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.modificada") );
-		} catch (NotAllowedException ex) {
+		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));
@@ -445,7 +445,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				return "v3/expedientDadaNova";
 			}
 			MissatgesHelper.success(request, getMessage(request, "info.dada.nova.proces.creada") );
-		} catch (NotAllowedException ex) {
+		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));

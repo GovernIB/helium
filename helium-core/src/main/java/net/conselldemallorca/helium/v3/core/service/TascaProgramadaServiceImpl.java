@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
@@ -59,6 +60,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 						execucioMassivaService.generaInformeError(ome_id, getError(ome_id));
 					}
 					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
+					if (ome == null)
+						throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
 					ultimaExecucioMassiva = ome.getExecucioMassiva().getId();
 					execucioMassivaService.actualitzaUltimaOperacio(ome.getId());
 				} else {

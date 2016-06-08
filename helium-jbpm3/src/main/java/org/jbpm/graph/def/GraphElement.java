@@ -29,9 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmContext;
@@ -48,6 +45,9 @@ import org.jbpm.signal.EventService;
 import org.jbpm.svc.Service;
 import org.jbpm.svc.Services;
 import org.jbpm.util.EqualsUtil;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class GraphElement implements Identifiable, Serializable {
@@ -289,7 +289,15 @@ public abstract class GraphElement implements Identifiable, Serializable {
         if (actionMustBeLocked) {
           token.lock(lockOwnerId);
         }
-
+        
+//        // Si el handler implementa HeliumActionhandler passarem l'HeliumContext que restringeix l'accés a 
+//        if (action != null && action.getActionDelegation() != null) {
+//        	Object actionHandler = action.getActionDelegation().getInstance();
+//			if (actionHandler instanceof HeliumActionHandler) {
+//				HeliumApi heliumApi = new HeliumApiImpl(executionContext);
+//			}
+//        }
+        	
         if (UserCodeInterceptorConfig.userCodeInterceptor != null) {
           UserCodeInterceptorConfig.userCodeInterceptor.executeAction(action, executionContext);
         } else {

@@ -18,6 +18,30 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.core.model.dto.TascaDto;
+import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
+import net.conselldemallorca.helium.core.model.exception.NotFoundException;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
+import net.conselldemallorca.helium.core.model.service.DissenyService;
+import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.core.model.service.ExpedientService;
+import net.conselldemallorca.helium.core.model.service.TascaService;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
+import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,26 +63,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
-
-import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.core.model.dto.TascaDto;
-import net.conselldemallorca.helium.core.model.dto.TascaLlistatDto;
-import net.conselldemallorca.helium.core.model.exception.NotFoundException;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
-import net.conselldemallorca.helium.core.model.service.DissenyService;
-import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.core.model.service.ExpedientService;
-import net.conselldemallorca.helium.core.model.service.TascaService;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
-import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 
 
 
@@ -886,17 +890,31 @@ public class TascaFormController extends BaseController {
 				missatgeInfo(request, getMessage("info.accio.executat"));
 	        } catch (Exception ex) {
 	        	String tascaIdLog = getIdTascaPerLogs(entornId, id);
-	        	if (ex.getCause() != null && ex.getCause() instanceof ValidationException) {
-					missatgeError(
+	        	
+	        	if (ex instanceof ValidacioException) {
+					MissatgesHelper.error(
 		        			request,
-		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getCause().getMessage());
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage());
+				}  else if (ex instanceof TramitacioValidacioException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage());
+				} else if (ex instanceof TramitacioHandlerException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + ((TramitacioHandlerException)ex).getPublicMessage());
+				} else if (ex instanceof TramitacioException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + ((TramitacioException)ex).getPublicMessage());
 				} else {
-					missatgeError(
-			    			request,
-			    			getMessage("error.executar.accio") + " " + tascaIdLog,
-			    			ex.getLocalizedMessage());
-		        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
-				}
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + 
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+		        }
+	        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
+	        	
 	        	resposta = false;
 	        }
 		}

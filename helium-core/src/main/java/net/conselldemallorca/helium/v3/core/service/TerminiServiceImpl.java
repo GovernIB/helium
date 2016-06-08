@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
@@ -19,10 +21,9 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
-import net.conselldemallorca.helium.v3.core.api.exception.FestiuNotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
-import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
@@ -64,9 +65,15 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	public List<TerminiDto> findTerminisAmbProcessInstanceId(String processInstanceId) {
 		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (pi == null)
+			throw new NoTrobatException(JbpmProcessInstance.class, processInstanceId);
+		
 		if (pi.getProcessInstance() == null)
 			return null;
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, pi.getProcessDefinitionId());
+		
 		return conversioTipusHelper.convertirList(
 				terminiRepository.findByDefinicioProcesId(definicioProces.getId()),
 				TerminiDto.class);
@@ -82,7 +89,10 @@ public class TerminiServiceImpl implements TerminiService {
 	@Transactional(readOnly=true)
 	@Override
 	public TerminiIniciatDto findIniciatAmbId(Long id) {
-		return conversioTipusHelper.convertir(terminiIniciatRepository.findById(id), TerminiIniciatDto.class);
+		TerminiIniciat termini = terminiIniciatRepository.findById(id);
+		if (termini == null)
+			throw new NoTrobatException(TerminiIniciat.class, id);
+		return conversioTipusHelper.convertir(termini, TerminiIniciatDto.class);
 	}
 	
 	private Date getDataFiTermini(
@@ -128,8 +138,15 @@ public class TerminiServiceImpl implements TerminiService {
 			Date data,
 			boolean esDataFi) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
+		if (expedient == null)
+			throw new NoTrobatException(Expedient.class, expedientId);
+		
 		Termini termini = terminiRepository.findOne(terminiId);
+		if (termini == null)
+			throw new NoTrobatException(Termini.class, terminiId);
+		
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
+		
 		if (terminiIniciat == null) {
 			return iniciar(
 					terminiId,
@@ -228,9 +245,10 @@ public class TerminiServiceImpl implements TerminiService {
 			boolean esDataFi) {	
 		Termini termini = terminiRepository.findOne(terminiId);
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiId);
-		if (termini == null) {
+		
+		if (termini == null)
 			termini = terminiIniciat.getTermini();
-		}
+		
 		if (terminiIniciat == null) {
 			if (esDataFi) {
 				Date dataInici = getDataIniciTermini(
@@ -303,10 +321,13 @@ public class TerminiServiceImpl implements TerminiService {
 		
 	@Transactional
 	@Override
-	public void pausar(Long terminiIniciatId, Date data) throws IllegalStateException {
+	public void pausar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
+		if (terminiIniciat == null)
+			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
+		
 		if (terminiIniciat.getDataInici() == null)
-			throw new IllegalStateException( messageHelper.getMessage("error.terminiService.noIniciat") );
+			throw new ValidacioException( messageHelper.getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
@@ -322,10 +343,13 @@ public class TerminiServiceImpl implements TerminiService {
 		
 	@Transactional
 	@Override
-	public void continuar(Long terminiIniciatId, Date data) throws IllegalStateException {
+	public void continuar(Long terminiIniciatId, Date data) {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
+		if (terminiIniciat == null)
+			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
+		
 		if (terminiIniciat.getDataAturada() == null)
-			throw new IllegalStateException( messageHelper.getMessage("error.terminiService.noPausat") );
+			throw new ValidacioException( messageHelper.getMessage("error.terminiService.noPausat") );
 		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
 		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
 		terminiIniciat.setDataAturada(null);
@@ -345,8 +369,11 @@ public class TerminiServiceImpl implements TerminiService {
 	@Override
 	public void cancelar(Long terminiIniciatId, Date data) throws IllegalStateException {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
+		if (terminiIniciat == null)
+			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
+		
 		if (terminiIniciat.getDataInici() == null)
-			throw new IllegalStateException( messageHelper.getMessage("error.terminiService.noIniciat") );
+			throw new ValidacioException( messageHelper.getMessage("error.terminiService.noIniciat") );
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
@@ -412,13 +439,13 @@ public class TerminiServiceImpl implements TerminiService {
 	
 	@Transactional
 	@Override
-	public void deleteFestiu(String data) throws Exception {
+	public void deleteFestiu(String data) throws ValidacioException, Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		Festiu festiu = festiuRepository.findByData(sdf.parse(data));
 		if (festiu != null) {
 			festiuRepository.delete(festiu);
 		} else {
-			throw new FestiuNotFoundException();
+			throw new ValidacioException("No s'ha trobat el dia festiu");
 		}
 	}
 	

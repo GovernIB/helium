@@ -7,9 +7,8 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 import org.springframework.security.acls.model.Permission;
@@ -34,54 +33,56 @@ public class EntornHelper {
 			Long id,
 			boolean comprovarPermisRead,
 			boolean comprovarPermisWrite,
-			boolean comprovarPermisDelete) throws NotFoundException, NotAllowedException {
+			boolean comprovarPermisDelete) {
 		Entorn entorn = entornRepository.findOne(id);
 		if (entorn == null) {
-			throw new NotFoundException(
-					id,
-					Entorn.class);
+			throw new NoTrobatException(Entorn.class,id);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Permission[] permisos = null;
 		if (comprovarPermisRead) {
+			permisos = new Permission[] {
+					ExtendedPermission.READ,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,
 					Entorn.class,
-					new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Entorn.class,
-						PermisTipusEnumDto.READ);
+						permisos);
 			}
 		}
 		if (comprovarPermisWrite) {
+			permisos = new Permission[] {
+					ExtendedPermission.WRITE,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,
 					Entorn.class,
-					new Permission[] {
-						ExtendedPermission.WRITE,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Entorn.class,
-						PermisTipusEnumDto.WRITE);
+						permisos);
 			}
 		}
 		if (comprovarPermisDelete) {
+			permisos = new Permission[] {
+					ExtendedPermission.DELETE,
+					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,
 					Entorn.class,
-					new Permission[] {
-						ExtendedPermission.DELETE,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth)) {
-				throw new NotAllowedException(
+				throw new PermisDenegatException(
 						id,
 						Entorn.class,
-						PermisTipusEnumDto.DELETE);
+						permisos);
 			}
 		}
 		return entorn;

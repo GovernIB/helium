@@ -165,6 +165,11 @@ public class ExpedientDadaDto {
 	public void setAgrupacioId(Long agrupacioId) {
 		this.agrupacioId = agrupacioId;
 	}
+	
+	//getter per a obtenir nom de la classe del valor de la dada
+	public String getVarValorClass() {
+		return varValor.getClass().getName();
+	}
 
 	public Object[] getMultipleValor() {
 		if (isCampMultiple())

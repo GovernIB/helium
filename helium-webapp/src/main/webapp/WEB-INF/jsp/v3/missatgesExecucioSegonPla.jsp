@@ -23,5 +23,10 @@
 	</c:otherwise>
 	</c:choose>
 	</ul>
+	<div id="modal-botons" class="well">
+		<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
+			<spring:message code='comuns.tancar' />
+		</button>
+	</div>
 </body>
 </html>

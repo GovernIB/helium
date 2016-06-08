@@ -28,25 +28,25 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
+	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
 		delegate.crearExecucioMassiva(dto);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Object deserialize(byte[] bytes) throws Exception {
+	public Object deserialize(byte[] bytes) {
 		return delegate.deserialize(bytes);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public byte[] serialize(Object obj) throws Exception {
+	public byte[] serialize(Object obj) {
 		return delegate.serialize(obj);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void cancelarExecucio(Long id) throws Exception {
+	public void cancelarExecucio(Long id) {
 		delegate.cancelarExecucio(id);
 	}
 
@@ -70,7 +70,7 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void executarExecucioMassiva(Long ome_id) throws Exception {
+	public void executarExecucioMassiva(Long ome_id) {
 		delegate.executarExecucioMassiva(ome_id);
 	}
 	

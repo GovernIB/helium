@@ -39,6 +39,7 @@
 		<module>helium-hibernate-entitymanager</module>
 		<module>helium-selenium</module>
 		<module>helium-selenium-integraciones</module>
+		<module>helium-ws-client</module>
 	</modules>
 	<build>
 		<plugins>

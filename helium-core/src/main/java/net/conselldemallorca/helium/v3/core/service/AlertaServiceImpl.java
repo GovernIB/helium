@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.AlertaService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 
@@ -33,6 +34,9 @@ public class AlertaServiceImpl implements AlertaService{
 	public AlertaDto marcarLlegida(Long alertaId) {
 		Alerta alerta = alertaRepository.findOne(alertaId);
 		
+		if (alerta == null)
+			throw new NoTrobatException(Alerta.class, alertaId);
+		
 		alerta.setDataLectura(new Date());
 		alertaRepository.save(alerta);
 		
@@ -43,6 +47,9 @@ public class AlertaServiceImpl implements AlertaService{
 	public AlertaDto marcarNoLlegida(Long alertaId) {
 		Alerta alerta = alertaRepository.findOne(alertaId);
 		
+		if (alerta == null)
+			throw new NoTrobatException(Alerta.class, alertaId);
+		
 		alerta.setDataLectura(null);
 		alertaRepository.save(alerta);
 		
@@ -52,6 +59,9 @@ public class AlertaServiceImpl implements AlertaService{
 	@Override
 	public AlertaDto marcarEsborrada(Long alertaId) {
 		Alerta alerta = alertaRepository.findOne(alertaId);
+		
+		if (alerta == null)
+			throw new NoTrobatException(Alerta.class, alertaId);
 		
 		alerta.setDataEliminacio(new Date());
 		alertaRepository.save(alerta);

@@ -98,7 +98,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 							request,
 							"info.expedient.reindexat"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient"));
+			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}

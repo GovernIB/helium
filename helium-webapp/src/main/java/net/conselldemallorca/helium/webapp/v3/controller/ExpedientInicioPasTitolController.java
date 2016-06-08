@@ -15,13 +15,15 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -128,17 +130,25 @@ public class ExpedientInicioPasTitolController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 			} catch (Exception ex) {
-				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
+				if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
+				}  else if (ex instanceof TramitacioValidacioException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getMessage());
+				} else if (ex instanceof TramitacioHandlerException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.iniciar.expedient") + " : " + ((TramitacioHandlerException)ex).getPublicMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.iniciar.expedient") + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut iniciar l'expedient", ex);
 		        }
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			}
 		}
 		return modalUrlTancar();

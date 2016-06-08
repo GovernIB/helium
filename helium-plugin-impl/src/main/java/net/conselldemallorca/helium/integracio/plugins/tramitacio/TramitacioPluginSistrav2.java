@@ -6,24 +6,10 @@ package net.conselldemallorca.helium.integracio.plugins.tramitacio;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
-import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
-import net.conselldemallorca.helium.integracio.plugins.registre.ReferenciaRDSJustificante;
-import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
-import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
-import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,6 +45,16 @@ import es.caib.zonaper.ws.v2.model.documentoexpediente.DocumentosExpediente;
 import es.caib.zonaper.ws.v2.model.eventoexpediente.EventoExpediente;
 import es.caib.zonaper.ws.v2.model.eventoexpediente.EventosExpediente;
 import es.caib.zonaper.ws.v2.model.expediente.Expediente;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
+import net.conselldemallorca.helium.integracio.plugins.registre.DocumentRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.ReferenciaRDSJustificante;
+import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotificacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacio;
+import net.conselldemallorca.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 
 /**
  * Implementació del plugin de tramitacio accedint a la v2
@@ -600,12 +596,12 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			tramit.setTramitadorNom(entrada.getUsuarioNombre().getValue());
 		if (entrada.getRepresentadoNif() != null) {
 			tramit.setInteressatNif(entrada.getRepresentadoNif().getValue());
-		} else {
+		} else if (entrada.getUsuarioNif() != null) {
 			tramit.setInteressatNif(entrada.getUsuarioNif().getValue());
 		}
 		if (entrada.getRepresentadoNombre() != null) {
 			tramit.setInteressatNom(entrada.getRepresentadoNombre().getValue());
-		} else {
+		} else if (entrada.getUsuarioNombre() != null) {
 			tramit.setInteressatNom(entrada.getUsuarioNombre().getValue());
 		}
 		if (entrada.getUsuarioNif() != null)

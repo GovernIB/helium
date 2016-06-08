@@ -11,7 +11,7 @@ import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
 import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -70,7 +70,7 @@ public class UsuariActualHelper {
 		if (auth != null) {
 			return auth.getName();
 		} else {
-			throw new NotFoundException(Authentication.class);
+			throw new NoTrobatException(Authentication.class);
 		}
 	}
 

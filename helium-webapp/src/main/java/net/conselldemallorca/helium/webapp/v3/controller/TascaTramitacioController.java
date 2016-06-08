@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
@@ -26,6 +25,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -118,12 +122,23 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.bloquejada"));
 		}
 		
-		return mostrarInformacioTascaPerPipelles(
-				request,
-				expedientId,
-				tascaId,
-				model,
-				"form");
+		try {
+			return mostrarInformacioTascaPerPipelles(
+					request,
+					expedientId,
+					tascaId,
+					model,
+					"form");
+		} catch (NoTrobatException ex) {
+			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
+			if (ModalHelper.isModal(request)) {
+				return modalUrlTancar(false);
+			} else {
+				String referer = request.getHeader("Referer");
+				return "redirect:"+ referer;
+			}
+		    
+		}
 	}
 	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/{pipellaActiva}", method = RequestMethod.GET)
@@ -1084,17 +1099,30 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
+				
+				if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + descripcioTasca + ": " + ex.getCause().getMessage());
+		        			getMessage(request, "error.validacio.tasca") + " " + descripcioTasca + ": " + ex.getMessage());
+				}  else if (ex instanceof TramitacioValidacioException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.validacio.tasca") + " " + descripcioTasca + ": " + ex.getMessage());
+				} else if (ex instanceof TramitacioHandlerException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + ((TramitacioHandlerException)ex).getPublicMessage());
+				} else if (ex instanceof TramitacioException) {
+					MissatgesHelper.error(
+		        			request,
+		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + ((TramitacioException)ex).getPublicMessage());
 				} else {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + 
 		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut executar l'acció " + tascaId, ex);
-				}
+		        }
+				logger.error("No s'ha pogut executar l'acció " + tascaId, ex);
 			}
 		}
 		return resposta;
@@ -1145,23 +1173,35 @@ public class TascaTramitacioController extends BaseTascaController {
 				
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.completar", new Object[] {tascaIds.length}));
 				resposta = true;
-			} catch (Exception ex) {				
-				if (ex instanceof IllegalStateException) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
-				} else if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
-				}
-			}
+				
+			} catch (ValidacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getMessage());
+				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
+			} catch (TramitacioValidacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
+			} catch (TramitacioHandlerException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getPublicMessage());
+				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
+			} catch (TramitacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
+	        					ex.getPublicMessage());
+				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
+			} catch (Exception ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
+			}	
 		} else {
 			try {
 				tascaService.completar(tascaId, expedientId, transicioSortida);
@@ -1171,19 +1211,35 @@ public class TascaTramitacioController extends BaseTascaController {
 					MissatgesHelper.success(request, getMessage(request, "info.tasca.completat"));
 				}
 				resposta = true;
+				
+			} catch (ValidacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getMessage());
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
+			} catch (TramitacioValidacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
+			} catch (TramitacioHandlerException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getPublicMessage());
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
+			} catch (TramitacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
+	        					ex.getPublicMessage());
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
 			} catch (Exception ex) {
-				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + ex.getCause().getMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
-				}
-	        }
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
+			}
 		}
 		return resposta;
 	}

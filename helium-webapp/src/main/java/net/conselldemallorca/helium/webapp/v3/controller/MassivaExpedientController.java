@@ -16,6 +16,39 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,39 +75,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
-
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.TascaNotFoundException;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
-import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 /**
  * Controlador per iniciar un expedient
@@ -578,7 +578,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 					null,
 					campsAddicionals,
 					campsAddicionalsClasses, false);
-		} catch (TascaNotFoundException ex) {
+		} catch (NoTrobatException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
 		} catch (Exception ignored) {} 

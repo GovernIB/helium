@@ -52,6 +52,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
+import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -67,8 +68,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.IllegalStateException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -178,6 +181,9 @@ public class TascaServiceImpl implements TascaService {
 		logger.debug("Consultant tasca per expedient donat el seu id (" +
 				"id=" + id + ")");
 		Expedient expedient = expedientRepository.findOne(expedientId);
+		if (expedient == null)
+			throw new NoTrobatException(Expedient.class, expedientId);
+		
 		JbpmTask task = tascaHelper.getTascaComprovacionsExpedient(
 				id,
 				expedient);
@@ -674,7 +680,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 			if (!trobat) {
 				logger.error("El camp consultat no pertany a la tasca " + tascaId, 
-						new NotFoundException(camp.getId(),	Camp.class));
+						new NoTrobatException(Camp.class,camp.getId()));
 				// Aquest cas no s'hauria de donar. 
 				// En cas que es doni, ara per ara, l'unic que feim és no retornar valors.
 				return resposta;
@@ -731,7 +737,7 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				false,
 				true);
-//		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		//	Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		
 		// TODO contemplar el cas que no faci falta que l'usuari
 		// estigui als pooledActors
@@ -741,9 +747,7 @@ public class TascaServiceImpl implements TascaService {
 			logger.debug("L'usuari no s'ha trobat com a pooledActor de la tasca (" +
 					"id=" + id + ", " +
 					"personaCodi=" + auth.getName() + ")");
-			throw new NotFoundException(
-					id,
-					JbpmTask.class);
+			throw new NoTrobatException(JbpmTask.class,id);
 		}
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(id);
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
@@ -1096,22 +1100,13 @@ public class TascaServiceImpl implements TascaService {
 				true,
 				true);
 		if (!tascaHelper.isTascaValidada(task)) {
-			throw new IllegalStateException(
-					tascaId,
-					JbpmTask.class,
-					"validada");
+			throw new ValidacioException("La tasca amb id '" + tascaId + "' no està validada");
 		}
 		if (!tascaHelper.isDocumentsComplet(task)) {
-			throw new IllegalStateException(
-					tascaId,
-					JbpmTask.class,
-					"documents_ok");
+			throw new ValidacioException("Falten documents per la tasca amb id '" + tascaId + "'.");
 		}
 		if (!tascaHelper.isSignaturesComplet(task)) {
-			throw new IllegalStateException(
-					tascaId,
-					JbpmTask.class,
-					"firmes_ok");
+			throw new ValidacioException("Falten signatures per la tasca amb id '" + tascaId + "'.");
 		}
 		
 		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
@@ -1267,6 +1262,39 @@ public class TascaServiceImpl implements TascaService {
 					tascaId);
 			registre.setMissatge("Finalitzar \"" + tascaHelper.getTitolPerTasca(task, tasca) + "\"");
 			registreRepository.save(registre);
+		} catch (ExecucioHandlerException ex) {
+			throw new TramitacioHandlerException(
+					(expedient != null) ? expedient.getEntorn().getId() : null, 
+					(expedient != null) ? expedient.getEntorn().getCodi() : null,
+					(expedient != null) ? expedient.getEntorn().getNom() : null, 
+					(expedient != null) ? expedient.getId() : null, 
+					(expedient != null) ? expedient.getTitol() : null,
+					(expedient != null) ? expedient.getNumero() : null,
+					(expedient != null) ? expedient.getTipus().getId() : null, 
+					(expedient != null) ? expedient.getTipus().getCodi() : null,
+					(expedient != null) ? expedient.getTipus().getNom() : null,
+					ex.getProcessInstanceId(),
+					ex.getTaskInstanceId(),
+					ex.getTokenId(),
+					ex.getClassName(),
+					ex.getMethodName(),
+					ex.getFileName(),
+					ex.getLineNumber(),
+					"", 
+					ex.getCause());
+		} catch (Exception ex) {
+			throw new TramitacioException(
+					expedient.getEntorn().getId(),
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					"", 
+					ex);
 		} finally {
 			mesuresTemporalsHelper.tascaCompletarFinalitzar(tascaId);
 			contextTotal.stop();
@@ -1344,19 +1372,28 @@ public class TascaServiceImpl implements TascaService {
 					} catch (Exception ex) {
 						if (infoSegonPla.getError() == null || infoSegonPla.getError() == "") {
 							String nouError;
-							if (ex.getCause() != null && ex.getCause().getMessage() != null && ex.getCause().getMessage() != "") {
-								nouError = ex.getCause().getMessage();
-							} else if (ex.toString() != null && ex.toString() != "") {
-								nouError = ex.toString();
-							} else {
-								nouError = "Error desconegut.";
+							String logError;
+							if (ex instanceof TramitacioException) {
+								nouError = ((TramitacioException)ex).getPublicMessage();
+								logError = ex.getMessage();
+							} else if (ex instanceof TramitacioHandlerException) {
+								nouError = ((TramitacioHandlerException)ex).getPublicMessage();
+								logError = ex.getMessage();
+							} else if (ex.getCause() != null && ex.getCause().getMessage() != null && ex.getCause().getMessage() != "") {
+								logError = ex.getCause().getMessage();
+								nouError = logError;
+							} else if (ex.toString() != null && ex.toString() != ""){
+								logError = ex.toString();
+								nouError = logError;
+							} else{
+								logError = "Error desconegut.";
+								nouError = logError;
 							}
+							
 							infoSegonPla.setError(nouError);
+							logger.error(logError);
 						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
-						if (ex.getCause() != null) {
-							System.out.println(">>> Excepció segon pla: " + ex.getCause().getMessage());
-						}
 			        }
 
 				} else if (infoSegonPla.getError() == null && infoSegonPla.isCompletada()) {
@@ -1413,7 +1450,7 @@ public class TascaServiceImpl implements TascaService {
 			Long expedientId,
 			String taskId,
 			String codiVariable,
-			Object valor) throws NotFoundException, IllegalStateException {
+			Object valor) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		JbpmTask task = jbpmHelper.getTaskById(taskId);
 		Object valorVell = variableHelper.getVariableJbpmTascaValor(task.getId(), codiVariable);

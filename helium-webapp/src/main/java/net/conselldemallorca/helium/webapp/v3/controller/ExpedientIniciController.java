@@ -17,6 +17,24 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
+import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,22 +50,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per iniciar un expedient
@@ -127,18 +129,27 @@ public class ExpedientIniciController extends BaseExpedientController {
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
 				ExpedientIniciController.netejarSessio(request);
 				return modalUrlTancar();
+			} catch (ValidacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
+			} catch (TramitacioValidacioException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
+			} catch (TramitacioHandlerException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.validacio.tasca") + " : " + ex.getPublicMessage());
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			} catch (Exception ex) {
-				if (ex.getCause() != null && (ex instanceof ValidationException || ex.getCause() instanceof ValidationException)) {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.validacio.tasca") + " : " + ex.getCause().getMessage());
-				} else {
-					MissatgesHelper.error(
-		        			request,
-		        			getMessage(request, "error.iniciar.expedient") + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-					logger.error("No s'ha pogut iniciar l'expedient", ex);
-		        }
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.iniciar.expedient") + ": " + 
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			}
 		}
 		return iniciarGet(request, model);

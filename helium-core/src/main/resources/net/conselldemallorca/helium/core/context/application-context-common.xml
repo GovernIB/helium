@@ -35,6 +35,8 @@
 		</property>
 	</bean>
 
+	<!-- >aop:aspectj-autoproxy/-->
+
 	<context:annotation-config/>
 
 	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
