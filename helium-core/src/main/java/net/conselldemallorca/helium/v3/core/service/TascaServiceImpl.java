@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -94,6 +95,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -1431,16 +1433,34 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
-		JbpmTask task = jbpmHelper.getTaskById(tascaId);
-		jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
-		
-		completarTasca(
-				tascaId, 
-				task.getTask().getProcessInstance().getExpedient().getId(), 
-				task, 
-				task.getTask().getSelectedOutcome(), 
-				task.getTask().getActorId());
-	}
+        JbpmTask task = jbpmHelper.getTaskById(tascaId);
+       
+        Authentication orgAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (orgAuth == null) {
+           
+            final String user = task.getTask().getActorId();
+           
+            Principal principal = new Principal() {
+                public String getName() {
+                    return user;
+                }
+            };
+           
+            Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+       
+        jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
+       
+        completarTasca(
+                tascaId,
+                task.getTask().getProcessInstance().getExpedient().getId(),
+                task,
+                task.getTask().getSelectedOutcome(),
+                task.getTask().getActorId());
+       
+        SecurityContextHolder.getContext().setAuthentication(orgAuth);
+    }
 	
 	@Override
 	@Transactional
