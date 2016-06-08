@@ -1,9 +1,10 @@
+// Basat en http://stefangabos.ro/jquery/jquery-plugin-boilerplate-revisited/
 (function($) {
 
 	$.webutilDatatable = function(element, options) {
 		var defaults = {
-			pageLength: 20,
-			lengthMenu: [20, 50, 100],
+			pageLength: 10,
+			lengthMenu: [10, 20, 50],
 			infoEnabled: true,
 			infoType: 'botons', // 'botons', 'search'
 			searchEnabled: true,
@@ -18,9 +19,9 @@
 			rowInfo: false, 
 			campsAddicionals: false,
 			ordering: true,
-			defaultDir: 'asc'
+			defaultDir: 'asc',
+			bootstrapRowCols: 12
 		}
-		var contextPath = '/helium/';
 		var $element = $(element), element = element;
 		var $taula = $element;
 		var plugin = this;
@@ -58,15 +59,18 @@
 					$(this).append($('<td></td>'));
 				});
 			}
+			var colMd50p = plugin.settings.bootstrapRowCols / 2;
+			var colMd25p = plugin.settings.bootstrapRowCols / 4;
+			var colMd75p = colMd25p * 3;
 			var domPrefix;
 			if (plugin.settings.infoType == 'search' || plugin.settings.pagingStyle == 'scroll')
-				domPrefix = '<"row"<"col-md-12"i><"col-md-12"f>>';
+				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"f>>';
 			else
-				domPrefix = '<"row"<"col-md-12"i><"col-md-12"<"botons">>>';
+				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"<"botons">>>';
 			var language = window.navigator.userLanguage || window.navigator.language;
 			var dataTableOptions = {
 				language: {
-					url: contextPath + 'js/datatables/i18n/datatables.' + language + '.json'
+					url: webutilContextPath() + '/js/datatables/i18n/datatables.' + language + '.json'
 				},
 				info: plugin.settings.infoEnabled,
 				serverSide: true,
@@ -138,14 +142,16 @@
 						}
 					});
 					if (plugin.settings.filtre) {
-						$(plugin.settings.filtre).netejarErrorsCamps();
+						$(plugin.settings.filtre).webutilNetejarErrorsCamps();
 					}
 				},
 				drawCallback: function(settings_) {
-					if ($.fn.evalModal)
-						$(this).closest('.dataTables_wrapper').evalModal();
-					if ($.fn.evalConfirm)
-						$(this).closest('.dataTables_wrapper').evalConfirm();
+					if ($.fn.webutilModalEval)
+						$(this).closest('.dataTables_wrapper').webutilModalEval();
+					if ($.fn.webutilConfirmEval)
+						$(this).closest('.dataTables_wrapper').webutilConfirmEval();
+					if ($.fn.webutilAjaxEval)
+						$(this).closest('.dataTables_wrapper').webutilAjaxEval();
 					$('tr[data-href]', $taula).each(function() {
 						$(this).mousedown(function(event) {
 							if ($(this).prop("tagName") == 'TR' && event.target.tagName == 'TD') {
@@ -209,7 +215,7 @@
 						var api = new $.fn.dataTable.Api(settings_);
 						var ajaxResponse = api.ajax.json();
 						if (ajaxResponse.filtreError) {
-							$(plugin.settings.filtre).mostrarErrorsCamps(
+							$(plugin.settings.filtre).webutilMostrarErrorsCamps(
 									ajaxResponse.filtreFormResponse.errorsCamps);
 						}
 					}
@@ -250,7 +256,6 @@
 					defaultOrder++;
 				}
 				var defaultDir = plugin.settings.defaultDir;
-				var visibleIndex = 0;
 				dataTableOptions['ordering'] = plugin.settings.ordering;
 				$('thead th', $taula).each(function(index) {
 					if (plugin.settings.selectionEnabled && index == 0) {
@@ -258,19 +263,16 @@
 							data: '<null>',
 							orderable: false,
 							visible: true});
-						visibleIndex++;
 					} else if (plugin.settings.editable && $(this).is(':last-child')) {
 						columns.push({
 							data: '<null>',
 							orderable: false,
 							visible: true});
-						visibleIndex++;
 					} else if (plugin.settings.rowInfo && $(this).is(':last-child')) {
 						columns.push({
 							data: '<null>',
 							orderable: false,
 							visible: true});
-						visibleIndex++;
 					} else {
 						var columnSettings = $.extend({
 							orderable: true,
@@ -279,7 +281,6 @@
 						}, $(this).data());
 						var orderable = columnSettings.orderable;
 						var visible = columnSettings.visible;
-						var colName = columnSettings.colName;
 						var className = '';
 						if (columnSettings.renderer && columnSettings.renderer.indexOf('number') >= 0) {
 							className = className + " text-right";
@@ -294,8 +295,6 @@
 								className: className,
 								render: renderFunction,
 								defaultContent: ''});
-							if (orderable && typeof defaultOrder == 'undefined')
-								defaultOrder = visibleIndex;
 						} else {
 							columns.push({
 								data: '<null>',
@@ -303,11 +302,10 @@
 								visible: visible,
 								className: className,
 								render: renderFunction});
-							if (orderable && typeof defaultOrder == 'undefined')
-								defaultOrder = visibleIndex;
 						}
-						if (visible)
-							visibleIndex++;
+						if (orderable && typeof defaultOrder == 'undefined') {
+							defaultOrder = index;
+						}
 					}
 				});
 				dataTableOptions['columns'] = columns;
@@ -317,7 +315,7 @@
 			}
 			$taula.on('processing.dt', function(e, settings_, processing) {
 				if (!$('tbody .datatable-dades-carregant', $taula).length) {
-					$('tbody', $taula).append('<div class="datatable-dades-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>');
+					$('tbody', $taula).append('<tr class="datatable-dades-carregant"><td colspan="8"><div><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div></td></tr>');
 				}
 				if (processing) {
 					$('tbody .datatable-dades-carregant', $taula).show();
@@ -332,7 +330,7 @@
 						paging: true,
 						pageLength: plugin.settings.pageLength,
 						lengthMenu: plugin.settings.lengthMenu,
-						dom: domPrefix + 't<"row"<"col-md-6"l><"col-md-18"p>>'
+						dom: domPrefix + 't<"row"<"col-md-' + colMd25p + '"l><"col-md-' + colMd75p + '"p>>'
 					}, dataTableOptions);
 				} else if (plugin.settings.pagingStyle == 'scroll') {
 					var paramScrollY;
@@ -456,7 +454,7 @@
 						}
 					});
 					if ($(clickedButton).val() === 'netejar')
-						$(this).netejarInputs();
+						$(this).webutilNetejarInputs();
 					return false;
 				});
 			}
@@ -714,7 +712,7 @@
 						var $cellNode = $(this);
 						var dataTableCell = $taula.dataTable().api().cell(this);
 						var $sampleInput = ($sampleContent.is(':input')) ? $sampleContent : $(':input', $sampleContent);
-						var $contingutClonat = $sampleContent.limitClonarElementAmbInputs(
+						var $contingutClonat = $sampleContent.webutilClonarElementAmbInputs(
 								$sampleInput.attr('id') + rowIndex,
 								dataTableCell.data());
 						var $inputClonat = ($contingutClonat.is(':input')) ? $contingutClonat : $(':input', $contingutClonat);
@@ -768,7 +766,7 @@
 									$row,
 									$(':input', $cellNode));
 						}
-						$cellNode.limitDestroyInputComponents();
+						$cellNode.webutilDestroyInputComponents();
 						$cellNode.empty().html(dataTableCell.render('display'));
 					}
 				}
@@ -853,7 +851,7 @@
 					[$row, rowData]);
 			var rowData = editableGetRowData($row, false);
 			var csrf = $('form input[name="_csrf"]:first').val();
-			$row.netejarErrorsCamps();
+			$row.webutilNetejarErrorsCamps();
 			$.ajax({
 				type: 'POST',
 				url: createUrl,
@@ -861,13 +859,13 @@
 				async: true,
 				success: function(resposta) {
 					if (resposta.estatError) {
-						$row.mostrarErrorsCamps(
+						$row.webutilMostrarErrorsCamps(
 								resposta.errorsCamps);
 					} else {
 						$taula.trigger(
 								'afterrowcreate.dataTable',
 								[$row, rowData]);
-						$row.netejarInputs();
+						$row.webutilNetejarInputs();
 						$taula.dataTable().fnDraw();
 					}
 				}
@@ -885,14 +883,14 @@
 				async: false,
 				success: function(resposta) {
 					if (resposta.estatError) {
-						$row.mostrarErrorsCamps(
+						$row.webutilMostrarErrorsCamps(
 								resposta.errorsCamps);
 					} else {
 						resultat.resultat = true;
 						$taula.trigger(
 								'afterowchange.dataTable',
 								[$row, rowData]);
-						$row.netejarInputs();
+						$row.webutilNetejarInputs();
 						$taula.dataTable().fnDraw();
 					}
 				}
