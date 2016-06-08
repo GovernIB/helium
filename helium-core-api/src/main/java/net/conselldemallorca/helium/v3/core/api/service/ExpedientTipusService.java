@@ -2,11 +2,11 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import org.springframework.security.acls.model.NotFoundException;
+
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NotAllowedException;
-import net.conselldemallorca.helium.v3.core.api.exception.NotFoundException;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;;
 
 /** Servei per al manteniment de tipus d'expedient. */
 public interface ExpedientTipusService {
