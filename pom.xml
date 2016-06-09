@@ -33,6 +33,7 @@
 		<module>helium-util</module>
 		<module>helium-webapp</module>
 		<module>helium-ws</module>
+		<module>helium-ws-client</module>
 		<module>helium-selenium-integraciones</module>
 		<module>helium-jbpm3</module>
 		<module>helium-core-api</module>
