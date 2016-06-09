@@ -28,6 +28,8 @@ public class TascaExportacio implements Serializable {
 	private String recursForm;
 	private String formExtern;
 	private boolean tramitacioMassiva;
+	private boolean finalitzacioSegonPla;
+	
 
 	private Set<CampTascaExportacio> camps = new HashSet<CampTascaExportacio>();
 	private Set<DocumentTascaExportacio> documents = new HashSet<DocumentTascaExportacio>();
@@ -105,6 +107,14 @@ public class TascaExportacio implements Serializable {
 	public void setTramitacioMassiva(boolean tramitacioMassiva) {
 		this.tramitacioMassiva = tramitacioMassiva;
 	}
+	public boolean isFinalitzacioSegonPla() {
+		return finalitzacioSegonPla;
+	}
+
+	public void setFinalitzacioSegonPla(boolean finalitzacioSegonPla) {
+		this.finalitzacioSegonPla = finalitzacioSegonPla;
+	}
+
 	public Set<CampTascaExportacio> getCamps() {
 		return camps;
 	}

@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -591,15 +592,27 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
 			Model model) {
-		ArxiuDto arxiu = tascaService.getArxiuPerDocumentCodi(
-			tascaId,
-			documentCodi);
-		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
-				arxiu.getNom());
-		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_DATA,
-				arxiu.getContingut());
+		
+		try {
+			ArxiuDto arxiu = tascaService.getArxiuPerDocumentCodi(
+					tascaId,
+					documentCodi);
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+					arxiu.getNom());
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					arxiu.getContingut());
+		} catch (Exception ex) {
+			logger.error("Error al descarregar el document", ex);
+			if (ex instanceof SistemaExternException)
+				MissatgesHelper.error(request,((SistemaExternException)ex).getPublicMessage());
+			else
+				MissatgesHelper.error(request,ex.getMessage());
+			
+			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/document";
+		}	
+		
 		return "arxiuView";
 	}
 

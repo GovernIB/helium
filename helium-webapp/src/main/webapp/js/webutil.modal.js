@@ -1,14 +1,16 @@
+// Basat en http://stefangabos.ro/jquery/jquery-plugin-boilerplate-revisited/
 (function($) {
 
 	$.webutilModal = function(element, options) {
 		var defaults = {
 			adjustHeight: true,
 			maximized: false,
+			refreshMissatges: true,
+			refreshDatatable: false,
 			elementBotons: "#modal-botons",
 			elementForm: "#modal-form",
 			elementTancarData: "modal-cancel"
 		}
-		var contextPath = '/helium/';
 		var $element = $(element), element = element;
 		var plugin = this;
 		plugin.settings = {}
@@ -29,11 +31,14 @@
 					if (!href)
 						href = elementPerEvaluar.data('href');
 					if (event.which != 2) {
-						var dataTableId;
-						if (elementPerEvaluar.closest('.dataTables_wrapper')) {
+						var dataTableId = plugin.settings.datatableId;
+						if (!dataTableId && elementPerEvaluar.closest('.dataTables_wrapper')) {
 							dataTableId = $('table.dataTable', elementPerEvaluar.closest('.dataTables_wrapper')).attr('id');
 						}
-						var modalDivId = (elementPerEvaluar.data("modal-id")) ? elementPerEvaluar.data("modal-id") : "modal_" + (new Date().getTime());
+						if (dataTableId) {
+							plugin.settings.refreshDatatable = true;
+						}
+						var modalDivId = (plugin.settings.modalId) ? plugin.settings.modalId : "modal_" + (new Date().getTime());
 						var modalData = '';
 						if (plugin.settings.maximized) {
 							modalData += ' data-maximized="true"';
@@ -58,11 +63,25 @@
 								'</div>');						
 							elementPerEvaluar.data("modal-id", modalDivId);
 							$('#' + modalDivId).webutilModalShow({
-								contentUrl: urlAmbPrefix(href, '/modal'),
+								adjustHeight: plugin.settings.adjustHeight,
+								maximized: plugin.settings.maximized,
+								refreshMissatges: plugin.settings.refreshMissatges,
+								refreshDatatable: plugin.settings.refreshDatatable,
+								elementBotons: plugin.settings.elementBotons,
+								elementForm: plugin.settings.elementForm,
+								elementTancarData: plugin.settings.elementTancarData,
+								contentUrl: webutilUrlAmbPrefix(href, '/modal'),
 								dataTableId: dataTableId
 							});
 						} else {
 							$('#' + modalDivId).webutilModalShow({
+								adjustHeight: plugin.settings.adjustHeight,
+								maximized: plugin.settings.maximized,
+								refreshMissatges: plugin.settings.refreshMissatges,
+								refreshDatatable: plugin.settings.refreshDatatable,
+								elementBotons: plugin.settings.elementBotons,
+								elementForm: plugin.settings.elementForm,
+								elementTancarData: plugin.settings.elementTancarData,
 								dataTableId: dataTableId
 							});
 						}
@@ -74,33 +93,22 @@
 			});
 		}
 		// Mètodes públics
+		plugin.adjustHeight = function() {
+			var modalId = $(element).data("modal-id");
+			var $modalElement = $('#' + modalId);
+			var iframe = $('iframe', $modalElement);
+			var height = $modalElement.contents().find("html").height();
+			$(iframe).parent().css('height', height + 17 + 'px');
+			$(iframe).css('min-height', height + 'px');
+			$modalElement.height(height + 17 + 'px');
+		};
 		// Mètodes privats
-		var urlAmbPrefix = function(url, prefix) {
-			var absolutePath;
-			if (url.indexOf('/') != 0)
-				absolutePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + url;
-			else
-				absolutePath = url;
-			var prefixSenseBarra = prefix;
-			if (prefixSenseBarra.indexOf('/') == 0)
-				prefixSenseBarra = prefixSenseBarra.substring(1);
-			if (prefixSenseBarra.indexOf('/') == prefixSenseBarra.length - 1)
-				prefixSenseBarra = prefixSenseBarra.substring(0, prefixSenseBarra.length - 1);
-			return absolutePath.substring(0, contextPath.length) + prefixSenseBarra + '/' + absolutePath.substring(contextPath.length);
-		}
 		// Inicialització del plugin
         plugin.init();
 	}
 
-	$.fn.webutilModalShow = function(options) {
+	$.fn.webutilModalShow = function(settings) {
 		return this.filter("div").each(function() {
-			var settings = $.extend({
-				adjustHeight: true,
-				maximized: false,
-				elementBotons: "#modal-botons",
-				elementForm: "#modal-form",
-				elementTancarData: "modal-cancel"
-			}, $(this).data(), options);
 			var modalobj = $('div.modal', this);
 			if (!modalobj.data('modal-configurada')) {
 				var iframe = $('iframe', modalobj);
@@ -123,7 +131,7 @@
 								var clon = element.clone();
 								if (element.data(settings.elementTancarData)) {
 									clon.on('click', function () {
-										$(iframe).parent().parent().parent().parent().data('modal-cancel', 'true');
+										$(iframe).parent().parent().parent().parent().data(settings.elementTancarData, 'true');
 										$(iframe).parent().parent().parent().parent().modal('hide');
 										return false;
 									});
@@ -141,7 +149,7 @@
 						var dataForm = $('body', $(iframe).contents()).data('modal-form');
 						var modalForm = (dataForm) ? $(dataForm, $(iframe).contents()) : $(settings.elementForm, $(iframe).contents());
 						if (modalForm.length) {
-							modalForm.attr('action', urlAmbPrefix(modalForm.attr('action'), '/modal'));
+							modalForm.attr('action', webutilUrlAmbPrefix(modalForm.attr('action'), '/modal'));
 						}
 						if (settings.maximized) {
 							// Maximitzar
@@ -157,30 +165,37 @@
 							$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
 							$(iframe).contents().find("body").css('height', maxBodyHeight + 'px');
 						} else if (settings.adjustHeight) {
-							// Ajustar alçada
+							var modalobj = $(iframe).parent().parent().parent();
+							var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
+							var maxBodyHeight = $(window.top).height() - taraModal - 62;
 							var height = $(this).contents().find("html").height();
-							$(iframe).parent().css('height', height + 17 + 'px');
-							$(iframe).css('min-height', height + 'px');
-							$(this).height(height + 17 + 'px');
+							if (height > maxBodyHeight) {
+								$(iframe).height(maxBodyHeight + 'px');
+								$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+								$(iframe).contents().find("body").css('height', maxBodyHeight + 'px');
+							} else {
+								$(iframe).parent().css('height', height + 'px');
+								$(iframe).css('min-height', height + 'px');
+								$(iframe).closest('div.modal-body').height(height + 'px');
+							}
 						}
 					});
 				});
-				modalobj.on('hidden.bs.modal', function () {
+				/*modalobj.on('hidden.bs.modal', function () {
 					if (settings.dataTableId) {
-						$('#' + settings.dataTableId).webutilDatatableRefresh();
+						$('#' + settings.dataTableId).webutilDatatable('refresh');
 					}
-				});
+				});*/
 				iframe.on('load', function () {
 					var pathname = this.contentDocument.location.pathname;
-					var suffix = "/modal/tancar";
-					if (pathname.indexOf(suffix, this.length - suffix.length) !== -1) {
-						// Crida l'event de tancament de finestra modal
-						$(document).trigger(
-								'webutilmodal.close',
-								[String(modalobj.context.id)]); // data-modal-id
-						
+					if (pathname == webutilModalTancarPath()) {
 						$('button.close', $(this).closest('.modal-dialog')).trigger('click');
-						$('section.content-alertes').load("/fragments/alertes");
+						if (settings.refreshMissatges) {
+							webutilRefreshMissatges();
+						}
+						if (settings.refreshDatatable) {
+							$('#' + settings.dataTableId).webutilDatatable('refresh');
+						}
 					}
 				});
 				modalobj.data('modal-configurada', true);
@@ -198,10 +213,18 @@
                 var plugin = new $.webutilModal(this, options);
                 $(this).data(pluginName, plugin);
             } else if (options && typeof options !== 'object') {
-            	
             }
         });
     }
+
+	$.fn.webutilModalEval = function() {
+		$('[data-toggle="modal"]', this).each(function() {
+			if (!$(this).attr('data-modal-eval')) {
+				$(this).webutilModal();
+				$(this).attr('data-modal-eval', 'true');
+			}
+		});
+	}
 
 	$(document).ready(function() {
 		$('[data-toggle="modal"]', $(this)).each(function() {
@@ -211,4 +234,5 @@
 			}
 		});
 	});
+
 }(jQuery));

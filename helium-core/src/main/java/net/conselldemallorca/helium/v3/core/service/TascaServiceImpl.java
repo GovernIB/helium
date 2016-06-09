@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -69,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -93,6 +95,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -1379,6 +1382,9 @@ public class TascaServiceImpl implements TascaService {
 							} else if (ex instanceof TramitacioHandlerException) {
 								nouError = ((TramitacioHandlerException)ex).getPublicMessage();
 								logError = ex.getMessage();
+							} else if (ex instanceof SistemaExternException) {
+								nouError = ((SistemaExternException)ex).getPublicMessage();
+								logError = ex.getMessage();
 							} else if (ex.getCause() != null && ex.getCause().getMessage() != null && ex.getCause().getMessage() != "") {
 								logError = ex.getCause().getMessage();
 								nouError = logError;
@@ -1391,7 +1397,7 @@ public class TascaServiceImpl implements TascaService {
 							}
 							
 							infoSegonPla.setError(nouError);
-							logger.error(logError);
+							logger.error(logError, ex);
 						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
 			        }
@@ -1427,16 +1433,34 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio) {
-		JbpmTask task = jbpmHelper.getTaskById(tascaId);
-		jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
-		
-		completarTasca(
-				tascaId, 
-				task.getTask().getProcessInstance().getExpedient().getId(), 
-				task, 
-				task.getTask().getSelectedOutcome(), 
-				task.getTask().getActorId());
-	}
+        JbpmTask task = jbpmHelper.getTaskById(tascaId);
+       
+        Authentication orgAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (orgAuth == null) {
+           
+            final String user = task.getTask().getActorId();
+           
+            Principal principal = new Principal() {
+                public String getName() {
+                    return user;
+                }
+            };
+           
+            Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+       
+        jbpmHelper.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
+       
+        completarTasca(
+                tascaId,
+                task.getTask().getProcessInstance().getExpedient().getId(),
+                task,
+                task.getTask().getSelectedOutcome(),
+                task.getTask().getActorId());
+       
+        SecurityContextHolder.getContext().setAuthentication(orgAuth);
+    }
 	
 	@Override
 	@Transactional
