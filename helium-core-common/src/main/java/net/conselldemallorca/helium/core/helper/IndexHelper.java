@@ -134,9 +134,11 @@ public class IndexHelper {
 				contextDadesTipExp.stop();
 			}
 			// Aturam els timers de indexació amb Lucene
-			contextIndexarTotal.stop();
-			contextIndexarEntorn.stop();
-			contextIndexarTipExp.stop();
+			if (contextIndexarTotal != null) {
+				contextIndexarTotal.stop();
+				contextIndexarEntorn.stop();
+				contextIndexarTipExp.stop();
+			}
 		}
 	}
 
@@ -251,9 +253,11 @@ public class IndexHelper {
 				contextDadesTipExp.stop();
 			}
 			// Aturam els timers de indexació amb Lucene
-			contextIndexarTotal.stop();
-			contextIndexarEntorn.stop();
-			contextIndexarTipExp.stop();
+			if (contextIndexarTotal != null) {
+				contextIndexarTotal.stop();
+				contextIndexarEntorn.stop();
+				contextIndexarTipExp.stop();
+			}
 		}
 	}
 
