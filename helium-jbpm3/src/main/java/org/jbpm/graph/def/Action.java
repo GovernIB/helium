@@ -41,9 +41,9 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
+/*import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
-import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;*/
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 public class Action implements ActionHandler, Parsable, Serializable {
