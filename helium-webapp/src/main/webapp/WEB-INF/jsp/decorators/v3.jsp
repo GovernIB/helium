@@ -182,7 +182,7 @@
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/definicioProces/deploy.html"/>"><spring:message code='decorators.entorn.despl_arxiu' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/definicioProces/llistat.html"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li></c:if>
 									<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>"><spring:message code='comuns.tipus_exp' /></a></li>
-									<!-- /* <c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li></c:if> */ -->
+									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/enumeracio/llistat.html"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/domini/llistat.html"/>"><spring:message code='decorators.entorn.dominis' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/consulta/llistat.html"/>"><spring:message code='decorator.menu.consultes' /></a></li></c:if>
@@ -235,21 +235,22 @@
 		<div class="panel panel-default">
 			<c:set var="decoratorMetaTitle"><decorator:getProperty property="meta.title"/></c:set>
 			<c:set var="screen"><decorator:getProperty property="meta.screen"/></c:set>
+			<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
+			<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
 			<c:if test="${not empty decoratorMetaTitle}">
 				<div class="panel-heading">
 					<div class="row">
 						<div class="col-md-10">
 							<h2>
 								<div>
-									<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
 									<c:if test="${not empty metaTitleIconClass}"><span class="${metaTitleIconClass}"></span></c:if>
-									<div class="text-limit w900" title="${decoratorMetaTitle}">${decoratorMetaTitle}</div>
-									<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
+									<div class="text-limit w900" title="${decoratorMetaTitle}">
+										${decoratorMetaTitle}
+										<c:if test="${not empty decoratorMetaSubtitle}">
+											<small><decorator:getProperty property="meta.subtitle"/></small>
+										</c:if>
+									</div>
 								</div>
-								
-								<c:if test="${not empty decoratorMetaSubtitle}">
-									<div><small><decorator:getProperty property="meta.subtitle"/></small></div>
-								</c:if>
 							</h2>
 						</div>
 						<div class="col-md-2">

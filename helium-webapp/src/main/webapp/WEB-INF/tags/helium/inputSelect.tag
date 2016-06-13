@@ -96,6 +96,7 @@
 $(document).ready(function() {
 	$("#${campPath}").select2({
 	    width: 'resolve',
+	    theme: "bootstrap",
 	    placeholder: "${campPlaceholder}",
 	    allowClear: true,
 	    minimumResultsForSearch: 10

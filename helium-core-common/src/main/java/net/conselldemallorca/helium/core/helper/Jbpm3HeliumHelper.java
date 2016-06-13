@@ -1152,7 +1152,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public RegistreIdDto registreAnotacioEntrada(
 			RegistreAnotacioDto anotacio,
 			Long expedientId) {
-		
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);

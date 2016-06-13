@@ -32,7 +32,6 @@ public class TerminiIniciatDto {
 	private int mesos;
 	private int dies;
 	private String taskInstanceId;
-	private TerminiIniciatEstat estat;
 	
 	private TerminiDto termini;
 
@@ -114,9 +113,6 @@ public class TerminiIniciatDto {
 	public void setTaskInstanceId(String taskInstanceId) {
 		this.taskInstanceId = taskInstanceId;
 	}
-//	public TerminiIniciatEstat getEstat() {
-//		return estat;
-//	}
 	
 	public TerminiIniciatEstat getEstat() {
 		Date dataFi = getDataFiAmbAturadaActual();
@@ -138,10 +134,6 @@ public class TerminiIniciatDto {
 		return TerminiIniciatEstat.NORMAL;
 	}
 	
-	public void setEstat(TerminiIniciatEstat estat) {
-		this.estat = estat;
-	}
-
 	public int getNumDiesAturadaActual(Date data) {
 		if (getDataAturada() == null)
 			return 0;

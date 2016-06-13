@@ -615,7 +615,7 @@ public class PluginHelper {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarEntrada(
 					toRegistreEntrada(anotacio));
 			if (!resposta.isOk()) {
-				String errorDescripcio = "No s'han pogut registrar l'entrada (" +
+				String errorDescripcio = "No s'ha pogut registrar l'entrada (" +
 						getDescripcioErrorRegistre(anotacio) +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
 						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";
@@ -707,7 +707,7 @@ public class PluginHelper {
 			RespostaAnotacioRegistre resposta = getRegistrePlugin().registrarSortida(
 					toRegistreSortida(anotacio));
 			if (!resposta.isOk()) {
-				String errorDescripcio = "No s'han pogut registrar la sortida (" +
+				String errorDescripcio = "No s'ha pogut registrar la sortida (" +
 						getDescripcioErrorRegistre(anotacio) +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +
 						"errorDescripcio=" + resposta.getErrorDescripcio() + ")";

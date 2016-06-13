@@ -2,183 +2,186 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
-import org.springframework.security.acls.model.NotFoundException;
-
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;;
 
-/** Servei per al manteniment de tipus d'expedient. */
+/**
+ * Servei per al manteniment de tipus d'expedient.
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
 public interface ExpedientTipusService {
-	
+
 	/**
-	 * Per crear una nova entitat.
+	 * Crea un nou tipus d'expedient.
 	 * 
 	 * @param entornId
-	 * @param codi
-	 * @param nom
-	 * @param teTitol
-	 * @param demanaTitol
-	 * @param teNumero
-	 * @param demanaNumero
-	 * @param expressioNumero
-	 * @param reiniciarCadaAny
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipus
+	 *            La informació del tipus d'expedient a crear.
 	 * @param sequenciesAny
+	 *            Els anys de les seqüències.
 	 * @param sequenciesValor
-	 * @param map 
-	 * @param sequencia
-	 * @param responsableDefecteCodi
-	 * @param restringirPerGrup
-	 * @param seleccionarAny
-	 * @param ambRetroaccio
-	 * 
-	 * @return El dto de la entitat creada.
-	 * 
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 *            Els valors de les seqüències.
+	 * @return el tipus d'expedient creat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ExpedientTipusDto create(
 			Long entornId,
-			String codi,
-			String nom,
-			boolean teTitol,
-			boolean demanaTitol,
-			boolean teNumero,
-			boolean demanaNumero,
-			String expressioNumero,
-			boolean reiniciarCadaAny,
+			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
-			Long sequencia,// = 1,
-			String responsableDefecteCodi,
-			boolean restringirPerGrup,
-			boolean seleccionarAny,
-			boolean ambRetroaccio);
+			List<Long> sequenciesValor) throws NoTrobatException, PermisDenegatException;
 
-	/** Per modificar una entitat existent per id.
+	/**
+	 * Modificació d'un tipus d'expedient existent.
 	 * 
 	 * @param entornId
-	 * @param expedientTipusId
-	 * @param nom
-	 * @param teTitol
-	 * @param demanaTitol
-	 * @param teNumero
-	 * @param demanaNumero
-	 * @param expressioNumero
-	 * @param reiniciarCadaAny
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipus
+	 *            La informació del tipus d'expedient per a fer la modificació.
 	 * @param sequenciesAny
+	 *            Els anys de les seqüències.
 	 * @param sequenciesValor
-	 * @param sequencia
-	 * @param responsableDefecteCodi
-	 * @param restringirPerGrup
-	 * @param seleccionarAny
-	 * @param ambRetroaccio
-	 * 
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap entitat amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 *            Els valors de les seqüències.
+	 * @return el tipus d'expedient modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
 	 */
-	public void update(
+	public ExpedientTipusDto update(
 			Long entornId,
-			Long expedientTipusId,
-			String nom,
-			boolean teTitol,
-			boolean demanaTitol,
-			boolean teNumero,
-			boolean demanaNumero,
-			String expressioNumero,
-			boolean reiniciarCadaAny,
+			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
-			Long sequencia,
-			String responsableDefecteCodi,
-			boolean restringirPerGrup,
-			boolean seleccionarAny,
-			boolean ambRetroaccio);
-	
+			List<Long> sequenciesValor) throws NoTrobatException, PermisDenegatException;
+
 	/**
 	 * Esborra una entitat.
 	 * 
 	 * @param entornId
-	 *            Atribut id de l'entorn per comprovar permisos.
+	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
-	 *            Atribut id de la entitat.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap entitat amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 *            Atribut id del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void delete(
 			Long entornId,
-			Long expedientTipusId);
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
-	/** Retorna la llista de tipus d'expedient per al datatable de tipus d'expedient.
-	 * @param filtre
-	 *            Cadena de text per filtrar per codi o el nom
-	 * @param paginacioParams
-	 *            Paràmetres de paginació.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 */
-	public PaginaDto<ExpedientTipusDto> findTipusAmbFiltrePaginat(
-			Long entornId,
-			String filtre, 
-			PaginacioParamsDto paginacioParams);
-	
 	/**
 	 * Retorna un tipus d'expedient donat el seu id.
 	 * 
 	 * @param entornId
-	 *            Atribut id de l'entorn per comprovar permisos.
+	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient que es vol consultar.
+	 *            Atribut id del tipus d'expedient.
 	 * @return El tipus d'expedient.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap tipus d'expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
 	 */
-	public ExpedientTipusDto findTipusAmbId(
+	public ExpedientTipusDto findAmbIdPerDissenyar(
 			Long entornId,
-			Long expedientTipusId);
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
-	/** Retorna un tipus d'expedient donat el seu codi.
+	/**
+	 * Retorna un tipus d'expedient donat el seu codi.
 	 * 
 	 * @param entornId
+	 *            Atribut id de l'entorn.
 	 * @param codi
+	 *            El codi per a la consulta.
 	 * @return El tipus d'expedient o null si no el troba.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public ExpedientTipusDto findTipusAmbCodi(
-			Long entornId, 
-			String codi);	
-	
-	/** Consulta si pot escriure el tipus d'expedient.
-	 * 
-	 * @param entornId
-	 * @param id
-	 * @return
-	 */
-	public boolean potEscriure(
+	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
 			Long entornId,
-			Long id);
-	
-	/** Consulta si pot esborrar el tipus d'expedient.
-	 * 
-	 * @param entornId
-	 * @param id
-	 * @return
-	 */
-	public boolean potEsborrar(
-			Long entornId,
-			Long id);
+			String codi) throws NoTrobatException;
 
-	/** Consulta si té permisos d'administració
+	/** 
+	 * Retorna la llista de tipus d'expedient paginada per la datatable.
 	 * 
 	 * @param entornId
-	 * @param id
-	 * @return
+	 *            Atribut id de l'entorn.
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public boolean potAdministrar(
+	public PaginaDto<ExpedientTipusDto> findPerDatatable(
 			Long entornId,
-			Long id);
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+
+	/**
+	 * Modifica un permis existent d'un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param permis
+	 *            La informació del permis.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public PermisDto permisUpdate(
+			Long entornId,
+			Long expedientTipusId,
+			PermisDto permis) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna els permisos per a un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els permisos del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<PermisDto> permisFindAll(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna un permis donat el seu id.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param permisId
+	 *            Atribut id del permis.
+	 * @return el permis amb l'id especificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public PermisDto permisFindById(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) throws NoTrobatException, PermisDenegatException;
+
 }

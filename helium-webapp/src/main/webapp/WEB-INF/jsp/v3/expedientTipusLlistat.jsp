@@ -3,7 +3,6 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <html>
 <head>
@@ -21,27 +20,34 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<table id="expedientTipus" 
-			data-url="expedientTipus/datatable" 
-			data-toggle="datatable" 
-			data-paging-enabled="true" 
-			data-ordering="true" 
-			data-info-type-desapareix-boto-nou="search" 
-			class="table table-striped table-bordered table-hover" 
-			data-botons-template="#tableButtonsTemplate" 
-			data-default-order="1">
+	<div class="botons-titol text-right">
+		<a class="btn btn-default" href="expedientTipus/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.nou"/></a>
+	</div>
+	<table	id="expedientTipus"
+			data-toggle="datatable"
+			data-url="expedientTipus/datatable"
+			data-paging-enabled="true"
+			data-info-type="search"
+			data-ordering="true"
+			data-default-order="1"
+			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="id" data-visible="false" />
-				<th data-col-name="codi" width="15%"><spring:message code="expedient.tipus.llistat.columna.codi"/></th>
-				<th data-col-name="nom" ><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
-				<th data-rdt-property="id" data-template="#cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
+				<th data-col-name="id" data-visible="false"/>
+				<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.llistat.columna.codi"/></th>
+				<th data-col-name="nom"><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
+				<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="13%">
+					<script id="cellPermisosTemplate" type="text/x-jsrender">
+						<a href="expedientTipus/{{:id}}/permis" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
+					</script>
+				</th>
+				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<div class="dropdown navbar-right">
+						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="expedientTipus/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar"/></a></li>
-								<li><a data-toggle="modal" href="expedientTipus/{{:id}}/modificar"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a href="expedientTipus/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.dissenyar"/></a></li>
+								<li><a data-toggle="modal" href="expedientTipus/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 								<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
@@ -50,8 +56,5 @@
 			</tr>
 		</thead>
 	</table>
-	<script id="tableButtonsTemplate" type="text/x-jsrender">
-		<p style="text-align:right"><a class="btn btn-default" href="expedientTipus/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.nou"/></a></p>
-	</script>
 </body>
 </html>

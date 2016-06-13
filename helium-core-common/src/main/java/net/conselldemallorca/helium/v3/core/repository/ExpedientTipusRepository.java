@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
@@ -55,7 +54,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			"    e.entorn = :entorn " +
 			"and e.id in (:tipusPermesosIds) " +
 			"and (:esNullFiltre = true or lower(e.nom) like lower('%'||:filtre||'%') or lower(e.codi) like lower('%'||:filtre||'%')) ")
-	Page<Expedient> findByFiltreGeneralPaginat(
+	Page<ExpedientTipus> findByFiltreGeneralPaginat(
 			@Param("entorn") Entorn entorn,
 			@Param("tipusPermesosIds") Collection<Long> tipusPermesosIds,
 			@Param("esNullFiltre") boolean esNullFiltre,

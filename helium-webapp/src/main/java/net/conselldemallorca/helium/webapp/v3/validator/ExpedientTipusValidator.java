@@ -42,7 +42,9 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 		// Comprova si ja hi ha un tipus d'expedient amb el mateix codi
 		if (command.getCodi() != null) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			ExpedientTipusDto repetit = expedientTipusService.findTipusAmbCodi(entornActual.getId(), command.getCodi());
+			ExpedientTipusDto repetit = expedientTipusService.findAmbCodiPerValidarRepeticio(
+					entornActual.getId(),
+					command.getCodi());
 			if(repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))

@@ -248,9 +248,7 @@ public class TascaServiceImpl implements TascaService {
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);
+				true);
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
 						TascaService.class,
@@ -279,9 +277,7 @@ public class TascaServiceImpl implements TascaService {
 			if (expedientTipusId != null) {
 				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 						expedientTipusId,
-						true,
-						false,
-						false);
+						true);
 			}
 			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 			// a damunt el tipexp es filtra per l'usuari actual.
@@ -385,9 +381,7 @@ public class TascaServiceImpl implements TascaService {
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);
+				true);
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
 						TascaService.class,
@@ -415,9 +409,7 @@ public class TascaServiceImpl implements TascaService {
 			if (expedientTipusId != null) {
 				expedientTipusHelper.getExpedientTipusComprovantPermisos(
 						expedientTipusId,
-						true,
-						false,
-						false);
+						true);
 			}
 			// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 			// a damunt el tipexp es filtra per l'usuari actual.

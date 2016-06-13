@@ -29,62 +29,69 @@ public class EntornHelper {
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 
+
+
 	public Entorn getEntornComprovantPermisos(
-			Long id,
-			boolean comprovarPermisRead,
-			boolean comprovarPermisWrite,
-			boolean comprovarPermisDelete) {
-		Entorn entorn = entornRepository.findOne(id);
+			Long entornId,
+			boolean comprovarPermisAcces) {
+		return getEntornComprovantPermisos(
+				entornId,
+				comprovarPermisAcces,
+				false);
+	}
+	public Entorn getEntornComprovantPermisos(
+			Long entornId,
+			boolean comprovarPermisAcces,
+			boolean comprovarPermisDisseny) {
+		Entorn entorn = entornRepository.findOne(entornId);
 		if (entorn == null) {
-			throw new NoTrobatException(Entorn.class,id);
+			throw new NoTrobatException(Entorn.class, entornId);
 		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Permission[] permisos = null;
-		if (comprovarPermisRead) {
+		if (comprovarPermisAcces) {
 			permisos = new Permission[] {
 					ExtendedPermission.READ,
 					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
-					id,
+					entornId,
 					Entorn.class,
 					permisos,
 					auth)) {
 				throw new PermisDenegatException(
-						id,
+						entornId,
 						Entorn.class,
 						permisos);
 			}
 		}
-		if (comprovarPermisWrite) {
+		if (comprovarPermisDisseny) {
 			permisos = new Permission[] {
-					ExtendedPermission.WRITE,
+					ExtendedPermission.DESIGN,
 					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
-					id,
+					entornId,
 					Entorn.class,
 					permisos,
 					auth)) {
 				throw new PermisDenegatException(
-						id,
-						Entorn.class,
-						permisos);
-			}
-		}
-		if (comprovarPermisDelete) {
-			permisos = new Permission[] {
-					ExtendedPermission.DELETE,
-					ExtendedPermission.ADMINISTRATION};
-			if (!permisosHelper.isGrantedAny(
-					id,
-					Entorn.class,
-					permisos,
-					auth)) {
-				throw new PermisDenegatException(
-						id,
+						entornId,
 						Entorn.class,
 						permisos);
 			}
 		}
 		return entorn;
 	}
+
+	public boolean potDissenyarEntorn(
+			Long entornId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return permisosHelper.isGrantedAny(
+				entornId,
+				Entorn.class,
+				new Permission[] {
+						ExtendedPermission.DESIGN,
+						ExtendedPermission.ADMINISTRATION},
+				auth);
+	}
+
 }

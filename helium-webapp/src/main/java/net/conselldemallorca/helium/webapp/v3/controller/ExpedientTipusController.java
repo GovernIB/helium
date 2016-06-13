@@ -6,9 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -33,6 +33,8 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -54,14 +56,18 @@ public class ExpedientTipusController extends BaseExpedientController {
 	@Autowired
 	private DissenyService dissenyService;
 
+	@Autowired
+	private ConversioTipusHelper conversioTipusHelper;
+
+
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
-
 		return "v3/expedientTipusLlistat";
 	}
-	
+
 	@RequestMapping(value="/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
@@ -72,21 +78,19 @@ public class ExpedientTipusController extends BaseExpedientController {
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.findTipusAmbFiltrePaginat(
+				expedientTipusService.findPerDatatable(
 						entornActual.getId(),
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}	
 
-	/** Acció per consultar la informació del tipus d'expedient. */
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.GET)
 	public String info(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
 			Model model) {
-		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findTipusAmbId(
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
 		model.addAttribute("expedientTipus", expedientTipus);
@@ -95,24 +99,15 @@ public class ExpedientTipusController extends BaseExpedientController {
 		else
 			model.addAttribute("pipellaActiva", "dades");
 		// Responsable per defecte
-		model.addAttribute(
-				"responsableDefecte",
-				aplicacioService.findPersonaAmbCodi(
-						expedientTipus.getResponsableDefecteCodi()));
-		// Definició de procés inicial
+		if (expedientTipus.getResponsableDefecteCodi() != null) {
+			model.addAttribute(
+					"responsableDefecte",
+					aplicacioService.findPersonaAmbCodi(
+							expedientTipus.getResponsableDefecteCodi()));
+		}
 		model.addAttribute(
 				"definicioProcesInicial",
 				dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
-		// Permisos per a les accions
-		model.addAttribute("potEscriure", 
-				expedientTipusService.potEscriure(
-						entornActual.getId(), 
-						expedientTipusId)); 
-		model.addAttribute("potEsborrar", 
-				expedientTipusService.potEsborrar(
-						entornActual.getId(), 
-						expedientTipusId));
-
 		return "v3/expedientTipusInfo";
 	}
 
@@ -120,24 +115,15 @@ public class ExpedientTipusController extends BaseExpedientController {
 	public String nou(
 			HttpServletRequest request,
 			Model model) {
-
 		model.addAttribute("expedientTipusCommand", new ExpedientTipusCommand());
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		model.addAttribute("potAdministrar", 
-				expedientTipusService.potAdministrar(
-						entornActual.getId(), 
-						null)); // permís 16
-
 		return "v3/expedientTipusForm";
 	}
-	
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
 			@Validated(Creacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
-
         if (bindingResult.hasErrors()) {
         	return "v3/expedientTipusForm";
         } else {
@@ -149,82 +135,47 @@ public class ExpedientTipusController extends BaseExpedientController {
     			sequenciesAny.add(Integer.parseInt(command.getSequenciesAny().get(i)));
     			sequenciesValor.add(Long.parseLong(command.getSequenciesValor().get(i)));
     		}
-        	ExpedientTipusDto tipus = expedientTipusService.create(
-        			entornActual.getId(), 
-        			command.getCodi(), 
-        			command.getNom(), 
-        			command.isTeTitol(), 
-        			command.isDemanaTitol(), 
-        			command.isTeNumero(), 
-        			command.isDemanaNumero(), 
-        			command.getExpressioNumero(), 
-        			command.isReiniciarCadaAny(),
-        			sequenciesAny,
-        			sequenciesValor,
-        			command.getSequencia(), 
-        			command.getResponsableDefecteCodi(), 
-        			command.isRestringirPerGrup(), 
-        			command.isSeleccionarAny(), 
-        			command.isAmbRetroaccio());
+    		expedientTipusService.create(
+    				entornActual.getId(),
+    				conversioTipusHelper.convertir(
+    						command,
+    						ExpedientTipusDto.class),
+    				sequenciesAny,
+        			sequenciesValor);
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/expedientTipus/" + tipus.getId(),
-					"expedient.tipus.missatge.creat");
-        }		
+					"redirect:/v3/expedientTipus",
+					"expedient.tipus.controller.creat");
+        }
 	}
-	
-	@RequestMapping(value = "/{id}/modificar", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
-		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findTipusAmbId(
+		ExpedientTipusDto dto = expedientTipusService.findAmbIdPerDissenyar(
 				entornActual.getId(),
 				id);
-		ExpedientTipusCommand command = new ExpedientTipusCommand();
-		
-		command.setId(expedientTipus.getId());
-		command.setCodi(expedientTipus.getCodi());
-		command.setNom(expedientTipus.getNom());
-		command.setTeTitol(expedientTipus.isTeTitol());
-		command.setTeNumero(expedientTipus.isTeNumero());
-		command.setDemanaTitol(expedientTipus.isDemanaTitol());
-		command.setDemanaNumero(expedientTipus.isDemanaNumero());
-		command.setExpressioNumero(expedientTipus.getExpressioNumero());
-		command.setSequencia(expedientTipus.getSequencia());
-		command.setSequenciaDefault(expedientTipus.getSequenciaDefault());
-		command.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
-		for(Integer key : expedientTipus.getSequenciaAny().keySet()) {
-			SequenciaAnyDto any = expedientTipus.getSequenciaAny().get(key);
+		ExpedientTipusCommand command = conversioTipusHelper.convertir(
+				dto,
+				ExpedientTipusCommand.class);
+		for (Integer key: dto.getSequenciaAny().keySet()) {
+			SequenciaAnyDto any = dto.getSequenciaAny().get(key);
 			command.getSequenciesAny().add(any.getAny().toString());
 			command.getSequenciesValor().add(any.getSequencia().toString());
 		}
-		command.setAnyActual(expedientTipus.getAnyActual());
-		command.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
-		command.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
-		command.setTramitacioMassiva(expedientTipus.isTramitacioMassiva());
-		command.setSeleccionarAny(expedientTipus.isSeleccionarAny());
-		command.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());		
-		
-		model.addAttribute("expedientTipusCommand",command);
-		model.addAttribute("potAdministrar", 
-				expedientTipusService.potAdministrar(
-						entornActual.getId(), 
-						id)); // permís 16
-		
+		model.addAttribute("expedientTipusCommand", command);
 		return "v3/expedientTipusForm";
 	}
-	
-	@RequestMapping(value = "/{id}/modificar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
 			@PathVariable Long id,
 			@Validated(Modificacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
-
         if (bindingResult.hasErrors()) {
         	return "v3/expedientTipusForm";
         } else {
@@ -238,38 +189,25 @@ public class ExpedientTipusController extends BaseExpedientController {
     		}
         	expedientTipusService.update(
         			entornActual.getId(),
-        			id,
-        			command.getNom(), 
-        			command.isTeTitol(), 
-        			command.isDemanaTitol(), 
-        			command.isTeNumero(), 
-        			command.isDemanaNumero(), 
-        			command.getExpressioNumero(), 
-        			command.isReiniciarCadaAny(), 
+        			conversioTipusHelper.convertir(
+    						command,
+    						ExpedientTipusDto.class),
         			sequenciesAny,
-        			sequenciesValor,
-        			command.getSequencia(), 
-        			command.getResponsableDefecteCodi(), 
-        			command.isRestringirPerGrup(), 
-        			command.isSeleccionarAny(), 
-        			command.isAmbRetroaccio());
+        			sequenciesValor);
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/expedientTipus/" + id,
-					"expedient.tipus.missatge.modificat");
-        }		
+					"redirect:/v3/expedientTipus",
+					"expedient.tipus.controller.modificat");
+        }
 	}
-		
-	
+
 	@RequestMapping(value = "/{id}/delete", method = RequestMethod.GET)
 	public String delete(
 			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
-		
-		// Compta els expedients d'aquest tipus
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (! expedientService.existsExpedientAmbEntornTipusITitol(
+		if (!expedientService.existsExpedientAmbEntornTipusITitol(
 				entornActual.getId(),
 				id,
 				null)) {
@@ -280,15 +218,104 @@ public class ExpedientTipusController extends BaseExpedientController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.missatge.eliminat"));
+							"expedient.tipus.controller.eliminat"));
 		} else {
 			MissatgesHelper.error(
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.missatge.eliminar.expedients.relacionats"));
+							"expedient.tipus.controller.eliminar.expedients.relacionats"));
 		}			
 		return "redirect:/v3/expedientTipus";
+	}
+
+	@RequestMapping(value = "/{id}/permis", method = RequestMethod.GET)
+	public String permisGet(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPerDissenyar(
+						entornActual.getId(),
+						id));
+		return "v3/expedientTipusPermis";
+	}
+
+	@RequestMapping(value = "/{id}/permis/new", method = RequestMethod.GET)
+	public String permisNewGet(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPerDissenyar(
+						entornActual.getId(),
+						id));
+		model.addAttribute(new PermisCommand());
+		return "v3/expedientTipusPermisForm";
+	}
+	@RequestMapping(value = "/{id}/permis/{permisId}", method = RequestMethod.GET)
+	public String permisUpdateGet(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable Long permisId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPerDissenyar(
+						entornActual.getId(),
+						id));
+		PermisDto permis = expedientTipusService.permisFindById(
+				entornActual.getId(),
+				id,
+				permisId);
+		model.addAttribute(
+				conversioTipusHelper.convertir(
+						permis,
+						PermisCommand.class));
+		return "v3/expedientTipusPermisForm";
+	}
+	@RequestMapping(value = "/{id}/permis/{permisId}", method = RequestMethod.POST)
+	public String permisUpdatePost(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@Valid ExpedientTipusCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/expedientTipusPermisForm";
+        } else {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+    		expedientTipusService.permisUpdate(
+    				entornActual.getId(),
+    				id,
+    				conversioTipusHelper.convertir(
+    						command,
+    						PermisDto.class));
+			return getModalControllerReturnValueSuccess(
+					request,
+					"redirect:/v3/expedientTipusPermis",
+					"expedient.tipus.controller.permis.actualitzat");
+        }
+	}
+
+	@RequestMapping(value = "/{id}/permis/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse permisDatatable(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.permisFindAll(
+						entornActual.getId(),
+						id));
 	}
 
 	@InitBinder
@@ -299,5 +326,4 @@ public class ExpedientTipusController extends BaseExpedientController {
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
 
-	protected static final Log logger = LogFactory.getLog(ExpedientTipusController.class);
 }

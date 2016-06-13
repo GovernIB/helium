@@ -196,3 +196,9 @@ form .btn-group > .btn-default:hover:HOVER {
 	overflow-wrap: break-word; 
 	max-width: 120px;
 }
+
+.botons-titol {
+	position: relative;
+	top: -60px;
+	height: 0px;
+}
