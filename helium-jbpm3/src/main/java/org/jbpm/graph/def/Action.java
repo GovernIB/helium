@@ -190,12 +190,12 @@ public class Action implements ActionHandler, Parsable, Serializable {
 		countTipexp.inc();
 		try {
 			// Si el handler implementa HeliumActionhandler passarem l'HeliumApi enlloc de l'ExecutionContext 
-			if (actionHandler instanceof HeliumActionHandler) {
+			/*if (actionHandler instanceof HeliumActionHandler) {
 				HeliumApi heliumApi = new HeliumApiImpl(executionContext);
 				((HeliumActionHandler)actionHandler).execute(heliumApi);
-			} else {
+			} else {*/
 				actionHandler.execute(executionContext);
-			}
+			/*}*/
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
