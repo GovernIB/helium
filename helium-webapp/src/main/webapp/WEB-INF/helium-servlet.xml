@@ -20,6 +20,8 @@
 
 	<context:component-scan base-package="net.conselldemallorca.helium.webapp"/>
 
+	<!-- JBoss: mvc:resources mapping="/webjars/**" location="/META-INF/resources/webjars/"/ -->
+	<!-- Tomcat: mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/ -->
 	<mvc:resources mapping="/webjars/**" location="/META-INF/resources/webjars/"/>
 
 	<!--mvc:resources mapping="/**/*.png" location="/" cache-period="86400"/>
