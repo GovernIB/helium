@@ -203,7 +203,6 @@ public class MonitorDominiHelper {
 				if (accio.isEstatError())
 					numErrors++;
 			}
-			System.out.println(">>> numErrors: " + numErrors);
 			dto.setNumErrors(numErrors);
 		}
 		return dto;

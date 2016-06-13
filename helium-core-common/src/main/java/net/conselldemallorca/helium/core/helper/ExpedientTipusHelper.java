@@ -8,6 +8,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -19,14 +25,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 /**
- * Helper per a gestionar els entorns.
+ * Helper per als tipus d'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -47,9 +47,21 @@ public class ExpedientTipusHelper {
 
 	public ExpedientTipus getExpedientTipusComprovantPermisos(
 			Long id,
+			boolean comprovarPermisRead) {
+		return getExpedientTipusComprovantPermisos(
+				id,
+				comprovarPermisRead,
+				false,
+				false,
+				false);
+	}
+
+	public ExpedientTipus getExpedientTipusComprovantPermisos(
+			Long id,
 			boolean comprovarPermisRead,
 			boolean comprovarPermisWrite,
-			boolean comprovarPermisDelete) {
+			boolean comprovarPermisDelete,
+			boolean comprovarPermisDisseny) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class,id);
@@ -102,9 +114,57 @@ public class ExpedientTipusHelper {
 						permisos);
 			}
 		}
+		if (comprovarPermisDisseny) {
+			permisos = new Permission[] {
+					ExtendedPermission.DESIGN,
+					ExtendedPermission.MANAGE,
+					ExtendedPermission.ADMINISTRATION};
+			if (!permisosHelper.isGrantedAny(
+					id,
+					ExpedientTipus.class,
+					permisos,
+					auth)) {
+				throw new PermisDenegatException(
+						id,
+						ExpedientTipus.class,
+						permisos);
+			}
+		}
 		return expedientTipus;
 	}
-	
+
+	public void comprovarPermisDissenyEntornITipusExpedient(
+			Long entornId,
+			Long expedientTipusId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean tePermis = false;
+		if (permisosHelper.isGrantedAny(
+				entornId,
+				Entorn.class,
+				new Permission[] {
+						ExtendedPermission.DESIGN,
+						ExtendedPermission.ADMINISTRATION},
+				auth)) {
+			tePermis = true;
+		}
+		if (!tePermis && permisosHelper.isGrantedAny(
+				expedientTipusId,
+				ExpedientTipus.class,
+				new Permission[] {
+						ExtendedPermission.DESIGN,
+						ExtendedPermission.MANAGE,
+						ExtendedPermission.ADMINISTRATION},
+				auth)) {
+			tePermis = true;
+		}
+		if (!tePermis) {
+			throw new PermisDenegatException(
+					expedientTipusId,
+					ExpedientTipus.class,
+					new Permission[] {ExtendedPermission.DESIGN});
+		}
+	}
+
 	public ExpedientTipus getExpedientTipusComprovantPermisReassignar(Long id) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
 		if (expedientTipus == null) {
@@ -182,7 +242,7 @@ public class ExpedientTipusHelper {
 		}
 		return ids;
 	}
-	
+
 	public List<ExpedientTipus> findAmbEntorn(
 			Entorn entorn) {
 		return  expedientTipusRepository.findByEntorn(entorn);

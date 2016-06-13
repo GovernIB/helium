@@ -43,6 +43,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private Map<Integer, SequenciaAnyDto> sequenciaAny = new TreeMap<Integer, SequenciaAnyDto>();
 	private Map<Integer, SequenciaDefaultAnyDto> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAnyDto>();
 
+	private int permisCount = 0;
+
 
 
 	public Long getId() {
@@ -185,39 +187,13 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setSequenciaDefaultAny(Map<Integer, SequenciaDefaultAnyDto> sequenciaDefaultAny) {
 		this.sequenciaDefaultAny = sequenciaDefaultAny;
 	}
+	public int getPermisCount() {
+		return permisCount;
+	}
+	public void setPermisCount(int permisCount) {
+		this.permisCount = permisCount;
+	}
 
-	/*public void addEstat(EstatDto estat) {
-		getEstats().add(estat);
-	}
-	public void removeEstat(EstatDto estat) {
-		getEstats().remove(estat);
-	}
-	public void updateSequencia(Integer any, long increment) {
-		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
-		if (this.isReiniciarCadaAny()) {
-			if (this.getSequenciaAny().containsKey(any)) {
-				this.getSequenciaAny().get(any).setSequencia(this.getSequenciaAny().get(any).getSequencia() + increment);
-			} else {
-				SequenciaAnyDto sa = new SequenciaAnyDto(this, any, increment);
-				this.getSequenciaAny().put(any, sa);
-			}
-		} else {
-			this.sequencia = this.sequencia + increment;
-		}
-	}
-	public void updateSequenciaDefault(Integer any, long increment) {
-		if (any == null) any = Calendar.getInstance().get(Calendar.YEAR);
-		if (this.isReiniciarCadaAny()) {
-			if (this.getSequenciaDefaultAny().containsKey(any)) {
-				this.getSequenciaDefaultAny().get(any).setSequenciaDefault(this.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment);
-			} else {
-				SequenciaDefaultAnyDto sda = new SequenciaDefaultAnyDto(this, any, increment);
-				this.getSequenciaDefaultAny().put(any, sda);
-			}
-		} else {
-			this.sequenciaDefault = this.sequenciaDefault + increment;
-		}
-	}*/
 	public List<ConsultaDto> getConsultesSort() {
 		if (consultes == null)
 			consultes = new ArrayList<ConsultaDto>();

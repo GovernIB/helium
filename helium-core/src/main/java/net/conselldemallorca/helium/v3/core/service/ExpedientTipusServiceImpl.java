@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -28,13 +30,17 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 
 /**
- * Implementació del servei per gestionar tipus d'expedients
- *
+ * Implementació del servei per a gestionar tipus d'expedients.
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("expedientTipusServiceV3")
 public class ExpedientTipusServiceImpl implements ExpedientTipusService {
@@ -54,469 +60,309 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 
+
+
 	@Override
 	@Transactional
 	public ExpedientTipusDto create(
 			Long entornId,
-			String codi, 
-			String nom, 
-			boolean teTitol, 
-			boolean demanaTitol, 
-			boolean teNumero,
-			boolean demanaNumero, 
-			String expressioNumero, 
-			boolean reiniciarCadaAny, 
+			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
-			Long sequencia,
-			String responsableDefecteCodi, 
-			boolean restringirPerGrup, 
-			boolean seleccionarAny, 
-			boolean ambRetroaccio) {
-
-		logger.debug("Creant nou tipus d'expedient (" +
-				"entornId=" + entornId + " + ", " + " +
-				"codi=" + codi + ", " + 
-				"nom=" + nom + ", " + 
-				"teTitol=" + teTitol + ", " + 
-				"demanaTitol=" + demanaTitol + ", " + 
-				"teNumero=" + teNumero + ", " +
-				"demanaNumero=" + demanaNumero + ", " + 
-				"expressioNumero=" + expressioNumero + ", " + 
-				"reiniciarCadaAny=" + reiniciarCadaAny + ", " + 
-				"sequenciesAny=" + sequenciesAny + ", " + 
-				"sequenciesValor=" + sequenciesValor + ", " + 
-				"sequencia=" + sequencia + ", " +
-				"responsableDefecteCodi=" + responsableDefecteCodi + ", " + 
-				"restringirPerGrup=" + restringirPerGrup + ", " + 
-				"seleccionarAny=" + seleccionarAny + ", " + 
-				"ambRetroaccio=" + ambRetroaccio + ")");
+			List<Long> sequenciesValor) {
+		logger.debug(
+				"Creant nou tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipus=" + expedientTipus + ", " +
+				"sequenciesAny=" + sequenciesAny + ", " +
+				"sequenciesValor=" + sequenciesValor + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true,
-				false,
-				false);
-		ExpedientTipus tipus = new ExpedientTipus();
-		tipus.setEntorn(entorn);
-		
-		tipus.setCodi(codi);
-		tipus.setNom(nom);
-		tipus.setTeTitol(teTitol);
-		tipus.setDemanaTitol(demanaTitol);
-		tipus.setTeNumero(teNumero);
-		tipus.setDemanaNumero(demanaNumero);
-		tipus.setExpressioNumero(expressioNumero);
-		tipus.setReiniciarCadaAny(reiniciarCadaAny);
-		if(reiniciarCadaAny) {
-			for (int i=0; i<sequenciesAny.size(); i++) {
+				true);
+		ExpedientTipus entity = new ExpedientTipus();
+		entity.setEntorn(entorn);
+		entity.setCodi(expedientTipus.getCodi());
+		entity.setNom(expedientTipus.getNom());
+		entity.setTeTitol(expedientTipus.isTeTitol());
+		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
+		entity.setTeNumero(expedientTipus.isTeNumero());
+		entity.setDemanaNumero(expedientTipus.isDemanaNumero());
+		entity.setExpressioNumero(expedientTipus.getExpressioNumero());
+		entity.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+		entity.setSequencia(expedientTipus.getSequencia());
+		entity.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
+		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
+		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+		if (expedientTipus.isReiniciarCadaAny()) {
+			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
-						tipus, 
+						entity, 
 						sequenciesAny.get(i), 
 						sequenciesValor.get(i));
-				tipus.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
+				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
-		tipus.setSequencia(sequencia);
-		tipus.setResponsableDefecteCodi(responsableDefecteCodi);
-		tipus.setRestringirPerGrup(restringirPerGrup);
-		tipus.setSeleccionarAny(seleccionarAny);
-		// Si pot administrar pot marcar la retroacció
-		if(potAdministrar(entornId, null)){
-			tipus.setAmbRetroaccio(ambRetroaccio);
-		} else {
-			tipus.setAmbRetroaccio(false);
-		}
-		// Guarda la nova entitat
-		expedientTipusRepository.saveAndFlush(tipus);
-		
-		// Retorna la informació del tipus d'expedient que s'ha iniciat
-		ExpedientTipusDto dto = conversioTipusHelper.convertir(
-				tipus,
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
-
-		return dto;
 	}
 
 	@Override
 	@Transactional
-	public void update(
+	public ExpedientTipusDto update(
 			Long entornId,
-			Long expedientTipusId, 
-			String nom, 
-			boolean teTitol, 
-			boolean demanaTitol, 
-			boolean teNumero,
-			boolean demanaNumero, 
-			String expressioNumero, 
-			boolean reiniciarCadaAny, 
-			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
-			Long sequencia,
-			String responsableDefecteCodi, 
-			boolean restringirPerGrup, 
-			boolean seleccionarAny, 
-			boolean ambRetroaccio) {
-
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			ExpedientTipusDto expedientTipus,
+			List<Integer> sequenciesAny,
+			List<Long> sequenciesValor) {
 		logger.debug(
-				"Modificar informació del tipus d'expedient (" +
-				"entornId=" + entornId + ", " + 
-				"expedientTipusId=" + expedientTipusId + ", " + 
-				"nom=" + nom + ", " + 
-				"teTitol=" + teTitol + ", " + 
-				"demanaTitol=" + demanaTitol + ", " + 
-				"teNumero=" + teNumero + ", " +
-				"demanaNumero=" + demanaNumero + ", " + 
-				"expressioNumero=" + expressioNumero + ", " + 
-				"reiniciarCadaAny=" + reiniciarCadaAny + ", " + 
-				"sequenciesAny=" + sequenciesAny + ", " + 
-				"sequenciesValor=" + sequenciesValor + ", " + 
-				"sequencia=" + sequencia + ", " +
-				"responsableDefecteCodi=" + responsableDefecteCodi + ", " + 
-				"restringirPerGrup=" + restringirPerGrup + ", " + 
-				"seleccionarAny=" + seleccionarAny + ", " + 
-				"ambRetroaccio=" + ambRetroaccio + ")");
-		
+				"Modificant tipus d'expedient existent (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipus=" + expedientTipus + ", " +
+				"sequenciesAny=" + sequenciesAny + ", " +
+				"sequenciesValor=" + sequenciesValor + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				false,
-				true,
-				false);				
-		boolean potDissenyarEntorn =
-					permisosHelper.isGrantedAny(
-							entornId, 
-							Entorn.class,
-							new Permission[] {
-									ExtendedPermission.ADMINISTRATION,
-									ExtendedPermission.DESIGN}, 
-							auth);
-		ExpedientTipus tipus;
-		if (potDissenyarEntorn) {
-			// si pot dissenyar l'entorn els pot veure tots
-			tipus = expedientTipusRepository.findByEntornAndId(entorn, expedientTipusId);
-		} else {
-			// Obté comprovant permisos
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					false,
-					false,
-					true);			
-		}		
-		tipus.setNom(nom);
-		tipus.setTeTitol(teTitol);
-		tipus.setDemanaTitol(demanaTitol);
-		tipus.setTeNumero(teNumero);
-		tipus.setDemanaNumero(demanaNumero);
-		tipus.setExpressioNumero(expressioNumero);
-		tipus.setReiniciarCadaAny(reiniciarCadaAny);
-		// Buida les seqüències actuals
-		while (tipus.getSequenciaAny().size() > 0) {
-			SequenciaAny s = tipus.getSequenciaAny().get(tipus.getSequenciaAny().firstKey());			
-			tipus.getSequenciaAny().remove(s.getAny());
-			sequenciaRepository.delete(s);			
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipus.getId());
+		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
+				entorn,
+				expedientTipus.getId());
+		entity.setNom(expedientTipus.getNom());
+		entity.setTeTitol(expedientTipus.isTeTitol());
+		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
+		entity.setTeNumero(expedientTipus.isTeNumero());
+		entity.setDemanaNumero(expedientTipus.isDemanaNumero());
+		entity.setExpressioNumero(expedientTipus.getExpressioNumero());
+		entity.setReiniciarCadaAny(expedientTipus.isReiniciarCadaAny());
+		entity.setSequencia(expedientTipus.getSequencia());
+		entity.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
+		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
+		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+		while (entity.getSequenciaAny().size() > 0) {
+			SequenciaAny s = entity.getSequenciaAny().get(entity.getSequenciaAny().firstKey());			
+			entity.getSequenciaAny().remove(s.getAny());
+			sequenciaRepository.delete(s);
 		}
-		if(reiniciarCadaAny) {
-			for (int i=0; i<sequenciesAny.size(); i++) {
+		if (expedientTipus.isReiniciarCadaAny()) {
+			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny sequenciaEntity = new SequenciaAny(
-						tipus, 
-						sequenciesAny.get(i), 
+						entity,
+						sequenciesAny.get(i),
 						sequenciesValor.get(i));
-				tipus.getSequenciaAny().put(sequenciaEntity.getAny(), sequenciaEntity);
+				entity.getSequenciaAny().put(sequenciaEntity.getAny(), sequenciaEntity);
 				sequenciaRepository.save(sequenciaEntity);
 			}
 		}
-		tipus.setSequencia(sequencia);
-		tipus.setResponsableDefecteCodi(responsableDefecteCodi);
-		tipus.setRestringirPerGrup(restringirPerGrup);
-		tipus.setSeleccionarAny(seleccionarAny);
-		tipus.setAmbRetroaccio(ambRetroaccio);
-		// Si pot administrar pot modificar la retroacció
-		if(potAdministrar(entornId, expedientTipusId)){
-			tipus.setAmbRetroaccio(ambRetroaccio);
-		} 
+		// Només poden configurar la retroacció els dissenyadors de l'entorn
+		if (entornHelper.potDissenyarEntorn(entornId)) {
+			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+		}
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);
 	}
-
-
 
 	@Override
 	@Transactional
 	public void delete(
 			Long entornId,
 			Long expedientTipusId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Esborrant el tipus d''expedient (entornId=" + entornId + 
-			", expedientTipusId = " + expedientTipusId + ")");
-
+		logger.debug(
+				"Esborrant el tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true,
-				false,
-				false);				
-		boolean potDissenyarEntorn =
-					permisosHelper.isGrantedAny(
-							entornId, 
-							Entorn.class,
-							new Permission[] {
-									ExtendedPermission.READ,
-									ExtendedPermission.ADMINISTRATION}, 
-							auth);
-		ExpedientTipus tipus;
-		if (potDissenyarEntorn) {
-			// si pot dissenyar l'entorn els pot veure tots
-			tipus = expedientTipusRepository.findByEntornAndId(entorn, expedientTipusId);
-		} else {
-			// Obté comprovant permisos
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					false,
-					false,
-					true);			
-		}		
-		expedientTipusRepository.delete(tipus);		
+				true);
+		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
+				entorn,
+				expedientTipusId);
+		expedientTipusRepository.delete(entity);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientTipusDto> findTipusAmbFiltrePaginat(
+	public ExpedientTipusDto findAmbIdPerDissenyar(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		ExpedientTipus tipus;
+		if (entornHelper.potDissenyarEntorn(entornId)) {
+			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
+			tipus = expedientTipusRepository.findByEntornAndId(
+					entorn,
+					expedientTipusId);
+		} else {
+			// Si no te permisos de disseny a damunt l'entorn només es poden veure
+			// els tipus amb permisos de disseny
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					expedientTipusId,
+					false,
+					false,
+					false,
+					true);			
+		}		
+		return conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
+			Long entornId,
+			String codi) {
+		logger.debug(
+				"Consultant tipus d'expedient amb codi (" +
+				"entornId=" + entornId + ", " +
+				"codi = " + codi + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);				
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.findByEntornAndCodi(entorn, codi),
+				ExpedientTipusDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ExpedientTipusDto> findPerDatatable(
 			Long entornId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Consulta general de tipus d'expedients paginada (" +
+		logger.debug(
+				"Consultant tipus d'expedient per datatable (" +
+				"entornId=" + entornId + ", " +
 				"filtre=" + filtre + ")");
-		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);				
-		boolean potDissenyarEntorn =
-					permisosHelper.isGrantedAny(
-							entornId, 
-							Entorn.class,
-							new Permission[] {
-									ExtendedPermission.READ,
-									ExtendedPermission.ADMINISTRATION}, 
-							auth);
-		
-		// Obté la llista de tipus d'expedient permesos
-		List<Long> tipusPermesosIds;
-		if (potDissenyarEntorn) {
-			// si pot dissenyar l'entorn els pot veure tots
-			tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);
-		} else {
-			// si no obté els els que pot dissenyar o administrar
-			List<ExpedientTipus> expedientsTipus = expedientTipusHelper.findAmbEntorn(entorn);
-			tipusPermesosIds = new ArrayList<Long>();
-			for (ExpedientTipus tipus : expedientsTipus) {
-				if (permisosHelper.isGrantedAny(
-						tipus.getId(), 
-						ExpedientTipus.class, 
+				true);
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);
+		// Filtra els expedients deixant només els permesos
+		if (!entornHelper.potDissenyarEntorn(entornId)) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			Iterator<Long> it = tipusPermesosIds.iterator();
+			while (it.hasNext()) {
+				Long id = it.next();
+				if (!permisosHelper.isGrantedAny(
+						id,
+						ExpedientTipus.class,
 						new Permission[] {
-								ExtendedPermission.ADMINISTRATION,
 								ExtendedPermission.DESIGN,
-								ExtendedPermission.MANAGE}, 
+								ExtendedPermission.MANAGE,
+								ExtendedPermission.ADMINISTRATION},
 						auth)) {
-					tipusPermesosIds.add(tipus.getId());
+					it.remove();
 				}
 			}
 		}
-		// Realitza la consulta 
-		return paginacioHelper.toPaginaDto(
+		PaginaDto<ExpedientTipusDto> pagina = paginacioHelper.toPaginaDto(
 				expedientTipusRepository.findByFiltreGeneralPaginat(
 						entorn, 
 						tipusPermesosIds, 
 						filtre == null || "".equals(filtre), 
 						filtre, 
 						paginacioHelper.toSpringDataPageable(
-								paginacioParams)));
-	}	
-
-	@Override
-	@Transactional(readOnly = true)
-	public ExpedientTipusDto findTipusAmbId(
-			Long entornId,
-			Long expedientTipusId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Consultant el tipus d'expedient (entornId=" + entornId +
-			", expedientTipusId = " + expedientTipusId + ")");
-		
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true,
-				false,
-				false);				
-		boolean potDissenyarEntorn =
-					permisosHelper.isGrantedAny(
-							entornId, 
-							Entorn.class,
-							new Permission[] {
-									ExtendedPermission.READ,
-									ExtendedPermission.ADMINISTRATION}, 
-							auth);
-		ExpedientTipus tipus;
-		if (potDissenyarEntorn) {
-			// si pot dissenyar l'entorn els pot veure tots
-			tipus = expedientTipusRepository.findByEntornAndId(entorn, expedientTipusId);
-		} else {
-			// Obté comprovant permisos
-			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
-					expedientTipusId,
-					true,
-					false,
-					false);			
-		}		
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
-				tipus,
+								paginacioParams)),
 				ExpedientTipusDto.class);
-		return tipusDto;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ExpedientTipusDto findTipusAmbCodi(
-			Long entornId,
-			String codi) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Consultant el tipus d'expedient (entornId=" + entornId +
-			", codi = " + codi + ")");
-		
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true,
-				false,
-				false);				
-		ExpedientTipus tipus = expedientTipusRepository.findByEntornAndCodi(entorn, codi);
-		if (tipus != null) {
-			boolean potDissenyarEntorn =
-					permisosHelper.isGrantedAny(
-							entornId, 
-							Entorn.class,
-							new Permission[] {
-									ExtendedPermission.READ,
-									ExtendedPermission.DESIGN,
-									ExtendedPermission.ADMINISTRATION}, 
-							auth);
-			if (!potDissenyarEntorn) {
-				// Comprova els permisos per al tipus d'expedient
-				boolean potDissenyarTipus =
-						permisosHelper.isGrantedAny(
-								tipus.getId(), 
-								ExpedientTipus.class,
-								new Permission[] {
-										ExtendedPermission.READ,
-										ExtendedPermission.DESIGN,
-										ExtendedPermission.ADMINISTRATION}, 
-								auth);
-				if (!potDissenyarTipus)
-					tipus = null;
-			}			
+		// Afegeix el contador de permisos
+		List<Long> ids = new ArrayList<Long>();
+		for (ExpedientTipusDto dto: pagina.getContingut()) {
+			ids.add(dto.getId());
 		}
-		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
-				tipus,
-				ExpedientTipusDto.class);
-		return tipusDto;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public boolean potEscriure(
-			Long entornId, 
-			Long expedientTipusId) {
-		
-		boolean ret = false;
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Comprova permisos d'escriptura per al tipus d'expedient (entornId=" + entornId + 
-				", expedientTipusId = "	+ expedientTipusId + ")");
-
-		boolean potDissenyarEntorn = 
-				permisosHelper.isGrantedAny(
-						entornId, 
-						Entorn.class,
-						new Permission[] { 
-								ExtendedPermission.ADMINISTRATION, 
-								ExtendedPermission.DESIGN }, 
-						auth);
-		if (potDissenyarEntorn) {
-			ret = true;
-		} else {
-			ret = permisosHelper.isGrantedAny(
-					entornId, 
-					Entorn.class,
-					new Permission[] { 
-							ExtendedPermission.ADMINISTRATION, 
-							ExtendedPermission.DESIGN,
-							ExtendedPermission.WRITE }, 
-					auth);
-		}
-		return ret;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public boolean potAdministrar(
-			Long entornId, 
-			Long expedientTipusId) {
-		
-		boolean ret = false;
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Comprova permisos d'escriptura per al tipus d'expedient (entornId=" + entornId + 
-				", expedientTipusId = "	+ expedientTipusId + ")");
-
-		boolean potDissenyarEntorn = 
-				permisosHelper.isGrantedAny(
-						entornId, 
-						Entorn.class,
-						new Permission[] { 
-								ExtendedPermission.ADMINISTRATION}, 
-						auth);
-		if (potDissenyarEntorn) {
-			ret = true;
-		} else {
-			if(expedientTipusId != null) {
-				ret = permisosHelper.isGrantedAny(
-						entornId, 
-						Entorn.class,
-						new Permission[] { 
-								ExtendedPermission.ADMINISTRATION}, 
-						auth);
+		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
+				ids,
+				ExpedientTipus.class);
+		for (ExpedientTipusDto dto: pagina.getContingut()) {
+			if (permisos.get(dto.getId()) != null) {
+				dto.setPermisCount(permisos.get(dto.getId()).size());
 			}
 		}
-		return ret;
+		return pagina;
+	}
+
+	@Override
+	@Transactional
+	public PermisDto permisUpdate(
+			Long entornId,
+			Long expedientTipusId,
+			PermisDto permis) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Creant permis per al tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"permis=" + permis + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		permisosHelper.updatePermis(
+				expedientTipusId,
+				ExpedientTipus.class,
+				permis);
+		return null;
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public boolean potEsborrar(
-			Long entornId, 
+	public List<PermisDto> permisFindAll(
+			Long entornId,
 			Long expedientTipusId) {
-		boolean ret = false;
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		logger.debug("Comprova permisos d'esborrat per al tipus d'expedient (entornId=" + entornId + 
-				", expedientTipusId = "	+ expedientTipusId + ")");
-
-		boolean potDissenyarEntorn = 
-				permisosHelper.isGrantedAny(
-						entornId, 
-						Entorn.class,
-						new Permission[] { 
-								ExtendedPermission.ADMINISTRATION, 
-								ExtendedPermission.DESIGN }, 
-						auth);
-		if (potDissenyarEntorn) {
-			ret = true;
-		} else {
-			ret = permisosHelper.isGrantedAny(
-					entornId, 
-					Entorn.class,
-					new Permission[] { 
-							ExtendedPermission.ADMINISTRATION, 
-							ExtendedPermission.DESIGN,
-							ExtendedPermission.DELETE}, 
-					auth);
-		}
-		return ret;
+		logger.debug(
+				"Consultant permisos del tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		return permisosHelper.findPermisos(
+				expedientTipusId,
+				ExpedientTipus.class);
 	}
-	
+
+	@Override
+	@Transactional(readOnly = true)
+	public PermisDto permisFindById(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) {
+		logger.debug(
+				"Consultant un permis donat el seu id (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"permisId=" + permisId + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		List<PermisDto> permisos = permisosHelper.findPermisos(
+				expedientTipusId,
+				ExpedientTipus.class);
+		for (PermisDto permis: permisos) {
+			if (permis.getId().equals(permisId)) {
+				return permis;
+			}
+		}
+		throw new NoTrobatException(PermisDto.class, permisId);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
 }

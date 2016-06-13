@@ -12,6 +12,5 @@ import java.io.Serializable;
  */
 public enum PrincipalTipusEnumDto implements Serializable {
 	USUARI,
-	ROL,
-	GRUP
+	ROL
 }

@@ -278,10 +278,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"titol=" + titol + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);
-		
+				true);
 		if (usuari != null)
 			comprovarUsuari(usuari);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -949,18 +946,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);
+				true);
 		
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					expedientTipusId,
-					true,
-					false,
-					false);
+					true);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;
@@ -1071,17 +1064,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);
+				true);
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					expedientTipusId,
-					true,
-					false,
-					false);
+					true);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;
@@ -2841,9 +2830,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"any=" + any + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true,
-				false,
-				false);
+				true);
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		return this.getNumeroExpedientActual(
 				entorn,
@@ -3017,15 +3004,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				consulta.getEntorn().getId(),
-				true,
-				false,
-				false);
+				true);
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					consulta.getExpedientTipus().getId(),
-					true,
-					false,
-					false);
+					true);
 		// Obte la llista d'expedients permesos
 		List<Long> expedientIdsPermesos;
 		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
@@ -3160,15 +3143,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Comprova l'accés a l'entorn
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				consulta.getEntorn().getId(),
-				true,
-				false,
-				false);
+				true);
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
 					consulta.getExpedientTipus().getId(),
-					true,
-					false,
-					false);
+					true);
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

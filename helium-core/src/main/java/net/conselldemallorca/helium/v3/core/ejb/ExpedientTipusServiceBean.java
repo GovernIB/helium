@@ -15,10 +15,13 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat de Helium.
+ * Servei per a gestionar els tipus d'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -32,48 +35,33 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto create(
-			Long entornId, 
-			String codi, 
-			String nom, 
-			boolean teTitol, 
-			boolean demanaTitol, 
-			boolean teNumero,
-			boolean demanaNumero, 
-			String expressioNumero, 
-			boolean reiniciarCadaAny, 
+			Long entornId,
+			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
-			Long sequencia,
-			String responsableDefecteCodi, 
-			boolean restringirPerGrup, 
-			boolean seleccionarAny, 
-			boolean ambRetroaccio) {
-		return delegate.create(entornId, codi, nom, teTitol, demanaTitol, teNumero, demanaNumero, expressioNumero, reiniciarCadaAny, sequenciesAny, sequenciesValor, sequencia, responsableDefecteCodi, restringirPerGrup, seleccionarAny, ambRetroaccio);
+			List<Long> sequenciesValor) {
+		return delegate.create(
+				entornId,
+				expedientTipus,
+				sequenciesAny,
+				sequenciesValor);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void update(
+	public ExpedientTipusDto update(
 			Long entornId,
-			Long expedientTipusId,
-			String nom, 
-			boolean teTitol, 
-			boolean demanaTitol, 
-			boolean teNumero,
-			boolean demanaNumero, 
-			String expressioNumero, 
-			boolean reiniciarCadaAny, 
+			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor, 
-			Long sequencia,
-			String responsableDefecteCodi, 
-			boolean restringirPerGrup, 
-			boolean seleccionarAny, 
-			boolean ambRetroaccio) {
-		delegate.update(entornId, expedientTipusId, nom, teTitol, demanaTitol, teNumero, demanaNumero, expressioNumero, reiniciarCadaAny, sequenciesAny, sequenciesValor, sequencia, responsableDefecteCodi, restringirPerGrup, seleccionarAny, ambRetroaccio);
+			List<Long> sequenciesValor) {
+		return delegate.update(
+				entornId,
+				expedientTipus,
+				sequenciesAny,
+				sequenciesValor);
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(
 			Long entornId,
 			Long expedientTipusId) {
@@ -82,44 +70,68 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientTipusDto> findTipusAmbFiltrePaginat(
+	public ExpedientTipusDto findAmbIdPerDissenyar(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPerDissenyar(
+				entornId,
+				expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
+			Long entornId, 
+			String codi) {
+		return delegate.findAmbCodiPerValidarRepeticio(
+				entornId,
+				codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<ExpedientTipusDto> findPerDatatable(
 			Long entornId, 
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findTipusAmbFiltrePaginat(entornId, filtre, paginacioParams);
+		return delegate.findPerDatatable(
+				entornId,
+				filtre,
+				paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusDto findTipusAmbId(
+	public PermisDto permisUpdate(
+			Long entornId,
+			Long expedientTipusId,
+			PermisDto permis) throws NoTrobatException, PermisDenegatException {
+		return delegate.permisUpdate(
+				entornId,
+				expedientTipusId,
+				permis);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<PermisDto> permisFindAll(
 			Long entornId,
 			Long expedientTipusId) {
-		return delegate.findTipusAmbId(entornId, expedientTipusId);
+		return delegate.permisFindAll(
+				entornId,
+				expedientTipusId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusDto findTipusAmbCodi(
-			Long entornId, 
-			String codi) {
-		return delegate.findTipusAmbCodi(entornId, codi);
+	public PermisDto permisFindById(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) {
+		return delegate.permisFindById(
+				entornId,
+				expedientTipusId,
+				permisId);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean potEscriure(Long entornId, Long id) {
-		return delegate.potEscriure(entornId, id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean potEsborrar(Long entornId, Long id) {
-		return delegate.potEsborrar(entornId, id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean potAdministrar(Long entornId, Long id) {
-		return delegate.potAdministrar(entornId, id);
-	}
 }
