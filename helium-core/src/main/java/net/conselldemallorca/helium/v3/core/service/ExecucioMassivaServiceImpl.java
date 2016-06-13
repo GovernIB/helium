@@ -1284,7 +1284,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataInici(new Date());
 			
 			// Obtenim la tasca
-			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+//			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			JbpmTask tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
+
 			if (tasca != null && tasca.isOpen()) {
 				// Reassignam la tasca
 				expedientService.reassignarTasca(tasca.getId(), ome.getExecucioMassiva().getParam1());

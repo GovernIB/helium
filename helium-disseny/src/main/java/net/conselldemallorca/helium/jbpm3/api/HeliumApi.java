@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.graph.exe.Token;
-
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
@@ -378,7 +376,7 @@ public interface HeliumApi {
 	 * @param cancelarTasques Indica si s'han de cancel·lar les tasques actives del token abans de fer la redirecció
 	 */
 	public void expedientTokenRedirigir(
-			Token token,
+			Long tokenId,
 			String nodeName,
 			boolean cancelarTasques);
 	

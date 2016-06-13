@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.graph.exe.ExecutionContext;
-import org.jbpm.graph.exe.Token;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -359,10 +358,13 @@ public class HeliumApiImpl implements HeliumApi {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) {
 				ExpedientDto expedient = getExpedientActual();
-				EstatDto estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
+				EstatDto estat = null;
+				if (estatCodi != null && !"".equals(estatCodi)) {
+					estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
 						expedient.getEntorn().getId(),
 						expedientTipusCodi,
 						estatCodi);
+				}
 				// Consulta d'expedients
 				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
 						expedient.getEntorn().getId(),
@@ -467,8 +469,7 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public RespostaRegistre registreEntrada(
 			DadesRegistreEntrada dadesEntrada,
-			List<String> documentsEntrada,
-			Long expedientId) {
+			List<String> documentsEntrada) {
 		RegistreAnotacioDto anotacio = new RegistreAnotacioDto();
 		anotacio.setOrganCodi(dadesEntrada.getOrganCodi());
 		anotacio.setOficinaCodi(dadesEntrada.getOficinaCodi());
@@ -501,6 +502,7 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		anotacio.setAnnexos(annexos);
 		try {
+			Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
 			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioEntrada(anotacio,expedientId);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
@@ -514,8 +516,7 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public RespostaRegistre registreSortida(
 			DadesRegistreSortida dadesSortida,
-			List<String> documentsSortida,
-			Long expedientId) {
+			List<String> documentsSortida) {
 		RegistreAnotacioDto anotacio = new RegistreAnotacioDto();
 		anotacio.setOrganCodi(dadesSortida.getOrganCodi());
 		anotacio.setOficinaCodi(dadesSortida.getOficinaCodi());
@@ -548,6 +549,7 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		anotacio.setAnnexos(annexos);
 		try {
+			Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
 			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().registreAnotacioSortida(anotacio,expedientId);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
@@ -561,8 +563,7 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public RespostaRegistre registreNotificacio(
 			DadesRegistreNotificacio dadesNotificacio,
-			List<String> documentsNotificacio,
-			Long expedientId) {
+			List<String> documentsNotificacio) {
 		RegistreNotificacioDto notificacio = new RegistreNotificacioDto();
 		notificacio.setExpedientIdentificador(dadesNotificacio.getExpedientIdentificador());
 		notificacio.setExpedientClau(dadesNotificacio.getExpedientClau());
@@ -620,6 +621,7 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		notificacio.setAnnexos(annexos);
 		try {
+			Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
 			RegistreIdDto anotacioId = Jbpm3HeliumBridge.getInstanceService().notificacioCrear(notificacio,expedientId);
 			RespostaRegistre resposta = new RespostaRegistre();
 			resposta.setNumero(anotacioId.getNumero());
@@ -663,7 +665,8 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public void expedientReprendre() {
 		try {
-			Jbpm3HeliumBridge.getInstanceService().reprendreExpedient(getProcessInstanceId());
+			//Jbpm3HeliumBridge.getInstanceService().reprendreExpedient(getProcessInstanceId());
+			Jbpm3HeliumBridge.getInstanceService().expedientReprendre(getProcessInstanceId());
 		} catch (Exception ex) {
 			throw new HeliumHandlerException("No s'ha pogut reprendre l'expedient", ex);
 		}
@@ -680,11 +683,11 @@ public class HeliumApiImpl implements HeliumApi {
 	
 	@Override
 	public void expedientTokenRedirigir(
-			Token token,
+			Long tokenId,
 			String nodeName,
 			boolean cancelarTasques) {
 		Jbpm3HeliumBridge.getInstanceService().tokenRedirigir(
-				token.getId(),
+				tokenId,
 				nodeName,
 				cancelarTasques);
 	}
