@@ -7,10 +7,12 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Component;
-
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
+
+import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar el registre d'accions dels expedients
@@ -22,6 +24,8 @@ public class ExpedientRegistreHelper {
 
 	@Resource
 	RegistreRepository registreRepository;
+	@Resource
+	ExpedientRepository expedientRepository;
 
 
 
@@ -443,13 +447,13 @@ public class ExpedientRegistreHelper {
 	}
 
 	public Registre crearRegistreSignarDocument(
-			Long expedientId,
 			String processInstanceId,
 			String responsableCodi,
 			String documentCodi) {
+		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 		Registre registre = new Registre(
 				new Date(),
-				expedientId,
+				expedient.getId(),
 				responsableCodi,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.INSTANCIA_PROCES,

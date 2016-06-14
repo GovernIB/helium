@@ -885,19 +885,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			expedient = ome.getExpedient().getTipus().getNom();
 		}
 		try {
-			Long expedientId = ome.getExpedient().getId();
 			ome.setDataInici(new Date());
 			if ("Guardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Guardar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Map<String, Object> valors = (Map<String, Object>)param2[1]; 
-				tascaService.guardar(tascaId, expedientId, valors);
+				tascaService.guardar(tascaId, valors);
 				mesuresTemporalsHelper.mesuraCalcular("Guardar", "massiva_tasca", expedient, tasca);
 			} else if ("Validar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Validar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Map<String, Object> valors = (Map<String, Object>)param2[1];
-				tascaService.validar(tascaId, expedientId, valors);
+				tascaService.validar(tascaId, valors);
 				mesuresTemporalsHelper.mesuraCalcular("Validar", "massiva_tasca", expedient, tasca);
 			} else if ("Completar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Completar", "massiva_tasca", expedient, tasca);
@@ -906,12 +905,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				String transicio = (String)param2[1];
 				Long ea = EntornActual.getEntornId();
 				EntornActual.setEntornId(entornId);
-				tascaService.completar(tascaId, expedientId, transicio);
+				tascaService.completar(tascaId, transicio);
 				EntornActual.setEntornId(ea);
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Restaurar", "massiva_tasca", expedient, tasca);
-				tascaService.restaurar(tascaId, expedientId);
+				tascaService.restaurar(tascaId);
 				mesuresTemporalsHelper.mesuraCalcular("Restaurar", "massiva_tasca", expedient, tasca);
 			} else if ("Accio".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva_tasca", expedient, tasca);

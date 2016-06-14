@@ -76,7 +76,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-@RequestMapping("/v3/expedient")
+@RequestMapping("/v3/tasca")
 public class TascaTramitacioController extends BaseTascaController {
 
 	public static final String VARIABLE_SESSIO_CAMP_FOCUS = "helCampFocus";
@@ -109,10 +109,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		return null;
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}", method = RequestMethod.GET)
 	public String pipelles(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
@@ -126,7 +125,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		try {
 			return mostrarInformacioTascaPerPipelles(
 					request,
-					expedientId,
 					tascaId,
 					model,
 					"form");
@@ -142,10 +140,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 	}
 	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/{pipellaActiva}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/{pipellaActiva}", method = RequestMethod.GET)
 	public String pipellesActiva(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable String pipellaActiva,
 			Model model) {
@@ -153,23 +150,20 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				pipellaActiva);
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/form", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/form", method = RequestMethod.GET)
 	public String form(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
-					expedientId,
 					tascaId,
 					model,
 					"form");
@@ -181,10 +175,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaForm";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/guardar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/guardar", method = RequestMethod.POST)
 	public String guardar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@Valid @ModelAttribute("command") Object command,
 			BindingResult result,
@@ -205,21 +198,18 @@ public class TascaTramitacioController extends BaseTascaController {
 				command,
 				result,
 				request,
-				tascaId,
-				expedientId);
+				tascaId);
 		status.setComplete();
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				null);
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/validar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/validar", method = RequestMethod.POST)
 	public String validar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@Valid @ModelAttribute("command") Object command, 
 			BindingResult result, 
@@ -228,7 +218,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (tascaService.isTascaValidada(tascaId)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
-					expedientId,
 					tascaId,
 					model,
 					null);
@@ -249,8 +238,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				command,
 				result,
 				request,
-				tascaId,
-				expedientId)) {
+				tascaId)) {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Object commandValidar = TascaFormHelper.getCommandForCamps(
@@ -265,35 +253,31 @@ public class TascaTramitacioController extends BaseTascaController {
 					commandValidar,
 					result,
 					request,
-					tascaId,
-					expedientId);
+					tascaId);
 		}
 		status.setComplete();
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId, result);
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				result.hasErrors() ? "form" : null);
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/completar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/completar", method = RequestMethod.POST)
 	public String completar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "transicio", required = false) String transicio,
 			@ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		validar(request, expedientId, tascaId, command, result, status, model);
-		if (result.hasErrors() || !accioCompletarForm(request, tascaId, expedientId, transicio)) {
+		validar(request, tascaId, command, result, status, model);
+		if (result.hasErrors() || !accioCompletarForm(request, tascaId, transicio)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
-					expedientId,
 					tascaId,
 					model,
 					result.hasErrors() ? "form" : null);
@@ -305,15 +289,14 @@ public class TascaTramitacioController extends BaseTascaController {
 			return "redirect:/v3/tasca";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/restaurar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/restaurar", method = RequestMethod.POST)
 	public String restaurar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			SessionStatus status, 
 			Model model) {
 		try {
-			accioRestaurarForm(request, tascaId, expedientId); 	
+			accioRestaurarForm(request, tascaId); 	
         } catch (Exception ex) {
         	MissatgesHelper.error(request, ex.getMessage());
         	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
@@ -321,19 +304,17 @@ public class TascaTramitacioController extends BaseTascaController {
 		status.setComplete();
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"form");
 	}
 
 	@RequestMapping(value = {
-			"/{expedientId}/tasca/{tascaId}/accio",
-			"/{expedientId}/tasca/{tascaId}/form/accio"
+			"/{tascaId}/accio",
+			"/{tascaId}/form/accio"
 			}, method = RequestMethod.POST)
 	public String accio(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value = "accioCamp", required = true) String accioCamp,
 			@ModelAttribute("command") Object command,
@@ -355,31 +336,27 @@ public class TascaTramitacioController extends BaseTascaController {
 				command,
 				result,
 				request,
-				tascaId,
-				expedientId);
+				tascaId);
 		status.setComplete();
 		if (guardado && accioExecutarAccio(request, tascaId, accioCamp)) {
 			model.addAttribute("campFocus", accioCamp);
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"form");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/document", method = RequestMethod.GET)
 	public String document(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
-					expedientId,
 					tascaId,
 					model,
 					"document");
@@ -396,17 +373,15 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		}
 		model.addAttribute("documents", documents);
-		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("isModal", ModalHelper.isModal(request));
 		return "v3/tascaDocument";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isPermetreFinalitzar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/isPermetreFinalitzar", method = RequestMethod.POST)
 	@ResponseBody
 	public String isPermetreFinalitzar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		StringBuffer resposta = new StringBuffer();
@@ -422,43 +397,39 @@ public class TascaTramitacioController extends BaseTascaController {
 		return resposta.toString();
 	}
 	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isDocumentsComplet", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/isDocumentsComplet", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean isDocumentsComplet(@PathVariable String tascaId) {
 		return tascaService.isDocumentsComplet(tascaId);
 	}
 	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/isSignaturesComplet", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/isSignaturesComplet", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean isSignaturesComplet(@PathVariable String tascaId) {
 		return tascaService.isSignaturesComplet(tascaId);
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signatura", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/signatura", method = RequestMethod.GET)
 	public String signatura(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
-					expedientId,
 					tascaId,
 					model,
 					"signatura");
 		}		
-		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
 		return "v3/tascaSignatura";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
@@ -492,16 +463,14 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"document");
 	}
 	
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/{tascaId2}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/{tascaId2}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar2(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable String tascaId2,
 			@PathVariable String documentCodi,
@@ -536,16 +505,14 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"document");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/generar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/generar", method = RequestMethod.GET)
 	public String documentGenerarGet(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
 			@RequestParam(value = "data", required = false) Date data,
@@ -579,16 +546,14 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"document");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/descarregar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/descarregar", method = RequestMethod.GET)
 	public String documentDescarregar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
 			Model model) {
@@ -610,16 +575,15 @@ public class TascaTramitacioController extends BaseTascaController {
 			else
 				MissatgesHelper.error(request,ex.getMessage());
 			
-			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/document";
+			return "redirect:/modal/v3/tasca/" + tascaId + "/document";
 		}	
 		
 		return "arxiuView";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/document/{documentCodi}/esborrar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/esborrar", method = RequestMethod.GET)
 	public String documentEsborrar(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,	
 			@RequestParam(value = "data", required = false) Date data,
@@ -635,16 +599,14 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"document");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/signarAmbToken", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/signarAmbToken", method = RequestMethod.POST)
 	public String signarAmbToken(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@RequestParam(value="taskId", required = true) String taskId,
 			@RequestParam(value="docId", required = true) Long docId,			
@@ -658,7 +620,6 @@ public class TascaTramitacioController extends BaseTascaController {
 				aData.append(dat);
 			}			
 			signat = tascaService.signarDocumentTascaAmbToken(
-					expedientId,
 					docId,
 					taskId,
 					token,
@@ -683,17 +644,15 @@ public class TascaTramitacioController extends BaseTascaController {
 
 		return mostrarInformacioTascaPerPipelles(
 				request,
-				expedientId,
 				tascaId,
 				model,
 				"signatura");
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/formExtern", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/formExtern", method = RequestMethod.GET)
 	@ResponseBody
 	public FormulariExternDto formExtern(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			Model model) {
 		return tascaService.formulariExternObrir(tascaId);
@@ -731,14 +690,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		String tascaId = guardarDatosTramitacionMasiva(request, seleccio, inici, correu);
 
-//		Object command = inicialitzarTascaFormCommand(
-//				request,
-//				tascaId,
-//				model);	
-//		
-//		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
-		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
-		return getReturnUrl(request, tasca.getExpedientId(), tascaId, "form");
+		return getReturnUrl(request, tascaId, "form");
 	}
 
 	@RequestMapping(value = "/massivaTramitacioTasca/taula", method = RequestMethod.GET)
@@ -752,10 +704,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/import/tasquesMassivaTaula";
 	}
 
-	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/icones/{docId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{tascaId}/icones/{docId}", method = RequestMethod.GET)
 	public String icones(
 			HttpServletRequest request,
-			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			@PathVariable Long docId,
 			Model model) {
@@ -872,10 +823,9 @@ public class TascaTramitacioController extends BaseTascaController {
 			Object command, 
 			BindingResult result, 
 			HttpServletRequest request,
-			String tascaId,
-			Long expedientId) {
+			String tascaId) {
 		validator.validate(command, result);
-		if (result.hasErrors() || !accioGuardarForm(request, tascaId, expedientId, variables)) {
+		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 			return false;
 		}
@@ -888,15 +838,14 @@ public class TascaTramitacioController extends BaseTascaController {
 			Object commandValidar, 
 			BindingResult result, 
 			HttpServletRequest request,
-			String tascaId,
-			Long expedientId) {
+			String tascaId) {
 		validator.setValidarObligatoris(true);
 		validator.setValidarExpresions(true);
 		validator.validate(commandValidar, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 			return false;
-		} else if (!accioValidarForm(request, tascaId, expedientId, variables)) {
+		} else if (!accioValidarForm(request, tascaId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			return false;
 		}
@@ -906,8 +855,7 @@ public class TascaTramitacioController extends BaseTascaController {
 
 	private boolean accioRestaurarForm(
 			HttpServletRequest request, 
-			String tascaId,
-			Long expedientId) {
+			String tascaId) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
@@ -932,7 +880,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				params[2] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
-				tascaService.restaurar(tascaId, expedientId);
+				tascaService.restaurar(tascaId);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.restaurar", new Object[] { tascaIds.length }));
 				resposta = true;
 			} catch (Exception ex) {
@@ -941,7 +889,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} else {
 			try {
-				tascaService.restaurar(tascaId, expedientId);
+				tascaService.restaurar(tascaId);
 				MissatgesHelper.success(request, getMessage(request, "info.formulari.restaurat"));
 				resposta = true;
 			} catch (Exception ex) {
@@ -956,7 +904,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	private boolean accioGuardarForm(
 			HttpServletRequest request, 
 			String tascaId, 
-			Long expedientId,
 			Map<String, Object> variables) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Guardant dades de la tasca (id=" + tascaId + ")");
@@ -973,7 +920,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
 		if (datosTramitacionMasiva != null) {
 			try {
-				tascaService.guardar(tascaId, expedientId, variables);
+				tascaService.guardar(tascaId, variables);
 				
 				String[] tascaIds = (String[]) datosTramitacionMasiva.get("tasquesTramitar");
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
@@ -1004,7 +951,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} else {
 			try {
-				tascaService.guardar(tascaId, expedientId, variables);
+				tascaService.guardar(tascaId, variables);
 				MissatgesHelper.success(request, getMessage(request, "info.dades.form.guardat"));
 				resposta = true;
 			} catch (Exception ex) {
@@ -1019,7 +966,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	private boolean accioValidarForm(
 			HttpServletRequest request, 
 			String tascaId,
-			Long expedientId,
 			Map<String, Object> variables) {
 		boolean resposta = false;
 		Map<String, Object> datosTramitacionMasiva = getDatosTramitacionMasiva(request);
@@ -1047,7 +993,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);
 				
-				tascaService.validar(tascaId, expedientId, variables);
+				tascaService.validar(tascaId, variables);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.validar", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {
@@ -1056,7 +1002,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} else {
 			try {
-				tascaService.validar(tascaId, expedientId, variables);
+				tascaService.validar(tascaId, variables);
 				MissatgesHelper.success(request, getMessage(request, "info.formulari.validat"));
 				resposta = true;
 			} catch (Exception ex) {
@@ -1144,7 +1090,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	private boolean accioCompletarForm(
 			HttpServletRequest request,
 			String tascaId,
-			Long expedientId,
 			String transicio) {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		String transicioSortida = null;
@@ -1162,7 +1107,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-				tascaService.completar(tascaId, expedientId, transicioSortida);
+				tascaService.completar(tascaId, transicioSortida);
 				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
@@ -1217,7 +1162,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			}	
 		} else {
 			try {
-				tascaService.completar(tascaId, expedientId, transicioSortida);
+				tascaService.completar(tascaId, transicioSortida);
 				if (tasca.isTascaFinalitzacioSegonPla()) {
 					MissatgesHelper.success(request, getMessage(request, "info.tasca.finalitza.segon.pla"));
 				} else {

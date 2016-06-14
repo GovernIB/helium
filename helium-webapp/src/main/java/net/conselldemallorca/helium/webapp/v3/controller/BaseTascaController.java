@@ -45,7 +45,6 @@ public class BaseTascaController extends BaseController {
 
 	protected String mostrarInformacioTascaPerPipelles(
 			HttpServletRequest request,
-			Long expedientId,
 			String tascaId,
 			Model model,
 			String pipellaActiva) {
@@ -106,9 +105,9 @@ public class BaseTascaController extends BaseController {
 				(pipellaActiva.equalsIgnoreCase("document") && request.getMethod().equalsIgnoreCase("POST")) || 
 				request.getRequestURI().split("/")[request.getRequestURI().split("/").length -1].equalsIgnoreCase("esborrar")){
 			if (ModalHelper.isModal(request)) {
-				return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/" + pipellaActiva;
+				return "redirect:/modal/v3/tasca/" + tascaId + "/" + pipellaActiva;
 			} else {
-				return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + "/" + pipellaActiva;
+				return "redirect:/v3/tasca/" + tascaId + "/" + pipellaActiva;
 			}
 		}else{
 			return "v3/tascaPipelles";	
@@ -129,14 +128,13 @@ public class BaseTascaController extends BaseController {
 
 	protected String getReturnUrl(
 			HttpServletRequest request,
-			Long expedientId,
 			String tascaId,
 			String sufix) {
 		String suf = (sufix != null) ? "/" + sufix : "";
 		if (ModalHelper.isModal(request))
-			return "redirect:/modal/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
+			return "redirect:/modal/v3/tasca/" + tascaId + suf;
 		else
-			return "redirect:/v3/expedient/" + expedientId + "/tasca/" + tascaId + suf;
+			return "redirect:/v3/tasca/" + tascaId + suf;
 	}
 
 	protected String guardarDatosTramitacionMasiva(HttpServletRequest request, Set<Long> seleccio, String inici, Boolean correu) {

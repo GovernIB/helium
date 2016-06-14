@@ -37,8 +37,8 @@
 	<script src="https://www.java.com/js/deployJava.js"></script>
 	
 	<c:choose>
-		<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
-		<c:otherwise><c:url var="tascaFormAction" value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
+		<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/tasca/${tasca.id}"/></c:when>
+		<c:otherwise><c:url var="tascaFormAction" value="/v3/tasca/${tasca.id}"/></c:otherwise>
 	</c:choose>
 <script>
 $(document).ready(function() {
@@ -90,7 +90,7 @@ $(document).ready(function() {
 		if (accio.indexOf('completar') == 0) {
 			$.ajax({
 		        type: 'POST',
-		        url: "<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/isPermetreFinalitzar'/>",
+		        url: "<c:url value='/v3/tasca/${tasca.id}/isPermetreFinalitzar'/>",
 		        cache: false,
 		        contentType: false,
 		        processData: false,
@@ -209,16 +209,16 @@ function refrescarAlertesFunction() {
 			</ul>
 			<div class="tab-content">
 				<c:if test="${hasFormulari}">
-					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/form"/>"></div>
+					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/tasca/${tasca.id}/form"/>"></div>
 				</c:if>
 				<c:if test="${hasDocuments}">
 					<c:choose>
-						<c:when test="${isModal}"><div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div></c:when>
-						<c:otherwise><div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document"/>"></div></c:otherwise>
+						<c:when test="${isModal}"><div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/modal/v3/tasca/${tasca.id}/document"/>"></div></c:when>
+						<c:otherwise><div id="tasca-document" class="tab-pane" data-href="<c:url value="/nodeco/v3/tasca/${tasca.id}/document"/>"></div></c:otherwise>
 					</c:choose>
 				</c:if>
 				<c:if test="${hasSignatures}">
-					<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/signatura"/>"></div>
+					<div id="tasca-signatura" class="tab-pane" data-href="<c:url value="/nodeco/v3/tasca/${tasca.id}/signatura"/>"></div>
 				</c:if>
 			</div>
 		</c:when>
