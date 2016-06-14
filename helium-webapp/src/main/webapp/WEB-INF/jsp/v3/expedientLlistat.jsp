@@ -453,7 +453,17 @@ function refrescaEstatSegonPla() {
 						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
 					</script>
 				</th>
-				<th data-rdt-property="identificador" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.expedient"/></th>
+				<th data-rdt-property="identificador" data-rdt-template="cellReindexacioTemplate" data-rdt-visible="true">
+					<spring:message code="expedient.llistat.columna.expedient"/>
+					<script id="cellReindexacioTemplate" type="text/x-jsrender">
+					{{:identificador}}
+					{{if tipus.reindexacioAsincrona && reindexarData != null }}
+						<div class="pull-right">
+							<span class="fa fa-refresh"></span>
+						</div>
+					{{/if}}
+					</script>
+				</th>
 				<th data-rdt-property="tipus.nom" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/></th>
 				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.iniciat"/></th>
 				<th data-rdt-property="dataFi" data-rdt-type="datetime" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.finalitzat"/></th>
@@ -495,6 +505,8 @@ function refrescaEstatSegonPla() {
 					</div>
 					</script>
 				</th>
+				<th data-rdt-property="tipus" data-rdt-visible="false"></th>
+				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
 				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="comentariAnulat" data-rdt-visible="false"></th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>

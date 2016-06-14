@@ -153,6 +153,7 @@ public class ExpedientHelper {
 		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());		
 		dto.setDataFi(expedient.getDataFi());
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
+		dto.setReindexarData(expedient.getReindexarData());
 		return dto;
 	}
 

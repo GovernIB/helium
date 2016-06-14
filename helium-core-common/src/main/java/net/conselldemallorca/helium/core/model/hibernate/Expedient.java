@@ -139,7 +139,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private List<Portasignatures> portasignatures = new ArrayList<Portasignatures>();
 
 	private boolean ambRetroaccio;
-
+	private Date reindexarData;
 
 	public Expedient() {}
 	public Expedient(IniciadorTipus iniciadorTipus, String iniciadorCodi, ExpedientTipus tipus, Entorn entorn, String processInstanceId) {
@@ -566,6 +566,14 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
+	}
+	
+	@Column(name="reindexar_data", nullable=true)
+	public Date getReindexarData() {
+		return reindexarData;
+	}
+	public void setReindexarData(Date reindexarData) {
+		this.reindexarData = reindexarData;
 	}
 	
 	@Transient

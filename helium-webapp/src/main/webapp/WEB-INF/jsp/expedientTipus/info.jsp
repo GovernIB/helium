@@ -49,6 +49,7 @@ function confirmar(e) {
 		<dt>Amb número?</dt><dd><c:choose><c:when test="${expedientTipus.teNumero}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
 		<dt>Demana número?</dt><dd><c:choose><c:when test="${expedientTipus.demanaNumero}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
 		<dt>Permet retroacció?</dt><dd><c:choose><c:when test="${expedientTipus.ambRetroaccio}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
+		<dt>Reindexa asíncronament?</dt><dd><c:choose><c:when test="${expedientTipus.reindexacioAsincrona}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
 		<c:if test="${not empty expedientTipus.responsableDefecteCodi}"><dt>Responsable per defecte</dt><dd>${responsableDefecte.nomSencer}</dd></c:if>
 		<c:if test="${not empty definicioProcesInicial}"><dt>Definició de procés inicial</dt><dd>${definicioProcesInicial.jbpmName}</dd></c:if>
 	</dl>

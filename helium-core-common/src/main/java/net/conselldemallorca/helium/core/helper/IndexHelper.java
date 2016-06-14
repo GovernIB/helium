@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -45,6 +47,8 @@ public class IndexHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private LuceneHelper luceneHelper;
 //	@Resource
@@ -142,12 +146,22 @@ public class IndexHelper {
 		}
 	}
 
+//	mètode per a marcar les reindexacions en segon pla si es el cas
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId) {
-		expedientIndexLuceneUpdate(
-				processInstanceId,
-				false,
-				null);
+		
+		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		if (expedient.getTipus().isReindexacioAsincrona()) {
+			if (expedient.getReindexarData() == null) {
+				expedient.setReindexarData(new Date());
+				expedientRepository.save(expedient);
+			}
+		} else {
+			expedientIndexLuceneUpdate(
+					processInstanceId,
+					false,
+					null);
+		}
 	}
 	
 	public void expedientIndexLuceneUpdate(

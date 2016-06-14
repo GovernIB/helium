@@ -174,6 +174,7 @@ public class DtoConverter {
 		}
 		dto.setDataFi(expedient.getDataFi());
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
+		dto.setReindexarData(expedient.getReindexarData());
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {
 			ExpedientDto relacionatDto = new ExpedientDto();
 			relacionatDto.setId(relacionat.getId());

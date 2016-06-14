@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
@@ -117,6 +118,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private MailHelper mailHelper;
+	@Resource
+	private IndexHelper indexHelper;
 	
 	@Autowired
 	private TascaService tascaService;
@@ -1226,7 +1229,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			expedientService.luceneReindexarExpedient(exp.getId());
+			indexHelper.expedientIndexLuceneUpdate(exp.getProcessInstanceId());
+//			expedientService.luceneReindexarExpedient(exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);

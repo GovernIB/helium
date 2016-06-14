@@ -36,6 +36,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
+	private boolean reindexacioAsincrona;
 
 	private EntornDto entorn;
 	private List<EstatDto> estats = new ArrayList<EstatDto>();
@@ -154,6 +155,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
+	}
+	public boolean isReindexacioAsincrona() {
+		return reindexacioAsincrona;
+	}
+	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
+		this.reindexacioAsincrona = reindexacioAsincrona;
 	}
 	public EntornDto getEntorn() {
 		return entorn;
