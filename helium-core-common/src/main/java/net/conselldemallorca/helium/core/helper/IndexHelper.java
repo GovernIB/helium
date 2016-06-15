@@ -273,6 +273,8 @@ public class IndexHelper {
 				contextIndexarTipExp.stop();
 			}
 		}
+		expedient.setReindexarError(false);
+		expedientRepository.saveAndFlush(expedient);
 	}
 
 	public void expedientIndexLuceneDelete(String processInstanceId) {
@@ -427,6 +429,8 @@ public class IndexHelper {
 //			contextMongoEntorn.stop();
 //			contextMongoTipExp.stop();
 		}
+		expedient.setReindexarError(false);
+		expedientRepository.saveAndFlush(expedient);
 	}
 
 	private Map<String, Object> getVariablesJbpmProcesValor(

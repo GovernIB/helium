@@ -1948,6 +1948,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorDesc(), expedient.getErrorFull()));
 		}
 		
+		if (expedient.isReindexarError()) {
+			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, 
+					messageHelper.getMessage("expedient.consulta.reindexacio.error"),
+					messageHelper.getMessage("expedient.consulta.reindexacio.error.full")));
+		}
+		
 		return new Object[]{errors_bas,errors_int};
 	}
 

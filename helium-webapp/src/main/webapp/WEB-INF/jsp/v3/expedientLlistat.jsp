@@ -459,7 +459,7 @@ function refrescaEstatSegonPla() {
 					{{:identificador}}
 					{{if tipus.reindexacioAsincrona && reindexarData != null }}
 						<div class="pull-right">
-							<span class="fa fa-refresh"></span>
+							<span class="fa fa-refresh" title="<spring:message code="expedient.consulta.reindexacio.asincrona"/>"></span>
 						</div>
 					{{/if}}
 					</script>
@@ -476,7 +476,7 @@ function refrescaEstatSegonPla() {
 						{{if estat_nom}}{{:estat_nom}}{{else}}<spring:message code="comu.estat.iniciat"/>{{/if}}
 					{{/if}}
 					<div class="pull-right">
-						{{if errorsIntegracions || errorDesc}}
+						{{if ambErrors}}
 							<a class="no-deco-link" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="../v3/expedient/{{:id}}/errors"/>">
 								<span class="fa fa-exclamation-triangle error-triangle" title="<spring:message code="expedient.consulta.errors"/>"></span>
 							</a>
@@ -520,6 +520,7 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>	
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>
+				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>
 				<th data-rdt-property="alertesTotals" data-rdt-visible="false"></th>
 				<th data-rdt-property="alertesPendents" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">

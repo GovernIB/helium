@@ -94,6 +94,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	private boolean ambRetroaccio;
 	private Date reindexarData;
+	private boolean reindexarError;
 
 	private Long alertesTotals;
 	private Long alertesPendents;
@@ -482,6 +483,18 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	public void setReindexarData(Date reindexarData) {
 		this.reindexarData = reindexarData;
+	}
+
+	public boolean isReindexarError() {
+		return reindexarError;
+	}
+
+	public void setReindexarError(boolean reindexarError) {
+		this.reindexarError = reindexarError;
+	}
+	
+	public boolean isAmbErrors () {
+		return (reindexarError || errorsIntegracions || errorDesc != null);
 	}
 
 	private static final long serialVersionUID = -9207907579002520198L;

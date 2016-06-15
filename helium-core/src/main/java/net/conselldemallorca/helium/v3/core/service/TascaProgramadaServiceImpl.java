@@ -91,34 +91,26 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Transactional
 	@Scheduled(fixedDelayString = "${app.reindexacio.asincrona.periode}")
 	public void comprovarReindexacioAsincrona() {
-		List<String> pids = expedientRepository.findProcessInstanceIdByReindexarData();
-		for (String pid: pids) {
-			System.out.println("Reindexant ==> " + pid);
-			indexHelper.expedientIndexLuceneUpdate(
-					pid,
-					false,
-					null);
-			Expedient expedient = expedientRepository.findByProcessInstanceId(pid);
-			expedient.setReindexarData(null);
-			expedientRepository.save(expedient);
+		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
+		for (Expedient expedient: expedients) {
+			try {
+				System.out.println("Reindexant ==> " + expedient.getIdentificador());
+				indexHelper.expedientIndexLuceneUpdate(
+						expedient.getProcessInstanceId(),
+						false,
+						null);
+			} catch (Exception ex) {
+				logger.error(
+						"Error reindexant l'expedient " + expedient.getIdentificador(),
+						ex);
+				expedient.setReindexarError(true);
+			} finally {
+				expedient.setReindexarData(null);
+				expedientRepository.save(expedient);
+			}
 		}
 	}
-	
-//	@Transactional
-//	private List<String> getPidsReindexacio() {
-//		return expedientRepository.findProcessInstanceIdByReindexarData();
-//	}
-//	
-//	@Transactional
-//	private void reindexacioAsincrona (String processInstanceId) {
-//		indexHelper.expedientIndexLuceneUpdate(
-//				processInstanceId,
-//				false,
-//				null);
-//		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
-//		expedient.setReindexarData(null);
-//		expedientRepository.save(expedient);
-//	}
+
 	/**************************/
 	
 	public static void saveError(Long operacioMassivaId, Throwable error) {

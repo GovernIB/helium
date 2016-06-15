@@ -30,6 +30,8 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	List<Expedient> findByIdIn(Collection<Long> id);
 
 	Expedient findByProcessInstanceId(String processInstanceId);
+	
+	List<Expedient> findByReindexarDataNotNullOrderByReindexarDataAsc();
 
 	Expedient findByEntornIdAndTipusIdAndNumero(
 			Long entornId,
@@ -62,14 +64,6 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			Long entornId,
 			Long id);
 	
-//	Cercam els expedients que tenen data per a reindexació ordenats per aquesta data de forma ascendent.
-	@Query(	"select e.processInstanceId " +
-			"from Expedient e " +
-			"where " +
-			"   e.reindexarData is not null " +
-			"order by e.reindexarData asc")
-	List<String> findProcessInstanceIdByReindexarData();
-
 	@Query(	"from Expedient e " +
 			"where " +
 			"    e.entorn = :entorn " +

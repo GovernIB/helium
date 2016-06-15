@@ -154,6 +154,7 @@ public class ExpedientHelper {
 		dto.setDataFi(expedient.getDataFi());
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		dto.setReindexarData(expedient.getReindexarData());
+		dto.setReindexarError(expedient.isReindexarError());
 		return dto;
 	}
 
@@ -443,14 +444,6 @@ public class ExpedientHelper {
 				informacioVella,
 				informacioNova);
 		actualizarCacheExpedient(expedient);*/
-	}
-
-	public void updateError(
-			Expedient expedient,
-			String errorDescripcio,
-			String errorTrace) {
-		expedient.setErrorDesc(errorDescripcio);
-		expedient.setErrorFull(errorTrace);
 	}
 
 	public List<Expedient> findByFiltreGeneral(
