@@ -383,12 +383,15 @@ public class VariableHelper {
 			return null;
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
-			valorFontExterna = (String)(getTextPerCampAmbValor(
+			
+			ParellaCodiValorDto parella = getTextPerCampAmbValor(
 					camp,
 					valor,
 					null,
 					taskInstanceId,
-					processInstanceId).getValor());
+					processInstanceId);
+			
+			valorFontExterna = parella != null ? (String)(parella.getValor()) : "";
 		}
 		return Camp.getComText(
 				camp.getTipus(),
