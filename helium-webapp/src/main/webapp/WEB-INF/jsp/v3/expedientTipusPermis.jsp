@@ -33,7 +33,6 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="read" data-visible="false"/>
 				<th data-col-name="write" data-visible="false"/>
 				<th data-col-name="create" data-visible="false"/>
@@ -48,7 +47,10 @@
 				<th data-col-name="taskManagement" data-visible="false"/>
 				<th data-col-name="taskSupervision" data-visible="false"/>
 				<th data-col-name="taskAssign" data-visible="false"/>
-				<th data-col-name="goBack" data-visible="false"/>
+				<th data-col-name="logRead" data-visible="false"/>
+				<th data-col-name="logManage" data-visible="false"/>
+				<th data-col-name="tokenRead" data-visible="false"/>
+				<th data-col-name="tokenManage" data-visible="false"/>
 				<th data-col-name="designAdmin" data-visible="false"/>
 				<th data-col-name="designDeleg" data-visible="false"/>
 				<th data-col-name="scriptExe" data-visible="false"/>
@@ -78,7 +80,10 @@
 						{{if taskManagement}}<span class="label label-default"><spring:message code="permis.TASK_MANAGEMENT"/></span>{{/if}}
 						{{if taskSupervision}}<span class="label label-default"><spring:message code="permis.TASK_SUPERVISION"/></span>{{/if}}
 						{{if taskAssign}}<span class="label label-default"><spring:message code="permis.TASK_ASSIGN"/></span>{{/if}}
-						{{if goBack}}<span class="label label-default"><spring:message code="permis.GO_BACK"/></span>{{/if}}
+						{{if logRead}}<span class="label label-default"><spring:message code="permis.LOG_READ"/></span>{{/if}}
+						{{if logManage}}<span class="label label-default"><spring:message code="permis.LOG_MANAGE"/></span>{{/if}}
+						{{if tokenRead}}<span class="label label-default"><spring:message code="permis.TOKEN_READ"/></span>{{/if}}
+						{{if tokenManage}}<span class="label label-default"><spring:message code="permis.TOKEN_MANAGE"/></span>{{/if}}
 						{{if designAdmin}}<span class="label label-default"><spring:message code="permis.DESIGN_ADMIN"/></span>{{/if}}
 						{{if designDeleg}}<span class="label label-default"><spring:message code="permis.DESIGN_DELEG"/></span>{{/if}}
 						{{if scriptExe}}<span class="label label-default"><spring:message code="permis.SCRIPT_EXE"/></span>{{/if}}

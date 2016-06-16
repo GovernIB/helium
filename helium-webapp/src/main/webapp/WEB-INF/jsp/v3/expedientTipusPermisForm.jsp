@@ -42,7 +42,15 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="delete" textKey="permis.DELETE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="goBack" textKey="permis.GO_BACK"/></div>
+			<div class="col-sm-6"><hel:inputCheckbox name="logRead" textKey="permis.LOG_READ"/></div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6"><hel:inputCheckbox name="logManage" textKey="permis.LOG_MANAGE"/></div>
+			<div class="col-sm-6"><hel:inputCheckbox name="tokenRead" textKey="permis.TOKEN_READ"/></div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6"><hel:inputCheckbox name="tokenManage" textKey="permis.TOKEN_MANAGE"/></div>
+			<div class="col-sm-6"><hel:inputCheckbox name="defprocUpdate" textKey="permis.DEFPROC_UPDATE"/></div>
 		</div>
 		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="administration" textKey="permis.ADMINISTRATION"/></div>
@@ -75,10 +83,6 @@
 		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="manage" textKey="permis.MANAGE"/></div>
 			<div class="col-sm-6"><hel:inputCheckbox name="reassignment" textKey="permis.REASSIGNMENT"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="defprocUpdate" textKey="permis.DEFPROC_UPDATE"/></div>
 		</div>
 		<div id="modal-botons">
 			<button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button>
