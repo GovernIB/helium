@@ -39,7 +39,10 @@ public class PermisCommand {
 	private boolean taskManagement;
 	private boolean taskSupervision;
 	private boolean taskAssign;
-	private boolean goBack;
+	private boolean logRead;
+	private boolean logManage;
+	private boolean tokenRead;
+	private boolean tokenManage;
 	private boolean designAdmin;
 	private boolean designDeleg;
 	private boolean scriptExe;
@@ -155,11 +158,29 @@ public class PermisCommand {
 	public void setTaskAssign(boolean taskAssign) {
 		this.taskAssign = taskAssign;
 	}
-	public boolean isGoBack() {
-		return goBack;
+	public boolean isLogRead() {
+		return logRead;
 	}
-	public void setGoBack(boolean goBack) {
-		this.goBack = goBack;
+	public void setLogRead(boolean logRead) {
+		this.logRead = logRead;
+	}
+	public boolean isLogManage() {
+		return logManage;
+	}
+	public void setLogManage(boolean logManage) {
+		this.logManage = logManage;
+	}
+	public boolean isTokenRead() {
+		return tokenRead;
+	}
+	public void setTokenRead(boolean tokenRead) {
+		this.tokenRead = tokenRead;
+	}
+	public boolean isTokenManage() {
+		return tokenManage;
+	}
+	public void setTokenManage(boolean tokenManage) {
+		this.tokenManage = tokenManage;
 	}
 	public boolean isDesignAdmin() {
 		return designAdmin;
