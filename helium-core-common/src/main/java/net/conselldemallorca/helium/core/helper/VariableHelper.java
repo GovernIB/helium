@@ -383,12 +383,15 @@ public class VariableHelper {
 			return null;
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
-			valorFontExterna = (String)(getTextPerCampAmbValor(
+			
+			ParellaCodiValorDto parella = getTextPerCampAmbValor(
 					camp,
 					valor,
 					null,
 					taskInstanceId,
-					processInstanceId).getValor());
+					processInstanceId);
+			
+			valorFontExterna = parella != null ? (String)(parella.getValor()) : "";
 		}
 		return Camp.getComText(
 				camp.getTipus(),
@@ -458,7 +461,15 @@ public class VariableHelper {
 			} else if (camp.getEnumeracio() != null) {
 				Enumeracio enumeracio = camp.getEnumeracio();
 				for (EnumeracioValors enumValor: enumeracio.getEnumeracioValors()) {
-					if (valor == null || valor.equals(enumValor.getCodi())) {
+					String codiBo = null;
+					if (enumValor.getCodi() != null)
+						codiBo = enumValor.getCodi().replaceAll("\\p{Cntrl}", "").trim();
+					
+					String valorBo = null;
+					if (valor != null)
+						valorBo = valor.toString().replaceAll("\\p{Cntrl}", "").trim();
+					
+					if (valorBo == null || valorBo.equalsIgnoreCase(codiBo)) {
 						resposta.add(new ParellaCodiValorDto(
 								enumValor.getCodi(),
 								enumValor.getNom()));
