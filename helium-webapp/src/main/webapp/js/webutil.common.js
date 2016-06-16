@@ -14,17 +14,12 @@ function webutilModalAdjustHeight() {
 	$iframe = $(window.frameElement);
 	var modalobj = $iframe.parent().parent().parent();
 	var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
-	var maxBodyHeight = $(window.top).height() - taraModal - 62;
-	var height = $html.height();
-	if (height > maxBodyHeight) {
-		$iframe.height(maxBodyHeight + 'px');
-		$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
-		$iframe.contents().find("body").css('height', maxBodyHeight + 'px');
-	} else {
-		$iframe.parent().css('height', height + 'px');
-		$iframe.css('min-height', height + 'px');
-		$iframe.closest('div.modal-body').height(height + 'px');
-	}
+	var maxBodyHeight = $(window.top).height() - taraModal - 70;
+	var pixelsCorreccio = 15;
+	var bodyHeight = $(this).contents().find("body").outerHeight() + pixelsCorreccio;
+	$(iframe).height(bodyHeight + 'px');
+	var modalBodyHeight = (bodyHeight > maxBodyHeight) ? (maxBodyHeight + 5) : (bodyHeight + 5);
+	$('div.modal-body', modalobj).height(modalBodyHeight + 'px');
 }
 
 function webutilUrlAmbPrefix(url, prefix) {
@@ -169,6 +164,25 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 		});
 	}
 
+	$.fn.webutilBotonsTitol = function() {
+		var $heading = $('.panel-heading', $(this).closest('.panel'))
+		if ($heading) {
+			$(this).css('position', 'relative');
+			$(this).css('height', '0');
+			var headingOffset = $heading.offset();
+			var thisOffset = $(this).offset();
+			$(this).css('top', (headingOffset.top - thisOffset.top + 13) + "px");
+		}
+	}
+	$.fn.webutilBotonsTitolEval = function() {
+		$('[data-toggle="botons-titol"]', $(this)).each(function() {
+			if (!$(this).attr('data-botons-titol-eval')) {
+				$(this).webutilBotonsTitol();
+				$(this).attr('data-botons-titol-eval', 'true');
+			}
+		});
+	}
+
 	$(document).ready(function() {
 		$('[data-confirm]', $(this)).each(function() {
 			if (!$(this).attr('data-confirm-eval')) {
@@ -180,6 +194,12 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 			if (!$(this).attr('data-ajax-eval')) {
 				$(this).webutilAjax();
 				$(this).attr('data-ajax-eval', 'true');
+			}
+		});
+		$('[data-toggle="botons-titol"]', $(this)).each(function() {
+			if (!$(this).attr('data-botons-titol-eval')) {
+				$(this).webutilBotonsTitol();
+				$(this).attr('data-botons-titol-eval', 'true');
 			}
 		});
 	});

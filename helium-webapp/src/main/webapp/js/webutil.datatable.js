@@ -111,6 +111,7 @@
 						$(row).attr(
 								'data-href',
 								$(plugin.settings.rowhrefTemplate).render(data));
+						$(row).css('cursor', 'pointer');
 					}
 				},
 				preDrawCallback: function(settings_) {

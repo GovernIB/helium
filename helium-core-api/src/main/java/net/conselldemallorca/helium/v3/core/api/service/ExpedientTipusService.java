@@ -148,6 +148,25 @@ public interface ExpedientTipusService {
 			PermisDto permis) throws NoTrobatException, PermisDenegatException;
 
 	/**
+	 * Esborra un permis existent d'un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param permisId
+	 *            Atribut id del permis.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void permisDelete(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) throws NoTrobatException, PermisDenegatException;
+
+	/**
 	 * Retorna els permisos per a un tipus d'expedient.
 	 * 
 	 * @param entornId

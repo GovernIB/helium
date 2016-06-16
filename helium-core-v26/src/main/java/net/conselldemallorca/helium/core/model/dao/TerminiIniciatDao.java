@@ -51,6 +51,7 @@ public class TerminiIniciatDao extends HibernateGenericDao<TerminiIniciat, Long>
 				Restrictions.in("taskInstanceId", taskInstanceIds));
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<TerminiIniciat> findIniciatsAmbAlertesPrevies() {
 		List<TerminiIniciat> resultat = new ArrayList<TerminiIniciat>();
 		
@@ -68,6 +69,7 @@ public class TerminiIniciatDao extends HibernateGenericDao<TerminiIniciat, Long>
 		return resultat;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<TerminiIniciat> findIniciatsAmbAlertesFinals() {
 		List<TerminiIniciat> resultat = new ArrayList<TerminiIniciat>();
 		

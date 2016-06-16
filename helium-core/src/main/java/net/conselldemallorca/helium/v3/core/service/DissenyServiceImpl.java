@@ -10,13 +10,19 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
-import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -53,12 +59,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 /**
  * Servei per gestionar les tasques de disseny.
  * 
@@ -93,7 +93,7 @@ public class DissenyServiceImpl implements DissenyService {
 	private ConsultaRepository consultaRepository;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
+	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
 	private TascaRepository tascaRepository;
@@ -423,7 +423,8 @@ public class DissenyServiceImpl implements DissenyService {
 					}
 				},
 				ExpedientTipus.class,
-				permisos);
+				permisos,
+				SecurityContextHolder.getContext().getAuthentication());
 		List<ExpedientTipusDto> dtos = conversioTipusHelper.convertirList(
 				expedientsTipus,
 				ExpedientTipusDto.class);
@@ -535,7 +536,8 @@ public class DissenyServiceImpl implements DissenyService {
 				new Permission[] {
 						ExtendedPermission.ADMINISTRATION,
 						ExtendedPermission.CREATE
-				});
+				},
+				SecurityContextHolder.getContext().getAuthentication());
 		return tipus;
 	}
 	

@@ -16,6 +16,23 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -27,13 +44,13 @@ import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper.Converter;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
-import net.conselldemallorca.helium.core.helperv26.PermisosHelper;
-import net.conselldemallorca.helium.core.helperv26.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -88,23 +105,6 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
 /**
  * Servei per gestionar terminis.
  * 
@@ -142,7 +142,7 @@ public class TascaServiceImpl implements TascaService {
 	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource
+	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
@@ -296,7 +296,8 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientTipus.class,
 					new Permission[] {
 						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION});
+						ExtendedPermission.ADMINISTRATION},
+					SecurityContextHolder.getContext().getAuthentication());
 			mesuresTemporalsHelper.mesuraIniciar("CONSULTA TASQUES LLISTAT", "consulta");
 			// Calcula la data d'creacio fi pel filtre
 			if (dataCreacioFi != null) {

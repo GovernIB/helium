@@ -49,7 +49,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);		
 		model.addAttribute(
 				"relacionats",
-				expedientService.findRelacionats(expedientId));
+				expedientService.relacioFindAmbExpedient(expedientId));
 		return "v3/expedient/relacionar";
 	}
 
@@ -69,7 +69,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			SessionStatus status) {
 		ExpedientDto expedientOrig = expedientService.findAmbId(expedientId);
 		try {
-			expedientService.createRelacioExpedient(
+			expedientService.relacioCreate(
 					expedientId,
 					command.getExpedientIdDesti());
 			MissatgesHelper.success(request, getMessage(request, "expedient.relacionar.ok"));
@@ -88,7 +88,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			@RequestParam(value = "expedientIdDesti", required = true) Long expedientIdDesti,
 			Model model) {
 		try {
-			expedientService.deleteRelacioExpedient(expedientIdOrigen, expedientIdDesti);
+			expedientService.relacioDelete(expedientIdOrigen, expedientIdDesti);
 			MissatgesHelper.success(request, getMessage(request, "expedient.relacio.esborrar.ok"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"));

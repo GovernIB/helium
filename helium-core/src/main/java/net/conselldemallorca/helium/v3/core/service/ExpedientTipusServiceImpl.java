@@ -32,7 +32,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
@@ -298,7 +297,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public PermisDto permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
-			PermisDto permis) throws NoTrobatException, PermisDenegatException {
+			PermisDto permis) {
 		logger.debug(
 				"Creant permis per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
@@ -315,6 +314,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipus.class,
 				permis);
 		return null;
+	}
+
+	@Override
+	@Transactional
+	public void permisDelete(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) {
+		logger.debug(
+				"Esborrant permis per al tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"permisId=" + permisId + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		permisosHelper.deletePermis(
+				expedientTipusId,
+				ExpedientTipus.class,
+				permisId);
 	}
 
 	@Override

@@ -41,14 +41,26 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
-
 		if (expedient.isPermisAdministration()  || expedient.isPermisSupervision()) {
 			boolean detall = tipus_retroces != null && tipus_retroces == 0;
-			model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-			model.addAttribute("tipus_retroces", tipus_retroces);
-			model.addAttribute("expedient", expedient);
-			model.addAttribute("logs", expedientService.getLogsOrdenatsPerData(expedient, detall));
+			model.addAttribute(
+					"tasques",
+					expedientService.registreFindTasquesPerLogExpedient(
+							expedientId));
+			model.addAttribute(
+					"inicialProcesInstanceId",
+					expedient.getProcessInstanceId());
+			model.addAttribute(
+					"tipus_retroces",
+					tipus_retroces);
+			model.addAttribute(
+					"expedient",
+					expedient);
+			model.addAttribute(
+					"logs",
+					expedientService.registreFindLogsOrdenatsPerData(
+							expedient.getId(),
+							detall));
 		}		
 		return "v3/expedientLog";
 	}
@@ -64,7 +76,10 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			Model model) {
 		boolean response = false;
 		try {
-			expedientService.retrocedirFinsLog(logId, tipus_retroces == null || tipus_retroces != 0);
+			expedientService.registreRetrocedir(
+					expedientId,
+					logId,
+					tipus_retroces == null || tipus_retroces != 0);
 			MissatgesHelper.success(request, getMessage(request, "expedient.registre.correcte"));
 			response = true;
 		} catch (JbpmException ex ) {
@@ -81,28 +96,45 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "logId", required = true) Long logId,
 			Model mod,
 			ModelMap model) {
-		model.addAttribute("logs", expedientService.findLogsRetroceditsOrdenatsPerData(logId));
-		model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
+		model.addAttribute(
+				"logs",
+				expedientService.registreFindLogsRetroceditsOrdenatsPerData(
+						expedientId,
+						logId));
+		model.addAttribute(
+				"tasques",
+				expedientService.registreFindTasquesPerLogExpedient(
+						expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
-	
+
 	@RequestMapping(value = "logAccionsTasca")
 	public String logAccionsTasca(
 			HttpServletRequest request,
 			@RequestParam(value = "id", required = true) Long expedientId,
 			@RequestParam(value = "targetId", required = true) Long targetId,
 			ModelMap model) {
-		model.addAttribute("logs", expedientService.findLogsTascaOrdenatsPerData(targetId));
-		model.addAttribute("tasques", expedientService.getTasquesPerLogExpedient(expedientId));
+		model.addAttribute(
+				"logs",
+				expedientService.registreFindLogsTascaOrdenatsPerData(
+						expedientId,
+						targetId));
+		model.addAttribute(
+				"tasques",
+				expedientService.registreFindTasquesPerLogExpedient(
+						expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
-	
+
 	@RequestMapping(value = "scriptForm/{logId}")
 	public String logScript(
 			HttpServletRequest request,
 			@PathVariable Long logId, 
 			ModelMap model) {
-		model.addAttribute("log", expedientService.findLogById(logId));
+		model.addAttribute(
+				"log",
+				expedientService.registreFindLogById(
+						logId));
 		return "v3/expedient/logScript";
 	}
 
