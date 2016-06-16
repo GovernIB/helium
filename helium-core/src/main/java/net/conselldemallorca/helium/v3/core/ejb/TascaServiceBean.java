@@ -178,11 +178,9 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void guardar(
 			String taskId,
-			Long expedientId,
 			Map<String, Object> variables) {
 		delegate.guardar(
 				taskId,
-				expedientId,
 				variables);
 	}
 
@@ -190,29 +188,25 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void validar(
 			String tascaId,
-			Long expedientId,
 			Map<String, Object> variables) {
 		delegate.validar(
 				tascaId,
-				expedientId,
 				variables);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void restaurar(String tascaId, Long expedientId) {
-		delegate.restaurar(tascaId, expedientId);
+	public void restaurar(String tascaId) {
+		delegate.restaurar(tascaId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void completar(
 			String tascaId,
-			Long expedientId,
 			String outcome) {
 		delegate.completar(
 				tascaId,
-				expedientId,
 				outcome);
 	}
 
@@ -277,8 +271,8 @@ public class TascaServiceBean implements TascaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String tascaId, String token, byte[] signatura) throws Exception {
-		return delegate.signarDocumentTascaAmbToken(expedientId, docId, tascaId, token, signatura);
+	public boolean signarDocumentTascaAmbToken(Long docId, String tascaId, String token, byte[] signatura) throws Exception {
+		return delegate.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
 	}
 
 	@Override

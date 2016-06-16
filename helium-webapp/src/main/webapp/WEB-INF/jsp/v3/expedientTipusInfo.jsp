@@ -122,6 +122,8 @@
 					<dd><spring:message code="comu.${expedientTipus.demanaNumero}"></spring:message></dd>
 					<dt><spring:message code="expedient.tipus.info.camp.permet.retroaccio"/></dt>
 					<dd><spring:message code="comu.${expedientTipus.ambRetroaccio}"></spring:message></dd>
+					<dt><spring:message code="expedient.tipus.info.camp.permet.reindexacioAsincrona"/></dt>
+					<dd><spring:message code="comu.${expedientTipus.reindexacioAsincrona}"></spring:message></dd>
 					<c:if test="${not empty expedientTipus.responsableDefecteCodi}">
 						<dt><spring:message code="expedient.tipus.info.camp.reponsable.defecte"></spring:message></dt>
 						<dd>${responsableDefecte.nomSencer}</dd></c:if>

@@ -12,7 +12,7 @@
 	</c:when>
 	<c:otherwise>
 		<c:set var="titol"><spring:message code="expedient.tipus.form.titol.modificar"/></c:set>
-		<c:set var="formAction">modificar</c:set>
+		<c:set var="formAction">update</c:set>
 	</c:otherwise>
 </c:choose>
 
@@ -132,9 +132,10 @@
 			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="../../tasca/persona/suggestInici" urlConsultaLlistat="../../tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
 			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" />
 			<hel:inputCheckbox name="seleccionarAny" textKey="expedient.tipus.form.camp.seleccionarAny" />
-			<c:if test="${potAdministrar}">
+<%-- 			<c:if test="${potAdministrar}"> --%>
 				<hel:inputCheckbox name="ambRetroaccio" textKey="expedient.tipus.form.camp.ambRetroaccio" />
-			</c:if>
+				<hel:inputCheckbox name="reindexacioAsincrona" textKey="expedient.tipus.form.camp.reindexacioAsincrona" />
+<%-- 			</c:if> --%>
 		</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>

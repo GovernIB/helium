@@ -851,7 +851,6 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public boolean signarDocumentTascaAmbToken(
-			Long expedientId, 
 			Long docId, 
 			String tascaId,
 			String token,
@@ -860,7 +859,6 @@ public class TascaServiceImpl implements TascaService {
 		DocumentDto dto = documentHelper.signarDocumentTascaAmbToken(docId, tascaId, token, signatura);
 		if (dto != null) {
 			expedientRegistreHelper.crearRegistreSignarDocument(
-					expedientId,
 					dto.getProcessInstanceId(),
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					dto.getDocumentCodi());
@@ -933,7 +931,6 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void guardar(
 			String taskId,
-			Long expedientId,
 			Map<String, Object> variables) {
 		logger.debug("Guardant les dades del formulari de la tasca (" +
 				"taskId=" + taskId + ", " +
@@ -944,9 +941,10 @@ public class TascaServiceImpl implements TascaService {
 				taskId,
 				true,
 				true);
+		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
 				taskId,
-				expedientId,
+				expedient.getId(),
 				ExpedientLogAccioTipus.TASCA_FORM_GUARDAR,
 				null,
 				usuari);
@@ -961,7 +959,7 @@ public class TascaServiceImpl implements TascaService {
 		if (task.getStartTime() == null) {
 			Registre registre = new Registre(
 					new Date(),
-					expedientId,
+					expedient.getId(),
 					usuari,
 					Registre.Accio.MODIFICAR,
 					Registre.Entitat.TASCA,
@@ -976,7 +974,6 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void validar(
 			String tascaId,
-			Long expedientId,
 			Map<String, Object> variables) {
 		logger.debug("Validant el formulari de la tasca (" +
 				"tascaId=" + tascaId + ", " +
@@ -987,9 +984,10 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				true,
 				true);
+		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
 				tascaId,
-				expedientId,
+				expedient.getId(),
 				ExpedientLogAccioTipus.TASCA_FORM_VALIDAR,
 				null,
 				usuari);
@@ -1003,7 +1001,7 @@ public class TascaServiceImpl implements TascaService {
 		
 		Registre registre = new Registre(
 				new Date(),
-				expedientId,
+				expedient.getId(),
 				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
@@ -1016,8 +1014,7 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional
 	public void restaurar(
-			String tascaId,
-			Long expedientId) {
+			String tascaId) {
 		logger.debug("Restaurant el formulari de la tasca (" +
 				"tascaId=" + tascaId + ", " +
 				"variables=...)");
@@ -1027,9 +1024,10 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				true,
 				true);
+		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
 				tascaId,
-				expedientId,
+				expedient.getId(),
 				ExpedientLogAccioTipus.TASCA_FORM_RESTAURAR,
 				null,
 				usuari);
@@ -1040,7 +1038,7 @@ public class TascaServiceImpl implements TascaService {
 //				task.getProcessDefinitionId());
 		Registre registre = new Registre(
 				new Date(),
-				expedientId,
+				expedient.getId(),
 				usuari,
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
@@ -1084,7 +1082,6 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void completar(
 			String tascaId,
-			Long expedientId,
 			String outcome) {
 		logger.debug("Completant la tasca (" +
 				"tascaId=" + tascaId + ", " +
@@ -1107,6 +1104,7 @@ public class TascaServiceImpl implements TascaService {
 		
 		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
 		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
+		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
 		if (tasca.isFinalitzacioSegonPla()) {
 			//cridar command per a marcar la tasca per a finalitzar en segón pla
 			Date marcadaFinalitzar = new Date();
@@ -1115,14 +1113,14 @@ public class TascaServiceImpl implements TascaService {
 			
 			expedientLoggerHelper.afegirLogExpedientPerTasca(
 					tascaId,
-					expedientId,
+					expedient.getId(),
 					ExpedientLogAccioTipus.TASCA_MARCAR_FINALITZAR,
 					outcome,
 					usuari);
 		} else {
 			completarTasca(
 					tascaId,
-					expedientId,
+					expedient.getId(),
 					task,
 					outcome,
 					usuari);
@@ -1235,7 +1233,7 @@ public class TascaServiceImpl implements TascaService {
 							delegationInfo.getSourceTaskId());
 					if (!delegationInfo.isSupervised()) {
 						// Si no es supervisada també finalitza la tasca original
-						completar(taskOriginal.getId(), expedientId, outcome);
+						completar(taskOriginal.getId(), outcome);
 					}
 					tascaHelper.deleteDelegationInfo(taskOriginal);
 				}

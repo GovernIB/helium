@@ -1763,10 +1763,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		expedient.setErrorDesc(errorDesc);
 		expedient.setErrorFull(errorFull);
 		expedientRepository.save(expedient);
-//		expedientHelper.updateError(
-//				expedient,
-//				errorDesc,
-//				errorFull);
 	}
 
 	@Override

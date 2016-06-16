@@ -93,6 +93,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+		entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		if (expedientTipus.isReiniciarCadaAny()) {
 			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
@@ -158,6 +159,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Només poden configurar la retroacció els dissenyadors de l'entorn
 		if (entornHelper.potDissenyarEntorn(entornId)) {
 			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+			entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		}
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),

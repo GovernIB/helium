@@ -196,6 +196,11 @@
 					<c:param name="type" value="checkbox"/>
 					<c:param name="label"><fmt:message key="expedient.tipus.form.amb_retroaccio"/></c:param>
 				</c:import>
+				<c:import url="../common/formElement.jsp">
+					<c:param name="property" value="reindexacioAsincrona"/>
+					<c:param name="type" value="checkbox"/>
+					<c:param name="label"><fmt:message key="expedient.tipus.form.reindexacio_asincrona"/></c:param>
+				</c:import>
 			</security:accesscontrollist>
 		</div>
 		<c:import url="../common/formElement.jsp">

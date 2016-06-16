@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
@@ -117,6 +118,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private MailHelper mailHelper;
+	@Resource
+	private IndexHelper indexHelper;
 	
 	@Autowired
 	private TascaService tascaService;
@@ -882,19 +885,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			expedient = ome.getExpedient().getTipus().getNom();
 		}
 		try {
-			Long expedientId = ome.getExpedient().getId();
 			ome.setDataInici(new Date());
 			if ("Guardar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Guardar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Map<String, Object> valors = (Map<String, Object>)param2[1]; 
-				tascaService.guardar(tascaId, expedientId, valors);
+				tascaService.guardar(tascaId, valors);
 				mesuresTemporalsHelper.mesuraCalcular("Guardar", "massiva_tasca", expedient, tasca);
 			} else if ("Validar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Validar", "massiva_tasca", expedient, tasca);
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Map<String, Object> valors = (Map<String, Object>)param2[1];
-				tascaService.validar(tascaId, expedientId, valors);
+				tascaService.validar(tascaId, valors);
 				mesuresTemporalsHelper.mesuraCalcular("Validar", "massiva_tasca", expedient, tasca);
 			} else if ("Completar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Completar", "massiva_tasca", expedient, tasca);
@@ -903,12 +905,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				String transicio = (String)param2[1];
 				Long ea = EntornActual.getEntornId();
 				EntornActual.setEntornId(entornId);
-				tascaService.completar(tascaId, expedientId, transicio);
+				tascaService.completar(tascaId, transicio);
 				EntornActual.setEntornId(ea);
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Restaurar", "massiva_tasca", expedient, tasca);
-				tascaService.restaurar(tascaId, expedientId);
+				tascaService.restaurar(tascaId);
 				mesuresTemporalsHelper.mesuraCalcular("Restaurar", "massiva_tasca", expedient, tasca);
 			} else if ("Accio".equals(accio)) {
 				mesuresTemporalsHelper.mesuraIniciar("Executar accio", "massiva_tasca", expedient, tasca);
@@ -1229,7 +1231,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			expedientService.luceneReindexarExpedient(exp.getId());
+			indexHelper.expedientIndexLuceneUpdate(exp.getProcessInstanceId());
+//			expedientService.luceneReindexarExpedient(exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);

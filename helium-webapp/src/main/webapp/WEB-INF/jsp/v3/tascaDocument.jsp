@@ -54,14 +54,14 @@
 				
 		<c:choose>
 			<c:when test="${isModal}">
-				<c:url var="tascaDocumentAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
-				<c:url var="documentGenerarAction" value='/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
-				<c:url var="documentBorrarAction" value="/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
+				<c:url var="tascaDocumentAction" value="/modal/v3/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
+				<c:url var="documentGenerarAction" value='/modal/v3/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
+				<c:url var="documentBorrarAction" value="/modal/v3/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
 			</c:when>
 			<c:otherwise>
-				<c:url var="tascaDocumentAction" value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
-				<c:url var="documentGenerarAction" value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
-				<c:url var="documentBorrarAction" value="/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
+				<c:url var="tascaDocumentAction" value="/v3/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
+				<c:url var="documentGenerarAction" value='/v3/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
+				<c:url var="documentBorrarAction" value="/v3/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
 			</c:otherwise>
 		</c:choose>
 	
@@ -79,7 +79,7 @@
 							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
-					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/expedient/${expedientId}/tasca/${tasca.id}/document/${document.documentCodi}/descarregar'/>">
+					<a title="<spring:message code='comuns.descarregar' />" class="icon <c:if test="${empty document.tokenSignatura}">hide</c:if>" id="downloadUrl${document.id}" href="<c:url value='/v3/tasca/${tasca.id}/document/${document.documentCodi}/descarregar'/>">
 						<i class="fa fa-download"></i>
 					</a>
 					<c:if test="${!bloquejarEdicioTasca}">

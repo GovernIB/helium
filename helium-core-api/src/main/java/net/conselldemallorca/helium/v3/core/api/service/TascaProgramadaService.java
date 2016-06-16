@@ -6,4 +6,5 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 
 public interface TascaProgramadaService {
 	public void comprovarExecucionsMassives() throws NoTrobatException, ExecucioMassivaException;
+	public void comprovarReindexacioAsincrona() throws NoTrobatException;
 }

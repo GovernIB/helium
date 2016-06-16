@@ -86,7 +86,7 @@
 												<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/> <span class="caret"></span></a>
 												<ul id="dropdown-menu-tasca-${tasca.id}" class="dropdown-menu">
 													<c:if test="${tasca.open and not tasca.suspended and tasca.assignee == dadesPersona.codi and tasca.assignadaUsuariActual}">
-														<li><a id="tramitar-tasca-${tasca.id}" href="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}" class="icon" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
+														<li><a id="tramitar-tasca-${tasca.id}" href="${modalPrefix}../v3/tasca/${tasca.id}" class="icon" data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},false);" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><span class="fa fa-folder-open"></span> <spring:message code="tasca.llistat.accio.tramitar"/></a></li>
 														<c:if test="${tasca.tascaTramitacioMassiva}">
 															<li><a href="${modalPrefix}../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 														</c:if>

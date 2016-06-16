@@ -62,7 +62,7 @@
 							<c:if test="${!bloquejarEdicioTasca}">
 								<div id="firmar${document.id}">
 									<c:if test="${not document.signat}">
-										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/expedient/${expedientId}/tasca/${tasca.id}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
+										<form:form id="form${document.id}" action="${globalProperties['app.base.url']}/modal/v3/tasca/${tasca.id}/signarAmbToken" cssClass="uniForm" method="POST" onsubmit="return false;">
 											<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
 											<input type="hidden" id="taskId${document.id}" name="taskId" value="${tasca.id}"/>
 											<input type="hidden" id="token${document.id}" name="token" value="${document.tokenSignatura}"/>
@@ -93,7 +93,7 @@
 							<script type="text/javascript">
 							// <![CDATA[
 								$(document).ready( function() {
-									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/expedient/${expedientId}/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
+									$("#iconos${document.id}").load('<c:url value="/nodeco/v3/tasca/${tasca.id}/icones/${document.id}"/>');// Comprobar fichero
 									
 									$.get("${sourceUrl}?token=${document.tokenSignatura}")
 									.done(function(data) {})

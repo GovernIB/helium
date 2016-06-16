@@ -80,6 +80,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
+	private boolean reindexacioAsincrona;
 	
 
 	@MaxLength(64)
@@ -278,6 +279,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	}
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
+	}
+	
+	@Column(name="reindexacio_asincrona")
+	public boolean isReindexacioAsincrona() {
+		return reindexacioAsincrona;
+	}
+	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
+		this.reindexacioAsincrona = reindexacioAsincrona;
 	}
 	
 	@Column(name="sistra_codtra", length=64, unique=true)
