@@ -68,7 +68,7 @@ public class EnumeracioValors implements Serializable {
 
 	@Column(name="codi", length=64, nullable=false)
 	public String getCodi() {
-		return this.codi;
+		return this.codi.replaceAll("\\p{Cntrl}", "").trim();
 	}
 	public void setCodi(String codi) {
 		this.codi = codi;
