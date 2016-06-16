@@ -982,7 +982,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				Long definicioProcesId = (Long)param2[0];
 				Long expedientProcesInstanceId = Long.parseLong(exp.getProcessInstanceId());
 				DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
-				expedientService.canviVersioDefinicioProces(exp.getProcessInstanceId(), definicioProces.getVersio());
+				expedientService.procesDefinicioProcesActualitzar(exp.getProcessInstanceId(), definicioProces.getVersio());
 				
 				// Subprocessos
 				Long[] subProcesIds = (Long[])param2[1];
@@ -992,14 +992,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					for (InstanciaProcesDto ip : arbreProcessos) {
 						int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
 						if (versio != -1)
-							expedientService.canviVersioDefinicioProces(ip.getId(), versio);
+							expedientService.procesDefinicioProcesActualitzar(ip.getId(), versio);
 					}
 				}
 			} else {
 				Integer versio = (Integer)deserialize(ome.getExecucioMassiva().getParam2());
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 				ome.setExpedient(expedient);
-				expedientService.canviVersioDefinicioProces(ome.getProcessInstanceId(), versio);
+				expedientService.procesDefinicioProcesActualitzar(ome.getProcessInstanceId(), versio);
 			}
 			
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
@@ -1035,7 +1035,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} else {
 				script = (String)param2;
 			}
-			expedientService.evaluateScript(exp.getId(), script, exp.getProcessInstanceId());
+			expedientService.procesScriptExec(
+					exp.getId(),
+					exp.getProcessInstanceId(),
+					script);
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
@@ -1268,7 +1271,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			expedientService.buidarLogExpedient(exp.getProcessInstanceId());
+			expedientService.registreBuidarLog(
+					exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);

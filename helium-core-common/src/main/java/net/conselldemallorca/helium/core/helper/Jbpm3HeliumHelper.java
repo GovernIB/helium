@@ -1021,10 +1021,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void reprendreExpedient(String processInstanceId) throws Exception{
+	public void desfinalitzarExpedient(String processInstanceId) throws Exception{
 		logger.debug("reprendreExpedient (" +
 				"processInstanceId=" + processInstanceId + ")");
-		jbpmHelper.reprendreExpedient(processInstanceId);
+		jbpmHelper.desfinalitzarExpedient(processInstanceId);
 	}
 	
 	@Override

@@ -21,7 +21,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<div class="botons-titol text-right">
+	<div class="text-right" data-toggle="botons-titol">
 		<a class="btn btn-default" href="permis/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.permis.accio.nou"/></a>
 	</div>
 	<table	id="expedientTipus"
@@ -39,7 +39,26 @@
 				<th data-col-name="create" data-visible="false"/>
 				<th data-col-name="delete" data-visible="false"/>
 				<th data-col-name="administration" data-visible="false"/>
+				<th data-col-name="cancel" data-visible="false"/>
+				<th data-col-name="stop" data-visible="false"/>
+				<th data-col-name="relate" data-visible="false"/>
+				<th data-col-name="dataManagement" data-visible="false"/>
+				<th data-col-name="docManagement" data-visible="false"/>
+				<th data-col-name="termManagement" data-visible="false"/>
+				<th data-col-name="taskManagement" data-visible="false"/>
+				<th data-col-name="taskSupervision" data-visible="false"/>
+				<th data-col-name="taskAssign" data-visible="false"/>
+				<th data-col-name="goBack" data-visible="false"/>
+				<th data-col-name="designAdmin" data-visible="false"/>
+				<th data-col-name="designDeleg" data-visible="false"/>
+				<th data-col-name="scriptExe" data-visible="false"/>
+				<th data-col-name="undoEnd" data-visible="false"/>
+				<th data-col-name="defprocUpdate" data-visible="false"/>
 				<th data-col-name="design" data-visible="false"/>
+				<th data-col-name="organization" data-visible="false"/>
+				<th data-col-name="supervision" data-visible="false"/>
+				<th data-col-name="manage" data-visible="false"/>
+				<th data-col-name="reassignment" data-visible="false"/>
 				<th data-col-name="principalNom" width="20%"><spring:message code="expedient.tipus.permis.columna.principal"/></th>
 				<th data-col-name="principalTipus" width="20%"><spring:message code="expedient.tipus.permis.columna.tipus"/></th>
 				<th data-col-name="id" data-template="#cellPermisosTemplate" data-orderable="false" width="50%">
@@ -50,7 +69,26 @@
 						{{if write}}<span class="label label-default"><spring:message code="permis.WRITE"/></span>{{/if}}
 						{{if create}}<span class="label label-default"><spring:message code="permis.CREATE"/></span>{{/if}}
 						{{if delete}}<span class="label label-default"><spring:message code="permis.DELETE"/></span>{{/if}}
-						{{if design}}<span class="label label-default"><spring:message code="permis.DESIGN"/></span>{{/if}}
+						{{if cancel}}<span class="label label-default"><spring:message code="permis.CANCEL"/></span>{{/if}}
+						{{if stop}}<span class="label label-default"><spring:message code="permis.STOP"/></span>{{/if}}
+						{{if relate}}<span class="label label-default"><spring:message code="permis.RELATE"/></span>{{/if}}
+						{{if dataManagement}}<span class="label label-default"><spring:message code="permis.DATA_MANAGEMENT"/></span>{{/if}}
+						{{if docManagement}}<span class="label label-default"><spring:message code="permis.DOC_MANAGEMENT"/></span>{{/if}}
+						{{if termManagement}}<span class="label label-default"><spring:message code="permis.TERM_MANAGEMENT"/></span>{{/if}}
+						{{if taskManagement}}<span class="label label-default"><spring:message code="permis.TASK_MANAGEMENT"/></span>{{/if}}
+						{{if taskSupervision}}<span class="label label-default"><spring:message code="permis.TASK_SUPERVISION"/></span>{{/if}}
+						{{if taskAssign}}<span class="label label-default"><spring:message code="permis.TASK_ASSIGN"/></span>{{/if}}
+						{{if goBack}}<span class="label label-default"><spring:message code="permis.GO_BACK"/></span>{{/if}}
+						{{if designAdmin}}<span class="label label-default"><spring:message code="permis.DESIGN_ADMIN"/></span>{{/if}}
+						{{if designDeleg}}<span class="label label-default"><spring:message code="permis.DESIGN_DELEG"/></span>{{/if}}
+						{{if scriptExe}}<span class="label label-default"><spring:message code="permis.SCRIPT_EXE"/></span>{{/if}}
+						{{if undoEnd}}<span class="label label-default"><spring:message code="permis.UNDO_END"/></span>{{/if}}
+						{{if defprocUpdate}}<span class="label label-default"><spring:message code="permis.DEFPROC_UPDATE"/></span>{{/if}}
+						{{if design}}<span class="label label-default"><spring:message code="permis.ORGANIZATION"/></span>{{/if}}
+						{{if organization}}<span class="label label-default"><spring:message code="permis.DESIGN"/></span>{{/if}}
+						{{if supervision}}<span class="label label-default"><spring:message code="permis.SUPERVISION"/></span>{{/if}}
+						{{if manage}}<span class="label label-default"><spring:message code="permis.MANAGE"/></span>{{/if}}
+						{{if reassignment}}<span class="label label-default"><spring:message code="permis.REASSIGNMENT"/></span>{{/if}}
 					</script>
 				</th>
 				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">

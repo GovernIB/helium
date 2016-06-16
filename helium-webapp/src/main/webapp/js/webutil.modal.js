@@ -53,9 +53,7 @@
 								'					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
 								'					<h4 class="modal-title"></h4>' +
 								'				</div>' +
-								'				<div class="modal-body" style="padding:0">' +
-								'					<iframe frameborder="0" height="100" width="100%"></iframe>' +
-								'				</div>' +
+								'				<div class="modal-body" style="padding:0"><iframe frameborder="0" height="100" width="100%"></iframe></div>' +
 								'				<div class="modal-footer"></div>' +
 								'			</div>' +
 								'		</div>' +
@@ -167,17 +165,12 @@
 						} else if (settings.adjustHeight) {
 							var modalobj = $(iframe).parent().parent().parent();
 							var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
-							var maxBodyHeight = $(window.top).height() - taraModal - 62;
-							var height = $(this).contents().find("html").height();
-							if (height > maxBodyHeight) {
-								$(iframe).height(maxBodyHeight + 'px');
-								$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
-								$(iframe).contents().find("body").css('height', maxBodyHeight + 'px');
-							} else {
-								$(iframe).parent().css('height', height + 'px');
-								$(iframe).css('min-height', height + 'px');
-								$(iframe).closest('div.modal-body').height(height + 'px');
-							}
+							var maxBodyHeight = $(window.top).height() - taraModal - 70;
+							var pixelsCorreccio = 15;
+							var bodyHeight = $(this).contents().find("body").outerHeight() + pixelsCorreccio;
+							$(iframe).height(bodyHeight + 'px');
+							var modalBodyHeight = (bodyHeight > maxBodyHeight) ? (maxBodyHeight + 5) : (bodyHeight + 5);
+							$('div.modal-body', modalobj).height(modalBodyHeight + 'px');
 						}
 					});
 				});

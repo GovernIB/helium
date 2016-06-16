@@ -114,6 +114,18 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void permisDelete(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) throws NoTrobatException, PermisDenegatException {
+		delegate.permisDelete(
+				entornId,
+				expedientTipusId,
+				permisId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PermisDto> permisFindAll(
 			Long entornId,
 			Long expedientTipusId) {

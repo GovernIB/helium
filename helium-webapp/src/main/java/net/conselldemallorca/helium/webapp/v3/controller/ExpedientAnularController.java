@@ -64,7 +64,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 				return "v3/expedient/anular";
 			}
 			try {
-				expedientService.cancel(expedientId, cancelExpedient.getMotiu());
+				expedientService.anular(expedientId, cancelExpedient.getMotiu());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.anulat") );
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
@@ -83,7 +83,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			Model model) {
 		try {
-			expedientService.activa(expedientId);
+			expedientService.desanular(expedientId);
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.reactivat") );
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"));

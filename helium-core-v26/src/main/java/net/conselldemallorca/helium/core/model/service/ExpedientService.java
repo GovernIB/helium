@@ -1269,7 +1269,7 @@ public class ExpedientService {
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
 				null);
-		jbpmHelper.reprendreExpedient(processInstanceId);
+		jbpmHelper.desfinalitzarExpedient(processInstanceId);
 		expedient.setDataFi(null);
 		if (expedientLog != null)
 			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);

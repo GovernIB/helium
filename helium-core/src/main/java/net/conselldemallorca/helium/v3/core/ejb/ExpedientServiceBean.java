@@ -369,60 +369,153 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void cancel(
+	public void reprendre(Long id) {
+		delegate.reprendre(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void anular(
 			Long id,
 			String motiu) {
-		delegate.cancel(id, motiu);
+		delegate.anular(id, motiu);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void createRelacioExpedient(
+	public void desanular(Long id) {
+		delegate.desanular(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void relacioCreate(
 			Long origenId,
 			Long destiId) {
-		delegate.createRelacioExpedient(origenId, destiId);
+		delegate.relacioCreate(origenId, destiId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void deleteRelacioExpedient(
+	public void relacioDelete(
 			Long origenId,
 			Long destiId) {
-		delegate.deleteRelacioExpedient(origenId, destiId);
+		delegate.relacioDelete(origenId, destiId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientDto> findRelacionats(Long id) {
-		return delegate.findRelacionats(id);
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<AlertaDto> findAlertes(Long id) {
-		return delegate.findAlertes(id);
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Object[] findErrorsExpedient(Long id) {
-		return delegate.findErrorsExpedient(id);
+	public List<ExpedientDto> relacioFindAmbExpedient(Long id) {
+		return delegate.relacioFindAmbExpedient(id);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public String canviVersioDefinicioProces(
+	public void procesScriptExec(
+			Long expedientId,
+			String processInstanceId,
+			String script) {
+		delegate.procesScriptExec(
+				expedientId,
+				processInstanceId,
+				script);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void procesDefinicioProcesActualitzar(
 			String processInstanceId,
 			int versio) {
-		return delegate.canviVersioDefinicioProces(
+		delegate.procesDefinicioProcesActualitzar(
 				processInstanceId,
 				versio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void evaluateScript(Long expedientId, String script, String processInstanceId) {
-		delegate.evaluateScript(expedientId, script, processInstanceId);
+	public void procesDefinicioProcesCanviVersio(
+			Long expedientId, 
+			Long definicioProcesId, 
+			Long[] subProcesIds,
+			List<DefinicioProcesExpedientDto> subDefinicioProces) {
+		delegate.procesDefinicioProcesCanviVersio(
+				expedientId, 
+				definicioProcesId, 
+				subProcesIds, 
+				subDefinicioProces);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
+			Long expedientId,
+			boolean detall) {
+		return delegate.registreFindLogsOrdenatsPerData(expedientId, detall);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
+			Long expedientId) {
+		return delegate.registreFindTasquesPerLogExpedient(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void registreRetrocedir(
+			Long expedientId,
+			Long logId,
+			boolean retrocedirPerTasques) {
+		delegate.registreRetrocedir(
+				expedientId,
+				logId,
+				retrocedirPerTasques);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void registreBuidarLog(
+			Long expedientId) {
+		delegate.registreBuidarLog(
+				expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
+			Long expedientId,
+			Long logId) {
+		return delegate.registreFindLogsTascaOrdenatsPerData(
+				expedientId,
+				logId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
+			Long expedientId,
+			Long logId) {
+		return delegate.registreFindLogsRetroceditsOrdenatsPerData(
+				expedientId,
+				logId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientLogDto registreFindLogById(Long logId) {
+		return delegate.registreFindLogById(logId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AlertaDto> findAlertes(Long id) {
+		return delegate.findAlertes(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Object[] findErrorsExpedient(Long id) {
+		return delegate.findErrorsExpedient(id);
 	}
 
 	@Override
@@ -435,36 +528,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<InstanciaProcesDto> getArbreInstanciesProces(Long processInstanceId) {
 		return delegate.getArbreInstanciesProces(processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall) {
-		return delegate.getLogsOrdenatsPerData(expedient, detall);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId) {
-		return delegate.getTasquesPerLogExpedient(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void retrocedirFinsLog(Long logId, boolean retrocedirPerTasques) {
-		delegate.retrocedirFinsLog(logId, retrocedirPerTasques);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId) {
-		return delegate.findLogsTascaOrdenatsPerData(targetId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId) {
-		return delegate.findLogsRetroceditsOrdenatsPerData(logId);
 	}
 
 	@Override
@@ -649,12 +712,6 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void buidarLogExpedient(String processInstanceId) {
-		delegate.buidarLogExpedient(processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor) {
 		delegate.updateVariable(expedientId, processInstanceId, varName, varValor);
 	}
@@ -685,12 +742,6 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientLogDto findLogById(Long logId) {
-		return delegate.findLogById(logId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) {
 		return delegate.findTasquesPerInstanciaProces(expedientId, processInstanceId, mostrarDeOtrosUsuarios);
 	}
@@ -705,18 +756,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void createVariable(Long expedientId, String processInstanceId, String varName, Object value) {
 		delegate.createVariable(expedientId, processInstanceId, varName, value);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void activa(Long id) {
-		delegate.activa(id);
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reprendre(Long id) {
-		delegate.reprendre(id);
 	}
 	
 	@Override
@@ -809,17 +848,4 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.findDocumentsPendentsPortasignatures(processInstanceId);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void canviVersioDefinicionsProces(
-			Long expedientId, 
-			Long definicioProcesId, 
-			Long[] subProcesIds,
-			List<DefinicioProcesExpedientDto> subDefinicioProces) {
-		delegate.canviVersioDefinicionsProces(
-				expedientId, 
-				definicioProcesId, 
-				subProcesIds, 
-				subDefinicioProces);
-	}
 }

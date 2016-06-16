@@ -73,10 +73,10 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			return "v3/expedient/execucions";
 		}
 		try {
-			expedientService.evaluateScript(
+			expedientService.procesScriptExec(
 					expedientId,
-					expedientEinesScriptCommand.getScript(),
-					expedientEinesScriptCommand.getScriptProcessId());
+					expedientEinesScriptCommand.getScriptProcessId(),
+					expedientEinesScriptCommand.getScript());
 			MissatgesHelper.success(request, getMessage(request, "info.script.executat"));
 		} catch (PermisDenegatException ex) {
 			logger.error("ENTORNID:"+entorn.getId()+" NUMEROEXPEDIENT:"+expedientId+" No disposa de permisos per a executar scripts");
