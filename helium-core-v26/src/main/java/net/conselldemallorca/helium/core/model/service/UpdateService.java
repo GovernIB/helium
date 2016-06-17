@@ -56,10 +56,12 @@ public class UpdateService {
 	public static final int VERSIO_300_ORDRE = 300;
 	public static final String VERSIO_310_STR = "3.1.0";
 	public static final int VERSIO_310_ORDRE = 310;
-	public static final String VERSIO_ACTUAL_STR = "3.1.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 310;
+	public static final String VERSIO_320_STR = "3.2.0";
+	public static final int VERSIO_320_ORDRE = 320;
+	public static final String VERSIO_ACTUAL_STR = "3.2.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 320;
 
-	public static final int VERSIO_ACTUAL_RELEASE = 13;
+	public static final int VERSIO_ACTUAL_RELEASE = 0;
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;

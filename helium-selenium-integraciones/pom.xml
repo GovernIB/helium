@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.1</version>
+		<version>3.2</version>
 	</parent>
 	<artifactId>helium-selenium-integraciones</artifactId>
 	<properties>
