@@ -1021,10 +1021,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void reprendreExpedient(String processInstanceId) throws Exception{
+	public void desfinalitzarExpedient(String processInstanceId) throws Exception{
 		logger.debug("reprendreExpedient (" +
 				"processInstanceId=" + processInstanceId + ")");
-		jbpmHelper.reprendreExpedient(processInstanceId);
+		jbpmHelper.desfinalitzarExpedient(processInstanceId);
 	}
 	
 	@Override
@@ -1763,10 +1763,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		expedient.setErrorDesc(errorDesc);
 		expedient.setErrorFull(errorFull);
 		expedientRepository.save(expedient);
-//		expedientHelper.updateError(
-//				expedient,
-//				errorDesc,
-//				errorFull);
 	}
 
 	@Override

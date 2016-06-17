@@ -80,6 +80,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
+	private boolean reindexacioAsincrona;
 	/** Indica si el tipus d'expedient té lligada la informació de les variables, agrupacions i documents
 	 * directament o a través de la definició de procesos tal i com s'ha fet fins ara.
 	 */
@@ -295,6 +296,14 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.ambInfoPropia = ambInfoPropia;
 	}
 
+	@Column(name="reindexacio_asincrona")
+	public boolean isReindexacioAsincrona() {
+		return reindexacioAsincrona;
+	}
+	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
+		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
+	
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {
 		return sistraTramitCodi;

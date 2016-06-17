@@ -687,7 +687,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @throws Exception
 	 */
 	public void reprendreExpedient(String processInstanceId) throws Exception {
-		Jbpm3HeliumBridge.getInstanceService().reprendreExpedient(processInstanceId);
+		Jbpm3HeliumBridge.getInstanceService().desfinalitzarExpedient(processInstanceId);
 	}
 
 	/**

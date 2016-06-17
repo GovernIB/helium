@@ -229,6 +229,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute(new PermisCommand());
 		return "v3/expedientTipusPermisForm";
 	}
+	@RequestMapping(value = "/{id}/permis/new", method = RequestMethod.POST)
+	public String permisNewPost(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@Valid PermisCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		return permisUpdatePost(
+				request,
+				id,
+				null,
+				command,
+				bindingResult,
+				model);
+	}
 	@RequestMapping(value = "/{id}/permis/{permisId}", method = RequestMethod.GET)
 	public String permisUpdateGet(
 			HttpServletRequest request,
@@ -255,7 +270,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String permisUpdatePost(
 			HttpServletRequest request,
 			@PathVariable Long id,
-			@Valid ExpedientTipusCommand command,
+			@PathVariable Long permisId,
+			@Valid PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
@@ -270,9 +286,29 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     						PermisDto.class));
 			return getModalControllerReturnValueSuccess(
 					request,
-					"redirect:/v3/expedientTipusPermis",
+					"redirect:/v3/expedientTipus/" + id + "/permis",
 					"expedient.tipus.controller.permis.actualitzat");
         }
+	}
+
+	@RequestMapping(value = "/{id}/permis/{permisId}/delete")
+	public String permisDelete(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable Long permisId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.permisDelete(
+				entornActual.getId(),
+				id,
+				permisId);
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPerDissenyar(
+						entornActual.getId(),
+						id));
+		model.addAttribute(new PermisCommand());
+		return "redirect:/v3/expedientTipus/" + id + "/permis";
 	}
 
 	@RequestMapping(value = "/{id}/permis/datatable", method = RequestMethod.GET)

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.util.Date;
 import java.util.Map;
 
 
@@ -40,6 +41,15 @@ public class ExpedientConsultaDissenyDto {
 	}
 	public boolean isErrorsIntegracions() {
 		return expedient.isErrorsIntegracions();
+	}
+	public boolean isAmbErrors() {
+		return expedient.isAmbErrors();
+	}
+	public ExpedientTipusDto getTipus() {
+		return expedient.getTipus();
+	}
+	public Date getReindexarData () {
+		return expedient.getReindexarData();
 	}
 	public ExpedientDto getExpedient() {
 		return expedient;

@@ -45,6 +45,7 @@ public class ExpedientTipusCommand {
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
+	private boolean reindexacioAsincrona;
 
 	private List<String> sequenciesAny = new ArrayList<String>();
 	private List<String> sequenciesValor = new ArrayList<String>();
@@ -152,6 +153,12 @@ public class ExpedientTipusCommand {
 		this.ambRetroaccio = ambRetroaccio;
 	}
 
+	public boolean isReindexacioAsincrona() {
+		return reindexacioAsincrona;
+	}
+	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
+		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
 	public List<String> getSequenciesAny() {
 		return sequenciesAny;
 	}

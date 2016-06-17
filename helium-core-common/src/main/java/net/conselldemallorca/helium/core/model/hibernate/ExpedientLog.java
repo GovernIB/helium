@@ -70,7 +70,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		PROCES_DOCUMENT_SIGNAR,			// 30
 		EXPEDIENT_RETROCEDIR_TASQUES,
 		PROCES_LLAMAR_SUBPROCES,
-		EXPEDIENT_FINALIZTAR}
+		EXPEDIENT_FINALIZTAR,
+		EXPEDIENT_DESFINALITZAR}
 
 	public enum ExpedientLogEstat {
 		NORMAL,

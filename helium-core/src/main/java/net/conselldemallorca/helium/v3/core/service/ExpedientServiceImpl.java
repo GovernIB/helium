@@ -21,6 +21,19 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.common.JbpmVars;
@@ -131,19 +144,6 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -1713,7 +1713,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void aturar(
 			Long id,
 			String motiu) {
-		logger.debug("Aturant l'expedient (" +
+		logger.debug("Aturant la tramitació de l'expedient (" +
 				"id=" + id + ", " +
 				"motiu=" + motiu + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1722,91 +1722,54 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false,
 				false);
-		
-		expedientHelper.aturar(expedient, motiu, null);
-	}
-
-	@Override
-	@Transactional
-	public void activa(Long id) {
-		logger.debug("Activant l'expedient (id=" + id + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
-				false,
-				true,
-				false,
-				false);
-		
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
+				new Permission[] {
+						ExtendedPermission.STOP,
+						ExtendedPermission.ADMINISTRATION});*/
+		expedientHelper.aturar(
+				expedient,
+				motiu,
 				null);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		logger.debug("Reprenent les instàncies de procés associades a l'expedient (id=" + id + ")");
-		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
-				expedient.getProcessInstanceId());
-		String[] ids = new String[processInstancesTree.size()];
-		int i = 0;
-		for (JbpmProcessInstance pi: processInstancesTree)
-			ids[i++] = pi.getId();
-		jbpmHelper.resumeProcessInstances(ids);
-		expedient.setAnulat(false);
 	}
-	
 	@Override
 	@Transactional
 	public void reprendre(Long id) {
-		logger.debug("Reprenent l'expedient (id=" + id + ")");
+		logger.debug("Reprenent la tramitació de l'expedient (" +
+				"id=" + id + ")");
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.STOP,
+						ExtendedPermission.ADMINISTRATION});*/
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				false,
 				true,
 				false,
 				false);
-		
 		expedientHelper.reprendre(expedient, null);
-	}
-	
-	@Override
-	@Transactional
-	public void desfinalitzar(Long id) {
-		logger.debug("Reprenent l'expedient (id=" + id + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
-		
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
-				null);
-		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
-		logger.debug("Desfer finalització de l'expedient (id=" + id + ")");
-		
-		jbpmHelper.reprendreExpedient(expedient.getProcessInstanceId());
-		expedient.setDataFi(null);
-		expedientRegistreHelper.crearRegistreReprendreExpedient(
-				expedient.getId(),
-				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
 	@Override
 	@Transactional
-	public void cancel(
+	public void anular(
 			Long id,
 			String motiu) {
 		logger.debug("Anulant l'expedient (" +
 				"id=" + id + ", " +
 				"motiu=" + motiu + ")");
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.CANCEL,
+						ExtendedPermission.ADMINISTRATION});*/
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				false,
 				true,
 				false,
 				false);
-		
 		mesuresTemporalsHelper.mesuraIniciar(
 				"Anular",
 				"expedient",
@@ -1829,67 +1792,155 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedient",
 				expedient.getTipus().getNom());
 	}
+	@Override
+	@Transactional
+	public void desanular(Long id) {
+		logger.debug("Activant l'expedient (id=" + id + ")");
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.CANCEL,
+						ExtendedPermission.ADMINISTRATION});*/
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				false,
+				true,
+				false,
+				false);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
+				null);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		logger.debug("Reprenent les instàncies de procés associades a l'expedient (id=" + id + ")");
+		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(
+				expedient.getProcessInstanceId());
+		String[] ids = new String[processInstancesTree.size()];
+		int i = 0;
+		for (JbpmProcessInstance pi: processInstancesTree)
+			ids[i++] = pi.getId();
+		jbpmHelper.resumeProcessInstances(ids);
+		expedient.setAnulat(false);
+	}
 
 	@Override
 	@Transactional
-	public void createRelacioExpedient(
+	public void desfinalitzar(Long id) {
+		logger.debug("Reprenent l'expedient (id=" + id + ")");
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.UNDO_END,
+						ExtendedPermission.ADMINISTRATION});*/
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				false,
+				true,
+				false,
+				false);
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_DESFINALITZAR,
+				null);
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+		logger.debug("Desfer finalització de l'expedient (id=" + id + ")");
+		jbpmHelper.desfinalitzarExpedient(expedient.getProcessInstanceId());
+		expedient.setDataFi(null);
+		expedientRegistreHelper.crearRegistreReprendreExpedient(
+				expedient.getId(),
+				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
+	}
+
+	@Override
+	@Transactional
+	public void relacioCreate(
 			Long origenId,
 			Long destiId) {
 		logger.debug("Creant relació d'expedients (" +
 				"origenId=" + origenId + ", " +
 				"destiId=" + destiId + ")");
+		/*Expedient origen = expedientHelper.getExpedientComprovantPermisos(
+				origenId,
+				new Permission[] {
+						ExtendedPermission.RELATE,
+						ExtendedPermission.ADMINISTRATION});
+		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
+				destiId,
+				new Permission[] {
+						ExtendedPermission.RELATE,
+						ExtendedPermission.ADMINISTRATION});*/
 		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				false,
 				true,
 				false,
 				false);
-		
 		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
 				destiId,
 				true,
 				false,
 				false,
 				false);
-		
+		ExpedientLog expedientLogOrigen = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				origenId,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
+				destiId.toString());
+		expedientLogOrigen.setEstat(ExpedientLogEstat.IGNORAR);
+		ExpedientLog expedientLogDesti = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				destiId,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
+				origenId.toString());
+		expedientLogDesti.setEstat(ExpedientLogEstat.IGNORAR);
 		expedientHelper.relacioCrear(origen, desti);
 	}
 
 	@Transactional
 	@Override
-	public void deleteRelacioExpedient(
+	public void relacioDelete(
 			Long origenId,
 			Long destiId) {
 		logger.debug("Esborrant relació d'expedients (" +
 				"origenId=" + origenId + ", " +
 				"destiId=" + destiId + ")");
-		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+		/*Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
-				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
-				destiId.toString());
-		if (expedientLog != null)
-			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+				new Permission[] {
+						ExtendedPermission.RELATE,
+						ExtendedPermission.ADMINISTRATION});
+		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
+				destiId,
+				new Permission[] {
+						ExtendedPermission.RELATE,
+						ExtendedPermission.ADMINISTRATION});*/
 		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				false,
 				true,
 				false,
 				false);
-		
 		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
 				destiId,
 				false,
 				false,
 				false,
 				false);
-		
+		ExpedientLog expedientLogOrigen = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				origenId,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
+				destiId.toString());
+		expedientLogOrigen.setEstat(ExpedientLogEstat.IGNORAR);
+		ExpedientLog expedientLogDesti = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				destiId,
+				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
+				origenId.toString());
+		expedientLogDesti.setEstat(ExpedientLogEstat.IGNORAR);
 		origen.removeRelacioOrigen(desti);
 		desti.removeRelacioOrigen(origen);		
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ExpedientDto> findRelacionats(Long id) {
+	public List<ExpedientDto> relacioFindAmbExpedient(Long id) {
 		logger.debug("Consulta d'expedients relacionats amb l'expedient (" +
 				"id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1898,14 +1949,271 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false,
 				false);
-		
 		List<ExpedientDto> list = new ArrayList<ExpedientDto>();
 		for (Expedient relacionat: expedient.getRelacionsOrigen()) {			
 			list.add(findAmbId(relacionat.getId()));
 		}
 		return list;
 	}
-	
+
+	@Override
+	@Transactional
+	public void procesScriptExec(
+			Long expedientId,
+			String processInstanceId,
+			String script) {
+		logger.debug("Executa script sobre l'expedient (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"script=" + script + ")");
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.SCRIPT_EXE,
+						ExtendedPermission.ADMINISTRATION});*/
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				false,
+				false,
+				true);
+		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (MesuresTemporalsHelper.isActiu()) {
+			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
+		}
+		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
+		verificarFinalitzacioExpedient(expedient, pi);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
+				script);
+		if (MesuresTemporalsHelper.isActiu())
+			mesuresTemporalsHelper.mesuraCalcular("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
+	}
+
+	@Override
+	@Transactional
+	public void procesDefinicioProcesActualitzar(
+			String processInstanceId,
+			int versio) {
+		logger.debug("Canviant versió de la definició de procés (" +
+				"processInstanceId=" + processInstanceId + ", " +
+				"versio=" + versio + ")");
+		/*ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
+		expedientHelper.getExpedientComprovantPermisos(
+				piexp.getId(),
+				new Permission[] {
+						ExtendedPermission.DEFPROC_UPDATE,
+						ExtendedPermission.ADMINISTRATION});*/
+		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		if (defprocAntiga == null)
+			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
+		jbpmHelper.changeProcessInstanceVersion(processInstanceId, versio);
+		// Apunta els terminis iniciats cap als terminis
+		// de la nova definició de procés
+		DefinicioProces defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		updateTerminis(processInstanceId, defprocAntiga, defprocNova);
+	}
+
+	@Override
+	@Transactional
+	public void procesDefinicioProcesCanviVersio(
+			Long expedientId,
+			Long definicioProcesId,
+			Long[] subProcesIds,
+			List<DefinicioProcesExpedientDto> subDefinicioProces) {
+		logger.debug("Canviant versió de les definicións de procés de l'expedient (" +
+				"expedientId" + expedientId + ", " +
+				"definicioProcesId" + definicioProcesId + ", " +
+				"subProcesIds=" + subProcesIds + ")");
+		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.DEFPROC_UPDATE,
+						ExtendedPermission.ADMINISTRATION});*/
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				false,
+				true,
+				false,
+				false);
+		if (!expedient.isAmbRetroaccio()) {
+			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+		}
+		if (definicioProcesId != null) {
+			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
+			DefinicioProces defprocNova = definicioProcesRepository.findById(definicioProcesId);
+			if (!defprocAntiga.equals(defprocNova)) {
+				jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), defprocNova.getVersio());
+				updateTerminis(expedient.getProcessInstanceId(), defprocAntiga, defprocNova);
+			}
+		}
+		// Subprocessos
+		if (subProcesIds != null && subProcesIds.length > 0) {
+			// Arriben amb el mateix ordre??
+			List<JbpmProcessInstance> instanciesProces = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
+			for (JbpmProcessInstance instanciaProces: instanciesProces) {
+				DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
+				int versio = findVersioDefProcesActualitzar(subDefinicioProces, subProcesIds, instanciaProces.getProcessInstance().getProcessDefinition().getName());
+				if (versio != -1 && versio != defprocAntiga.getVersio()) {
+					jbpmHelper.changeProcessInstanceVersion(instanciaProces.getId(), versio);
+					DefinicioProces defprocNova =  expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
+					updateTerminis(instanciaProces.getId(), defprocAntiga, defprocNova);
+				}
+			}
+		}
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
+			Long expedientId,
+			boolean detall) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
+		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
+		List<InstanciaProcesDto> arbre = getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedient.getId());
+		List<String> taskIds = new ArrayList<String>();
+		String parentProcessInstanceId = null;
+		Map<String, String> processos = new HashMap<String, String>();
+		for (InstanciaProcesDto ip : arbre) {
+			resposta.put(ip, new ArrayList<ExpedientLogDto>());
+			for (ExpedientLog log: logs) {
+				if (log.getProcessInstanceId().toString().equals(ip.getId())) {
+					// Inclourem el log si:
+					//    - Estam mostrant el log detallat
+					//    - El log no se correspon a una tasca
+					//    - Si el log pertany a una tasca i encara
+					//      no s'ha afegit cap log d'aquesta tasca 
+					if (detall || !log.isTargetTasca() || !taskIds.contains(log.getTargetId())) {
+						taskIds.add(log.getTargetId());				
+						resposta.get(ip).addAll(
+								getLogs(
+										processos,
+										log,
+										parentProcessInstanceId,
+										ip.getId(),
+										detall));
+					}
+				}
+			}
+		}
+		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
+			@Override
+			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
+				if (e1.getKey() == null || e2.getKey() == null)
+					return 0;
+				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
+				if (e1.getKey().getId().equals(e2.getKey().getId())) {
+					return res;
+				} else {
+					return res != 0 ? res : 1;
+				}
+			}
+		});
+		sortedEntries.addAll(resposta.entrySet());
+		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
+		return sortedEntries;
+	}	
+
+	@Override
+	@Transactional(readOnly=true)
+	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
+			Long expedientId) {
+		logger.debug("Consultant tasques l'expedient (expedientId=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
+		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
+		for (ExpedientLog log: logs) {
+			if (log.isTargetTasca()) {
+				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
+				if (task != null) {
+					tasquesPerLogs.put(
+							log.getTargetId(),
+							tascaHelper.toExpedientTascaDto(
+									task,
+									expedient,
+									true,
+									false));
+				}
+			}
+		}
+		return tasquesPerLogs;
+	}
+
+	@Override
+	@Transactional
+	public void registreRetrocedir(
+			Long expedientId,
+			Long expedientLogId,
+			boolean retrocedirPerTasques) {
+		ExpedientLog log = expedientLogRepository.findById(expedientLogId);
+		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
+		if (log.getExpedient().isAmbRetroaccio()) {
+			ExpedientLog logRetroces = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+					log.getExpedient().getId(),
+					retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
+					expedientLogId.toString());
+			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
+			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
+			indexHelper.expedientIndexLuceneUpdate(
+					log.getExpedient().getProcessInstanceId());
+		}
+		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
+	}
+
+	@Override
+	@Transactional
+	public void registreBuidarLog(
+			Long expedientId) {
+		logger.debug("Buidant logs de l'expedient("
+				+ "expedientId=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.LOG_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+		jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
+			Long expedientId,
+			Long logId) {
+		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
+		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
+			Long expedientId,
+			Long logId) {
+		List<ExpedientLog> logs = expedientLoggerHelper.findLogsRetrocedits(logId);
+		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public ExpedientLogDto registreFindLogById(
+			//Long expedientId,
+			Long logId) {
+		return conversioTipusHelper.convertir( expedientLogRepository.findById(logId), ExpedientLogDto.class);
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -1922,7 +2230,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Convertir a AlertaDto
 		return conversioTipusHelper.convertirList(alertes, AlertaDto.class);
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public Object[] findErrorsExpedient(Long id) {
@@ -1948,75 +2256,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, expedient.getErrorDesc(), expedient.getErrorFull()));
 		}
 		
+		if (expedient.isReindexarError()) {
+			errors_bas.add(new ExpedientErrorDto(ErrorTipusDto.BASIC, 
+					messageHelper.getMessage("expedient.consulta.reindexacio.error"),
+					messageHelper.getMessage("expedient.consulta.reindexacio.error.full")));
+		}
+		
 		return new Object[]{errors_bas,errors_int};
 	}
 
-	@Override
-	@Transactional
-	public String canviVersioDefinicioProces(
-			String processInstanceId,
-			int versio) {
-		logger.debug("Canviant versió de la definició de procés (" +
-				"processInstanceId=" + processInstanceId + ", " +
-				"versio=" + versio + ")");
-		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
-		if (defprocAntiga == null)
-			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
-		
-		jbpmHelper.changeProcessInstanceVersion(processInstanceId, versio);
-		// Apunta els terminis iniciats cap als terminis
-		// de la nova definició de procés
-		DefinicioProces defprocNova = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
-		updateTerminis(processInstanceId,defprocAntiga, defprocNova);
-		return defprocNova.getEtiqueta();
-	}
-
-	@Override
-	@Transactional
-	public void canviVersioDefinicionsProces(
-			Long expedientId,
-			Long definicioProcesId,
-			Long[] subProcesIds,
-			List<DefinicioProcesExpedientDto> subDefinicioProces) {
-		logger.debug("Canviant versió de les definicións de procés de l'expedient (" +
-				"expedientId" + expedientId + ", " +
-				"definicioProcesId" + definicioProcesId + ", " +
-				"subProcesIds=" + subProcesIds + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		if (!expedient.isAmbRetroaccio()) {
-			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
-		}
-		if (definicioProcesId != null) {
-			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
-			DefinicioProces defprocNova = definicioProcesRepository.findById(definicioProcesId);
-			if (!defprocAntiga.equals(defprocNova)) {
-				jbpmHelper.changeProcessInstanceVersion(expedient.getProcessInstanceId(), defprocNova.getVersio());
-				updateTerminis(expedient.getProcessInstanceId(), defprocAntiga, defprocNova);
-			}
-		}
-		
-		// Subprocessos
-		if (subProcesIds != null && subProcesIds.length > 0) {
-			// Arriben amb el mateix ordre??
-			List<JbpmProcessInstance> instanciesProces = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
-			for (JbpmProcessInstance instanciaProces: instanciesProces) {
-				DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
-				int versio = findVersioDefProcesActualitzar(subDefinicioProces, subProcesIds, instanciaProces.getProcessInstance().getProcessDefinition().getName());
-				if (versio != -1 && versio != defprocAntiga.getVersio()) {
-					jbpmHelper.changeProcessInstanceVersion(instanciaProces.getId(), versio);
-					DefinicioProces defprocNova =  expedientHelper.findDefinicioProcesByProcessInstanceId(instanciaProces.getId());
-//					DefinicioProces defprocNova = definicioProcesRepository.findById(subProcesIds[i]);
-					updateTerminis(instanciaProces.getId(), defprocAntiga, defprocNova);
-				}
-			}
-		}
-	}
-	
 	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {
 		int versio = -1;
 		int i = 0;
@@ -2046,36 +2294,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 		}
 	}
-	
-	@Override
-	@Transactional
-	public void evaluateScript(
-			Long expedientId,
-			String script,
-			String processInstanceId) {
-		logger.debug("Consulta d'expedients relacionats amb l'expedient (" +
-				"id=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				false,
-				false,
-				true);
-		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
-		if (MesuresTemporalsHelper.isActiu()) {
-			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
-		}
-		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
-		verificarFinalitzacioExpedient(expedient, pi);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR,
-				script);
-		if (MesuresTemporalsHelper.isActiu())
-			mesuresTemporalsHelper.mesuraCalcular("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
-	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -2100,7 +2318,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return resposta;
 	}
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(
@@ -2320,7 +2538,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
 		return dto;
 	}
-	
+
 	@Override
 	@Transactional(readOnly=true)
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
@@ -2330,60 +2548,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
 
-	@Override
-	@Transactional(readOnly=true)
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(
-			ExpedientDto expedient,
+	private List<ExpedientLogDto> getLogs(
+			Map<String, String> processos,
+			ExpedientLog log,
+			String parentProcessInstanceId,
+			String piId,
 			boolean detall) {
-		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
-		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
-		List<InstanciaProcesDto> arbre = getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedient.getId());
-		List<String> taskIds = new ArrayList<String>();
-		String parentProcessInstanceId = null;
-		Map<String, String> processos = new HashMap<String, String>();
-		for (InstanciaProcesDto ip : arbre) {
-			resposta.put(ip, new ArrayList<ExpedientLogDto>());
-			for (ExpedientLog log: logs) {
-				if (log.getProcessInstanceId().toString().equals(ip.getId())) {
-					// Inclourem el log si:
-					//    - Estam mostrant el log detallat
-					//    - El log no se correspon a una tasca
-					//    - Si el log pertany a una tasca i encara
-					//      no s'ha afegit cap log d'aquesta tasca 
-					if (detall || !log.isTargetTasca() || !taskIds.contains(log.getTargetId())) {
-						taskIds.add(log.getTargetId());				
-						resposta.get(ip).addAll(
-								getLogs(
-										processos,
-										log,
-										parentProcessInstanceId,
-										expedient,
-										ip.getId(),
-										detall));
-					}
-				}
-			}
-		}
-		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
-			@Override
-			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
-				if (e1.getKey() == null || e2.getKey() == null)
-					return 0;
-				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
-				if (e1.getKey().getId().equals(e2.getKey().getId())) {
-					return res;
-				} else {
-					return res != 0 ? res : 1;
-				}
-			}
-		});
-		sortedEntries.addAll(resposta.entrySet());
-		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
-		return sortedEntries;
-	}	
-
-	public List<ExpedientLogDto> getLogs(Map<String, String> processos, ExpedientLog log, String parentProcessInstanceId, ExpedientDto expedient, String piId, boolean detall) {
 		// Obtenim el token de cada registre
 		JbpmToken token = null;
 		if (log.getJbpmLogId() != null) {
@@ -2451,35 +2621,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				resposta.add(dto);
 		}
 		return resposta;
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId) {
-		logger.debug("Consultant tasques l'expedient (id=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
-		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
-		for (ExpedientLog log: logs) {
-			if (log.isTargetTasca()) {
-				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
-				if (task != null) {
-					tasquesPerLogs.put(
-							log.getTargetId(),
-							tascaHelper.toExpedientTascaDto(
-									task,
-									expedient,
-									true,
-									false));
-				}
-			}
-		}
-		return tasquesPerLogs;
 	}
 
 	@Override
@@ -2745,44 +2886,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		llistaExpedientIds.removeAll(removeList);
 	}
 
-	@Override
-	@Transactional(readOnly=true)
-	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long logId) {
-		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
-		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public ExpedientLogDto findLogById(Long logId) {
-		return conversioTipusHelper.convertir( expedientLogRepository.findById(logId), ExpedientLogDto.class);
-	}
-
-	@Override
-	@Transactional
-	public void retrocedirFinsLog(Long expedientLogId, boolean retrocedirPerTasques) {
-		ExpedientLog log = expedientLogRepository.findById(expedientLogId);
-		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
-		if (log.getExpedient().isAmbRetroaccio()) {
-			ExpedientLog logRetroces = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-					log.getExpedient().getId(),
-					retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
-					expedientLogId.toString());
-			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
-			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-			indexHelper.expedientIndexLuceneUpdate(
-					log.getExpedient().getProcessInstanceId());
-		}
-		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId) {
-		List<ExpedientLog> logs = expedientLoggerHelper.findLogsRetrocedits(logId);
-		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
-	}
-	
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
@@ -3196,13 +3299,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ids,
 				count.intValue(),
 				paginacioParams);
-	}
-	
-	@Override
-	@Transactional
-	public void buidarLogExpedient(String processInstanceId) {
-		logger.debug("Buidant logs de l'expedient amb processInstance(id=" + processInstanceId + ")");
-		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
 	}
 
 	@SuppressWarnings("unused")

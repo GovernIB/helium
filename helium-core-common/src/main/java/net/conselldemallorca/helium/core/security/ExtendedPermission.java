@@ -37,14 +37,15 @@ public class ExtendedPermission extends BasePermission {
 	public static final Permission TASK_MANAGE = new ExtendedPermission(1 << 16, 'K');
 	public static final Permission TASK_SUPERV = new ExtendedPermission(1 << 17, 'L');
 	public static final Permission TASK_ASSIGN = new ExtendedPermission(1 << 18, 'P');
-	public static final Permission GO_BACK = new ExtendedPermission(1 << 19, 'Q');
+	public static final Permission LOG_READ = new ExtendedPermission(1 << 26, 'Y');
+	public static final Permission LOG_MANAGE = new ExtendedPermission(1 << 19, 'Q');
+	public static final Permission TOKEN_READ = new ExtendedPermission(1 << 27, 'Z');
+	public static final Permission TOKEN_MANAGE = new ExtendedPermission(1 << 28, '1');
 	public static final Permission DESIGN_ADMIN = new ExtendedPermission(1 << 21, 'T');
 	public static final Permission DESIGN_DELEG = new ExtendedPermission(1 << 22, 'U');
 	public static final Permission SCRIPT_EXE = new ExtendedPermission(1 << 23, 'V');
 	public static final Permission UNDO_END = new ExtendedPermission(1 << 24, 'W');
-	/*public static final Permission ??? = new ExtendedPermission(1 << 25, 'X');
-	public static final Permission ??? = new ExtendedPermission(1 << 26, 'Y');
-	public static final Permission ??? = new ExtendedPermission(1 << 27, 'Z');*/
+	public static final Permission DEFPROC_UPDATE = new ExtendedPermission(1 << 25, 'X');
 
 
 

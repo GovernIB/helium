@@ -1,21 +1,27 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.v3.core.api.dto;
+package net.conselldemallorca.helium.webapp.v3.command;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 
 /**
- * Informació d'un permís.
+ * Command per al manteniment de permisos.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class PermisDto implements Serializable {
+public class PermisCommand {
 
 	private Long id;
+	@NotEmpty @Size(max=64)
 	private String principalNom;
+	@NotNull
 	private PrincipalTipusEnumDto principalTipus;
 
 	private boolean read;
@@ -49,8 +55,6 @@ public class PermisDto implements Serializable {
 	private boolean supervision;
 	private boolean manage;
 	private boolean reassignment;
-
-
 
 	public Long getId() {
 		return id;
@@ -208,7 +212,6 @@ public class PermisDto implements Serializable {
 	public void setDefprocUpdate(boolean defprocUpdate) {
 		this.defprocUpdate = defprocUpdate;
 	}
-
 	public boolean isDesign() {
 		return design;
 	}
@@ -244,7 +247,5 @@ public class PermisDto implements Serializable {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
-
-	private static final long serialVersionUID = -139254994389509932L;
 
 }

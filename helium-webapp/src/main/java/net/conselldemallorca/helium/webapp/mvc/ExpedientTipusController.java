@@ -66,7 +66,6 @@ public class ExpedientTipusController extends BaseController {
 	private ReassignacioService reassignacioService;
 //	private Validator additionalValidator;
 	private PersonaService  personaService;
-	private ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	public ExpedientTipusController(
 			DissenyService dissenyService,
@@ -78,7 +77,6 @@ public class ExpedientTipusController extends BaseController {
 		this.expedientService = expedientService;
 		this.permissionService = permissionService;
 		this.pluginService = pluginService;
-		this.execucioMassivaService = execucioMassivaService;
 	}
 	
 	public PersonaService getPersonaService() {

@@ -278,7 +278,6 @@ public interface TascaService {
 	 * 
 	 * @param tascaId
 	 *            Atribut id de la tasca.
-	 * @param expedientId 
 	 * @param variables
 	 *            Valors del formulari de la tasca.
 	 * @return la tasca guardada.
@@ -289,7 +288,6 @@ public interface TascaService {
 	 */
 	public void guardar(
 			String tascaId,
-			Long expedientId, 
 			Map<String, Object> variables);
 
 	/**
@@ -307,7 +305,6 @@ public interface TascaService {
 	 */
 	public void validar(
 			String tascaId,
-			Long expedientId,
 			Map<String, Object> variables);
 
 	/**
@@ -324,14 +321,13 @@ public interface TascaService {
 	 * @throws IllegalStateException
 	 *             Si la tasca no es troba en estat validada.
 	 */
-	public void restaurar(String tascaId, Long expedientId);
+	public void restaurar(String tascaId);
 
 	/**
 	 * Completa la tasca.
 	 * 
 	 * @param tascaId
 	 *            Atribut id de la tasca.
-	 * @param expedientId 
 	 * @param outcome
 	 *            Transició de sortida de la tasca.
 	 * @return la tasca completada.
@@ -344,7 +340,6 @@ public interface TascaService {
 	 */
 	public void completar(
 			String tascaId,
-			Long expedientId,
 			String outcome) throws NoTrobatException, ValidacioException;
 
 	/**
@@ -407,7 +402,7 @@ public interface TascaService {
 
 	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
 
-	public boolean signarDocumentTascaAmbToken(Long expedientId, Long docId, String token, String tascaId, byte[] signatura) throws Exception;
+	public boolean signarDocumentTascaAmbToken(Long docId, String token, String tascaId, byte[] signatura) throws Exception;
 
 	public List<TascaDocumentDto> findDocumentsSignar(String id);
 

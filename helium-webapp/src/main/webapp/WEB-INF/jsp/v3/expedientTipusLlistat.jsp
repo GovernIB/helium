@@ -20,7 +20,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<div class="botons-titol text-right">
+	<div class="text-right" data-toggle="botons-titol">
 		<a class="btn btn-default" href="expedientTipus/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.nou"/></a>
 	</div>
 	<table	id="expedientTipus"
@@ -30,6 +30,7 @@
 			data-info-type="search"
 			data-ordering="true"
 			data-default-order="1"
+			data-rowhref-template="#rowhrefTemplate"
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
@@ -56,5 +57,6 @@
 			</tr>
 		</thead>
 	</table>
+	<script id="rowhrefTemplate" type="text/x-jsrender">expedientTipus/{{:id}}</script>
 </body>
 </html>

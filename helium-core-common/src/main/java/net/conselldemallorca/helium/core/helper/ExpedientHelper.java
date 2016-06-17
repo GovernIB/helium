@@ -153,9 +153,47 @@ public class ExpedientHelper {
 		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());		
 		dto.setDataFi(expedient.getDataFi());
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
+		dto.setReindexarData(expedient.getReindexarData());
+		dto.setReindexarError(expedient.isReindexarError());
 		return dto;
 	}
 
+	public Expedient getExpedientComprovantPermisos(
+			Long id,
+			Permission[] permisos) {
+		Expedient expedient = expedientRepository.findOne(id);
+		if (expedient == null) {
+			throw new NoTrobatException(
+					Expedient.class, 
+					id);
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		// Si no te accés a l'entorn no te accés a l'expedient
+		Entorn entorn = expedient.getEntorn();
+		if (!permisosHelper.isGrantedAny(
+				entorn.getId(),
+				Entorn.class,
+				permisos,
+				auth)) {
+			throw new PermisDenegatException(
+					id,
+					Entorn.class,
+					permisos);
+		}
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		if (!permisosHelper.isGrantedAny(
+				expedientTipus.getId(),
+				ExpedientTipus.class,
+				permisos,
+				auth)) {
+			throw new PermisDenegatException(
+					id,
+					Expedient.class,
+					permisos);
+		}
+		return expedient;
+	}
+			
 	public Expedient getExpedientComprovantPermisos(
 			Long id,
 			boolean comprovarPermisRead,
@@ -444,14 +482,6 @@ public class ExpedientHelper {
 		actualizarCacheExpedient(expedient);*/
 	}
 
-	public void updateError(
-			Expedient expedient,
-			String errorDescripcio,
-			String errorTrace) {
-		expedient.setErrorDesc(errorDescripcio);
-		expedient.setErrorFull(errorTrace);
-	}
-
 	public List<Expedient> findByFiltreGeneral(
 			Entorn entorn,
 			String titol,
@@ -621,7 +651,9 @@ public class ExpedientHelper {
 				}
 			}
 			if (!trobada) {
-				throw new NoTrobatException(JbpmProcessInstance.class, new Long(processInstanceId));
+				throw new NoTrobatException(
+						JbpmProcessInstance.class,
+						new Long(processInstanceId));
 			}
 		}
 	}
@@ -636,9 +668,6 @@ public class ExpedientHelper {
 				processInstanceId);
 		if (piexp != null)
 			expedient = expedientRepository.findOne(piexp.getId());
-//		else
-//			throw new NoTrobatException(ProcessInstanceExpedient.class, processInstanceId);
-			
 		if (expedient == null) {
 			Expedient expedientIniciant = ExpedientIniciantDto.getExpedient();
 			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
@@ -647,7 +676,6 @@ public class ExpedientHelper {
 				throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
 			}
 		}
-		
 		return expedient;
 	}
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(String processInstanceId) {

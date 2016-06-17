@@ -1002,12 +1002,12 @@ public interface Jbpm3HeliumService {
 	public boolean tokenActivar(long tokenId, boolean activar);
 
 	/**
-	 * Reprendre un expedient
+	 * Desfinalitzar un expedient
 	 * 
 	 * @param processInstanceId
 	 * @throws Exception
 	 */
-	public void reprendreExpedient(String processInstanceId) throws Exception;
+	public void desfinalitzarExpedient(String processInstanceId) throws Exception;
 
 //	/**
 //	 * Obté la propera operació a realitzar massivament

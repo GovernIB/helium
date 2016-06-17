@@ -182,7 +182,7 @@
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/definicioProces/deploy.html"/>"><spring:message code='decorators.entorn.despl_arxiu' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/definicioProces/llistat.html"/>"><spring:message code='decorators.entorn.defs_proces' /></a></li></c:if>
 									<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>"><spring:message code='comuns.tipus_exp' /></a></li>
-									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li>
+<%-- 									<li><a href="<c:url value="/v3/expedientTipus"/>"><spring:message code='decorator.menu.disseny.tipus.expedient' /></a></li> --%>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/enumeracio/llistat.html"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/domini/llistat.html"/>"><spring:message code='decorators.entorn.dominis' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/consulta/llistat.html"/>"><spring:message code='decorator.menu.consultes' /></a></li></c:if>
@@ -197,8 +197,8 @@
 										<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMonitor" href="<c:url value="/modal/v3/monitor"/>"><spring:message code='expedient.monitor' /></a></li>
 									</c:if>
 									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" id="botoMetriques" href="<c:url value="/modal/v3/metriques"/>"><spring:message code='expedient.metriques' /></a></li>
-									<li><a href="<c:url value="/v3/monitorIntegracio"/>" data-toggle="modal" data-maximized="true"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
-									<li><a href="<c:url value="/v3/monitorDomini"/>" data-toggle="modal" data-maximized="true"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
+									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/monitorIntegracio"/>" data-toggle="modal" data-maximized="true"><spring:message code='decorator.menu.administracio.monitor.integracio' /></a></li>
+									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/monitorDomini"/>" data-toggle="modal" data-maximized="true"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
 									<li><a data-rdt-link-modal="true" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									<li><a data-rdt-link-modal="true" data-rdt-link-modal-maximize="true" href="<c:url value="/modal/v3/execucionsMassives/admin"/>"><spring:message code='comuns.massiu' /></a></li>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/entorn/llistat.html"/>"><spring:message code='decorators.superior.entorns' /></a></li></c:if>

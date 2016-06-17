@@ -27,7 +27,7 @@
 <script>
 $(document).ready(function() {
 	$("#grup-titol").click(function(event) {
-		$("#tabla").load('<c:url value="/nodeco/v3/expedient/massivaTramitacioTasca/taula"/>');
+		$("#tabla").load('<c:url value="/nodeco/v3/tasca/massivaTramitacioTasca/taula"/>');
 		$("#grup-dades").slideToggle("slow", function() {
 			$('#grup-titol .icona-collapse').toggleClass('fa-chevron-down');
 			$('#grup-titol .icona-collapse').toggleClass('fa-chevron-up');

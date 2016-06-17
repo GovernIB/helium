@@ -199,14 +199,12 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			List<DefinicioProcesExpedientDto> subDefinicioProces = dissenyService.getSubprocessosByProces(definicioProces.getJbpmId());
-			
-			expedientService.canviVersioDefinicionsProces(
+			expedientService.procesDefinicioProcesCanviVersio(
 					expedientId, 
 					command.getDefinicioProcesId(), 
 					command.getSubprocesId(), 
 					subDefinicioProces);
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.canviversio"));
-			
 		} catch (Exception ex) {
 			logger.error("Canviant versió de la definició de procés (" + "id=" + expedientId + ")", ex);
 			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
@@ -247,7 +245,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			if (expedient.isPermisAdministration()) {
-				expedientService.buidarLogExpedient(expedient.getProcessInstanceId());
+				expedientService.registreBuidarLog(
+						expedient.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.modificar.expedient"));

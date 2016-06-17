@@ -189,7 +189,17 @@ $(document).ready(function() {
 						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
 					</script>
 				</th>
-				<th data-rdt-property="expedient.identificador" data-rdt-sorting="desc" data-visible=true><spring:message code="expedient.llistat.columna.expedient"/></th>
+				<th data-rdt-property="expedient.identificador" data-rdt-template="cellReindexacioTemplate" data-rdt-sorting="desc" data-visible=true>
+					<spring:message code="expedient.llistat.columna.expedient"/>
+					<script id="cellReindexacioTemplate" type="text/x-jsrender">
+					{{:expedient_identificador}}
+					{{if tipus.reindexacioAsincrona && reindexarData != null }}
+						<div class="pull-right">
+							<span class="fa fa-refresh" title="<spring:message code="expedient.consulta.reindexacio.asincrona"/>"></span>
+						</div>
+					{{/if}}
+					</script>
+				</th>
 				<c:forEach var="camp" items="${campsInforme}">
 					<th <c:if test="${camp.varCodi == 'expedient__exp__estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
 					${camp.campEtiqueta}
@@ -197,8 +207,8 @@ $(document).ready(function() {
 						<script id="cellEstatTemplate" type="text/x-jsrender">
 							{{:estat}}
 							<div class="pull-right">
-								{{if errorsIntegracions}}
-									<span class="label label-danger" title="<spring:message code="expedient.consulta.error.integracions"/>"><span class="fa fa-exclamation-circle"></span> </span>
+								{{if ambErrors}}
+									<span class="label label-danger" title="<spring:message code="expedient.consulta.errors"/>"><span class="fa fa-exclamation-circle"></span> </span>
 								{{/if}}
 								{{if aturat}}
 									<span class="label label-danger" title="{{:infoAturat}}">AT</span>
@@ -218,6 +228,8 @@ $(document).ready(function() {
 					</c:if>
 				</th>
 				</c:forEach>
+				<th data-rdt-property="reindexarData" data-rdt-visible="false"></th>
+				<th data-rdt-property="tipus" data-rdt-visible="false"></th>
 				<th data-rdt-property="infoAturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="estat" data-rdt-visible="false"></th>
 				<th data-rdt-property="comentariAnulat" data-rdt-visible="false"></th>
@@ -231,7 +243,8 @@ $(document).ready(function() {
 				<th data-rdt-property="permisDelete" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorDesc" data-rdt-visible="false"></th>		
 				<th data-rdt-property="errorFull" data-rdt-visible="false"></th>
-				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>			
+				<th data-rdt-property="errorsIntegracions" data-rdt-visible="false"></th>	
+				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>		
 				<th data-rdt-property="id" data-rdt-context="true" data-rdt-template="cellAccionsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">

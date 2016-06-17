@@ -299,7 +299,10 @@ public class PermisosHelper {
 				List<Sid> sids = new ArrayList<Sid>();
 				permisos.add(permission);
 				sids.add(sid);
-				insertar = !acl.isGranted(permisos, sids, false);
+				insertar = !acl.isGranted(
+						permisos,
+						sids,
+						true);
 			} catch (Exception ignored) {
 				insertar = true;
 			}
@@ -366,7 +369,7 @@ public class PermisosHelper {
 					granted[i] = acl.isGranted(
 							ps,
 							sids,
-							false);
+							true);
 					ps.clear();
 				} catch (NotFoundException ex) {}
 			}

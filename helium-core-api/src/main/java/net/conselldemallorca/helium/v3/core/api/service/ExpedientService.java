@@ -564,30 +564,57 @@ public interface ExpedientService {
 	 *            Atribut id de l'expedient que es vol aturar.
 	 * @param motiu
 	 *            El motiu per aturar la tramitació.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
 	 */
 	public void aturar(
 			Long id,
-			String motiu) throws NoTrobatException;
+			String motiu) throws NoTrobatException, PermisDenegatException;
 
 	/**
-	 * Anula un expedient.
+	 * Repren la tramitació d'un expedient aturat.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol reprendre.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
+	 */
+	public void reprendre(Long id) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Anul·la la tramitació d'un expedient. Un espedient anul·lat és més o manco
+	 * equivalent a esborrat, però les dades de l'expedient segueixen a dins la
+	 * base de dades i en qualsevol moment es pot tornar a activar.
 	 * 
 	 * @param id
 	 *            Atribut id de l'expedient que es vol anular.
 	 * @param motiu
 	 *            El motiu per anular l'expedient.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void cancel(
+	public void anular(
 			Long id,
-			String motiu) throws NoTrobatException;
+			String motiu) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Reactiva un expedient prèviament anul·lat.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol anular.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void desanular(
+			Long id) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Crea una relació entre dos expedients.
@@ -596,14 +623,14 @@ public interface ExpedientService {
 	 *            Atribut id de l'expedient origen de la relació.
 	 * @param expedientDestiId
 	 *            Atribut id de l'expedient destí de la relació.
-	 * @throws NotFoundException
-	 *             Si no es troba algun dels expedients amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void createRelacioExpedient(
+	public void relacioCreate(
 			Long origenId,
-			Long destiId) throws NoTrobatException;
+			Long destiId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Esborra una relació entre dos expedients.
@@ -612,14 +639,14 @@ public interface ExpedientService {
 	 *            Atribut id de l'expedient origen de la relació.
 	 * @param destiId
 	 *            Atribut id de l'expedient destí de la relació.
-	 * @throws NotFoundException
-	 *             Si no es troba algun dels expedients amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void deleteRelacioExpedient(
+	public void relacioDelete(
 			Long origenId,
-			Long destiId) throws NoTrobatException;
+			Long destiId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna la llista d'expedients relacionats amb l'expedient
@@ -628,13 +655,186 @@ public interface ExpedientService {
 	 * @param id
 	 *            Atribut id de l'expedient que es vol consultar.
 	 * @return La llista d'expedients.
-	 * @throws NotFoundException
+	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public List<ExpedientDto> findRelacionats(Long id) throws NoTrobatException;
-	
+	public List<ExpedientDto> relacioFindAmbExpedient(
+			Long id) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Executa un script sobre una instància de procés.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés.
+	 * @param script
+	 *            Script a executar.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void procesScriptExec(
+			Long expedientId,
+			String processInstanceId,
+			String script) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Canvia la versió de la definició de procés.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @param versio
+	 *            Número de versió de la nova definició de procés.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void procesDefinicioProcesActualitzar(
+			String processInstanceId,
+			int versio) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Canvia la versió de la definició de procés de varis processos de l'expedient.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @param versio
+	 *            Número de versió de la nova definició de procés.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void procesDefinicioProcesCanviVersio(
+			Long expedientId,
+			Long definicioProcesId,
+			Long[] subProcesIds,
+			List<DefinicioProcesExpedientDto> subDefinicioProces) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Consulta els logs d'un expedient ordenats per data.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param detall
+	 *            Indica si s'ha de retornar la informació detallada o no.
+	 * @return els logs de l'expedient organitzats per instància de procés.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
+			Long expedientId,
+			boolean detall) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Obté les tasques associades als logs de l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @return el llistat de tasques.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
+			Long expedientId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Fa un retrocés de l'expedient de totes les modificacions fetes a partir
+	 * del log especificat.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param logId
+	 *            Atribut id del log d'expedient.
+	 * @param retrocedirPerTasques
+	 *            Indica si el retrocés es per tasques.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void registreRetrocedir(
+			Long expedientId,
+			Long logId,
+			boolean retrocedirPerTasques) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Elimina tots els logs associats a un expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void registreBuidarLog(
+			Long expedientId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna els logs associats a una tasca de l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param logId
+	 *            Atribut id del log d'expedient.
+	 * @return la llista de logs.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
+			Long expedientId,
+			Long logId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Obté els logs associats a una acció de retrocés ordenats per data.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param logId
+	 *            Atribut id del log d'expedient.
+	 * @return la llista de logs.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
+			Long expedientId,
+			Long logId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna la informació d'un registre de log de l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient.
+	 * @param logId
+	 *            Atribut id del log d'expedient.
+	 * @return la informació del log.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientLogDto registreFindLogById(
+			//Long expedientId,
+			Long logId) throws NoTrobatException, PermisDenegatException;
+
 	/**
 	 * Retorna la llista d'alertes no eliminades de l'expedient
 	 * especificat
@@ -648,7 +848,7 @@ public interface ExpedientService {
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public List<AlertaDto> findAlertes(Long id) throws NoTrobatException;
-	
+
 	/**
 	 * Retorna la llista d'errors relacionats amb
 	 * l'Expedient
@@ -663,41 +863,12 @@ public interface ExpedientService {
 	 */
 	Object[] findErrorsExpedient(Long id) throws NoTrobatException;
 
-	/**
-	 * Canvia la versió de la definició de procés.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol actualitzar.
-	 * @param processInstanceId
-	 *            Atribut id de la instància de procés que es vol actualitzar.
-	 * @param versio
-	 *            Número de versió de la nova definició de procés.
-	 * @return 
-	 * @throws NotFoundException
-	 *             Si no es troba l'expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public String canviVersioDefinicioProces(
-			String processInstanceId,
-			int versio) throws NoTrobatException;
-
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
 
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			Long processInstanceId);
-	
+
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
-
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> getLogsOrdenatsPerData(ExpedientDto expedient, boolean detall);
-	
-	public Map<String, ExpedientTascaDto> getTasquesPerLogExpedient(Long expedientId);
-	
-	public void retrocedirFinsLog(Long logId, boolean retrocedirPerTasques);
-	
-	public List<ExpedientLogDto> findLogsTascaOrdenatsPerData(Long targetId);	
-
-	public List<ExpedientLogDto> findLogsRetroceditsOrdenatsPerData(Long logId);
 
 	public void cancelarTasca(Long expedientId, Long taskId) throws NoTrobatException, ValidacioException;
 
@@ -810,8 +981,6 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 
-	public void evaluateScript(Long expedientId, String script, String processInstanceId);
-
 	public enum FiltreAnulat {
 		ACTIUS		("expedient.consulta.anulats.actius"),
 		ANUL_LATS	("expedient.consulta.anulats.anulats"),
@@ -879,8 +1048,6 @@ public interface ExpedientService {
 
 	public boolean isExtensioDocumentPermesa(String extensio);
 
-	public void buidarLogExpedient(String processInstanceId);
-
 	public void createVariable(Long expedientId, String processInstanceId,	String varName, Object value);
 
 	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor);
@@ -891,16 +1058,10 @@ public interface ExpedientService {
 
 	public void deleteSignatura(Long expedientId, Long documentStoreId) throws NoTrobatException, SistemaExternException;
 
-	public ExpedientLogDto findLogById(Long logId);
-
 	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) throws NoTrobatException;
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
-	public void activa(Long id) throws NoTrobatException;
-	
-	public void reprendre(Long id) throws NoTrobatException;
-	
 	public void desfinalitzar(Long id) throws NoTrobatException;
 
 	public boolean luceneReindexarExpedient(Long expedientId) throws PermisDenegatException, NoTrobatException;
@@ -927,5 +1088,4 @@ public interface ExpedientService {
 
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId);
 
-	public void canviVersioDefinicionsProces(Long expedientId, Long definicioProcesId, Long[] subProcesIds, List<DefinicioProcesExpedientDto> subDefinicioProces);
 }

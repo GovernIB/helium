@@ -21,5 +21,11 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 	public void comprovarExecucionsMassives() {
 		delegate.comprovarExecucionsMassives();
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void comprovarReindexacioAsincrona() {
+		delegate.comprovarReindexacioAsincrona();
+	}
 
 }

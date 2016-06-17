@@ -37,6 +37,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean restringirPerGrup;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
+	private boolean reindexacioAsincrona;
 	private String responsableDefecteCodi;
 	
 	public ExpedientTipusExportacio(
@@ -179,6 +180,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
 	}
+	public boolean isReindexacioAsincrona() {
+		return reindexacioAsincrona;
+	}
+
+	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
+		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
+
 	public String getResponsableDefecteCodi() {
 		return responsableDefecteCodi;
 	}

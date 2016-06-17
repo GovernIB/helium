@@ -20,7 +20,7 @@
 			<p>
 				<span class="fa fa-warning"></span>
 				<spring:message code="tasca.form.compl_form"/>
-				<a id="boto-formext" href="<c:url value="/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}/formExtern"/>" class="btn btn-xs btn-default pull-right"><span class="fa fa-external-link"></span> <spring:message code="tasca.form.obrir_form"/></a>
+				<a id="boto-formext" href="<c:url value="/v3/tasca/${tasca.id}/formExtern"/>" class="btn btn-xs btn-default pull-right"><span class="fa fa-external-link"></span> <spring:message code="tasca.form.obrir_form"/></a>
 			</p>
 		</div>
 	</c:when>
@@ -37,8 +37,8 @@
 	
 <!-- 	
 <c:choose>
-	<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:when>
-	<c:otherwise><c:url var="tascaFormAction" value="/modal/v3/expedient/${tasca.expedientId}/tasca/${tasca.id}"/></c:otherwise>
+	<c:when test="${isModal}"><c:url var="tascaFormAction" value="/modal/v3/tasca/${tasca.id}"/></c:when>
+	<c:otherwise><c:url var="tascaFormAction" value="/modal/v3/tasca/${tasca.id}"/></c:otherwise>
 </c:choose>
  -->
 

@@ -104,6 +104,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+		entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		if (expedientTipus.isReiniciarCadaAny()) {
 			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
@@ -171,6 +172,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Només poden configurar la retroacció els dissenyadors de l'entorn
 		if (entornHelper.potDissenyarEntorn(entornId)) {
 			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
+			entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		}
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
@@ -308,7 +310,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public PermisDto permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
-			PermisDto permis) throws NoTrobatException, PermisDenegatException {
+			PermisDto permis) {
 		logger.debug(
 				"Creant permis per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
@@ -325,6 +327,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipus.class,
 				permis);
 		return null;
+	}
+
+	@Override
+	@Transactional
+	public void permisDelete(
+			Long entornId,
+			Long expedientTipusId,
+			Long permisId) {
+		logger.debug(
+				"Esborrant permis per al tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"permisId=" + permisId + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		permisosHelper.deletePermis(
+				expedientTipusId,
+				ExpedientTipus.class,
+				permisId);
 	}
 
 	@Override

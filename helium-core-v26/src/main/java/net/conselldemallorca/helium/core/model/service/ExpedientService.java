@@ -1269,7 +1269,7 @@ public class ExpedientService {
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
 				null);
-		jbpmHelper.reprendreExpedient(processInstanceId);
+		jbpmHelper.desfinalitzarExpedient(processInstanceId);
 		expedient.setDataFi(null);
 		if (expedientLog != null)
 			expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
@@ -1931,11 +1931,9 @@ public class ExpedientService {
 	
 //	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Expedient updateExpedientError(
-//			Long jobId,
 			String processInstanceId, 
 			String errorDesc, 
 			String errorFull) {
-//		jbpmHelper.retryJob(jobId);
 		Expedient expedient = null;
 		try {
 			expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
