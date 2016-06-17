@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>helium</artifactId>
 		<groupId>net.conselldemallorca</groupId>
-		<version>3.1</version>
+		<version>3.2</version>
 	</parent>
 	<artifactId>helium-disseny</artifactId>
 	<properties>
