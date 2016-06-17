@@ -80,6 +80,10 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private boolean tramitacioMassiva;
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
+	/** Indica si el tipus d'expedient té lligada la informació de les variables, agrupacions i documents
+	 * directament o a través de la definició de procesos tal i com s'ha fet fins ara.
+	 */
+	private boolean ambInfoPropia;
 	
 
 	@MaxLength(64)
@@ -112,6 +116,9 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private SortedMap<Integer, SequenciaAny> sequenciaAny = new TreeMap<Integer, SequenciaAny>();
 	private SortedMap<Integer, SequenciaDefaultAny> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAny>();
 
+	private Set<Camp> camps = new HashSet<Camp>();
+	private List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
+	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
 		this.codi = codi;
@@ -279,7 +286,15 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
 	}
-	
+
+	@Column(name="amb_info_propia")
+	public boolean isAmbInfoPropia() {
+		return ambInfoPropia;
+	}
+	public void setAmbInfoPropia(boolean ambInfoPropia) {
+		this.ambInfoPropia = ambInfoPropia;
+	}
+
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {
 		return sistraTramitCodi;
@@ -497,6 +512,22 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		} else {
 			this.sequenciaDefault = this.sequenciaDefault + increment;
 		}
+	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public Set<Camp> getCamps() {
+		return this.camps;
+	}
+	public void setCamps(Set<Camp> camps) {
+		this.camps= camps;
+	}
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	@OrderBy("ordre asc")
+	public List<CampAgrupacio> getAgrupacions() {
+		return this.agrupacions;
+	}	
+	public void setAgrupacions(List<CampAgrupacio> agrupacions) {
+		this.agrupacions = agrupacions;
 	}
 	
 	@Override

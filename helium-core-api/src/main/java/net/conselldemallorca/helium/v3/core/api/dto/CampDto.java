@@ -25,12 +25,15 @@ public class CampDto implements Serializable {
 	private CampTipusDto tipus;
 	private String etiqueta;
 	private String observacions;
+
+	private CampAgrupacioDto agrupacio;
 	
 	private Long dominiId;
 	private boolean multiple;
 	
 	private DefinicioProcesDto definicioProces;
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
+	
 
 	public Long getId() {
 		return id;
@@ -171,6 +174,12 @@ public class CampDto implements Serializable {
 	}
 	public void setValidacions(List<ValidacioDto> validacions) {
 		this.validacions = validacions;
+	}
+	public CampAgrupacioDto getAgrupacio() {
+		return agrupacio;
+	}
+	public void setAgrupacio(CampAgrupacioDto agrupacio) {
+		this.agrupacio = agrupacio;
 	}
 	public Long getDominiId() {
 		return dominiId;

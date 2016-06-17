@@ -219,7 +219,6 @@ public class ConsultaHelper {
 			Camp camp = campRepository.findById(tascaDadaDto.getCampId());
 			if (camp == null) {
 				camp = new Camp(
-						null,
 						tascaDadaDto.getVarCodi(),
 						conversioTipusHelper.convertir(tascaDadaDto.getCampTipus(), TipusCamp.class),
 						tascaDadaDto.getCampEtiqueta()  == null ? tascaDadaDto.getVarCodi() : tascaDadaDto.getCampEtiqueta());

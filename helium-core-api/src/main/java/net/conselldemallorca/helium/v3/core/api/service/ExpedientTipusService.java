@@ -2,6 +2,8 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -183,5 +185,180 @@ public interface ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			Long permisId) throws NoTrobatException, PermisDenegatException;
-
+	
+	
+	/**
+	 * Retorna les agrupacions per a un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les agrupacions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<CampAgrupacioDto> agrupacioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+		
+	/**
+	 * Crea una nova agrupació.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param agrupacio
+	 *            La informació de la agrupació a crear.
+	 * @return la agrupació creada.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampAgrupacioDto agrupacioCreate(
+			Long expedientTipusId,
+			CampAgrupacioDto agrupacio) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'una agrupació existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param agrupacio
+	 *            La informació de la agrupació a modificar.
+	 * @return la agrupació modificada.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampAgrupacioDto agrupacioUpdate(
+			Long expedientTipusId,
+			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra una entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param agrupacioCampId
+	 *            Atribut id de la agrupació.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void agrupacioDelete(
+			Long agrupacioCampId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna els camps per a un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els camps del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<CampDto> campFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Crea un nou camp.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param camp
+	 *            La informació del camp a crear.
+	 * @return el camp creat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampDto campCreate(
+			Long expedientTipusId,
+			CampDto camp) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'un camp existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param camp
+	 *            La informació del camp a modificar.
+	 * @return el camp modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampDto campUpdate(
+			CampDto camp) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param campCampId
+	 *            Atribut id del camp.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void campDelete(
+			Long campCampId) throws NoTrobatException, PermisDenegatException;	
+	
+	/** 
+	 * Retorna el camp del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return El camp del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public CampDto campFindAmbId(
+			Long id) throws NoTrobatException;	
+	
+	/** 
+	 * Retorna la llista de camps del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+	
+	/**
+	 * Retorna un camp d'un tipus d'expedient donat el seu codi.
+	 * 
+	 * @param tipusExpedientId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return El camp del tipus d'expedient o null si no el troba.
+	 */
+	public CampDto campFindAmbCodiPerValidarRepeticio(
+			Long tipusExpedientId,
+			String codi) throws NoTrobatException;	
 }

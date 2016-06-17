@@ -12,6 +12,8 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -132,6 +134,90 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				entornId,
 				expedientTipusId,
 				permisId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampAgrupacioDto> agrupacioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		
+		return null;
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampAgrupacioDto agrupacioCreate(
+			Long expedientTipusId, 
+			CampAgrupacioDto agrupacio) throws PermisDenegatException {
+		return delegate.agrupacioCreate(
+				expedientTipusId, 
+				agrupacio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampAgrupacioDto agrupacioUpdate(
+			Long expedientTipusId, 
+			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException {
+		return delegate.agrupacioUpdate(
+				expedientTipusId, 
+				agrupacio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void agrupacioDelete(
+			Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
+		delegate.agrupacioDelete(agrupacioCampId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> campFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		return delegate.campFindAll(expedientTipusId);
+	}
+
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampDto campCreate(Long expedientTipusId, CampDto camp) throws PermisDenegatException {
+		return delegate.campCreate(expedientTipusId, camp);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampDto campUpdate(CampDto camp) throws NoTrobatException, PermisDenegatException {
+		return delegate.campUpdate(camp);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void campDelete(Long campCampId) throws NoTrobatException, PermisDenegatException {
+		delegate.campDelete(campCampId);		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampDto campFindAmbId(Long id) throws NoTrobatException {
+		return delegate.campFindAmbId(id);
+	}
+
+	@Override
+	public CampDto campFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi) throws NoTrobatException {
+		return delegate.campFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long expedientTipusId, 
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.campFindPerDatatable(
+				expedientTipusId, 
+				filtre, 
+				paginacioParams);
 	}
 
 }

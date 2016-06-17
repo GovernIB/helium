@@ -235,7 +235,6 @@ public class ServiceUtils {
 				} else {
 					resposta.add(
 							new Camp(
-									null,
 									camp.getCampCodi(),
 									TipusCamp.STRING,
 									camp.getCampCodi()));
@@ -247,7 +246,6 @@ public class ServiceUtils {
 				} else {
 					resposta.add(
 							new Camp(
-									null,
 									camp.getCampCodi(),
 									TipusCamp.STRING,
 									camp.getCampCodi()));

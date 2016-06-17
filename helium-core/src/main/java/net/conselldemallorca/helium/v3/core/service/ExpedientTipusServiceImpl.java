@@ -23,10 +23,15 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -34,6 +39,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 
@@ -52,6 +59,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private SequenciaAnyRepository sequenciaRepository;
 	@Resource
+	private CampRepository campRepository;
+	@Resource
+	private CampAgrupacioRepository campAgrupacioRepository;
+	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -59,7 +70,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
-
 
 
 	@Override
@@ -103,6 +113,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
+		// Els tipus d'expedient creats amb la interfície nova es marquen amb el flag a true 
+		entity.setAmbInfoPropia(true);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
@@ -364,5 +376,198 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
+
+	// MANTENIMENT DE CAMPS
+	
+	@Override
+	@Transactional
+	public CampDto campCreate(
+			Long expedientTipusId, 
+			CampDto camp) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nou camp per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"camp=" + camp + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		
+		Camp entity = new Camp();
+		entity.setCodi(camp.getCodi());
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setEtiqueta(camp.getEtiqueta());
+		
+		if (camp.getAgrupacio() != null) {
+			// Informa de l'ordre dins de la agrupació
+			entity.setOrdre(
+					campRepository.getNextOrdre(
+							entity.getAgrupacio().getId()));
+		}		
+		if ( expedientTipus.isAmbInfoPropia() ) {
+			// Camp associat a l'expedient
+			entity.setExpedientTipus(expedientTipus);
+		} else {
+			// Camp associat a la definició de procés inicial
+			// TODO:  
+		}
+		return conversioTipusHelper.convertir(
+				campRepository.save(entity),
+				CampDto.class);
+	}
+
+	@Override
+	@Transactional
+	public CampDto campUpdate(CampDto camp) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant el camp del tipus d'expedient existent (" +
+				"camp.id=" + camp.getId() + ", " +
+				"camp =" + camp + ")");
+		Camp entity = campRepository.findOne(camp.getId());
+		entity.setCodi(camp.getCodi());
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setEtiqueta(camp.getEtiqueta());
+		
+		if (camp.getAgrupacio() != null && entity.getOrdre() == null) {
+			// Informa de l'ordre dins de la agrupació
+			entity.setOrdre(
+					campRepository.getNextOrdre(
+							entity.getAgrupacio().getId()));
+		}		
+
+		return conversioTipusHelper.convertir(
+				campRepository.save(entity),
+				CampDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void campDelete(Long campCampId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant el camp del tipus d'expedient (" +
+				"campId=" + campCampId +  ")");
+		Camp entity = campRepository.findOne(campCampId);
+
+		if (entity != null) {
+			for (CampTasca campTasca: entity.getCampsTasca()) {
+				campTasca.getTasca().removeCamp(campTasca);
+				int i = 0;
+				for (CampTasca ct: campTasca.getTasca().getCamps())
+					ct.setOrder(i++);
+			}
+			if (entity.getAgrupacio() != null)
+				reordenarCamps(entity.getAgrupacio().getId());
+		}
+		campRepository.delete(entity);	
+	}
+
+	/** Funció per reasignar el valor d'ordre dins d'una agrupació de variables. */
+	private void reordenarCamps(Long agrupacioId) {
+		//CampAgrupacio agrupacio = campAgrupacioRepository.findOne(agrupacioId);
+		List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(agrupacioId);		
+		int i = 0;
+		for (Camp camp: camps)
+			camp.setOrdre(i++);
+	}
+
+
+	@Override
+	public CampDto campFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant el camp del tipus d'expedient amb id (" +
+				"campId=" + id +  ")");
+
+		return conversioTipusHelper.convertir(
+				campRepository.findOne(id),
+				CampDto.class);
+	}
+
+	@Override
+	public CampDto campFindAmbCodiPerValidarRepeticio(Long expedientTipusId, String codi) throws NoTrobatException {
+		logger.debug(
+				"Consultant el camp del tipus d'expedient per codi per validar repetició (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codi = " + codi + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return conversioTipusHelper.convertir(
+				campRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
+				CampDto.class);
+	}	
+		
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els camps per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+
+		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
+				campRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				CampDto.class);
+		return pagina;
+	}
+	
+
+	// MANTENIMENT D'AGRUPACIONS DE CAMPS
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampAgrupacioDto> agrupacioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		// Recupera el tipus d'expedient
+		ExpedientTipus expedientTipus = 
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		List<CampAgrupacio> agrupacions = null;
+		if (expedientTipus.isAmbInfoPropia()) {
+			// Recupera la informació de les agrupacions de l'expedient
+			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
+		} else {
+			// Recupera la informació de les agrupacions per a la definició de procés
+		}
+		return conversioTipusHelper.convertirList(
+									agrupacions, 
+									CampAgrupacioDto.class);
+	}
+
+	@Override
+	@Transactional
+	public CampAgrupacioDto agrupacioCreate(
+			Long expedientTipusId, 
+			CampAgrupacioDto agrupacio) throws PermisDenegatException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public CampAgrupacioDto agrupacioUpdate(Long expedientTipusId, CampAgrupacioDto agrupacio)
+			throws NoTrobatException, PermisDenegatException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	@Transactional
+	public void agrupacioDelete(Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> campFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

@@ -5,11 +5,11 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 
 /**
  * Dao pels objectes de tipus CampAgrupacio
@@ -25,6 +25,15 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"    ordre")
 	List<CampAgrupacio> findAmbDefinicioProcesOrdenats(
 			@Param("definicioProcesId") Long definicioProcesId);
+
+	@Query("select ca from " +
+			"    CampAgrupacio ca " +
+			"where " +
+			"    ca.expedientTipus.id=:expedientTipusId " +
+			"order by " +
+			"    ordre")
+	List<CampAgrupacio> findAmbExpedientTipusOrdenats(
+			@Param("expedientTipusId") Long expedientTipusId);
 
 	@Query("select ca from " +
 			"    CampAgrupacio ca " +

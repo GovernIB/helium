@@ -5,10 +5,15 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -26,4 +31,26 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 
 	Camp findById(Long registreEsborrarId);
+	
+	@Query(	"from Camp c " +
+			"where " +
+			"    c.expedientTipus.id = :expedientTipusId " +
+			"and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
+	Page<ExpedientTipus> findByFiltrePaginat(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);
+
+	Camp findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
+
+	/** Consulta el següent valor per a ordre dins d'una agrupació. */
+	@Query(	"select coalesce( max( c.ordre), 0) + 1 " +
+			"from Camp c " +
+			"where " +
+			"    c.agrupacio.id = :agrupacioId " )
+	Integer getNextOrdre(@Param("agrupacioId") Long agrupacioId);
+	
+	List<Camp> findByAgrupacioIdOrderByOrdreAsc(Long campAgrupacioId);
+
 }

@@ -46,11 +46,12 @@ import net.conselldemallorca.helium.core.common.ExpedientCamps;
  */
 @Entity
 @Table(	name="hel_camp",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_camp",
 		indexes = {
 				@Index(name = "hel_camp_defproc_i", columnNames = {"definicio_proces_id"}),
+				@Index(name = "hel_camp_exptip_i", columnNames = {"expedient_tipus_id"}),
 				@Index(name = "hel_camp_agrup_i", columnNames = {"camp_agrupacio_id"}),
 				@Index(name = "hel_camp_domini_i", columnNames = {"domini_id"}),
 				@Index(name = "hel_camp_enum_i", columnNames = {"enumeracio_id"})})
@@ -110,8 +111,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private Consulta consulta;
 	private Domini domini;
 	private Enumeracio enumeracio;
-	@NotNull
 	private DefinicioProces definicioProces;
+	private ExpedientTipus expedientTipus;
 	private CampAgrupacio agrupacio;
 
 	private Set<CampTasca> campsTasca = new HashSet<CampTasca>();
@@ -125,8 +126,19 @@ public class Camp implements Serializable, GenericEntity<Long> {
 
 
 	public Camp() {}
+	public Camp(String codi, TipusCamp tipus, String etiqueta) {
+		this.codi = codi;
+		this.tipus = tipus;
+		this.etiqueta = etiqueta;
+	}
 	public Camp(DefinicioProces definicioProces, String codi, TipusCamp tipus, String etiqueta) {
 		this.definicioProces = definicioProces;
+		this.codi = codi;
+		this.tipus = tipus;
+		this.etiqueta = etiqueta;
+	}
+	public Camp(ExpedientTipus expedientTipus, String codi, TipusCamp tipus, String etiqueta) {
+		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.tipus = tipus;
 		this.etiqueta = etiqueta;
@@ -248,7 +260,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_camp_fk")
 	public DefinicioProces getDefinicioProces() {
@@ -256,6 +268,16 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setDefinicioProces(DefinicioProces definicioProces) {
 		this.definicioProces = definicioProces;
+	}
+
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_camp_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
 	}
 
 	@ManyToOne(optional=true)
@@ -515,6 +537,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
+		result = prime * result
+				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());		
 		return result;
 	}
 	@Override
@@ -535,6 +559,11 @@ public class Camp implements Serializable, GenericEntity<Long> {
 			if (other.definicioProces != null)
 				return false;
 		} else if (!definicioProces.equals(other.definicioProces))
+			return false;
+		if (expedientTipus == null) {
+			if (other.expedientTipus != null)
+				return false;
+		} else if (!expedientTipus.equals(other.expedientTipus))
 			return false;
 		return true;
 	}

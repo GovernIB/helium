@@ -1,22 +1,16 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,8 +21,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
@@ -47,15 +39,10 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  */
 @Controller(value = "expedientTipusControllerV3")
 @RequestMapping("/v3/expedientTipus")
-public class ExpedientTipusController extends BaseExpedientController {
+public class ExpedientTipusController extends BaseExpedientTipusController {
 
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
-	@Autowired
-	private AplicacioService aplicacioService;
-	@Autowired
-	private DissenyService dissenyService;
-
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
@@ -89,26 +76,11 @@ public class ExpedientTipusController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
-				entornActual.getId(),
-				expedientTipusId);
-		model.addAttribute("expedientTipus", expedientTipus);
-		if (request.getParameter("pipellaActiva") != null)
-			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
-		else
-			model.addAttribute("pipellaActiva", "dades");
-		// Responsable per defecte
-		if (expedientTipus.getResponsableDefecteCodi() != null) {
-			model.addAttribute(
-					"responsableDefecte",
-					aplicacioService.findPersonaAmbCodi(
-							expedientTipus.getResponsableDefecteCodi()));
-		}
-		model.addAttribute(
-				"definicioProcesInicial",
-				dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
-		return "v3/expedientTipusInfo";
+		return mostrarInformacioExpedientTipusPerPipelles(
+				request,
+				expedientTipusId,
+				model,
+				null);
 	}
 
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
@@ -317,13 +289,4 @@ public class ExpedientTipusController extends BaseExpedientController {
 						entornActual.getId(),
 						id));
 	}
-
-	@InitBinder
-	public void initBinder(WebDataBinder binder) {
-	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	    dateFormat.setLenient(false);
-	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-	}
-
 }

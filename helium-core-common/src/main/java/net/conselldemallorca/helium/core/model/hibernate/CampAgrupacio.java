@@ -24,7 +24,6 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa una agrupació de camps.
@@ -33,10 +32,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_camp_agrup",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_camp_agrup",
-		indexes = @Index(name = "hel_campagrup_defproc_i", columnNames = {"definicio_proces_id"}))
+		indexes ={
+				@Index(name = "hel_campagrup_defproc_i", columnNames = {"definicio_proces_id"}),
+				@Index(name = "hel_campagrup_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -52,9 +53,9 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 
 
 
-	@NotNull
 	private DefinicioProces definicioProces;
-
+	private ExpedientTipus expedientTipus;
+	
 	private List<Camp> camps = new ArrayList<Camp>();
 
 
@@ -62,6 +63,12 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 	public CampAgrupacio() {}
 	public CampAgrupacio(DefinicioProces definicioProces, String codi, String nom, int ordre) {
 		this.definicioProces = definicioProces;
+		this.codi = codi;
+		this.nom = nom;
+		this.ordre = ordre;
+	}
+	public CampAgrupacio(ExpedientTipus expedientTipus, String codi, String nom, int ordre) {
+		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.nom = nom;
 		this.ordre = ordre;
@@ -110,7 +117,7 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 		this.ordre = ordre;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_campagrup_fk")
 	public DefinicioProces getDefinicioProces() {
@@ -118,6 +125,15 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setDefinicioProces(DefinicioProces definicioProces) {
 		this.definicioProces = definicioProces;
+	}
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_campagrup_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
 	}
 
 	@OneToMany(mappedBy="agrupacio")
@@ -144,6 +160,8 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
+		result = prime * result
+				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());		
 		return result;
 	}
 	@Override
@@ -164,6 +182,11 @@ public class CampAgrupacio implements Serializable, GenericEntity<Long> {
 			if (other.definicioProces != null)
 				return false;
 		} else if (!definicioProces.equals(other.definicioProces))
+			return false;
+		if (expedientTipus == null) {
+			if (other.expedientTipus != null)
+				return false;
+		} else if (!expedientTipus.equals(other.expedientTipus))
 			return false;
 		return true;
 	}

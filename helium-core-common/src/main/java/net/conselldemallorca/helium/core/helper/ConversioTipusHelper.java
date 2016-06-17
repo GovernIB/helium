@@ -145,6 +145,7 @@ public class ConversioTipusHelper {
 						target.setRestringirPerGrup(source.isRestringirPerGrup());
 						target.setSeleccionarAny(source.isSeleccionarAny());
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
+						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.getTeNumero());
@@ -193,6 +194,7 @@ public class ConversioTipusHelper {
 						target.setRestringirPerGrup(source.isRestringirPerGrup());
 						target.setSeleccionarAny(source.isSeleccionarAny());
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
+						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());
