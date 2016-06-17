@@ -37,10 +37,3 @@ Formulari d'una tasca / Formulario de una tarea
 
 ![Llistat de tasques de l'expedient / Listado de tareas del expediente](https://raw.githubusercontent.com/GovernIB/helium/binaris/projectinfo_Attachments/screenshots/313775.jpg)<br/>
 Llistat de tasques de l'expedient / Listado de tareas del expediente
-
-
-
-
-
-
-
