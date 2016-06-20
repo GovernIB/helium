@@ -7,12 +7,11 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
-
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar el registre d'accions dels expedients
@@ -23,9 +22,9 @@ import org.springframework.stereotype.Component;
 public class ExpedientRegistreHelper {
 
 	@Resource
-	RegistreRepository registreRepository;
+	private RegistreRepository registreRepository;
 	@Resource
-	ExpedientRepository expedientRepository;
+	private ExpedientHelper expedientHelper;
 
 
 
@@ -450,7 +449,7 @@ public class ExpedientRegistreHelper {
 			String processInstanceId,
 			String responsableCodi,
 			String documentCodi) {
-		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		Registre registre = new Registre(
 				new Date(),
 				expedient.getId(),
