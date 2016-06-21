@@ -185,11 +185,15 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampDto> campFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
-		return delegate.campFindAll(expedientTipusId);
+	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi) throws NoTrobatException {
+		return delegate.agrupacioFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampAgrupacioDto agrupacioFindAmbId(Long id) throws NoTrobatException {
+		return delegate.agrupacioFindAmbId(id);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -216,6 +220,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampDto campFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi) throws NoTrobatException {
 		return delegate.campFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
 	}
@@ -223,13 +228,27 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<CampDto> campFindPerDatatable(
-			Long expedientTipusId, 
+			Long expedientTipusId,
+			Long agrupacioId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.campFindPerDatatable(
-				expedientTipusId, 
+				expedientTipusId,
+				agrupacioId,
 				filtre, 
 				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean campAfegirAgrupacio(Long id, Long agrupacioId) {
+		return delegate.campAfegirAgrupacio(id, agrupacioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean campRemoureAgrupacio(Long id) {
+		return delegate.campRemoureAgrupacio(id);
 	}
 
 }

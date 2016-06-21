@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Dao pels objectes de tipus CampAgrupacio
@@ -58,4 +59,15 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"and ca.ordre=:ordre")
 	CampAgrupacio getAmbOrdre(@Param("definicioProcesId") Long definicioProcesId, 
 			@Param("ordre") int ordre);
+
+	/** Consulta el següent valor per a ordre de les agrupacions. */
+	@Query(	"select coalesce( max( ca.ordre), 0) + 1 " +
+			"from CampAgrupacio ca " +
+			"where " +
+			"    ca.expedientTipus.id = :expedientTipusId " )
+	Integer getNextOrdre(@Param("expedientTipusId") Long expedientTipusId);
+
+	/** Per trobar codis repetits. */
+	CampAgrupacio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);	
+		
 }

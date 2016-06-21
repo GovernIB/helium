@@ -274,21 +274,29 @@ public interface ExpedientTipusService {
 			Long agrupacioCampId) throws NoTrobatException, PermisDenegatException;
 	
 	/**
-	 * Retorna els camps per a un tipus d'expedient.
+	 * Retorna una agrupació de camps d'un tipus d'expedient donat el seu codi.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
-	 * @return els camps del tipus d'expedient.
+	 * @param tipusExpedientId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return La agrupació de camps del tipus d'expedient o null si no el troba.
+	 */
+	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(
+			Long tipusExpedientId,
+			String codi) throws NoTrobatException;	
+
+	/** 
+	 * Retorna la agrupació de camps del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return La agrupació de camps del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
-	 *             Si no es tenen els permisos necessaris.
 	 */
-	public List<CampDto> campFindAll(
-			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
-	
+	public CampAgrupacioDto agrupacioFindAmbId(
+			Long id) throws NoTrobatException;	
+
 	/**
 	 * Crea un nou camp.
 	 * 
@@ -366,6 +374,7 @@ public interface ExpedientTipusService {
 	 */
 	public PaginaDto<CampDto> campFindPerDatatable(
 			Long expedientTipusId,
+			Long agrupacioId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
 	
@@ -379,5 +388,28 @@ public interface ExpedientTipusService {
 	 */
 	public CampDto campFindAmbCodiPerValidarRepeticio(
 			Long tipusExpedientId,
-			String codi) throws NoTrobatException;	
+			String codi) throws NoTrobatException;
+
+	/**
+	 * Afegeix un camp a una agrupació.
+	 * @param id
+	 * 			Identificador del camp
+	 * @param agrupacioId
+	 * 			Identificador de la agrupació
+	 * @return
+	 * 			Retorna true si ha anat bé o false si no s'ha trobat el camp o la agrupació 
+	 * 			o el seu tipus d'expedient no és el mateix.
+	 */
+	public boolean campAfegirAgrupacio(Long campId, Long agrupacioId);
+
+	/**
+	 * Remou un camp de la seva agrupació.
+	 * 
+	 * @param id
+	 * 			Identificador del camp
+	 * @return
+	 * 			Retorna cert si s'ha remogut correctament o false si no existia el camp o no tenia
+	 * 			agrupació.
+	 */
+	public boolean campRemoureAgrupacio(Long campId);
 }

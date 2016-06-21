@@ -11,7 +11,8 @@
 <html>
 <head>
 	<title><spring:message code="expedient.tipus.info.titol"/></title>
-	<meta name="title" content="${fn:escapeXml(expedientTipus.nom)}"/>
+	<meta name="title" content="<spring:message code="expedient.tipus.info.titol"/>"/>
+	<meta name="subtitle" content="${fn:escapeXml(expedientTipus.nom)}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
@@ -133,7 +134,7 @@
 						<dd>${responsableDefecte.nomSencer}</dd></c:if>
 					<c:if test="${not empty definicioProcesInicial}">
 						<dt><spring:message code="expedient.tipus.info.camp.definicio.proces.inicial"/></dt>
-						<dd>${definicioProcesInicial.jbpmName}</dd>
+						<dd>${definicioProcesInicial.jbpmKey}</dd>
 					</c:if>
 				</dl>
 				<c:if test="${potEscriure or potEsborrar}">

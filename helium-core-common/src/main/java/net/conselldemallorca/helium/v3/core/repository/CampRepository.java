@@ -34,14 +34,17 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	
 	@Query(	"from Camp c " +
 			"where " +
-			"    c.expedientTipus.id = :expedientTipusId " +
-			"and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
+			"   c.expedientTipus.id = :expedientTipusId " +
+			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
+			"	and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
 	Page<ExpedientTipus> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
+			@Param("agrupacioId") Long agrupacioId,		
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
-
+	
 	Camp findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 
 	/** Consulta el següent valor per a ordre dins d'una agrupació. */

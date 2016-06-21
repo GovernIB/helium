@@ -30,6 +30,8 @@ public class CampDto implements Serializable {
 	
 	private Long dominiId;
 	private boolean multiple;
+	private boolean ocult;
+	private boolean ignored;
 	
 	private DefinicioProcesDto definicioProces;
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
@@ -192,5 +194,17 @@ public class CampDto implements Serializable {
 	}
 	public void setMultiple(boolean multiple) {
 		this.multiple = multiple;
+	}
+	public boolean isOcult() {
+		return ocult;
+	}
+	public void setOcult(boolean ocult) {
+		this.ocult = ocult;
+	}
+	public boolean isIgnored() {
+		return ignored;
+	}
+	public void setIgnored(boolean ignored) {
+		this.ignored = ignored;
 	}
 }

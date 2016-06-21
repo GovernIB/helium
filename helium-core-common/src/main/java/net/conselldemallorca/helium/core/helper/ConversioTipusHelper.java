@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -75,7 +76,15 @@ public class ConversioTipusHelper {
 						target.setObservacions(source.getObservacions());
 						target.setTipus(
 								CampTipusDto.valueOf(
-										source.getTipus().toString()));						
+										source.getTipus().toString()));	
+						target.setAgrupacio(
+								mapperFacade.map(
+										source.getAgrupacio(), 
+										CampAgrupacioDto.class)
+								);
+						target.setMultiple(source.isMultiple());
+						target.setOcult(source.isOcult());
+						target.setIgnored(source.isIgnored());
 						return target;
 					}
 		});

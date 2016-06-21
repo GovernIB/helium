@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -26,9 +27,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -71,25 +71,37 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Model model) {
-		List<CampAgrupacioDto> agrupacions = null;
-		// Mira si és la configuració antiga o la configuració nova
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
-			agrupacions = expedientTipusService.agrupacioFindAll(expedientTipus.getId());
 		}
-		model.addAttribute("agrupacions", agrupacions);		
+		this.omplirModelAgrupacions(
+				request, 
+				expedientTipusId, 
+				model);
 	}
 	
+	private void omplirModelAgrupacions(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		List<CampAgrupacioDto> agrupacions = expedientTipusService.agrupacioFindAll(expedientTipusId);
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (CampAgrupacioDto agrupacio : agrupacions) {
+			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
+		}
+		model.addAttribute("agrupacions", resposta);		
+	}
 	
 	@RequestMapping(value="/{expedientTipusId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
@@ -97,6 +109,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 				null,
 				expedientTipusService.campFindPerDatatable(
 						expedientTipusId,
+						agrupacioId,
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}	
@@ -108,36 +121,42 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			resposta.add(new ParellaCodiValorDto(campTipus.toString(), campTipus));
 		}
 		return resposta;
-
-		
 	}
-
+		
 	@RequestMapping(value = "/{expedientTipusId}/variable/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
+			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusCampCommand command = new ExpedientTipusCampCommand();
+		command.setAgrupacioId(agrupacioId);
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusCampCommand", command);
+		this.omplirModelAgrupacions(
+				request, 
+				expedientTipusId, 
+				model);
 		return "v3/expedientTipusVariableForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/variable/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@Validated(Creacio.class) ExpedientTipusCampCommand command,
+			@Validated(ExpedientTipusCampCommand.Creacio.class) ExpedientTipusCampCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+    		this.omplirModelAgrupacions(
+    				request, 
+    				expedientTipusId, 
+    				model);
         	return "v3/expedientTipusVariableForm";
         } else {
         	// Verificar permisos
     		expedientTipusService.campCreate(
     				expedientTipusId,
-    				conversioTipusHelper.convertir(
-    						command,
-    						CampDto.class));    		
+        			ExpedientTipusCampCommand.asCampDto(command));    		
 			return getModalControllerReturnValueSuccess(
 					request,
 					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
@@ -155,7 +174,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		ExpedientTipusCampCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusCampCommand.class);
+		command.setAgrupacioId(dto.getAgrupacio() != null? dto.getAgrupacio().getId() : null);
 		model.addAttribute("expedientTipusCampCommand", command);
+		this.omplirModelAgrupacions(
+				request, 
+				expedientTipusId, 
+				model);
 		return "v3/expedientTipusVariableForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/update", method = RequestMethod.POST)
@@ -163,21 +187,46 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
-			@Validated(Modificacio.class) ExpedientTipusCampCommand command,
+			@Validated(ExpedientTipusCampCommand.Modificacio.class) ExpedientTipusCampCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+    		this.omplirModelAgrupacions(
+    				request, 
+    				expedientTipusId, 
+    				model);
         	return "v3/expedientTipusVariableForm";
         } else {
         	expedientTipusService.campUpdate(
-        			conversioTipusHelper.convertir(
-    						command,
-    						CampDto.class));
+        			ExpedientTipusCampCommand.asCampDto(command));
 			return getModalControllerReturnValueSuccess(
 					request,
 					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
 					"expedient.tipus.camp.controller.modificat");
         }
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/agrupar/{agrupacioId}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean agrupar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			@PathVariable Long agrupacioId,
+			Model model) {
+		
+		return expedientTipusService.campAfegirAgrupacio(id, agrupacioId);
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/desagrupar", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean desagrupar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model) {
+		
+		return expedientTipusService.campRemoureAgrupacio(id);
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/delete", method = RequestMethod.GET)
@@ -197,5 +246,97 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		
 		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
 	}
+	
+	
+	// Mètodes pel manteniment d'agrupacions
+	
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/new", method = RequestMethod.GET)
+	public String agrupacioNova(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		ExpedientTipusAgrupacioCommand command = new ExpedientTipusAgrupacioCommand();
+		command.setExpedientTipusId(expedientTipusId);
+		model.addAttribute("expedientTipusAgrupacioCommand", command);
+		return "v3/expedientTipusAgrupacioForm";
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/new", method = RequestMethod.POST)
+	public String agrupacioNovaPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@Validated(ExpedientTipusAgrupacioCommand.Creacio.class) ExpedientTipusAgrupacioCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/expedientTipusAgrupacioForm";
+        } else {
+        	// Verificar permisos
+    		expedientTipusService.agrupacioCreate(
+    				expedientTipusId,
+    				conversioTipusHelper.convertir(
+    						command,
+    						CampAgrupacioDto.class));    		
+			return getModalControllerReturnValueSuccess(
+					request,
+					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
+					"expedient.tipus.campAgrupacio.controller.creat");
+        }
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/update", method = RequestMethod.GET)
+	public String agrupacioModificar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model) {
+		CampAgrupacioDto dto = expedientTipusService.agrupacioFindAmbId(id);
+		ExpedientTipusAgrupacioCommand command = conversioTipusHelper.convertir(
+				dto,
+				ExpedientTipusAgrupacioCommand.class);
+		model.addAttribute("expedientTipusAgrupacioCommand", command);
+		return "v3/expedientTipusAgrupacioForm";
+	}
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/update", method = RequestMethod.POST)
+	public String agrupacioModificarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			@Validated(ExpedientTipusAgrupacioCommand.Modificacio.class) ExpedientTipusAgrupacioCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/expedientTipusAgrupacioForm";
+        } else {
+        	expedientTipusService.agrupacioUpdate(
+        			expedientTipusId,
+        			conversioTipusHelper.convertir(
+    						command,
+    						CampAgrupacioDto.class));
+			return getModalControllerReturnValueSuccess(
+					request,
+					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
+					"expedient.tipus.campAgrupacio.controller.modificat");
+        }
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/delete", method = RequestMethod.GET)
+	public String agrupacioDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model) {
+		
+		expedientTipusService.agrupacioDelete(id);
+		
+		MissatgesHelper.success(
+				request,
+				getMessage(
+						request,
+						"expedient.tipus.campAgrupacio.controller.eliminat"));
+		
+		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
+	}
+	
 	
 }
