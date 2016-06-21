@@ -7,7 +7,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -30,10 +35,6 @@ import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -60,6 +61,8 @@ public class TerminiServiceImpl implements TerminiService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private ExpedientHelper expedientHelper;
 
 	@Transactional(readOnly=true)
 	@Override
@@ -308,9 +311,8 @@ public class TerminiServiceImpl implements TerminiService {
 			terminiIniciat.setAnys(anys);
 			resumeTimers(terminiIniciat);
 		}
-		
 		crearRegistreTermini(
-					getExpedientForProcessInstanceId(expedient.getProcessInstanceId()).getId(),
+					expedient.getId(),
 					expedient.getProcessInstanceId(),
 					Registre.Accio.INICIAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -331,10 +333,10 @@ public class TerminiServiceImpl implements TerminiService {
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-		if (expedientId != null) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if (expedient != null) {
 			crearRegistreTermini(
-					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					expedient.getId(),
 					processInstanceId,
 					Registre.Accio.ATURAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -355,10 +357,10 @@ public class TerminiServiceImpl implements TerminiService {
 		terminiIniciat.setDataAturada(null);
 		resumeTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-		if (expedientId != null) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if (expedient != null) {
 			crearRegistreTermini(
-					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					expedient.getId(),
 					processInstanceId,
 					Registre.Accio.REPRENDRE,
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -377,10 +379,10 @@ public class TerminiServiceImpl implements TerminiService {
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
 		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		Long expedientId = getExpedientForProcessInstanceId(processInstanceId).getId();
-		if (expedientId != null) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		if (expedient != null) {
 			crearRegistreTermini(
-					getExpedientForProcessInstanceId(processInstanceId).getId(),
+					expedient.getId(),
 					processInstanceId,
 					Registre.Accio.CANCELAR,
 					SecurityContextHolder.getContext().getAuthentication().getName());
@@ -460,14 +462,6 @@ public class TerminiServiceImpl implements TerminiService {
 			return resposta;
 		}
 		return new int[0];
-	}
-
-	private Expedient getExpedientForProcessInstanceId(String processInstanceId) {
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
-		if (pi == null) {
-			return null;
-		}
-		return expedientRepository.findByProcessInstanceId(pi.getId());
 	}
 
 	private void suspendTimers(TerminiIniciat terminiIniciat) {

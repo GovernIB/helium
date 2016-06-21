@@ -29,8 +29,6 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 
 	List<Expedient> findByIdIn(Collection<Long> id);
 
-	Expedient findByProcessInstanceId(String processInstanceId);
-	
 	List<Expedient> findByReindexarDataNotNullOrderByReindexarDataAsc();
 
 	Expedient findByEntornIdAndTipusIdAndNumero(

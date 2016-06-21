@@ -150,7 +150,7 @@ public class IndexHelper {
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId) {
 		
-		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (expedient.getTipus().isReindexacioAsincrona()) {
 			if (expedient.getReindexarData() == null) {
 				expedient.setReindexarData(new Date());
