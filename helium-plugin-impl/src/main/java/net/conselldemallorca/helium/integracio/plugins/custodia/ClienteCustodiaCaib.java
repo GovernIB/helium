@@ -166,6 +166,10 @@ public class ClienteCustodiaCaib {
 			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
 			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
 			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
+		} else if ("ReservaResponse".equals(document.getRootElement().getName())) {
+			resultMajorElement = document.getRootElement().element("Result").element("ResultMajor");
+			resultMinorElement = document.getRootElement().element("Result").element("ResultMinor");
+			resultMessageElement = document.getRootElement().element("Result").element("ResultMessage");
 		}
 		if (resultMajorElement == null)
 			throw new DocumentException("No s'ha trobat el ResultMajor");
