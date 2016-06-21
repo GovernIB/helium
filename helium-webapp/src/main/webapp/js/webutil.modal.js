@@ -154,13 +154,11 @@
 							$('.modal-dialog', modalobj).css('width', '98%');
 							$('.modal-dialog', modalobj).css('top', '10px');
 							$('.modal-dialog', modalobj).css('margin', 'auto');
-							iframe.attr('height', '100%');
-							var contentHeight = $(iframe).contents().find("html").outerHeight();
 							var modalobj = $(iframe).parent().parent().parent();
 							var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
-							var maxBodyHeight = $(window.top).height() - taraModal - 20;
+							var maxBodyHeight = $(window.top).height() - taraModal - 70;
 							$(iframe).height(maxBodyHeight + 'px');
-							$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+							$('div.modal-body', modalobj).height((maxBodyHeight + 5) + 'px');
 							$(iframe).contents().find("body").css('height', maxBodyHeight + 'px');
 						} else if (settings.adjustHeight) {
 							var modalobj = $(iframe).parent().parent().parent();

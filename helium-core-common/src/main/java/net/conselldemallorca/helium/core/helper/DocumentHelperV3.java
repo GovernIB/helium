@@ -101,7 +101,6 @@ public class DocumentHelperV3 {
 			boolean ambSegellSignatura) {
 		ArxiuDto resposta = new ArxiuDto();
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		Expedient expedient = expedientRepository.findByProcessInstanceId(documentStore.getProcessInstanceId());
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
 		if (documentStore.isSignat() && isSignaturaFileAttached()) {
@@ -152,6 +151,7 @@ public class DocumentHelperV3 {
 						extensioDesti);
 				resposta.setContingut(vistaContingut.toByteArray());
 			} catch (Exception ex) {
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 				throw SistemaExternException.tractarSistemaExternException(
 						expedient.getEntorn().getId(),
 						expedient.getEntorn().getCodi(), 
@@ -1071,7 +1071,7 @@ public class DocumentHelperV3 {
 							dto.setVistaContingut(vistaContingut.toByteArray());
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
-							Expedient expedient = expedientRepository.findByProcessInstanceId(document.getProcessInstanceId());
+							Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
 							throw SistemaExternException.tractarSistemaExternException(
 									expedient.getEntorn().getId(),
 									expedient.getEntorn().getCodi(), 
@@ -1264,7 +1264,9 @@ public class DocumentHelperV3 {
 			if (!pluginHelper.gestioDocumentalIsPluginActiu())
 				documentStore.setArxiuContingut(arxiuContingut);
 			if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
+				pluginHelper.gestioDocumentalDeleteDocument(
+						documentStore.getReferenciaFont(),
+						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 		}
 		// Crea el document a dins la gestió documental
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu()) {
@@ -1318,7 +1320,9 @@ public class DocumentHelperV3 {
 		if (!pluginHelper.gestioDocumentalIsPluginActiu())
 			documentStore.setArxiuContingut(arxiuContingut);
 		if (arxiuContingut != null && pluginHelper.gestioDocumentalIsPluginActiu())
-			pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
+			pluginHelper.gestioDocumentalDeleteDocument(
+					documentStore.getReferenciaFont(),
+					expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 		// Guarda la referència al nou document a dins el jBPM
 		jbpmHelper.setProcessInstanceVariable(
 				processInstanceId,
@@ -1357,12 +1361,15 @@ public class DocumentHelperV3 {
 		if (documentStore != null) {
 			if (documentStore.isSignat()) {
 				if (pluginHelper.custodiaIsPluginActiu()) {
-					pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), 
-							expedientRepository.findByProcessInstanceId(processInstanceId));
+					pluginHelper.custodiaEsborrarSignatures(
+							documentStore.getReferenciaCustodia(), 
+							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				}
 			}
 			if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
-				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientRepository.findByProcessInstanceId(processInstanceId));
+				pluginHelper.gestioDocumentalDeleteDocument(
+						documentStore.getReferenciaFont(),
+						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 			if (processInstanceId != null) {
 				for (Portasignatures psigna: portasignaturesRepository.findByProcessInstanceIdAndPendent(processInstanceId)) {
 					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
