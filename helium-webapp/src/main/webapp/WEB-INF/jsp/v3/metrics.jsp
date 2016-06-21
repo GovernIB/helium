@@ -3,6 +3,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<% pageContext.setAttribute("idioma",org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()); %>
 
 <html>
 <head>
@@ -12,12 +13,14 @@
 	<script src="<c:url value='/js/metrics/metrics-watcher.js'/>"></script>
 	<!-- And include the metrics stylesheet -->
 	<link href="<c:url value='/js/metrics/metrics-watcher-style.css'/>" rel="stylesheet">
-	<link href="<c:url value='/css/select2.css'/>" rel="stylesheet">
-	<link href="<c:url value='/css/select2-bootstrap.css'/>" rel="stylesheet">
 	<script src="<c:url value='/js/Blob.js'/>"></script>
 	<script src="<c:url value='/js/FileSaver.min.js'/>"></script>
-	<script src="<c:url value='/js/select2.min.js'/>"></script>
-	<script src="<c:url value='/js/select2-locales/select2_locale_ca.js'/>"></script>
+	
+	
+	 <link href="<c:url value="/webjars/select2/4.0.1/dist/css/select2.min.css"/>" rel="stylesheet"/>
+ <link href="<c:url value="/webjars/select2-bootstrap-theme/0.1.0-beta.4/dist/select2-bootstrap.min.css"/>" rel="stylesheet"/>
+ <script src="<c:url value="/webjars/select2/4.0.1/dist/js/select2.min.js"/>"></script>
+ <script src="<c:url value="/webjars/select2/4.0.1/dist/js/i18n/${idioma}.js"/>"></script>
 
 	<style type="text/css">	
 		.progress-title {position: absolute; right: 42px;}
@@ -37,13 +40,15 @@
 	
 		$(document).ready(function() {
 			$("#entornCodi").select2({
-			    width: 'resolve',
+			    //width: 'resolve',
+			    theme: "bootstrap",
 			    placeholder: "<spring:message code='perfil.usuari.entorn'/>",
 			    allowClear: true,
 			    minimumResultsForSearch: 10
 			});
 			$("#expedientTipusId").select2({
-			    width: 'resolve',
+			    //width: 'resolve',
+			    theme: "bootstrap",
 			    placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>",
 			    allowClear: true,
 			    minimumResultsForSearch: 10
@@ -163,12 +168,22 @@
 					        $.each(json, function(i, value) {
 					        	$("#expedientTipusId").append($('<option>').text(value.nom).attr('value', value.id));
 					        });
-					        $("#expedientTipusId").select2({placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>", allowClear: true});
+					        $("#expedientTipusId").select2({
+					        	width: 'resolve',
+							    theme: "bootstrap",
+							    placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>",
+							    allowClear: true,
+							    minimumResultsForSearch: 10});
 					        $("#expedientTipusId").val(null).trigger("change");
 					    }
 					});
 				} else {
-					$("#expedientTipusId").select2({placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>", allowClear: true});
+					$("#expedientTipusId").select2({
+			        	width: 'resolve',
+					    theme: "bootstrap",
+					    placeholder: "<spring:message code='perfil.usuari.tipus.expedient'/>",
+					    allowClear: true,
+					    minimumResultsForSearch: 10});
 					$("#expedientTipusId").val(null).trigger("change");
 				}
 			});
@@ -344,7 +359,7 @@
 			<div class="form-group">
 				<label for="entornCodi" class="control-label col-xs-4 "><spring:message code="perfil.usuari.entorn"/></label>
 				<div class="controls col-xs-8">
-					<select id="entornCodi" class="form-control" name="entornCodi" title="<spring:message code='perfil.usuari.entorn'/>">
+					<select id="entornCodi" class="form-control" name="entornCodi" title="<spring:message code='perfil.usuari.entorn'/>" style="width:100%">
 						<option value=""></option>
 						<c:forEach var="opt" items="${entorns}"><option value="${opt.codi}">${opt.nom}</option></c:forEach>
 					</select>
@@ -355,7 +370,7 @@
 			<div class="form-group">
 				<label for="expedientTipusId" class="control-label col-xs-4 "><spring:message code="perfil.usuari.tipus.expedient"/></label>
 				<div class="controls col-xs-8">
-					<select id="expedientTipusId" class="form-control" name="expedientTipusId" title="<spring:message code='perfil.usuari.tipus.expedient'/>">
+					<select id="expedientTipusId" class="form-control" name="expedientTipusId" title="<spring:message code='perfil.usuari.tipus.expedient'/>" style="width:100%">
 						<option value=""></option>
 					</select>
 				</div>
@@ -406,6 +421,8 @@
       		</div>
   		</div>
 	</div>
-	
+	<div id="modal-botons" class="well">
+		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
+	</div>
 </body>
 </html>
