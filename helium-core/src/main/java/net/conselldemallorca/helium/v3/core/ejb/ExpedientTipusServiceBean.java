@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -264,6 +265,26 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.documentFindPerDatatable(
 				expedientTipusId,
 				filtre, 
+				paginacioParams);
+	}
+	
+	/***********************************************/
+	/*******************TERMINIS********************/
+	/***********************************************/
+	
+	/**
+	 * Retorna els terminis per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	public List<TerminiDto> terminiFindAll(
+			Long expedientTipusId,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		return delegate.terminiFindAll(
+				expedientTipusId, 
 				paginacioParams);
 	}
 }

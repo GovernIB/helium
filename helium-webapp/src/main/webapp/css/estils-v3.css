@@ -196,3 +196,12 @@ form .btn-group > .btn-default:hover:HOVER {
 	overflow-wrap: break-word; 
 	max-width: 120px;
 }
+.fright {
+	float: right;
+}
+.botons.fright {
+	padding-left: 10px;
+}
+.botons.fright a {
+	padding: 4px 12px;
+}

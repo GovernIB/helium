@@ -10,7 +10,6 @@
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
 
-
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
@@ -30,16 +29,18 @@
 			</div>
 		</div>
 
-		<div class="botons-titol text-right">
-			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
-		</div>
+		
+<!-- 		<div class="botons-titol text-right"> -->
+<%-- 			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a> --%>
+<!-- 		</div> -->
 		<table	id="expedientTipusVariable"
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/variable/datatable"
 				data-paging-enabled="true"
-				data-info-type="search"
+				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-botons-template="#tableButtonsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -79,7 +80,11 @@
 				</tr>
 			</thead>
 		</table>
-
+		<script id="tableButtonsTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
+			</div>
+		</script>
 		
 	</c:when>
 	<c:otherwise>

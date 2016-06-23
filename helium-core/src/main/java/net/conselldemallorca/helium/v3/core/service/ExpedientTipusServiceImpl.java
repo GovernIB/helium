@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -37,6 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -46,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -69,6 +72,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private CampAgrupacioRepository campAgrupacioRepository;
 	@Resource
 	private DocumentRepository documentRepository;
+	@Resource
+	private TerminiRepository terminiRepository;
+	
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -738,5 +744,33 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 						DocumentDto.class);
+	}
+	
+	/***********************************************/
+	/******************TERMINIS*********************/
+	/***********************************************/
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TerminiDto> terminiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		// Recupera el tipus d'expedient
+		ExpedientTipus expedientTipus =	
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		List<Termini> terminis = null;
+		if (expedientTipus.isAmbInfoPropia()) {
+			// Recupera la informació de les agrupacions de l'expedient
+			terminis = terminiRepository.findByExpedientTipusId(
+					expedientTipusId, 
+					paginacioHelper.toSpringDataPageable(paginacioParams));
+		} else {
+			// Recupera la informació de les agrupacions per a la definició de procés
+//			Set<DefinicioProces> definicionsProces = expedientTipus.getDefinicionsProces();
+//			terminis = terminiRepository.findByDefinicioProcesId(definicionsProces.iterator().next().getId());
+		}
+		return conversioTipusHelper.convertirList(
+									terminis, 
+									TerminiDto.class);
 	}
 }
