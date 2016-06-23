@@ -90,19 +90,20 @@ public class DocumentHelper {
 		if (documentStoreId != null)
 			documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
-			DocumentStore ds = new DocumentStore(
-					(pluginHelper.gestioDocumentalIsPluginActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
-					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, isAdjunt),
-					new Date(),
-					documentData,
-					arxiuNom);
-			ds.setAdjunt(isAdjunt);
-			if (isAdjunt)
-				ds.setAdjuntTitol(documentNom);
-			if (arxiuContingut != null)
-				ds.setArxiuContingut(arxiuContingut);
-			documentStore = documentStoreRepository.save(documentStore);
+			documentStore = new DocumentStore(
+				     (pluginHelper.gestioDocumentalIsPluginActiu()) ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
+				     processInstanceId,
+				     getVarPerDocumentCodi(documentCodi, isAdjunt),
+				     new Date(),
+				     documentData,
+				     arxiuNom);
+		    documentStore.setAdjunt(isAdjunt);
+		    if (isAdjunt)
+		    documentStore.setAdjuntTitol(documentNom);
+		    if (arxiuContingut != null)
+		    documentStore.setArxiuContingut(arxiuContingut);
+		    documentStore = documentStoreRepository.save(documentStore);
+		    documentStoreId = documentStore.getId();
 		} else {
 			documentStore.setDataDocument(documentData);
 			documentStore.setArxiuNom(arxiuNom);
@@ -177,8 +178,10 @@ public class DocumentHelper {
 					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
 							documentStore.getId());
-					psigna.setEstat(TipusEstat.ESBORRAT);
-					portasignaturesRepository.save(psigna);
+					if (psigna != null) {
+						psigna.setEstat(TipusEstat.ESBORRAT);
+						portasignaturesRepository.save(psigna);
+					}
 				}
 				documentStoreRepository.delete(documentStoreId);
 			}
@@ -221,8 +224,10 @@ public class DocumentHelper {
 					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
 							documentStore.getId());
-					psigna.setEstat(TipusEstat.ESBORRAT);
-					portasignaturesRepository.save(psigna);
+					if (psigna != null) {
+						psigna.setEstat(TipusEstat.ESBORRAT);
+						portasignaturesRepository.save(psigna);
+					}
 				}
 				documentStoreRepository.delete(documentStoreId);
 			}
