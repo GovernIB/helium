@@ -640,21 +640,12 @@ public class ExpedientHelper {
 	public void comprovarInstanciaProces(
 			Expedient expedient,
 			String processInstanceId) {
-		if (!expedient.getProcessInstanceId().equals(processInstanceId)) {
-			List<JbpmProcessInstance> processInstanceFills = jbpmHelper.getProcessInstanceTree(
-					expedient.getProcessInstanceId());
-			boolean trobada = false;
-			for (JbpmProcessInstance processInstance: processInstanceFills) {
-				if (expedient.getProcessInstanceId().equals(processInstance.getId())) {
-					trobada = true;
-					break;
-				}
-			}
-			if (!trobada) {
-				throw new NoTrobatException(
-						JbpmProcessInstance.class,
-						new Long(processInstanceId));
-			}
+		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+				processInstanceId);
+		if (piexp.getId() != expedient.getId().longValue()) {
+			throw new NoTrobatException(
+					JbpmProcessInstance.class,
+					new Long(processInstanceId));
 		}
 	}
 

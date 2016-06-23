@@ -16,6 +16,27 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
@@ -46,6 +67,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaExcepti
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -55,27 +78,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -125,6 +127,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private TascaService tascaService;
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientDadaService expedientDadaService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+
+
 
 	@Transactional
 	@Override
@@ -947,7 +955,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				Long documentId = (Long)param2[1];
 				TascaDocumentDto document = tascaService.findDocument(tascaId, documentId);
-				expedientService.generarDocumentAmbPlantillaTasca(tascaId, document.getDocumentCodi());
+				expedientDocumentService.generarAmbPlantillaPerTasca(
+						tascaId,
+						document.getDocumentCodi());
 				mesuresTemporalsHelper.mesuraCalcular("Generar document", "massiva_tasca", expedient, tasca);
 			}
 
@@ -1100,7 +1110,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Object[] params = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 			String idPI = exp.getProcessInstanceId();
 			if (idPI != null) {
-				expedientService.updateVariable(exp.getId(), idPI, var, params[2]);
+				expedientDadaService.update(exp.getId(), idPI, var, params[2]);
 			} else {
 				tascaService.updateVariable(exp.getId(), (String)params[1], var, params[2]);
 			}
@@ -1141,7 +1151,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				if (nom.equals("generate")) {
 					mesuresTemporalsHelper.mesuraIniciar("Autogenerar document", "massiva", exp.getTipus().getNom());
 					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
-						expedientService.generarDocumentAmbPlantillaProces(exp.getId(), exp.getProcessInstanceId(), aux.getCodi());
+						expedientDocumentService.generarAmbPlantilla(
+								exp.getId(),
+								exp.getProcessInstanceId(),
+								aux.getCodi());
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
 					} else if (doc.isRegistrat()) {
@@ -1167,14 +1180,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					if (doc == null) {
 						throw new Exception("Document inexistent: no es pot modificar");
 					} else 	if (!doc.isSignat() && !doc.isRegistrat()) {
-						expedientService.crearModificarDocument(
-								exp.getId(), 
-								exp.getProcessInstanceId(), 
-								null, 
-								doc.getDocumentNom(), 
-								doc.getArxiuNom(), 
-								docId, 
-								null, 
+						expedientDocumentService.createOrUpdate(
+								exp.getId(),
+								exp.getProcessInstanceId(),
+								docId,
+								null,
+								doc.getDocumentNom(),
+								doc.getArxiuNom(),
+								null,
 								data);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");
@@ -1187,28 +1200,28 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				// Adjuntar document
 				if (docId == null) {
 					mesuresTemporalsHelper.mesuraIniciar("Adjuntar document", "massiva", exp.getTipus().getNom());
-					expedientService.crearModificarDocument(
-							exp.getId(), 
-							exp.getProcessInstanceId(), 
-							null, 
-							nom, 
-							fileName, 
-							null, 
-							contingut, 
+					expedientDocumentService.createOrUpdate(
+							exp.getId(),
+							exp.getProcessInstanceId(),
+							null,
+							null,
+							nom,
+							fileName,
+							contingut,
 							data);
 					mesuresTemporalsHelper.mesuraCalcular("Adjuntar document", "massiva", exp.getTipus().getNom());
 				// Modificar document
 				} else {
 					mesuresTemporalsHelper.mesuraIniciar("Modificar document", "massiva", exp.getTipus().getNom());
 					if (doc == null || (!doc.isSignat() && !doc.isRegistrat())) {
-						expedientService.crearModificarDocument(
-								exp.getId(), 
-								exp.getProcessInstanceId(), 
-								null, 
-								nom, 
-								fileName, 
-								docId, 
-								contingut, 
+						expedientDocumentService.createOrUpdate(
+								exp.getId(),
+								exp.getProcessInstanceId(),
+								docId,
+								null,
+								nom,
+								fileName,
+								contingut,
 								data);
 					} else if (doc.isSignat()) {
 						throw new Exception("Document signat: no es pot modificar");

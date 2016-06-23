@@ -16,39 +16,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
-import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,6 +43,41 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import net.conselldemallorca.helium.core.model.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ModificarVariablesCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
+
 /**
  * Controlador per iniciar un expedient
  * 
@@ -87,6 +89,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientDadaService expedientDadaService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private TascaService tascaService;
 	@Autowired
@@ -107,12 +113,12 @@ public class MassivaExpedientController extends BaseExpedientController {
 		
 		return ids;
 	}
-	
+
 	private Set<Long> recuperarIdsAccionesMasivas(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		return sessionManager.getSeleccioMassives();
 	}
-	
+
 	@RequestMapping(value = "/expedientsSeleccio", method = RequestMethod.GET)
 	public String documentGenerarGet(
 			HttpServletRequest request,
@@ -130,7 +136,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		model.addAttribute("expedients", expedients);
 		return "v3/massivaInfoExpedients";
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET)
 	public String getExpedient(
 			HttpServletRequest request,
@@ -189,17 +195,13 @@ public class MassivaExpedientController extends BaseExpedientController {
 			}
 			Collections.sort(variables, new ComparadorCampCodi());
 			model.addAttribute("variables", variables);
-			
-			List<DocumentDto> documents = expedientService.findListDocumentsPerDefinicioProces(
+			List<DocumentDto> documents = expedientDocumentService.dissenyFindAmbDefinicioProces(
 					definicioProces.getId(),
 					expedient.getProcessInstanceId(),
 					expedient.getTipus().getNom());
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
-			
-			//Permisos
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
-			
 			return "v3/massivaInfo";
 		}
 	}
@@ -209,7 +211,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 	        return c1.getCodi().compareToIgnoreCase(c2.getCodi());
 	    }
 	}
-	
+
 	public class ComparadorDocument implements Comparator<DocumentDto> {
 	    public int compare(DocumentDto d1, DocumentDto d2) {
 	        return d1.getDocumentNom().compareToIgnoreCase(d2.getDocumentNom());
@@ -245,7 +247,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {
 		return massivaPost(request, inici, correu, null, accio, null, null, model, null, null);
 	}
-	
+
 	@RequestMapping(value="massivaExecutarAccio", method = RequestMethod.POST)
 	public String execucioAccioCommandPost(
 			HttpServletRequest request,
@@ -297,7 +299,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
-	
+
 	public String massivaPost(
 			HttpServletRequest request,
 			String inici,
@@ -413,7 +415,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 				
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
-				DocumentDto document = expedientService.findDocumentsPerId(docId);
+				DocumentDto document = expedientDocumentService.findById(docId);
 				dto.setParam1(document.getDocumentNom());
 				
 				Object[] params = new Object[4];
@@ -428,7 +430,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			} else if ("document_generar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
-				DocumentDto document = expedientService.findDocumentsPerId(docId);
+				DocumentDto document = expedientDocumentService.findById(docId);
 				dto.setParam1(document.getDocumentNom());
 				
 				Object[] params = new Object[4];
@@ -502,14 +504,15 @@ public class MassivaExpedientController extends BaseExpedientController {
 					}
 				}
 
-				List<ExpedientDadaDto> expedientDades = expedientService.findDadesPerInstanciaProces(
+				List<ExpedientDadaDto> expedientDades = expedientDadaService.findAmbInstanciaProces(
 						expedient.getId(),
 						processInstanceId);
 				List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 				for (ExpedientDadaDto expedientDada: expedientDades) {
 					if (expedientDada.getVarCodi().equals(varCodi)) {
 						tascaDades.add(
-								TascaFormHelper.toTascaDadaDto(expedientDada));
+								TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+										expedientDada));
 						break;
 					}
 				}
@@ -647,7 +650,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 		List<Long> listIds = new ArrayList<Long>(ids);
 		ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 		try {
-			ArxiuDto generat = expedientService.generarDocumentAmbPlantillaProces(
+			ArxiuDto generat = expedientDocumentService.generarAmbPlantilla(
 					expedient.getId(),
 					expedient.getProcessInstanceId(),
 					documentCodi);
@@ -673,7 +676,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			Model model) {
-		DocumentDto document = expedientService.findDocumentsPerId(docId);
+		DocumentDto document = expedientDocumentService.findById(docId);
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setDocId(docId);
 		command.setNom(document.getDocumentNom());

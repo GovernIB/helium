@@ -16,94 +16,109 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.TokenService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTokenService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Servei per gestionar els tokens dels expedients
+ * Servei per gestionar els tokens dels expedients.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service
-public class TokenServiceImpl implements TokenService{
-	
-	@Resource
-	private JbpmHelper jbpmHelper;
-	
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	
+public class ExpedientTokenServiceImpl implements ExpedientTokenService {
+
 	@Resource
 	private ExpedientRepository expedientRepository;
-	
 	@Resource
 	private RegistreRepository registreRepository;
-	
+
+	@Resource
+	private JbpmHelper jbpmHelper;
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 
+
+
 	@Transactional(readOnly=true)
 	@Override
-	public List<TokenDto> findTokensPerExpedient(Long expedientId, String processInstanceId) {
+	public List<TokenDto> findAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId) {
+		logger.debug("Consultant tokens d'una instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ")");
 		List<JbpmToken> jbpmTokens = new ArrayList<JbpmToken>();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				false,
-				false,
-				false,
-				true);
+				new Permission[] {
+						ExtendedPermission.TOKEN_READ,
+						ExtendedPermission.ADMINISTRATION});
 		if (expedient != null){
-			
 			Map<String, JbpmToken> tokens = jbpmHelper.getAllTokens(processInstanceId);
 			for (String tokenName: tokens.keySet()) {
 				jbpmTokens.add(tokens.get(tokenName));
 			}
-			
-			Collections.sort(jbpmTokens,new TokenComparator());
+			Collections.sort(
+					jbpmTokens,
+					new Comparator<JbpmToken>() {
+						@Override
+					    public int compare(JbpmToken o1, JbpmToken o2) {
+					        return o1.getId().compareTo(o2.getId());
+					    }
+					});
 		}
 		return conversioTipusHelper.convertirList(jbpmTokens, TokenDto.class);
 	}
-	
-	private class TokenComparator implements Comparator<JbpmToken> {
-    @Override
-	    public int compare(JbpmToken o1, JbpmToken o2) {
-	        return o1.getId().compareTo(o2.getId());
-	    }
-	}
-	
+
 	@Transactional
 	@Override
-	public boolean activar(Long expedientId, Long tokenId, boolean activar) {
+	public boolean canviarEstatActiu(
+			Long expedientId,
+			Long tokenId,
+			boolean activar) {
+		logger.debug("Canviant l'estat actiu del token (" +
+				"expedientId=" + expedientId + ", " +
+				"tokenId=" + tokenId + ", " +
+				"activar=" + activar + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				false,
-				false,
-				false,
-				true);
+				new Permission[] {
+						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		if( expedient!= null)
 			return jbpmHelper.tokenActivar(tokenId, activar);
 		else
 			return false;
 	}
-	
+
 	@Transactional(readOnly=true)
 	@Override
-	public List<String> findArrivingNodeNames(Long expedientId, String tokenId) {
+	public List<String> findArrivingNodeNames(
+			Long expedientId,
+			String tokenId) {
+		logger.debug("Consultant els noms dels nodes que arriben al node del token (" +
+				"expedientId=" + expedientId + ", " +
+				"tokenId=" + tokenId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				false,
-				false,
-				false,
-				true);
+				new Permission[] {
+						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		if( expedient!= null)
 			return jbpmHelper.findArrivingNodeNames(tokenId);
 		else
@@ -112,29 +127,40 @@ public class TokenServiceImpl implements TokenService{
 
 	@Transactional(readOnly=true)
 	@Override
-	public TokenDto findById(Long expedientId, String tokenId) {
+	public TokenDto findById(
+			Long expedientId,
+			String tokenId) {
+		logger.debug("Consultant informació del token amb id (" +
+				"expedientId=" + expedientId + ", " +
+				"tokenId=" + tokenId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				false,
-				false,
-				false,
-				true);
+				new Permission[] {
+						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null)
 			return conversioTipusHelper.convertir(jbpmHelper.getTokenById(tokenId), TokenDto.class);
 		else
 			return null;
 	}
-	
+
 	@Transactional
 	@Override
-	public void tokenRetrocedir(Long expedientId, String tokenId,String nodeName,boolean cancelTasks) {
-		
+	public void retrocedir(
+			Long expedientId,
+			String tokenId,
+			String nodeName,
+			boolean cancelTasks) {
+		logger.debug("Retrocedint el token fins al node (" +
+				"expedientId=" + expedientId + ", " +
+				"tokenId=" + tokenId + ", " +
+				"nodeName=" + nodeName + ", " +
+				"cancelTasks=" + cancelTasks + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				false,
-				false,
-				false,
-				true);
+				new Permission[] {
+						ExtendedPermission.TOKEN_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		if( expedient != null){
 			JbpmToken token = jbpmHelper.getTokenById(tokenId);
 			if (token == null)
@@ -152,7 +178,9 @@ public class TokenServiceImpl implements TokenService{
 					nodeName);
 		}
 	}
-	
+
+
+
 	private Registre crearRegistreRetrocedirToken(
 			Long expedientId,
 			String processInstanceId,
@@ -169,5 +197,8 @@ public class TokenServiceImpl implements TokenService{
 				processInstanceId);
 		registre.setMissatge("Redirecció del token \"" + tokenName + "\": " + nodeOrigen + "->" + nodeDesti);
 		return registreRepository.save(registre);
-	}	
+	}
+
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
 }

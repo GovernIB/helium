@@ -78,6 +78,7 @@
 				searching: plugin.settings.searchEnabled,
 				ajax: {
 					url: getBaseUrl() + '/datatable',
+					type: 'GET',
 					data: function(data) {
 						for (var key in plugin.serverParams) {
 							data[key] = plugin.serverParams[key];

@@ -57,7 +57,6 @@
 				<th data-col-name="undoEnd" data-visible="false"/>
 				<th data-col-name="defprocUpdate" data-visible="false"/>
 				<th data-col-name="design" data-visible="false"/>
-				<th data-col-name="organization" data-visible="false"/>
 				<th data-col-name="supervision" data-visible="false"/>
 				<th data-col-name="manage" data-visible="false"/>
 				<th data-col-name="reassignment" data-visible="false"/>
@@ -89,8 +88,7 @@
 						{{if scriptExe}}<span class="label label-default"><spring:message code="permis.SCRIPT_EXE"/></span>{{/if}}
 						{{if undoEnd}}<span class="label label-default"><spring:message code="permis.UNDO_END"/></span>{{/if}}
 						{{if defprocUpdate}}<span class="label label-default"><spring:message code="permis.DEFPROC_UPDATE"/></span>{{/if}}
-						{{if design}}<span class="label label-default"><spring:message code="permis.ORGANIZATION"/></span>{{/if}}
-						{{if organization}}<span class="label label-default"><spring:message code="permis.DESIGN"/></span>{{/if}}
+						{{if design}}<span class="label label-default"><spring:message code="permis.DESIGN"/></span>{{/if}}
 						{{if supervision}}<span class="label label-default"><spring:message code="permis.SUPERVISION"/></span>{{/if}}
 						{{if manage}}<span class="label label-default"><spring:message code="permis.MANAGE"/></span>{{/if}}
 						{{if reassignment}}<span class="label label-default"><spring:message code="permis.REASSIGNMENT"/></span>{{/if}}

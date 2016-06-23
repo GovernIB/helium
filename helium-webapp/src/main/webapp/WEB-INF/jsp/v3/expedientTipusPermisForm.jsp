@@ -70,19 +70,19 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="dataManagement" textKey="permis.DATA_MANAGEMENT"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="design" textKey="permis.ORGANIZATION"/></div>
+			<div class="col-sm-6"><hel:inputCheckbox name="design" textKey="permis.DESIGN"/></div>
 		</div>
 		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="docManagement" textKey="permis.DOC_MANAGEMENT"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="organization" textKey="permis.DESIGN"/></div>
-		</div>
-		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="termManagement" textKey="permis.TERM_MANAGEMENT"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="supervision" textKey="permis.SUPERVISION"/></div>
 		</div>
 		<div class="row">
 			<div class="col-sm-6"><hel:inputCheckbox name="manage" textKey="permis.MANAGE"/></div>
 			<div class="col-sm-6"><hel:inputCheckbox name="reassignment" textKey="permis.REASSIGNMENT"/></div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6"><hel:inputCheckbox name="supervision" textKey="permis.SUPERVISION"/></div>
+			<div class="col-sm-6"><%--hel:inputCheckbox name="organization" textKey="permis.ORGANIZATION"/--%></div>
 		</div>
 		<div id="modal-botons">
 			<button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button>

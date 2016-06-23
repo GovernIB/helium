@@ -220,7 +220,7 @@ public class TascaFormHelper {
 			Map<String, Object> valors) {
 		List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 		for (ExpedientDadaDto expedientDada: expedientDades) {
-			TascaDadaDto tascaDada = toTascaDadaDto(expedientDada);
+			TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(expedientDada);
 			tascaDades.add(tascaDada);
 		}
 		return getCommandForCamps(
@@ -231,7 +231,7 @@ public class TascaFormHelper {
 				false);
 	}
 	
-	public static TascaDadaDto toTascaDadaDto(ExpedientDadaDto expdada) {
+	/*public static TascaDadaDto toTascaDadaDto(ExpedientDadaDto expdada) {
 		TascaDadaDto tascaDada = new TascaDadaDto();
 		tascaDada.setCampTipus(expdada.getCampTipus());
 		tascaDada.setCampMultiple(expdada.isCampMultiple());
@@ -241,7 +241,6 @@ public class TascaFormHelper {
 		tascaDada.setCampEtiqueta(expdada.getCampEtiqueta());
 		tascaDada.setRequired(expdada.isRequired());
 		tascaDada.setValidacions(expdada.getValidacions());
-		
 		if (expdada.getMultipleDades() != null && !expdada.getMultipleDades().isEmpty()) {
 			List<TascaDadaDto> dadesMult = new ArrayList<TascaDadaDto>();
 			for(ExpedientDadaDto dadaMult : expdada.getMultipleDades()) {
@@ -257,6 +256,38 @@ public class TascaFormHelper {
 			tascaDada.setRegistreDades(dadesReg);
 		}
 		return tascaDada;
+	}*/
+	public static TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
+			ExpedientDadaDto expedientDadaDto) {
+		TascaDadaDto tascaDto = new TascaDadaDto();
+		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());
+		tascaDto.setVarValor(expedientDadaDto.getVarValor());
+		tascaDto.setCampId(expedientDadaDto.getCampId());
+		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
+		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
+		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
+		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		tascaDto.setRequired(expedientDadaDto.isRequired());
+		tascaDto.setText(expedientDadaDto.getText());
+		tascaDto.setError(expedientDadaDto.getError());
+		tascaDto.setObservacions(expedientDadaDto.getObservacions());
+		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setValidacions(expedientDadaDto.getValidacions());
+		if (expedientDadaDto.getMultipleDades() != null) {
+			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
+			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
+				multipleDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
+			}
+			tascaDto.setMultipleDades(multipleDades);
+		}
+		if (expedientDadaDto.getRegistreDades() != null) {
+			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
+			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
+				registreDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
+			}
+			tascaDto.setRegistreDades(registreDades);
+		}
+		return tascaDto;
 	}
 	
 	public static Object getCommandForCamps(

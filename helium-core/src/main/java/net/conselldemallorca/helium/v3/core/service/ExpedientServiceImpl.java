@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -58,11 +59,9 @@ import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -76,7 +75,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -84,7 +82,6 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -92,16 +89,12 @@ import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbp
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -116,7 +109,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -147,7 +139,7 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 
 /**
- * Servei per a gestionar expedients.
+ * Implementació dels mètodes del servei ExpedientService.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -544,67 +536,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
-	private Registre crearRegistreExpedient(
-			Long expedientId,
-			String responsableCodi,
-			Registre.Accio accio) {
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				responsableCodi,
-				accio,
-				Registre.Entitat.EXPEDIENT,
-				String.valueOf(expedientId));
-		return registreRepository.save(registre);
-	}	
-
-	private Registre crearRegistreTasca(
-			Long expedientId,
-			String tascaId,
-			String responsableCodi,
-			Registre.Accio accio) {
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				responsableCodi,
-				accio,
-				Registre.Entitat.TASCA,
-				tascaId);
-		return registreRepository.save(registre);
-	}
-	private Registre crearRegistreInstanciaProces(
-			Long expedientId,
-			String processInstanceId,
-			String responsableCodi,
-			Registre.Accio accio) {
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				responsableCodi,
-				accio,
-				Registre.Entitat.INSTANCIA_PROCES,
-				processInstanceId);
-		return registreRepository.save(registre);
-	}
-
-	@Override
-	@Transactional
-	public ExpedientDadaDto getDadaPerInstanciaProces(String processInstanceId, String variableCodi, boolean incloureVariablesBuides) {
-		return variableHelper.getDadaPerInstanciaProces(processInstanceId, variableCodi, incloureVariablesBuides);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto dadaPerInstanciaProces) {
-		return variableHelper.getTascaDadaDtoFromExpedientDadaDto(dadaPerInstanciaProces);
-	}
-
-	@Override
-	@Transactional
-	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId) {
-		return variableHelper.findDadesPerInstanciaProces(procesId);
-	}
-
 	@Override
 	@Transactional
 	public void update(
@@ -723,119 +654,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				Registre.Accio.ESBORRAR);
-	}
-
-	@Override
-	@Transactional
-	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				false,
-				false,
-				false,
-				false,
-				false,
-				true);
-		
-		boolean creat = false;
-		String arxiuNomAntic = null;
-		boolean adjunt = false;
-		DocumentStore documentStore = null;
-		if (documentStoreId == null) {
-			creat = true;
-			adjunt = true;
-		} else {
-			documentStore = documentStoreRepository.findById(documentStoreId);
-			if (documentStore == null)
-				throw new NoTrobatException(DocumentStore.class, documentStoreId);
-			
-			arxiuNomAntic = documentStore.getArxiuNom();
-			adjunt = documentStore.isAdjunt();
-		}
-		DocumentDto document = null;
-		String codi = null;
-		
-		if (docId != null) {
-			document = findDocumentsPerId(docId);
-			if (document == null) {
-				document = documentHelper.getDocumentSenseContingut(documentStoreId);
-			}		
-			if (document != null) {
-				adjunt = document.isAdjunt();
-				codi = document.getCodi();
-			}
-		}
-		
-		if (codi == null && (document == null || document.isAdjunt())) { 
-			codi = new Long(new Date().getTime()).toString();
-		}
-		
-		if (arxiu == null && document != null) {
-			arxiu = document.getArxiuContingut();
-			nomArxiu = document.getArxiuNom();
-		} else if (arxiu == null && documentStore != null) {
-			arxiu = documentStore.getArxiuContingut();
-			nomArxiu = documentStore.getArxiuNom();
-		}
-		
-		if (document != null && document.isAdjunt()) {
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					processInstanceId,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR,
-					codi);			
-		} else if (creat) {
-				expedientLoggerHelper.afegirLogExpedientPerProces(
-						processInstanceId,
-						ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
-						codi);
-		} else {
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					processInstanceId,
-					ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
-					codi);
-		}
-		if (documentStoreId != null && adjunt) {
-			documentStoreId = documentHelper.actualitzarAdjunt(
-					documentStoreId,
-					processInstanceId,
-					codi,
-					nom,
-					data,
-					nomArxiu,
-					arxiu,
-					adjunt);
-		} else {
-			documentStoreId = documentHelper.actualitzarDocument(
-					null,
-					processInstanceId,
-					codi,
-					nom,
-					data,
-					nomArxiu,
-					arxiu,
-					adjunt);
-		}
-		
-		String user = SecurityContextHolder.getContext().getAuthentication().getName();
-		
-		// Registra l'acció
-		if (creat) {
-			expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
-					expedient.getId(),
-					processInstanceId,
-					user,
-					codi,
-					nomArxiu);
-		} else {
-			expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
-					expedient.getId(),
-					processInstanceId,
-					user,
-					codi,
-					arxiuNomAntic,
-					nomArxiu);
-		}
 	}
 
 	@Override
@@ -1165,37 +983,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public ArxiuDto arxiuDocumentPerMostrar(String token) {
-		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
-		DocumentStore document = documentStoreRepository.findById(documentStoreId);
-		if (document == null)
-			return null;
-		DocumentDto dto = null;
-		if (document.isSignat() || document.isRegistrat()) {
-			dto = documentHelper.getDocumentVista(documentStoreId, false, false);
-			if (dto == null)
-				return null;
-			return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
-		} else {
-			dto = documentHelper.getDocumentOriginal(documentStoreId, true);
-			if (dto == null)
-				return null;
-			return new ArxiuDto(dto.getArxiuNom(), dto.getArxiuContingut());
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ArxiuDto arxiuDocumentPerSignar(String token) {
-		Long documentStoreId = documentHelper.getDocumentStoreIdPerToken(token);
-		DocumentDto dto = documentHelper.getDocumentVista(documentStoreId, true, true);
-		if (dto == null)
-			return null;
-		return new ArxiuDto(dto.getVistaNom(), dto.getVistaContingut());
-	}
-
-	@Override
-	@Transactional(readOnly = true)
 	public ArxiuDto getImatgeDefinicioProces(
 			Long id,
 			String processInstanceId) {
@@ -1320,7 +1107,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						"Error al executa l'acció '" + accio.getCodi() + "'", 
 						ex);
 			}
-			verificarFinalitzacioExpedient(processInstanceId, expedient);
+			verificarFinalitzacioExpedient(expedient, processInstanceId);
 			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
 		} else {
@@ -1435,66 +1222,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
-			Long id,
-			String processInstanceId) {
-		logger.debug("Consulta de dades de l'expedient (" +
-				"id=" + id + ", " +
-				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false,
-				false);
-		
-		if (processInstanceId == null) {
-			return variableHelper.findDadesPerInstanciaProces(
-					expedient.getProcessInstanceId(), 
-					true);
-		} else {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-			return variableHelper.findDadesPerInstanciaProces(
-					processInstanceId,
-					true);
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CampAgrupacioDto> findAgrupacionsDadesPerInstanciaProces(
-			Long id,
-			String processInstanceId) {
-		logger.debug("Consulta de les agrupacions de dades de l'expedient (" +
-				"id=" + id + ", " +
-				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false,
-				false);
-		
-		DefinicioProces definicioProces;
-		if (processInstanceId == null) {
-			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					expedient.getProcessInstanceId());
-		} else {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					processInstanceId);
-		}
-		return conversioTipusHelper.convertirList(
-				definicioProces.getAgrupacions(),
-				CampAgrupacioDto.class);
-	}
-
-	@Override
 	@Transactional
 	public void deleteSignatura(
 			Long expedientId,
@@ -1528,186 +1255,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
-	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
-		String jbpmVariable = documentStore.getJbpmVariable();
-		if (documentStore.isAdjunt())
-			return jbpmVariable.substring(
-					JbpmVars.PREFIX_ADJUNT.length());
-		else
-			return jbpmVariable.substring(
-					JbpmVars.PREFIX_DOCUMENT.length());
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
-			Long expedientId,
-			String processInstanceId) {
-		logger.debug("Consulta els documents de l'instància de procés (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		if (processInstanceId == null) {
-			return documentHelper.findDocumentsPerInstanciaProces(
-					expedient.getProcessInstanceId());
-		} else {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-			return documentHelper.findDocumentsPerInstanciaProces(
-					processInstanceId);
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ExpedientDocumentDto findDocumentPerInstanciaProces(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId,
-			String documentCodi) {
-		logger.debug("Consulta un document de l'instància de procés (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ", " +
-				"documentStoreId=" + documentStoreId + ", " +
-				"documentCodi=" + documentCodi + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		if (processInstanceId == null) {
-			return documentHelper.findDocumentPerInstanciaProces(
-					expedient.getProcessInstanceId(),
-					documentStoreId,
-					documentCodi);
-		} else {
-			return documentHelper.findDocumentPerInstanciaProces(
-					processInstanceId,
-					documentStoreId,
-					documentCodi);
-		}
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId) {
-		logger.debug("Consulta un document de l'instància de procés (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ", " +
-				"documentStoreId=" + documentStoreId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		if (processInstanceId == null) {
-			return documentHelper.findDocumentPerDocumentStoreId(
-					expedient.getProcessInstanceId(),
-					documentStoreId);
-		} else {
-			return documentHelper.findDocumentPerDocumentStoreId(
-					processInstanceId,
-					documentStoreId);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void esborrarDocument(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId) {
-		logger.debug("Consulta un document de l'instància de procés (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ", " +
-				"documentStoreId=" + documentStoreId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		
-		if (processInstanceId == null) {
-			documentHelper.esborrarDocument(
-					null,
-					expedient.getProcessInstanceId(),
-					documentStoreId);
-		} else {
-			documentHelper.esborrarDocument(
-					null,
-					processInstanceId,
-					documentStoreId);
-		}
-		
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<DocumentDto> findListDocumentsPerDefinicioProces(
-			Long definicioProcesId,
-			String processInstanceId,
-			String expedientTipusNom) {
-		List<Document> documents = documentRepository.findAmbDefinicioProces(definicioProcesId);
-		return conversioTipusHelper.convertirList(
-				documents,
-				DocumentDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public DocumentDto findDocumentsPerId(Long id) {
-		Document document = documentRepository.findOne(id);
-		if (document == null)
-			throw new NoTrobatException(Document.class, id);
-		
-		return conversioTipusHelper.convertir(
-				document,
-				DocumentDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ArxiuDto getArxiuPerDocument(
-			Long id,
-			Long documentStoreId) {
-		logger.debug("btenint contingut de l'arxiu per l'expedient (" +
-				"id=" + id + ", " +
-				"documentStoreId=" + documentStoreId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false,
-				false);
-		
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore == null) {
-			throw new NoTrobatException(DocumentStore.class,documentStoreId);
-		}
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				documentStore.getProcessInstanceId());
-		return documentHelper.getArxiuPerDocumentStoreId(
-				documentStoreId,
-				false,
-				false);
-	}
-
 	@Override
 	@Transactional
 	public void aturar(
@@ -1718,15 +1265,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"motiu=" + motiu + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
-				false,
-				true,
-				false,
-				false);
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
 				new Permission[] {
 						ExtendedPermission.STOP,
-						ExtendedPermission.ADMINISTRATION});*/
+						ExtendedPermission.ADMINISTRATION});
 		expedientHelper.aturar(
 				expedient,
 				motiu,
@@ -1737,17 +1278,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public void reprendre(Long id) {
 		logger.debug("Reprenent la tramitació de l'expedient (" +
 				"id=" + id + ")");
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.STOP,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		expedientHelper.reprendre(expedient, null);
 	}
 
@@ -1759,17 +1294,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Anulant l'expedient (" +
 				"id=" + id + ", " +
 				"motiu=" + motiu + ")");
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.CANCEL,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		mesuresTemporalsHelper.mesuraIniciar(
 				"Anular",
 				"expedient",
@@ -1796,17 +1325,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	public void desanular(Long id) {
 		logger.debug("Activant l'expedient (id=" + id + ")");
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.CANCEL,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_REPRENDRE,
@@ -1827,17 +1350,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional
 	public void desfinalitzar(Long id) {
 		logger.debug("Reprenent l'expedient (id=" + id + ")");
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.UNDO_END,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				false,
-				true,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				expedient.getId(),
 				ExpedientLogAccioTipus.EXPEDIENT_DESFINALITZAR,
@@ -1859,7 +1376,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Creant relació d'expedients (" +
 				"origenId=" + origenId + ", " +
 				"destiId=" + destiId + ")");
-		/*Expedient origen = expedientHelper.getExpedientComprovantPermisos(
+		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				new Permission[] {
 						ExtendedPermission.RELATE,
@@ -1868,19 +1385,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				destiId,
 				new Permission[] {
 						ExtendedPermission.RELATE,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
-				origenId,
-				false,
-				true,
-				false,
-				false);
-		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
-				destiId,
-				true,
-				false,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		ExpedientLog expedientLogOrigen = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				origenId,
 				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_AFEGIR,
@@ -1902,7 +1407,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Esborrant relació d'expedients (" +
 				"origenId=" + origenId + ", " +
 				"destiId=" + destiId + ")");
-		/*Expedient origen = expedientHelper.getExpedientComprovantPermisos(
+		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
 				origenId,
 				new Permission[] {
 						ExtendedPermission.RELATE,
@@ -1911,19 +1416,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				destiId,
 				new Permission[] {
 						ExtendedPermission.RELATE,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient origen = expedientHelper.getExpedientComprovantPermisos(
-				origenId,
-				false,
-				true,
-				false,
-				false);
-		Expedient desti = expedientHelper.getExpedientComprovantPermisos(
-				destiId,
-				false,
-				false,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		ExpedientLog expedientLogOrigen = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				origenId,
 				ExpedientLogAccioTipus.EXPEDIENT_RELACIO_ESBORRAR,
@@ -1966,24 +1459,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"script=" + script + ")");
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.SCRIPT_EXE,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				false,
-				false,
-				true);
+						ExtendedPermission.ADMINISTRATION});
 		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
-		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
 		if (MesuresTemporalsHelper.isActiu()) {
 			mesuresTemporalsHelper.mesuraIniciar("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 		}
 		jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());
-		verificarFinalitzacioExpedient(expedient, pi);
+		verificarFinalitzacioExpedient(expedient, processInstanceId);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
@@ -2001,12 +1487,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Canviant versió de la definició de procés (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"versio=" + versio + ")");
-		/*ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
+		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(processInstanceId);
 		expedientHelper.getExpedientComprovantPermisos(
 				piexp.getId(),
 				new Permission[] {
 						ExtendedPermission.DEFPROC_UPDATE,
-						ExtendedPermission.ADMINISTRATION});*/
+						ExtendedPermission.ADMINISTRATION});
 		DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
 		if (defprocAntiga == null)
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
@@ -2028,17 +1514,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedientId" + expedientId + ", " +
 				"definicioProcesId" + definicioProcesId + ", " +
 				"subProcesIds=" + subProcesIds + ")");
-		/*Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DEFPROC_UPDATE,
-						ExtendedPermission.ADMINISTRATION});*/
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
+						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAmbRetroaccio()) {
 			jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
 		}
@@ -2073,10 +1553,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			boolean detall) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				true,
-				false,
-				false,
-				false);
+				new Permission[] {
+						ExtendedPermission.LOG_READ,
+						ExtendedPermission.ADMINISTRATION});
 		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
 		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
 		List<InstanciaProcesDto> arbre = getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
@@ -2128,13 +1607,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly=true)
 	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
 			Long expedientId) {
-		logger.debug("Consultant tasques l'expedient (expedientId=" + expedientId + ")");
+		logger.debug("Consultant tasques per la pipella de registre de l'expedient (expedientId=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				true,
-				false,
-				false,
-				false);
+				new Permission[] {
+						ExtendedPermission.LOG_READ,
+						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
 		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
 		for (ExpedientLog log: logs) {
@@ -2160,6 +1638,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long expedientId,
 			Long expedientLogId,
 			boolean retrocedirPerTasques) {
+		logger.debug("Retrocedint expedient amb els logs (" +
+				"expedientId=" + expedientId + ", " +
+				"expedientLogId=" + expedientLogId + ", " +
+				"retrocedirPerTasques=" + retrocedirPerTasques + ")");
+		expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.LOG_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		ExpedientLog log = expedientLogRepository.findById(expedientLogId);
 		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 		if (log.getExpedient().isAmbRetroaccio()) {
@@ -2194,6 +1681,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
 			Long expedientId,
 			Long logId) {
+		logger.debug("Consultant logs d'una tasca de l'expedient (" +
+				"expedientId=" + expedientId + ", " +
+				"logId=" + logId + ")");
+		expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.LOG_READ,
+						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
 	}
@@ -2203,6 +1698,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
 			Long expedientId,
 			Long logId) {
+		logger.debug("Consultant logs d'un retrocés (" +
+				"expedientId=" + expedientId + ", " +
+				"logId=" + logId + ")");
+		expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.LOG_READ,
+						ExtendedPermission.ADMINISTRATION});
 		List<ExpedientLog> logs = expedientLoggerHelper.findLogsRetrocedits(logId);
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
 	}
@@ -2212,7 +1715,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public ExpedientLogDto registreFindLogById(
 			//Long expedientId,
 			Long logId) {
-		return conversioTipusHelper.convertir( expedientLogRepository.findById(logId), ExpedientLogDto.class);
+		logger.debug("Consultant log donat el seu id (" +
+				//"expedientId=" + expedientId + ", " +
+				"logId=" + logId + ")");
+		/*expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.LOG_READ,
+						ExtendedPermission.ADMINISTRATION});*/
+		return conversioTipusHelper.convertir(
+				expedientLogRepository.findById(logId),
+				ExpedientLogDto.class);
 	}
 
 	@Override
@@ -2263,36 +1776,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		
 		return new Object[]{errors_bas,errors_int};
-	}
-
-	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {
-		int versio = -1;
-		int i = 0;
-		while (i < definicionsProces.size() && !definicionsProces.get(i).getJbpmKey().equals(key)) 
-			i++;
-		if (i < definicionsProces.size() && definicionsProcesId[i] != null) {
-			DefinicioProces definicioProces = definicioProcesRepository.findById(definicionsProcesId[i]);
-			if (definicioProces != null) 
-				versio = definicioProces.getVersio();
-		}
-		return versio;
-	}
-	// Apunta els terminis iniciats cap als terminis de la nova definició de procés
-	private void updateTerminis(String procesInstanceId, DefinicioProces defprocAntiga, DefinicioProces defprocNova) {
-		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(procesInstanceId);
-		for (TerminiIniciat terminiIniciat: terminisIniciats) {
-			Termini termini = terminiIniciat.getTermini();
-			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
-				for (Termini terminiNou: defprocNova.getTerminis()) {
-					if (terminiNou.getCodi().equals(termini.getCodi())) {
-						termini.removeIniciat(terminiIniciat);
-						terminiNou.addIniciat(terminiIniciat);
-						terminiIniciat.setTermini(terminiNou);
-						break;
-					}
-				}
-			}
-		}
 	}
 
 	@Override
@@ -2443,88 +1926,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	public boolean isExtensioDocumentPermesa(String nomArxiu) {
-		return (new Document()).isExtensioPermesa(getExtension(nomArxiu));
-	}
-
-	private String getExtension(String nomArxiu) {
-		int index = nomArxiu.lastIndexOf('.');
-		if (index == -1) {
-			return "";
-		} else {
-			return nomArxiu.substring(index + 1);
-		}
-	}
-
-	@Override
-	@Transactional
-	public ArxiuDto generarDocumentAmbPlantillaTasca(
-			String taskInstanceId,
-			String documentCodi) {
-		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
-				taskInstanceId,
-				true,
-				true);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
-				task.getProcessInstanceId());
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(
-						task.getProcessInstanceId()),
-				documentCodi);
-		Date documentData = new Date();
-		ArxiuDto arxiu = documentHelper.generarDocumentAmbPlantillaIConvertir(
-				expedient,
-				document,
-				taskInstanceId,
-				task.getProcessInstanceId(),
-				documentData);
-		if (document.isAdjuntarAuto()) {
-			documentHelper.actualitzarDocument(
-					taskInstanceId,
-					task.getProcessInstanceId(),
-					document.getCodi(),
-					null,
-					documentData,
-					arxiu.getNom(),
-					arxiu.getContingut(),
-					false);
-			return null;
-		} else {
-			return arxiu;
-		}
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public ArxiuDto generarDocumentAmbPlantillaProces(
-			Long expedientId,
-			String processInstanceId,
-			String documentCodi) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		if (processInstanceId != null) {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-		}
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(
-						processInstanceId),
-				documentCodi);
-		Date documentData = new Date();
-		return documentHelper.generarDocumentAmbPlantillaIConvertir(
-				expedient,
-				document,
-				null,
-				(processInstanceId != null) ? processInstanceId : expedient.getProcessInstanceId(),
-				documentData);
-	}
-
-	@Override
 	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
@@ -2546,81 +1947,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				processInstanceId);
 		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
-	}
-
-	private List<ExpedientLogDto> getLogs(
-			Map<String, String> processos,
-			ExpedientLog log,
-			String parentProcessInstanceId,
-			String piId,
-			boolean detall) {
-		// Obtenim el token de cada registre
-		JbpmToken token = null;
-		if (log.getJbpmLogId() != null) {
-			token = expedientLoggerHelper.getTokenByJbpmLogId(log.getJbpmLogId());
-		}
-		String tokenName = null;
-		String processInstanceId = null;
-		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
-		if (token != null && token.getToken() != null) {
-			tokenName = token.getToken().getFullName();
-			processInstanceId = token.getProcessInstanceId();
-			
-			// Entram per primera vegada
-			if (parentProcessInstanceId == null) {
-				parentProcessInstanceId = processInstanceId;
-				processos.put(processInstanceId, "");
-			} else {
-				// Canviam de procés
-				if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
-					// Entram en un nou subproces
-					if (!processos.containsKey(processInstanceId)) {
-						processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
-						
-						if (parentProcessInstanceId.equals(piId)){
-							// Añadimos una nueva línea para indicar la llamada al subproceso
-							ExpedientLogDto dto = new ExpedientLogDto();
-							dto.setId(log.getId());
-							dto.setData(log.getData());
-							dto.setUsuari(log.getUsuari());
-							dto.setEstat(ExpedientLogEstat.IGNORAR.name());
-							dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
-							String titol = null;
-							if (token.getToken().getProcessInstance().getKey() == null)
-								titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
-							else 
-								titol = token.getToken().getProcessInstance().getKey();
-							dto.setAccioParams(titol);
-							dto.setTargetId(log.getTargetId());
-							dto.setTargetTasca(false);
-							dto.setTargetProces(false);
-							dto.setTargetExpedient(true);
-							if (detall || (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || "EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()))))
-								resposta.add(dto);
-						}
-					}
-				}
-				tokenName = processos.get(processInstanceId) + tokenName;
-			}
-		}
-		
-		if (piId == null || log.getProcessInstanceId().equals(Long.parseLong(piId))) {
-			ExpedientLogDto dto = new ExpedientLogDto();
-			dto.setId(log.getId());
-			dto.setData(log.getData());
-			dto.setUsuari(log.getUsuari());
-			dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
-			dto.setAccioTipus(log.getAccioTipus().name());
-			dto.setAccioParams(log.getAccioParams());
-			dto.setTargetId(log.getTargetId());
-			dto.setTokenName(tokenName);
-			dto.setTargetTasca(log.isTargetTasca());
-			dto.setTargetProces(log.isTargetProces());
-			dto.setTargetExpedient(log.isTargetExpedient());
-			if (detall || (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || "EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()))))
-				resposta.add(dto);
-		}
-		return resposta;
 	}
 
 	@Override
@@ -2811,80 +2137,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return llistaExpedientIds;
 	}
-	
-	private void filtrarExpedientsAmbTasques(
-			List<Long> llistaExpedientIds,
-			boolean nomesMeves,
-			boolean nomesAlertes,
-			boolean mostrarAnulats,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) {
-		Set<Long> ids1 = null;
-		Set<Long> ids2 = null;
-		Set<Long> ids3 = null;
-		Set<Long> ids4 = null;
-		Set<Long> ids5 = null;
-		int index = 0;
-		for (Long id: llistaExpedientIds) {
-			if (index == 0)
-				ids1 = new HashSet<Long>();
-			if (index == 1000)
-				ids2 = new HashSet<Long>();
-			if (index == 2000)
-				ids3 = new HashSet<Long>();
-			if (index == 3000)
-				ids4 = new HashSet<Long>();
-			if (index == 4000)
-				ids5 = new HashSet<Long>();
-			if (index < 1000)
-				ids1.add(id);
-			else if (index < 2000)
-				ids2.add(id);
-			else if (index < 3000)
-				ids3.add(id);
-			else if (index < 4000)
-				ids4.add(id);
-			else
-				ids5.add(id);
-			index++;
-		}
-		
-		List<Object[]> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
-				ids1,
-				ids2,
-				ids3,
-				ids4,
-				ids5,
-				mostrarAnulats,
-				nomesAlertes);
-		
-		List<String> idsPI = new ArrayList<String>();
-		List<Long> idsExp = new ArrayList<Long>();
-		for (Object[] id : idsInstanciesProces) {
-			idsExp.add((Long) id[0]);
-			idsPI.add((String) id[1]);
-		}
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
-						auth.getName(),
-						idsPI,
-						nomesMeves,
-						nomesTasquesPersonals,
-						nomesTasquesGrup);		
-		
-		Iterator<Long> itExps = llistaExpedientIds.iterator();
-		ArrayList<Long> removeList = new ArrayList<Long>();
-		while (itExps.hasNext()) {
-			Long elem = itExps.next();
-			int pos = idsExp.indexOf(elem);
-			if (pos == -1 || !ids.contains(idsPI.get(pos))) {
-				removeList.add(elem);
-			}
-		}
-		llistaExpedientIds.removeAll(removeList);
-	}
 
 	@Override
 	@Transactional(readOnly=true)
@@ -3033,7 +2285,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		JbpmTask task = jbpmHelper.getTaskById(taskId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		logger.debug("Reassignar tasca l'expedient (id=" + expedient.getId() + ")");
-		
 		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
 		ExpedientLog expedientLog = null;
 		expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
@@ -3301,120 +2552,137 @@ public class ExpedientServiceImpl implements ExpedientService {
 				paginacioParams);
 	}
 
-	@SuppressWarnings("unused")
 	@Override
-	@Transactional
-	public void createVariable(Long expedientId, String processInstanceId, String varName, Object value) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
-				varName);
-		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varName, value);
+	@Transactional(readOnly = true)
+	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
+		return expedientRepository.findByEntornIdAndTipusIdAndNumero(
+				entornId,
+				expedientTipusId,
+				numero) != null;
+	}
+
+
+
+	private String getNumeroExpedientActual(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			Integer any) {
+		long increment = 0;
+		String numero = null;
 		
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-		Registre registre = crearRegistreInstanciaProces(
+		Expedient expedient = null;
+		if (any == null) 
+			any = Calendar.getInstance().get(Calendar.YEAR);
+		do {
+			numero = expedientHelper.getNumeroExpedientActual(
+					expedientTipus,
+					any.intValue(),
+					increment);
+			expedient = expedientRepository.findByEntornIdAndTipusIdAndNumero(
+					entorn.getId(),
+					expedientTipus.getId(),
+					numero);
+			increment++;
+		} while (expedient != null);
+		return numero;
+	}
+
+	private String getNumeroExpedientDefaultActual(
+			Entorn entorn,
+			ExpedientTipus expedientTipus,
+			Integer any) {
+		long increment = 0;
+		String numero = null;
+		Expedient expedient = null;
+		if (any == null) 
+			any = Calendar.getInstance().get(Calendar.YEAR);
+		do {
+			numero = expedientHelper.getNumeroExpedientDefaultActual(
+					expedientTipus,
+					any.intValue(),
+					increment);
+			expedient = expedientRepository.findByEntornIdAndTipusIdAndNumero(
+					entorn.getId(),
+					expedientTipus.getId(),
+					numero);
+			increment++;
+		} while (expedient != null);
+		if (increment > 1) {
+			expedientTipus.updateSequenciaDefault(any, increment - 1);
+		}
+		return numero;
+	}
+
+	private Registre crearRegistreExpedient(
+			Long expedientId,
+			String responsableCodi,
+			Registre.Accio accio) {
+		Registre registre = new Registre(
+				new Date(),
 				expedientId,
-				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.MODIFICAR);
-		registre.setMissatge("Crear variable '" + varName + "'");
-		if (value != null)
-			registre.setValorNou(value.toString());
+				responsableCodi,
+				accio,
+				Registre.Entitat.EXPEDIENT,
+				String.valueOf(expedientId));
+		return registreRepository.save(registre);
+	}	
+
+	private Registre crearRegistreTasca(
+			Long expedientId,
+			String tascaId,
+			String responsableCodi,
+			Registre.Accio accio) {
+		Registre registre = new Registre(
+				new Date(),
+				expedientId,
+				responsableCodi,
+				accio,
+				Registre.Entitat.TASCA,
+				tascaId);
+		return registreRepository.save(registre);
 	}
 	
-	@SuppressWarnings("unused")
-	@Override
-	@Transactional
-	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValue) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
-				varName);
-		Object valorVell = variableHelper.getVariableJbpmProcesValor(processInstanceId, varName);
-		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varName, varValue);
-		
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-		Registre registre = crearRegistreInstanciaProces(
-				expedientId,
-				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.MODIFICAR);
-		registre.setMissatge("Modificar variable '" + varName + "'");
-		if (valorVell != null)
-			registre.setValorVell(valorVell.toString());
-		if (varValue != null)
-			registre.setValorNou(varValue.toString());
+	private PersonaDto comprovarUsuari(String usuari) {
+		try {
+			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);
+			return persona;
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut comprovar l'usuari (codi=" + usuari + ")");
+			throw new NoTrobatException(PersonaDto.class,usuari);
+		}
 	}
-	
-	private void optimitzarValorPerConsultesDominiGuardar(
-			String processInstanceId,
-			String varName,
-			Object varValue) {
-		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
-				definicioProces,
-				varName);
-		if (camp != null && camp.isDominiCacheText()) {
-			if (varValue != null) {
-				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
-					camp.getTipus().equals(TipusCamp.SUGGEST)) {
-					
-					String text;
-					try {
-						text = variableHelper.getTextPerCamp(
-								camp, 
-								varValue, 
-								null, 
-								processInstanceId);
-					} catch (Exception e) {
-						text = "";
-					}
-					
-					jbpmHelper.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
+
+	private boolean permetreExecutarAccioExpedient(Accio accio, Long expedientId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean permesa = true;
+		if (!accio.isPublica()) {
+			try {
+				expedientHelper.getExpedientComprovantPermisos(
+					expedientId,
+					false,
+					true,
+					false,
+					false);
+			} catch (PermisDenegatException ex) {
+				permesa =  false;
+			}
+		}
+		if (permesa && accio.getRols() != null) {
+			permesa = false;
+			for (String rol: accio.getRols().split(",")) {
+				if (isUserInRole(auth, rol)) {
+					permesa = true;
+					break;
 				}
 			}
 		}
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, varValue);
+		return permesa;
 	}
-	
-	@SuppressWarnings("unused")
-	@Override
-	@Transactional
-	public void deleteVariable(Long expedientId, String processInstanceId, String varName) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		expedientLoggerHelper.afegirLogExpedientPerProces(
-				processInstanceId,
-				ExpedientLogAccioTipus.PROCES_VARIABLE_ESBORRAR,
-				varName);
-		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varName);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-		Registre registre = crearRegistreInstanciaProces(
-				expedientId,
-				processInstanceId,
-				SecurityContextHolder.getContext().getAuthentication().getName(),
-				Registre.Accio.MODIFICAR);
-		registre.setMissatge("Esborrar variable '" + varName + "'");
-	}
-	
-	private void verificarFinalitzacioExpedient(Expedient expedient, JbpmProcessInstance pi) {
+
+	private void verificarFinalitzacioExpedient(
+			Expedient expedient,
+			String processInstanceId) {
+		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
 		if (pi.getEnd() != null) {
 			// Actualitzar data de fi de l'expedient
 			expedient.setDataFi(pi.getEnd());
@@ -3463,7 +2731,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return registreRepository.save(registre);
 	}
 	
-	public boolean isUserInRole(
+	private boolean isUserInRole(
 			Authentication auth,
 			String role) {
 		for (GrantedAuthority ga: auth.getAuthorities()) {
@@ -3473,172 +2741,194 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return false;
 	}
 
-	private String getNumeroExpedientActual(
-			Entorn entorn,
-			ExpedientTipus expedientTipus,
-			Integer any) {
-		long increment = 0;
-		String numero = null;
-		
-		Expedient expedient = null;
-		if (any == null) 
-			any = Calendar.getInstance().get(Calendar.YEAR);
-		do {
-			numero = expedientHelper.getNumeroExpedientActual(
-					expedientTipus,
-					any.intValue(),
-					increment);
-			expedient = expedientRepository.findByEntornIdAndTipusIdAndNumero(
-					entorn.getId(),
-					expedientTipus.getId(),
-					numero);
-			increment++;
-		} while (expedient != null);
-		return numero;
-	}
-	
-	private String getNumeroExpedientDefaultActual(
-			Entorn entorn,
-			ExpedientTipus expedientTipus,
-			Integer any) {
-		long increment = 0;
-		String numero = null;
-		Expedient expedient = null;
-		if (any == null) 
-			any = Calendar.getInstance().get(Calendar.YEAR);
-		do {
-			numero = expedientHelper.getNumeroExpedientDefaultActual(
-					expedientTipus,
-					any.intValue(),
-					increment);
-			expedient = expedientRepository.findByEntornIdAndTipusIdAndNumero(
-					entorn.getId(),
-					expedientTipus.getId(),
-					numero);
-			increment++;
-		} while (expedient != null);
-		if (increment > 1) {
-			expedientTipus.updateSequenciaDefault(any, increment - 1);
-		}
-		return numero;
+	private String getVarNameFromDocumentStore(DocumentStore documentStore) {
+		String jbpmVariable = documentStore.getJbpmVariable();
+		if (documentStore.isAdjunt())
+			return jbpmVariable.substring(
+					JbpmVars.PREFIX_ADJUNT.length());
+		else
+			return jbpmVariable.substring(
+					JbpmVars.PREFIX_DOCUMENT.length());
 	}
 
-	@Override
-	@Transactional(readOnly = true)
-	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {
-		return expedientRepository.findByEntornIdAndTipusIdAndNumero(
-				entornId,
-				expedientTipusId,
-				numero) != null;
-	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi) {
-		return documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
-	}
-	
-	private PersonaDto comprovarUsuari(String usuari) {
-		try {
-			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);
-			return persona;
-		} catch (Exception ex) {
-			logger.error("No s'ha pogut comprovar l'usuari (codi=" + usuari + ")");
-			throw new NoTrobatException(PersonaDto.class,usuari);
+	private int findVersioDefProcesActualitzar(List<DefinicioProcesExpedientDto> definicionsProces, Long[] definicionsProcesId, String key) {
+		int versio = -1;
+		int i = 0;
+		while (i < definicionsProces.size() && !definicionsProces.get(i).getJbpmKey().equals(key)) 
+			i++;
+		if (i < definicionsProces.size() && definicionsProcesId[i] != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findById(definicionsProcesId[i]);
+			if (definicioProces != null) 
+				versio = definicioProces.getVersio();
 		}
+		return versio;
 	}
 
-	private boolean permetreExecutarAccioExpedient(Accio accio, Long expedientId) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		boolean permesa = true;
-		
-		if (!accio.isPublica()) {
-			try {
-				expedientHelper.getExpedientComprovantPermisos(
-					expedientId,
-					false,
-					true,
-					false,
-					false);
-			} catch (PermisDenegatException ex) {
-				permesa =  false;
-			}
-		}
-		
-		if (permesa && accio.getRols() != null) {
-			permesa = false;
-			for (String rol: accio.getRols().split(",")) {
-				if (isUserInRole(auth, rol)) {
-					permesa = true;
-					break;
-				}
-			}
-		}
-		
-		return permesa;
-	}
-
-	private void verificarFinalitzacioExpedient(
-			String processInstanceId,
-			Expedient expedient) {
-		JbpmProcessInstance pi = jbpmHelper.getRootProcessInstance(processInstanceId);
-		if (pi.getEnd() != null) {
-			// Actualitzar data de fi de l'expedient
-			expedient.setDataFi(pi.getEnd());
-			// Finalitzar terminis actius
-			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(pi.getId())) {
-				if (terminiIniciat.getDataInici() != null) {
-					terminiIniciat.setDataCancelacio(new Date());
-					long[] timerIds = terminiIniciat.getTimerIdsArray();
-					for (int i = 0; i < timerIds.length; i++)
-						jbpmHelper.suspendTimer(
-								timerIds[i],
-								new Date(Long.MAX_VALUE));
+	// Apunta els terminis iniciats cap als terminis de la nova definició de procés
+	private void updateTerminis(String procesInstanceId, DefinicioProces defprocAntiga, DefinicioProces defprocNova) {
+		List<TerminiIniciat> terminisIniciats = terminiIniciatRepository.findByProcessInstanceId(procesInstanceId);
+		for (TerminiIniciat terminiIniciat: terminisIniciats) {
+			Termini termini = terminiIniciat.getTermini();
+			if (termini.getDefinicioProces().getId().equals(defprocAntiga.getId())) {
+				for (Termini terminiNou: defprocNova.getTerminis()) {
+					if (terminiNou.getCodi().equals(termini.getCodi())) {
+						termini.removeIniciat(terminiIniciat);
+						terminiNou.addIniciat(terminiIniciat);
+						terminiIniciat.setTermini(terminiNou);
+						break;
+					}
 				}
 			}
 		}
 	}
-	
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId) {
-		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();
-		List<Portasignatures> pendents = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId);
-		for (Portasignatures pendent: pendents) {
-			PortasignaturesDto dto = new PortasignaturesDto();
-			dto.setId(pendent.getId());
-			dto.setDocumentId(pendent.getDocumentId());
-			dto.setTokenId(pendent.getTokenId());
-			dto.setDataEnviat(pendent.getDataEnviat());
-			if (TipusEstat.ERROR.equals(pendent.getEstat())) {
-				if (Transicio.SIGNAT.equals(pendent.getTransition()))
-					dto.setEstat(TipusEstat.SIGNAT.toString());
-				else
-					dto.setEstat(TipusEstat.REBUTJAT.toString());
-				dto.setError(true);
+	private List<ExpedientLogDto> getLogs(
+			Map<String, String> processos,
+			ExpedientLog log,
+			String parentProcessInstanceId,
+			String piId,
+			boolean detall) {
+		// Obtenim el token de cada registre
+		JbpmToken token = null;
+		if (log.getJbpmLogId() != null) {
+			token = expedientLoggerHelper.getTokenByJbpmLogId(log.getJbpmLogId());
+		}
+		String tokenName = null;
+		String processInstanceId = null;
+		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
+		if (token != null && token.getToken() != null) {
+			tokenName = token.getToken().getFullName();
+			processInstanceId = token.getProcessInstanceId();
+			
+			// Entram per primera vegada
+			if (parentProcessInstanceId == null) {
+				parentProcessInstanceId = processInstanceId;
+				processos.put(processInstanceId, "");
 			} else {
-				dto.setEstat(pendent.getEstat().toString());
-				dto.setError(false);
+				// Canviam de procés
+				if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
+					// Entram en un nou subproces
+					if (!processos.containsKey(processInstanceId)) {
+						processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
+						
+						if (parentProcessInstanceId.equals(piId)){
+							// Añadimos una nueva línea para indicar la llamada al subproceso
+							ExpedientLogDto dto = new ExpedientLogDto();
+							dto.setId(log.getId());
+							dto.setData(log.getData());
+							dto.setUsuari(log.getUsuari());
+							dto.setEstat(ExpedientLogEstat.IGNORAR.name());
+							dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
+							String titol = null;
+							if (token.getToken().getProcessInstance().getKey() == null)
+								titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
+							else 
+								titol = token.getToken().getProcessInstance().getKey();
+							dto.setAccioParams(titol);
+							dto.setTargetId(log.getTargetId());
+							dto.setTargetTasca(false);
+							dto.setTargetProces(false);
+							dto.setTargetExpedient(true);
+							if (detall || (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || "EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()))))
+								resposta.add(dto);
+						}
+					}
+				}
+				tokenName = processos.get(processInstanceId) + tokenName;
 			}
-			if (pendent.getTransition() != null)
-				dto.setTransicio(pendent.getTransition().toString());
-			dto.setDocumentStoreId(pendent.getDocumentStoreId());
-			dto.setMotiuRebuig(pendent.getMotiuRebuig());
-			dto.setTransicioOK(pendent.getTransicioOK());
-			dto.setTransicioKO(pendent.getTransicioKO());
-			dto.setDataProcessamentPrimer(pendent.getDataProcessamentPrimer());
-			dto.setDataProcessamentDarrer(pendent.getDataProcessamentDarrer());
-			dto.setDataSignatRebutjat(pendent.getDataSignatRebutjat());
-			dto.setDataCustodiaIntent(pendent.getDataCustodiaIntent());
-			dto.setDataCustodiaOk(pendent.getDataCustodiaOk());
-			dto.setDataSignalIntent(pendent.getDataSignalIntent());
-			dto.setDataSignalOk(pendent.getDataSignalOk());
-			dto.setErrorProcessant(pendent.getErrorCallbackProcessant());
-			dto.setProcessInstanceId(pendent.getProcessInstanceId());
-			resposta.add(dto);
+		}
+		
+		if (piId == null || log.getProcessInstanceId().equals(Long.parseLong(piId))) {
+			ExpedientLogDto dto = new ExpedientLogDto();
+			dto.setId(log.getId());
+			dto.setData(log.getData());
+			dto.setUsuari(log.getUsuari());
+			dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
+			dto.setAccioTipus(log.getAccioTipus().name());
+			dto.setAccioParams(log.getAccioParams());
+			dto.setTargetId(log.getTargetId());
+			dto.setTokenName(tokenName);
+			dto.setTargetTasca(log.isTargetTasca());
+			dto.setTargetProces(log.isTargetProces());
+			dto.setTargetExpedient(log.isTargetExpedient());
+			if (detall || (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || "EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()))))
+				resposta.add(dto);
 		}
 		return resposta;
+	}
+
+	private void filtrarExpedientsAmbTasques(
+			List<Long> llistaExpedientIds,
+			boolean nomesMeves,
+			boolean nomesAlertes,
+			boolean mostrarAnulats,
+			boolean nomesTasquesPersonals,
+			boolean nomesTasquesGrup) {
+		Set<Long> ids1 = null;
+		Set<Long> ids2 = null;
+		Set<Long> ids3 = null;
+		Set<Long> ids4 = null;
+		Set<Long> ids5 = null;
+		int index = 0;
+		for (Long id: llistaExpedientIds) {
+			if (index == 0)
+				ids1 = new HashSet<Long>();
+			if (index == 1000)
+				ids2 = new HashSet<Long>();
+			if (index == 2000)
+				ids3 = new HashSet<Long>();
+			if (index == 3000)
+				ids4 = new HashSet<Long>();
+			if (index == 4000)
+				ids5 = new HashSet<Long>();
+			if (index < 1000)
+				ids1.add(id);
+			else if (index < 2000)
+				ids2.add(id);
+			else if (index < 3000)
+				ids3.add(id);
+			else if (index < 4000)
+				ids4.add(id);
+			else
+				ids5.add(id);
+			index++;
+		}
+		
+		List<Object[]> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
+				ids1,
+				ids2,
+				ids3,
+				ids4,
+				ids5,
+				mostrarAnulats,
+				nomesAlertes);
+		
+		List<String> idsPI = new ArrayList<String>();
+		List<Long> idsExp = new ArrayList<Long>();
+		for (Object[] id : idsInstanciesProces) {
+			idsExp.add((Long) id[0]);
+			idsPI.add((String) id[1]);
+		}
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
+						auth.getName(),
+						idsPI,
+						nomesMeves,
+						nomesTasquesPersonals,
+						nomesTasquesGrup);		
+		
+		Iterator<Long> itExps = llistaExpedientIds.iterator();
+		ArrayList<Long> removeList = new ArrayList<Long>();
+		while (itExps.hasNext()) {
+			Long elem = itExps.next();
+			int pos = idsExp.indexOf(elem);
+			if (pos == -1 || !ids.contains(idsPI.get(pos))) {
+				removeList.add(elem);
+			}
+		}
+		llistaExpedientIds.removeAll(removeList);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

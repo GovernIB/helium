@@ -10,17 +10,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.springframework.security.acls.model.NotFoundException;
+
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -31,7 +29,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -40,12 +37,9 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 
-import org.springframework.security.acls.model.NotFoundException;
-
 
 /**
- * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
- * de Helium.
+ * Servei encarregat de gestionar els expedients.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -410,152 +404,6 @@ public interface ExpedientService {
 			Long id,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) throws NoTrobatException;
-	/**
-	 * Retorna la llista de dades d'una instància de procés de
-	 * l'expedient.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param processInstanceId
-	 *            Atribut processInstanceId que es vol consultar. Si no
-	 *            s'especifica s'agafa l'instància de procés arrel.
-	 * @return La llista de dades.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
-			Long id,
-			String processInstanceId) throws NoTrobatException;
-
-	/**
-	 * Retorna la llista d'agrupacions de dades d'una instància
-	 * de procés de l'expedient.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param processInstanceId
-	 *            Atribut processInstanceId que es vol consultar. Si no
-	 *            s'especifica s'agafa l'instància de procés arrel.
-	 * @return La llista de dades.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<CampAgrupacioDto> findAgrupacionsDadesPerInstanciaProces(
-			Long id,
-			String processInstanceId) throws NoTrobatException;
-
-	/**
-	 * Retorna la llista de documents d'una instància de procés de
-	 * l'expedient.
-	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param processInstanceId
-	 *            Atribut processInstanceId que es vol consultar. Si no
-	 *            s'especifica s'agafa l'instància de procés arrel.
-	 * @return La llista de documents.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
-			Long expedientId,
-			String processInstanceId) throws NoTrobatException;
-
-	/**
-	 * Retorna un document d'una instància de procés de
-	 * l'expedient.
-	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param processInstanceId
-	 *            Atribut processInstanceId que es vol consultar. Si no
-	 *            s'especifica s'agafa l'instància de procés arrel.
-	 * @param documentStoreId
-	 *            Atribut id de la taula document_store del document que
-	 *            es vol consultar.
-	 * @param documentCodi
-	 *            Codi del document que es vol consultar.
-	 * @return El document.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public ExpedientDocumentDto findDocumentPerInstanciaProces(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId,
-			String documentCodi) throws NoTrobatException;
-	
-	/**
-	 * Retorna un document d'una instància de procés de
-	 * l'expedient, per documentStoreId
-	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param processInstanceId
-	 *            Atribut processInstanceId que es vol consultar. Si no
-	 *            s'especifica s'agafa l'instància de procés arrel.
-	 * @param documentStoreId
-	 *            Atribut id de la taula document_store del document que
-	 *            es vol consultar.
-	 * @return El document.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId) throws NoTrobatException;
-
-	/**
-	 * Esborra un document d'una instància de procés de
-	 * l'expedient.
-	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param processInstanceId
-	 *            Atribut processInstanceId que es vol consultar. Si no
-	 *            s'especifica s'agafa l'instància de procés arrel.
-	 * @param documentStoreId
-	 *            Atribut id de la taula document_store del document que
-	 *            es vol esborrar.
-	 * @return El document.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public void esborrarDocument(
-			Long expedientId,
-			String processInstanceId,
-			Long documentStoreId) throws NoTrobatException, SistemaExternException;
-
-	/**
-	 * Retorna l'arxiu del document.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @param documentStoreId
-	 *            Atribut id del document que es vol descarregar.
-	 * @param documentNom 
-	 * @return L'arxiu del document.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public ArxiuDto getArxiuPerDocument(
-			Long id,
-			Long documentStoreId) throws NoTrobatException;
 
 	/**
 	 * Atura la tramitació d'un expedient.
@@ -607,13 +455,26 @@ public interface ExpedientService {
 	 * Reactiva un expedient prèviament anul·lat.
 	 * 
 	 * @param id
-	 *            Atribut id de l'expedient que es vol anular.
+	 *            Atribut id de l'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
 	public void desanular(
+			Long id) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retrocedeix la finalizació d'un expedient.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void desfinalitzar(
 			Long id) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -962,7 +823,7 @@ public interface ExpedientService {
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId);
 
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId);
-	
+
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
 			Long consultaId,
 			Map<String, Object> valors,
@@ -999,60 +860,26 @@ public interface ExpedientService {
 		}
 	}
 
-	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, 
+	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(
+			Long consultaId,
+			Map<String, Object> valorsPerService, 
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) throws NoTrobatException;
+			boolean nomesTasquesGrup,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
-	public String getNumeroExpedientActual(Long entornId, Long expedientTipusId, Integer any);
+	public String getNumeroExpedientActual(
+			Long entornId,
+			Long expedientTipusId,
+			Integer any);
 
 	public ExpedientTascaDto getStartTask(Long entornId, Long expedientTipusId, Long definicioProcesId, Map<String, Object> valors);
 
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId);
 
-	public List<DocumentDto> findListDocumentsPerDefinicioProces(Long definicioProcesId, String processInstanceId, String expedientTipusNom);
-
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId);
-
-	public DocumentDto findDocumentsPerId(Long id) throws NoTrobatException;
-
-	public ArxiuDto arxiuDocumentPerMostrar(String token);
-
-	public void crearModificarDocument(Long expedientId, String processInstanceId, Long documentStoreId, String nom, String nomArxiu, Long docId, byte[] arxiu, Date data) throws NoTrobatException;
-
-	public ArxiuDto generarDocumentAmbPlantillaProces(
-			Long expedientId,
-			String processInstanceId,
-			String documentCodi) throws NoTrobatException;
-
-	/**
-	 * Genera un document amb plantilla.
-	 * 
-	 * @param tascaId
-	 *            La tasca a dins la qual es genera el document
-	 * @param documentCodi
-	 *            El codi del document a generar
-	 * @return El document generat o null si el document s'adjunta automàticament a la tasca
-	 * @throws NotFoundException
-	 *            Si el document a generar no s'ha trobat
-	 * @throws DocumentGenerarException
-	 *            Si s'ha produit algun error al generar el document
-	 * @throws DocumentConvertirException
-	 *            Si s'ha produit algun error al convertir el document
-	 */
-	public ArxiuDto generarDocumentAmbPlantillaTasca(
-			String tascaId,
-			String documentCodi) throws NoTrobatException;
-
-	public boolean isExtensioDocumentPermesa(String extensio);
-
-	public void createVariable(Long expedientId, String processInstanceId,	String varName, Object value);
-
-	public void updateVariable(Long expedientId, String processInstanceId, String varName, Object varValor);
-
-	public void deleteVariable(Long expedientId, String processInstanceId, String varName);
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
 
@@ -1062,30 +889,16 @@ public interface ExpedientService {
 
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
-	public void desfinalitzar(Long id) throws NoTrobatException;
-
 	public boolean luceneReindexarExpedient(Long expedientId) throws PermisDenegatException, NoTrobatException;
 
-	public ArxiuDto arxiuDocumentPerSignar(String token);
-
 	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId);
-	
+
 	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId) throws NoTrobatException, TramitacioException, PermisDenegatException;
-	
+
 	public AccioDto findAccioAmbId(Long idAccio);
 
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
-	
+
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero);
-
-	public ExpedientDadaDto getDadaPerInstanciaProces(String processInstanceId, String variableCodi, boolean incloureVariablesBuides);
-
-	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto dadaPerInstanciaProces);
-
-	public List<ExpedientDadaDto> findDadesPerInstanciaProces(String procesId);
-	
-	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(String processInstanceId, String documentCodi);
-
-	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId);
 
 }

@@ -23,9 +23,6 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
@@ -38,7 +35,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -60,8 +56,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
 	private SequenciaAnyRepository sequenciaRepository;
 	@Resource
 	private CampRepository campRepository;
@@ -77,6 +71,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
+
 
 
 	@Override
@@ -121,8 +116,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
-		// Els tipus d'expedient creats amb la interfície nova es marquen amb el flag a true 
-		entity.setAmbInfoPropia(true);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
@@ -231,8 +224,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					false,
 					false,
 					false,
-					true);			
-		}		
+					true);
+		}
 		return conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
@@ -249,7 +242,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"codi = " + codi + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true);				
+				true);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.findByEntornAndCodi(entorn, codi),
 				ExpedientTipusDto.class);
@@ -290,9 +283,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		PaginaDto<ExpedientTipusDto> pagina = paginacioHelper.toPaginaDto(
 				expedientTipusRepository.findByFiltreGeneralPaginat(
 						entorn, 
-						tipusPermesosIds, 
-						filtre == null || "".equals(filtre), 
-						filtre, 
+						tipusPermesosIds,
+						filtre == null || "".equals(filtre),
+						filtre,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				ExpedientTipusDto.class);
@@ -739,4 +732,5 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 						DocumentDto.class);
 	}
+
 }

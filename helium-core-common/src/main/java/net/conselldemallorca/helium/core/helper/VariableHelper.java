@@ -638,7 +638,8 @@ public class VariableHelper {
 		return tascaDadaDto;
 	}
 		
-	public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(ExpedientDadaDto expedientDadaDto) {
+	/*public TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
+			ExpedientDadaDto expedientDadaDto) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
 		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());
 		tascaDto.setVarValor(expedientDadaDto.getVarValor());
@@ -668,7 +669,7 @@ public class VariableHelper {
 			tascaDto.setRegistreDades(registreDades);
 		}
 		return tascaDto;
-	}
+	}*/
 
 	public TascaDadaDto getTascaDadaDtoParaConsultaDisseny(Camp camp, TipusConsultaCamp tipus) {
 		TascaDadaDto tascaDto = new TascaDadaDto();
