@@ -5,12 +5,14 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -55,5 +57,15 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	public List<Object[]> findAmbDefinicioProcesITascaJbpmNameOrdenats(
 			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("jbpmName") String jbpmName);
-
+	
+	
+	@Query(	"from Document d " +
+			"where " +
+			"   d.expedientTipus.id = :expedientTipusId " +
+			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
+	Page<Document> findByFiltrePaginat(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);
 }

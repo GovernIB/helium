@@ -15,6 +15,7 @@ public class DocumentDto implements Serializable {
 
 	private Long id;
 	private String codi;
+	private String nom;
 	private Date dataCreacio;
 	private Date dataModificacio;
 	private Date dataDocument;
@@ -71,6 +72,12 @@ public class DocumentDto implements Serializable {
 	}
 	public void setCodi(String codi) {
 		this.codi = codi;
+	}
+	public String getNom() {
+		return nom;
+	}
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 	public byte[] getArxiuContingut() {
 		return arxiuContingut;
