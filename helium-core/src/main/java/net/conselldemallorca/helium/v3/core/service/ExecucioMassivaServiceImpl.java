@@ -1311,15 +1311,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String tascaId = ome.getTascaId();
 		try {
 			ome.setDataInici(new Date());
-			
-			// Obtenim la tasca
-//			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			JbpmTask tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
-
 			if (tasca != null && tasca.isOpen()) {
 				ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
 						tasca.getProcessInstanceId());
-				// Reassignam la tasca
 				expedientTascaService.reassignar(
 						piexp.getId(),
 						tasca.getId(),
