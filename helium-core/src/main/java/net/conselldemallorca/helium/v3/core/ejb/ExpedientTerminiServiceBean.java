@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.Date;
@@ -11,17 +14,22 @@ import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+/**
+ * EJB que implementa la interfície del servei ExpedientTerminiService.
+ * 
+ * @author Limit Tecnologies <limit@limit.es>
+ */
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-public class TerminiServiceBean implements TerminiService {
+public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 	
 	@Autowired
-	TerminiService delegate;
+	ExpedientTerminiService delegate;
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

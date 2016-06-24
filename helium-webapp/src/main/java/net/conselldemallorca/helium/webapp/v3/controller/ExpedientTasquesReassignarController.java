@@ -5,12 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTascaReassignarCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +20,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTascaReassignarCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+
 /**
  * Controlador per la reassignació de tasques dels expedients
  * 
@@ -37,9 +37,10 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 
 	@Autowired
 	private TascaService tascaService;
-	
 	@Autowired
-	private ExpedientService expedientService;
+	private ExpedientTascaService expedientTascaService;
+
+
 
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/reassignar", method = RequestMethod.GET)
 	public String tascaReassignarGet(
@@ -75,7 +76,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	        	return "v3/expedient/tasca/reassignar";
 	        }
 			try {
-				expedientService.reassignarTasca(
+				expedientTascaService.reassignar(
+						expedientId,
 						expedientTascaReassignarCommand.getTaskId(),
 						expedientTascaReassignarCommand.getExpression());
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.reassignada"));

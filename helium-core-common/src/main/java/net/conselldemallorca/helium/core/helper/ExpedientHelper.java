@@ -36,11 +36,13 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -348,6 +350,18 @@ public class ExpedientHelper {
 			}
 		}
 		return expedient;
+	}
+
+	public boolean isGrantedAny(
+			Expedient expedient,
+			Permission[] permisos) {
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return permisosHelper.isGrantedAny(
+				expedientTipus.getId(),
+				ExpedientTipus.class,
+				permisos,
+				auth);
 	}
 
 	public void update(
@@ -783,6 +797,29 @@ public class ExpedientHelper {
 				any,
 				expedientTipus.isReiniciarCadaAny(),
 				true);
+	}
+
+	public List<InstanciaProcesDto> getArbreInstanciesProces(
+			String processInstanceId) {
+		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
+		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
+		List<JbpmProcessInstance> piTree = jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId());
+		for (JbpmProcessInstance jpi: piTree) {
+			resposta.add(getInstanciaProcesById(jpi.getId()));
+		}
+		return resposta;
+	}
+	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
+		InstanciaProcesDto dto = new InstanciaProcesDto();
+		dto.setId(processInstanceId);
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		if (pi.getProcessInstance() == null)
+			return null;
+		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
+		if (pi.getDescription() != null && pi.getDescription().length() > 0)
+			dto.setTitol(pi.getDescription());
+		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
+		return dto;
 	}
 
 

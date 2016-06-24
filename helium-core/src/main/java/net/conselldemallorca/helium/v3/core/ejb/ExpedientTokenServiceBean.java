@@ -41,10 +41,12 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean canviarEstatActiu(
 			Long expedientId,
+			String processInstanceId,
 			Long tokenId,
 			boolean activar) {
 		return delegate.canviarEstatActiu(
 				expedientId,
+				processInstanceId,
 				tokenId,
 				activar);
 	}
@@ -53,9 +55,11 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String> findArrivingNodeNames(
 			Long expedientId,
+			String processInstanceId,
 			String tokenId) {
 		return delegate.findArrivingNodeNames(
 				expedientId,
+				processInstanceId,
 				tokenId);
 	}
 
@@ -63,9 +67,11 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TokenDto findById(
 			Long expedientId,
+			String processInstanceId,
 			String tokenId) {
 		return delegate.findById(
 				expedientId,
+				processInstanceId,
 				tokenId);
 	}
 
@@ -73,11 +79,13 @@ public class ExpedientTokenServiceBean implements ExpedientTokenService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void retrocedir(
 			Long expedientId,
+			String processInstanceId,
 			String tokenId,
 			String nodeName,
 			boolean cancelTasks) {
 		delegate.retrocedir(
 				expedientId,
+				processInstanceId,
 				tokenId,
 				nodeName,
 				cancelTasks);

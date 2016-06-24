@@ -28,7 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
@@ -42,7 +42,8 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("terminiServiceV3")
-public class TerminiServiceImpl implements TerminiService {
+public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
+
 	@Resource
 	private TerminiRepository terminiRepository;	
 	@Resource
@@ -489,4 +490,5 @@ public class TerminiServiceImpl implements TerminiService {
 		registre.setProcessInstanceId(processInstanceId);
 		return registreRepository.save(registre);
 	}
+
 }

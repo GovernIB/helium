@@ -257,22 +257,22 @@ public class TascaHelper {
 		}
 	}
 
-	public JbpmTask getTascaComprovacionsExpedient(
-			String id,
+	public JbpmTask comprovarTascaPertanyExpedient(
+			String taskId,
 			Expedient expedient) {
-		JbpmTask task = jbpmHelper.getTaskById(id);
+		JbpmTask task = jbpmHelper.getTaskById(taskId);
 		if (task == null) {
 			logger.debug("No s'ha trobat la tasca (" +
-					"id=" + id + ")");
-			throw new NoTrobatException(JbpmTask.class, id);
+					"taskId=" + taskId + ")");
+			throw new NoTrobatException(JbpmTask.class, taskId);
 		}
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(
 				task.getProcessInstanceId());
 		if (!expedient.getProcessInstanceId().equals(rootProcessInstance.getId())) {
 			logger.debug("La tasca no pertany a l'expedient (" +
-					"id=" + id + ", " +
+					"id=" + taskId + ", " +
 					"expedientId=" + expedient.getId() + ")");
-			throw new NoTrobatException(JbpmTask.class, id);
+			throw new NoTrobatException(JbpmTask.class, taskId);
 		}
 		return task;
 	}

@@ -82,7 +82,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		return "v3/expedientToken";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/tokens/{procesId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/tokens", method = RequestMethod.GET)
 	public String subTokens(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -104,17 +104,19 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		return "v3/procesTokens";
 	}
 	
-	@RequestMapping(value = "/{expedientId}/{tokenId}/tokenActivar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token/{tokenId}/activar", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean tokenActivar(
+	public boolean activar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable String procesId,
 			@PathVariable Long tokenId,
 			Model model) {
 		boolean response = false; 
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		TokenDto token = expedientTokenService.findById(
 				expedientId,
+				procesId,
 				tokenId.toString());
 		boolean activar = token.getEnd()!=null;
 		String cadenaMissatgeOk = activar ? "expedient.info.token.activat" : "expedient.info.token.desactivat";
@@ -123,6 +125,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			try {
 				if (expedientTokenService.canviarEstatActiu(
 						expedientId,
+						procesId,
 						tokenId,
 						activar)){
 					MissatgesHelper.success(request, getMessage(request, cadenaMissatgeOk));
@@ -138,30 +141,34 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		return response;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/{tokenId}/tokenRetrocedir", method = RequestMethod.GET)
-	public String tokenRetrocedir(
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token/{tokenId}/retrocedir", method = RequestMethod.GET)
+	public String retrocedirGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable String procesId,
 			@PathVariable String tokenId,
 			Model model) {
 		TokenExpedientCommand command= new TokenExpedientCommand();
 		TokenDto token = expedientTokenService.findById(
 				expedientId,
+				procesId,
 				tokenId);
 		model.addAttribute("token",token);
 		model.addAttribute(
 				"arrivingNodeNames",
 				expedientTokenService.findArrivingNodeNames(
 						expedientId,
+						procesId,
 						tokenId.toString()));
 		model.addAttribute("tokenExpedientCommand",command);
 		return "v3/expedientTokenRetrocedir";
 	}
 
-	@RequestMapping(value="/{expedientId}/{tokenId}/tokenRetrocedir", method = RequestMethod.POST)
-	public String tokenRetrocedirPost(
+	@RequestMapping(value="/{expedientId}/proces/{procesId}/token/{tokenId}/retrocedir", method = RequestMethod.POST)
+	public String retrocedirPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable String procesId,
 			@PathVariable String tokenId,
 			@ModelAttribute TokenExpedientCommand command, 
 			BindingResult result, 
@@ -174,11 +181,13 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 						"arrivingNodeNames",
 						expedientTokenService.findArrivingNodeNames(
 								expedientId,
+								procesId,
 								tokenId.toString()));
 	        	return "v3/expedientTokenRetrocedir";
 	        }
 			expedientTokenService.retrocedir(
 					expedientId,
+					procesId,
 					tokenId,
 					command.getNodeRetrocedir(),
 					command.isCancelar());

@@ -187,7 +187,7 @@ public class TascaServiceImpl implements TascaService {
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
 		
-		JbpmTask task = tascaHelper.getTascaComprovacionsExpedient(
+		JbpmTask task = tascaHelper.comprovarTascaPertanyExpedient(
 				id,
 				expedient);
 		return tascaHelper.toExpedientTascaDto(

@@ -52,7 +52,7 @@ public interface ExpedientTokenService {
 	 */
 	public boolean canviarEstatActiu(
 			Long expedientId,
-			//String processInstanceId,
+			String processInstanceId,
 			Long tokenId,
 			boolean activar) throws NoTrobatException, PermisDenegatException;
 
@@ -74,7 +74,7 @@ public interface ExpedientTokenService {
 	 */
 	public List<String> findArrivingNodeNames(
 			Long expedientId,
-			//String processInstanceId,
+			String processInstanceId,
 			String tokenId) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -94,7 +94,7 @@ public interface ExpedientTokenService {
 	 */
 	public TokenDto findById(
 			Long expedientId,
-			//String processInstanceId,
+			String processInstanceId,
 			String tokenId) throws NoTrobatException, PermisDenegatException;
 
 	/**
@@ -117,7 +117,7 @@ public interface ExpedientTokenService {
 	 */
 	public void retrocedir(
 			Long expedientId,
-			//String processInstanceId,
+			String processInstanceId,
 			String tokenId,
 			String nodeName,
 			boolean cancelarTasques) throws NoTrobatException, PermisDenegatException;

@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -310,8 +311,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentStoreId);
 	}
 
-	@Override
-	@Transactional(readOnly = true)
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
@@ -320,7 +319,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentCodi=" + documentCodi + ")");
-		
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		return documentHelper.findOnePerInstanciaProces(
+				processInstanceId,
+				documentCodi);
 	}
 
 	@Override
@@ -416,11 +426,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		if (processInstanceId != null) {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-		}
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
 		Document document = documentRepository.findByDefinicioProcesAndCodi(
 				expedientHelper.findDefinicioProcesByProcessInstanceId(
 						processInstanceId),
@@ -432,6 +440,34 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				null,
 				(processInstanceId != null) ? processInstanceId : expedient.getProcessInstanceId(),
 				documentData);
+	}
+
+	@Override
+	public boolean isExtensioPermesa(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi,
+			String arxiuNom) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Verificant extensions permeses per document (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"arxiuNom=" + arxiuNom + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		Document document = documentRepository.findByDefinicioProcesAndCodi(
+				expedientHelper.findDefinicioProcesByProcessInstanceId(
+						processInstanceId),
+				documentCodi);
+		return document.isExtensioPermesa(
+				getExtensio(arxiuNom));
 	}
 
 	@Override
@@ -475,6 +511,26 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
+	@Override
+	public boolean isExtensioPermesaPerTasca(
+			String tascaId,
+			String documentCodi,
+			String arxiuNom) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Verificant extensions permeses per document a la tasca (" +
+				"tascaId=" + tascaId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"arxiuNom=" + arxiuNom + ")");
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		Document document = documentRepository.findByDefinicioProcesAndCodi(
+				expedientHelper.findDefinicioProcesByProcessInstanceId(
+						task.getProcessInstanceId()),
+				documentCodi);
+		return document.isExtensioPermesa(
+				getExtensio(arxiuNom));
+	}
 
 
 	/*@Override
@@ -642,17 +698,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			resposta.add(dto);
 		}
 		return resposta;
-	}
-
-
-
-	private String getExtension(String nomArxiu) {
-		int index = nomArxiu.lastIndexOf('.');
-		if (index == -1) {
-			return "";
-		} else {
-			return nomArxiu.substring(index + 1);
-		}
 	}*/
 
 
@@ -667,7 +712,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				document,
 				DocumentDto.class);
 	}
+	private String getExtensio(String arxiuNom) {
+		int index = arxiuNom.lastIndexOf('.');
+		if (index == -1) {
+			return "";
+		} else {
+			return arxiuNom.substring(index + 1);
+		}
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
+
 
 }

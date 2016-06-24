@@ -6,17 +6,12 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -84,7 +79,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
@@ -100,7 +94,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
@@ -1166,24 +1159,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) {
-		logger.debug("Consulta de tasques de l'expedient (" +
-				"expedientId=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		
-		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, false, mostrarDeOtrosUsuarios);
-		tasques.addAll(tascaHelper.findTasquesPerExpedientPerInstanciaProces(expedient, processInstanceId, true, mostrarDeOtrosUsuarios));
-		return tasques;
-	}
-
-	@Override
-	// No pot ser readOnly per mor de la cache de les tasques
-	@Transactional
 	public List<ExpedientTascaDto> findTasquesPendents(
 			Long expedientId,
 			boolean nomesTasquesPersonals,
@@ -1546,187 +1521,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
-	@Override
-	@Transactional(readOnly=true)
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
-			Long expedientId,
-			boolean detall) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_READ,
-						ExtendedPermission.ADMINISTRATION});
-		mesuresTemporalsHelper.mesuraIniciar("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "findAmbExpedientIdOrdenatsPerData");
-		Map<InstanciaProcesDto, List<ExpedientLogDto>> resposta = new HashMap<InstanciaProcesDto, List<ExpedientLogDto>>();
-		List<InstanciaProcesDto> arbre = getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedient.getId());
-		List<String> taskIds = new ArrayList<String>();
-		String parentProcessInstanceId = null;
-		Map<String, String> processos = new HashMap<String, String>();
-		for (InstanciaProcesDto ip : arbre) {
-			resposta.put(ip, new ArrayList<ExpedientLogDto>());
-			for (ExpedientLog log: logs) {
-				if (log.getProcessInstanceId().toString().equals(ip.getId())) {
-					// Inclourem el log si:
-					//    - Estam mostrant el log detallat
-					//    - El log no se correspon a una tasca
-					//    - Si el log pertany a una tasca i encara
-					//      no s'ha afegit cap log d'aquesta tasca 
-					if (detall || !log.isTargetTasca() || !taskIds.contains(log.getTargetId())) {
-						taskIds.add(log.getTargetId());				
-						resposta.get(ip).addAll(
-								getLogs(
-										processos,
-										log,
-										parentProcessInstanceId,
-										ip.getId(),
-										detall));
-					}
-				}
-			}
-		}
-		SortedSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>> sortedEntries = new TreeSet<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>(new Comparator<Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>>>() {
-			@Override
-			public int compare(Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e1, Map.Entry<InstanciaProcesDto, List<ExpedientLogDto>> e2) {
-				if (e1.getKey() == null || e2.getKey() == null)
-					return 0;
-				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
-				if (e1.getKey().getId().equals(e2.getKey().getId())) {
-					return res;
-				} else {
-					return res != 0 ? res : 1;
-				}
-			}
-		});
-		sortedEntries.addAll(resposta.entrySet());
-		mesuresTemporalsHelper.mesuraCalcular("Expedient REGISTRE", "expedient", expedient.getTipus().getNom(), null, "obtenir tokens tasca");
-		return sortedEntries;
-	}	
-
-	@Override
-	@Transactional(readOnly=true)
-	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
-			Long expedientId) {
-		logger.debug("Consultant tasques per la pipella de registre de l'expedient (expedientId=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_READ,
-						ExtendedPermission.ADMINISTRATION});
-		List<ExpedientLog> logs = expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
-		Map<String, ExpedientTascaDto> tasquesPerLogs = new HashMap<String, ExpedientTascaDto>();
-		for (ExpedientLog log: logs) {
-			if (log.isTargetTasca()) {
-				JbpmTask task = jbpmHelper.getTaskById(log.getTargetId());
-				if (task != null) {
-					tasquesPerLogs.put(
-							log.getTargetId(),
-							tascaHelper.toExpedientTascaDto(
-									task,
-									expedient,
-									true,
-									false));
-				}
-			}
-		}
-		return tasquesPerLogs;
-	}
-
-	@Override
-	@Transactional
-	public void registreRetrocedir(
-			Long expedientId,
-			Long expedientLogId,
-			boolean retrocedirPerTasques) {
-		logger.debug("Retrocedint expedient amb els logs (" +
-				"expedientId=" + expedientId + ", " +
-				"expedientLogId=" + expedientLogId + ", " +
-				"retrocedirPerTasques=" + retrocedirPerTasques + ")");
-		expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
-		ExpedientLog log = expedientLogRepository.findById(expedientLogId);
-		mesuresTemporalsHelper.mesuraIniciar("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
-		if (log.getExpedient().isAmbRetroaccio()) {
-			ExpedientLog logRetroces = expedientLoggerHelper.afegirLogExpedientPerExpedient(
-					log.getExpedient().getId(),
-					retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
-					expedientLogId.toString());
-			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
-			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
-			indexHelper.expedientIndexLuceneUpdate(
-					log.getExpedient().getProcessInstanceId());
-		}
-		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
-	}
-
-	@Override
-	@Transactional
-	public void registreBuidarLog(
-			Long expedientId) {
-		logger.debug("Buidant logs de l'expedient("
-				+ "expedientId=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
-		jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
-			Long expedientId,
-			Long logId) {
-		logger.debug("Consultant logs d'una tasca de l'expedient (" +
-				"expedientId=" + expedientId + ", " +
-				"logId=" + logId + ")");
-		expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_READ,
-						ExtendedPermission.ADMINISTRATION});
-		List<ExpedientLog> logs = expedientLogRepository.findLogsTascaByIdOrdenatsPerData(String.valueOf(logId));
-		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
-			Long expedientId,
-			Long logId) {
-		logger.debug("Consultant logs d'un retrocés (" +
-				"expedientId=" + expedientId + ", " +
-				"logId=" + logId + ")");
-		expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_READ,
-						ExtendedPermission.ADMINISTRATION});
-		List<ExpedientLog> logs = expedientLoggerHelper.findLogsRetrocedits(logId);
-		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly=true)
-	public ExpedientLogDto registreFindLogById(
-			//Long expedientId,
-			Long logId) {
-		logger.debug("Consultant log donat el seu id (" +
-				//"expedientId=" + expedientId + ", " +
-				"logId=" + logId + ")");
-		/*expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.LOG_READ,
-						ExtendedPermission.ADMINISTRATION});*/
-		return conversioTipusHelper.convertir(
-				expedientLogRepository.findById(logId),
-				ExpedientLogDto.class);
-	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -1793,13 +1587,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 				Long processInstanceId) {
-		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
-		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(String.valueOf(processInstanceId));
-		List<JbpmProcessInstance> piTree = jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId());
-		for (JbpmProcessInstance jpi: piTree) {
-			resposta.add(getInstanciaProcesById(jpi.getId()));
-		}
-		return resposta;
+		return expedientHelper.getArbreInstanciesProces(String.valueOf(processInstanceId));
 	}
 
 	@Override
@@ -2142,35 +1930,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
 		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol).isEmpty();
-	}	
-	
-	@Override
-	@Transactional
-	public void suspendreTasca(
-			Long expedientId,
-			Long taskId) {
-		logger.debug("Reprende tasca l'expedient (id=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		if (!expedient.isAnulat()) {
-			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					task.getProcessInstanceId(),
-					ExpedientLogAccioTipus.TASCA_SUSPENDRE,
-					null);
-			jbpmHelper.suspendTaskInstance(String.valueOf(taskId));
-			crearRegistreTasca(
-					expedientId,
-					String.valueOf(taskId),
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					Registre.Accio.ATURAR);
-		} else {
-			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
-		}
 	}
 
 	@Override
@@ -2219,100 +1978,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			return tascaHelper.toTascaInicialDto(startTaskName, definicioProces.getJbpmId(), valors);
 		}
 		return null;
-	}
-	
-	@Override
-	@Transactional
-	public void reprendreTasca(
-			Long expedientId,
-			Long taskId) {
-		logger.debug("Reprende tasca l'expedient (id=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		if (!expedient.isAnulat()) {
-			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					task.getProcessInstanceId(),
-					ExpedientLogAccioTipus.TASCA_CONTINUAR,
-					null);
-			jbpmHelper.resumeTaskInstance(String.valueOf(taskId));
-			crearRegistreTasca(
-					expedientId,
-					String.valueOf(taskId),
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					Registre.Accio.REPRENDRE);
-		} else {
-			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
-		}
-	}
-	
-	@Override
-	@Transactional
-	public void cancelarTasca(
-			Long expedientId,
-			Long taskId) {
-		logger.debug("Cancelar tasca l'expedient (id=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				true,
-				false,
-				false);
-		if (!expedient.isAnulat()) {
-			JbpmTask task = jbpmHelper.getTaskById(String.valueOf(taskId));
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					task.getProcessInstanceId(),
-					ExpedientLogAccioTipus.TASCA_CANCELAR,
-					null);
-			jbpmHelper.cancelTaskInstance(String.valueOf(taskId));
-			crearRegistreTasca(
-					expedientId,
-					String.valueOf(taskId),
-					SecurityContextHolder.getContext().getAuthentication().getName(),
-					Registre.Accio.CANCELAR);
-		} else {
-			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
-		}
-	}
-
-	@Override
-	@Transactional
-	public void reassignarTasca(String taskId, String expression) {
-		JbpmTask task = jbpmHelper.getTaskById(taskId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		logger.debug("Reassignar tasca l'expedient (id=" + expedient.getId() + ")");
-		String previousActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-		ExpedientLog expedientLog = null;
-		expedientLog = expedientLoggerHelper.afegirLogExpedientPerTasca(
-				taskId,
-				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
-				null);
-		expedientHelper.getExpedientComprovantPermisos(
-				expedientLog.getExpedient().getId(),
-				false,
-				false,
-				false,
-				false,
-				true,
-				false,
-				false);
-		if (!expedient.isAturat()) {
-			jbpmHelper.reassignTaskInstance(taskId, expression, expedient.getEntorn().getId());
-			String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(taskId);
-			expedientLog.setAccioParams(previousActors + "::" + currentActors);
-			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-			crearRegistreRedirigirTasca(
-					expedient.getId(),
-					taskId,
-					usuari,
-					expression);
-		} else {
-			throw new ValidacioException("L'expedient " + expedient.getIdentificador() + " està aturat");
-		}
 	}
 
 	@Override
@@ -2625,23 +2290,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				Registre.Entitat.EXPEDIENT,
 				String.valueOf(expedientId));
 		return registreRepository.save(registre);
-	}	
-
-	private Registre crearRegistreTasca(
-			Long expedientId,
-			String tascaId,
-			String responsableCodi,
-			Registre.Accio accio) {
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				responsableCodi,
-				accio,
-				Registre.Entitat.TASCA,
-				tascaId);
-		return registreRepository.save(registre);
 	}
-	
+
 	private PersonaDto comprovarUsuari(String usuari) {
 		try {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);
@@ -2715,22 +2365,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
-	private Registre crearRegistreRedirigirTasca(
-			Long expedientId,
-			String tascaId,
-			String responsableCodi,
-			String expression) {
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				responsableCodi,
-				Registre.Accio.MODIFICAR,
-				Registre.Entitat.TASCA,
-				tascaId);
-		registre.setMissatge("Redirecció de tasca amb expressió \"" + expression + "\"");
-		return registreRepository.save(registre);
-	}
-	
 	private boolean isUserInRole(
 			Authentication auth,
 			String role) {
@@ -2782,81 +2416,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
-	private List<ExpedientLogDto> getLogs(
-			Map<String, String> processos,
-			ExpedientLog log,
-			String parentProcessInstanceId,
-			String piId,
-			boolean detall) {
-		// Obtenim el token de cada registre
-		JbpmToken token = null;
-		if (log.getJbpmLogId() != null) {
-			token = expedientLoggerHelper.getTokenByJbpmLogId(log.getJbpmLogId());
-		}
-		String tokenName = null;
-		String processInstanceId = null;
-		List<ExpedientLogDto> resposta = new ArrayList<ExpedientLogDto>();
-		if (token != null && token.getToken() != null) {
-			tokenName = token.getToken().getFullName();
-			processInstanceId = token.getProcessInstanceId();
-			
-			// Entram per primera vegada
-			if (parentProcessInstanceId == null) {
-				parentProcessInstanceId = processInstanceId;
-				processos.put(processInstanceId, "");
-			} else {
-				// Canviam de procés
-				if (!parentProcessInstanceId.equals(token.getProcessInstanceId())){
-					// Entram en un nou subproces
-					if (!processos.containsKey(processInstanceId)) {
-						processos.put(processInstanceId, token.getToken().getProcessInstance().getSuperProcessToken().getFullName());
-						
-						if (parentProcessInstanceId.equals(piId)){
-							// Añadimos una nueva línea para indicar la llamada al subproceso
-							ExpedientLogDto dto = new ExpedientLogDto();
-							dto.setId(log.getId());
-							dto.setData(log.getData());
-							dto.setUsuari(log.getUsuari());
-							dto.setEstat(ExpedientLogEstat.IGNORAR.name());
-							dto.setAccioTipus(ExpedientLogAccioTipus.PROCES_LLAMAR_SUBPROCES.name());
-							String titol = null;
-							if (token.getToken().getProcessInstance().getKey() == null)
-								titol = token.getToken().getProcessInstance().getProcessDefinition().getName() + " " + log.getProcessInstanceId();
-							else 
-								titol = token.getToken().getProcessInstance().getKey();
-							dto.setAccioParams(titol);
-							dto.setTargetId(log.getTargetId());
-							dto.setTargetTasca(false);
-							dto.setTargetProces(false);
-							dto.setTargetExpedient(true);
-							if (detall || (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || "EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()))))
-								resposta.add(dto);
-						}
-					}
-				}
-				tokenName = processos.get(processInstanceId) + tokenName;
-			}
-		}
-		
-		if (piId == null || log.getProcessInstanceId().equals(Long.parseLong(piId))) {
-			ExpedientLogDto dto = new ExpedientLogDto();
-			dto.setId(log.getId());
-			dto.setData(log.getData());
-			dto.setUsuari(log.getUsuari());
-			dto.setEstat(token == null ? ExpedientLogEstat.IGNORAR.name() : log.getEstat().name());
-			dto.setAccioTipus(log.getAccioTipus().name());
-			dto.setAccioParams(log.getAccioParams());
-			dto.setTargetId(log.getTargetId());
-			dto.setTokenName(tokenName);
-			dto.setTargetTasca(log.isTargetTasca());
-			dto.setTargetProces(log.isTargetProces());
-			dto.setTargetExpedient(log.isTargetExpedient());
-			if (detall || (!("RETROCEDIT".equals(dto.getEstat()) || "RETROCEDIT_TASQUES".equals(dto.getEstat()) || "EXPEDIENT_MODIFICAR".equals(dto.getAccioTipus()))))
-				resposta.add(dto);
-		}
-		return resposta;
-	}
-
 	private void filtrarExpedientsAmbTasques(
 			List<Long> llistaExpedientIds,
 			boolean nomesMeves,
@@ -2893,7 +2452,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				ids5.add(id);
 			index++;
 		}
-		
 		List<Object[]> idsInstanciesProces = expedientRepository.findAmbIdsByFiltreConsultesTipus(
 				ids1,
 				ids2,
@@ -2909,16 +2467,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 			idsExp.add((Long) id[0]);
 			idsPI.add((String) id[1]);
 		}
-		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 		List<String> ids = jbpmHelper.findRootProcessInstancesWithTasksCommand(
 						auth.getName(),
 						idsPI,
 						nomesMeves,
 						nomesTasquesPersonals,
 						nomesTasquesGrup);		
-		
 		Iterator<Long> itExps = llistaExpedientIds.iterator();
 		ArrayList<Long> removeList = new ArrayList<Long>();
 		while (itExps.hasNext()) {

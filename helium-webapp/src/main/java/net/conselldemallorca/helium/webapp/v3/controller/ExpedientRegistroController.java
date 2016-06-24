@@ -5,10 +5,6 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-
 import org.jbpm.JbpmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
  * 
@@ -33,6 +34,10 @@ public class ExpedientRegistroController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientRegistreService expedientRegistreService;
+
+
 
 	@RequestMapping(value = "/{expedientId}/registre", method = RequestMethod.GET)
 	public String registre(
@@ -45,7 +50,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			boolean detall = tipus_retroces != null && tipus_retroces == 0;
 			model.addAttribute(
 					"tasques",
-					expedientService.registreFindTasquesPerLogExpedient(
+					expedientRegistreService.registreFindTasquesPerLogExpedient(
 							expedientId));
 			model.addAttribute(
 					"inicialProcesInstanceId",
@@ -58,7 +63,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 					expedient);
 			model.addAttribute(
 					"logs",
-					expedientService.registreFindLogsOrdenatsPerData(
+					expedientRegistreService.registreFindLogsOrdenatsPerData(
 							expedient.getId(),
 							detall));
 		}		
@@ -76,7 +81,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			Model model) {
 		boolean response = false;
 		try {
-			expedientService.registreRetrocedir(
+			expedientRegistreService.registreRetrocedir(
 					expedientId,
 					logId,
 					tipus_retroces == null || tipus_retroces != 0);
@@ -98,12 +103,12 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			ModelMap model) {
 		model.addAttribute(
 				"logs",
-				expedientService.registreFindLogsRetroceditsOrdenatsPerData(
+				expedientRegistreService.registreFindLogsRetroceditsOrdenatsPerData(
 						expedientId,
 						logId));
 		model.addAttribute(
 				"tasques",
-				expedientService.registreFindTasquesPerLogExpedient(
+				expedientRegistreService.registreFindTasquesPerLogExpedient(
 						expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
@@ -116,12 +121,12 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			ModelMap model) {
 		model.addAttribute(
 				"logs",
-				expedientService.registreFindLogsTascaOrdenatsPerData(
+				expedientRegistreService.registreFindLogsTascaOrdenatsPerData(
 						expedientId,
 						targetId));
 		model.addAttribute(
 				"tasques",
-				expedientService.registreFindTasquesPerLogExpedient(
+				expedientRegistreService.registreFindTasquesPerLogExpedient(
 						expedientId));
 		return "v3/expedient/logRetrocedit";
 	}
@@ -133,7 +138,7 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			ModelMap model) {
 		model.addAttribute(
 				"log",
-				expedientService.registreFindLogById(
+				expedientRegistreService.registreFindLogById(
 						logId));
 		return "v3/expedient/logScript";
 	}

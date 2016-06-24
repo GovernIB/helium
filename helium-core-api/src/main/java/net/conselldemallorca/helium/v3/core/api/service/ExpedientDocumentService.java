@@ -6,8 +6,6 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.security.acls.model.NotFoundException;
-
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
@@ -88,14 +86,14 @@ public interface ExpedientDocumentService {
 	 *            Atribut processInstanceId que es vol consultar. Si no
 	 *            s'especifica s'agafa l'instància de procés arrel.
 	 * @return La llista de documents.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
 	 */
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(
 			Long expedientId,
-			String processInstanceId) throws NoTrobatException;
+			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna un document d'una instància de procés de
@@ -110,15 +108,37 @@ public interface ExpedientDocumentService {
 	 *            Atribut id de la taula document_store del document que
 	 *            es vol consultar.
 	 * @return El document de l'expedient.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
 	 */
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			Long documentStoreId) throws NoTrobatException;
+			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna un document d'una instància de procés de
+	 * l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId que es vol consultar. Si no
+	 *            s'especifica s'agafa l'instància de procés arrel.
+	 * @param documentCodi
+	 *            Codi del document que es vol consultar.
+	 * @return El document de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
+	 */
+	public ExpedientDocumentDto findOneAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna l'arxiu del document.

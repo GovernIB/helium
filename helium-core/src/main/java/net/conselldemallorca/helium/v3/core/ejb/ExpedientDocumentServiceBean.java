@@ -16,6 +16,8 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 
 /**
@@ -84,6 +86,18 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				expedientId,
 				processInstanceId,
 				documentStoreId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDocumentDto findOneAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi) throws NoTrobatException, PermisDenegatException {
+		return delegate.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentCodi);
 	}
 
 	@Override

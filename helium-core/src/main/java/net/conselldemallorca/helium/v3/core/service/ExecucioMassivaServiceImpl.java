@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,9 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -131,6 +134,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ExpedientDadaService expedientDadaService;
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	private ExpedientTascaService expedientTascaService;
+	@Autowired
+	private ExpedientRegistreService expedientRegistreService;
 
 
 
@@ -1144,7 +1151,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ExpedientDocumentDto doc = null;
 			if (docId != null) {
 				aux = documentRepository.findOne(docId);
-				doc =  documentHelperV3.findDocumentPerInstanciaProces(exp.getProcessInstanceId(), null, aux.getCodi());
+				doc =  documentHelperV3.findOnePerInstanciaProces(
+						exp.getProcessInstanceId(),
+						aux.getCodi());
 			}
 			if (contingut == null) {
 				// Autogenerar
@@ -1254,7 +1263,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
-	
+
 	private void reprendreExpedient(ExecucioMassivaExpedient ome) throws Exception {
 		Expedient exp = ome.getExpedient();
 		try {
@@ -1268,7 +1277,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
-	
+
 	private void reprendreTramitacio(ExecucioMassivaExpedient ome) throws Exception {
 		Expedient exp = ome.getExpedient();
 		try {
@@ -1282,12 +1291,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
-	
+
 	private void buidarLogExpedient(ExecucioMassivaExpedient ome) throws Exception {
 		Expedient exp = ome.getExpedient();
 		try {
 			ome.setDataInici(new Date());
-			expedientService.registreBuidarLog(
+			expedientRegistreService.registreBuidarLog(
 					exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
@@ -1297,7 +1306,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
-	
+
 	private void reassignarTasca(ExecucioMassivaExpedient ome) throws Exception {
 		String tascaId = ome.getTascaId();
 		try {
@@ -1308,8 +1317,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			JbpmTask tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
 
 			if (tasca != null && tasca.isOpen()) {
+				ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
+						tasca.getProcessInstanceId());
 				// Reassignam la tasca
-				expedientService.reassignarTasca(tasca.getId(), ome.getExecucioMassiva().getParam1());
+				expedientTascaService.reassignar(
+						piexp.getId(),
+						tasca.getId(),
+						ome.getExecucioMassiva().getParam1());
 			}
 			if (tasca == null) {
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);

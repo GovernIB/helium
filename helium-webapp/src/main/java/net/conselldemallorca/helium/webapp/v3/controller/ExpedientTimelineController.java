@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,7 +29,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 	private ExpedientService expedientService;
 
 	@Autowired
-	private TerminiService terminiService;
+	private ExpedientTerminiService terminiService;
 
 	@RequestMapping(value = "/{expedientId}/timeline", method = RequestMethod.GET)
 	public String timeline(

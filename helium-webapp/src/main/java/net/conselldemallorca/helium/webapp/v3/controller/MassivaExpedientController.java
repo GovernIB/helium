@@ -195,10 +195,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			}
 			Collections.sort(variables, new ComparadorCampCodi());
 			model.addAttribute("variables", variables);
-			List<DocumentDto> documents = expedientDocumentService.dissenyFindAmbDefinicioProces(
-					definicioProces.getId(),
-					expedient.getProcessInstanceId(),
-					expedient.getTipus().getNom());
+			List<DocumentDto> documents = dissenyService.documentFindAmbDefinicioProces(
+					definicioProces.getId());
 			Collections.sort(documents, new ComparadorDocument());
 			model.addAttribute("documents", documents);
 			model.addAttribute("permisAdministrador", expedient.isPermisAdministration());
@@ -415,7 +413,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 				
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
-				DocumentDto document = expedientDocumentService.findById(docId);
+				DocumentDto document = dissenyService.documentFindOne(docId);
 				dto.setParam1(document.getDocumentNom());
 				
 				Object[] params = new Object[4];
@@ -430,7 +428,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			} else if ("document_generar".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.MODIFICAR_DOCUMENT);
 				Long docId = ((DocumentExpedientCommand) command).getDocId();
-				DocumentDto document = expedientDocumentService.findById(docId);
+				DocumentDto document = dissenyService.documentFindOne(docId);
 				dto.setParam1(document.getDocumentNom());
 				
 				Object[] params = new Object[4];
@@ -676,7 +674,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			@RequestParam(value = "inici", required = false) String inici,
 			@RequestParam(value = "correu", required = false) boolean correu,
 			Model model) {
-		DocumentDto document = expedientDocumentService.findById(docId);
+		DocumentDto document = dissenyService.documentFindOne(docId);
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setDocId(docId);
 		command.setNom(document.getDocumentNom());

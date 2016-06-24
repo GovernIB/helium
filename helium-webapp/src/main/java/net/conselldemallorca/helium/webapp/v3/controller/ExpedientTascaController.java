@@ -9,15 +9,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
+import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
+
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
  * 
@@ -39,9 +39,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ExpedientTascaController extends BaseExpedientController {
 
 	@Autowired
-	protected ExpedientService expedientService;
+	protected ExpedientTascaService expedientTascaService;
 	@Autowired
 	protected TascaService tascaService;
+
+
 
 	@RequestMapping(value = "/{expedientId}/tasca", method = RequestMethod.GET)
 	public String tasques(
@@ -54,9 +56,10 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
-			boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios));
+				tasques.put(instanciaProces, expedientTascaService.findAmbInstanciaProces(
+						expedientId,
+						instanciaProces.getId()));
 			}
 			model.addAttribute("tasques", tasques);	
 		}
@@ -71,9 +74,10 @@ public class ExpedientTascaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-		List<ExpedientTascaDto> dadesInstancia = expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios);
+		List<ExpedientTascaDto> dadesInstancia = expedientTascaService.findAmbInstanciaProces(
+				expedientId,
+				instanciaProces.getId());
 		Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 		tasques.put(instanciaProces, dadesInstancia);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
@@ -81,7 +85,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		model.addAttribute("tasques", tasques);	
 		return "v3/procesTasques";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/refrescarLlistat", method = RequestMethod.GET)
 	public String refrescarLlistat(
 			HttpServletRequest request,
@@ -93,15 +97,18 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
-			boolean permisosVerOtrosUsuarios = veureTasquesAltresUsuaris(request, expedient);
 			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-				tasques.put(instanciaProces, expedientService.findTasquesPerInstanciaProces(expedientId, instanciaProces.getId(), permisosVerOtrosUsuarios));
+				tasques.put(
+						instanciaProces,
+						expedientTascaService.findAmbInstanciaProces(
+								expedientId,
+								instanciaProces.getId()));
 			}
 			model.addAttribute("tasques", tasques);	
 		}
 		return "v3/procesTasques";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/tasquesPendents/{nomesTasquesPersonals}/{nomesTasquesGrup}/consultesTipus", method = RequestMethod.GET)
 	public String tasquesPendents2(
 			HttpServletRequest request,
@@ -154,10 +161,10 @@ public class ExpedientTascaController extends BaseExpedientController {
 	public String tascaCancelar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long tascaId,
+			@PathVariable String tascaId,
 			ModelMap model) {
 		try {
-			expedientService.cancelarTasca(expedientId, tascaId);
+			expedientTascaService.cancelar(expedientId, tascaId);
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.cancelar", new Object[] {String.valueOf(tascaId)}));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId)} ));
@@ -170,16 +177,15 @@ public class ExpedientTascaController extends BaseExpedientController {
 	public String tascaSuspendre(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long tascaId,
+			@PathVariable String tascaId,
 			ModelMap model) {		
 		try {
-			expedientService.suspendreTasca(expedientId, tascaId);
+			expedientTascaService.suspendre(expedientId, tascaId);
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.suspendre"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.suspendre.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut suspendre la tasca " + tascaId, ex);
 		}
-			
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 
@@ -187,15 +193,15 @@ public class ExpedientTascaController extends BaseExpedientController {
 	public String tascaReprendre(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long tascaId,
+			@PathVariable String tascaId,
 			ModelMap model) {
 		try {
-			expedientService.reprendreTasca(expedientId, tascaId);
+			expedientTascaService.reprendre(expedientId, tascaId);
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.reprendre"));
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.reprendre.tasca", new Object[] {tascaId} ));
         	logger.error("No s'ha pogut reprendre la tasca " + tascaId, ex);
-		}		
+		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 
@@ -236,7 +242,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 		}
 		return resultado;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/execucioInfo/{tascaId}", method = RequestMethod.GET)
 	public String execucioInfo(
 			HttpServletRequest request,
@@ -257,12 +263,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 				return "redirect:"+ referer;
 			}
 		}
-		
 		return "v3/missatgesExecucioSegonPla";
-	}
-
-	private boolean veureTasquesAltresUsuaris(HttpServletRequest request, ExpedientDto expedient) {
-		return (request.isUserInRole("ROLE_ADMIN") || request.isUserInRole("HEL_ADMIN")) || expedient.isPermisReassignment() || expedient.isPermisAdministration();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTascaController.class);

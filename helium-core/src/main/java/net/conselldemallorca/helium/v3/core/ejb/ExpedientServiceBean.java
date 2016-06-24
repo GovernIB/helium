@@ -6,9 +6,7 @@ package net.conselldemallorca.helium.v3.core.ejb;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -27,7 +25,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
@@ -364,67 +361,6 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
-			Long expedientId,
-			boolean detall) {
-		return delegate.registreFindLogsOrdenatsPerData(expedientId, detall);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
-			Long expedientId) {
-		return delegate.registreFindTasquesPerLogExpedient(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void registreRetrocedir(
-			Long expedientId,
-			Long logId,
-			boolean retrocedirPerTasques) {
-		delegate.registreRetrocedir(
-				expedientId,
-				logId,
-				retrocedirPerTasques);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void registreBuidarLog(
-			Long expedientId) {
-		delegate.registreBuidarLog(
-				expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
-			Long expedientId,
-			Long logId) {
-		return delegate.registreFindLogsTascaOrdenatsPerData(
-				expedientId,
-				logId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
-			Long expedientId,
-			Long logId) {
-		return delegate.registreFindLogsRetroceditsOrdenatsPerData(
-				expedientId,
-				logId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientLogDto registreFindLogById(Long logId) {
-		return delegate.registreFindLogById(logId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<AlertaDto> findAlertes(Long id) {
 		return delegate.findAlertes(id);
 	}
@@ -445,30 +381,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<InstanciaProcesDto> getArbreInstanciesProces(Long processInstanceId) {
 		return delegate.getArbreInstanciesProces(processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void cancelarTasca(Long expedientId, Long taskId) {
-		delegate.cancelarTasca(expedientId, taskId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void suspendreTasca(Long expedientId, Long taskId) {
-		delegate.suspendreTasca(expedientId, taskId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reprendreTasca(Long expedientId, Long taskId) {
-		delegate.reprendreTasca(expedientId, taskId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reassignarTasca(String taskId, String expression) {
-		delegate.reassignarTasca(taskId, expression);
 	}
 
 	@Override
@@ -585,12 +497,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void deleteSignatura(Long expedientId, Long documentStoreId) {
 		delegate.deleteSignatura(expedientId, documentStoreId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findTasquesPerInstanciaProces(Long expedientId, String processInstanceId, boolean mostrarDeOtrosUsuarios) {
-		return delegate.findTasquesPerInstanciaProces(expedientId, processInstanceId, mostrarDeOtrosUsuarios);
 	}
 
 	@Override

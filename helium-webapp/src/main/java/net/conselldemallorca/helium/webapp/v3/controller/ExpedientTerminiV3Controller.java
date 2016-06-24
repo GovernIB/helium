@@ -21,7 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand.TerminiModificacioTipus;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -59,7 +59,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 	private ExpedientService expedientService;
 
 	@Autowired
-	private TerminiService terminiService;
+	private ExpedientTerminiService terminiService;
 
 	@RequestMapping(value = "/{expedientId}/terminis", method = RequestMethod.GET)
 	public String terminis(

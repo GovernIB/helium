@@ -6,7 +6,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 import org.springframework.stereotype.Controller;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ConfiguracioFestiusController extends BaseController {
 
 	@Resource(name = "terminiServiceV3")
-	private TerminiService terminiService;
+	private ExpedientTerminiService terminiService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(

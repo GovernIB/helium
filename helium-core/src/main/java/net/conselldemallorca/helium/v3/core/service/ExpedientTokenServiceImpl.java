@@ -89,10 +89,12 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	@Override
 	public boolean canviarEstatActiu(
 			Long expedientId,
+			String processInstanceId,
 			Long tokenId,
 			boolean activar) {
 		logger.debug("Canviant l'estat actiu del token (" +
 				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
 				"tokenId=" + tokenId + ", " +
 				"activar=" + activar + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -110,9 +112,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	@Override
 	public List<String> findArrivingNodeNames(
 			Long expedientId,
+			String processInstanceId,
 			String tokenId) {
 		logger.debug("Consultant els noms dels nodes que arriben al node del token (" +
 				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
 				"tokenId=" + tokenId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -129,9 +133,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	@Override
 	public TokenDto findById(
 			Long expedientId,
+			String processInstanceId,
 			String tokenId) {
 		logger.debug("Consultant informació del token amb id (" +
 				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
 				"tokenId=" + tokenId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -148,11 +154,13 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 	@Override
 	public void retrocedir(
 			Long expedientId,
+			String processInstanceId,
 			String tokenId,
 			String nodeName,
 			boolean cancelTasks) {
 		logger.debug("Retrocedint el token fins al node (" +
 				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
 				"tokenId=" + tokenId + ", " +
 				"nodeName=" + nodeName + ", " +
 				"cancelTasks=" + cancelTasks + ")");

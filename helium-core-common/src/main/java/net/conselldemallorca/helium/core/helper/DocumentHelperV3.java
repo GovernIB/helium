@@ -109,7 +109,7 @@ public class DocumentHelperV3 {
 			if (document != null) {
 				return crearDtoPerDocumentExpedient(
 								document,
-								documentStoreId);
+								documentStore);
 			} else {
 				throw new NoTrobatException(
 						Document.class,
@@ -118,7 +118,36 @@ public class DocumentHelperV3 {
 		} else {
 			return crearDtoPerAdjuntExpedient(
 					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					documentStoreId);
+					documentStore);
+		}
+	}
+
+	public ExpedientDocumentDto findOnePerInstanciaProces(
+			String processInstanceId,
+			String documentCodi) {
+		DocumentStore documentStore = documentStoreRepository.findById(
+				findDocumentStorePerInstanciaProcesAndDocumentCodi(
+						processInstanceId,
+						documentCodi));
+		if (!documentStore.isAdjunt()) {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					processInstanceId);
+			Document document = documentRepository.findAmbDefinicioProcesICodi(
+					definicioProces.getId(),
+					documentStore.getCodiDocument());
+			if (document != null) {
+				return crearDtoPerDocumentExpedient(
+								document,
+								documentStore);
+			} else {
+				throw new NoTrobatException(
+						Document.class,
+						"(codi=" + documentStore.getCodiDocument() + ")");
+			}
+		} else {
+			return crearDtoPerAdjuntExpedient(
+					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
+					documentStore);
 		}
 	}
 
@@ -538,72 +567,9 @@ public class DocumentHelperV3 {
 			dto.setError("No s'ha trobat el documentStore del adjunt (id=" + documentStoreId + ", adjuntId=" + adjuntId + ")");
 		}
 		return dto;
-	}*/
-
-	
-	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
-			Document document,
-			Long documentStoreId) {
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStoreId);
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			dto.setDataCreacio(documentStore.getDataCreacio());
-			dto.setDataModificacio(documentStore.getDataModificacio());
-			dto.setDataDocument(documentStore.getDataDocument());
-			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-			dto.setDocumentId(document.getId());
-			dto.setDocumentCodi(document.getCodi());
-			dto.setDocumentNom(document.getNom());
-			dto.setSignat(documentStore.isSignat());
-			if (documentStore.isSignat()) {
-				// TODO
-				//dto.setSignaturaPortasignaturesId(documentStore.getP);
-				dto.setSignaturaUrlVerificacio(
-						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-								documentStoreId.toString()));
-			}
-			dto.setRegistrat(documentStore.isRegistrat());
-			if (documentStore.isRegistrat()) {
-				dto.setRegistreEntrada(documentStore.isRegistreEntrada());
-				dto.setRegistreNumero(documentStore.getRegistreNumero());
-				dto.setRegistreData(documentStore.getRegistreData());
-				dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
-				dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
-			}
-		} else {
-			dto.setError("No s'ha trobat el documentStore del document (" +
-					"documentCodi=" + document.getCodi() + ", " +
-					"documentStoreId=" + documentStoreId + ")");
-		}
-		return dto;
 	}
 
-	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
-			String adjuntId,
-			Long documentStoreId) {
-		ExpedientDocumentDto dto = new ExpedientDocumentDto();
-		dto.setId(documentStoreId);
-		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		if (documentStore != null) {
-			dto.setDataCreacio(documentStore.getDataCreacio());
-			dto.setDataModificacio(documentStore.getDataModificacio());
-			dto.setDataDocument(documentStore.getDataDocument());
-			dto.setArxiuNom(calcularArxiuNom(documentStore, false));
-			dto.setProcessInstanceId(documentStore.getProcessInstanceId());
-			dto.setAdjunt(true);
-			dto.setAdjuntId(adjuntId);
-			dto.setAdjuntTitol(documentStore.getAdjuntTitol());
-		} else {
-			dto.setError("No s'ha trobat el documentStore del document adjunt (" +
-					"adjuntId=" + adjuntId + ", " +
-					"documentStoreId=" + documentStoreId + ")");
-		}
-		return dto;
-	}
-	
-	/*private ExpedientDocumentDto toExpedientDocumentDto(
+	private ExpedientDocumentDto toExpedientDocumentDto(
 			Long documentStoreId,
 			boolean esDocument,
 			String documentCodi,
@@ -1612,6 +1578,84 @@ public class DocumentHelperV3 {
 		}
 		return resposta;
 	}*/
+
+
+
+	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
+			Document document,
+			Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			return crearDtoPerDocumentExpedient(document, documentStore);
+		} else {
+			ExpedientDocumentDto dto = new ExpedientDocumentDto();
+			dto.setId(documentStoreId);
+			dto.setError("No s'ha trobat el documentStore del document (" +
+					"documentCodi=" + document.getCodi() + ", " +
+					"documentStoreId=" + documentStoreId + ")");
+			return dto;
+		}
+	}
+	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
+			Document document,
+			DocumentStore documentStore) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStore.getId());
+		dto.setDataCreacio(documentStore.getDataCreacio());
+		dto.setDataModificacio(documentStore.getDataModificacio());
+		dto.setDataDocument(documentStore.getDataDocument());
+		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+		dto.setDocumentId(document.getId());
+		dto.setDocumentCodi(document.getCodi());
+		dto.setDocumentNom(document.getNom());
+		dto.setSignat(documentStore.isSignat());
+		if (documentStore.isSignat()) {
+			dto.setSignaturaUrlVerificacio(
+					pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+							documentStore.getId().toString()));
+		}
+		dto.setRegistrat(documentStore.isRegistrat());
+		if (documentStore.isRegistrat()) {
+			dto.setRegistreEntrada(documentStore.isRegistreEntrada());
+			dto.setRegistreNumero(documentStore.getRegistreNumero());
+			dto.setRegistreData(documentStore.getRegistreData());
+			dto.setRegistreOficinaCodi(documentStore.getRegistreOficinaCodi());
+			dto.setRegistreOficinaNom(documentStore.getRegistreOficinaNom());
+		}
+		return dto;
+	}
+
+	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
+			String adjuntId,
+			Long documentStoreId) {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore != null) {
+			return crearDtoPerAdjuntExpedient(adjuntId, documentStore);
+		} else {
+			ExpedientDocumentDto dto = new ExpedientDocumentDto();
+			dto.setId(documentStoreId);
+			dto.setError("No s'ha trobat el documentStore del document (" +
+					"adjuntId=" + adjuntId + ", " +
+					"documentStoreId=" + documentStoreId + ")");
+			return dto;
+		}
+	}
+	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
+			String adjuntId,
+			DocumentStore documentStore) {
+		ExpedientDocumentDto dto = new ExpedientDocumentDto();
+		dto.setId(documentStore.getId());
+		dto.setDataCreacio(documentStore.getDataCreacio());
+		dto.setDataModificacio(documentStore.getDataModificacio());
+		dto.setDataDocument(documentStore.getDataDocument());
+		dto.setArxiuNom(calcularArxiuNom(documentStore, false));
+		dto.setProcessInstanceId(documentStore.getProcessInstanceId());
+		dto.setAdjunt(true);
+		dto.setAdjuntId(adjuntId);
+		dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+		return dto;
+	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 
