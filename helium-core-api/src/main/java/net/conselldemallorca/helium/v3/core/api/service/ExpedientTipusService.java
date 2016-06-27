@@ -7,6 +7,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -454,4 +455,27 @@ public interface ExpedientTipusService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public List<ConsultaDto> consultaFindAll(Long expedientTipusId);
+	
+	
+	/***********************************************/
+	/******************DOCUMENTS********************/
+	/***********************************************/
+	
+	/** 
+	 * Retorna la llista de camps del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<DocumentDto> documentFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 }

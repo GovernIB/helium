@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -272,4 +273,18 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.consultaFindAll(expedientTipusId);
 	}
 
+	/***********************************************/
+	/******************DOCUMENTS********************/
+	/***********************************************/
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<DocumentDto> documentFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.documentFindPerDatatable(
+				expedientTipusId,
+				filtre, 
+				paginacioParams);
+	}
 }

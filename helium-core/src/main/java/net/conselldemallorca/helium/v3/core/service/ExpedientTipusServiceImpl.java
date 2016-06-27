@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -51,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 
@@ -78,6 +80,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
 	private DominiRepository dominiRepository;
+	@Resource
+	private DocumentRepository documentRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
 	@Resource
@@ -823,5 +827,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return conversioTipusHelper.convertirList(
 									consultans, 
 									ConsultaDto.class);
+	}
+	
+	/***********************************************/
+	/******************DOCUMENTS********************/
+	/***********************************************/
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<DocumentDto> documentFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els documents per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+				
+		return paginacioHelper.toPaginaDto(
+				documentRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre),
+						filtre,
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+						DocumentDto.class);
 	}
 }

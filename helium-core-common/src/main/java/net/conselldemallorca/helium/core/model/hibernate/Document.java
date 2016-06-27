@@ -71,6 +71,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 
 	@NotNull
 	private DefinicioProces definicioProces;
+	private ExpedientTipus expedientTipus;
 	private Camp campData;
 
 	private Set<DocumentTasca> tasques = new HashSet<DocumentTasca>();
@@ -202,6 +203,16 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	public void setDefinicioProces(DefinicioProces definicioProces) {
 		this.definicioProces = definicioProces;
+	}
+	
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_doc_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
 	}
 
 	@ManyToOne(optional=true)
