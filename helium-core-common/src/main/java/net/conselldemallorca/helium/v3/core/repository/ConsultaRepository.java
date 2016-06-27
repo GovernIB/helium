@@ -5,11 +5,11 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -41,4 +41,13 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 	List<Consulta> findConsultesActivesAmbEntornIExpedientTipusOrdenat(
 			@Param("entornId") Long entornId, 
 			@Param("expedientTipusId") Long expedientTipusId);
+
+	@Query("select c from " +
+			"    Consulta c " +
+			"where " +
+			"    c.expedientTipus.id = :expedientTipusId " +
+			"order by " +
+			"    ordre")
+	List<Consulta> findAmbExpedientTipus(
+			@Param("expedientTipusId") Long expedientTipusId);	
 }

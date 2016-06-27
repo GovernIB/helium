@@ -26,12 +26,18 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -41,7 +47,10 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 
@@ -65,6 +74,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private CampRepository campRepository;
 	@Resource
 	private CampAgrupacioRepository campAgrupacioRepository;
+	@Resource
+	private EnumeracioRepository enumeracioRepository;
+	@Resource
+	private DominiRepository dominiRepository;
+	@Resource
+	private ConsultaRepository consultaRepository;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -439,7 +454,38 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							agrupacio.getId()));
 		}		
 		// Camp associat a l'expedient
-		entity.setExpedientTipus(expedientTipus);
+		entity.setExpedientTipus(expedientTipus);		
+		
+		// Dades consulta
+		Enumeracio enumeracio = null;
+		if (camp.getEnumeracio() != null) {
+			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
+		}
+		entity.setEnumeracio(enumeracio);
+		Domini domini = null;
+		if (camp.getDomini() != null) {
+			domini = dominiRepository.findOne(camp.getDomini().getId());
+		}
+		entity.setDomini(domini);
+		Consulta consulta = null;
+		if (camp.getConsulta() != null) {
+			consulta = consultaRepository.findOne(camp.getConsulta().getId());
+		}
+		entity.setConsulta(consulta);		
+		entity.setDominiIntern(camp.isDominiIntern());
+
+		// Paràmetres del domini
+		entity.setDominiId(camp.getDominiIdentificador());
+		entity.setDominiParams(camp.getDominiParams());
+		entity.setDominiCampValor(camp.getDominiCampValor());
+		entity.setDominiCampText(camp.getDominiCampText());
+		
+		// Paràmetres de la consulta
+		entity.setConsultaParams(camp.getConsultaParams());
+		entity.setConsultaCampValor(camp.getConsultaCampValor());
+		entity.setConsultaCampText(camp.getConsultaCampText());
+		
+		entity.setDominiCacheText(camp.isDominiCacheText());
 
 		return conversioTipusHelper.convertir(
 				campRepository.save(entity),
@@ -471,7 +517,38 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					campRepository.getNextOrdre(
 							agrupacio.getId()));
 		}		
+		
+		// Dades consulta
+		Enumeracio enumeracio = null;
+		if (camp.getEnumeracio() != null) {
+			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
+		}
+		entity.setEnumeracio(enumeracio);
+		Domini domini = null;
+		if (camp.getDomini() != null) {
+			domini = dominiRepository.findOne(camp.getDomini().getId());
+		}
+		entity.setDomini(domini);
+		Consulta consulta = null;
+		if (camp.getConsulta() != null) {
+			consulta = consultaRepository.findOne(camp.getConsulta().getId());
+		}
+		entity.setConsulta(consulta);		
+		entity.setDominiIntern(camp.isDominiIntern());
 
+		// Paràmetres del domini
+		entity.setDominiId(camp.getDominiIdentificador());
+		entity.setDominiParams(camp.getDominiParams());
+		entity.setDominiCampValor(camp.getDominiCampValor());
+		entity.setDominiCampText(camp.getDominiCampText());
+		
+		// Paràmetres de la consulta
+		entity.setConsultaParams(camp.getConsultaParams());
+		entity.setConsultaCampValor(camp.getConsultaCampValor());
+		entity.setConsultaCampText(camp.getConsultaCampText());
+		
+		entity.setDominiCacheText(camp.isDominiCacheText());
+		
 		return conversioTipusHelper.convertir(
 				campRepository.save(entity),
 				CampDto.class);
@@ -542,7 +619,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"entornId=" + expedientTipusId + ", " +
 				"agrupacioId=" + agrupacioId + ", " +
 				"filtre=" + filtre + ")");
-				
+						
 		return paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
@@ -710,5 +787,41 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			ret = true;
 		}
 		return ret;
-	}	
+	}
+	
+	// MANTENIMENT D'ENUMERACIONS
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EnumeracioDto> enumeracioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		List<Enumeracio> enumeracions = enumeracioRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									enumeracions, 
+									EnumeracioDto.class);
+	}
+	
+	// MANTENIMENT DE DOMINIS
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<DominiDto> dominiFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		List<Domini> dominins = dominiRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									dominins, 
+									DominiDto.class);
+	}
+
+	// MANTENIMENT DE CONSULTES
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ConsultaDto> consultaFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		List<Consulta> consultans = consultaRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									consultans, 
+									ConsultaDto.class);
+	}
 }

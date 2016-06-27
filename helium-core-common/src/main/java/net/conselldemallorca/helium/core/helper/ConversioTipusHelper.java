@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.springframework.stereotype.Component;
+
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -31,13 +33,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
-
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a convertir entre diferents formats de documents.
@@ -85,6 +87,35 @@ public class ConversioTipusHelper {
 						target.setMultiple(source.isMultiple());
 						target.setOcult(source.isOcult());
 						target.setIgnored(source.isIgnored());
+						
+						// Dades consulta
+						target.setEnumeracio(
+								mapperFacade.map(
+										source.getEnumeracio(),
+										EnumeracioDto.class));
+						target.setDomini(
+								mapperFacade.map(
+										source.getDomini(),
+										DominiDto.class));
+						target.setConsulta(
+								mapperFacade.map(
+										source.getConsulta(),
+										ConsultaDto.class));
+						target.setDominiIntern(source.isDominiIntern());
+
+						// Paràmetres del domini
+						target.setDominiIdentificador(source.getDominiId());
+						target.setDominiParams(source.getDominiParams());
+						target.setDominiCampValor(source.getDominiCampValor());
+						target.setDominiCampText(source.getDominiCampText());
+						
+						// Paràmetres de la consulta
+						target.setConsultaParams(source.getConsultaParams());
+						target.setConsultaCampValor(source.getConsultaCampValor());
+						target.setConsultaCampText(source.getConsultaCampText());
+						
+						target.setDominiCacheText(source.isDominiCacheText());
+						
 						return target;
 					}
 		});

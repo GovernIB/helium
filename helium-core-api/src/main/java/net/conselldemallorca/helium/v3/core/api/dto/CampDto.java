@@ -28,7 +28,6 @@ public class CampDto implements Serializable {
 
 	private CampAgrupacioDto agrupacio;
 	
-	private Long dominiId;
 	private boolean multiple;
 	private boolean ocult;
 	private boolean ignored;
@@ -36,7 +35,25 @@ public class CampDto implements Serializable {
 	private DefinicioProcesDto definicioProces;
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 	
-
+	// Dades consulta
+	private EnumeracioDto enumeracio;
+	private DominiDto domini;
+	private ConsultaDto consulta;
+	boolean dominiIntern;
+	
+	// Paràmetres del domini
+	private String dominiIdentificador;
+	private String dominiParams;
+	private String dominiCampValor;
+	private String dominiCampText;
+	
+	// Paràmetres de la consulta
+	private String consultaParams;
+	private String consultaCampText;
+	private String consultaCampValor;
+	
+	boolean dominiCacheText;
+	
 	public Long getId() {
 		return id;
 	}
@@ -183,12 +200,6 @@ public class CampDto implements Serializable {
 	public void setAgrupacio(CampAgrupacioDto agrupacio) {
 		this.agrupacio = agrupacio;
 	}
-	public Long getDominiId() {
-		return dominiId;
-	}
-	public void setDominiId(Long dominiId) {
-		this.dominiId = dominiId;
-	}
 	public boolean isMultiple() {
 		return multiple;
 	}
@@ -206,5 +217,77 @@ public class CampDto implements Serializable {
 	}
 	public void setIgnored(boolean ignored) {
 		this.ignored = ignored;
+	}
+	public EnumeracioDto getEnumeracio() {
+		return enumeracio;
+	}
+	public void setEnumeracio(EnumeracioDto enumeracio) {
+		this.enumeracio = enumeracio;
+	}
+	public DominiDto getDomini() {
+		return domini;
+	}
+	public void setDomini(DominiDto domini) {
+		this.domini = domini;
+	}
+	public ConsultaDto getConsulta() {
+		return consulta;
+	}
+	public void setConsulta(ConsultaDto consulta) {
+		this.consulta = consulta;
+	}
+	public boolean isDominiIntern() {
+		return dominiIntern;
+	}
+	public void setDominiIntern(boolean dominiIntern) {
+		this.dominiIntern = dominiIntern;
+	}
+	public String getDominiIdentificador() {
+		return dominiIdentificador;
+	}
+	public void setDominiIdentificador(String dominiIdentificador) {
+		this.dominiIdentificador = dominiIdentificador;
+	}
+	public String getDominiParams() {
+		return dominiParams;
+	}
+	public void setDominiParams(String dominiParams) {
+		this.dominiParams = dominiParams;
+	}
+	public String getDominiCampValor() {
+		return dominiCampValor;
+	}
+	public void setDominiCampValor(String dominiCampValor) {
+		this.dominiCampValor = dominiCampValor;
+	}
+	public String getDominiCampText() {
+		return dominiCampText;
+	}
+	public void setDominiCampText(String dominiCampText) {
+		this.dominiCampText = dominiCampText;
+	}
+	public String getConsultaParams() {
+		return consultaParams;
+	}
+	public void setConsultaParams(String consultaParams) {
+		this.consultaParams = consultaParams;
+	}
+	public String getConsultaCampText() {
+		return consultaCampText;
+	}
+	public void setConsultaCampText(String consultaCampText) {
+		this.consultaCampText = consultaCampText;
+	}
+	public String getConsultaCampValor() {
+		return consultaCampValor;
+	}
+	public void setConsultaCampValor(String consultaCampValor) {
+		this.consultaCampValor = consultaCampValor;
+	}
+	public boolean isDominiCacheText() {
+		return dominiCacheText;
+	}
+	public void setDominiCacheText(boolean dominiCacheText) {
+		this.dominiCacheText = dominiCacheText;
 	}
 }

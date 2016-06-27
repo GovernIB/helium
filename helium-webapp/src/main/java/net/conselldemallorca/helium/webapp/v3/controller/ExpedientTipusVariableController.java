@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -60,41 +59,14 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 					model,
 					"variables");
 		}
-		omplirModelPipellaVariables(
+		omplirModelVariablesPestanya(
 				request,
 				expedientTipusId,
 				model);
 		return "v3/expedientTipusVariable";
 	}
 
-	private void omplirModelPipellaVariables(
-			HttpServletRequest request,
-			Long expedientTipusId,
-			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
-					entornActual.getId(),
-					expedientTipusId);
-			model.addAttribute("expedientTipus", expedientTipus);
-		}
-		this.omplirModelAgrupacions(
-				request, 
-				expedientTipusId, 
-				model);
-	}
-	
-	private void omplirModelAgrupacions(
-			HttpServletRequest request,
-			Long expedientTipusId,
-			Model model) {
-		List<CampAgrupacioDto> agrupacions = expedientTipusService.agrupacioFindAll(expedientTipusId);
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (CampAgrupacioDto agrupacio : agrupacions) {
-			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
-		}
-		model.addAttribute("agrupacions", resposta);		
-	}
+
 	
 	@RequestMapping(value="/{expedientTipusId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
@@ -113,16 +85,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}	
-	
-	@ModelAttribute("tipusCamp")
-	public List<ParellaCodiValorDto> populateTipusCamp() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (CampTipusDto campTipus : CampTipusDto.values()) {
-			resposta.add(new ParellaCodiValorDto(campTipus.toString(), campTipus));
-		}
-		return resposta;
-	}
-		
+			
 	@RequestMapping(value = "/{expedientTipusId}/variable/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,
@@ -133,7 +96,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		command.setAgrupacioId(agrupacioId);
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusCampCommand", command);
-		this.omplirModelAgrupacions(
+		this.omplirModelVariableForm(
 				request, 
 				expedientTipusId, 
 				model);
@@ -147,7 +110,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		this.omplirModelAgrupacions(
+    		this.omplirModelVariableForm(
     				request, 
     				expedientTipusId, 
     				model);
@@ -175,8 +138,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 				dto,
 				ExpedientTipusCampCommand.class);
 		command.setAgrupacioId(dto.getAgrupacio() != null? dto.getAgrupacio().getId() : null);
+		command.setEnumeracioId(dto.getEnumeracio() != null? dto.getEnumeracio().getId() : null);
+		command.setDominiId(dto.getDomini() != null? dto.getDomini().getId() : null);
+		command.setConsultaId(dto.getConsulta() != null? dto.getConsulta().getId() : null);
+		
 		model.addAttribute("expedientTipusCampCommand", command);
-		this.omplirModelAgrupacions(
+		this.omplirModelVariableForm(
 				request, 
 				expedientTipusId, 
 				model);
@@ -191,7 +158,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		this.omplirModelAgrupacions(
+    		this.omplirModelVariableForm(
     				request, 
     				expedientTipusId, 
     				model);
@@ -338,5 +305,63 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
 	}
 	
+	private void omplirModelVariablesPestanya(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+		}
+		this.omplirModelAgrupacions(
+				request, 
+				expedientTipusId, 
+				model);
+	}
 	
+	private void omplirModelVariableForm(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		
+		// TipusCamp
+		List<ParellaCodiValorDto> tipusCamp = new ArrayList<ParellaCodiValorDto>();
+		for (CampTipusDto campTipus : CampTipusDto.values()) {
+			tipusCamp.add(new ParellaCodiValorDto(campTipus.toString(), campTipus));
+		}
+		model.addAttribute("tipusCamp",tipusCamp);
+		
+		// Agrupacions
+		this.omplirModelAgrupacions(
+				request, 
+				expedientTipusId, 
+				model);
+		
+		// Enumeracions
+		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId));
+		
+		// Dominis
+		model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId));
+		
+		// Consultes
+		model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
+		
+		//accionsJbpm
+		//TODO: encara falta pensar com es lligaran 		
+	}
+		
+	private void omplirModelAgrupacions(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		List<CampAgrupacioDto> agrupacions = expedientTipusService.agrupacioFindAll(expedientTipusId);
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (CampAgrupacioDto agrupacio : agrupacions) {
+			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
+		}
+		model.addAttribute("agrupacions", resposta);		
+	}	
 }

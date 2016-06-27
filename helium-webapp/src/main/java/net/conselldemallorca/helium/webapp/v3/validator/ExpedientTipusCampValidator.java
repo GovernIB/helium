@@ -6,6 +6,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -69,58 +70,63 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 				valid = false;
 			}
 		}
-//		if (camp.getTipus() != null) {
-//				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
-//					ValidationUtils.rejectIfEmpty(errors, "jbpmAction", "not.blank");
-//				}
-//				if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
-//					if ((camp.getDomini() == null && !camp.isDominiIntern()) && camp.getEnumeracio() == null && camp.getConsulta() == null) {
-//						errors.rejectValue("enumeracio", "error.camp.enumdomcons.buit");
-//						errors.rejectValue("domini", "error.camp.enumdomcons.buit");
-//						errors.rejectValue("consulta", "error.camp.enumdomcons.buit");
-//					} else	if (camp.getDomini() != null && camp.isDominiIntern()){
-//							errors.rejectValue("domini", "error.camp.domini");
-//							errors.rejectValue("dominiIntern", "error.camp.domini");
-//					} else {
-//						if(camp.getDomini() != null){
-//							if (camp.getEnumeracio() != null && camp.getConsulta() != null) {
-//								errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-//								errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-//								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-//							} else if (camp.getEnumeracio() != null) {
-//								errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-//								errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-//							} else if (camp.getConsulta() != null) {
-//								errors.rejectValue("domini", "error.camp.enumdomcons.tots");
-//								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-//							}
-//						} else {
-//							if(camp.isDominiIntern()){
-//								if (camp.getEnumeracio() != null && camp.getConsulta() != null) {
-//									errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-//									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");
-//									errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-//								} else if (camp.getEnumeracio() != null) {
-//									errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-//									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");
-//								} else if (camp.getConsulta() != null) {
-//									errors.rejectValue("dominiIntern", "error.camp.enumdomcons.tots");
-//									errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-//								} 
-//							} else 	if(camp.getEnumeracio() != null && camp.getConsulta() != null) {
-//								errors.rejectValue("enumeracio", "error.camp.enumdomcons.tots");
-//								errors.rejectValue("consulta", "error.camp.enumdomcons.tots");
-//							}
-//						}
-//						if (camp.getDomini() != null) {
-//							ValidationUtils.rejectIfEmpty(errors, "dominiId", "not.blank");
-//							ValidationUtils.rejectIfEmpty(errors, "dominiCampText", "not.blank");
-//							ValidationUtils.rejectIfEmpty(errors, "dominiCampValor", "not.blank");
-//						}
-//					}
-//				}
-//			}
-//		}
+		if (camp.getTipus() != null) {
+				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
+					context.buildConstraintViolationWithTemplate(
+							"Per al tipus ACCIO és obligatori un nom de handler")
+							.addNode("tipus")
+							.addConstraintViolation();	
+					valid = false;
+				}
+				if (camp.getTipus().equals(CampTipusDto.SELECCIO) || camp.getTipus().equals(CampTipusDto.SUGGEST)) {
+					if ((camp.getDominiId() == null 
+							&& !camp.isDominiIntern()) 
+							&& camp.getEnumeracioId() == null 
+							&& camp.getConsultaId() == null) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
+								.addNode("dominiId")
+								.addConstraintViolation();	
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
+								.addNode("dominiIntern")
+								.addConstraintViolation();	
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
+								.addNode("enumeracioId")
+								.addConstraintViolation();	
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".enumdomcons.buit", null))
+								.addNode("consultaId")
+								.addConstraintViolation();	
+						valid = false;
+					} else {
+						if (camp.getDominiId() != null) {
+							if(camp.getDominiIdentificador() == null || "".equals(camp.getDominiIdentificador().trim())) {
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage("NotEmpty", null))
+										.addNode("dominiIdentificador")
+										.addConstraintViolation();	
+								valid = false;								
+							}
+							if(camp.getDominiCampText() == null || "".equals(camp.getDominiCampText().trim())) {
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage("NotEmpty", null))
+										.addNode("dominiCampText")
+										.addConstraintViolation();	
+								valid = false;								
+							}
+							if(camp.getDominiCampValor() == null || "".equals(camp.getDominiCampValor().trim())) {
+								context.buildConstraintViolationWithTemplate(
+										MessageHelper.getInstance().getMessage("NotEmpty", null))
+										.addNode("dominiCampValor")
+										.addConstraintViolation();	
+								valid = false;								
+							}
+						}
+					}
+				}
+		}
 		return valid;
 	}
 

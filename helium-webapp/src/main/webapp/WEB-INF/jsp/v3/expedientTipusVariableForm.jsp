@@ -31,12 +31,7 @@
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusCampCommand">
-		<div>
-        
-			<script type="text/javascript">
-				// <![CDATA[
-				// ]]>
-			</script>			
+		<div>        
 			<input type="hidden" name="id" value="${expedientTipusCampCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.camp.form.camp.codi" />
 			<hel:inputSelect required="true" emptyOption="true" name="tipus" textKey="expedient.tipus.camp.form.camp.tipus" placeholderKey="expedient.tipus.camp.form.camp.tipus" optionItems="${tipusCamp}" optionValueAttribute="codi" optionTextAttribute="valor"/>
@@ -48,11 +43,29 @@
 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.camp.form.camp.ignored" />
 		</div>
 		
-		<fieldset>
+		<fieldset id="dadesConsulta" class="dades consulta" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.consulta"></spring:message></legend>
+			<hel:inputSelect emptyOption="true" name="enumeracioId" textKey="expedient.tipus.camp.form.camp.enumeracio" placeholderKey="expedient.tipus.camp.form.camp.enumeracio" optionItems="${enumeracions}" optionValueAttribute="id" optionTextAttribute="nom"/>
+			<hel:inputSelect emptyOption="true" name="dominiId" textKey="expedient.tipus.camp.form.camp.domini" placeholderKey="expedient.tipus.camp.form.camp.domini" optionItems="${dominis}" optionValueAttribute="id" optionTextAttribute="nom"/>
+			<hel:inputCheckbox name="dominiIntern" textKey="expedient.tipus.camp.form.camp.dominiIntern" />
+			<hel:inputSelect emptyOption="true" name="consultaId" textKey="expedient.tipus.camp.form.camp.consulta" placeholderKey="expedient.tipus.camp.form.camp.consulta" optionItems="${consultes}" optionValueAttribute="id" optionTextAttribute="nom"/>
+			<div id="parametresDomini" class="parametres domini">
+				<h4>Paràmetres del domini</h4>
+				<hel:inputText name="dominiIdentificador" textKey="expedient.tipus.camp.form.camp.dominiIdentificador" />
+				<hel:inputTextarea name="dominiParams" textKey="expedient.tipus.camp.form.camp.dominiParametres" />
+				<hel:inputText name="dominiCampValor" textKey="expedient.tipus.camp.form.camp.dominiCampValor" />
+				<hel:inputTextarea name="dominiCampText" textKey="expedient.tipus.camp.form.camp.dominiCampText" />
+			</div>
+			<div id="parametresConsulta" class="parametres consulta">
+				<h4>Paràmetres de la consulta</h4>
+				<hel:inputTextarea name="consultaParams" textKey="expedient.tipus.camp.form.camp.consultaParametres" />
+				<hel:inputText name="consultaCampValor" textKey="expedient.tipus.camp.form.camp.consultaCampValor" />
+				<hel:inputTextarea name="consultaCampText" textKey="expedient.tipus.camp.form.camp.consultaCampText" />
+			</div>
+			<hel:inputCheckbox name="dominiCacheText" textKey="expedient.tipus.camp.form.camp.dominiCacheText" />
 		</fieldset>
 		
-		<fieldset>
+		<fieldset id="dadesAccio" class="dades accio" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
 		</fieldset>
 		
@@ -72,6 +85,72 @@
 			</c:choose>
 	
 		</div>
+		
+	<script type="text/javascript">
+		// <![CDATA[
+		$(document).ready(function() {
+			
+			canviTipus();
+			$('#tipus').change(function() {
+				canviTipus();
+			});
+			
+			canviDadesConsulta();
+			$('#enumeracioId').change(function() {
+				$('#dominiId').val('').trigger('change.select2');
+				$('#dominiIntern').prop('checked', false);
+				$('#consultaId').val('').trigger('change.select2');
+				canviDadesConsulta();
+			});	
+			$('#dominiId').change(function() {
+				$('#enumeracioId').val('').trigger('change.select2');
+				$('#dominiIntern').prop('checked', false);
+				$('#consultaId').val('').trigger('change.select2');
+				canviDadesConsulta();
+			});	
+			$('#dominiIntern').change(function() {
+				$('#enumeracioId').val('').trigger('change.select2');
+				$('#dominiId').val('').trigger('change.select2');
+				$('#consultaId').val('').trigger('change.select2');
+				canviDadesConsulta();
+			});	
+			$('#consultaId').change(function() {
+				$('#enumeracioId').val('').trigger('change.select2');
+				$('#dominiId').val('').trigger('change.select2');
+				$('#dominiIntern').prop('checked', false);
+				canviDadesConsulta();
+			});	
+		});
+
+		function disable(sel) {
+			$(sel).find("input,select,textarea").prop('disabled', true);
+			$(sel).hide();
+		}
+		function enable(sel) {
+			$(sel).find("input,select,textarea").prop('disabled', false);
+			$(sel).show();
+		}
+
+		function canviTipus() {
+			var tipus = $('#tipus').val();
+			disable('div .dades');
+			if (tipus == "SELECCIO" || tipus == "SUGGEST") {
+				enable('div .dades.consulta');
+			} else if (tipus == "ACCIO") {
+				enable('div .dades.accio');
+			}			
+		}
+		
+		function canviDadesConsulta() {
+			disable('div .parametres');
+			if ($('#dominiId').val() != '' || $('#dominiIntern').is(':checked')) {
+				enable('div .parametres.domini');
+			} else if ($('#consultaId').val() != '') {
+				enable('div .parametres.consulta');
+			}					
+		}		
+		// ]]>
+	</script>			
 
 	</form:form>
 </body>
