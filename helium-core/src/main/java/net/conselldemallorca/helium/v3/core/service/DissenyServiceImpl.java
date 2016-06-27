@@ -16,7 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
@@ -103,12 +106,14 @@ public class DissenyServiceImpl implements DissenyService {
 	private AccioRepository accioRepository;
 	@Resource
 	private AreaRepository areaRepository;
+	@Resource
+	private DominiHelper dominiHelper;
 	
 	@Transactional(readOnly=true)
 	@Override
 	public AreaDto findAreaById(Long areaId) {
 		
-		Area area = areaRepository.findById(areaId);
+		Area area = areaRepository.findOne(areaId);
 		
 		if (area == null)
 			throw new NoTrobatException(Area.class, areaId);
@@ -550,6 +555,12 @@ public class DissenyServiceImpl implements DissenyService {
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		
 		return conversioTipusHelper.convertirList(campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), CampDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception {
+		return dominiHelper.consultaDominiIntern(id, parametres);
 	}
 
 }

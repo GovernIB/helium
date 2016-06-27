@@ -452,11 +452,11 @@ public class PlantillaHelper {
 										}
 									}
 								} else {
-									String personaCodi = carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
+									List<String> personaCodi = carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(
 											codiArea,
 											codiCarrec);
-									if (personaCodi != null) {
-										PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
+									if (personaCodi != null && !personaCodi.isEmpty()) {
+										PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi.get(0));
 										if (persona != null)
 											return new BeanModel(
 													persona,
