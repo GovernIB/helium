@@ -9,6 +9,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -189,6 +191,11 @@ public class DissenyServiceBean implements DissenyService {
 		return delegate.findTasquesAmbEntornIExpedientTipusPerSeleccio(
 				entornId,
 				expedientTipusId);
+	}
+
+	@Override
+	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception {
+		return delegate.consultaDominiIntern(id, parametres);
 	}
 
 }
