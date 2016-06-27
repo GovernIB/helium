@@ -6,12 +6,12 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <c:choose>
-	<c:when test="${empty expedientTipusCampCommand.id}"><
-		<c:set var="titol"><spring:message code="expedient.tipus.camp.form.titol.nou"/></c:set>
+	<c:when test="${empty expedientTipusDocumentCommand.id}"><
+		<c:set var="titol"><spring:message code="expedient.tipus.document.form.titol.nou"/></c:set>
 		<c:set var="formAction">new</c:set>
 	</c:when>
 	<c:otherwise>
-		<c:set var="titol"><spring:message code="expedient.tipus.camp.form.titol.modificar"/></c:set>
+		<c:set var="titol"><spring:message code="expedient.tipus.document.form.titol.modificar"/></c:set>
 		<c:set var="formAction">update</c:set>
 	</c:otherwise>
 </c:choose>
@@ -37,29 +37,21 @@
 				// <![CDATA[
 				// ]]>
 			</script>			
-			<input type="hidden" name="id" value="${expedientTipusCampCommand.id}"/>
-			<hel:inputText required="true" name="codi" textKey="expedient.tipus.camp.form.camp.codi" />
-			<hel:inputSelect required="true" emptyOption="true" name="tipus" textKey="expedient.tipus.camp.form.camp.tipus" placeholderKey="expedient.tipus.camp.form.camp.tipus" optionItems="${tipusCamp}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			<hel:inputText required="true" name="etiqueta" textKey="expedient.tipus.camp.form.camp.etiqueta" />
-			<hel:inputTextarea name="observacions" textKey="expedient.tipus.camp.form.camp.observacions" />
-			<hel:inputSelect required="false" emptyOption="true" name="agrupacioId" textKey="expedient.tipus.camp.form.camp.agrupacio" placeholderKey="expedient.tipus.camp.form.camp.agrupacio" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			<hel:inputCheckbox name="multiple" textKey="expedient.tipus.camp.form.camp.multiple" />
-			<hel:inputCheckbox name="ocult" textKey="expedient.tipus.camp.form.camp.ocult" />
-			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.camp.form.camp.ignored" />
+			<input type="hidden" name="id" value="${expedientTipusDocumentCommand.id}"/>
+			<hel:inputText required="true" name="codi" textKey="expedient.tipus.document.form.camp.codi" />
+			<hel:inputText required="true" name="nom" textKey="expedient.tipus.document.form.camp.nom" />
+			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.document.form.camp.descripcio" />
+			<hel:inputCheckbox name="plantilla" textKey="expedient.tipus.document.form.camp.plantilla" />
+<%-- 			<hel:inputSelect required="false" emptyOption="true" name="agrupacioId" textKey="expedient.tipus.camp.form.camp.agrupacio" placeholderKey="expedient.tipus.camp.form.camp.agrupacio" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/> --%>
+<%-- 			<hel:inputCheckbox name="multiple" textKey="expedient.tipus.camp.form.camp.multiple" /> --%>
+<%-- 			<hel:inputCheckbox name="ocult" textKey="expedient.tipus.camp.form.camp.ocult" /> --%>
+<%-- 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.camp.form.camp.ignored" /> --%>
 		</div>
-		
-		<fieldset>
-			<legend><spring:message code="expedient.tipus.camp.form.fieldset.consulta"></spring:message></legend>
-		</fieldset>
-		
-		<fieldset>
-			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
-		</fieldset>
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:choose>
-				<c:when test="${empty expedientTipusCampCommand.id}">
+				<c:when test="${empty expedientTipusDocumentCommand.id}">
 					<button class="btn btn-primary right" type="submit" name="accio" value="crear">
 						<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
 					</button>

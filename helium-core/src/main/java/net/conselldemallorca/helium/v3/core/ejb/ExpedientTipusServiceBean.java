@@ -260,10 +260,45 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public PaginaDto<DocumentDto> documentFindPerDatatable(
 			Long expedientTipusId,
 			String filtre,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+			PaginacioParamsDto paginacioParams) {
 		return delegate.documentFindPerDatatable(
 				expedientTipusId,
 				filtre, 
 				paginacioParams);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto documentCreate(
+			Long expedientTipusId, 
+			DocumentDto document) {
+		return delegate.documentCreate(expedientTipusId, document);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto documentFindAmbCodi(
+			Long expedientTipusId, 
+			String codi) {
+		return delegate.documentFindAmbCodi(expedientTipusId, codi);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void documentDelete(
+			Long documentId) {
+		delegate.documentDelete(documentId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto documentFindAmbId(Long id) {
+		return delegate.documentFindAmbId(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto documentUpdate(DocumentDto document) {
+		return delegate.documentUpdate(document);
 	}
 }

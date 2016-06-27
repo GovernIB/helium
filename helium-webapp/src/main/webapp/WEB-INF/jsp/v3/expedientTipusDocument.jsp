@@ -15,7 +15,7 @@
 	<c:when test="${not empty expedientTipus}">
 
 		<div class="botons-titol text-right">
-			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
+			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
 		</div>
 		<table	id="expedientTipusDocument"
 				data-toggle="datatable"
@@ -33,7 +33,7 @@
 					<th data-col-name="plantilla" data-template="#plantillaTemplate">
 						<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
 						<script id="plantillaTemplate" type="text/x-jsrender">
-							{{if estat}}
+							{{if plantilla}}
 								<span class="label label-success">SI</span>
 							{{else}}
 								<span class="label label-default">NO</span>
@@ -41,6 +41,17 @@
 						</script>
 					</th>
 					<th data-col-name="arxiuNom"><spring:message code="expedient.tipus.document.llistat.columna.arxiu"/></th>
+					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
+						<script id="cellAccionsTemplate" type="text/x-jsrender">
+							<div class="dropdown">
+								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+								<ul class="dropdown-menu">
+									<li><a data-toggle="modal" href="${expedientTipus.id}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								</ul>
+							</div>
+						</script>
+					</th>
 				</tr>
 			</thead>
 		</table>

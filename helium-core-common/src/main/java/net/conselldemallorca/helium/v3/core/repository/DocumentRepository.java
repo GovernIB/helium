@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -63,9 +64,11 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			"where " +
 			"   d.expedientTipus.id = :expedientTipusId " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
-	Page<Document> findByFiltrePaginat(
+	public Page<Document> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
+	
+	public Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 }

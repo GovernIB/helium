@@ -436,4 +436,21 @@ public interface ExpedientTipusService {
 			Long expedientTipusId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	public DocumentDto documentCreate(
+			Long expedientTipusId, 
+			DocumentDto document) throws PermisDenegatException;
+	
+	public DocumentDto documentFindAmbCodi(
+			Long expedientTipusId, 
+			String codi) throws NoTrobatException;
+	
+	public void documentDelete(
+			Long documentId) throws NoTrobatException, PermisDenegatException;
+	
+	public DocumentDto documentFindAmbId(
+			Long documentId) throws NoTrobatException;
+	
+	public DocumentDto documentUpdate(
+			DocumentDto document) throws NoTrobatException, PermisDenegatException;
 }
