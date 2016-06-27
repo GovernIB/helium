@@ -90,7 +90,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model);
 		return "v3/expedientDades";
 	}
-	
 	@RequestMapping(value = "/{expedientId}/dadaAmbOcults")
 	public String dadesAmbOcults(
 			HttpServletRequest request,
@@ -110,7 +109,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/expedientDades";
 	}
 
-	@RequestMapping(value = "/{expedientId}/dades/{procesId}")
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada")
 	public String dadesProces(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -133,7 +132,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/procesDades";
 	}
 
-	@RequestMapping(value = "/{expedientId}/dades/{procesId}/delete/{varCodi}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean dadaBorrar(
 			HttpServletRequest request,
@@ -204,7 +203,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return null;
 	}
 
-	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/{varCodi}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update", method = RequestMethod.GET)
 	public String modificarVariablesGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -227,7 +226,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/expedientDadaModificar";
 	}
 
-	@RequestMapping(value = "/{expedientId}/dades/{procesId}/edit/{varCodi}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update", method = RequestMethod.POST)
 	public String dadaEditar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -330,7 +329,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return null;
 	}
 
-	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/new", method = RequestMethod.GET)
 	public String novaDadaGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -344,7 +343,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model);
 	}
 
-	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.GET)
 	public String novaDadaAmbCodiGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -366,9 +365,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			return "v3/expedientDadaNova";
 		return "v3/expedientDadaNova";
 	}
-
-	@RequestMapping(value = "/{expedientId}/novaDada/{procesId}/{varCodi}", method = RequestMethod.POST)
-	public String novaDadaDesar(
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.POST)
+	public String novaDadaAmbCodiPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,

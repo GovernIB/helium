@@ -48,7 +48,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("expedientServiceV3")
+@Service
 public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 
 	@Resource

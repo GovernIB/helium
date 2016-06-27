@@ -9,7 +9,9 @@
 			<th><spring:message code="expedient.termini.aturat.el"/></th>
 			<th><spring:message code="expedient.termini.data.de.fi"/></th>
 			<th><spring:message code="expedient.termini.estat"/></th>
-			<th></th>
+			<c:if test="${expedient.permisTermManagement}">
+				<th></th>
+			</c:if>
 		</tr>
 	</thead>
 	<tbody>
@@ -62,73 +64,75 @@
 					</c:otherwise>
 				</c:choose>
 			</td>
-			<td class="termini_options">
-				<c:choose>
-					<c:when test="${not termini.manual or not empty iniciat}">
-						<c:choose>
-							<c:when test="${empty iniciat}">
+			<c:if test="${expedient.permisTermManagement}">
+				<td class="termini_options">
+					<c:choose>
+						<c:when test="${not termini.manual or not empty iniciat}">
+							<c:choose>
+								<c:when test="${empty iniciat}">
+									<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
+								</c:when>
+								<c:when test="${not termini.manual or (not empty iniciat and empty iniciat.dataAturada)}">
+									<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
+								</c:when>
+								<c:otherwise>
+									<a  class="icon" 
+										data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.continuar" />"
+										data-rdt-link-ajax=true
+										href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiContinuar"/>' 
+										data-rdt-link-callback="recargarPanelTermini(${procesId});">
+										<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/>
+									</a>
+								</c:otherwise>
+							</c:choose>
+						</c:when>
+						<c:otherwise>
+							<a  class="icon" 
+								data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.iniciar" />"
+								data-rdt-link-ajax=true
+								href='<c:url value="../../v3/expedient/${expedientId}/${termini.id}/terminiIniciar"/>' 
+								data-rdt-link-callback="recargarPanelTermini(${procesId});">
 								<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
-							</c:when>
-							<c:when test="${not termini.manual or (not empty iniciat and empty iniciat.dataAturada)}">
-								<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
-							</c:when>
-							<c:otherwise>
-								<a  class="icon" 
-									data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.continuar" />"
-									data-rdt-link-ajax=true
-									href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiContinuar"/>' 
-									data-rdt-link-callback="recargarPanelTermini(${procesId});">
-									<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/>
-								</a>
-							</c:otherwise>
-						</c:choose>
-					</c:when>
-					<c:otherwise>
-						<a  class="icon" 
-							data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.iniciar" />"
-							data-rdt-link-ajax=true
-							href='<c:url value="../../v3/expedient/${expedientId}/${termini.id}/terminiIniciar"/>' 
-							data-rdt-link-callback="recargarPanelTermini(${procesId});">
-							<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
-						</a>
-					</c:otherwise>
-				</c:choose>
-				<c:choose>
-					<c:when test="${empty iniciat}">
-						<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
-					</c:when>
-					<c:when test="${not termini.manual or (not empty iniciat and not empty iniciat.dataAturada)}">
-						<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
-					</c:when>
-					<c:otherwise>
-						<a  class="icon" 
-							data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.aturar" />"
-							data-rdt-link-ajax=true
-							href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiPausar"/>' 
-							data-rdt-link-callback="recargarPanelTermini(${procesId});">
+							</a>
+						</c:otherwise>
+					</c:choose>
+					<c:choose>
+						<c:when test="${empty iniciat}">
 							<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
-						</a>
-					</c:otherwise>
-				</c:choose>
-				<c:choose>
-					<c:when test="${empty iniciat}">
-						<i class="fa fa-stop" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
-					</c:when>
-					<c:otherwise>
-						<a  class="icon" 
-							data-rdt-link-confirm="<spring:message code='expedient.termini.confirmar.cancelar' />"
-							data-rdt-link-ajax=true
-							href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiCancelar"/>' 
-							data-rdt-link-callback="recargarPanelTermini(${procesId});">
+						</c:when>
+						<c:when test="${not termini.manual or (not empty iniciat and not empty iniciat.dataAturada)}">
+							<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
+						</c:when>
+						<c:otherwise>
+							<a  class="icon" 
+								data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.aturar" />"
+								data-rdt-link-ajax=true
+								href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiPausar"/>' 
+								data-rdt-link-callback="recargarPanelTermini(${procesId});">
+								<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
+							</a>
+						</c:otherwise>
+					</c:choose>
+					<c:choose>
+						<c:when test="${empty iniciat}">
 							<i class="fa fa-stop" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
-						</a>
-						<a class="icon" 
-							data-rdt-link-callback="recargarPanelTermini(${procesId});" 
-							data-rdt-link-modal="true" 
-							href="<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
-					</c:otherwise>
-				</c:choose>
-			</td>
+						</c:when>
+						<c:otherwise>
+							<a  class="icon" 
+								data-rdt-link-confirm="<spring:message code='expedient.termini.confirmar.cancelar' />"
+								data-rdt-link-ajax=true
+								href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiCancelar"/>' 
+								data-rdt-link-callback="recargarPanelTermini(${procesId});">
+								<i class="fa fa-stop" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
+							</a>
+							<a class="icon" 
+								data-rdt-link-callback="recargarPanelTermini(${procesId});" 
+								data-rdt-link-modal="true" 
+								href="<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
+						</c:otherwise>
+					</c:choose>
+				</td>
+			</c:if>
 		</tr>
 		
 <c:if test="${index == (paramCount-1)}">

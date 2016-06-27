@@ -31,7 +31,7 @@
 	</style>
 </head>
 <body>		
-	<form:form id="command" commandName="modificarVariableCommand" action="${dada.varCodi}" cssClass="form-horizontal form-tasca" method="post">
+	<form:form id="command" commandName="modificarVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 		<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 		<input type="hidden" id="varCodi" name="varCodi" value="${varCodi}">
 		

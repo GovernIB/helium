@@ -51,7 +51,7 @@ import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("expedientTipusServiceV3")
+@Service
 public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Resource

@@ -44,11 +44,11 @@
 			</c:otherwise>
 		</c:choose>
 	</address>
-	<c:if test="${expedient.permisWrite}">
+	<c:if test="${expedient.permisDataManagement}">
 	<div class=var_botons>
 		<a 	class="var-edit" 
 			data-rdt-link-modal=true
-			href='<c:url value="../../v3/expedient/${expedientId}/dades/${procesId}/edit/${dada.varCodi}"/>' 
+			href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/update"/>' 
 			data-rdt-link-callback="reestructura(${procesId});"
 			data-rdt-link-modal-min-height="300"
 			title="<spring:message code='expedient.dada.modificar'/>">

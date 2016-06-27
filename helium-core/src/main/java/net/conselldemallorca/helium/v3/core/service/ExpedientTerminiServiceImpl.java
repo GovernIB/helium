@@ -41,7 +41,7 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("terminiServiceV3")
+@Service
 public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 
 	@Resource

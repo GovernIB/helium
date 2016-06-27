@@ -732,7 +732,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
 		logger.debug("Consulta general d'expedients paginada (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
@@ -758,7 +757,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		if (expedientTipusId != null) {

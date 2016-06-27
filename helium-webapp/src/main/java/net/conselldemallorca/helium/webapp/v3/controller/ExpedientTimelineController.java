@@ -29,7 +29,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 	private ExpedientService expedientService;
 
 	@Autowired
-	private ExpedientTerminiService terminiService;
+	private ExpedientTerminiService expedientTerminiService;
 
 	@RequestMapping(value = "/{expedientId}/timeline", method = RequestMethod.GET)
 	public String timeline(
@@ -50,7 +50,7 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			ModelMap model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		model.addAttribute("instanciaProces", expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
-		model.addAttribute("terminisIniciats", terminiService.findIniciatsAmbProcessInstanceId(expedient.getProcessInstanceId()));
+		model.addAttribute("terminisIniciats", expedientTerminiService.findIniciatsAmbProcessInstanceId(expedient.getProcessInstanceId()));
 		return "v3/expedient/timelineXml";
 	}
 }

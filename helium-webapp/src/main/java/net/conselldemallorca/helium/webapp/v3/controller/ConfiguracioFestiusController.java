@@ -2,13 +2,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.Calendar;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -17,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 /**
  * Controlador per a la de configuració de festius.
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/v3/configuracio/festius")
 public class ConfiguracioFestiusController extends BaseController {
 
-	@Resource(name = "terminiServiceV3")
-	private ExpedientTerminiService terminiService;
+	@Autowired
+	private ExpedientTerminiService expedientTerminiService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -68,7 +68,7 @@ public class ConfiguracioFestiusController extends BaseController {
 				new Integer(anyActual + 5));
 		model.addAttribute(
 				"festius",
-				terminiService.findFestiuAmbAny(anyActual));
+				expedientTerminiService.findFestiuAmbAny(anyActual));
 		String nolabsStr = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
 		if (nolabsStr != null) {
 			model.addAttribute(
@@ -88,7 +88,7 @@ public class ConfiguracioFestiusController extends BaseController {
 			@PathVariable(value = "any") String any,
 			ModelMap model) {
 		try {
-			terminiService.createFestiu(dia + "/" + mes + "/" + any);
+			expedientTerminiService.createFestiu(dia + "/" + mes + "/" + any);
 			return true;
 		} catch (Exception ex) {
 			return false;
@@ -104,7 +104,7 @@ public class ConfiguracioFestiusController extends BaseController {
 			@PathVariable(value = "any") String any,
 			ModelMap model) {
 		try {
-			terminiService.deleteFestiu(dia + "/" + mes + "/" + any);
+			expedientTerminiService.deleteFestiu(dia + "/" + mes + "/" + any);
 			return true;
 		} catch (Exception ex) {
 			return false;

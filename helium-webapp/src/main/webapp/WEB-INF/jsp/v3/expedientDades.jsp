@@ -26,7 +26,7 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 <c:set var="numColumnes" value="${3}"/>
 <c:choose>
 	<c:when test="${not empty dades}">
-		<c:if test="${expedient.permisAdministration}">
+		<c:if test="${expedient.permisDataManagement}">
 			<div class="pull-left">
 				<a id="boto-ocults" href="#" class="btn btn-default<c:if test="${ambOcults}"> active</c:if>">
 					<c:choose>
@@ -41,17 +41,19 @@ div.proces:hover {background-color: #3071a9 !important;border-color: #285e8e !im
 		<c:forEach items="${dades}" var="dadesProces" varStatus="procesosStatus">
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
-			<div class="btnNovaDada right">
-				<a id=""
-					class="btn btn-default" 
-					href="../../v3/expedient/${expedient.id}/novaDada/${proces.id}" 
-					data-rdt-link-modal="true" 
-					data-rdt-link-callback="reestructura(${proces.id});"
-					data-rdt-link-modal-min-height="350">
-					<span class="fa fa-plus"></span>
-					<spring:message code="expedient.boto.nova_dada"/>
-				</a>
-			</div>
+			<c:if test="${expedient.permisDataManagement}">
+				<div class="btnNovaDada right">
+					<a id=""
+						class="btn btn-default" 
+						href="../../v3/expedient/${expedient.id}/proces/${proces.id}/dada/new" 
+						data-rdt-link-modal="true" 
+						data-rdt-link-callback="reestructura(${proces.id});"
+						data-rdt-link-modal-min-height="350">
+						<span class="fa fa-plus"></span>
+						<spring:message code="expedient.boto.nova_dada"/>
+					</a>
+				</div>
+			</c:if>
 			<div class="clear"></div>
 			<div class="panel panel-default">
 				<div id="${proces.id}-titol" class="panel-heading clicable proces" data-toggle="collapse" data-target="#panel_${proces.id}" data-id="${proces.id}" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">

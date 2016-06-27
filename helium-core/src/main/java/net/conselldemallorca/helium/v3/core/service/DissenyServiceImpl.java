@@ -547,7 +547,7 @@ public class DissenyServiceImpl implements DissenyService {
 				SecurityContextHolder.getContext().getAuthentication());
 		return tipus;
 	}
-	
+
 	@Transactional(readOnly=true)
 	@Override
 	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {

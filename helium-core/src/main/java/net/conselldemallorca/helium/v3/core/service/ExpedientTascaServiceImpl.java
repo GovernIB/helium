@@ -41,7 +41,7 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("expedientServiceV3")
+@Service
 public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 
 	@Resource
@@ -53,7 +53,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private TascaHelper tascaHelper;
-	@Resource
+	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;

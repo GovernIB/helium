@@ -1151,7 +1151,7 @@ public class PluginHelper {
 					ex);
 		}
 	}
-	
+
 	public boolean gestioDocumentalIsPluginActiu() {
 		return getGestioDocumentalPlugin() != null;
 	}

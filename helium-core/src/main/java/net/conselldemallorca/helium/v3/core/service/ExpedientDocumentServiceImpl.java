@@ -71,7 +71,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
-	@Resource
+	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private TascaHelper tascaHelper;
