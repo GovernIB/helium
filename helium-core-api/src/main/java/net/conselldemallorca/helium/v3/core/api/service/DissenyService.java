@@ -5,6 +5,10 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import org.springframework.security.acls.model.NotFoundException;
+
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -17,8 +21,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-
-import org.springframework.security.acls.model.NotFoundException;
 
 
 
@@ -151,5 +153,7 @@ public interface DissenyService {
 	public AreaDto findAreaById(Long areaId) throws NoTrobatException;
 
 	public DefinicioProcesVersioDto getByVersionsInstanciaProcesById(String processInstanceId) throws NoTrobatException;
+
+	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception;
 
 }

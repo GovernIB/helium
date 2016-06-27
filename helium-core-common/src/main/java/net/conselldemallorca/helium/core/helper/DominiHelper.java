@@ -11,27 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-
-import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
-import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
-import net.conselldemallorca.helium.core.helper.WsClientHelper.WsClientAuth;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
-import net.sf.ehcache.Element;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -48,6 +32,46 @@ import org.springframework.stereotype.Component;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+
+import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
+import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.core.helper.WsClientHelper.WsClientAuth;
+import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.Carrec;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Permis;
+import net.conselldemallorca.helium.core.model.hibernate.Usuari;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
+import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
+import net.conselldemallorca.helium.v3.core.repository.AreaMembreRepository;
+import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
+import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
+import net.conselldemallorca.helium.v3.core.repository.PermisRepository;
+import net.conselldemallorca.helium.v3.core.repository.UsuariRepository;
+import net.sf.ehcache.Element;
 
 /**
  * Helper per a fer consultes a dominis i enumeracions.
@@ -67,11 +91,33 @@ public class DominiHelper {
 	@Autowired
 	private WsClientHelper wsClientHelper;
 	@Autowired
+	private PluginHelper pluginHelper;
+	@Autowired
 	private MetricRegistry metricRegistry;
 	@Autowired
 	private CacheManager cacheManager;
-
-
+	@Resource
+	private VariableHelper variableHelper;
+	@Resource
+	private JbpmHelper jbpmHelper;
+	@Resource
+	private EntornRepository entornRepository;
+	@Resource
+	private AreaRepository areaRepository;
+	@Resource
+	private AreaJbpmIdRepository areaJbpmIdRepository;
+	@Resource
+	private AreaMembreRepository areaMembreRepository;
+	@Resource
+	private CarrecRepository carrecRepository;
+	@Resource
+	private PermisRepository permisRepository;
+	@Resource
+	private UsuariRepository usuariRepository;
+	@Resource
+	private CarrecJbpmIdRepository carrecJbpmIdRepository;
+	@Resource
+	private CampRepository campRepository;
 
 	@SuppressWarnings("unchecked")
 	public List<FilaResultat> consultar(
@@ -240,7 +286,6 @@ public class DominiHelper {
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) {
-		DominiHelium client = getClientWsFromDomini(domini);
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
 		if ("intern".equalsIgnoreCase(domini.getCodi())) {
 			paramsConsulta.add(
@@ -257,11 +302,17 @@ public class DominiHelper {
 		}
 		long t0 = System.currentTimeMillis();
 		try {
-			logger.debug("Petició de domini de tipus WS (" +
+			logger.debug("Petició de domini de tipus " + ("intern".equalsIgnoreCase(domini.getCodi()) ? "Intern" : "WS") + " (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
 					"params=" + parametresToString(parametres) + ")");
-			List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
+			List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+			if ("intern".equalsIgnoreCase(domini.getCodi())) {
+				resposta = consultaDominiIntern(id, paramsConsulta);
+			} else {
+				DominiHelium client = getClientWsFromDomini(domini);
+				resposta = client.consultaDomini(id, paramsConsulta);
+			}
 			monitorDominiHelper.addAccioOk(
 					domini,
 					"Consulta WS (id=" + id + ")",
@@ -493,6 +544,370 @@ public class DominiHelper {
 		return timeout;
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	// DOMINI INTERN																			//
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	
+	public List<FilaResultat> consultaDominiIntern(
+			String id,
+			List<ParellaCodiValor> parametres) throws Exception {
+		Map<String, Object> parametersMap = getParametersMap(parametres);
+		if ("PERSONA_AMB_CODI".equals(id)) {
+			return personaAmbCodi(parametersMap);
+		} else if ("PERSONES_AMB_AREA".equals(id)) {
+			return personesAmbArea(parametersMap);
+		} else if ("PERSONA_AMB_CARREC_AREA".equals(id)) {
+			return personesAmbCarrecArea(parametersMap, true);
+		} else if ("PERSONES_AMB_CARREC_AREA".equals(id)) {
+			return personesAmbCarrecArea(parametersMap, false);
+		} else  if ("AREES_AMB_PARE".equals(id)) {
+			return areesAmbPare(parametersMap);
+		} else if ("VARIABLE_REGISTRE".equals(id)) {
+			return variableRegistre(parametersMap);
+		} else if ("AREES_AMB_PERSONA".equals(id)) {
+			return areesAmbPersona(parametersMap);
+		} else if ("ROLS_PER_USUARI".equals(id)) {
+			return rolsPerUsuari(parametersMap);
+		} else if ("USUARIS_PER_ROL".equals(id)) {
+			return usuarisPerRol(parametersMap);
+		/* Per suprimir */
+		} else if ("PERSONES_AMB_CARREC".equals(id)) {
+			return personesAmbCarrec(parametersMap);
+		}
+		return new ArrayList<FilaResultat>();
+	}
+	
+	public List<FilaResultat> personaAmbCodi(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		PersonaDto persona = pluginHelper.personaFindAmbCodi((String)parametres.get("persona"));
+		if (persona != null)
+			resposta.add(novaFilaPersona(persona));
+		return resposta;
+	}
+	
+	public List<FilaResultat> personesAmbArea(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (String personaCodi: getPersonesPerArea((String)parametres.get("entorn"), (String)parametres.get("area"))) {
+			PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
+			if (persona != null)
+				resposta.add(novaFilaPersona(persona));
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> personesAmbCarrecArea(Map<String, Object> parametres, boolean nomesUna) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		List<String> personaCodis = getPersonesPerAreaCarrec(
+				(String)parametres.get("entorn"),
+				(String)parametres.get("area"),
+				(String)parametres.get("carrec"));
+		if (personaCodis != null) {
+			for (String personaCodi: personaCodis) {
+				PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
+				if (persona != null) {
+					resposta.add(novaFilaPersona(persona));
+					if (nomesUna)
+						break;
+				}
+			}
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> areesAmbPare(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (Area area: getAreesAmbPare((String)parametres.get("entorn"), (String)parametres.get("pare"))) {
+			resposta.add(novaFilaArea(area));
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> areesAmbPersona(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (String grupCodi: getGrupsPerPersona((String)parametres.get("persona"))) {
+			FilaResultat fila = new FilaResultat();
+			fila.addColumna(new ParellaCodiValor("codi", grupCodi));
+			resposta.add(fila);
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> usuarisPerRol(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		if (isHeliumIdentitySource()) {
+			Permis rol = permisRepository.findOne((String)parametres.get("rol"));
+			if (rol != null) {
+				for (Usuari usuari: rol.getUsuaris()) {
+					try {
+						PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari.getCodi());
+						if (persona != null)
+							resposta.add(novaFilaPersona(persona));
+					} catch (NoTrobatException nte) {}
+				}
+			}
+		} else {
+			for (String personaCodi: carrecJbpmIdRepository.findPersonesCodiByGrupCodi((String)parametres.get("rol"))) {
+				PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
+				if (persona != null)
+					resposta.add(novaFilaPersona(persona));
+			}
+		}
+		return resposta;
+	}
+
+	public List<FilaResultat> rolsPerUsuari(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		if (isHeliumIdentitySource()) {
+			Usuari usuari = usuariRepository.findOne((String)parametres.get("persona"));
+			if (usuari != null) {
+				for (Permis rol: usuari.getPermisos()) {
+					FilaResultat fila = new FilaResultat();
+					fila.addColumna(new ParellaCodiValor("rol", rol.getCodi()));
+					resposta.add(fila);
+				}
+			}
+		} else {
+			for (String rol: areaJbpmIdRepository.findRolesAmbUsuariCodi((String)parametres.get("persona"))) {
+				FilaResultat fila = new FilaResultat();
+				fila.addColumna(new ParellaCodiValor("rol", rol));
+				resposta.add(fila);
+			}
+		}
+		return resposta;
+	}
+	
+	public List<FilaResultat> variableRegistre(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		Object tiId = parametres.get("taskInstanceId");
+		Object piId = parametres.get("processInstanceId");
+		
+		String taskInstanceId = tiId != null ? tiId instanceof Long ? ((Long)tiId).toString() : (String)tiId : null;
+		String processInstanceId =  piId != null ? piId instanceof Long ? ((Long)piId).toString() : (String)piId : null;
+		String variable = (String)parametres.get("variable");
+		String filtreColumna = (String)parametres.get("filtreColumna");
+		Object filtreValor = parametres.get("filtreValor");
+		Object valor = null;
+		Camp camp = null;
+		List<String[]> registresText = new ArrayList<String[]>();
+		if (taskInstanceId != null) {
+			JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
+			TascaDadaDto dada = variableHelper.findDadaPerInstanciaTasca(task, variable); 
+			
+			camp = campRepository.findOne(dada.getCampId());
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				if (camp.isMultiple()) {
+					valor = dada.getVarValor();
+					for (TascaDadaDto dm : dada.getMultipleDades()) {
+						String[] regs = new String[dm.getRegistreDades().size()];
+						int i = 0;
+						for (TascaDadaDto d : dm.getRegistreDades()) {
+							regs[i++] = d.getText();
+						}
+						registresText.add(regs);
+					}
+				} else {
+					valor = new Object[] {dada.getVarValor()};
+					String[] regs = new String[dada.getRegistreDades().size()];
+					int i = 0;
+					for (TascaDadaDto d : dada.getRegistreDades()) {
+						regs[i++] = d.getText();
+					}
+					registresText.add(regs);
+				}
+			}
+		} else if (processInstanceId != null) {
+			
+			ExpedientDadaDto dada = variableHelper.getDadaPerInstanciaProces(processInstanceId, variable);
+			
+			camp = campRepository.findOne(dada.getCampId());
+			if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
+				if (camp.isMultiple()) {
+					valor = dada.getVarValor();
+					for (ExpedientDadaDto dm : dada.getMultipleDades()) {
+						String[] regs = new String[dm.getRegistreDades().size()];
+						int i = 0;
+						for (ExpedientDadaDto d : dm.getRegistreDades()) {
+							regs[i++] = d.getText();
+						}
+						registresText.add(regs);
+					}
+				} else {
+					valor = new Object[] {dada.getVarValor()};
+					String[] regs = new String[dada.getRegistreDades().size()];
+					int i = 0;
+					for (ExpedientDadaDto d : dada.getRegistreDades()) {
+						regs[i++] = d.getText();
+					}
+					registresText.add(regs);
+				}
+			}
+		}
+		if (valor != null && valor instanceof Object[] && camp.getTipus().equals(TipusCamp.REGISTRE)) {
+			Object[] registres = (Object[])valor;
+			int indexFila = 0;
+			for (int i = 0; i < registres.length; i++) {
+				Object[] valors = (Object[])registres[i];
+				String[] texts = registresText.get(i);
+				boolean incloureAquest = true;
+				if (filtreColumna != null) {
+					incloureAquest = false;
+					int indexColumna = 0;
+					for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+						if (filtreColumna.equals(campRegistre.getMembre().getCodi())) {
+							if (valors[indexColumna] == null && filtreValor == null)
+								incloureAquest = true;
+							else if (valors[indexColumna] != null && valors[indexColumna].equals(filtreValor))
+								incloureAquest = true;
+							else if (filtreValor != null && filtreValor.equals(valors[indexColumna]))
+								incloureAquest = true;
+							break;
+						}
+					}
+				}
+				if (incloureAquest) {
+					FilaResultat fila = new FilaResultat();
+					fila.addColumna(new ParellaCodiValor("_index", indexFila++));
+					int indexColumna = 0;
+					for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+						fila.addColumna(new ParellaCodiValor("_valor_" + campRegistre.getMembre().getCodi(), valors[indexColumna]));
+						fila.addColumna(new ParellaCodiValor(campRegistre.getMembre().getCodi(), texts[indexColumna++]));
+					}
+					resposta.add(fila);
+				}
+			}
+		}
+		return resposta;
+	}
+
+	/* Per suprimir */
+	public List<FilaResultat> personesAmbCarrec(Map<String, Object> parametres) {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		for (String personaCodi: getPersonesPerCarrec((String)parametres.get("entorn"), (String)parametres.get("carrec"))) {
+			PersonaDto persona = pluginHelper.personaFindAmbCodi(personaCodi);
+			if (persona != null)
+				resposta.add(novaFilaPersona(persona));
+		}
+		return resposta;
+	}
+	
+	private FilaResultat novaFilaPersona(PersonaDto persona) {
+		FilaResultat resposta = new FilaResultat();
+		resposta.addColumna(new ParellaCodiValor("codi", persona.getCodi()));
+		resposta.addColumna(new ParellaCodiValor("nom", persona.getNom()));
+		resposta.addColumna(new ParellaCodiValor("llinatge1", persona.getLlinatge1()));
+		resposta.addColumna(new ParellaCodiValor("llinatge2", persona.getLlinatge2()));
+		resposta.addColumna(new ParellaCodiValor("dni", persona.getDni()));
+		resposta.addColumna(new ParellaCodiValor("sexe", persona.getSexe().name()));
+		resposta.addColumna(new ParellaCodiValor("email", persona.getEmail()));
+		resposta.addColumna(new ParellaCodiValor("nomSencer", persona.getNomSencer()));
+		return resposta;
+	}
+	
+	private FilaResultat novaFilaArea(Area area) {
+		FilaResultat resposta = new FilaResultat();
+		resposta.addColumna(new ParellaCodiValor("codi", area.getCodi()));
+		resposta.addColumna(new ParellaCodiValor("nom", area.getNom()));
+		String pareCodi = (area.getPare() != null) ? area.getPare().getCodi() : null;
+		resposta.addColumna(new ParellaCodiValor("pareCodi", pareCodi));
+		return resposta;
+	}
+	
+	private List<String> getPersonesPerArea(String entornCodi, String areaCodi) {
+		if (isHeliumIdentitySource()) {
+			Entorn entorn = entornRepository.findByCodi(entornCodi);
+			if (entorn != null) {
+				Area area = areaRepository.findByEntornAndCodi(entorn, areaCodi);
+				if (area != null)
+					return findCodisPersonaAmbArea(area.getId());
+			}
+			return new ArrayList<String>();
+		} else {
+			return carrecJbpmIdRepository.findPersonesCodiByGrupCodi(areaCodi);
+		}
+	}
+	
+	private List<String> getPersonesPerCarrec(String entornCodi, String carrecCodi) {
+		if (isHeliumIdentitySource()) {
+			List<String> resposta = new ArrayList<String>();
+			Entorn entorn = entornRepository.findByCodi(entornCodi);
+			if (entorn != null) {
+				Carrec carrec = carrecRepository.findByEntornAndCodi(entorn, carrecCodi);
+				if (carrec != null)
+					resposta.add(carrec.getPersonaCodi());
+			}
+			return resposta;
+		} else {
+			return carrecJbpmIdRepository.findPersonesCodiByCarrecCodi(carrecCodi);
+		}
+	}
+
+	private List<String> getPersonesPerAreaCarrec(
+			String entornCodi,
+			String areaCodi,
+			String carrecCodi) {
+		if (isHeliumIdentitySource()) {
+			Entorn entorn = entornRepository.findByCodi(entornCodi);
+			if (entorn != null) {
+				Carrec carrec = carrecRepository.findByEntornAndAreaCodiAndCodi(
+						entorn,
+						areaCodi,
+						carrecCodi);
+				if (carrec != null) {
+					List<String> resposta = new ArrayList<String>();
+					resposta.add(carrec.getPersonaCodi());
+					return resposta;
+				}
+			}
+			return null;
+		} else {
+			return carrecJbpmIdRepository.findPersonaCodiByGrupCodiAndCarrecCodi(areaCodi, carrecCodi);
+		}
+	}
+	
+	private List<String> getGrupsPerPersona(String personaCodi) {
+		if (isHeliumIdentitySource()) {
+			return findAreesMembre(personaCodi);
+		} else {
+			return areaJbpmIdRepository.findAreesJbpmIdMembre(personaCodi);
+		}
+	}
+
+	private List<Area> getAreesAmbPare(String entornCodi, String areaCodi) {
+		Entorn entorn = entornRepository.findByCodi(entornCodi);
+		return areaRepository.findByEntornAndPareCodi(entorn, areaCodi);
+	}
+	
+	private List<String> findCodisPersonaAmbArea(Long areaId) {
+		Area area = areaRepository.findOne(areaId);
+		List<String> resposta = new ArrayList<String>();
+		for (AreaMembre membre: area.getMembres())
+			resposta.add(membre.getCodi());
+		return resposta;
+	}
+	
+	public List<String> findAreesMembre(String usuariCodi) {
+		List<String> codisArea = new ArrayList<String>();
+		List<AreaMembre> membres = areaMembreRepository.findByCodi(usuariCodi);
+		for (AreaMembre membre: membres) {
+			codisArea.add(membre.getArea().getCodi());
+		}
+		return codisArea;
+	}
+	
+	private Map<String, Object> getParametersMap(List<ParellaCodiValor> parametres) {
+		Map<String, Object> resposta = new HashMap<String, Object>();
+		if (parametres != null) {
+			for (ParellaCodiValor parella: parametres)
+				resposta.put(parella.getCodi(), parella.getValor());
+		}
+		return resposta;
+	}
+	
+	private boolean isHeliumIdentitySource() {
+		String organigramaActiu = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		return "helium".equalsIgnoreCase(organigramaActiu);
+	}
+	
 	private static final Logger logger = LoggerFactory.getLogger(DominiHelper.class);
 
 }

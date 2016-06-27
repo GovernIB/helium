@@ -26,5 +26,9 @@ public interface CarrecRepository extends JpaRepository<Carrec, Long> {
 			Entorn entorn,
 			Area area,
 			String codi);
+	Carrec findByEntornAndAreaCodiAndCodi(
+			Entorn entorn,
+			String areaCodi,
+			String codi);
 
 }

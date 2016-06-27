@@ -684,7 +684,7 @@ public class TascaServiceImpl implements TascaService {
 			pidCalculat = task.getProcessInstanceId();
 		}
 		// Consulta els valors possibles
-		if (camp.getDomini() != null) {
+		if (camp.getDomini() != null || camp.isDominiIntern()) {
 			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
 						registreCamp,
