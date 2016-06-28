@@ -154,8 +154,6 @@
 		});
 		$("#varCodi").on("change", function(e) {
 			var ruta = document.URL; 
-			//ruta = ruta.substring(0, ruta.indexOf("new") + 3) + "/" + procesId + "/" + e.val;
-			alert(ruta);
 			$("#command").attr('action', ruta);
 			if (e.val == "") {
 				$("#nova").addClass("hide");

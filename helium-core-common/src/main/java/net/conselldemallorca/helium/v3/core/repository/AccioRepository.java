@@ -19,4 +19,8 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	public List<Accio> findAmbDefinicioProcesAndOcultaFalse(
 			@Param("definicioProces") DefinicioProces definicioProces);
 
+	public List<Accio> findByDefinicioProcesAndId(
+			DefinicioProces definicioProces,
+			Long id);
+
 }

@@ -222,8 +222,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	public void reassignar(
 			Long expedientId,
 			String tascaId,
-			String expressio)
-			throws NoTrobatException, ValidacioException {
+			String expressio) throws NoTrobatException, ValidacioException {
 		logger.debug("Reassignar tasca l'expedient (id=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -240,21 +239,12 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				tascaId,
 				ExpedientLogAccioTipus.TASCA_REASSIGNAR,
 				null);
-		expedientHelper.getExpedientComprovantPermisos(
-				expedientLog.getExpedient().getId(),
-				false,
-				false,
-				false,
-				false,
-				true,
-				false,
-				false);
 		if (!expedient.isAturat()) {
 			jbpmHelper.reassignTaskInstance(tascaId, expressio, expedient.getEntorn().getId());
 			String currentActors = expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);
 			expedientLog.setAccioParams(previousActors + "::" + currentActors);
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-			crearRegistreRedirigirTasca(
+			crearRegistreReassignarTasca(
 					expedient.getId(),
 					tascaId,
 					usuari,
@@ -280,7 +270,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				tascaId);
 		return registreRepository.save(registre);
 	}
-	private Registre crearRegistreRedirigirTasca(
+	private Registre crearRegistreReassignarTasca(
 			Long expedientId,
 			String tascaId,
 			String responsableCodi,
@@ -292,7 +282,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 				Registre.Accio.MODIFICAR,
 				Registre.Entitat.TASCA,
 				tascaId);
-		registre.setMissatge("Redirecció de tasca amb expressió \"" + expression + "\"");
+		registre.setMissatge("Reassignació de la tasca amb l'expressió \"" + expression + "\"");
 		return registreRepository.save(registre);
 	}
 

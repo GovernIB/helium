@@ -57,7 +57,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 
 
 
-	@RequestMapping(value = "/{expedientId}/tokens", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/token", method = RequestMethod.GET)
 	public String tokens(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId, 
@@ -65,24 +65,22 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);	
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<TokenDto>> tokens = new LinkedHashMap<InstanciaProcesDto, List<TokenDto>>();
-		if (expedient.isPermisAdministration()) {
-			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-				List<TokenDto> tokensInstanciaProces = null;
-				if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-					tokensInstanciaProces = expedientTokenService.findAmbInstanciaProces(
-							expedientId,
-							instanciaProces.getId());
-				}
-				tokens.put(instanciaProces, tokensInstanciaProces);
+		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			List<TokenDto> tokensInstanciaProces = null;
+			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+				tokensInstanciaProces = expedientTokenService.findAmbInstanciaProces(
+						expedientId,
+						instanciaProces.getId());
 			}
-			model.addAttribute("expedient",expedient);
-			model.addAttribute("tokens",tokens);
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-		}		
+			tokens.put(instanciaProces, tokensInstanciaProces);
+		}
+		model.addAttribute("expedient",expedient);
+		model.addAttribute("tokens",tokens);
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		return "v3/expedientToken";
 	}
-	
-	@RequestMapping(value = "/{expedientId}/proces/{procesId}/tokens", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token", method = RequestMethod.GET)
 	public String subTokens(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -91,19 +89,17 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 		Map<InstanciaProcesDto, List<TokenDto>> tokens = new LinkedHashMap<InstanciaProcesDto, List<TokenDto>>();
-		if (expedient.isPermisAdministration()) {
-			tokens.put(
-					instanciaProces,
-					expedientTokenService.findAmbInstanciaProces(
-							expedientId,
-							instanciaProces.getId()));
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-			model.addAttribute("expedient",expedient);
-			model.addAttribute("tokens",tokens);
-		}
+		tokens.put(
+				instanciaProces,
+				expedientTokenService.findAmbInstanciaProces(
+						expedientId,
+						instanciaProces.getId()));
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("expedient",expedient);
+		model.addAttribute("tokens",tokens);
 		return "v3/procesTokens";
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token/{tokenId}/activar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean activar(
@@ -113,7 +109,6 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 			@PathVariable Long tokenId,
 			Model model) {
 		boolean response = false; 
-		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		TokenDto token = expedientTokenService.findById(
 				expedientId,
 				procesId,
@@ -121,26 +116,24 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 		boolean activar = token.getEnd()!=null;
 		String cadenaMissatgeOk = activar ? "expedient.info.token.activat" : "expedient.info.token.desactivat";
 		String cadenaMissatgeError = activar ? "error.activar.token" : "error.desactivar.token";
-		if (expedient.isPermisAdministration()){
-			try {
-				if (expedientTokenService.canviarEstatActiu(
-						expedientId,
-						procesId,
-						tokenId,
-						activar)){
-					MissatgesHelper.success(request, getMessage(request, cadenaMissatgeOk));
-					response = true;
-				} else {
-					MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError));
-				}
-			} catch (Exception ex) {
+		try {
+			if (expedientTokenService.canviarEstatActiu(
+					expedientId,
+					procesId,
+					tokenId,
+					activar)){
+				MissatgesHelper.success(request, getMessage(request, cadenaMissatgeOk));
+				response = true;
+			} else {
 				MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError));
-				logger.error("No s'ha pogut activar/desactivar el token", ex);
 			}
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError));
+			logger.error("No s'ha pogut activar/desactivar el token", ex);
 		}
 		return response;
 	}
-	
+
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/token/{tokenId}/retrocedir", method = RequestMethod.GET)
 	public String retrocedirGet(
 			HttpServletRequest request,

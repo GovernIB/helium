@@ -44,8 +44,8 @@ div.procesDocument:hover {
 				<c:if test="${expedient.permisDocManagement}">
 					<div id="dataTables_new">
 						<div id="nou_document_${proces.id}" class="nou_document">
-							<a 	class="btn btn-default" 
-								href="../../v3/expedient/${expedientId}/nouDocument?processInstanceId=${proces.id}" 
+							<a class="btn btn-default" 
+								href="../../v3/expedient/${expedientId}/proces/${proces.id}/document/new" 
 								data-rdt-link-modal="true" 
 								data-rdt-link-callback="recargarPanel(${proces.id});"
 								data-rdt-link-modal-min-height="180">

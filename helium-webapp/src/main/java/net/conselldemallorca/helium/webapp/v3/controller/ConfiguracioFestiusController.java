@@ -68,7 +68,7 @@ public class ConfiguracioFestiusController extends BaseController {
 				new Integer(anyActual + 5));
 		model.addAttribute(
 				"festius",
-				expedientTerminiService.findFestiuAmbAny(anyActual));
+				expedientTerminiService.festiuFindAmbAny(anyActual));
 		String nolabsStr = GlobalProperties.getInstance().getProperty("app.calendari.nolabs");
 		if (nolabsStr != null) {
 			model.addAttribute(
@@ -88,7 +88,7 @@ public class ConfiguracioFestiusController extends BaseController {
 			@PathVariable(value = "any") String any,
 			ModelMap model) {
 		try {
-			expedientTerminiService.createFestiu(dia + "/" + mes + "/" + any);
+			expedientTerminiService.festiuCreate(dia + "/" + mes + "/" + any);
 			return true;
 		} catch (Exception ex) {
 			return false;
@@ -104,7 +104,7 @@ public class ConfiguracioFestiusController extends BaseController {
 			@PathVariable(value = "any") String any,
 			ModelMap model) {
 		try {
-			expedientTerminiService.deleteFestiu(dia + "/" + mes + "/" + any);
+			expedientTerminiService.festiuDelete(dia + "/" + mes + "/" + any);
 			return true;
 		} catch (Exception ex) {
 			return false;

@@ -651,7 +651,7 @@ public class ExpedientHelper {
 				nodeName);
 	}
 
-	public void comprovarInstanciaProces(
+	public ProcessInstanceExpedient comprovarInstanciaProces(
 			Expedient expedient,
 			String processInstanceId) {
 		ProcessInstanceExpedient piexp = jbpmHelper.expedientFindByProcessInstanceId(
@@ -661,6 +661,7 @@ public class ExpedientHelper {
 					JbpmProcessInstance.class,
 					new Long(processInstanceId));
 		}
+		return piexp;
 	}
 
 	public Expedient findAmbEntornIId(Long entornId, Long id) {
@@ -683,9 +684,16 @@ public class ExpedientHelper {
 		}
 		return expedient;
 	}
-	public DefinicioProces findDefinicioProcesByProcessInstanceId(String processInstanceId) {
+	public DefinicioProces findDefinicioProcesByProcessInstanceId(
+			String processInstanceId) {
 		String processDefinitionId = jbpmHelper.getProcessInstance(processInstanceId).getProcessDefinitionId();
-		return definicioProcesRepository.findByJbpmId(processDefinitionId);
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processDefinitionId);
+		if (definicioProces == null) {
+			throw new NoTrobatException(
+					DefinicioProces.class,
+					processDefinitionId);
+		}
+		return definicioProces;
 	}
 
 	public boolean isFinalitzat(Expedient expedient) {

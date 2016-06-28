@@ -1,3 +1,6 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <c:set var="termini" value="${dada}"/>
 <c:if test="${index == 0}">
 <table id="termini_${termini.id}" class="table tableTerminis table-bordered">
@@ -79,7 +82,7 @@
 									<a  class="icon" 
 										data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.continuar" />"
 										data-rdt-link-ajax=true
-										href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiContinuar"/>' 
+										href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/termini/${iniciat.id}/reprendre"/>' 
 										data-rdt-link-callback="recargarPanelTermini(${procesId});">
 										<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.continuar"/>" title="<spring:message code="expedient.termini.accio.continuar"/>" border="0"/>
 									</a>
@@ -90,7 +93,7 @@
 							<a  class="icon" 
 								data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.iniciar" />"
 								data-rdt-link-ajax=true
-								href='<c:url value="../../v3/expedient/${expedientId}/${termini.id}/terminiIniciar"/>' 
+								href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/termini/${termini.id}/iniciar"/>' 
 								data-rdt-link-callback="recargarPanelTermini(${procesId});">
 								<i class="fa fa-play" alt="<spring:message code="expedient.termini.accio.iniciar"/>" title="<spring:message code="expedient.termini.accio.iniciar"/>" border="0"/>
 							</a>
@@ -107,7 +110,7 @@
 							<a  class="icon" 
 								data-rdt-link-confirm="<spring:message code="expedient.termini.confirmar.aturar" />"
 								data-rdt-link-ajax=true
-								href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiPausar"/>' 
+								href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/termini/${iniciat.id}/suspendre"/>' 
 								data-rdt-link-callback="recargarPanelTermini(${procesId});">
 								<i class="fa fa-pause" alt="<spring:message code="expedient.termini.accio.aturar"/>" title="<spring:message code="expedient.termini.accio.aturar"/>" border="0"/>
 							</a>
@@ -121,14 +124,14 @@
 							<a  class="icon" 
 								data-rdt-link-confirm="<spring:message code='expedient.termini.confirmar.cancelar' />"
 								data-rdt-link-ajax=true
-								href='<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiCancelar"/>' 
+								href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/termini/${iniciat.id}/cancelar"/>' 
 								data-rdt-link-callback="recargarPanelTermini(${procesId});">
 								<i class="fa fa-stop" alt="<spring:message code="expedient.termini.accio.cancelar"/>" title="<spring:message code="expedient.termini.accio.cancelar"/>" border="0"/>
 							</a>
 							<a class="icon" 
 								data-rdt-link-callback="recargarPanelTermini(${procesId});" 
 								data-rdt-link-modal="true" 
-								href="<c:url value="../../v3/expedient/${expedientId}/${iniciat.id}/terminiModificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
+								href="<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/termini/${iniciat.id}/modificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
 						</c:otherwise>
 					</c:choose>
 				</td>

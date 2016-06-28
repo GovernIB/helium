@@ -1036,125 +1036,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
-	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId) {
-		logger.debug("Consulta d'accions visibles de l'expedient amb processInstanceId(" +
-				"processInstanceId=" + processInstanceId + ")");
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
-		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
-		// Filtra les accions restringides per rol que no estan permeses per a l'usuari actual
-		Iterator<Accio> it = accions.iterator();
-		while (it.hasNext()) {
-			Accio accio = it.next();
-			if (!permetreExecutarAccioExpedient(accio, expedientId)) it.remove();
-		}
-		return conversioTipusHelper.convertirList(accions, AccioDto.class);
-	}
-
-	@Transactional
-	@Override
-	public void accioExecutar(
-			Long expedientId,
-			String processInstanceId,
-			Long accioId) {
-		Accio accio = accioRepository.findOne(accioId);
-		if (accio == null)
-			throw new NoTrobatException(Accio.class, accioId);
-		
-		if (this.permetreExecutarAccioExpedient(accio, expedientId)) {
-			Expedient expedient = expedientRepository.findOne(expedientId);
-			if (expedient == null)
-				throw new NoTrobatException(Expedient.class, expedientId);
-			
-			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
-			expedientLoggerHelper.afegirLogExpedientPerProces(
-					processInstanceId,
-					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
-					accio.getJbpmAction());
-			try {
-				jbpmHelper.executeActionInstanciaProces(
-						processInstanceId,
-						accio.getJbpmAction());
-			} catch (Exception ex) {
-				if (ex instanceof ExecucioHandlerException) {
-					logger.error(
-							"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
-							ex.getCause());
-				} else {
-					logger.error(
-							"Error al executa l'acció '" + accio.getCodi() + "'",
-							ex);
-				}
-				throw new TramitacioException(
-						expedient.getEntorn().getId(), 
-						expedient.getEntorn().getCodi(), 
-						expedient.getEntorn().getNom(), 
-						expedient.getId(), 
-						expedient.getTitol(), 
-						expedient.getNumero(), 
-						expedient.getTipus().getId(), 
-						expedient.getTipus().getCodi(), 
-						expedient.getTipus().getNom(), 
-						"Error al executa l'acció '" + accio.getCodi() + "'", 
-						ex);
-			}
-			verificarFinalitzacioExpedient(expedient, processInstanceId);
-			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
-			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
-		} else {
-			throw new PermisDenegatException(
-					expedientId, 
-					Expedient.class, 
-					new Permission[]{ExtendedPermission.WRITE},
-					null);
-		}
-	}
-
-	@Transactional(readOnly=true)
-	@Override
-	public AccioDto findAccioAmbId(Long idAccio) {
-		return conversioTipusHelper.convertir(accioRepository.findOne(idAccio), AccioDto.class);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<AccioDto> findAccionsVisibles(Long id) {
-		logger.debug("Consulta d'accions visibles de l'expedient (" +
-				"id=" + id + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false,
-				false);
-		
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				expedient.getProcessInstanceId());
-		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
-		// Filtra les accions restringides per rol que
-		// no estan permeses per a l'usuari actual
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
-		Iterator<Accio> it = accions.iterator();
-		while (it.hasNext()) {
-			Accio accio = it.next();
-			if (accio.getRols() != null) {
-				boolean permesa = false;
-				for (String rol: accio.getRols().split(",")) {
-					if (isUserInRole(auth, rol)) {
-						permesa = true;
-						break;
-					}
-				}
-				if (!permesa) it.remove();
-			}
-		}
-		return conversioTipusHelper.convertirList(
-				accions,
-				AccioDto.class);
-	}
-
-	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
 	public List<ExpedientTascaDto> findTasquesPendents(
@@ -1519,6 +1400,168 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<AccioDto> accioFindVisiblesAmbProcessInstanceId(
+			Long expedientId,
+			String processInstanceId) {
+		logger.debug("Consultant les accions visibles de la instància de procés(" +
+				"expedientId" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
+		Iterator<Accio> it = accions.iterator();
+		while (it.hasNext()) {
+			Accio accio = it.next();
+			if (!permetreExecutarAccioExpedient(
+					accio,
+					expedient))
+				it.remove();
+		}
+		return conversioTipusHelper.convertirList(
+				accions,
+				AccioDto.class);
+	}
+
+	@Transactional(readOnly=true)
+	@Override
+	public AccioDto accioFindAmbId(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) {
+		logger.debug("Consultant l'acció amb l'id (" +
+				"expedientId" + expedientId + ", " +
+				"processInstanceId" + processInstanceId + ", " +
+				"accioId=" + accioId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				processInstanceId);
+		return conversioTipusHelper.convertir(
+				accioRepository.findByDefinicioProcesAndId(
+						definicioProces,
+						accioId),
+				AccioDto.class);
+	}
+
+	@Transactional
+	@Override
+	public void accioExecutar(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) {
+		logger.debug("Executant l'acció a dins una instància de procés (" +
+				"expedientId" + expedientId + ", " +
+				"processInstanceId" + processInstanceId + ", " +
+				"accioId=" + accioId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.TERM_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		Accio accio = accioRepository.findOne(accioId);
+		if (accio == null)
+			throw new NoTrobatException(Accio.class, accioId);
+		if (permetreExecutarAccioExpedient(accio, expedient)) {
+			mesuresTemporalsHelper.mesuraIniciar("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+			expedientLoggerHelper.afegirLogExpedientPerProces(
+					processInstanceId,
+					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
+					accio.getJbpmAction());
+			try {
+				jbpmHelper.executeActionInstanciaProces(
+						processInstanceId,
+						accio.getJbpmAction());
+			} catch (Exception ex) {
+				if (ex instanceof ExecucioHandlerException) {
+					logger.error(
+							"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
+							ex.getCause());
+				} else {
+					logger.error(
+							"Error al executa l'acció '" + accio.getCodi() + "'",
+							ex);
+				}
+				throw new TramitacioException(
+						expedient.getEntorn().getId(), 
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"Error al executa l'acció '" + accio.getCodi() + "'", 
+						ex);
+			}
+			verificarFinalitzacioExpedient(expedient, processInstanceId);
+			indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+			mesuresTemporalsHelper.mesuraCalcular("Executar ACCIO" + accio.getNom(), "expedient", expedient.getTipus().getNom());
+		} else {
+			throw new PermisDenegatException(
+					expedientId, 
+					Expedient.class, 
+					new Permission[]{ExtendedPermission.WRITE},
+					null);
+		}
+	}
+	/*@Override
+	@Transactional(readOnly = true)
+	public List<AccioDto> findAccionsVisibles(Long id) {
+		logger.debug("Consulta d'accions visibles de l'expedient (" +
+				"id=" + id + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				true,
+				false,
+				false,
+				false);
+		
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				expedient.getProcessInstanceId());
+		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
+		// Filtra les accions restringides per rol que
+		// no estan permeses per a l'usuari actual
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		Iterator<Accio> it = accions.iterator();
+		while (it.hasNext()) {
+			Accio accio = it.next();
+			if (accio.getRols() != null) {
+				boolean permesa = false;
+				for (String rol: accio.getRols().split(",")) {
+					if (isUserInRole(auth, rol)) {
+						permesa = true;
+						break;
+					}
+				}
+				if (!permesa) it.remove();
+			}
+		}
+		return conversioTipusHelper.convertirList(
+				accions,
+				AccioDto.class);
+	}*/
 
 	@Override
 	@Transactional(readOnly = true)
@@ -2300,20 +2343,19 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
-	private boolean permetreExecutarAccioExpedient(Accio accio, Long expedientId) {
+	private boolean permetreExecutarAccioExpedient(
+			Accio accio,
+			Expedient expedient) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		boolean permesa = true;
 		if (!accio.isPublica()) {
-			try {
-				expedientHelper.getExpedientComprovantPermisos(
-					expedientId,
-					false,
-					true,
-					false,
-					false);
-			} catch (PermisDenegatException ex) {
-				permesa =  false;
-			}
+			permesa = permisosHelper.isGrantedAny(
+					expedient.getTipus().getId(),
+					ExpedientTipus.class,
+					new Permission[] {
+							ExtendedPermission.WRITE,
+							ExtendedPermission.ADMINISTRATION},
+					auth);
 		}
 		if (permesa && accio.getRols() != null) {
 			permesa = false;

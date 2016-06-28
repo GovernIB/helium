@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <td id="cela-${procesId}-${dada.varCodi}"<c:if test="${dadaTipusRegistre or dada.campTipus == 'TEXTAREA'}"> colspan="${paramNumColumnes}"</c:if><c:if test="${dada.campOcult}"> class="campOcult"</c:if>>
 	<address class="var_dades <c:if test="${not empty dada.error}">has-error</c:if> <c:if test="${dadaTipusRegistre}">var_registre</c:if>">
 		<c:if test="${dada.campOcult}"><span class="fa fa-eye-slash"></span></c:if>
@@ -46,18 +48,18 @@
 	</address>
 	<c:if test="${expedient.permisDataManagement}">
 	<div class=var_botons>
-		<a 	class="var-edit" 
-			data-rdt-link-modal=true
-			href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/update"/>' 
+		<a 	class="var-edit"
+			data-rdt-link-modal="true"
+			href="<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/update"/>" 
 			data-rdt-link-callback="reestructura(${procesId});"
 			data-rdt-link-modal-min-height="300"
 			title="<spring:message code='expedient.dada.modificar'/>">
 			<span class="fa fa-pencil"></span>
 		</a>
-		<a 	class="var-delete" 
-			data-rdt-link-confirm="<spring:message code='expedient.info.confirm.dada.esborrar'/>"
-			data-rdt-link-ajax=true
-			href='<c:url value="../../v3/expedient/${expedientId}/dades/${procesId}/delete/${dada.varCodi}"/>' 
+		<a 	class="var-delete"
+			data-rdt-link-confirm="<spring:message code="expedient.info.confirm.dada.esborrar"/>"
+			data-rdt-link-ajax="true"
+			href="<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/dada/${dada.varCodi}/delete"/>" 
 			data-rdt-link-callback="reestructura(${procesId});"
 			title="<spring:message code='expedient.dada.esborrar'/>">
 			<span class="fa fa-trash-o"></span>

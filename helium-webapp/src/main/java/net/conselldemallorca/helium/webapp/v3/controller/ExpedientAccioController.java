@@ -29,17 +29,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/v3/expedient")
 public class ExpedientAccioController extends BaseExpedientController {
 
-	@RequestMapping(value = "/{expedientId}/accions", method = RequestMethod.GET)
-	public String documents(
+	@RequestMapping(value = "/{expedientId}/accio", method = RequestMethod.GET)
+	public String accions(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
-		
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			List<AccioDto> accionsTrobades = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId);
+			List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(
+					expedientId,
+					instanciaProces.getId());
 			accions.put(instanciaProces, accionsTrobades);
 		}
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());		
@@ -48,8 +49,8 @@ public class ExpedientAccioController extends BaseExpedientController {
 		return "v3/expedientAccio";
 	}
 
-	@RequestMapping(value = "/{expedientId}/accions/{procesId}", method = RequestMethod.GET)
-	public String refrescarTasca(
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/accio", method = RequestMethod.GET)
+	public String accionsProces(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
@@ -57,15 +58,19 @@ public class ExpedientAccioController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
-		accions.put(instanciaProces, expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId));
+		accions.put(
+				instanciaProces,
+				expedientService.accioFindVisiblesAmbProcessInstanceId(
+						expedientId,
+						instanciaProces.getId()));
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("accions", accions);	
 		return "v3/procesAccions";
 	}
-	
-	@RequestMapping(value = "/{procesId}/{expedientId}/accio/{accioId}", method = RequestMethod.GET)
-	public String accio(
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/accio/{accioId}/executar", method = RequestMethod.GET)
+	public String executar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId, 
 			@PathVariable Long accioId, 
@@ -73,7 +78,10 @@ public class ExpedientAccioController extends BaseExpedientController {
 			Model model) {
 		try {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
-			expedientService.accioExecutar(expedientId, instanciaProces.getId(), accioId);
+			expedientService.accioExecutar(
+					expedientId,
+					instanciaProces.getId(),
+					accioId);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.executat"));
 		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(
@@ -82,7 +90,10 @@ public class ExpedientAccioController extends BaseExpedientController {
 			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
 		} catch (Exception ex) {
 			String nomAccio = accioId.toString();
-			AccioDto accio = expedientService.findAccioAmbId(accioId);
+			AccioDto accio = expedientService.accioFindAmbId(
+					expedientId,
+					procesId,
+					accioId);
 			nomAccio = accio.getNom();
 			MissatgesHelper.error(
 	    			request,
@@ -94,4 +105,5 @@ public class ExpedientAccioController extends BaseExpedientController {
 	}
 
 	protected static final Log logger = LogFactory.getLog(ExpedientAccioController.class);
+
 }

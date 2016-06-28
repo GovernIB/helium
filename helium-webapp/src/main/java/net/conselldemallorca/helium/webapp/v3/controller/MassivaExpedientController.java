@@ -168,9 +168,11 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new ModificarVariablesCommand());
 			model.addAttribute(new DocumentExpedientCommand());
 			model.addAttribute(new ExpedientEinesReassignarCommand());
-			
-			model.addAttribute("accions",expedientService.findAccionsVisibles(listIds.get(0)));
-			
+			model.addAttribute(
+					"accions",
+					expedientService.accioFindVisiblesAmbProcessInstanceId(
+							expedient.getId(),
+							expedient.getProcessInstanceId()));
 			CanviVersioProcesCommand canviVersioProcesCommand = new CanviVersioProcesCommand();
 			DefinicioProcesExpedientDto definicioProces = dissenyService.getDefinicioProcesByTipusExpedientById(expedient.getTipus().getId());
 			

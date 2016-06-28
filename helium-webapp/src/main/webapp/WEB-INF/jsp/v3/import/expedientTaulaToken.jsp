@@ -43,21 +43,21 @@
 				<c:if test="${token.suspended}">S</c:if>
 			</td>
 			<td class="token_options">
-				<c:if test="${expedient.permisAdministration}">
+				<c:if test="${expedient.permisTokenManage}">
 					<c:choose>
 						<c:when test="${empty token.end}">
 							<a  class="icon retroces" 
 								data-rdt-link-confirm="<spring:message code="expedient.token.confirmar.retrocedir" />"
 								data-rdt-link-modal="true" 
 								data-rdt-link-modal-min-height="180"
-								href='<c:url value="../../v3/expedient/${expedientId}/${token.id}/tokenRetrocedir"/>' 
+								href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/token/${token.id}/retrocedir"/>' 
 								data-rdt-link-callback="recargarPanelToken(${procesId});">
 								<i class="fa fa-reply" alt="<spring:message code="expedient.token.accio.retrocedir"/>" title="<spring:message code="expedient.token.accio.retrocedir"/>" border="0"/>
 							</a>	
 							<a  class="icon" 
 								data-rdt-link-confirm="<spring:message code="expedient.token.confirmar.desactivar" />"
 								data-rdt-link-ajax=true
-								href='<c:url value="../../v3/expedient/${expedientId}/${token.id}/tokenActivar"/>' 
+								href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/token/${token.id}/activar"/>' 
 								data-rdt-link-callback="recargarPanelToken(${procesId});">
 								<i class="fa fa-pause" alt="<spring:message code="expedient.token.accio.desactivar"/>" title="<spring:message code="expedient.token.accio.desactivar"/>" border="0"/>
 							</a>	
@@ -66,7 +66,7 @@
 							<a  class="icon" 
 								data-rdt-link-confirm="<spring:message code="expedient.token.confirmar.activar" />"
 								data-rdt-link-ajax=true
-								href='<c:url value="../../v3/expedient/${expedientId}/${token.id}/tokenActivar"/>' 
+								href='<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/token/${token.id}/activar"/>' 
 								data-rdt-link-callback="recargarPanelToken(${procesId});">
 								<i class="fa fa-play" alt="<spring:message code="expedient.token.accio.activar"/>" title="<spring:message code="expedient.token.accio.activar"/>" border="0"/>
 							</a>

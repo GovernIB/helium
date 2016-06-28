@@ -98,7 +98,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/expedientDocument";
 	}
 
-	@RequestMapping(value = "/{expedientId}/document/{processInstanceId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document", method = RequestMethod.GET)
 	public String documentProces(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
@@ -121,37 +121,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/procesDocuments";
 	}
 
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentCodi}/generar")
-	public String generar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String processInstanceId,
-			@PathVariable String documentCodi,
-			Model model) {
-		try {
-			ArxiuDto generat = expedientDocumentService.generarAmbPlantilla(
-					expedientId,
-					processInstanceId,
-					documentCodi);
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getContingut());
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
-			logger.error("Error generant el document: " + documentCodi, ex);
-			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
-					expedientId,
-					processInstanceId,
-					documentCodi);
-			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/modificar";
-		} 
-		return "arxiuView";
-	}
-
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/nou", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/new", method = RequestMethod.GET)
 	public String nouGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
+			@PathVariable String processInstanceId,
 			Model model) {
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setData(new Date());
@@ -161,64 +135,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("documentExpedientCommand", command);
 		return "v3/expedientDocumentNou";
 	}
-
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/verificar", method = RequestMethod.GET)
-	public String verificarSignatura(
+	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/new", method = RequestMethod.POST)
+	public String nouPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
-			@PathVariable Long documentStoreId,
-			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
-			ModelMap model) throws ServletException {
-		try {
-			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
-				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
-				model.addAttribute("url", urlVerificacioCustodia);
-				return "v3/utils/modalIframe";
-			}
-			model.addAttribute(
-					"signatura",
-					expedientDocumentService.findOneAmbInstanciaProces(
-							expedientId,
-							processInstanceId,
-							documentStoreId));
-			model.addAttribute("signatures", expedientService.verificarSignatura(documentStoreId));
-			return "v3/expedientTascaTramitacioSignarVerificar";
-		} catch(Exception ex) {
-			logger.error("Error al verificar la signatura", ex);
-			throw new ServletException(ex);
-	    }
-	}
-
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/registre/verificar", method = RequestMethod.GET)
-	public String verificarRegistre(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String processInstanceId,
-			@PathVariable Long documentStoreId,
-			ModelMap model) throws ServletException {
-		try {
-			model.addAttribute(
-					"document",
-					expedientDocumentService.findOneAmbInstanciaProces(
-							expedientId,
-							processInstanceId,
-							documentStoreId));
-			return "v3/expedientDocumentRegistreVerificar";
-		} catch(Exception ex) {
-			logger.error("Error al verificar la signatura", ex);
-			throw new ServletException(ex);
-	    }
-	}
-
-	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/adjuntar", method = RequestMethod.POST)
-	public String documentModificarPost(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@RequestParam(value = "accio", required = true) String accio,
 			@ModelAttribute DocumentExpedientCommand command, 
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
-			@RequestParam(value = "processInstanceId", required = true) String processInstanceId,
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
@@ -231,7 +154,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	    		model.addAttribute("processInstanceId", processInstanceId);
 	        	return "v3/expedientDocumentNou";
 	        }
-			
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String nomArxiu = arxiu.getOriginalFilename();
 			command.setNomArxiu(nomArxiu);
@@ -253,8 +175,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return modalUrlTancar(false);
 	}
 
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/modificar", method = RequestMethod.GET)
-	public String modificarGet(
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/update", method = RequestMethod.GET)
+	public String updateGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
@@ -279,9 +201,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		return "v3/expedientDocumentModificar";
 	}
-
-	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/modificar", method = RequestMethod.POST)
-	public String modificarPost(
+	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/update", method = RequestMethod.POST)
+	public String updatePost(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
@@ -374,7 +295,63 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return response;
 	}
 
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signaturaEsborrar", method = RequestMethod.GET)
+
+
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentCodi}/generar")
+	public String generar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable String documentCodi,
+			Model model) {
+		try {
+			ArxiuDto generat = expedientDocumentService.generarAmbPlantilla(
+					expedientId,
+					processInstanceId,
+					documentCodi);
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getContingut());
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
+			logger.error("Error generant el document: " + documentCodi, ex);
+			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+					expedientId,
+					processInstanceId,
+					documentCodi);
+			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/modificar";
+		} 
+		return "arxiuView";
+	}
+
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/verificar", method = RequestMethod.GET)
+	public String verificarSignatura(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
+			ModelMap model) throws ServletException {
+		try {
+			if (urlVerificacioCustodia != null && !urlVerificacioCustodia.isEmpty()) {
+				model.addAttribute("tittle", getMessage(request, "expedient.document.verif_signatures"));
+				model.addAttribute("url", urlVerificacioCustodia);
+				return "v3/utils/modalIframe";
+			}
+			model.addAttribute(
+					"signatura",
+					expedientDocumentService.findOneAmbInstanciaProces(
+							expedientId,
+							processInstanceId,
+							documentStoreId));
+			model.addAttribute("signatures", expedientService.verificarSignatura(documentStoreId));
+			return "v3/expedientTascaTramitacioSignarVerificar";
+		} catch(Exception ex) {
+			logger.error("Error al verificar la signatura", ex);
+			throw new ServletException(ex);
+	    }
+	}
+
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/esborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean signaturaEsborrar(
 			HttpServletRequest request,
@@ -392,6 +369,27 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.esborrar.signatura") + ": " + ex.getLocalizedMessage());
 		}
 		return response;
+	}
+
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/registre/verificar", method = RequestMethod.GET)
+	public String verificarRegistre(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			ModelMap model) throws ServletException {
+		try {
+			model.addAttribute(
+					"document",
+					expedientDocumentService.findOneAmbInstanciaProces(
+							expedientId,
+							processInstanceId,
+							documentStoreId));
+			return "v3/expedientDocumentRegistreVerificar";
+		} catch(Exception ex) {
+			logger.error("Error al verificar la signatura", ex);
+			throw new ServletException(ex);
+	    }
 	}
 
 	/*@RequestMapping(value = "/document/arxiuMostrar")

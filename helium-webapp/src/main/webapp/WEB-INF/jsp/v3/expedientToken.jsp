@@ -29,8 +29,10 @@ div.proces:hover {
 	margin: 1em 0 2em 0;
 	text-align: center;
 }
-#dataTables_new {padding-top: 5px;padding-bottom: 10px;}
-
+#dataTables_new {
+padding-top: 5px;
+padding-bottom: 10px;
+}
 </style>
 
 <c:import url="procesTokens.jsp"/>
@@ -52,7 +54,7 @@ $(document).ready(function() {
 
 function recargarPanelToken (processInstanceId, correcte) {
 	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/tokens/"/>' + processInstanceId;
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + '/token';
 		var panell = $("#dataTable_token_"+processInstanceId);
 		panell.load(url);
 	}

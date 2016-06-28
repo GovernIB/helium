@@ -257,12 +257,6 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<AccioDto> findAccionsVisibles(Long id) {
-		return delegate.findAccionsVisibles(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTascaDto> findTasquesPendents(
 			Long expedientId,
 			boolean nomesTasquesPersonals,
@@ -357,6 +351,40 @@ public class ExpedientServiceBean implements ExpedientService {
 				definicioProcesId, 
 				subProcesIds, 
 				subDefinicioProces);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AccioDto accioFindAmbId(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) {
+		return delegate.accioFindAmbId(
+				expedientId,
+				processInstanceId,
+				accioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void accioExecutar(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) {
+		delegate.accioExecutar(
+				expedientId,
+				processInstanceId,
+				accioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AccioDto> accioFindVisiblesAmbProcessInstanceId(
+			Long expedientId,
+			String processInstanceId) {
+		return delegate.accioFindVisiblesAmbProcessInstanceId(
+				expedientId,
+				processInstanceId);
 	}
 
 	@Override
@@ -533,24 +561,6 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean luceneReindexarExpedient(Long expedientId) {
 		return delegate.luceneReindexarExpedient(expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId) {
-		return delegate.findAccionsVisiblesAmbProcessInstanceId(processInstanceId, expedientId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId) {
-		delegate.accioExecutar(expedientId, processInstanceId, accioId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public AccioDto findAccioAmbId(Long idAccio) {
-		return delegate.findAccioAmbId(idAccio);
 	}
 
 	@Override

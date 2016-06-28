@@ -52,8 +52,8 @@ $(document).ready(function() {
 
 function recargarPanelTermini (processInstanceId, correcte) {
 	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/terminis/"/>' + processInstanceId;
-		var panell = $("#dataTable_termini_"+processInstanceId);
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + "/termini";
+		var panell = $("#dataTable_termini_" + processInstanceId);
 		panell.load(url);
 	}
 }

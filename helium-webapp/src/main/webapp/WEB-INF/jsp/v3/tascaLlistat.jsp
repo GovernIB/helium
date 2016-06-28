@@ -119,7 +119,6 @@
 		    })
 			$('#expedientTipusId').trigger('change');
 		</c:if>
-
 		//Per defecte, si no s'especifica al fitxer de properties
 		//tendrem un interval que executa una funció cada 10 segons per a refrescar les
 		//ícones d'estat de les tasques en segon pla
@@ -455,7 +454,6 @@
  						</div>
 					</script>
 				</th>
-				
 				<th data-rdt-property="agafada" data-rdt-visible="false"></th>
 				<th data-rdt-property="cancelled" data-rdt-visible="false"></th>
 				<th data-rdt-property="assignee" data-rdt-visible="false"></th>

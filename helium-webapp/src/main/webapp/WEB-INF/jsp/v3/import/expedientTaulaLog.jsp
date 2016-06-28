@@ -1,5 +1,5 @@
 <c:set var="log" value="${dada}"/>
-<c:set var="permisReg" value="${expedient.permisAdministration || expedient.permisSupervision || tipus_retroces == 0}" />
+<c:set var="permisReg" value="${expedient.permisLogManage || tipus_retroces == 0}" />
 <c:if test="${index == 0}">
 <table id="log_${log.id}" class="table tableLogs table-bordered">
 	<thead>
@@ -95,7 +95,7 @@
 				<c:when test="${log.accioTipus == 'PROCES_SCRIPT_EXECUTAR'}"></c:when>
 				<c:when test="${log.accioTipus == 'PROCES_LLAMAR_SUBPROCES'}"></c:when>
 				<c:when test="${log.estat == 'NORMAL' && numBloquejos == 0}">										
-					<c:if test="${expedient.permisAdministration || expedient.permisSupervision}">
+					<c:if test="${expedient.permisLogManage}">
 						<a  class="icon retroces" 
 							data-rdt-link-confirm="<spring:message code='expedient.log.confirm.retrocedir'/>"
 							data-rdt-link-ajax=true

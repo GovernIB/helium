@@ -17,19 +17,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * Controlador per iniciar un expedient
+ * Controlador per a la pipella de timeline de l'expedient.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientTimelineController extends BaseExpedientController {
-	
-	@Autowired
-	private ExpedientService expedientService;
 
 	@Autowired
+	private ExpedientService expedientService;
+	@Autowired
 	private ExpedientTerminiService expedientTerminiService;
+
+
 
 	@RequestMapping(value = "/{expedientId}/timeline", method = RequestMethod.GET)
 	public String timeline(
@@ -49,8 +50,15 @@ public class ExpedientTimelineController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			ModelMap model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		model.addAttribute("instanciaProces", expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
-		model.addAttribute("terminisIniciats", expedientTerminiService.findIniciatsAmbProcessInstanceId(expedient.getProcessInstanceId()));
+		model.addAttribute(
+				"instanciaProces",
+				expedientService.getInstanciaProcesById(expedient.getProcessInstanceId()));
+		model.addAttribute(
+				"terminisIniciats",
+				expedientTerminiService.iniciatFindAmbProcessInstanceId(
+						expedientId,
+						expedient.getProcessInstanceId()));
 		return "v3/expedient/timelineXml";
 	}
+
 }

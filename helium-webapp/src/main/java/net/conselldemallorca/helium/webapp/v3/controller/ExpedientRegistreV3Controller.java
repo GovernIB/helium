@@ -30,7 +30,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
  */
 @Controller
 @RequestMapping("/v3/expedient")
-public class ExpedientRegistroController extends BaseExpedientController {
+public class ExpedientRegistreV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
@@ -46,27 +46,25 @@ public class ExpedientRegistroController extends BaseExpedientController {
 			@RequestParam(value = "tipus_retroces", required = false) Integer tipus_retroces,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);		
-		if (expedient.isPermisAdministration()  || expedient.isPermisSupervision()) {
-			boolean detall = tipus_retroces != null && tipus_retroces == 0;
-			model.addAttribute(
-					"tasques",
-					expedientRegistreService.registreFindTasquesPerLogExpedient(
-							expedientId));
-			model.addAttribute(
-					"inicialProcesInstanceId",
-					expedient.getProcessInstanceId());
-			model.addAttribute(
-					"tipus_retroces",
-					tipus_retroces);
-			model.addAttribute(
-					"expedient",
-					expedient);
-			model.addAttribute(
-					"logs",
-					expedientRegistreService.registreFindLogsOrdenatsPerData(
-							expedient.getId(),
-							detall));
-		}		
+		boolean detall = tipus_retroces != null && tipus_retroces == 0;
+		model.addAttribute(
+				"tasques",
+				expedientRegistreService.registreFindTasquesPerLogExpedient(
+						expedientId));
+		model.addAttribute(
+				"inicialProcesInstanceId",
+				expedient.getProcessInstanceId());
+		model.addAttribute(
+				"tipus_retroces",
+				tipus_retroces);
+		model.addAttribute(
+				"expedient",
+				expedient);
+		model.addAttribute(
+				"logs",
+				expedientRegistreService.registreFindLogsOrdenatsPerData(
+						expedient.getId(),
+						detall));
 		return "v3/expedientLog";
 	}
 
@@ -143,6 +141,6 @@ public class ExpedientRegistroController extends BaseExpedientController {
 		return "v3/expedient/logScript";
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientRegistroController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientRegistreV3Controller.class);
 
 }

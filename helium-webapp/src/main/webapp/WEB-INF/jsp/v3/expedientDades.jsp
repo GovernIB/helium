@@ -145,7 +145,7 @@ $(document).ready(function() {
 			var ambOcults = "";
 			if ($("#ambOcults").length)
 				ambOcults = $("#ambOcults").prop('checked');
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedient.id}/dades/"/>' + id, {"ambOcults": ambOcults}, updatePanell);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedient.id}/proces/"/>' + id + '/dades', {"ambOcults": ambOcults}, updatePanell);
 		}
 	});
 	$('#boto-ocults').click(function() {

@@ -200,7 +200,7 @@
 			var ambOcults = "";
 			if ($("#ambOcults").length)
 				ambOcults = $("#ambOcults").prop('checked');
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + proces, {"ambOcults": ambOcults}, updatePanell);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + proces + '/dada', {"ambOcults": ambOcults}, updatePanell);
 		}
 	};
 	function refrescarAlertas() {
@@ -415,14 +415,14 @@
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>">
+				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/termini"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<c:if test="${expedient.permisTokenRead}">
-					<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tokens"/>">
+					<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/token"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
@@ -432,7 +432,7 @@
 					</div>
 				</c:if>
 				<c:if test="${numAccions > 0}">
-					<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accions"/>">
+					<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accio"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>

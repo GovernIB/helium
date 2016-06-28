@@ -13,6 +13,8 @@ import javax.interceptor.Interceptors;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 
@@ -33,67 +35,135 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void pausar(Long terminiIniciatId, Date data) {
-		delegate.pausar(terminiIniciatId, data);
+	public TerminiIniciatDto iniciar(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiId,
+			Date data,
+			boolean esDataFi) throws NoTrobatException, PermisDenegatException {
+		return delegate.iniciar(
+				expedientId,
+				processInstanceId,
+				terminiId,
+				data,
+				esDataFi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void continuar(Long terminiIniciatId, Date data) {
-		delegate.continuar(terminiIniciatId, data);
+	public void modificar(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiIniciatId,
+			Date inicio,
+			int anys,
+			int mesos,
+			int dies,
+			boolean esDataFi) throws NoTrobatException, PermisDenegatException {
+		delegate.modificar(
+				expedientId,
+				processInstanceId,
+				terminiIniciatId,
+				inicio,
+				anys,
+				mesos,
+				dies,
+				esDataFi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void cancelar(Long terminiIniciatId, Date data) {
-		delegate.cancelar(terminiIniciatId, data);
+	public void suspendre(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiIniciatId, Date data) throws NoTrobatException, PermisDenegatException {
+		delegate.suspendre(
+				expedientId,
+				processInstanceId,
+				terminiIniciatId,
+				data);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiIniciatDto> findIniciatsAmbProcessInstanceId(String processInstanceId) {
-		return delegate.findIniciatsAmbProcessInstanceId(processInstanceId);
+	public void reprendre(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiIniciatId,
+			Date data) throws NoTrobatException, PermisDenegatException {
+		delegate.reprendre(
+				expedientId,
+				processInstanceId,
+				terminiIniciatId,
+				data);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TerminiIniciatDto iniciar(Long terminiId, Long expedientId, Date data, boolean esDataFi) {
-		return delegate.iniciar(terminiId, expedientId, data, esDataFi);
+	public void cancelar(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiIniciatId,
+			Date data) throws NoTrobatException, PermisDenegatException {
+		delegate.cancelar(
+				expedientId,
+				processInstanceId,
+				terminiIniciatId,
+				data);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void modificar(Long terminiId, Long expedientId, Date inicio, int anys, int mesos, int dies, boolean equals) {
-		delegate.modificar(terminiId, expedientId, inicio, anys, mesos, dies, equals);
+	public List<TerminiDto> findAmbProcessInstanceId(
+			Long expedientId,
+			String processInstanceId) throws NoTrobatException, PermisDenegatException {
+		return delegate.findAmbProcessInstanceId(
+				expedientId,
+				processInstanceId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TerminiIniciatDto findIniciatAmbId(Long id) {
-		return delegate.findIniciatAmbId(id);
+	public List<TerminiIniciatDto> iniciatFindAmbProcessInstanceId(
+			Long expedientId,
+			String processInstanceId) {
+		return delegate.iniciatFindAmbProcessInstanceId(
+				expedientId,
+				processInstanceId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiDto> findTerminisAmbProcessInstanceId(String processInstanceId) {
-		return delegate.findTerminisAmbProcessInstanceId(processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<FestiuDto> findFestiuAmbAny(int any) {
-		return delegate.findFestiuAmbAny(any);
+	public TerminiIniciatDto iniciatFindAmbId(
+			Long expedientId,
+			String processInstanceId,
+			Long terminiIniciatId) throws NoTrobatException {
+		return delegate.iniciatFindAmbId(
+				expedientId,
+				processInstanceId,
+				terminiIniciatId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public void createFestiu(String data) throws Exception {
-		delegate.createFestiu(data);
+	public List<FestiuDto> festiuFindAmbAny(
+			int any) {
+		return delegate.festiuFindAmbAny(any);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN"})
-	public void deleteFestiu(String data) throws ValidacioException, Exception {
-		delegate.deleteFestiu(data);
+	public void festiuCreate(
+			String data) throws Exception {
+		delegate.festiuCreate(data);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public void festiuDelete(
+			String data) throws ValidacioException, Exception {
+		delegate.festiuDelete(data);
+		
+	}
+
 }

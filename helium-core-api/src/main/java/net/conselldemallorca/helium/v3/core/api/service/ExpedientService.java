@@ -373,19 +373,6 @@ public interface ExpedientService {
 	public List<PersonaDto> findParticipants(Long id) throws NoTrobatException;
 
 	/**
-	 * Retorna la llista d'accions visibles de l'expedient especificat.
-	 * 
-	 * @param id
-	 *            Atribut id de l'expedient que es vol consultar.
-	 * @return La llista d'accions.
-	 * @throws NotFoundException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws NotAllowedException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<AccioDto> findAccionsVisibles(Long id) throws NoTrobatException;
-
-	/**
 	 * Retorna la llista de tasques pendents de l'expedient.
 	 * 
 	 * @param id
@@ -560,7 +547,7 @@ public interface ExpedientService {
 	/**
 	 * Canvia la versió de la definició de procés de varis processos de l'expedient.
 	 * 
-	 * @param id
+	 * @param expedientId
 	 *            Atribut id de l'expedient que es vol actualitzar.
 	 * @param processInstanceId
 	 *            Atribut id de la instància de procés que es vol actualitzar.
@@ -576,6 +563,74 @@ public interface ExpedientService {
 			Long definicioProcesId,
 			Long[] subProcesIds,
 			List<DefinicioProcesExpedientDto> subDefinicioProces) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Consulta les accions visibles per a un usuari donat un expedient i una
+	 * instància de procés.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @return la llista d'accions visibles
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 */
+	public List<AccioDto> accioFindVisiblesAmbProcessInstanceId(
+			Long expedientId,
+			String processInstanceId) throws NoTrobatException;
+
+	/**
+	 * Consulta una acció d'una instància de procés.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @param accioId
+	 *             Atribut id de l'acció que es vol consultar.
+	 * @return l'acció amb l'id especificat.
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	public AccioDto accioFindAmbId(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Executa una acció d'una instància de procés.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol actualitzar.
+	 * @param processInstanceId
+	 *            Atribut id de la instància de procés que es vol actualitzar.
+	 * @return la llista d'accions visibles
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws TramitacioException
+	 *             Si s'ha produit algun error executant el handler jBPM.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public void accioExecutar(
+			Long expedientId,
+			String processInstanceId,
+			Long accioId) throws NoTrobatException, TramitacioException, PermisDenegatException;
+
+
+	/**
+	 * Retorna la llista d'accions visibles de l'expedient especificat.
+	 * 
+	 * @param id
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @return La llista d'accions.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat cap expedient amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	//public List<AccioDto> findAccionsVisibles(Long id) throws NoTrobatException;
 
 	/**
 	 * Retorna la llista d'alertes no eliminades de l'expedient
@@ -761,12 +816,6 @@ public interface ExpedientService {
 	public boolean isDiferentsTipusExpedients(Set<Long> ids);
 
 	public boolean luceneReindexarExpedient(Long expedientId) throws PermisDenegatException, NoTrobatException;
-
-	public List<AccioDto> findAccionsVisiblesAmbProcessInstanceId(String processInstanceId, Long expedientId);
-
-	public void accioExecutar(Long expedientId, String processInstanceId, Long accioId) throws NoTrobatException, TramitacioException, PermisDenegatException;
-
-	public AccioDto findAccioAmbId(Long idAccio);
 
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol);
 

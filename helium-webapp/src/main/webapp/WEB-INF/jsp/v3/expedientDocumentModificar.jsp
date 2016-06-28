@@ -38,10 +38,10 @@
 </style>
 </head>
 <body>		
-	<c:url value="/v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/descarregar" var="downloadUrl"/>
+	<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar" var="downloadUrl"/>
 <%-- 	<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${document.signaturaPortasignaturesId}"/></c:url> --%>
 
-	<form:form cssClass="form-horizontal form-tasca" action="modificar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="update" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
 			<form:hidden path="docId"/>
 			<form:hidden path="codi"/>			

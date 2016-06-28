@@ -60,7 +60,7 @@ $(document).ready(function() {
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/document/"/>' + processInstanceId;
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + '/document';
 		var panell = $("#dataTable_documents_"+processInstanceId);
 		panell.load(url);
 	}

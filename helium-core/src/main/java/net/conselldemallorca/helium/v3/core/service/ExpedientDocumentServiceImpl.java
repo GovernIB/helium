@@ -228,6 +228,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
+		ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
+				processInstanceId,
+				documentStoreId);
 		if (processInstanceId == null) {
 			documentHelper.esborrarDocument(
 					null,
@@ -240,9 +243,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					documentStoreId);
 		}
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
-		ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
-				processInstanceId,
-				documentStoreId);
 		if (!document.isAdjunt()) {
 			expedientRegistreHelper.crearRegistreEsborrarDocumentInstanciaProces(
 					expedient.getId(),
