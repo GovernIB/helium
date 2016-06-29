@@ -12,6 +12,17 @@ import java.util.Map;
 import javax.jws.WebService;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.model.dto.ArxiuDto;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -33,17 +44,6 @@ import net.conselldemallorca.helium.core.model.service.ExpedientService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 /**
  * Implementació del servei de tramitació d'expedients
@@ -1057,6 +1057,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			expedientService.executarAccio(processInstanceId, accio);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'acció", ex);
@@ -1097,6 +1101,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			expedientService.evaluateScript(
 					processInstanceId,
 					script,
