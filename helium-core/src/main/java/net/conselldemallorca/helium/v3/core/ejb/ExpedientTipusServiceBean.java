@@ -12,9 +12,10 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -257,7 +258,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	/***********************************************/
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<DocumentDto> documentFindPerDatatable(
+	public PaginaDto<ExpedientTipusDocumentDto> documentFindPerDatatable(
 			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
@@ -269,15 +270,15 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto documentCreate(
+	public ExpedientTipusDocumentDto documentCreate(
 			Long expedientTipusId, 
-			DocumentDto document) {
+			ExpedientTipusDocumentDto document) {
 		return delegate.documentCreate(expedientTipusId, document);
 	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto documentFindAmbCodi(
+	public ExpedientTipusDocumentDto documentFindAmbCodi(
 			Long expedientTipusId, 
 			String codi) {
 		return delegate.documentFindAmbCodi(expedientTipusId, codi);
@@ -292,13 +293,20 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto documentFindAmbId(Long id) {
+	public ExpedientTipusDocumentDto documentFindAmbId(Long id) {
 		return delegate.documentFindAmbId(id);
 	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DocumentDto documentUpdate(DocumentDto document) {
+	public ExpedientTipusDocumentDto documentUpdate(ExpedientTipusDocumentDto document) {
 		return delegate.documentUpdate(document);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto getArxiuPerDocument(
+			Long id) {
+		return delegate.getArxiuPerDocument(id);
 	}
 }

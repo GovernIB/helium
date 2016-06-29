@@ -2,9 +2,10 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -432,25 +433,28 @@ public interface ExpedientTipusService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public PaginaDto<DocumentDto> documentFindPerDatatable(
+	public PaginaDto<ExpedientTipusDocumentDto> documentFindPerDatatable(
 			Long expedientTipusId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 	
-	public DocumentDto documentCreate(
+	public ExpedientTipusDocumentDto documentCreate(
 			Long expedientTipusId, 
-			DocumentDto document) throws PermisDenegatException;
+			ExpedientTipusDocumentDto document) throws PermisDenegatException;
 	
-	public DocumentDto documentFindAmbCodi(
+	public ExpedientTipusDocumentDto documentFindAmbCodi(
 			Long expedientTipusId, 
 			String codi) throws NoTrobatException;
 	
 	public void documentDelete(
 			Long documentId) throws NoTrobatException, PermisDenegatException;
 	
-	public DocumentDto documentFindAmbId(
+	public ExpedientTipusDocumentDto documentFindAmbId(
 			Long documentId) throws NoTrobatException;
 	
-	public DocumentDto documentUpdate(
-			DocumentDto document) throws NoTrobatException, PermisDenegatException;
+	public ExpedientTipusDocumentDto documentUpdate(
+			ExpedientTipusDocumentDto document) throws NoTrobatException, PermisDenegatException;
+	
+	public ArxiuDto getArxiuPerDocument(
+			Long id) throws NoTrobatException;
 }

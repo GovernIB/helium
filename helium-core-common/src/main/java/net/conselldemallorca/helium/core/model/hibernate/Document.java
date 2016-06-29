@@ -27,7 +27,6 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -71,7 +70,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String extensionsPermeses;
 
-	@NotNull
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
 	private Camp campData;
@@ -197,7 +195,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.extensionsPermeses = extensionsPermeses;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_document_fk")
 	public DefinicioProces getDefinicioProces() {

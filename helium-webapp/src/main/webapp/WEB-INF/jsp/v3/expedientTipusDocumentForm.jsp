@@ -28,24 +28,45 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	
+	<style type="text/css">
+		.btn-file {position: relative; overflow: hidden;}
+		.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
+	</style>
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDocumentCommand">
 		<div>
         
-			<script type="text/javascript">
-				// <![CDATA[
-				// ]]>
-			</script>			
+					
 			<input type="hidden" name="id" value="${expedientTipusDocumentCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.document.form.camp.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.document.form.camp.nom" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.document.form.camp.descripcio" />
+			
+			<div class="form-group">
+				<label class="control-label col-xs-4" for="arxiuNom"><spring:message code='expedient.tipus.document.form.camp.arxiu' /></label>
+		        <div class="col-xs-8 arxiu">
+		            <div class="input-group">
+		                <form:input path="arxiuNom" cssClass="form-control" />
+		                <span class="input-group-btn">
+		                    <span class="btn btn-default btn-file">
+		                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut" value="${arxiuContingut}">
+		                    </span>
+		                </span>
+		            </div>
+				</div>
+			</div>
+			
 			<hel:inputCheckbox name="plantilla" textKey="expedient.tipus.document.form.camp.plantilla" />
+			
+			<hel:inputText name="convertirExtensio" textKey="expedient.tipus.document.form.camp.gen_ext" />
+			<hel:inputCheckbox name="adjuntarAuto" textKey="expedient.tipus.document.form.camp.adj_auto" />
+			<hel:inputText name="extensionsPermeses" textKey="expedient.tipus.document.form.camp.ext_perm" />
+			<hel:inputText name="contentType" textKey="expedient.tipus.document.form.camp.ctype" />
+			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" />
+			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" />
 <%-- 			<hel:inputSelect required="false" emptyOption="true" name="agrupacioId" textKey="expedient.tipus.camp.form.camp.agrupacio" placeholderKey="expedient.tipus.camp.form.camp.agrupacio" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/> --%>
-<%-- 			<hel:inputCheckbox name="multiple" textKey="expedient.tipus.camp.form.camp.multiple" /> --%>
-<%-- 			<hel:inputCheckbox name="ocult" textKey="expedient.tipus.camp.form.camp.ocult" /> --%>
-<%-- 			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.camp.form.camp.ignored" /> --%>
 		</div>
 		
 		<div id="modal-botons" class="well">
@@ -66,5 +87,31 @@
 		</div>
 
 	</form:form>
+	<script type="text/javascript">
+		// <![CDATA[
+           $(document).on('change', '.btn-file :file', function() {
+			var input = $(this),
+			numFiles = input.get(0).files ? input.get(0).files.length : 1,
+			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+			input.trigger('fileselect', [numFiles, label]);
+		});
+		
+		$(document).ready( function() {
+			$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+				var input = $(this).parents('.input-group').find(':text'),
+				log = numFiles > 1 ? numFiles + ' files selected' : label;
+				if( input.length ) {
+					input.val(log);
+				} else {
+					if( log )
+						alert(log);
+				}
+			});
+			$('#arxiuNom').on('click', function() {
+				$('input[name=arxiuContingut]').click();
+			});
+		}); 
+		// ]]>
+	</script>	
 </body>
 </html>
