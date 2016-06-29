@@ -150,8 +150,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		try {
 			String token = cacheHash.get(id);
 			if (token == null) {
-				//byte[] xml = getClienteCustodia().reservarDocumento(getIdCustodia(id));
-				byte[] xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><con:ReservaResponse xmlns:con=\"http://www.caib.es.signatura.custodia\"><dss:Result xmlns:dss=\"urn:oasis:names:tc:dss:1.0:core:schema\"><dss:ResultMajor>ResponderError</dss:ResultMajor><dss:ResultMinor>ERROR_LOG</dss:ResultMinor><dss:ResultMessage xml:lang=\"es\">es.caib.signatura.error.LogException: null; CausedByException is:EJBException:; nested exception is: es.caib.signatura.error.LogException: BIT-BDA005; nested exception is: java.sql.SQLException: ORA-01653: no se ha podido ampliar la tabla SIGNATURA.SIG_LOGDOC con 8192 en el tablespace SIGNATURA</dss:ResultMessage></dss:Result></con:ReservaResponse>".getBytes();
+				byte[] xml = getClienteCustodia().reservarDocumento(getIdCustodia(id));
 				token = new String(xml);
 				if (token.startsWith("<?xml")) {
 					CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);

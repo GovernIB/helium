@@ -33,7 +33,7 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 			"where " +
 			"    m.group.name = :grupCodi " +
 			"and m.role = :carrecCodi")
-	String findPersonaCodiByGrupCodiAndCarrecCodi(
+	List<String> findPersonaCodiByGrupCodiAndCarrecCodi(
 			@Param("grupCodi") String grupCodi,
 			@Param("carrecCodi") String carrecCodi);
 
@@ -57,4 +57,12 @@ public interface CarrecJbpmIdRepository extends JpaRepository<CarrecJbpmId, Long
 	List<String> findPersonesCodiByCarrecCodi(
 			@Param("carrecCodi") String carrecCodi);
 
+	@Query("select distinct " +
+			"    m.user.name " +
+			"from " +
+			"    org.jbpm.identity.Membership m " +
+			"where " +
+			"    m.group.name = :grupCodi")
+	List<String> findPersonesCodiByGrupCodi(
+			@Param("grupCodi") String grupCodi);
 }
