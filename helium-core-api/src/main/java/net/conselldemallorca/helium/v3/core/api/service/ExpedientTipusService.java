@@ -4,6 +4,9 @@ import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -413,6 +416,45 @@ public interface ExpedientTipusService {
 	 * 			agrupació.
 	 */
 	public boolean campRemoureAgrupacio(Long campId);
+
+	/**
+	 * Retorna les enumeracions per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les enumeracions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<EnumeracioDto> enumeracioFindAll(Long expedientTipusId);
+
+	/**
+	 * Retorna els dominis per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els dominis del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<DominiDto> dominiFindAll(Long expedientTipusId);
+
+	/**
+	 * Retorna les consultes per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les consultes del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<ConsultaDto> consultaFindAll(Long expedientTipusId);
 	
 	
 	/***********************************************/

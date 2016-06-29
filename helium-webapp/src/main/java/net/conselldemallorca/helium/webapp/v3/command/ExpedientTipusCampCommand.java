@@ -11,6 +11,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusCamp;
@@ -36,13 +39,38 @@ public class ExpedientTipusCampCommand {
 	private String etiqueta;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String observacions;
-	private Long dominiId;
 	private boolean multiple;
 	private boolean ocult;
 	/** No retrocedir valor */
 	private boolean ignored;
 
-		
+	// Dades consulta
+	private Long enumeracioId;
+	private Long dominiId;
+	private Long consultaId;
+	boolean dominiIntern;
+	
+	// Paràmetres del domini
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String dominiIdentificador;
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String dominiParams;
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String dominiCampValor;
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String dominiCampText;
+	
+	// Paràmetres de la consulta
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String consultaParams;
+	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
+	private String consultaCampText;
+	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
+	private String consultaCampValor;
+	
+	boolean dominiCacheText;
+
+
 	public Long getId() {
 		return id;
 	}
@@ -85,6 +113,18 @@ public class ExpedientTipusCampCommand {
 	public void setDominiId(Long dominiId) {
 		this.dominiId = dominiId;
 	}
+	public Long getEnumeracioId() {
+		return enumeracioId;
+	}
+	public void setEnumeracioId(Long enumeracioId) {
+		this.enumeracioId = enumeracioId;
+	}
+	public Long getConsultaId() {
+		return consultaId;
+	}
+	public void setConsultaId(Long consultaId) {
+		this.consultaId = consultaId;
+	}
 	public boolean isMultiple() {
 		return multiple;
 	}
@@ -111,6 +151,60 @@ public class ExpedientTipusCampCommand {
 		this.expedientTipusId = expedientTipusId;
 	}
 	
+	public boolean isDominiIntern() {
+		return dominiIntern;
+	}
+	public void setDominiIntern(boolean dominiIntern) {
+		this.dominiIntern = dominiIntern;
+	}
+	public String getDominiIdentificador() {
+		return dominiIdentificador;
+	}
+	public void setDominiIdentificador(String dominiIdentificador) {
+		this.dominiIdentificador = dominiIdentificador;
+	}
+	public String getDominiParams() {
+		return dominiParams;
+	}
+	public void setDominiParams(String dominiParams) {
+		this.dominiParams = dominiParams;
+	}
+	public String getDominiCampValor() {
+		return dominiCampValor;
+	}
+	public void setDominiCampValor(String dominiCampValor) {
+		this.dominiCampValor = dominiCampValor;
+	}
+	public String getDominiCampText() {
+		return dominiCampText;
+	}
+	public void setDominiCampText(String dominiCampText) {
+		this.dominiCampText = dominiCampText;
+	}
+	public String getConsultaParams() {
+		return consultaParams;
+	}
+	public void setConsultaParams(String consultaParams) {
+		this.consultaParams = consultaParams;
+	}
+	public String getConsultaCampText() {
+		return consultaCampText;
+	}
+	public void setConsultaCampText(String consultaCampText) {
+		this.consultaCampText = consultaCampText;
+	}
+	public String getConsultaCampValor() {
+		return consultaCampValor;
+	}
+	public void setConsultaCampValor(String consultaCampValor) {
+		this.consultaCampValor = consultaCampValor;
+	}
+	public boolean isDominiCacheText() {
+		return dominiCacheText;
+	}
+	public void setDominiCacheText(boolean dominiCacheText) {
+		this.dominiCacheText = dominiCacheText;
+	}
 	public static CampDto asCampDto(ExpedientTipusCampCommand command) {
 		CampDto dto = new CampDto();
 		dto.setId(command.getId());
@@ -123,10 +217,41 @@ public class ExpedientTipusCampCommand {
 		dto.setEtiqueta(command.getEtiqueta());
 		dto.setTipus(command.getTipus());
 		dto.setObservacions(command.getObservacions());
-		dto.setDominiId(command.getDominiId());
+		dto.setDominiIdentificador(command.getDominiIdentificador());
 		dto.setMultiple(command.isMultiple());
 		dto.setOcult(command.isOcult());
 		dto.setIgnored(command.isIgnored());		
+		
+		// Dades consulta
+		if(command.getEnumeracioId() != null) {
+			EnumeracioDto enumeracioDto = new EnumeracioDto();
+			enumeracioDto.setId(command.getEnumeracioId());
+			dto.setEnumeracio(enumeracioDto);
+		}
+		if(command.getDominiId() != null) {
+			DominiDto dominiDto = new DominiDto();
+			dominiDto.setId(command.getDominiId());
+			dto.setDomini(dominiDto);
+		}
+		if(command.getConsultaId() != null) {
+			ConsultaDto consultaDto = new ConsultaDto();
+			consultaDto.setId(command.getConsultaId());
+			dto.setConsulta(consultaDto);
+		}
+		dto.setDominiIntern(command.isDominiIntern());
+		
+		// Paràmetres del domini
+		dto.setDominiIdentificador(command.getDominiIdentificador());
+		dto.setDominiParams(command.getDominiParams());
+		dto.setDominiCampValor(command.getDominiCampValor());
+		dto.setDominiCampText(command.getDominiCampText());
+		
+		// Paràmetres de la consulta
+		dto.setConsultaParams(command.getConsultaParams());
+		dto.setConsultaCampText(command.getConsultaCampText());
+		dto.setConsultaCampValor(command.getConsultaCampValor());
+		
+		dto.setDominiCacheText(command.isDominiCacheText());		
 		
 		return dto;
 	}

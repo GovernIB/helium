@@ -29,6 +29,10 @@ public class ExpedientTipusAgrupacioCommand {
 	private String nom;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String descripcio;
+	// Dades consulta
+	// Dades accio
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String jbpmAction;
 
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -59,6 +63,13 @@ public class ExpedientTipusAgrupacioCommand {
 	}
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
 	}
 
 	public interface Creacio {}
