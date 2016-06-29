@@ -47,7 +47,7 @@
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									{{if arxiuNom != null }}
-										<li><a href="${expedientTipus.id}/document/{{:id}}/delete" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
+										<li><a href="${expedientTipus.id}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
 									{{/if}}
 									<li><a data-toggle="modal" href="${expedientTipus.id}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>

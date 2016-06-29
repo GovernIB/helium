@@ -44,19 +44,31 @@
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.document.form.camp.nom" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.document.form.camp.descripcio" />
 			
-			<div class="form-group">
-				<label class="control-label col-xs-4" for="arxiuNom"><spring:message code='expedient.tipus.document.form.camp.arxiu' /></label>
-		        <div class="col-xs-8 arxiu">
-		            <div class="input-group">
-		                <form:input path="arxiuNom" cssClass="form-control" />
-		                <span class="input-group-btn">
-		                    <span class="btn btn-default btn-file">
-		                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut" value="${arxiuContingut}">
-		                    </span>
-		                </span>
-		            </div>
-				</div>
-			</div>
+			<c:choose>
+				<c:when test="${empty arxiuContingut}">
+					<div class="form-group">
+						<label class="control-label col-xs-4" for="arxiuNom"><spring:message code='expedient.tipus.document.form.camp.arxiu' /></label>
+				        <div class="col-xs-8 arxiu">
+				            <div class="input-group">
+				                <form:input path="arxiuNom" cssClass="form-control" />
+				                <span class="input-group-btn">
+				                    <span class="btn btn-default btn-file">
+				                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut" value="${arxiuContingut}">
+				                    </span>
+				                </span>
+				            </div>
+						</div>
+					</div>
+				</c:when>
+				<c:otherwise>
+					UN ARXIU PUJAT
+				</c:otherwise>
+			</c:choose>
+			
+			
+
+<%-- 			<hel:inputFile name="arxiuContingut" required="false" textKey="expedient.tipus.document.form.camp.arxiu" /> --%>
+			
 			
 			<hel:inputCheckbox name="plantilla" textKey="expedient.tipus.document.form.camp.plantilla" />
 			

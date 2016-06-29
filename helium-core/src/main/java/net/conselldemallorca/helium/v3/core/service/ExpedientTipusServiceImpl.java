@@ -28,10 +28,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -870,9 +868,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Document.class,id);
 		}
 		
-		return documentHelper.getArxiuPerDocumentStoreId(
-				id,
-				false,
-				false);
+		ArxiuDto resposta = new ArxiuDto();
+		
+//		return documentHelper.getArxiuPerDocumentStoreId(
+//				id,
+//				false,
+//				false);
+		
+		resposta.setNom(document.getArxiuNom());
+		resposta.setContingut(document.getArxiuContingut());
+		
+		return resposta;
 	}
 }
