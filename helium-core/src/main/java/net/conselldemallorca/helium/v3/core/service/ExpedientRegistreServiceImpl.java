@@ -71,8 +71,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 
 
 
-
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public SortedSet<Entry<InstanciaProcesDto, List<ExpedientLogDto>>> registreFindLogsOrdenatsPerData(
@@ -131,6 +132,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		return sortedEntries;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
@@ -160,6 +164,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		return tasquesPerLogs;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void registreRetrocedir(
@@ -190,6 +197,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		mesuresTemporalsHelper.mesuraCalcular("Retrocedir" + (retrocedirPerTasques ? " per tasques" : ""), "expedient", log.getExpedient().getTipus().getNom());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void registreBuidarLog(
@@ -204,6 +214,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		jbpmHelper.deleteProcessInstanceTreeLogs(expedient.getProcessInstanceId());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientLogDto> registreFindLogsTascaOrdenatsPerData(
@@ -221,6 +234,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientLogDto> registreFindLogsRetroceditsOrdenatsPerData(
@@ -238,6 +254,9 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 		return conversioTipusHelper.convertirList(logs, ExpedientLogDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ExpedientLogDto registreFindLogById(
 			Long logId) throws NoTrobatException, PermisDenegatException {
@@ -253,121 +272,6 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 				expedientLogRepository.findById(logId),
 				ExpedientLogDto.class);
 	}
-
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	private String textBloqueigIniciExpedient;
-
-	@Resource
-	private DocumentRepository documentRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
-	@Resource
-	private ExpedientHeliumRepository expedientHeliumRepository;
-	@Resource
-	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private EstatRepository estatRepository;
-	@Resource
-	private ConsultaRepository consultaRepository;
-	@Resource
-	private ExpedientLoggerRepository expedientLogRepository;
-	@Resource
-	private CampRepository campRepository;
-	@Resource
-	private AlertaRepository alertaRepository;
-	@Resource
-	private RegistreRepository registreRepository;
-	@Resource
-	private EnumeracioRepository enumeracioRepository;
-	@Resource
-	private TerminiRepository terminiRepository;
-	@Resource
-	private TerminiIniciatRepository terminiIniciatRepository;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private DocumentStoreRepository documentStoreRepository;
-	@Resource
-	private AccioRepository accioRepository;
-	@Resource
-	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
-	@Resource
-	private PortasignaturesRepository portasignaturesRepository;
-
-	@Resource
-	private ExpedientHelper expedientHelper;
-	@Resource
-	private ExpedientRegistreHelper expedientRegistreHelper;
-	@Resource
-	private MessageHelper messageHelper;
-	@Resource
-	private EntornHelper entornHelper;
-	@Resource
-	private ConsultaHelper consultaHelper;
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private JbpmHelper jbpmHelper;
-	@Resource
-	private VariableHelper variableHelper;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
-	@Resource(name="pluginHelperV3")
-	private PluginHelper pluginHelper;
-	@Resource
-	private TascaHelper tascaHelper;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private LuceneHelper luceneHelper;
-//	@Resource
-//	private MongoDBHelper mongoDBHelper;
-	@Resource(name="permisosHelperV3")
-	private PermisosHelper permisosHelper;
-	@Resource
-	private PaginacioHelper paginacioHelper;
-	@Resource
-	private MesuresTemporalsHelper mesuresTemporalsHelper;
-	@Resource
-	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Resource
-	private IndexHelper indexHelper;
-//	@Resource
-//	private MetricRegistry metricRegistry;*/
 
 
 

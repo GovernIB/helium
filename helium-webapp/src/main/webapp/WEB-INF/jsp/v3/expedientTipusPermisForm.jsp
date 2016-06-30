@@ -26,63 +26,50 @@
 			<form:hidden path="principalTipus"/>
 			<form:hidden path="principalNom"/>
 		</c:if>
-		<hel:inputSelect name="principalTipus" textKey="expedient.tipus.permis.form.camp.tipus" disabled="${not empty permisCommand.id}" optionItems="${principalTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text"/>
-		<hel:inputText name="principalNom" textKey="expedient.tipus.permis.form.camp.principal" disabled="${not empty permisCommand.id}"/>
+		<hel:inputSelect name="principalTipus" textKey="expedient.tipus.permis.form.camp.tipus" disabled="${not empty permisCommand.id}" optionItems="${principalTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" labelSize="2"/>
+		<hel:inputText name="principalNom" textKey="expedient.tipus.permis.form.camp.principal" disabled="${not empty permisCommand.id}" labelSize="2"/>
+		<hr/>
 		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="read" textKey="permis.READ"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="taskManagement" textKey="permis.TASK_MANAGEMENT"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="read" textKey="permis.READ" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="write" textKey="permis.WRITE" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="create" textKey="permis.CREATE" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="delete" textKey="permis.DELETE" labelSize="8"/></div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="write" textKey="permis.WRITE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="taskSupervision" textKey="permis.TASK_SUPERVISION"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="administration" textKey="permis.ADMINISTRATION" labelSize="8"/></div>
+			<div class="col-sm-3"></div>
+			<div class="col-sm-3"></div>
+		</div>
+		<hr/>
+		<div class="row">
+			<div class="col-sm-3"><hel:inputCheckbox name="cancel" textKey="permis.CANCEL" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="stop" textKey="permis.STOP" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="relate" textKey="permis.RELATE" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="dataManagement" textKey="permis.DATA_MANAGEMENT" labelSize="8"/></div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="create" textKey="permis.CREATE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="taskAssign" textKey="permis.TASK_ASSIGN"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="docManagement" textKey="permis.DOC_MANAGEMENT" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="termManagement" textKey="permis.TERM_MANAGEMENT" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="taskManagement" textKey="permis.TASK_MANAGEMENT" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="taskSupervision" textKey="permis.TASK_SUPERVISION" labelSize="8"/></div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="delete" textKey="permis.DELETE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="logRead" textKey="permis.LOG_READ"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="taskAssign" textKey="permis.TASK_ASSIGN" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="taskAssign" textKey="permis.TASK_ASSIGN" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="logRead" textKey="permis.LOG_READ" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="logManage" textKey="permis.LOG_MANAGE" labelSize="8"/></div>
+			
 		</div>
 		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="logManage" textKey="permis.LOG_MANAGE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="tokenRead" textKey="permis.TOKEN_READ"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="tokenRead" textKey="permis.TOKEN_READ" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="tokenManage" textKey="permis.TOKEN_MANAGE" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="designAdmin" textKey="permis.DESIGN_ADMIN" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="designDeleg" textKey="permis.DESIGN_DELEG" labelSize="8"/></div>
 		</div>
 		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="tokenManage" textKey="permis.TOKEN_MANAGE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="defprocUpdate" textKey="permis.DEFPROC_UPDATE"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="administration" textKey="permis.ADMINISTRATION"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="designAdmin" textKey="permis.DESIGN_ADMIN"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="cancel" textKey="permis.CANCEL"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="designDeleg" textKey="permis.DESIGN_DELEG"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="stop" textKey="permis.STOP"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="scriptExe" textKey="permis.SCRIPT_EXE"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="relate" textKey="permis.RELATE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="undoEnd" textKey="permis.UNDO_END"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="dataManagement" textKey="permis.DATA_MANAGEMENT"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="design" textKey="permis.DESIGN"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="docManagement" textKey="permis.DOC_MANAGEMENT"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="termManagement" textKey="permis.TERM_MANAGEMENT"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="manage" textKey="permis.MANAGE"/></div>
-			<div class="col-sm-6"><hel:inputCheckbox name="reassignment" textKey="permis.REASSIGNMENT"/></div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6"><hel:inputCheckbox name="supervision" textKey="permis.SUPERVISION"/></div>
-			<div class="col-sm-6"><%--hel:inputCheckbox name="organization" textKey="permis.ORGANIZATION"/--%></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="scriptExe" textKey="permis.SCRIPT_EXE" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="undoEnd" textKey="permis.UNDO_END" labelSize="8"/></div>
+			<div class="col-sm-3"><hel:inputCheckbox name="defprocUpdate" textKey="permis.DEFPROC_UPDATE" labelSize="8"/></div>
 		</div>
 		<div id="modal-botons">
 			<button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button>

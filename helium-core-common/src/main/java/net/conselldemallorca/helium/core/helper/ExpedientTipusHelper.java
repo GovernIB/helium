@@ -53,6 +53,7 @@ public class ExpedientTipusHelper {
 				comprovarPermisRead,
 				false,
 				false,
+				false,
 				false);
 	}
 
@@ -60,6 +61,7 @@ public class ExpedientTipusHelper {
 			Long id,
 			boolean comprovarPermisRead,
 			boolean comprovarPermisWrite,
+			boolean comprovarPermisCreate,
 			boolean comprovarPermisDelete,
 			boolean comprovarPermisDisseny) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(id);
@@ -99,6 +101,21 @@ public class ExpedientTipusHelper {
 						permisos);
 			}
 		}
+		if (comprovarPermisCreate) {
+			permisos = new Permission[] {
+					ExtendedPermission.CREATE,
+					ExtendedPermission.ADMINISTRATION};
+			if (!permisosHelper.isGrantedAny(
+					id,
+					ExpedientTipus.class,
+					permisos,
+					auth)) {
+				throw new PermisDenegatException(
+						id,
+						ExpedientTipus.class,
+						permisos);
+			}
+		}
 		if (comprovarPermisDelete) {
 			permisos = new Permission[] {
 					ExtendedPermission.DELETE,
@@ -116,8 +133,8 @@ public class ExpedientTipusHelper {
 		}
 		if (comprovarPermisDisseny) {
 			permisos = new Permission[] {
-					ExtendedPermission.DESIGN,
-					ExtendedPermission.MANAGE,
+					ExtendedPermission.DESIGN_ADMIN,
+					ExtendedPermission.DESIGN_DELEG,
 					ExtendedPermission.ADMINISTRATION};
 			if (!permisosHelper.isGrantedAny(
 					id,

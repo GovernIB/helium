@@ -221,6 +221,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public synchronized ExpedientDto create(
@@ -529,6 +532,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void update(
@@ -579,8 +585,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				execucioDinsHandler);
 	}
 
-	@Transactional(readOnly = true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public boolean luceneReindexarExpedient(Long expedientId) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -593,6 +602,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId) {
@@ -602,6 +614,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return documentHelper.getRespostasValidacioSignatura(documentStore);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void delete(Long id) {
@@ -649,6 +664,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				Registre.Accio.ESBORRAR);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ExpedientDto findAmbId(Long id) {
@@ -667,6 +685,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return expedientDto;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
@@ -709,6 +730,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return listExpedient;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
@@ -829,8 +853,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				paginacioParams);
 	}
 
-	@Transactional(readOnly = true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<Long> findIdsAmbFiltre(
 			Long entornId,
 			Long expedientTipusId,
@@ -930,6 +957,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return expedientsIds.getLlista();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isDiferentsTipusExpedients(Set<Long> ids) {
@@ -972,6 +1002,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return idsTipusExpedients.size() > 1;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ArxiuDto getImatgeDefinicioProces(
@@ -1008,6 +1041,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return imatge;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<PersonaDto> findParticipants(Long id) {
@@ -1035,6 +1071,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
@@ -1075,6 +1114,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void deleteSignatura(
@@ -1109,6 +1151,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void aturar(
@@ -1127,6 +1172,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				motiu,
 				null);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void reprendre(Long id) {
@@ -1140,6 +1189,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.reprendre(expedient, null);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void anular(
@@ -1175,6 +1227,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"expedient",
 				expedient.getTipus().getNom());
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void desanular(Long id) {
@@ -1200,6 +1256,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedient.setAnulat(false);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void desfinalitzar(Long id) {
@@ -1222,6 +1281,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void relacioCreate(
@@ -1253,8 +1315,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.relacioCrear(origen, desti);
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void relacioDelete(
 			Long origenId,
 			Long destiId) {
@@ -1285,6 +1350,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		desti.removeRelacioOrigen(origen);		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDto> relacioFindAmbExpedient(Long id) {
@@ -1303,6 +1371,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return list;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void procesScriptExec(
@@ -1333,6 +1404,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			mesuresTemporalsHelper.mesuraCalcular("Executar SCRIPT", "expedient", expedient.getTipus().getNom());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void procesDefinicioProcesActualitzar(
@@ -1357,6 +1431,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		updateTerminis(processInstanceId, defprocAntiga, defprocNova);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void procesDefinicioProcesCanviVersio(
@@ -1400,6 +1477,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<AccioDto> accioFindVisiblesAmbProcessInstanceId(
@@ -1432,8 +1512,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				AccioDto.class);
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly=true)
 	public AccioDto accioFindAmbId(
 			Long expedientId,
 			String processInstanceId,
@@ -1460,8 +1543,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				AccioDto.class);
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void accioExecutar(
 			Long expedientId,
 			String processInstanceId,
@@ -1525,44 +1611,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 					null);
 		}
 	}
-	/*@Override
-	@Transactional(readOnly = true)
-	public List<AccioDto> findAccionsVisibles(Long id) {
-		logger.debug("Consulta d'accions visibles de l'expedient (" +
-				"id=" + id + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				id,
-				true,
-				false,
-				false,
-				false);
-		
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				expedient.getProcessInstanceId());
-		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
-		// Filtra les accions restringides per rol que
-		// no estan permeses per a l'usuari actual
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
-		Iterator<Accio> it = accions.iterator();
-		while (it.hasNext()) {
-			Accio accio = it.next();
-			if (accio.getRols() != null) {
-				boolean permesa = false;
-				for (String rol: accio.getRols().split(",")) {
-					if (isUserInRole(auth, rol)) {
-						permesa = true;
-						break;
-					}
-				}
-				if (!permesa) it.remove();
-			}
-		}
-		return conversioTipusHelper.convertirList(
-				accions,
-				AccioDto.class);
-	}*/
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<AlertaDto> findAlertes(Long id) {
@@ -1579,6 +1631,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return conversioTipusHelper.convertirList(alertes, AlertaDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public Object[] findErrorsExpedient(Long id) {
@@ -1613,6 +1668,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return new Object[]{errors_bas,errors_int};
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornId, String text) {
@@ -1624,13 +1682,19 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
-	@Transactional(readOnly = true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 				Long processInstanceId) {
 		return expedientHelper.getArbreInstanciesProces(String.valueOf(processInstanceId));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(
@@ -1754,6 +1818,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
@@ -1769,6 +1836,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return dto;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
@@ -1778,6 +1848,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
@@ -1798,6 +1871,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return listTascaDada;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInforme(Long consultaId) {
@@ -1807,6 +1883,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				TipusConsultaCamp.INFORME);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId) {
@@ -1816,6 +1895,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				TipusConsultaCamp.PARAM);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public List<ExpedientConsultaDissenyDto> findConsultaDissenyPaginat(
@@ -1931,6 +2013,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return resposta;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<Long> findIdsPerConsultaInforme(
@@ -1967,12 +2052,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return llistaExpedientIds;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public boolean existsExpedientAmbEntornTipusITitol(Long entornId, Long expedientTipusId, String titol) {
 		return !expedientRepository.findByEntornIdAndTipusIdAndTitol(entornId, expedientTipusId, titol == null, titol).isEmpty();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public String getNumeroExpedientActual(
@@ -1993,6 +2084,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				any);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly=true)
 	public ExpedientTascaDto getStartTask(
@@ -2021,6 +2115,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientConsultaDissenyDto> consultaFindPaginat(
@@ -2173,6 +2270,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				paginacioParams);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<Long> consultaFindNomesIdsPaginat(
@@ -2258,6 +2358,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				paginacioParams);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero) {

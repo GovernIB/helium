@@ -54,8 +54,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 
 
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<TokenDto> findAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) {
@@ -85,8 +88,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 		return conversioTipusHelper.convertirList(jbpmTokens, TokenDto.class);
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public boolean canviarEstatActiu(
 			Long expedientId,
 			String processInstanceId,
@@ -108,8 +114,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 			return false;
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<String> findArrivingNodeNames(
 			Long expedientId,
 			String processInstanceId,
@@ -129,8 +138,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 			return null;
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public TokenDto findById(
 			Long expedientId,
 			String processInstanceId,
@@ -150,8 +162,11 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 			return null;
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void retrocedir(
 			Long expedientId,
 			String processInstanceId,

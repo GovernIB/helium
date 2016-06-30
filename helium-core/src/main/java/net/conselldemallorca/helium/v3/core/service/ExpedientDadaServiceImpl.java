@@ -68,6 +68,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void create(
@@ -101,6 +104,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			registre.setValorNou(varValor.toString());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void update(
@@ -142,6 +148,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			registre.setValorNou(varValor.toString());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void delete(
@@ -171,6 +180,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		registre.setMissatge("Esborrar variable '" + varCodi + "'");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ExpedientDadaDto findOnePerInstanciaProces(
@@ -187,6 +199,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				true);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDadaDto> findAmbInstanciaProces(
@@ -215,6 +230,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<CampAgrupacioDto> agrupacionsFindAmbInstanciaProces(

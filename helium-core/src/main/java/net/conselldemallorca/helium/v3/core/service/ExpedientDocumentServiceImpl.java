@@ -88,6 +88,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void createOrUpdate(
@@ -210,6 +213,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void delete(
@@ -258,6 +264,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(
@@ -287,6 +296,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
@@ -311,6 +323,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentStoreId);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
@@ -333,6 +350,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentCodi);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ArxiuDto arxiuFindAmbDocument(
@@ -364,6 +384,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<PortasignaturesDto> portasignaturesFindPendents(
@@ -410,6 +433,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return resposta;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ArxiuDto generarAmbPlantilla(
@@ -442,7 +468,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentData);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public boolean isExtensioPermesa(
 			Long expedientId,
 			String processInstanceId,
@@ -470,6 +500,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				getExtensio(arxiuNom));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public ArxiuDto generarAmbPlantillaPerTasca(
@@ -511,7 +544,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public boolean isExtensioPermesaPerTasca(
 			String tascaId,
 			String documentCodi,

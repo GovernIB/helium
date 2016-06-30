@@ -9,6 +9,8 @@
 <%@ attribute name="placeholderKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -18,8 +20,8 @@
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">${campLabelText}</label>
-			<div class="col-xs-8">
+			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">${campLabelText}</label>
+			<div class="col-xs-${12 - labelSize}">
 				<div class="input-group" style="width:100%">
 					<div class="input-group date">
 						<form:input path="${campPath}" cssClass="form-control datetimepicker date" data-format="dd/MM/yyyy" id="${campPath}" disabled="${disabled}"/>

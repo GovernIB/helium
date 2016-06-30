@@ -14,6 +14,8 @@
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <%@ attribute name="id" required="false" rtexprvalue="true"%>
 <%@ attribute name="multiple" required="false" rtexprvalue="true"%>
+<%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
 <c:choose><c:when test='${multiple}'><c:set var="campId" value="${fn:replace(fn:replace(id, '[', ''), ']','')}"/></c:when><c:otherwise><c:set var="campId" value="${name}"/></c:otherwise></c:choose>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -25,14 +27,14 @@
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">
+			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">
 				<c:choose>
 					<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 					<c:when test="${not empty text}">${text}</c:when>
 					<c:otherwise>${campPath}</c:otherwise>
 				</c:choose>
 			</label>
-			<div class="controls col-xs-8">
+			<div class="controls col-xs-${12 - labelSize}">
 				<c:choose>
 					<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}" style="width: 100%"/></c:when>
 					<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"/></c:otherwise>

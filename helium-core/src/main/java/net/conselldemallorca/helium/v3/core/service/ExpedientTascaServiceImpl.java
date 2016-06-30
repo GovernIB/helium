@@ -60,6 +60,9 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientTascaDto> findAmbInstanciaProces(
@@ -93,6 +96,9 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 		return tasques;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientTascaDto> findPendents(
@@ -127,6 +133,9 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 		return resposta;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void cancelar(
@@ -157,6 +166,9 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void suspendre(
@@ -187,6 +199,9 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void reprendre(
@@ -217,6 +232,9 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void reassignar(

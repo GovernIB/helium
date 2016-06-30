@@ -70,6 +70,9 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Transactional
 	@Override
 	public TerminiIniciatDto iniciar(
@@ -117,8 +120,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		}
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void modificar(
 			Long expedientId,
 			String processInstanceId,
@@ -160,8 +166,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				esDataFi);		
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void suspendre(
 			Long expedientId,
 			String processInstanceId,
@@ -194,8 +203,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void reprendre(
 			Long expedientId,
 			String processInstanceId,
@@ -230,8 +242,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void cancelar(
 			Long expedientId,
 			String processInstanceId,
@@ -264,8 +279,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				SecurityContextHolder.getContext().getAuthentication().getName());
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<TerminiDto> findAmbProcessInstanceId(
 			Long expedientId,
 			String processInstanceId) {
@@ -287,8 +305,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				TerminiDto.class);
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<TerminiIniciatDto> iniciatFindAmbProcessInstanceId(
 			Long expedientId,
 			String processInstanceId) {
@@ -307,8 +328,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		return conversioTipusHelper.convertirList(terminiIniciats, TerminiIniciatDto.class);
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public TerminiIniciatDto iniciatFindAmbId(
 			Long expedientId,
 			String processInstanceId,
@@ -336,8 +360,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				TerminiIniciatDto.class);
 	}
 
-	@Transactional(readOnly=true)
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional(readOnly = true)
 	public List<FestiuDto> festiuFindAmbAny(
 			int any) {
 		logger.debug("Consultant festius de l'any (" +
@@ -347,8 +374,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 				FestiuDto.class);
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void festiuCreate(
 			String data) throws Exception {
 		logger.debug("Creant festiu (" +
@@ -359,8 +389,11 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		festiuRepository.save(festiu);
 	}
 
-	@Transactional
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void festiuDelete(
 			String data) throws ValidacioException, Exception {
 		logger.debug("Esborrant festiu (" +

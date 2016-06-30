@@ -49,7 +49,7 @@ public class BaseExpedientTipusController extends BaseController {
 			Model model,
 			String pipellaActiva) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				expedientTipusId);
 		model.addAttribute("expedientTipus", expedientTipus);

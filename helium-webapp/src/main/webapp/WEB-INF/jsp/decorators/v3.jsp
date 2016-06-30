@@ -171,12 +171,10 @@
 						</li>
 					</ul>
 					<div class="clearfix"></div>
-					
 					<div class="btn-group navbar-btn navbar-right">		
 						<a class="btn btn-primary" href="<c:url value="/v3/expedient"/>"><spring:message code="decorator.menu.expedients"/></a>
 						<a class="btn btn-primary" href="<c:url value="/v3/tasca"/>"><spring:message code="decorator.menu.tasques"/></a>
-						
-						<c:if test="${potDissenyarExpedientTipus or potGestionarExpedientTipus}">
+						<c:if test="${potDissenyarExpedientTipus}">
 							<div class="btn-group" >
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="comuns.disseny"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu">
@@ -219,15 +217,17 @@
 							</div>
 						</c:if>
 					</div>
-					<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">
-						<a data-toggle="modal" data-maximized="true" class="btn btn-primary" href="<c:url value="/modal/v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
-						<script type="text/javascript">
-							$('#iniciar-expediente a').heliumEvalLink({
-								refrescarAlertes: false,
-								refrescarPagina: false
-							});
-						</script>
-					</div>					
+					<c:if test="${hiHaTramitsPerIniciar}">
+						<div id="iniciar-expediente" class="btn-group navbar-btn navbar-right">
+							<a data-toggle="modal" data-maximized="true" class="btn btn-primary" href="<c:url value="/modal/v3/expedient/iniciar"/>"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.llistat.accio.nou"/></a>
+							<script type="text/javascript">
+								$('#iniciar-expediente a').heliumEvalLink({
+									refrescarAlertes: false,
+									refrescarPagina: false
+								});
+							</script>
+						</div>
+					</c:if>
 				</div>
 			</div>
 		</div>

@@ -101,7 +101,7 @@
 				if (value != undefined && value != "-1"){
 					$.get('tasca/expedientTipusAmbPermis/${entornId}/' + value)				
 					.done(function(data) {
-						if(data != undefined && data.permisReassignment){
+						if(data != undefined && data.permisTaskSupervision){
 							$('#responsableDiv').show();
 						}else{
 							$('#responsableDiv').hide();
@@ -323,13 +323,13 @@
 							<label>&nbsp;</label>
 							<div class="row">
 							<c:choose>
-								<c:when test="${not empty expedientTipus and expedientTipus.permisReassignment}">
-									<div class="col-md-12"  id="responsableDiv">
+								<c:when test="${not empty expedientTipus and expedientTipus.permisTaskSupervision}">
+									<div class="col-md-12" id="responsableDiv">
 										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 									</div>
 								</c:when>
 								<c:otherwise>
-									<div class="col-md-12"  id="responsableDiv" style="display: none">
+									<div class="col-md-12" id="responsableDiv" style="display: none">
 										<hel:inputSuggest inline="true" name="responsable" urlConsultaInicial="tasca/persona/suggestInici" urlConsultaLlistat="tasca/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 									</div>
 								</c:otherwise>
@@ -432,22 +432,22 @@
 								{{if open && !suspended && !agafada && responsables != null && assignadaUsuariActual}}
  										<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/agafar" class="tasca-accio-agafar" data-tasca-id="{{:id}}" data-rdt-link-ajax="true" data-rdt-link-callback="agafar({{:id}});" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.agafar"/>"><span class="fa fa-chain"></span> <spring:message code="tasca.llistat.accio.agafar"/></a></li>
 									{{/if}}
-								{{if open && !suspended && agafada && (permisReassignment || permisWrite || permisAdministration)}}
+								{{if open && !suspended && agafada && (assignadaUsuariActual || permisTaskAssign)}}
 									<li><a href="<c:url value="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/alliberar"/>" data-rdt-link-ajax="true" data-rdt-link-confirm="<spring:message code="expedient.tasca.confirmacio.alliberar"/>"><span class="fa fa-chain-broken"></span> <spring:message code="tasca.llistat.accio.alliberar"/></a></li>
 								{{/if}}
 								{{if permisRead}}
 								<li><a href="../v3/expedient/{{:expedientId}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.llistat.accio.consultar.expedient"/></a></li>
 								{{/if}}
-								{{if open && permisReassignment}}
+								{{if permisTaskAssign && open}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reassignar" data-rdt-link-modal="true"><span class="fa fa-share-square-o"></span>&nbsp;<spring:message code="tasca.llistat.accio.reassignar"/></a></li>
 								{{/if}}
-								{{if open && !suspended && permisSupervision}}
+								{{if permisTaskManagement && open && !suspended}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/suspendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.suspendre"/>"><span class="fa fa-pause"></span> <spring:message code="tasca.llistat.accio.suspendre"/></a></li>
 								{{/if}}
-								{{if suspended && permisSupervision}}
+								{{if permisTaskManagement && suspended}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/reprendre" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.reprendre"/>"><span class="fa fa-play"></span> <spring:message code="tasca.llistat.accio.reprendre"/></a></li>
 								{{/if}}
-								{{if !cancelled && permisSupervision}}
+								{{if permisTaskManagement && !completed && !cancelled}}
 									<li><a href="../v3/expedient/{{:expedientId}}/tasca/{{:id}}/cancelar" data-rdt-link-confirm="<spring:message code="tasca.llistat.confirmacio.cancelar"/>"><span class="fa fa-times"></span> <spring:message code="tasca.llistat.accio.cancelar"/></a></li>
 								{{/if}}
  							</ul>
@@ -465,15 +465,14 @@
 				<th data-rdt-property="expedientId" data-rdt-visible="false"></th>
 				<th data-rdt-property="responsables" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisSupervision" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisReassignment" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisTaskManagement" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisTaskSupervision" data-rdt-visible="false"></th>
+				<th data-rdt-property="permisTaskAssign" data-rdt-visible="false"></th>
 				<th data-rdt-property="marcadaFinalitzar" data-rdt-visible="false"></th>
 				<th data-rdt-property="iniciFinalitzacio" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorFinalitzacio" data-rdt-visible="false"></th>
 				<th data-rdt-property="marcadaFinalitzarFormat" data-rdt-visible="false"></th>
 				<th data-rdt-property="iniciFinalitzacioFormat" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisWrite" data-rdt-visible="false"></th>
-				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>
