@@ -1173,28 +1173,35 @@ public class PluginHelper {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO) {
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"expedient",
-						expedient.getIdentificador()),
-				new IntegracioParametreDto(
-						"documentCodi",
-						document.getDocumentCodi()),
-				new IntegracioParametreDto(
-						"documentNom",
-						document.getDocumentNom()),
-				new IntegracioParametreDto(
-						"documentTipus",
-						document.getTipusDocPortasignatures()),
-				new IntegracioParametreDto(
-						"arxiuNom",
-						document.getArxiuNom()),
-				new IntegracioParametreDto(
-						"personaCodi",
-						persona.getCodi())
-		};
+		
+		IntegracioParametreDto[] parametres = null;
 		long t0 = System.currentTimeMillis();
+
 		try {
+			if (document == null) {
+				throw new NullPointerException("El document per a enviar a portafirmes es null.");
+			}
+			
+			parametres = new IntegracioParametreDto[6];
+			parametres[0] = new IntegracioParametreDto(
+					"expedient",
+					expedient != null ? expedient.getIdentificador() : null);
+			parametres[1] = new IntegracioParametreDto(
+					"documentCodi",
+					document.getDocumentCodi());
+			parametres[2] = new IntegracioParametreDto(
+					"documentNom",
+					document.getDocumentNom());
+			parametres[3] = new IntegracioParametreDto(
+					"documentTipus",
+					document.getTipusDocPortasignatures());
+			parametres[4] = new IntegracioParametreDto(
+					"arxiuNom",
+					document.getArxiuNom());
+			parametres[5] = new IntegracioParametreDto(
+					"personaCodi",
+					persona != null ? persona.getCodi() : null);
+			
 			Integer resposta = getPortasignaturesPlugin().uploadDocument(
 					getDocumentPortasignatures(document, expedient),
 					getAnnexosPortasignatures(annexos, expedient),
@@ -1231,9 +1238,9 @@ public class PluginHelper {
 			return resposta;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut enviar el document al portafirmes (" +
-					"documentId=" + document.getId() + ", " +
-					"destinatari=" + persona.getCodi() + ", " +
-					"expedient=" + expedient.getIdentificador() + ")";
+					"documentId=" + document == null ? "NULL" : document.getId() + ", " +
+					"destinatari=" + persona == null ? "NULL" : persona.getCodi() + ", " +
+					"expedient=" + expedient == null ? "NULL" : expedient.getIdentificador() + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Enviar document a firmar",
