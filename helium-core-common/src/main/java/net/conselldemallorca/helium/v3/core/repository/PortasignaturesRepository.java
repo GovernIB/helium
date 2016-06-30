@@ -35,10 +35,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			"    Portasignatures p " +
 			"where " +
 			"    p.processInstanceId = :processInstanceId " +
-			"and p.estat not in :estats <> 'PENDENT' " +
-			"and p.estat <> 'SIGNAT' " +
-			"and p.estat <> 'REBUTJAT' " +
-			"and p.estat <> 'ERROR' ")
+			"and p.estat not in :estats ")
 	List<Portasignatures> findByProcessInstanceIdAndEstatNotIn(
 			@Param("processInstanceId") String processInstanceId,
 			@Param("estat") TipusEstat[] estats);
