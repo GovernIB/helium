@@ -9,7 +9,7 @@
 	<title><spring:message code="expedient.tipus.llistat.titol"/></title>
 	<meta name="title" content="<spring:message code='expedient.tipus.llistat.titol'/>"/>
 	<meta name="screen" content="expedients tipus">
-	<meta name="title-icon-class" content="fa fa-folder"/>
+	<meta name="title-icon-class" content="fa fa-cube"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
 	<link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>

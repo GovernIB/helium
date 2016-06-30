@@ -21,10 +21,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTerminiService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTerminiModificarCommand.TerminiModificacioTipus;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 import org.slf4j.Logger;
@@ -57,64 +58,91 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
-
 	@Autowired
-	private TerminiService terminiService;
+	private ExpedientTerminiService expedientTerminiService;
 
-	@RequestMapping(value = "/{expedientId}/terminis", method = RequestMethod.GET)
+
+
+	@RequestMapping(value = "/{expedientId}/termini", method = RequestMethod.GET)
 	public String terminis(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<TerminiDto> terminisInstanciaProces = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				terminisInstanciaProces = terminiService.findTerminisAmbProcessInstanceId(instanciaProces.getId());
-				iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbProcessInstanceId(instanciaProces.getId()));
+				terminisInstanciaProces = expedientTerminiService.findAmbProcessInstanceId(
+						expedientId,
+						instanciaProces.getId());
+				iniciats.put(
+						instanciaProces.getId(),
+						expedientTerminiService.iniciatFindAmbProcessInstanceId(
+								expedientId,
+								instanciaProces.getId()));
 			}
 			terminis.put(instanciaProces, terminisInstanciaProces);
 		}
-
+		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-		model.addAttribute("terminis",terminis);
-		model.addAttribute("iniciats",iniciats);
-		
+		model.addAttribute("terminis", terminis);
+		model.addAttribute("iniciats", iniciats);
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioExpedientPerPipella(
+					request,
+					expedientId,
+					model,
+					"terminis");
+		}
 		return "v3/expedientTermini";
 	}
-	
-	@RequestMapping(value = "/{expedientId}/terminis/{procesId}", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini", method = RequestMethod.GET)
 	public String dadesProces(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String procesId,
 			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		model.addAttribute("expedient", expedient);
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);		
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
-		terminis.put(instanciaProces, terminiService.findTerminisAmbProcessInstanceId(instanciaProces.getId()));
-		iniciats.put(instanciaProces.getId(), terminiService.findIniciatsAmbProcessInstanceId(instanciaProces.getId()));
+		terminis.put(
+				instanciaProces,
+				expedientTerminiService.findAmbProcessInstanceId(
+						expedientId,
+						instanciaProces.getId()));
+		iniciats.put(
+				instanciaProces.getId(),
+				expedientTerminiService.iniciatFindAmbProcessInstanceId(
+						expedientId,
+						instanciaProces.getId()));
 		model.addAttribute("inicialProcesInstanceId", procesId);
 		model.addAttribute("terminis",terminis);
 		model.addAttribute("iniciats",iniciats);
 		return "v3/procesTerminis";
 	}
 
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiIniciar", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiId}/iniciar", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean terminiIniciar(
+	public boolean iniciar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable String procesId,
 			@PathVariable Long terminiId,
 			Model model) {
 		boolean response = false; 
 		try {			
-			terminiService.iniciar(terminiId,expedientId,new Date(),true);
+			expedientTerminiService.iniciar(
+					expedientId,
+					procesId,
+					terminiId,
+					new Date(),
+					true);
 			MissatgesHelper.success(request, getMessage(request, "info.termini.iniciat"));
 			response = true;
 		} catch (Exception ex) {
@@ -123,17 +151,22 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		}
 		return response;
 	}
-	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiPausar", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiIniciatId}/suspendre", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean terminiPausar(
+	public boolean suspendre(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long terminiId,
+			@PathVariable String procesId,
+			@PathVariable Long terminiIniciatId,
 			Model model) {
 		boolean response = false; 
 		try {
-			terminiService.pausar(terminiId, new Date());
+			expedientTerminiService.suspendre(
+					expedientId,
+					procesId,
+					terminiIniciatId,
+					new Date());
 			MissatgesHelper.success(request, getMessage(request, "info.termini.aturat"));
 			response = true;
 		} catch (Exception ex) {
@@ -142,17 +175,22 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		}
 		return response;
 	}
-	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiContinuar", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiIniciatId}/reprendre", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean terminiContinuar(
+	public boolean reprendre(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long terminiId,
+			@PathVariable String procesId,
+			@PathVariable Long terminiIniciatId,
 			Model model) {
 		boolean response = false; 
 		try {
-			terminiService.continuar(terminiId, new Date());
+			expedientTerminiService.reprendre(
+					expedientId,
+					procesId,
+					terminiIniciatId,
+					new Date());
 			MissatgesHelper.success(request, getMessage(request, "info.termini.continuat"));
 			response = true;
 		} catch (Exception ex) {
@@ -161,17 +199,22 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		}
 		return response;
 	}
-	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiCancelar", method = RequestMethod.GET)
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiIniciatId}/cancelar", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean terminiCancelar(
+	public boolean cancelar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long terminiId,
+			@PathVariable String procesId,
+			@PathVariable Long terminiIniciatId,
 			Model model) {
 		boolean response = false; 
 		try {
-			terminiService.cancelar(terminiId, new Date());
+			expedientTerminiService.cancelar(
+					expedientId,
+					procesId,
+					terminiIniciatId,
+					new Date());
 			MissatgesHelper.success(request, getMessage(request, "info.termini.cancelat"));
 			response = true;
 		} catch (Exception ex) {
@@ -180,16 +223,20 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		}
 		return response;
 	}
-	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.GET)
-	public String terminiModificar(
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiIniciatId}/modificar", method = RequestMethod.GET)
+	public String modificar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long terminiId,
+			@PathVariable String procesId,
+			@PathVariable Long terminiIniciatId,
 			Model model) {
-		TerminiIniciatDto terminiIniciat = terminiService.findIniciatAmbId(terminiId);
+		TerminiIniciatDto terminiIniciat = expedientTerminiService.iniciatFindAmbId(
+				expedientId,
+				procesId,
+				terminiIniciatId);
 		ExpedientTerminiModificarCommand expedientTerminiModificarCommand = new ExpedientTerminiModificarCommand();
-		expedientTerminiModificarCommand.setTerminiId(terminiId);
+		expedientTerminiModificarCommand.setTerminiId(terminiIniciatId);
 		expedientTerminiModificarCommand.setNom(terminiIniciat.getTermini().getNom());
 		expedientTerminiModificarCommand.setAnys(terminiIniciat.getAnys());
 		expedientTerminiModificarCommand.setMesos(terminiIniciat.getMesos());
@@ -201,27 +248,12 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		model.addAttribute("listTipus", getTipus(request));
 		return "v3/expedient/terminiModificar";
 	}
-	
-	public List<ParellaCodiValorDto> getTipus(HttpServletRequest request) {
-		List<ParellaCodiValorDto> tipus = new ArrayList<ParellaCodiValorDto>();
-		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.durada"),TerminiModificacioTipus.DURADA));
-		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_fi"),TerminiModificacioTipus.DATA_FI));
-		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_ini"),TerminiModificacioTipus.DATA_INICI));
-		return tipus;
-	}
-
-	private List<ParellaCodiValorDto> valors12() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
-		return resposta;
-	}
-	
-	@RequestMapping(value = "/{expedientId}/{terminiId}/terminiModificar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/termini/{terminiIniciatId}/modificar", method = RequestMethod.POST)
 	public String terminiModificar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long terminiId,
+			@PathVariable String procesId,
+			@PathVariable Long terminiIniciatId,
 			@Valid @ModelAttribute ExpedientTerminiModificarCommand expedientTerminiModificarCommand,
 			BindingResult result,
 			SessionStatus status,
@@ -229,16 +261,20 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		try {
 			Date inicio = null;
 			if (TerminiModificacioTipus.DURADA.name().equals(expedientTerminiModificarCommand.getTipus())) {
-				TerminiIniciatDto terminiIniciat = terminiService.findIniciatAmbId(terminiId);
+				TerminiIniciatDto terminiIniciat = expedientTerminiService.iniciatFindAmbId(
+						expedientId,
+						procesId,
+						terminiIniciatId);
 				inicio = terminiIniciat.getDataInici();
 			} else if (TerminiModificacioTipus.DATA_INICI.name().equals(expedientTerminiModificarCommand.getTipus())) {
 				inicio = expedientTerminiModificarCommand.getDataInici();
 			} else {
 				inicio = expedientTerminiModificarCommand.getDataFi();
 			}
-			terminiService.modificar(
-					terminiId,
+			expedientTerminiService.modificar(
 					expedientId,
+					procesId,
+					terminiIniciatId,
 					inicio,
 					expedientTerminiModificarCommand.getAnys(),
 					expedientTerminiModificarCommand.getMesos(),
@@ -251,7 +287,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		}
 		return modalUrlTancar(false);
 	}	
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(
@@ -280,5 +316,21 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 				new ObjectTypeEditorHelper());
 	}
 
+	public List<ParellaCodiValorDto> getTipus(HttpServletRequest request) {
+		List<ParellaCodiValorDto> tipus = new ArrayList<ParellaCodiValorDto>();
+		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.durada"),TerminiModificacioTipus.DURADA));
+		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_fi"),TerminiModificacioTipus.DATA_FI));
+		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_ini"),TerminiModificacioTipus.DATA_INICI));
+		return tipus;
+	}
+
+	private List<ParellaCodiValorDto> valors12() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (int i=0; i <= 12 ; i++)		
+			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+		return resposta;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientTerminiV3Controller.class);
+
 }

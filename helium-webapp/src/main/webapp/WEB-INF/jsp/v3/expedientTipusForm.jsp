@@ -138,20 +138,12 @@
 <%-- 			</c:if> --%>
 		</div>
 		<div id="modal-botons" class="well">
-			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
-			<c:choose>
-				<c:when test="${empty expedientTipusCommand.id}">
-					<button class="btn btn-primary right" type="submit" name="accio" value="crear">
-						<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
-					</button>
-				</c:when>
-				<c:otherwise>
-					<button class="btn btn-primary right" type="submit" name="accio" value="modificar">
-						<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
-					</button>
-				</c:otherwise>
-			</c:choose>
-
+			<button type="button" class="btn btn-default" data-modal-cancel="true">
+				<spring:message code="comu.boto.cancelar"/>
+			</button>
+			<button type="submit" class="btn btn-success right">
+				<span class="fa fa-save"></span> <spring:message code="comu.boto.guardar"/>
+			</button>
 		</div>
 	</form:form>
 </body>

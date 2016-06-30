@@ -29,14 +29,9 @@ public class SessionHelper {
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";
-	public static final String VARIABLE_PERMIS_EXPTIP_GESTIO = "potGestionarExpedientTipus";
-	public static final String VARIABLE_PERMIS_EXPTIP_REASSIGNAR = "potReassignarExpedientTipus";
-	public static final String VARIABLE_PERMIS_ENTORN_READ = "potLlegirEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_DESIGN = "potDissenyarEntorn";
-	public static final String VARIABLE_PERMIS_ENTORN_ORGANIZATION = "potOrganitzarEntorn";
-	public static final String VARIABLE_PERMIS_ENTORN_ADMINISTRATION = "potAdministrarEntorn";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
-	
+
 	public static final String VARIABLE_FILTRE_CONSULTA_GENERAL = "filtreConsultaGeneral";
 	public static final String VARIABLE_FILTRE_CONSULTA_TASCA = "filtreConsultaTasca";
 	public static final String VARIABLE_FILTRE_INFORME = "filtreInforme";
@@ -126,17 +121,6 @@ public class SessionHelper {
 					VARIABLE_EXPTIP_ACCESSIBLES,
 					expedientsTipus);
 		}
-		public Boolean getPotReassignarExpedientTipus() {
-			return (Boolean)getAttribute(
-					request,
-					VARIABLE_PERMIS_EXPTIP_REASSIGNAR);
-		}
-		public void setPotReassignarExpedientTipus(Boolean potReassignarExpedientTipus) {
-			setAttribute(
-					request,
-					VARIABLE_PERMIS_EXPTIP_REASSIGNAR,
-					potReassignarExpedientTipus);
-		}
 		public Boolean getPotDissenyarExpedientTipus() {
 			return (Boolean)getAttribute(
 					request,
@@ -148,28 +132,6 @@ public class SessionHelper {
 					VARIABLE_PERMIS_EXPTIP_DISSENY,
 					potDissenyarExpedientTipus);
 		}
-		public Boolean getPotGestionarExpedientTipus() {
-			return (Boolean)getAttribute(
-					request,
-					VARIABLE_PERMIS_EXPTIP_GESTIO);
-		}
-		public void setPotGestionarExpedientTipus(Boolean potGestionarExpedientTipus) {
-			setAttribute(
-					request,
-					VARIABLE_PERMIS_EXPTIP_GESTIO,
-					potGestionarExpedientTipus);
-		}
-		public Boolean getPotLlegirEntorn() {
-			return (Boolean)getAttribute(
-					request,
-					VARIABLE_PERMIS_ENTORN_READ);
-		}
-		public void setPotLlegirEntorn(Boolean potLlegirEntorn) {
-			setAttribute(
-					request,
-					VARIABLE_PERMIS_ENTORN_READ,
-					potLlegirEntorn);
-		}
 		public Boolean getPotDissenyarEntorn() {
 			return (Boolean)getAttribute(
 					request,
@@ -180,28 +142,6 @@ public class SessionHelper {
 					request,
 					VARIABLE_PERMIS_ENTORN_DESIGN,
 					potDissenyarEntorn);
-		}
-		public Boolean getPotOrganitzarEntorn() {
-			return (Boolean)getAttribute(
-					request,
-					VARIABLE_PERMIS_ENTORN_ORGANIZATION);
-		}
-		public void setPotOrganitzarEntorn(Boolean potOrganitzarEntorn) {
-			setAttribute(
-					request,
-					VARIABLE_PERMIS_ENTORN_ORGANIZATION,
-					potOrganitzarEntorn);
-		}
-		public Boolean getPotAdministrarEntorn() {
-			return (Boolean)getAttribute(
-					request,
-					VARIABLE_PERMIS_ENTORN_ADMINISTRATION);
-		}
-		public void setPotAdministrarEntorn(Boolean potAdministrarEntorn) {
-			setAttribute(
-					request,
-					VARIABLE_PERMIS_ENTORN_ADMINISTRATION,
-					potAdministrarEntorn);
 		}
 		public Boolean getHiHaTramitsPerIniciar() {
 			return (Boolean)getAttribute(
@@ -311,4 +251,5 @@ public class SessionHelper {
 					VARIABLE_SELECCIO_MASSIVES);
 		}
 	}
+
 }

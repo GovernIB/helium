@@ -41,18 +41,20 @@ div.procesDocument:hover {
 			<c:set var="agrupacioFirst" value="${true}"/>
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_documents_${proces.id}">
-				<div id="dataTables_new">
-					<div id="nou_document_${proces.id}" class="nou_document">
-						<a 	class="btn btn-default" 
-							href="../../v3/expedient/${expedientId}/nouDocument?processInstanceId=${proces.id}" 
-							data-rdt-link-modal="true" 
-							data-rdt-link-callback="recargarPanel(${proces.id});"
-							data-rdt-link-modal-min-height="180">
-							<span class="fa fa-plus"></span>
-							<spring:message code="expedient.boto.nou_document"/>
-						</a>
+				<c:if test="${expedient.permisDocManagement}">
+					<div id="dataTables_new">
+						<div id="nou_document_${proces.id}" class="nou_document">
+							<a class="btn btn-default" 
+								href="../../v3/expedient/${expedientId}/proces/${proces.id}/document/new" 
+								data-rdt-link-modal="true" 
+								data-rdt-link-callback="recargarPanel(${proces.id});"
+								data-rdt-link-modal-min-height="180">
+								<span class="fa fa-plus"></span>
+								<spring:message code="expedient.boto.nou_document"/>
+							</a>
+						</div>
 					</div>
-				</div>
+				</c:if>
 				<div class="panel panel-default">
 					<div id="${proces.id}-titol-documents" class="panel-heading clicable procesDocument" data-processinstanceid="${proces.id}" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_documents" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 						<c:choose>

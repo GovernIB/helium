@@ -9,6 +9,8 @@
 <%@ attribute name="placeholderKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -17,8 +19,8 @@
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">${campLabelText}</label>
-			<div class="col-xs-8">
+			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">${campLabelText}</label>
+			<div class="col-xs-${12 - labelSize}">
 				<div class="fileinput fileinput-new input-group" data-provides="fileinput">
 					<div class="form-control" data-trigger="fileinput"><i class="glyphicon glyphicon-file fileinput-exists"></i> <span class="fileinput-filename"></span></div>
 					<span class="input-group-addon btn btn-default btn-file" style="width:auto"><span class="fileinput-new">Seleccionar</span><span class="fileinput-exists">Canviar</span><input type="file" id="${campPath}" name="${campPath}"></span>

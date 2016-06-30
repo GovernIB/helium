@@ -44,7 +44,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);

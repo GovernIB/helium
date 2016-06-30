@@ -18,7 +18,7 @@
 				<thead>
 					<tr>
 						<td class="left">
-							<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar"/>">
+							<a href="<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar"/>">
 								<span class="fa fa-file fa-4x" title="Descarregar document"></span>
 								<c:if test="${document.adjunt}">
 									<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
@@ -34,8 +34,8 @@
 									<thead>
 										<tr>
 											<td class="tableDocumentsTd">
-												<c:if test="${!document.signat && expedient.permisWrite}">
-													<a 	href="../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/modificar"
+												<c:if test="${!document.signat && expedient.permisDocManagement}">
+													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/update"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
@@ -44,7 +44,6 @@
 													</a>
 												</c:if>
 												<c:if test="${document.signat}">	
-												
 													<c:choose>
 														<c:when test="${not empty document.signaturaUrlVerificacio}">
 															<a 	class="icon signature"
@@ -57,16 +56,16 @@
 														<c:otherwise>																			
 															<a 	data-rdt-link-modal="true"
 																class="icon signature" 
-																href="<c:url value='../../v3/expedient/${expedientId}/verificarSignatura/${document.processInstanceId}/${document.id}/${document.documentCodi}'/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
+																href="<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/verificar"/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
 																<span class="fa fa-2x fa-certificate" title="<spring:message code='expedient.document.signat' />"></span>
 															</a>
 														</c:otherwise>
 													</c:choose>
-													<c:if test="${expedient.permisWrite}">
+													<c:if test="${expedient.permisDocManagement}">
 														<a 	class="icon signature fa-stack fa-2x" 
 															data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_signatures' />"
 															data-rdt-link-ajax=true
-															href='<c:url value="../../v3/expedient/${expedientId}/document/${document.id}/signaturaEsborrar"/>' 
+															href='<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/esborrar"/>' 
 															data-rdt-link-callback="esborrarSignatura(${document.id});"
 															title="<spring:message code='expedient.document.esborrar.signatures' />">
 															<i class="fa fa-certificate fa-stack-1x"></i>
@@ -81,11 +80,11 @@
 														<span class="fa fa-book fa-2x" title="<spring:message code='expedient.document.registrat' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${expedient.permisWrite}">
+												<c:if test="${expedient.permisDocManagement}">
 													<a 	class="icon fa fa-trash-o fa-2x" 
 														data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
 														data-rdt-link-ajax=true
-														href='<c:url value="../../v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.id}/esborrar"/>' 
+														href='<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/esborrar"/>' 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 														title="<spring:message code='expedient.document.esborrar'/>">
 													</a>
@@ -100,7 +99,7 @@
 																title="<spring:message code='expedient.document.pendent.psigna.error'/>">
 															</a>
 															<c:if test="${psignaPendentActual.error}">
-																<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+																<c:if test="${expedient.permisDocManagement}">
 																	<form id="form_psigna_${document.id}" action="<c:url value='/expedient/documentPsignaReintentar.html'/>">
 																		<input type="hidden" name="id" value="${document.processInstanceId}"/>
 																		<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
@@ -198,7 +197,7 @@
 				</div>
 				<div class="modal-footer">
 					<c:if test="${psignaPendentActual.error}">
-						<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+						<c:if test="${expedient.permisDocManagement}">
 							<button type="button" class="btn btn-primary"  onclick="reprocessar(${document.id})">
 								<i class="fa fa-file-text-o"></i> <spring:message code="common.icones.doc.psigna.reintentar"/>
 							</button>

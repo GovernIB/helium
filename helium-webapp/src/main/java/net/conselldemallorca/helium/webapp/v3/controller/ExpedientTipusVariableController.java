@@ -65,8 +65,6 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 				model);
 		return "v3/expedientTipusVariable";
 	}
-
-
 	
 	@RequestMapping(value="/{expedientTipusId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
@@ -311,7 +309,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPerDissenyar(
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
 					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
@@ -363,5 +361,6 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
 		}
 		model.addAttribute("agrupacions", resposta);		
-	}	
+	}
+
 }

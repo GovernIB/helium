@@ -10,6 +10,8 @@
 <%@ attribute name="ocultarCarpetes" required="false" rtexprvalue="true"%>
 <%@ attribute name="ocultarDocuments" required="false" rtexprvalue="true"%>
 <%@ attribute name="contenidorOrigen" required="true" rtexprvalue="true" type="java.lang.Object"%>
+<%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -23,14 +25,14 @@
 </c:choose>
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-	<label class="control-label col-xs-4 ${campClassRequired}" for="${campPath}">
+	<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">
 		<c:choose>
 			<c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when>
 			<c:when test="${not empty text}">${text}</c:when>
 			<c:otherwise>${campPath}</c:otherwise>
 		</c:choose>
 	</label>
-	<div class="controls col-xs-8">
+	<div class="controls col-xs-${12 - labelSize}">
 		<div id="file-chooser-${campPath}-input" class="input-group">
 			<form:hidden path="${campPath}" id="${campPath}" disabled="${disabled}"/>
 			<div id="file-chooser-${campPath}-panel" class="panel panel-default">

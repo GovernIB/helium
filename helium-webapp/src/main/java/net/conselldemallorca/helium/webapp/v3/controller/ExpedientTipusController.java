@@ -127,7 +127,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto dto = expedientTipusService.findAmbIdPerDissenyar(
+		ExpedientTipusDto dto = expedientTipusService.findAmbIdPermisDissenyar(
 				entornActual.getId(),
 				id);
 		ExpedientTipusCommand command = conversioTipusHelper.convertir(
@@ -209,7 +209,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute(
 				"expedientTipus",
-				expedientTipusService.findAmbIdPerDissenyar(
+				expedientTipusService.findAmbIdPermisDissenyar(
 						entornActual.getId(),
 						id));
 		return "v3/expedientTipusPermis";
@@ -223,7 +223,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute(
 				"expedientTipus",
-				expedientTipusService.findAmbIdPerDissenyar(
+				expedientTipusService.findAmbIdPermisDissenyar(
 						entornActual.getId(),
 						id));
 		model.addAttribute(new PermisCommand());
@@ -253,7 +253,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		model.addAttribute(
 				"expedientTipus",
-				expedientTipusService.findAmbIdPerDissenyar(
+				expedientTipusService.findAmbIdPermisDissenyar(
 						entornActual.getId(),
 						id));
 		PermisDto permis = expedientTipusService.permisFindById(
@@ -274,10 +274,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@Valid PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
         if (bindingResult.hasErrors()) {
+        	model.addAttribute(
+    				"expedientTipus",
+    				expedientTipusService.findAmbIdPermisDissenyar(
+    						entornActual.getId(),
+    						id));
         	return "v3/expedientTipusPermisForm";
         } else {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		expedientTipusService.permisUpdate(
     				entornActual.getId(),
     				id,
@@ -304,7 +309,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				permisId);
 		model.addAttribute(
 				"expedientTipus",
-				expedientTipusService.findAmbIdPerDissenyar(
+				expedientTipusService.findAmbIdPermisDissenyar(
 						entornActual.getId(),
 						id));
 		model.addAttribute(new PermisCommand());

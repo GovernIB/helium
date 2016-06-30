@@ -58,7 +58,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerExcep
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -83,11 +83,13 @@ public class TascaTramitacioController extends BaseTascaController {
 	public static final String VARIABLE_COMMAND_TRAMITACIO = "variableCommandTramitacio";
 
 	@Autowired
-	protected ExpedientService expedientService;
+	protected ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	protected TascaService tascaService;
 	@Autowired
 	protected ExecucioMassivaService execucioMassivaService;
+
+
 
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
@@ -442,7 +444,10 @@ public class TascaTramitacioController extends BaseTascaController {
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
+			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
+					tascaId,
+					documentCodi,
+					nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
@@ -484,7 +489,10 @@ public class TascaTramitacioController extends BaseTascaController {
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
-			} else if (!expedientService.isExtensioDocumentPermesa(nomArxiu)) {
+			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
+					tascaId,
+					documentCodi,
+					nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
@@ -1364,7 +1372,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				params[0] = entorn.getId();
 				params[1] = documentCodi;
 				params[2] = (data == null) ? new Date() : data;
-				generat = expedientService.generarDocumentAmbPlantillaTasca(
+				generat = expedientDocumentService.generarAmbPlantillaPerTasca(
 						tascaId,
 						documentCodi);
 				params[3] = generat.getContingut();
@@ -1386,7 +1394,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} else {
 			try {
-				generat = expedientService.generarDocumentAmbPlantillaTasca(
+				generat = expedientDocumentService.generarAmbPlantillaPerTasca(
 						tascaId,
 						documentCodi);
 				MissatgesHelper.success(request, getMessage(request, "info.document.generat"));

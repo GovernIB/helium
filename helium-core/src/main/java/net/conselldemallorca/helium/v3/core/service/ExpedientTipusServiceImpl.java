@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -36,9 +37,9 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -49,10 +50,9 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 
@@ -61,15 +61,13 @@ import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("expedientTipusServiceV3")
+@Service
 public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private SequenciaAnyRepository sequenciaRepository;
 	@Resource
@@ -94,6 +92,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private PaginacioHelper paginacioHelper;
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public ExpedientTipusDto create(
@@ -136,13 +137,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
-		// Els tipus d'expedient creats amb la interfície nova es marquen amb el flag a true 
-		entity.setAmbInfoPropia(true);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public ExpedientTipusDto update(
@@ -201,6 +203,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void delete(
@@ -220,13 +225,52 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipusRepository.delete(entity);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permisos de consulta (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		if (!entornHelper.potDissenyarEntorn(entornId)) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			permisosHelper.filterGrantedAny(
+					tipuss,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							ExtendedPermission.DESIGN_ADMIN,
+							ExtendedPermission.DESIGN_DELEG,
+							ExtendedPermission.ADMINISTRATION},
+					auth);
+		}
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
-	public ExpedientTipusDto findAmbIdPerDissenyar(
+	public ExpedientTipusDto findAmbIdPermisConsultar(
 			Long entornId,
 			Long expedientTipusId) {
 		logger.debug(
-				"Consultant tipus d'expedient amb id (" +
+				"Consultant tipus d'expedient amb id i amb permisos de consulta (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
@@ -246,13 +290,162 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					false,
 					false,
 					false,
-					true);			
-		}		
+					false,
+					true);
+		}
 		return conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntornPermisDissenyar(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permisos de disseny (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		if (!entornHelper.potDissenyarEntorn(entornId)) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			permisosHelper.filterGrantedAny(
+					tipuss,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							ExtendedPermission.DESIGN_ADMIN,
+							ExtendedPermission.DESIGN_DELEG,
+							ExtendedPermission.ADMINISTRATION},
+					auth);
+		}
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbIdPermisDissenyar(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id i amb permisos de disseny (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		ExpedientTipus tipus;
+		if (entornHelper.potDissenyarEntorn(entornId)) {
+			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
+			tipus = expedientTipusRepository.findByEntornAndId(
+					entorn,
+					expedientTipusId);
+		} else {
+			// Si no te permisos de disseny a damunt l'entorn només es poden veure
+			// els tipus amb permisos de disseny
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					expedientTipusId,
+					false,
+					false,
+					false,
+					false,
+					true);
+		}
+		return conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
+			Long entornId) {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permis de creació (" +
+				"entornId=" + entornId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		if (!entornHelper.potDissenyarEntorn(entornId)) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			permisosHelper.filterGrantedAny(
+					tipuss,
+					new ObjectIdentifierExtractor<ExpedientTipus>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
+							return expedientTipus.getId();
+						}
+					},
+					ExpedientTipus.class,
+					new Permission[] {
+							ExtendedPermission.CREATE,
+							ExtendedPermission.ADMINISTRATION},
+					auth);
+		}
+		return conversioTipusHelper.convertirList(
+				tipuss,
+				ExpedientTipusDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientTipusDto findAmbIdPermisCrear(
+			Long entornId,
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant tipus d'expedient amb id i amb permis de creació (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + expedientTipusId + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		ExpedientTipus tipus;
+		if (entornHelper.potDissenyarEntorn(entornId)) {
+			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
+			tipus = expedientTipusRepository.findByEntornAndId(
+					entorn,
+					expedientTipusId);
+		} else {
+			// Si no te permisos de disseny a damunt l'entorn només es poden veure
+			// els tipus amb permisos de disseny
+			tipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+					expedientTipusId,
+					false,
+					false,
+					true,
+					false,
+					false);
+		}
+		return conversioTipusHelper.convertir(
+				tipus,
+				ExpedientTipusDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
@@ -264,12 +457,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"codi = " + codi + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true);				
+				true);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.findByEntornAndCodi(entorn, codi),
 				ExpedientTipusDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientTipusDto> findPerDatatable(
@@ -305,9 +501,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		PaginaDto<ExpedientTipusDto> pagina = paginacioHelper.toPaginaDto(
 				expedientTipusRepository.findByFiltreGeneralPaginat(
 						entorn, 
-						tipusPermesosIds, 
-						filtre == null || "".equals(filtre), 
-						filtre, 
+						tipusPermesosIds,
+						filtre == null || "".equals(filtre),
+						filtre,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				ExpedientTipusDto.class);
@@ -327,9 +523,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return pagina;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
-	public PermisDto permisUpdate(
+	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
 			PermisDto permis) {
@@ -348,9 +547,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusId,
 				ExpedientTipus.class,
 				permis);
-		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void permisDelete(
@@ -374,6 +575,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				permisId);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<PermisDto> permisFindAll(
@@ -394,6 +598,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipus.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PermisDto permisFindById(
@@ -427,6 +634,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	// MANTENIMENT DE CAMPS
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public CampDto campCreate(
@@ -496,6 +706,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public CampDto campUpdate(CampDto camp) throws NoTrobatException, PermisDenegatException {
@@ -558,6 +771,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void campDelete(Long campCampId) throws NoTrobatException, PermisDenegatException {
@@ -588,6 +804,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CampDto campFindAmbId(Long id) throws NoTrobatException {
 		logger.debug(
@@ -599,6 +818,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CampDto campFindAmbCodiPerValidarRepeticio(Long expedientTipusId, String codi) throws NoTrobatException {
 		logger.debug(
@@ -611,6 +833,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampDto.class);
 	}	
 		
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<CampDto> campFindPerDatatable(
@@ -638,6 +863,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	// MANTENIMENT D'AGRUPACIONS DE CAMPS
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public List<CampAgrupacioDto> agrupacioFindAll(
@@ -659,6 +887,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									CampAgrupacioDto.class);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CampAgrupacioDto agrupacioFindAmbId(Long id) throws NoTrobatException {
 		logger.debug(
@@ -671,6 +902,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 	
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public CampAgrupacioDto agrupacioCreate(
@@ -697,6 +931,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampAgrupacioDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public CampAgrupacioDto agrupacioUpdate(
@@ -716,6 +953,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampAgrupacioDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void agrupacioDelete(Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
@@ -745,6 +985,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			campAgrupacio.setOrdre(i++);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(
 								Long expedientTipusId, 
@@ -759,6 +1002,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				CampAgrupacioDto.class);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public boolean campAfegirAgrupacio(
@@ -778,6 +1024,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return ret;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public boolean campRemoureAgrupacio(Long campId) {
@@ -832,6 +1081,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	/***********************************************/
 	/******************DOCUMENTS********************/
 	/***********************************************/
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<DocumentDto> documentFindPerDatatable(
@@ -852,4 +1104,5 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 						DocumentDto.class);
 	}
+
 }

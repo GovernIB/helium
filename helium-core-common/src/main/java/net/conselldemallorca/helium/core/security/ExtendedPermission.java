@@ -16,7 +16,8 @@ public class ExtendedPermission extends BasePermission {
 	private static final long serialVersionUID = 1L;
 
 	/* Permisos existents */
-	/*public static final Permission READ = new ExtendedPermission(1 << 0, 'R'); // 1
+	/*
+	public static final Permission READ = new ExtendedPermission(1 << 0, 'R'); // 1
 	public static final Permission WRITE = new ExtendedPermission(1 << 1, 'W'); // 2
 	public static final Permission CREATE = new ExtendedPermission(1 << 2, 'C'); // 4
 	public static final Permission DELETE = new ExtendedPermission(1 << 3, 'D'); // 8

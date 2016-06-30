@@ -30,10 +30,10 @@
 			}
 			return false;
 		});
-	});		
+	});
 	function recargarPanel (processInstanceId, correcte) {
 		if (correcte) {
-			var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/accions/"/>' + processInstanceId;
+			var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + '/accio';
 			var panell = $("#dataTable_accio_"+processInstanceId);
 			panell.load(url);
 		}

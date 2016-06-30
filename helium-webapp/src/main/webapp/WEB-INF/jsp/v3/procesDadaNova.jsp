@@ -32,14 +32,6 @@
 	<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 
 	<c:set var="command" value="${addVariableCommand}"/>
-<%-- 		<hel:inputSelect name="varCodi" --%>
-<%-- 			emptyOption="true" --%>
-<%-- 			placeholder="Selecciona una variable" --%>
-<%-- 			optionItems="${camps}" --%>
-<%-- 			optionValueAttribute="codi" --%>
-<%-- 			optionTextAttribute="etiqueta" --%>
-<%-- 			textKey="expedient.dada.variable"/> --%>
-	
 	<c:set var="campErrors"><form:errors path="varCodi"/></c:set>	
 	<div id="selCamp" class="form-group">
 		<label class="control-label col-xs-3 obligatori" for="varCodi"><spring:message code="expedient.dada.variable"/></label>
@@ -125,9 +117,6 @@
 										<button id="button_add_var_mult_${campCodi}" type="button" class="btn btn-default pull-left btn_afegir btn_multiple"><spring:message code='comuns.afegir' /></button>
 										<div class="clear"></div>
 										<c:if test="${not empty campErrorsMultiple}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dada.varCodi}"/></p></c:if>
-									
-								
-							
 						</c:when>
 						<c:otherwise>
 							<c:set var="campCodi" value="${dada.varCodi}"/>
@@ -143,7 +132,6 @@
 		</c:if>
 	</div>
 </form:form>
-
 <script type="text/javascript">
 	var codi = "${varCodi}";
 	var procesId = "${procesId}";
@@ -166,8 +154,6 @@
 		});
 		$("#varCodi").on("change", function(e) {
 			var ruta = document.URL; 
-			ruta = ruta.substring(0, ruta.indexOf("novaDada") + 8) + "/" + procesId + "/" + e.val;
-// 				alert(ruta);
 			$("#command").attr('action', ruta);
 			if (e.val == "") {
 				$("#nova").addClass("hide");
@@ -180,7 +166,7 @@
 				$("#valordada").removeClass("hide");
 				$("#nova").addClass("hide");
 				if (e.val != codi)
-					window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + e.val);
+					window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + e.val + '/new');
 			}
 			codi = e.val;
 		});
@@ -194,7 +180,7 @@
 				$("#valordada").removeClass("hide");
 				$("#nova").addClass("hide");
 				if ($("#varCodi").val() != codi)
-					$("#formulari").load('<c:url value="/v3/expedient/${expedientId}/novaDada/${procesId}/"/>' + $("#varCodi").val());
+					$("#formulari").load('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + $("#varCodi").val() + '/update');
 			}
 		}
 		$("button:submit").click(function(){

@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
@@ -55,6 +56,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientRegistreService expedientRegistreService;
 
 	@Autowired
 	private AplicacioService aplicacioService;
@@ -245,7 +248,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			if (expedient.isPermisAdministration()) {
-				expedientService.registreBuidarLog(
+				expedientRegistreService.registreBuidarLog(
 						expedient.getId());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.buidatlog"));
 			} else {

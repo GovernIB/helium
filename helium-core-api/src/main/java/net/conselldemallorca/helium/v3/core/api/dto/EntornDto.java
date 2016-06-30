@@ -10,26 +10,16 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class EntornDto implements Serializable {
-	private static final long serialVersionUID = 1L;
-	
-	public EntornDto(Long id, String codi, String nom) {
-		super();
-		this.id = id;
-		this.codi = codi;
-		this.nom = nom;
-	}
-
-	public EntornDto() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+public class EntornDto extends ControlPermisosDto implements Serializable {
 
 	private Long id;
 	private String codi;
 	private String nom;
 	private String descripcio;
 	private boolean actiu;
+
+	private int permisCount = 0;
+
 	public Long getId() {
 		return id;
 	}
@@ -60,4 +50,13 @@ public class EntornDto implements Serializable {
 	public void setActiu(boolean actiu) {
 		this.actiu = actiu;
 	}
+	public int getPermisCount() {
+		return permisCount;
+	}
+	public void setPermisCount(int permisCount) {
+		this.permisCount = permisCount;
+	}
+
+	private static final long serialVersionUID = 2677183498182144912L;
+
 }

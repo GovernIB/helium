@@ -9,11 +9,14 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 
 /**
  * EJB per a EntornService.
@@ -27,7 +30,32 @@ public class EntornServiceBean implements EntornService {
 	@Autowired
 	EntornService delegate;
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public EntornDto create(EntornDto entorn) {
+		return delegate.create(entorn);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public EntornDto update(EntornDto entorn) {
+		return delegate.update(entorn);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public void delete(Long entornId) {
+		delegate.delete(entornId);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -45,6 +73,83 @@ public class EntornServiceBean implements EntornService {
 	@RolesAllowed("HEL_ADMIN")
 	public List<EntornDto> findActiusAll() {
 		return delegate.findActiusAll();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public PaginaDto<EntornDto> findPerDatatable(
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findPerDatatable(
+				filtre,
+				paginacioParams);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public EntornDto findOne(Long entornId) {
+		return delegate.findOne(entornId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public EntornDto findAmbCodi(String entornCodi) {
+		return delegate.findAmbCodi(entornCodi);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public void permisUpdate(
+			Long entornId,
+			PermisDto permis) {
+		delegate.permisUpdate(
+				entornId,
+				permis);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public void permisDelete(
+			Long entornId,
+			Long permisId) {
+		delegate.permisDelete(
+				entornId,
+				permisId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public List<PermisDto> permisFindAll(Long entornId) {
+		return delegate.permisFindAll(entornId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed("HEL_ADMIN")
+	public PermisDto permisFindById(Long entornId, Long permisId) {
+		return delegate.permisFindById(
+				entornId,
+				permisId);
 	}
 
 }

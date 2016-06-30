@@ -30,9 +30,8 @@
 	</style>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal form-tasca" action="documentAdjuntar" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="new" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
-			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${processInstanceId}"/>
 			<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
 			<div class="form-group">
 				<label class="control-label col-xs-4 obligatori" for="nom"><spring:message code='expedient.document.arxiu' /></label>

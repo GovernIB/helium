@@ -56,7 +56,7 @@
 	</style>
 </head>
 <body>
-	<form:form action="terminiModificar" commandName="expedientTerminiModificarCommand">
+	<form:form action="modificar" commandName="expedientTerminiModificarCommand">
 		<div class="inlineLabels">
 			<div id="tipus_termini">
 				<label><spring:message code="expedient.termini.modificar.tipus"/></label>

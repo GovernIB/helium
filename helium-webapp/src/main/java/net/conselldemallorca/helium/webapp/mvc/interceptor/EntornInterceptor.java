@@ -10,27 +10,23 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.service.AlertaService;
-import net.conselldemallorca.helium.core.model.service.PermissionService;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.EntornActual;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
-import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-import net.conselldemallorca.helium.v3.core.api.service.EntornService;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.service.AlertaService;
+import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
@@ -47,20 +43,12 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 	private EntornService entornService;
 	@Resource
 	private AplicacioService aplicacioService;
-	@Resource(name="dissenyServiceV3")
-	private DissenyService dissenyService;
 	@Resource
-	private PermissionService permissionService;
-
+	private ExpedientTipusService expedientTipusService;
+	@Resource
 	private AlertaService alertaService;
 
-	private boolean isRequestResource(HttpServletRequest request) {
-		String uri = request.getRequestURI();
-		String root = request.getContextPath();
-		if (uri.contains(root + "/img/") || uri.contains(root + "/css/") || uri.contains(root + "/js/"))
-			return true;
-		return false;
-	}
+
 
 	public boolean preHandle(
 			HttpServletRequest request,
@@ -74,7 +62,6 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			String canviEntorn = request.getParameter(VARIABLE_REQUEST_CANVI_ENTORN);
 			List<EntornDto> entorns = entornService.findActiusAmbPermisAcces();
 			request.setAttribute("entorns", entorns);
-			
 			// Nova implementació
 			if (entorns.size() == 0) {
 				if (request.getServletPath().startsWith("/v3")) {
@@ -93,7 +80,6 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					}
 				} else {
 					if (entornSessio == null) {
-						
 						UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
 						if (prefs != null) {
 							if (prefs.getDefaultEntornCodi() != null) {
@@ -113,14 +99,15 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 								setEntornActual(request, entornActual);
 							}
 							if (prefs.getExpedientTipusDefecteId() != null) {
-								for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {
-									if (expTipus.getId().equals(prefs.getExpedientTipusDefecteId())) {
-										SessionHelper.setAttribute(
-												request,
-												SessionHelper.VARIABLE_EXPTIP_ACTUAL,
-												expTipus);
-										break;
-									}							
+								try {
+									SessionHelper.setAttribute(
+											request,
+											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
+											expedientTipusService.findAmbIdPermisConsultar(
+													EntornActual.getEntornId(),
+													prefs.getExpedientTipusDefecteId()));
+								} catch (Exception ignored) {
+									// Si no el troba símplement no el selecciona
 								}
 							}
 						} else {
@@ -139,77 +126,20 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					}
 				}
 			}
-			
-			
-			
-			// Si en el request existeix el paràmetre de selecció d'entorn
-			// canvia l'entorn actual
-//			if (canviEntorn != null) {
-//				Long entornId = new Long(canviEntorn);
-//				for (EntornDto entorn: entorns) {
-//					if (entorn.getId().longValue() == entornId.longValue()) {
-//						entornActual = entorn;
-//						setEntornActual(request, entornActual);
-//						break;
-//					}
-//				}
-//			} else if (entornSessio == null) {
-//				if (entorns.size() == 1) {
-//					entornActual = entorns.get(0);
-//					setEntornActual(request, entornActual);
-//				} else {
-//					UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
-//					if (prefs != null) {
-//						if (prefs.getDefaultEntornCodi() != null) {
-//							for (EntornDto entorn: entorns) {
-//								if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
-//									entornActual = entorn;
-//									setEntornActual(request, entornActual);
-//									break;
-//								}
-//							}
-//						} else if (request.getRequestURI().startsWith(BaseController.ESQUEMA_PREFIX+"/v3") && !entorns.isEmpty()) {
-//							entornActual = entorns.get(0);
-//							setEntornActual(request, entornActual);
-//						}
-//						if (prefs.getExpedientTipusDefecteId() != null) {
-//							for (ExpedientTipusDto expTipus : dissenyService.findExpedientTipusAmbPermisReadUsuariActual(EntornActual.getEntornId())) {
-//								if (expTipus.getId().equals(prefs.getExpedientTipusDefecteId())) {
-//									SessionHelper.setAttribute(
-//											request,
-//											SessionHelper.VARIABLE_EXPTIP_ACTUAL,
-//											expTipus);
-//									break;
-//								}							
-//							}
-//						}
-//					}
-//				}
-//			} else {
-//				for (EntornDto entorn: entorns) {
-//					if (entorn.getCodi().equals(entornSessio.getCodi())) {
-//						entornActual = entorn;
-//						break;
-//					}
-//				}
-//				if (entornActual != null && EntornActual.getEntornId() == null)
-//					EntornActual.setEntornId(entornActual.getId());
-//			}
 			// Inicialitza la variable ThreadLocal de l'expedient que s'està iniciant
 			ExpedientIniciantDto.setExpedient(null);
 			if (entornActual != null) {
 				// Actualitza si hi ha expedients per iniciar
-				List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbPermisCrearUsuariActual(
+				List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(
 						entornActual.getId());
 				SessionHelper.setAttribute(
 						request,
 						SessionHelper.VARIABLE_HIHA_TRAMITS_INICIABLES,
-						new Boolean(tipus.size() > 0));
+						new Boolean(tipusCrear.size() > 0));
 				// Indica si hi ha alertes no llegides
 				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				int alertesNoLlegides = alertaService.countActivesAmbEntornIUsuari(entornActual.getId(), auth.getName(), AlertaService.ALERTAS_NO_LLEGIDES);
 				request.setAttribute(VARIABLE_REQUEST_ALERTES_NOLLEGIDES, alertesNoLlegides > 0);
-				
 				// Refresca el tipus d'expedient actual
 				@SuppressWarnings("unchecked")
 				List<ExpedientTipusDto> accessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
@@ -234,19 +164,21 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 								SessionHelper.VARIABLE_EXPTIP_ACTUAL);
 					}
 				}				
-				
 				// Consultas por tipo
 				if (canviEntorn != null || canviExpedientTipus != null || SessionHelper.getAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES) == null) {
-					accessibles = dissenyService.findExpedientTipusAmbPermisReadUsuariActual(entornActual.getId());
+					accessibles = expedientTipusService.findAmbEntornPermisConsultar(
+							entornActual.getId());
 					SessionHelper.setAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES, accessibles);
-					
 					List<ExpedientTipusDto> accessiblesConConsultasActivas = new ArrayList<ExpedientTipusDto>();
 					for (ExpedientTipusDto expedientTipus: accessibles) {
 						if (!expedientTipus.getConsultes().isEmpty()) {
 							accessiblesConConsultasActivas.add(expedientTipus);
 						}
 					}
-					SessionHelper.setAttribute(request, SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES, accessiblesConConsultasActivas);
+					SessionHelper.setAttribute(
+							request,
+							SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES,
+							accessiblesConConsultasActivas);
 				}
 			}
 		}
@@ -260,13 +192,6 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 			Exception ex) {
 		EntornActual.setEntornId(null);
 		ExpedientIniciantDto.setExpedient(null);
-	}
-
-
-
-	@Autowired
-	public void setAlertaService(AlertaService alertaService) {
-		this.alertaService = alertaService;
 	}
 
 
@@ -291,43 +216,12 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 		// Emmagatzema els permisos per a l'entorn actual a la sessió de l'usuari
 		SessionHelper.setAttribute(
 				request,
-				SessionHelper.VARIABLE_PERMIS_ENTORN_READ,
-				permissionService.isGrantedAny(
-						ent,
-						Entorn.class,
-						new Permission[] {
-							ExtendedPermission.ADMINISTRATION,
-							ExtendedPermission.READ}));
-		SessionHelper.setAttribute(
-				request,
 				SessionHelper.VARIABLE_PERMIS_ENTORN_DESIGN,
-				permissionService.isGrantedAny(
-						ent,
-						Entorn.class,
-						new Permission[] {
-							ExtendedPermission.ADMINISTRATION,
-							ExtendedPermission.DESIGN}));
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_PERMIS_ENTORN_ORGANIZATION,
-				permissionService.isGrantedAny(
-						ent,
-						Entorn.class,
-						new Permission[] {
-							ExtendedPermission.ADMINISTRATION,
-							ExtendedPermission.ORGANIZATION}));
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_PERMIS_ENTORN_ADMINISTRATION,
-				permissionService.isGrantedAny(
-						ent,
-						Entorn.class,
-						new Permission[] {
-							ExtendedPermission.ADMINISTRATION}));
+				entorn.isPermisDesign());
 		// Guarda l'entorn actual
 		EntornActual.setEntornId(entorn.getId());
 		// Al canviar d'entorn hem de reconfigurar algunes variables de sessió
-		List<ExpedientTipusDto> expedientsTipusAmbPermisDisseny = dissenyService.findExpedientTipusAmbPermisDissenyUsuariActual(
+		List<ExpedientTipusDto> expedientsTipusAmbPermisDisseny = expedientTipusService.findAmbEntornPermisDissenyar(
 				entorn.getId());
 		SessionHelper.setAttribute(
 				request,
@@ -337,16 +231,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				request,
 				SessionHelper.VARIABLE_PREFERENCIES_USUARI,
 				aplicacioService.getUsuariPreferencies());
-		List<ExpedientTipusDto> expedientsTipusAmbPermisGestio = dissenyService.findExpedientTipusAmbPermisGestioUsuariActual(
-				entorn.getId());
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_PERMIS_EXPTIP_GESTIO,
-				new Boolean(!expedientsTipusAmbPermisGestio.isEmpty()));
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES,
-				dissenyService.findExpedientTipusAmbPermisReadUsuariActual(
+				expedientTipusService.findAmbEntornPermisConsultar(
 						entorn.getId()));
 		// Eliminam expedient actual
 		SessionHelper.removeAttribute(
@@ -362,6 +250,14 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 		SessionHelper.removeAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS);
+	}
+
+	private boolean isRequestResource(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		String root = request.getContextPath();
+		if (uri.contains(root + "/img/") || uri.contains(root + "/css/") || uri.contains(root + "/js/"))
+			return true;
+		return false;
 	}
 
 }

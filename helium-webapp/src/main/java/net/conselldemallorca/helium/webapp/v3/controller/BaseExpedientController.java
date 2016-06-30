@@ -51,7 +51,9 @@ public class BaseExpedientController extends BaseController {
 //		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		int numAccions = 0;
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			List<AccioDto> accionsTrobades = expedientService.findAccionsVisiblesAmbProcessInstanceId(instanciaProces.getId(), expedientId);
+			List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(
+					expedientId,
+					instanciaProces.getId());
 //			accions.put(instanciaProces, accionsTrobades);
 			numAccions += accionsTrobades.size();
 		}

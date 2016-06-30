@@ -76,10 +76,51 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusDto findAmbIdPerDissenyar(
+	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
+			Long entornId) throws NoTrobatException {
+		return findAmbEntornPermisConsultar(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisConsultar(
 			Long entornId,
 			Long expedientTipusId) {
-		return delegate.findAmbIdPerDissenyar(
+		return delegate.findAmbIdPermisConsultar(
+				entornId,
+				expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntornPermisDissenyar(
+			Long entornId) throws NoTrobatException {
+		return findAmbEntornPermisDissenyar(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisDissenyar(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPermisDissenyar(
+				entornId,
+				expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
+			Long entornId) throws NoTrobatException {
+		return findAmbEntornPermisCrear(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbIdPermisCrear(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findAmbIdPermisCrear(
 				entornId,
 				expedientTipusId);
 	}
@@ -108,11 +149,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PermisDto permisUpdate(
+	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
 			PermisDto permis) throws NoTrobatException, PermisDenegatException {
-		return delegate.permisUpdate(
+		delegate.permisUpdate(
 				entornId,
 				expedientTipusId,
 				permis);

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -52,9 +53,18 @@ public class UsuariActualHelper {
 				Entorn.class,
 				new Permission[] {BasePermission.ADMINISTRATION, BasePermission.READ},
 				SecurityContextHolder.getContext().getAuthentication());
-		return conversioTipusHelper.convertirList(
+		List<EntornDto> dtos = conversioTipusHelper.convertirList(
 				entorns,
 				EntornDto.class);
+		List<Long> ids = new ArrayList<Long>();
+		for (EntornDto dto: dtos) {
+			ids.add(dto.getId());
+		}
+		permisosHelper.omplirControlPermisosSegonsUsuariActual(
+				ids,
+				dtos,
+				Entorn.class);
+		return dtos;
 	}
 
 	@CacheEvict(value = "entornsUsuariActual", allEntries = true)

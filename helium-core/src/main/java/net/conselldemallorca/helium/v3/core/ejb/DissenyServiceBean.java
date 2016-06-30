@@ -17,10 +17,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 @Stateless
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class DissenyServiceBean implements DissenyService {
+
 	@Autowired
 	DissenyService delegate;
 
@@ -194,8 +197,25 @@ public class DissenyServiceBean implements DissenyService {
 	}
 
 	@Override
-	public List<FilaResultat> consultaDominiIntern(String id, List<ParellaCodiValor> parametres) throws Exception {
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<FilaResultat> consultaDominiIntern(
+			String id,
+			List<ParellaCodiValor> parametres) throws Exception {
 		return delegate.consultaDominiIntern(id, parametres);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto documentFindOne(
+			Long documentId) throws NoTrobatException {
+		return delegate.documentFindOne(documentId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DocumentDto> documentFindAmbDefinicioProces(
+			Long definicioProcesId) throws NoTrobatException {
+		return delegate.documentFindAmbDefinicioProces(definicioProcesId);
 	}
 
 }

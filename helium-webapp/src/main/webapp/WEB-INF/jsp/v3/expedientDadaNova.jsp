@@ -16,7 +16,7 @@
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 		<button class="btn btn-primary right" type="submit" name="accio" value="desar_variable">
-			<spring:message code='comuns.guardar' />
+			<spring:message code="comuns.guardar"/>
 		</button>
 	</div>
 </body>

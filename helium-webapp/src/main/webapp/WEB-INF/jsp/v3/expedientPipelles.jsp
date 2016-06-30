@@ -19,6 +19,7 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+
 <style type="text/css">
 	#expedient-info h3 {
 		font-weight: bold;
@@ -73,6 +74,7 @@
 		margin-top: -4px;
 	}
 </style>
+
 <script type="text/javascript">
 	$(document).ready(function() {		
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -109,17 +111,15 @@
 		    allowClear: true,
 		    minimumResultsForSearch: 10
 		});
-
-		//Per defecte, si no s'especifica al fitxer de properties
-		//tendrem un interval que executa una funció cada 10 segons per a refrescar les
-		//ícones d'estat de les tasques en segon pla
+		// Per defecte, si no s'especifica al fitxer de properties
+		// tendrem un interval que executa una funció cada 10 segons per a refrescar les
+		// ícones d'estat de les tasques en segon pla
 		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
 		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 		</c:if>
 	});
-
 	function refrescaEstatSegonPla() {
 		var tasquesSegonPlaIds = [];
 		$('span.segon-pla-icona').each(function (index, value) {
@@ -177,7 +177,6 @@
 			});
 		}
 	}
-	
 	function carregaTab(targetHref) {
 		//mostrem cada cop l'icona de càrrega
 		$(targetHref).html('<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>'); 
@@ -194,7 +193,6 @@
 			}
 		);
 	}
-
 	function reestructura (proces, correcte) {
 		if (correcte) {
 			panell = $('#panel_' + proces);
@@ -202,10 +200,9 @@
 			var ambOcults = "";
 			if ($("#ambOcults").length)
 				ambOcults = $("#ambOcults").prop('checked');
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + proces, {"ambOcults": ambOcults}, updatePanell);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + proces + '/dada', {"ambOcults": ambOcults}, updatePanell);
 		}
 	};
-	
 	function refrescarAlertas() {
 		$.ajax({
 			url: "<c:url value="/nodeco/v3/missatges"/>",
@@ -216,7 +213,6 @@
 			}
 		});
 	}
-		
 	function confirmarEsborrarRelacio(e, idExpedient) {
 		var e = e || window.event;
 		e.cancelBubble = true;
@@ -336,25 +332,24 @@
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/delete"/>" data-rdt-link-confirm="<spring:message code="expedient.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</c:if>
 							<li class="divider"></li>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+							<c:if test="${expedient.permisWrite}">
 								<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.info.accio.modificar"/></a></li>
 							</c:if>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+							<c:if test="${expedient.permisRelate}">
 								<li><a data-rdt-link-modal-min-height="190" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/relacionats"/>"><span class="fa fa-link"></span>&nbsp;<spring:message code="expedient.info.accio.relacionar"/></a></li>
 							</c:if>
-<%-- 							<c:if test="${expedient.permisWrite or expedient.permisAdministration}"> --%>
-							<c:if test="${expedient.permisAdministration}">
+							<c:if test="${expedient.permisScriptExe}">
 								<li><a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/execucions"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.accio.script"/></a></li>
 							</c:if>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+							<c:if test="${expedient.permisUndoEnd}">
 								<c:if test="${not empty expedient.dataFi}">
 									<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
 								</c:if>
 							</c:if>
-							<c:if test="${expedient.permisWrite or expedient.permisAdministration}">
+							<c:if test="${expedient.permisWrite}">
 								<li><a data-rdt-link-confirm="<spring:message code="expedient.accio.reindexa.confirmacio"/>" href="<c:url value="../../v3/expedient/${expedientId}/reindexa"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.info.accio.reindexa"/></a></li>
 							</c:if>
-							<c:if test="${expedient.permisAdministration}">
+							<c:if test="${expedient.permisLogManage}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
 							</c:if>
 						</ul>
@@ -399,13 +394,11 @@
 				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.documents"/></a></li>
 				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.cronograma"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
-				<c:if test="${expedient.permisRead or expedient.permisSupervision or expedient.permisAdministration}">
-					<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
-				</c:if>
-				<c:if test="${expedient.permisAdministration}">
+				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
+				<c:if test="${expedient.permisTokenRead}">
 					<li id="pipella-tokens"><a href="#contingut-tokens" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tokens"/></a></li>
 				</c:if>
-				<c:if test="${expedient.permisSupervision or expedient.permisAdministration}">
+				<c:if test="${expedient.permisLogRead}">
 					<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
 				</c:if>
 				<c:if test="${numAccions > 0}">
@@ -419,29 +412,27 @@
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/document"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<c:if test="${expedient.permisRead or expedient.permisSupervision or expedient.permisAdministration}">
-					<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
-						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-					</div>
-				</c:if>
 				<div id="contingut-cronograma" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/timeline"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/terminis"/>">
+				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/termini"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<c:if test="${expedient.permisAdministration}">
-					<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tokens"/>">
+				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<c:if test="${expedient.permisTokenRead}">
+					<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/token"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
-				<c:if test="${expedient.permisSupervision or expedient.permisAdministration}">
+				<c:if test="${expedient.permisLogRead}">
 					<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
 				<c:if test="${numAccions > 0}">
-					<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accions"/>">
+					<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/accio"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>

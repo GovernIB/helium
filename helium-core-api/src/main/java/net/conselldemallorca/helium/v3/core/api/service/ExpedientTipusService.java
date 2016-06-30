@@ -85,7 +85,21 @@ public interface ExpedientTipusService {
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
 	/**
-	 * Retorna un tipus d'expedient donat el seu id.
+	 * Retorna els tipus d'expedient d'un entorn que es poden consultar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return Els tipus d'expedient amb permis de consulta.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
+			Long entornId) throws NoTrobatException;
+
+	/**
+	 * Retorna un tipus d'expedient donat el seu id per a consultar.
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn.
@@ -97,7 +111,69 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public ExpedientTipusDto findAmbIdPerDissenyar(
+	public ExpedientTipusDto findAmbIdPermisConsultar(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna els tipus d'expedient d'un entorn que es poden dissenyar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return Els tipus d'expedient amb permisos de disseny.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisDissenyar(
+			Long entornId) throws NoTrobatException;
+
+	/**
+	 * Retorna un tipus d'expedient donat el seu id per a dissenyar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return El tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto findAmbIdPermisDissenyar(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna els tipus d'expedient d'un entorn que es poden iniciar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return Els tipus d'expedient amb permis de creació.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
+			Long entornId) throws NoTrobatException;
+
+	/**
+	 * Retorna un tipus d'expedient donat el seu id per a iniciar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return El tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto findAmbIdPermisCrear(
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
@@ -148,7 +224,7 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public PermisDto permisUpdate(
+	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
 			PermisDto permis) throws NoTrobatException, PermisDenegatException;
@@ -208,8 +284,7 @@ public interface ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			Long permisId) throws NoTrobatException, PermisDenegatException;
-	
-	
+
 	/**
 	 * Retorna les agrupacions per a un tipus d'expedient.
 	 * 
