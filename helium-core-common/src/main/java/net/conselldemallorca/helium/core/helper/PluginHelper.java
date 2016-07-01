@@ -1178,29 +1178,39 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 
 		try {
-			if (document == null) {
-				throw new NullPointerException("El document per a enviar a portafirmes es null.");
-			}
 			
-			parametres = new IntegracioParametreDto[6];
+			parametres = new IntegracioParametreDto[9];
 			parametres[0] = new IntegracioParametreDto(
 					"expedient",
 					expedient != null ? expedient.getIdentificador() : null);
 			parametres[1] = new IntegracioParametreDto(
 					"documentCodi",
-					document.getDocumentCodi());
+					document != null ? document.getDocumentCodi() : null);
 			parametres[2] = new IntegracioParametreDto(
 					"documentNom",
-					document.getDocumentNom());
+					document != null ? document.getDocumentNom() : null);
 			parametres[3] = new IntegracioParametreDto(
 					"documentTipus",
-					document.getTipusDocPortasignatures());
+					document != null ? document.getTipusDocPortasignatures() : null);
 			parametres[4] = new IntegracioParametreDto(
 					"arxiuNom",
-					document.getArxiuNom());
+					document != null ? document.getArxiuNom() : null);
 			parametres[5] = new IntegracioParametreDto(
 					"personaCodi",
 					persona != null ? persona.getCodi() : null);
+			parametres[6] = new IntegracioParametreDto(
+					"personesCodiPas1",
+					personestoString(personesPas1));
+			parametres[7] = new IntegracioParametreDto(
+					"personesCodiPas2",
+					personestoString(personesPas2));
+			parametres[8] = new IntegracioParametreDto(
+					"personesCodiPas3",
+					personestoString(personesPas3));
+			
+			if (document == null) {
+				throw new NullPointerException("El document per a enviar a portafirmes es null.");
+			}
 			
 			Integer resposta = getPortasignaturesPlugin().uploadDocument(
 					getDocumentPortasignatures(document, expedient),
@@ -1238,9 +1248,9 @@ public class PluginHelper {
 			return resposta;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut enviar el document al portafirmes (" +
-					"documentId=" + document == null ? "NULL" : document.getId() + ", " +
-					"destinatari=" + persona == null ? "NULL" : persona.getCodi() + ", " +
-					"expedient=" + expedient == null ? "NULL" : expedient.getIdentificador() + ")";
+					"documentId=" + (document == null ? "NULL" : document.getId()) + ", " +
+					"destinatari=" + (persona == null ? "NULL" : persona.getCodi()) + ", " +
+					"expedient=" + (expedient == null ? "NULL" : expedient.getIdentificador()) + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Enviar document a firmar",
@@ -1265,6 +1275,20 @@ public class PluginHelper {
 					"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
 					ex);
 		}
+	}
+	
+	private String personestoString(List<PersonaDto> persones) {
+		if (persones == null)
+			return null;
+		
+		String sPersones = "";
+		for (PersonaDto persona: persones) {
+			if (persona != null)
+				sPersones += persona.getCodi() + ",";
+		}
+		if (sPersones.length() > 0)
+			sPersones = sPersones.substring(0, sPersones.length() - 1);
+		return sPersones;
 	}
 
 	public void portasignaturesCancelar(
