@@ -24,7 +24,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 public interface EntornRepository extends JpaRepository<Entorn, Long> {
 
 	List<Entorn> findByActiuTrue();
-	Entorn findByCodi(String codi);
 
 	Entorn findByCodi(String codi);
 
