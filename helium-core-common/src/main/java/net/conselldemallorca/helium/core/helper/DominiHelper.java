@@ -321,6 +321,8 @@ public class DominiHelper {
 					toIntegracioParametres(parametres));
 			return resposta;
 		} catch (Exception ex) {
+			logger.error("ERROR SISTEMA EXTERN: ", ex);
+			
 			monitorDominiHelper.addAccioError(
 					domini,
 					"Consulta WS (id=" + id + ")",
