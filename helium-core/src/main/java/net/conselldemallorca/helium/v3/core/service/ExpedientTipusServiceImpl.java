@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
@@ -27,19 +28,26 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierE
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+<<<<<<< HEAD
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+=======
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+>>>>>>> refs/heads/task_820-Simplificacio_docs
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -90,6 +98,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private PermisosHelper permisosHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
 
 
 	/**
@@ -1086,7 +1096,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<DocumentDto> documentFindPerDatatable(
+	public PaginaDto<ExpedientTipusDocumentDto> documentFindPerDatatable(
 			Long expedientTipusId,
 			String filtre,
 			PaginacioParamsDto paginacioParams) {
@@ -1102,7 +1112,142 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						filtre,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
-						DocumentDto.class);
+						ExpedientTipusDocumentDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDocumentDto documentCreate(
+			Long expedientTipusId, 
+			ExpedientTipusDocumentDto document) {
+
+		logger.debug(
+				"Creant nou document per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"document=" + document + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		
+		Document entity = new Document();
+		entity.setCodi(document.getCodi());
+		entity.setNom(document.getNom());
+		entity.setDescripcio(document.getDescripcio());
+		entity.setPlantilla(document.isPlantilla());
+		entity.setArxiuNom(document.getArxiuNom());
+		entity.setArxiuContingut(document.getArxiuContingut());
+		entity.setConvertirExtensio(document.getConvertirExtensio());
+		entity.setAdjuntarAuto(document.isAdjuntarAuto());
+		if (document.getCampData() != null)
+			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
+		entity.setExtensionsPermeses(document.getExtensionsPermeses());
+		entity.setContentType(document.getContentType());
+		entity.setCustodiaCodi(document.getCustodiaCodi());
+		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+		
+		// Camp associat a l'expedient
+		entity.setExpedientTipus(expedientTipus);
+
+		return conversioTipusHelper.convertir(
+				documentRepository.save(entity),
+				ExpedientTipusDocumentDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDocumentDto documentFindAmbCodi(Long expedientTipusId, String codi) {
+		logger.debug(
+				"Consultant el document del tipus d'expedient per codi (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codi = " + codi + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return conversioTipusHelper.convertir(
+				documentRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
+				ExpedientTipusDocumentDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void documentDelete(Long documentId) {
+		logger.debug(
+				"Esborrant el document del tipus d'expedient (" +
+				"documentId=" + documentId +  ")");
+		Document entity = documentRepository.findOne(documentId);
+
+		if (entity != null) {
+			for (DocumentTasca documentTasca: entity.getTasques()) {
+				documentTasca.getTasca().removeDocument(documentTasca);
+				int i = 0;
+				for (DocumentTasca dt: documentTasca.getTasca().getDocuments())
+					dt.setOrder(i++);
+			}
+		} else {
+			throw new NoTrobatException(Document.class);
+		}
+		documentRepository.delete(entity);	
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDocumentDto documentFindAmbId(Long id) {
+		logger.debug(
+				"Consultant el document del tipus d'expedient amb id (" +
+				"documentId=" + id +  ")");
+
+		return conversioTipusHelper.convertir(
+				documentRepository.findOne(id),
+				ExpedientTipusDocumentDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDocumentDto documentUpdate(ExpedientTipusDocumentDto document) {
+		logger.debug(
+				"Modificant el document del tipus d'expedient existent (" +
+				"document.id=" + document.getId() + ", " +
+				"document =" + document + ")");
+		Document entity = documentRepository.findOne(document.getId());
+		entity.setCodi(document.getCodi());
+		entity.setNom(document.getNom());
+		entity.setDescripcio(document.getDescripcio());
+		entity.setPlantilla(document.isPlantilla());
+		entity.setArxiuNom(document.getArxiuNom());
+		entity.setArxiuContingut(document.getArxiuContingut());
+		entity.setConvertirExtensio(document.getConvertirExtensio());
+		entity.setAdjuntarAuto(document.isAdjuntarAuto());
+		if (document.getCampData() != null)
+			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
+		entity.setExtensionsPermeses(document.getExtensionsPermeses());
+		entity.setContentType(document.getContentType());
+		entity.setCustodiaCodi(document.getCustodiaCodi());
+		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+
+		return conversioTipusHelper.convertir(
+				documentRepository.save(entity),
+				ExpedientTipusDocumentDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto getArxiuPerDocument(
+			Long id) {
+		logger.debug("obtenint contingut de l'arxiu pel document (" +
+				"id=" + id + ")");
+		
+		Document document = documentRepository.findOne(id);
+		if (document == null) {
+			throw new NoTrobatException(Document.class,id);
+		}
+		
+		ArxiuDto resposta = new ArxiuDto();
+		
+//		return documentHelper.getArxiuPerDocumentStoreId(
+//				id,
+//				false,
+//				false);
+		
+		resposta.setNom(document.getArxiuNom());
+		resposta.setContingut(document.getArxiuContingut());
+		
+		return resposta;
 	}
 
 }

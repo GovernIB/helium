@@ -64,6 +64,7 @@ public class ConversioTipusHelper {
 						target.setArxiuNom(source.getArxiuNom());
 						target.setDocumentNom(source.getNom());
 						target.setNom(source.getNom());
+						target.setDescripcio(source.getDescripcio());
 						target.setPlantilla(source.isPlantilla());
 						return target;
 					}

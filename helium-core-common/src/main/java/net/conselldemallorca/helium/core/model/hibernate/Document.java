@@ -27,7 +27,6 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -37,12 +36,14 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_document",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_document",
 		indexes = {
 				@Index(name = "hel_document_defproc_i", columnNames = {"definicio_proces_id"}),
-				@Index(name = "hel_document_campdata_i", columnNames = {"camp_data_id"})})
+				@Index(name = "hel_document_campdata_i", columnNames = {"camp_data_id"}),
+				@Index(name = "hel_document_exptip_i", columnNames = {"expedient_tipus_id"})
+				})
 public class Document implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -69,7 +70,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String extensionsPermeses;
 
-	@NotNull
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
 	private Camp campData;
@@ -195,7 +195,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.extensionsPermeses = extensionsPermeses;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_document_fk")
 	public DefinicioProces getDefinicioProces() {

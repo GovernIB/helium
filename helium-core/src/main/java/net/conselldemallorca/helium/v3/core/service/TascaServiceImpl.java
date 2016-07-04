@@ -1388,7 +1388,7 @@ public class TascaServiceImpl implements TascaService {
 							}
 							
 							infoSegonPla.setError(nouError);
-							logger.error(logError);
+							logger.error("ERROR SEGON PLA: ",ex);
 						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
 			        }
