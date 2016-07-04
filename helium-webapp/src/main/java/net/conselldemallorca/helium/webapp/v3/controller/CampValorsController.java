@@ -95,7 +95,7 @@ public class CampValorsController extends BaseExpedientController {
 			else
 				errorText += ex.toString();
 			response.getWriter().write(errorText);
-			logger.error(errorText);
+			logger.error("Error en la comunicació amb el sistema extern per un error intern: ", ex);
 		}
 		return resposta;
 	}
@@ -134,7 +134,7 @@ public class CampValorsController extends BaseExpedientController {
 			else
 				errorText += ex.toString();
 			response.getWriter().write(errorText);
-			logger.error(errorText);
+			logger.error("Error en la comunicació amb el sistema extern per un error intern: ", ex);
 		}
 		return resposta;
 	}
@@ -193,7 +193,7 @@ public class CampValorsController extends BaseExpedientController {
 			else
 				errorText += ex.toString();
 			response.getWriter().write(errorText);
-			logger.error(errorText);
+			logger.error("Error en la comunicació amb el sistema extern per un error intern: ", ex);
 		}
 		return resposta;
 	}
