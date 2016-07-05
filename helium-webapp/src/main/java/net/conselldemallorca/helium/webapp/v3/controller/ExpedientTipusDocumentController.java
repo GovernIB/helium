@@ -74,6 +74,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
+//		model.addAttribute("camps", entornService.findActiusAll());
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -86,6 +87,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
+//				model.addAttribute("camps",entornService.findActiusAll());
 				return "v3/expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());

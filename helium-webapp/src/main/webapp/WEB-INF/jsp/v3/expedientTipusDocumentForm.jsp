@@ -74,11 +74,12 @@
 			
 			<hel:inputText name="convertirExtensio" textKey="expedient.tipus.document.form.camp.gen_ext" />
 			<hel:inputCheckbox name="adjuntarAuto" textKey="expedient.tipus.document.form.camp.adj_auto" />
+			<hel:inputSelect name="campData" textKey="expedient.tipus.document.form.camp.camp_data" required="false" emptyOption="true" placeholderKey="expedient.tipus.document.form.camp.camp_data.buit" optionItems="${camps}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			<hel:inputText name="extensionsPermeses" textKey="expedient.tipus.document.form.camp.ext_perm" />
 			<hel:inputText name="contentType" textKey="expedient.tipus.document.form.camp.ctype" />
 			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" />
 			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" />
-<%-- 			<hel:inputSelect required="false" emptyOption="true" name="agrupacioId" textKey="expedient.tipus.camp.form.camp.agrupacio" placeholderKey="expedient.tipus.camp.form.camp.agrupacio" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/> --%>
+			
 		</div>
 		
 		<div id="modal-botons" class="well">
