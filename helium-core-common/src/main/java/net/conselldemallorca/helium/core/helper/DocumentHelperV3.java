@@ -13,6 +13,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -46,10 +50,6 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar els documents dels expedients
@@ -1371,14 +1371,16 @@ public class DocumentHelperV3 {
 						documentStore.getReferenciaFont(),
 						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 			if (processInstanceId != null) {
+				
+				List<TipusEstat> estats = new ArrayList<TipusEstat>();
+				estats.add(TipusEstat.PENDENT);
+				estats.add(TipusEstat.SIGNAT);
+				estats.add(TipusEstat.REBUTJAT);
+				estats.add(TipusEstat.ERROR);
+				
 				List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
 						processInstanceId,
-						new TipusEstat[] {
-								TipusEstat.PENDENT,
-								TipusEstat.SIGNAT,
-								TipusEstat.REBUTJAT,
-								TipusEstat.ERROR
-						});
+						estats);
 				for (Portasignatures psigna: psignaPendents) {
 					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
 						psigna.setEstat(TipusEstat.ESBORRAT);
