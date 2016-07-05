@@ -55,6 +55,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		if (entornActual != null) {
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
+					expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 		}
 		return "v3/expedientTipusDocument";
