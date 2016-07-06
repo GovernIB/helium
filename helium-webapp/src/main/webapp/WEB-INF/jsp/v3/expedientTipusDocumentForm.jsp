@@ -31,6 +31,7 @@
 	
 	<style type="text/css">
 		.btn-file {position: relative; overflow: hidden;}
+		.btn-file-mid {position: relative; overflow: hidden; border-radius: 0px}
 		.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
 	</style>
 </head>
@@ -44,26 +45,40 @@
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.document.form.camp.nom" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.document.form.camp.descripcio" />
 			
-			<c:choose>
-				<c:when test="${empty arxiuContingut}">
+			
 					<div class="form-group">
 						<label class="control-label col-xs-4" for="arxiuNom"><spring:message code='expedient.tipus.document.form.camp.arxiu' /></label>
 				        <div class="col-xs-8 arxiu">
-				            <div class="input-group">
-				                <form:input path="arxiuNom" cssClass="form-control" />
-				                <span class="input-group-btn">
-				                    <span class="btn btn-default btn-file">
-				                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut" value="${arxiuContingut}">
-				                    </span>
-				                </span>
-				            </div>
+				        	<c:choose>
+								<c:when test="${empty arxiuContingut}">
+						            <div class="input-group">
+						                <form:input path="arxiuNom" cssClass="form-control" />
+						                <span class="input-group-btn">
+						                    <span class="btn btn-default btn-file">
+						                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut" value="${arxiuContingut}">
+						                    </span>
+						                </span>
+						            </div>
+					            </c:when>
+								<c:otherwise>
+									<div class="input-group">
+						                <form:input path="arxiuNom" cssClass="form-control" />
+						                <span class="input-group-btn">
+						                    <span class="btn btn-default btn-file-mid">
+						                        <span class="fa fa-trash"></span>
+						                    </span>
+						                </span>
+						                <span class="input-group-btn">
+						                    <span class="btn btn-default btn-file">
+						                        <span class="fa fa-file"></span>
+						                    </span>
+						                </span>
+						            </div>
+								</c:otherwise>
+							</c:choose>
 						</div>
 					</div>
-				</c:when>
-				<c:otherwise>
-					UN ARXIU PUJAT
-				</c:otherwise>
-			</c:choose>
+				
 			
 			
 
