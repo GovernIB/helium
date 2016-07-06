@@ -82,7 +82,7 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"			or lower(a.codi) like lower('%'||:filtre||'%') " +
 			"			or lower(a.nom) like lower('%'||:filtre||'%')) ")
 	Page<ExpedientTipus> findByFiltrePaginat(
-			@Param("tipusExpedientId") Long tipusExpedientId,
+			@Param("expedientTipusId") Long tipusExpedientId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);	
