@@ -456,7 +456,20 @@ public interface ExpedientTipusService {
 			Long expedientTipusId,
 			Long agrupacioId,
 			String filtre, 
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	/** 
+	 * Retorna la llista de camps del tipus d'expedient
+	 * i del tipus data per llistar en un selector.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @return Llistat de camps.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<CampDto> campFindTipusDataPerExpedientTipus(
+			Long expedientTipusId) throws NoTrobatException;
 	
 	/**
 	 * Retorna un camp d'un tipus d'expedient donat el seu codi.

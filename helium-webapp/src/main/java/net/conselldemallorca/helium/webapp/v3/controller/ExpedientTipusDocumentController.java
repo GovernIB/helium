@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.IOUtils;
@@ -20,11 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -74,7 +79,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		ExpedientTipusDocumentCommand command = new ExpedientTipusDocumentCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusDocumentCommand", command);
-//		model.addAttribute("camps", entornService.findActiusAll());
+		omplirModelCamps(request, expedientTipusId, model);
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -87,7 +92,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
-//				model.addAttribute("camps",entornService.findActiusAll());
+				omplirModelCamps(request, expedientTipusId, model);
 				return "v3/expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
@@ -116,8 +121,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		ExpedientTipusDocumentDto dto = expedientTipusService.documentFindAmbId(id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
 				ExpedientTipusDocumentCommand.class);
+		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
+		omplirModelCamps(request, expedientTipusId, model);
 		model.addAttribute("arxiuContingut", dto.getArxiuContingut());
+		
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -131,6 +139,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			BindingResult bindingResult, Model model) {
 		try {
 			if (bindingResult.hasErrors()) {
+				omplirModelCamps(request, expedientTipusId, model);
 				return "v3/expedientTipusDocumentForm";
 			} else {
 				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
@@ -171,6 +180,18 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 		}
 		return "arxiuView";
+	}
+	
+	private void omplirModelCamps(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		List<CampDto> camps = expedientTipusService.campFindTipusDataPerExpedientTipus(expedientTipusId);
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (CampDto camp : camps) {
+			resposta.add(new ParellaCodiValorDto(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));
+		}
+		model.addAttribute("camps", resposta);
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);

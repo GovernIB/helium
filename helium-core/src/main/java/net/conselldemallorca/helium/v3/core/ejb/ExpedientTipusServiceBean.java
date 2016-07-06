@@ -371,4 +371,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long id) {
 		return delegate.getArxiuPerDocument(id);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> campFindTipusDataPerExpedientTipus(
+			Long expedientTipusId){
+		return delegate.campFindTipusDataPerExpedientTipus(expedientTipusId);
+	}
 }

@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
@@ -55,5 +56,9 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	Integer getNextOrdre(@Param("agrupacioId") Long agrupacioId);
 	
 	List<Camp> findByAgrupacioIdOrderByOrdreAsc(Long campAgrupacioId);
+	
+	List<Camp> findByExpedientTipusAndTipus(
+			ExpedientTipus expedientTipus,
+			TipusCamp estat);
 
 }
