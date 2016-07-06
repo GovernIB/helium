@@ -325,7 +325,7 @@ public abstract class GraphElement implements Identifiable, Serializable {
 	    										action instanceof Script ? ((Script)action).getExpression() : 
 	    											"-SENSE NOM-");
 	    										
-	    	log.error("ERROR EXECUTANT LA ACCIO (" + actionName + ") AMB ID (" + action.getId() + "): " + action.toString() + exception.getMessage(), exception);
+	    	log.error(">>> ERROR EXECUTANT LA ACCIO (" + actionName + ") AMB ID (" + action.getId() + "): " + action.toString() + " <<< " + exception.getMessage(), exception);
     	} else {
     		log.error("ERROR EXECUTANT L'ACCIO. NO S'HA TROBAT ACTION. " + exception.getMessage(), exception);
     	}
