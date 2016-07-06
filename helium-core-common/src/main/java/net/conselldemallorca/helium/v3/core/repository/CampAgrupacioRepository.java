@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,12 +20,14 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Long> {
+	
 	@Query("select ca from " +
 			"    CampAgrupacio ca " +
 			"where " +
 			"    ca.definicioProces.id=:definicioProcesId " +
 			"order by " +
 			"    ordre")
+	
 	List<CampAgrupacio> findAmbDefinicioProcesOrdenats(
 			@Param("definicioProcesId") Long definicioProcesId);
 
@@ -33,6 +37,7 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			"    ca.expedientTipus.id=:expedientTipusId " +
 			"order by " +
 			"    ordre")
+	
 	List<CampAgrupacio> findAmbExpedientTipusOrdenats(
 			@Param("expedientTipusId") Long expedientTipusId);
 
@@ -61,7 +66,7 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 			@Param("ordre") int ordre);
 
 	/** Consulta el següent valor per a ordre de les agrupacions. */
-	@Query(	"select coalesce( max( ca.ordre), 0) + 1 " +
+	@Query(	"select coalesce( max( ca.ordre), -1) + 1 " +
 			"from CampAgrupacio ca " +
 			"where " +
 			"    ca.expedientTipus.id = :expedientTipusId " )
@@ -70,4 +75,15 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 	/** Per trobar codis repetits. */
 	CampAgrupacio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);	
 		
+	@Query(	"from CampAgrupacio a " +
+			"where " +
+			"   a.expedientTipus.id = :expedientTipusId " +
+			"	and (:esNullFiltre = true " +
+			"			or lower(a.codi) like lower('%'||:filtre||'%') " +
+			"			or lower(a.nom) like lower('%'||:filtre||'%')) ")
+	Page<ExpedientTipus> findByFiltrePaginat(
+			@Param("expedientTipusId") Long tipusExpedientId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);	
 }

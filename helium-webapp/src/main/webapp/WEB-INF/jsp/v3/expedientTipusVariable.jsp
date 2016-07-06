@@ -10,6 +10,8 @@
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
 
+<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
+
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
@@ -25,6 +27,8 @@
 						<li><a href="${expedientTipus.id}/agrupacio/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.crear"/></a></li>
 						<li style="display: none;"><a id="agrupacioUpdate" href="${expedientTipus.id}/agrupacio/update" data-toggle="modal" ><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.modificar"/></a></li>
 						<li style="display: none;"><a id="agrupacioDelete" href="${expedientTipus.id}/variable/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar.confirm"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar"/></a></li>
+						<li class="divider"></li>
+						<li><a id="agrupacioOrdenar" href="${expedientTipus.id}/agrupacio/" data-toggle="modal" ><span class="fa fa-arrows-v"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.ordenar"/></a></li>
 					</ul>
 				</div>
 			</div>
@@ -34,21 +38,28 @@
 			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
 		</div>
 		<table	id="expedientTipusVariable"
+				data-rowId="id"
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/variable/datatable"
 				data-paging-enabled="true"
 				data-info-type="search"
 				data-ordering="true"
-				data-default-order="1"
+				data-default-order="3"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="agrupacio" data-visible="false"/>
+					<th data-col-name="ordre" width="5%"><spring:message code="expedient.tipus.camp.llistat.columna.ordre"/></th>
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.camp.llistat.columna.codi"/></th>
 					<th data-col-name="etiqueta"><spring:message code="expedient.tipus.camp.llistat.columna.etiqueta"/></th>
 					<th data-col-name="tipus"><spring:message code="expedient.tipus.camp.llistat.columna.tipus"/></th>
 					<th data-col-name="multiple"><spring:message code="expedient.tipus.camp.llistat.columna.multiple"/></th>
+					<th data-col-name="validacioCount" data-template="#cellValidacionsTemplate" data-orderable="false" width="13%">
+						<script id="cellValidacionsTemplate" type="text/x-jsrender">
+						<a href="${expedientTipus.id}/variable/{{:id}}/validacio" data-toggle="modal" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
+					</script>
+					</th>
 					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -79,8 +90,6 @@
 				</tr>
 			</thead>
 		</table>
-
-		
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
@@ -92,7 +101,7 @@
 $(document).ready(function() {
 	
 	// Botons de modificar i eliminar agrupacions
-	$('#agrupacioUpdate,#agrupacioUpdate').click(function(e) {
+	$('#agrupacioUpdate,#agrupacioDelete').click(function(e) {
 		e.preventDefault();
 		return false;
 	});
@@ -105,13 +114,21 @@ $(document).ready(function() {
 			$('#agrupacioUpdate').attr('href', '${expedientTipus.id}/agrupacio/' + agrupacioId + '/update');
 			$('#agrupacioDelete').attr('href', '${expedientTipus.id}/agrupacio/' + agrupacioId + '/delete');
 			$('#agrupacioUpdate,#agrupacioDelete').closest('li').show();			
+			// Mostra la columna d'ordre
+			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
+			$('#expedientTipusVariable').DataTable().column(2).visible(true);
 		} else {
 			$('#nou_camp').attr('href', '${expedientTipus.id}/variable/new');
 			$('#agrupacioUpdate,#agrupacioDelete').closest('li').hide();
+			// Amaga la columna d'ordre
+			$('#expedientTipusVariable').DataTable().order([3, 'asc']);
+			$('#expedientTipusVariable').DataTable().column(2).visible(false);
 		}
 		refrescaTaula();
-	});
-	
+	});	
+	// Amaga la columna d'ordre
+	$('#expedientTipusVariable').DataTable().column(2).visible(false);
+
 	// Quan es repinta la taula actualitza els enllaços
 	$('#expedientTipusVariable').on('draw.dt', function() {
 		// Botons per agrupar o desagrupar
@@ -130,8 +147,62 @@ $(document).ready(function() {
 			e.stopImmediatePropagation();
 			return false;
 		});
-	});		
+		if ($('#agrupacions').val() != "") {
+			// Posa la taula com a ordenable
+			$("#expedientTipusVariable").tableDnD({
+		    	onDragClass: "drag",
+		    	onDrop: function(table, row) {	        	
+		        	var pos = row.rowIndex - 1;
+		        	var id= obtenirId(pos);
+		        	canviarPosicioVariable(id,pos);
+		    	},
+		    	onDragStart: function(table, row) {
+		    			filaMovem = row.rowIndex-1;
+				}
+		    });
+		    $("#expedientTipusVariable tr").hover(function() {
+		        $(this.cells[0]).addClass('showDragHandle');
+		    }, function() {
+		        $(this.cells[0]).removeClass('showDragHandle');
+		    });	
+		  	// Canvia la ordenació
+			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
+		}
+	  });		
 });
+
+function canviarPosicioVariable( id, pos) {
+	var getUrl = '${expedientTipus.id}/variable/'+id+'/moure/'+pos;
+	$.ajax({
+		type: 'GET',
+		url: getUrl,
+		async: true,
+		success: function(result) {
+			refrescaTaula();
+		},
+		error: function(e) {
+			console.log("Error canviant l'ordre: " + e);
+			refrescaTaula();
+		}
+	});	
+}
+
+function obtenirId(pos){
+	if(filaMovem==pos){
+		var fila = filaMovem + 1;
+	}
+	else{
+	
+		if( filaMovem < pos){	//baixam elements
+			var fila = filaMovem + (pos-filaMovem)+1;
+		}else{					//pujam elements
+			var fila = filaMovem - (filaMovem-pos)+1;
+		}
+	}
+	id = $("#expedientTipusVariable tr:eq("+fila+")").attr("id");	
+	id2 = id.split("_");
+	return id2[1] ;
+}
 
 function refrescaTaula() {
 	var agrupacioId = $("#agrupacions").val();

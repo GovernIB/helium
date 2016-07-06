@@ -36,11 +36,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
+import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
@@ -48,12 +50,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
@@ -78,6 +83,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private CampRepository campRepository;
 	@Resource
 	private CampAgrupacioRepository campAgrupacioRepository;
+	@Resource
+	private CampValidacioRepository campValidacioRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
@@ -855,7 +862,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"agrupacioId=" + agrupacioId + ", " +
 				"filtre=" + filtre + ")");
 						
-		return paginacioHelper.toPaginaDto(
+		
+		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
 						agrupacioId == null,
@@ -865,7 +873,48 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				CampDto.class);
+		
+		// Omple els comptador de validacions 
+		List<Object[]> countValidacions = campRepository.countValidacions(
+				expedientTipusId,
+				agrupacioId == null,
+				agrupacioId); 
+		for (CampDto dto: pagina.getContingut()) {
+			for (Object[] reg: countValidacions) {
+				Long campId = (Long)reg[0];
+				if (campId.equals(dto.getId())) {
+					Integer count = (Integer)reg[1];
+					dto.setValidacioCount(count.intValue());
+					break;
+				}
+			}
+		}		
+		
+		return pagina;		
+		
 	}
+	
+	@Override
+	@Transactional
+	public boolean campMourePosicio(
+			Long id, 
+			int posicio) {
+		boolean ret = false;
+		Camp camp = campRepository.findOne(id);
+		if (camp != null && camp.getAgrupacio() != null) {
+			List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(camp.getAgrupacio().getId());
+			if(posicio != camps.indexOf(camp)) {
+				camps.remove(camp);
+				camps.add(posicio, camp);
+				int i = 0;
+				for (Camp c : camps) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
+	
 
 	// MANTENIMENT D'AGRUPACIONS DE CAMPS
 
@@ -1012,6 +1061,28 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<CampAgrupacioDto> agrupacioFindPerDatatable(
+			Long tipusExpedientId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant les agrupacions per al tipus d'expedient per datatable (" +
+				"entornId=" + tipusExpedientId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				campAgrupacioRepository.findByFiltrePaginat(
+						tipusExpedientId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				CampAgrupacioDto.class);		
+	}	
+	
+	@Override
 	@Transactional
 	public boolean campAfegirAgrupacio(
 			Long campId, 
@@ -1047,6 +1118,124 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return ret;
 	}
+	
+	// MANTENIMENT DE VALIDACIONS DE CAMPS DEL TIPUS D'EXPEDIENT
+	
+	@Override
+	@Transactional
+	public ValidacioDto validacioCreate(
+			Long campId, 
+			ValidacioDto validacio) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nova validacio per un camp de tipus d'expedient (" +
+				"campId =" + campId + ", " +
+				"validacio=" + validacio + ")");
+
+		Validacio entity = new Validacio();
+		entity.setCamp(campRepository.findOne(campId));
+		entity.setExpressio(validacio.getExpressio());
+		entity.setMissatge(validacio.getMissatge());
+		validacio.setOrdre(campValidacioRepository.getNextOrdre(campId));
+		
+		return conversioTipusHelper.convertir(
+				campValidacioRepository.save(entity),
+				ValidacioDto.class);
+	}
+
+	@Override
+	@Transactional
+	public ValidacioDto validacioUpdate(ValidacioDto validacio) 
+						throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant la validacio del camp del tipus d'expedient existent (" +
+				"validacio.id=" + validacio.getId() + ", " +
+				"validacio =" + validacio + ")");
+		
+		Validacio entity = campValidacioRepository.findOne(validacio.getId());
+		entity.setExpressio(validacio.getExpressio());
+		entity.setMissatge(validacio.getMissatge());
+		
+		return conversioTipusHelper.convertir(
+				campValidacioRepository.save(entity),
+				ValidacioDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void validacioDelete(Long validacioValidacioId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant la validacio del tipus d'expedient (" +
+				"validacioId=" + validacioValidacioId +  ")");
+		
+		Validacio validacio = campValidacioRepository.findOne(validacioValidacioId);
+		campValidacioRepository.delete(validacio);	
+		campValidacioRepository.flush();
+		
+		reordenarValidacions(validacio.getCamp().getId());
+	}
+
+	/** Funció per reasignar el valor d'ordre dins d'una agrupació de variables. */
+	private void reordenarValidacions(Long campId) {
+		List<Validacio> validacios = campValidacioRepository.findAmbCampOrdenats(campId);		
+		int i = 0;
+		for (Validacio validacio: validacios)
+			validacio.setOrdre(i++);
+	}
+
+	@Override
+	@Transactional
+	public boolean validacioMourePosicio(
+			Long id, 
+			int posicio) {
+		boolean ret = false;
+		Validacio validacio = campValidacioRepository.findOne(id);
+		if (validacio != null) {
+			List<Validacio> validacions = campValidacioRepository.findAmbCampOrdenats(validacio.getCamp().getId());
+			if(posicio != validacions.indexOf(validacio)) {
+				validacions.remove(validacio);
+				validacions.add(posicio, validacio);
+				int i = 0;
+				for (Validacio c : validacions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public ValidacioDto validacioFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant la validacio del camp del tipus d'expedient amb id (" +
+				"validacioId=" + id +  ")");
+
+		return conversioTipusHelper.convertir(
+				campValidacioRepository.findOne(id),
+				ValidacioDto.class);
+	}
+		
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ValidacioDto> validacioFindPerDatatable(
+			Long campId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els validacios per al tipus d'expedient per datatable (" +
+				"entornId=" + campId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				campValidacioRepository.findByFiltrePaginat(
+						campId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				ValidacioDto.class);		
+	}	
 	
 	// MANTENIMENT D'ENUMERACIONS
 

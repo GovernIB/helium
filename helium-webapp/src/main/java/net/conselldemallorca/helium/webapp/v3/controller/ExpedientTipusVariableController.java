@@ -26,8 +26,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusValidacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -81,7 +83,8 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 						expedientTipusId,
 						agrupacioId,
 						paginacioParams.getFiltre(),
-						paginacioParams));
+						paginacioParams),
+				"id");
 	}	
 			
 	@RequestMapping(value = "/{expedientTipusId}/variable/new", method = RequestMethod.GET)
@@ -170,6 +173,28 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 					"expedient.tipus.camp.controller.modificat");
         }
 	}
+	
+	
+	/**
+	 * Mètode Ajax per moure una variable de posició dins la seva agrupació.
+	 * @param request
+	 * @param expedientTipusId
+	 * @param id
+	 * @param posicio
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/moure/{posicio}")
+	@ResponseBody
+	public boolean mourePosicio(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			@PathVariable int posicio,
+			Model model) {
+		
+		return expedientTipusService.campMourePosicio(id, posicio);
+	}
 
 	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/agrupar/{agrupacioId}", method = RequestMethod.GET)
 	@ResponseBody
@@ -214,6 +239,37 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 	
 	
 	// Mètodes pel manteniment d'agrupacions
+
+	/** Obre una modal amb un llistat per reordenar les agrupacions. */
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio", method = RequestMethod.GET)
+	public String agrupacions(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		
+		return "v3/expedientTipusAgrupacio";
+	}
+
+	/** Obre una modal amb un llistat per reordenar les agrupacions. */
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/datatable", method = RequestMethod.GET)
+	public DatatablesResponse agrupacioDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+				
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.agrupacioFindPerDatatable(
+						expedientTipusId,
+						paginacioParams.getFiltre(),
+						paginacioParams),
+				"id");
+		
+	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/new", method = RequestMethod.GET)
 	public String agrupacioNova(
@@ -262,6 +318,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		model.addAttribute("expedientTipusAgrupacioCommand", command);
 		return "v3/expedientTipusAgrupacioForm";
 	}
+	
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/update", method = RequestMethod.POST)
 	public String agrupacioModificarPost(
 			HttpServletRequest request,
@@ -302,7 +359,156 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		
 		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
 	}
+
+	// Mètodes pel manteniment de validacions de variables
 	
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio", method = RequestMethod.GET)
+	public String validacions(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			Model model) {
+		
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("camp", expedientTipusService.campFindAmbId(campId));
+		
+		return "v3/expedientTipusValidacio";
+	}	
+	
+	@RequestMapping(value="/{expedientTipusId}/variable/{campId}/validacio/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse validacioDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			Model model) {
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.validacioFindPerDatatable(
+						campId,
+						paginacioParams.getFiltre(),
+						paginacioParams),
+				"id");
+	}		
+
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/new", method = RequestMethod.GET)
+	public String validacioNova(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			Model model) {
+		ExpedientTipusValidacioCommand command = new ExpedientTipusValidacioCommand();
+		command.setExpedientTipusId(expedientTipusId);
+		command.setCampId(campId);
+		model.addAttribute("expedientTipusValidacioCommand", command);
+		return "v3/expedientTipusValidacioForm";
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/new", method = RequestMethod.POST)
+	public String validacioNovaPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			@Validated(ExpedientTipusValidacioCommand.Creacio.class) ExpedientTipusValidacioCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/expedientTipusValidacioForm";
+        } else {
+        	// Verificar permisos
+    		expedientTipusService.validacioCreate(
+    				campId,
+    				conversioTipusHelper.convertir(
+    						command,
+    						ValidacioDto.class));    		
+			return getModalControllerReturnValueSuccess(
+					request,
+					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
+					"expedient.tipus.campValidacio.controller.creat");
+        }
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/{id}/update", method = RequestMethod.GET)
+	public String validacioModificar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			Model model) {
+		ValidacioDto dto = expedientTipusService.validacioFindAmbId(id);
+		ExpedientTipusValidacioCommand command = conversioTipusHelper.convertir(
+				dto,
+				ExpedientTipusValidacioCommand.class);
+		command.setExpedientTipusId(expedientTipusId);
+		command.setCampId(campId);
+		model.addAttribute("expedientTipusValidacioCommand", command);
+		return "v3/expedientTipusValidacioForm";
+	}
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/{id}/update", method = RequestMethod.POST)
+	public String validacioModificarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			@Validated(ExpedientTipusValidacioCommand.Modificacio.class) ExpedientTipusValidacioCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/expedientTipusValidacioForm";
+        } else {
+        	expedientTipusService.validacioUpdate(
+        			conversioTipusHelper.convertir(
+    						command,
+    						ValidacioDto.class));
+			return getModalControllerReturnValueSuccess(
+					request,
+					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
+					"expedient.tipus.campValidacio.controller.modificat");
+        }
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/{id}/delete", method = RequestMethod.GET)
+	public String validacioDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			Model model) {
+		
+		expedientTipusService.validacioDelete(id);
+		
+		MissatgesHelper.success(
+				request,
+				getMessage(
+						request,
+						"expedient.tipus.campValidacio.controller.eliminat"));
+		
+		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
+	}
+	
+	/**
+	 * Mètode Ajax per moure una validació d'una variable de posició dins la seva agrupació.
+	 * @param request
+	 * @param expedientTipusId
+	 * @param id
+	 * @param posicio
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/{id}/moure/{posicio}")
+	@ResponseBody
+	public boolean validacioMourePosicio(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long campId,
+			@PathVariable Long id,
+			@PathVariable int posicio,
+			Model model) {
+		
+		return expedientTipusService.validacioMourePosicio(id, posicio);
+	}	
 	private void omplirModelVariablesPestanya(
 			HttpServletRequest request,
 			Long expedientTipusId,

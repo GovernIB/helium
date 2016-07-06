@@ -172,11 +172,11 @@
 						}
 					});
 				});
-				/*modalobj.on('hidden.bs.modal', function () {
+				modalobj.on('hidde.bs.modal', function () {
 					if (settings.dataTableId) {
 						$('#' + settings.dataTableId).webutilDatatable('refresh');
 					}
-				});*/
+				});
 				iframe.on('load', function () {
 					var pathname = this.contentDocument.location.pathname;
 					if (pathname == webutilModalTancarPath()) {
