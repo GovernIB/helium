@@ -369,7 +369,23 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 				q.setEntity("nodeFrom", newNodeFrom);
 				q.setEntity("nodeTo", newNodeTo);
 
-				newTransition = (Transition) q.uniqueResult();
+				List<Transition> transicions = (List<Transition>)q.list();
+				if (!transicions.isEmpty()) {
+					if (transicions.size() == 1) 
+						newTransition = transicions.get(0);
+					else {
+						for (Transition t: transicions) {
+							if (t.getName() != null && t.getName().equals(oldTransition.getName())) {
+								newTransition = t;
+								break;
+							}
+						}
+//						if (newTransition == null)
+//							newTransition = transicions.get(0);
+					}
+						
+				}
+//				newTransition = (Transition) q.uniqueResult();
 			}
 		}
 		

@@ -51,14 +51,14 @@ function confirmar(e) {
 			<c:choose><c:when test="${registre.demanaNumero}">Si</c:when><c:otherwise>No</c:otherwise></c:choose>
 		</display:column--%>
 		<security:accesscontrollist domainObject="${entornActual}" hasPermission="16,32">
-<%-- CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS 			
+<%-- CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS --%>
 		<display:column>
-	 	   	<form action="netejar_df.html"> onsubmit="return confirmarNetejarDf(event)">
+	 	   	<form action="netejar_df.html"> <!-- onsubmit="return confirmarNetejarDf(event)"> -->
 				<input type="hidden" name="id" value="${registre.id}"/>
 				<button type="submit" class="submitButton"><fmt:message key='entorn.llistat.netejar.definicions.proces'/></button>
 			</form>
 		</display:column> 
---%>
+<%-- --%>
 			<display:column>
 		    	<form action="<c:url value="/permisos/expedientTipus.html"/>">
 					<input type="hidden" name="id" value="${registre.id}"/>
