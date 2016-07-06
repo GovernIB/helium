@@ -36,17 +36,24 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.jbpm.JbpmException;
 import org.jbpm.command.ChangeProcessInstanceVersionCommand;
+import org.jbpm.graph.action.Script;
 import org.jbpm.graph.def.Action;
 import org.jbpm.graph.def.GraphElement;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.ProcessDefinition;
+import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.graph.log.ActionLog;
+import org.jbpm.graph.log.SignalLog;
+import org.jbpm.graph.log.TransitionLog;
 import org.jbpm.graph.node.ProcessState;
 import org.jbpm.instantiation.Delegation;
 import org.jbpm.job.Job;
+import org.jbpm.logging.log.CompositeLog;
 import org.jbpm.logging.log.ProcessLog;
+import org.jbpm.scheduler.def.CancelTimerAction;
+import org.jbpm.scheduler.def.CreateTimerAction;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.def.TaskController;
 import org.jbpm.taskmgmt.def.TaskMgmtDefinition;
@@ -257,9 +264,10 @@ public class GraphSession {
 //			CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS -- Inici
 			// INICI MODIFICACIONS per a poder eliminar DefProc que han tingut expedients ------------------------------------------------
 			// Canviam tasques "orfes", encara referenciades per la definició de procés antiga
+			log.debug("   - Eliminam la definició de procés " + processDefinition.getName() + "(" + processDefinition.getId() + ")");
 			log.debug("   |- Modificam els TaskInstances relacionats amb la definició de procés antiga:");
 //			Set<TaskMgmtDefinition> tmdBorrar = new HashSet<TaskMgmtDefinition>();
-			for (TaskInstance ti : findReferencingDPTaskInstances(processDefinition.getId())) {
+			for (TaskInstance ti : findReferencedDPTaskInstances(processDefinition.getId())) {
 				log.debug("   ||- TasckInstance: " + ti.getName() + "(" + ti.getId() + ")");
 				Task oldTask = ti.getTask();
 				Node oldNode = oldTask.getTaskNode();
@@ -292,7 +300,7 @@ public class GraphSession {
 						
 			// Canviam el processDefinition dels tasksMgmtInstance dels tasksInstance de la versió que s'intenta esborrar a la de la tasca.
 			log.debug("   |- Modificam els TaskMgmtDefinition:");
-			for (TaskInstance ti : findReferencingTaskInstances(processDefinition.getId())) {
+			for (TaskInstance ti : findReferencedTaskInstances(processDefinition.getId())) {
 				log.debug("   ||- TasckInstance: " + ti.getName() + "(" + ti.getId() + ")");
 				TaskMgmtDefinition oldTmd = ti.getTaskMgmtInstance().getTaskMgmtDefinition();
 				TaskMgmtDefinition newTmd = ti.getProcessInstance().getProcessDefinition().getTaskMgmtDefinition();
@@ -324,7 +332,7 @@ public class GraphSession {
 //			}
 			List<Long> taskIds = new ArrayList<Long>();
 			log.debug("   |- Dereferenciam les tasques:");
-			for (Task task: findReferencingTask(processDefinition.getId())) {
+			for (Task task: findReferencedTask(processDefinition.getId())) {
 				log.debug("   ||- " + task.getName() + "(" + task.getId() + ")");
 				taskIds.add(task.getId());
 				task.setStartState(null);
@@ -345,7 +353,7 @@ public class GraphSession {
 //			}
 			
 			log.debug("   |- Dereferenciam els jobs:");
-			for (Job job : findReferencingJobs(processDefinition.getId())) {
+			for (Job job : findReferencedJobs(processDefinition.getId())) {
 				log.debug("   ||- " + job.getId());
 				Action oldAction = (Action)job.getClass().getMethod("getAction").invoke(job);
 				Action newAction = job.getProcessInstance().getProcessDefinition().getAction(oldAction.getName()); 
@@ -364,7 +372,9 @@ public class GraphSession {
 			log.debug("   | ");
 			
 			log.debug("   |- Dereferenciam les accions:");
-			for (Action action : findReferencingDelegatingActions(processDefinition.getId())) {
+			//for (Action action : findReferencingDelegatingActions(processDefinition.getId())) {
+			List<Action> accions = findReferencedActions(processDefinition.getId());
+			for (Action action : accions) {
 				action.setActionDelegation(null);
 				session.save(action);
 //				session.delete(action);
@@ -373,20 +383,75 @@ public class GraphSession {
 				
 			}
 			
-			if (!processDefinition.getEvents().isEmpty()) {
-				for (ActionLog al : findReferencingEventActions(processDefinition)) {
-					ProcessDefinition newProcessDefinition = al.getToken().getProcessInstance().getProcessDefinition();
-					Action oldAction = al.getAction();
-					Action newAction = findReplacementEventAction(oldAction, newProcessDefinition);
-					if (newAction != null) {
-						al.setAction(newAction);
+			log.debug("   | ");
+			
+			log.debug("   |- Dereferenciam les accions del logs:");
+//			if (!processDefinition.getEvents().isEmpty()) {
+				//for (ActionLog al : findReferencingEventActions(processDefinition)) {
+			// Mapa de reemplaç de accions
+			Map<Long, Action> reAccions = new HashMap<Long, Action>();
+			for (ActionLog al : findReferencedActionLogs(accions)) {
+				log.debug("   ||- Log: " + al.getId() + ", Action: " + al.getAction().getId());
+				ProcessDefinition newProcessDefinition = al.getToken().getProcessInstance().getProcessDefinition();
+				Action oldAction = al.getAction();
+				Action newAction = null;
+				if (reAccions.containsKey(oldAction.getId())) {
+					newAction = reAccions.get(oldAction.getId());
+				} else {
+					newAction =	findReplacementEventAction(oldAction, newProcessDefinition);
+					reAccions.put(oldAction.getId(), newAction);
+				}
+				if (newAction != null) {
+					al.setAction(newAction);
+				} else {
+					log.debug("   |||- No s'ha trobat substitut per aquesta acció");
+				}
+			}
+//			}
+			
+			log.debug("   | ");
+			
+			log.debug("   |- Dereferenciam les transicions dels logs:");
+			// Mapa de reemplaç de transicions
+			Map<Long, Transition> reTransicions = new HashMap<Long, Transition>();
+			List<CompositeLog> logs = findReferencedTransitionLogs(processDefinition.getId());
+			for (CompositeLog cl : logs) {
+				TransitionLog tl = null;
+				SignalLog sl = null;
+				Transition oldTransition = null;
+				if (cl instanceof TransitionLog) {
+					tl = (TransitionLog)cl;
+					oldTransition = tl.getTransition();
+				} else {
+					sl = (SignalLog)cl;
+					oldTransition = sl.getTransition();
+				}
+				log.debug("   ||- Log: " + cl.getId() + ", Transition: " + oldTransition.getId());
+				ProcessDefinition newProcessDefinition = cl.getToken().getProcessInstance().getProcessDefinition();
+				
+				Transition newTransition = null;
+				if (reTransicions.containsKey(oldTransition.getId())) {
+					newTransition = reTransicions.get(oldTransition.getId());
+				} else {
+					newTransition = findReplacementTransition(newProcessDefinition, oldTransition);
+					reTransicions.put(oldTransition.getId(), newTransition);
+				}
+				if (newTransition != null) {
+					if (tl != null) {
+						tl.setTransition(newTransition);
+						tl.setSourceNode(newTransition.getFrom());
+						tl.setDestinationNode(newTransition.getTo());
+					} else {
+						sl.setTransition(newTransition);
 					}
+				} else {
+					log.debug("   |||- No s'ha trobat substitut per aquesta transició");
 				}
 			}
 			
 			log.debug("   | ");
 			log.debug("   |- Eliminam els taskControllers:");
-			for (TaskController tc : findReferencingTaskController(processDefinition.getId())) {
+			for (TaskController tc : findReferencedTaskController(processDefinition.getId())) {
 //				tc.setTaskControllerDelegation(null);
 //				session.save(tc);
 				log.debug("   ||- " + tc.getId());
@@ -397,7 +462,7 @@ public class GraphSession {
 			session.flush();
 			
 			log.debug("   |- Eliminam les delegacions:");
-			for (Delegation delegation : findReferencingDelegate(processDefinition.getId())) {
+			for (Delegation delegation : findReferencedDelegations(processDefinition.getId())) {
 				log.debug("   ||- " + delegation.getId());
 				session.delete(delegation);
 				session.flush();
@@ -461,7 +526,7 @@ public class GraphSession {
 	}
 	
 //	CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS -- Inici
-	protected List<Task> findReferencingTask(Long processDefinitionId) {
+	protected List<Task> findReferencedTask(Long processDefinitionId) {
 		Query q = session.createQuery(
 				  "from org.jbpm.taskmgmt.def.Task t "
 				+ "where t.processDefinition.id = :processDefinitionId");
@@ -469,7 +534,7 @@ public class GraphSession {
 		return (List<Task>)q.list();
 	}
 	
-	protected List<TaskInstance> findReferencingTaskInstances(Long processDefinitionId) {
+	protected List<TaskInstance> findReferencedTaskInstances(Long processDefinitionId) {
 		Query q = session.createQuery(
 				  "from org.jbpm.taskmgmt.exe.TaskInstance ti "
 				+ "where ti.taskMgmtInstance.taskMgmtDefinition.processDefinition.id = :processDefinitionId ");
@@ -477,7 +542,7 @@ public class GraphSession {
 		return (List<TaskInstance>)q.list();
 	}
 	
-	protected List<TaskInstance> findReferencingDPTaskInstances(Long processDefinitionId) {
+	protected List<TaskInstance> findReferencedDPTaskInstances(Long processDefinitionId) {
 		Query q = session.createQuery(
 				  "from org.jbpm.taskmgmt.exe.TaskInstance ti "
 				+ "where ti.task.processDefinition.id = :processDefinitionId ");
@@ -503,7 +568,7 @@ public class GraphSession {
 //		return (List<Task>)query.list();
 //	}
 	
-	protected List<Job> findReferencingJobs(Long processDefinitionId) {
+	protected List<Job> findReferencedJobs(Long processDefinitionId) {
 		List<Job> jobs = new ArrayList<Job>();
 		Query q = session.createQuery(
 				  "from org.jbpm.job.Timer t "
@@ -518,6 +583,80 @@ public class GraphSession {
 		return jobs;
 	}
 	
+	protected List<Action> findReferencedActions(Long processDefinitionId) {
+		List<Action> referencedActions = null;
+		
+		// Action -> ActionDelegation -> ProcessDefinition
+		Query query = session.createQuery(
+				  " select a "
+				  + " from org.jbpm.graph.def.Action a, "
+				  + "      org.jbpm.instantiation.Delegation d "
+				  + "where d.processDefinition.id = :processDefinitionId "
+				  + "  and a.actionDelegation.id = d.id");
+		query.setLong("processDefinitionId", processDefinitionId);
+		referencedActions = (List<Action>)query.list();
+		
+		// Action -> Event -> Transition / Node -> ProcessDefinition
+//		query = session.createQuery(
+//		  " select a "
+//		  + " from org.jbpm.graph.def.Action a "
+//		  + "where a.event.graphElement.processDefinition.id = :processDefinitionId");
+//query.setLong("processDefinitionId", processDefinitionId);
+		query = session.createSQLQuery(
+				    "select	a.* "
+				  + "  from	jbpm_action a, "
+				  + "		jbpm_event e, "
+				  + "		jbpm_task t"
+				  + " where	a.EVENT_ = e.ID_ "
+				  + "	and e.TYPE_ = 'A' "
+				  + "	and e.GRAPHELEMENT_ = t.ID_ "
+				  + "	and t.PROCESSDEFINITION_ = :processDefinitionId")
+				.addEntity(Action.class)
+				.setLong("processDefinitionId", processDefinitionId);
+		referencedActions.addAll((List<Action>)query.list());
+		
+		query = session.createSQLQuery(
+				    "select	a.* "
+				  + "  from	jbpm_action a, "
+				  + "		jbpm_event e, "
+				  + "		jbpm_transition t"
+				  + " where	a.EVENT_ = e.ID_ "
+				  + "	and e.TYPE_ = 'T' "
+				  + "	and e.GRAPHELEMENT_ = t.ID_ "
+				  + "	and t.PROCESSDEFINITION_ = :processDefinitionId")
+				.addEntity(Action.class)
+				.setLong("processDefinitionId", processDefinitionId);
+		referencedActions.addAll((List<Action>)query.list());
+		
+		query = session.createSQLQuery(
+				    "select	a.* "
+				  + "  from	jbpm_action a, "
+				  + "		jbpm_event e "
+//				  + "		jbpm_processDefinition p"
+				  + " where	a.EVENT_ = e.ID_ "
+				  + "	and e.TYPE_ = 'P' "
+//				  + "	and e.GRAPHELEMENT_ = t.ID_ "
+				  + "	and e.PROCESSDEFINITION_ = :processDefinitionId")
+				.addEntity(Action.class)
+				.setLong("processDefinitionId", processDefinitionId);
+		referencedActions.addAll((List<Action>)query.list());
+		
+		query = session.createSQLQuery(
+				    "select	a.* "
+				  + "  from	jbpm_action a, "
+				  + "		jbpm_event e, "
+				  + "		jbpm_node n "
+				  + " where	a.EVENT_ = e.ID_"
+				  + "	and e.TYPE_ not in ('A', 'T', 'P') "
+				  + "	and e.GRAPHELEMENT_ = n.ID_ "
+				  + "	and n.PROCESSDEFINITION_ = :processDefinitionId")
+				.addEntity(Action.class)
+				.setLong("processDefinitionId", processDefinitionId);
+		referencedActions.addAll((List<Action>)query.list());
+		
+		return referencedActions;
+	}
+	
 	protected List<Action> findReferencingDelegatingActions(Long processDefinitionId) {
 		Query query = session.createQuery(
 				  " select a "
@@ -529,30 +668,89 @@ public class GraphSession {
 		return (List<Action>)query.list();
 	}
 	
-	protected List<ActionLog> findReferencingEventActions(ProcessDefinition processDefinition) {
+//	protected List<ActionLog> findReferencingEventActions(ProcessDefinition processDefinition) {
+//		Query query = session.createQuery(
+//				  " select al "
+//				  + " from org.jbpm.graph.log.ActionLog al "
+//				  + "where al.action in ("
+//				  + "		select a "
+//				  + " 		  from org.jbpm.graph.def.Action a "
+//				  + "		 where a.event in :events)");
+//		query.setParameterList("events", processDefinition.getEvents().values());
+//		return (List<ActionLog>)query.list();
+//	}
+	
+	protected List<ActionLog> findReferencedActionLogs(List<Action> accions) {
 		Query query = session.createQuery(
 				  " select al "
 				  + " from org.jbpm.graph.log.ActionLog al "
-				  + "where al.action in ("
-				  + "		select a "
-				  + " 		  from org.jbpm.graph.def.Action a "
-				  + "		 where a.event in :events)");
-		query.setParameterList("events", processDefinition.getEvents().values());
+				  + "where al.action in (:accions)");
+		query.setParameterList("accions", accions);
 		return (List<ActionLog>)query.list();
 	}
 	
 	private Action findReplacementEventAction(Action oldAction, ProcessDefinition newProcessDefinition) {
-		Query query = session.createQuery(
-				    " from org.jbpm.scheduler.def.CreateTimerAction ta "
-				  + "where ta.timerName = :timerName "
-				  + "  and ta.event.graphElement.name = :nodeName "
-				  + "  and ta.event.graphElement.processDefinition.id = :processDefinitionId)");
-		query.setLong("processDefinitionId", newProcessDefinition.getId());
-		List<Action> accions = (List<Action>)query.list();
-		return accions.isEmpty() ? null :  accions.get(0);
+//		Query query = session.createQuery(
+//				    " from org.jbpm.scheduler.def.CreateTimerAction ta "
+//				  + "where ta.timerName = :timerName "
+//				  + "  and ta.event.graphElement.name = :nodeName "
+//				  + "  and ta.event.graphElement.processDefinition.id = :processDefinitionId)");
+//		query.setLong("processDefinitionId", newProcessDefinition.getId());
+//		List<Action> accions = (List<Action>)query.list();
+//		return accions.isEmpty() ? null :  accions.get(0);		
+		Boolean evalCreateTimer = false;
+		Boolean evalCancelTimer = false;
+		Boolean evalScript = false;
+		
+		CreateTimerAction oldCreateTimer = null;
+		CancelTimerAction oldCancelTimer = null;
+		Script oldScript = null;
+		if (oldAction instanceof CreateTimerAction) {
+			oldCreateTimer = (CreateTimerAction)oldAction;
+			evalCreateTimer = oldCreateTimer.getTimerName() != null && !oldCreateTimer.getTimerName().isEmpty();
+		} else if (oldAction instanceof CancelTimerAction) {
+			oldCancelTimer = (CancelTimerAction)oldAction;
+			evalCancelTimer = oldCancelTimer.getTimerName() != null && !oldCancelTimer.getTimerName().isEmpty();
+		} else if (oldAction instanceof Script) {
+			oldScript = (Script)oldAction;
+			evalScript = oldScript.getExpression() != null && !oldScript.getExpression().isEmpty();
+		}
+		
+		List<Action> novesAccions = findReferencedActions(newProcessDefinition.getId());
+		for (Action novaAccio: novesAccions) {
+			if (oldAction.getName() != null && !oldAction.getName().isEmpty()) {
+				if (oldAction.getName().equals(novaAccio.getName()))
+					return novaAccio;
+			} else {
+				if (evalCreateTimer) {
+					if (novaAccio instanceof CreateTimerAction) {
+						CreateTimerAction ncta = (CreateTimerAction)novaAccio;
+						if (oldCreateTimer.getTimerName().equals(ncta.getTimerName()))
+							return novaAccio;
+					}
+				} else if (evalCancelTimer) {
+					if (novaAccio instanceof CancelTimerAction) {
+						CancelTimerAction ncta = (CancelTimerAction)novaAccio;
+						if (oldCancelTimer.getTimerName().equals(ncta.getTimerName()))
+							return novaAccio;
+					}
+				} else if (evalScript) {
+					if (novaAccio instanceof Script) {
+						Script ns = (Script)novaAccio;
+						if (oldScript.getExpression().equals(ns.getExpression()))
+							return novaAccio;
+					}
+				}
+			}
+		}
+//		String nom = oldCreateTimer != null ? 	oldCreateTimer.getTimerName() : 
+//												oldCancelTimer != null ? 	oldCancelTimer.getTimerName() :
+//																			oldScript != null ? oldScript.getExpression() : oldAction.getName();
+//		throw new JbpmException("Action ='" + nom + "' (" + oldAction.getId() + ")" + " not found in new process definition");
+		return null;
 	}
 	
-	protected List<TaskController> findReferencingTaskController(Long processDefinitionId) {
+	protected List<TaskController> findReferencedTaskController(Long processDefinitionId) {
 		Query query = session.createQuery(
 				  " select tc "
 				  + " from org.jbpm.taskmgmt.def.TaskController tc, "
@@ -573,14 +771,77 @@ public class GraphSession {
 //		return (List<Task>)query.list();
 //	}
 	
-	protected List<Delegation> findReferencingDelegate(Long processDefinitionId) {
+	protected List<Delegation> findReferencedDelegations(Long processDefinitionId) {
 		Query query = session.createQuery(
 				  " from org.jbpm.instantiation.Delegation d "
 				+ "where d.processDefinition.id = :processDefinitionId");
 		query.setLong("processDefinitionId", processDefinitionId);
 		return (List<Delegation>)query.list();
 	}
+	
+	protected List<CompositeLog> findReferencedTransitionLogs(Long processDefinitionId) {
+		
+//		Query query = session.createSQLQuery(
+//				  	"select l.* "
+//				  + " from 	jbpm_log l, "
+//				  + "		jbpm_transition t "
+//				  + " where	l.TRANSITION_ = t.ID_ "
+//				  + "   and	t.PROCESSDEFINITION_ = :processDefinitionId")
+//				.addEntity(TransitionLog.class)
+		List<CompositeLog> logs = null;
+		Query query = session.createQuery(
+				"select tl " +
+				"  from org.jbpm.graph.log.TransitionLog as tl " +
+				" where tl.transition.processDefinition.id = :processDefinitionId")
+				.setLong("processDefinitionId", processDefinitionId);
+		logs = (List<CompositeLog>)query.list();
+		
+		query = session.createQuery(
+				"select sl " +
+				"  from org.jbpm.graph.log.SignalLog as sl " +
+				" where sl.transition.processDefinition.id = :processDefinitionId")
+				.setLong("processDefinitionId", processDefinitionId);
+		logs.addAll((List<CompositeLog>)query.list());
+		
+		return logs;
+	}
+	
+	private Transition findReplacementTransition(ProcessDefinition newDef, Transition oldTransition) {
+		Transition newTransition = null;
+		Node newNodeFrom = findReplacementNode(newDef, oldTransition.getFrom());
+		if (newNodeFrom != null) {
+			Node newNodeTo = findReplacementNode(newDef, oldTransition.getTo());
+			if (newNodeTo != null) {
+				Query q = session.createQuery(
+						"from org.jbpm.graph.def.Transition t "
+						+ "where t.from = :nodeFrom "
+						+ "  and t.to = :nodeTo");
+				q.setEntity("nodeFrom", newNodeFrom);
+				q.setEntity("nodeTo", newNodeTo);
 
+				List<Transition> transicions = (List<Transition>)q.list();
+				if (!transicions.isEmpty()) {
+					if (transicions.size() == 1) 
+						newTransition = transicions.get(0);
+					else {
+						for (Transition t: transicions) {
+							if (t.getName() != null && t.getName().equals(oldTransition.getName())) {
+								newTransition = t;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+//		if (newTransition == null) {
+//			throw new JbpmException("Transition for nodes from='" + oldTransition.getFrom().getName() + 
+//					"' and to='" + oldTransition.getTo().getName() + "' not found in new process definition");
+//		}
+		return newTransition;
+	}
+	
 	private Task findReplacementTask(ProcessDefinition newDef, Node oldNode, Task oldTask) {
 		Task newTask = null;
 		String replacementTaskName = oldTask.getName();

@@ -420,6 +420,8 @@ public class ExpedientTipusController extends BaseController {
 								msg = getMessage("error.defpro.eliminar.constraint.taskinstance");
 							if (msg.contains("HELIUM.FK_JOB_ACTION"))
 								msg = getMessage("error.defpro.eliminar.constraint.job");
+							if (msg.contains("HELIUM.FK_LOG_"))
+								msg = getMessage("error.defpro.eliminar.constraint.log");
 							missatgeError(request, getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getJbpmName(), definicioProces.getVersio()}), msg);
 						} else { 
 							missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
