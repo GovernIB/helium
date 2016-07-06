@@ -53,6 +53,13 @@ public class CampDto implements Serializable {
 	private String consultaCampValor;
 	
 	boolean dominiCacheText;
+
+	/** Ordre dins la agrupació. */
+	private Integer ordre;
+
+	/** Per mostrar el número de validacions a la taula de variables. */
+	private int validacioCount = 0;
+
 	
 	public Long getId() {
 		return id;
@@ -289,5 +296,17 @@ public class CampDto implements Serializable {
 	}
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
+	}
+	public int getValidacioCount() {
+		return validacioCount;
+	}
+	public void setValidacioCount(int validacioCount) {
+		this.validacioCount = validacioCount;
+	}
+	public Integer getOrdre() {
+		return ordre;
+	}
+	public void setOrdre(Integer ordre) {
+		this.ordre = ordre;
 	}
 }

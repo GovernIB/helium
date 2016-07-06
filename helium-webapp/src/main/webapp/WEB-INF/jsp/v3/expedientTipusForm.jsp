@@ -49,8 +49,8 @@
 					var classe = "odd";
 					if (nFiles % 2 == 1) classe = "even"; 
 					var nouDiv =	"<tr class='" + classe + "'>\n" +
-									"	<td><input type='text' style='text-align:right; width: 100%;' class='textInput' value='' name='sequenciesAny' id='seqany_" + nFiles + "'></td>\n" +
-									"	<td><input type='text' style='text-align:right; width: 100%;' class='textInput' value='' name='sequenciesValor' id='seqseq_" + nFiles + "'></td>\n" +
+									"	<td><input type='text' style='text-align:right; width: 100%;' class='form-control' value='' name='sequenciesAny' id='seqany_" + nFiles + "'></td>\n" +
+									"	<td><input type='text' style='text-align:right; width: 100%;' class='form-control' value='' name='sequenciesValor' id='seqseq_" + nFiles + "'></td>\n" +
 									"	<td style='width:16px'><a onclick='removeSeq(" + nFiles +")' href='javascript:void(0)'><img border='0' src='/helium/img/cross.png'></a></td>\n" +
 									"</tr>\n";
 					$("#seqs").append(nouDiv);
@@ -103,7 +103,7 @@
 								String[] classes = {"odd", "even"}; 
 								int i = 0; 
 							%>
-							<table id="seqs" width="100%">
+							<table id="seqs" width="100%" style="border-collapse: separate; border-spacing: 5px;">
 								<thead>
 									<tr>
 										<th width="45%"><spring:message code="expedient.tipus.form.camp.reiniciarCadaAny.any"/></th>
@@ -114,16 +114,16 @@
 								<tbody>
 									<c:forEach var="any" items="${expedientTipusCommand.sequenciesAny}" varStatus="status">
 									<tr class="<%=classes[i%2]%>">
-										<td><input type="text" style="text-align:right; width: 100%;" class="textInput" value="${expedientTipusCommand.sequenciesAny[status.index]}" name="sequenciesAny" id="seqany_<%=i%>"></td>
-										<td><input type="text" style="text-align:right; width: 100%;" class="textInput" value="${expedientTipusCommand.sequenciesValor[status.index]}" name="sequenciesValor" id="seqseq_<%=i%>"></td>
+										<td><input type="text" class="form-control" style="text-align:right; width: 100%;" value="${expedientTipusCommand.sequenciesAny[status.index]}" name="sequenciesAny" id="seqany_<%=i%>"></td>
+										<td><input type="text" class="form-control" style="text-align:right; width: 100%;" value="${expedientTipusCommand.sequenciesValor[status.index]}" name="sequenciesValor" id="seqseq_<%=i%>"></td>
 										<td style="width:16px"><a onclick="removeSeq(<%=i++%>)" href="javascript:void(0)"><img border="0" title="<spring:message code='expedient.tipus.form.boto.esborrar' />" alt="<spring:message code='expedient.tipus.form.boto.esborrar' />" src="/helium/img/cross.png"></a></td>
 									</tr>
 									</c:forEach>
 								</tbody>
 							</table>
-							<button onclick="add()" class="btn btn-primary submitButton" type="button" style="font-size:11px;margin-top: 2px">
+							<button onclick="add()" class="btn btn-primary submitButton" type="button">
 								<span class="fa fa-plus"></span> <spring:message code="expedient.tipus.form.boto.afegir"/>
-							</button>
+							</button>							
 						</div>
 
 					</div>

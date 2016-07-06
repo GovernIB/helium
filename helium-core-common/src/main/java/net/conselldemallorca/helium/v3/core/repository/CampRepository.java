@@ -48,12 +48,27 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	Camp findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 
 	/** Consulta el següent valor per a ordre dins d'una agrupació. */
-	@Query(	"select coalesce( max( c.ordre), 0) + 1 " +
+	@Query(	"select coalesce( max( c.ordre), -1) + 1 " +
 			"from Camp c " +
 			"where " +
 			"    c.agrupacio.id = :agrupacioId " )
 	Integer getNextOrdre(@Param("agrupacioId") Long agrupacioId);
 	
 	List<Camp> findByAgrupacioIdOrderByOrdreAsc(Long campAgrupacioId);
+
+	/** Compta el número d'arxius per a cada meta-expedient de la entitat. */
+	@Query(	"select " +
+			"    id, " +
+			"    size(validacions) " +
+			"from " +
+			"   Camp c " +
+			"where " +
+			"   c.expedientTipus.id = :expedientTipusId " +
+			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
+			"group by id ")
+	List<Object[]> countValidacions(
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
+			@Param("agrupacioId") Long agrupacioId);
 
 }
