@@ -375,17 +375,16 @@ public class ChangeProcessInstanceVersionCommand extends AbstractProcessInstance
 						newTransition = transicions.get(0);
 					else {
 						for (Transition t: transicions) {
-							if (t.getName() != null && t.getName().equals(oldTransition.getName())) {
+							if (oldTransition.getName() == null) {
+								if (t.getName() == null)
+									newTransition = t;
+							} else if (t.getName() != null && t.getName().equals(oldTransition.getName())) {
 								newTransition = t;
 								break;
 							}
 						}
-//						if (newTransition == null)
-//							newTransition = transicions.get(0);
 					}
-						
 				}
-//				newTransition = (Transition) q.uniqueResult();
 			}
 		}
 		
