@@ -69,7 +69,8 @@
 								elementForm: plugin.settings.elementForm,
 								elementTancarData: plugin.settings.elementTancarData,
 								contentUrl: webutilUrlAmbPrefix(href, '/modal'),
-								dataTableId: dataTableId
+								dataTableId: dataTableId,
+								callback: plugin.settings.callback
 							});
 						} else {
 							$('#' + modalDivId).webutilModalShow({
@@ -80,7 +81,8 @@
 								elementBotons: plugin.settings.elementBotons,
 								elementForm: plugin.settings.elementForm,
 								elementTancarData: plugin.settings.elementTancarData,
-								dataTableId: dataTableId
+								dataTableId: dataTableId,
+								callback: plugin.settings.callback
 							});
 						}
 					} else {
@@ -172,9 +174,12 @@
 						}
 					});
 				});
-				modalobj.on('hidde.bs.modal', function () {
+				modalobj.on('hidden.bs.modal', function () {
 					if (settings.dataTableId) {
 						$('#' + settings.dataTableId).webutilDatatable('refresh');
+					}
+					if (settings.callback) {
+						eval(settings.callback);						
 					}
 				});
 				iframe.on('load', function () {

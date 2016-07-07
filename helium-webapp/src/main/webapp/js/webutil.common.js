@@ -6,7 +6,7 @@ function webutilModalTancarPath() {
 	return webutilContextPath() + '/modal/tancar';
 }
 function webutilRefreshMissatges() {
-	$('#contingut-missatges').load(webutilContextPath() + "/nodeco/missatges");
+	$('#contingut-alertes').load(webutilContextPath() + "/nodeco/v3/missatges");
 }
 
 function webutilModalAdjustHeight() {

@@ -75,7 +75,7 @@
 	
 	function canviarPosicioAgrupacio( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
-		$('#agrupacio').DataTable().order([3, 'asc']);
+		$('#agrupacio').DataTable().order([1, 'asc']);
 		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/agrupacio/"/>'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
