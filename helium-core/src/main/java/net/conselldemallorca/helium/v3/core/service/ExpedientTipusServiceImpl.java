@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
@@ -34,6 +36,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -45,11 +48,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -57,6 +63,7 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 
@@ -81,6 +88,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
+	private EnumeracioValorsRepository enumeracioValorsRepository;	
+	@Resource
 	private DominiRepository dominiRepository;
 	@Resource
 	private DocumentRepository documentRepository;
@@ -96,7 +105,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private PaginacioHelper paginacioHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-
+	@Resource
+	private MessageHelper messageHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -1246,4 +1256,265 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return resposta;
 	}
 
+	/***********************************************/
+	/*****************ENUMERACIONS******************/
+	/***********************************************/
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ExpedientTipusEnumeracioDto> enumeracioFindPerDatatable(Long expedientTipusId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		logger.debug(
+				"Consultant les enumeracions per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+		
+		Page<Enumeracio> resultats = enumeracioRepository.findByFiltrePaginat(
+				expedientTipusId,
+				filtre == null || "".equals(filtre),
+				filtre,
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		
+		PaginaDto<ExpedientTipusEnumeracioDto> out = paginacioHelper.toPaginaDto(resultats, ExpedientTipusEnumeracioDto.class);
+		
+		//Recuperam el nombre de valors per cada enumerat
+		if (out!=null) {
+			for (int o=0; o<out.getContingut().size(); o++) {
+				List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(out.getContingut().get(o).getId());
+				if (valors!=null) {
+					out.getContingut().get(o).setNumValors(valors.size());
+				}else{
+					out.getContingut().get(o).setNumValors(new Integer(0));
+				}
+			}
+		}
+		
+		return out;
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioDto enumeracioCreate(Long expedientTipusId, Long entornId, ExpedientTipusEnumeracioDto enumeracio)
+			throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nova enumeracio per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"entornId =" + entornId + ", " +
+				"document=" + enumeracio + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(entornId, true, true);
+		
+		Enumeracio entity = new Enumeracio();
+		entity.setCodi(enumeracio.getCodi());
+		entity.setNom(enumeracio.getNom());
+
+		entity.setExpedientTipus(expedientTipus);
+		entity.setEntorn(entorn);
+
+		return conversioTipusHelper.convertir(
+				enumeracioRepository.save(entity),
+				ExpedientTipusEnumeracioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioDto enumeracioFindAmbCodi(Long expedientTipusId, String codi)
+			throws NoTrobatException {
+		logger.debug(
+				"Consultant l'enumeració del tipus d'expedient per codi (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codi = " + codi + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return conversioTipusHelper.convertir(
+				enumeracioRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
+				ExpedientTipusEnumeracioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void enumeracioDelete(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException {
+		
+		logger.debug(
+				"Esborrant l'enumeració del tipus d'expedient (" +
+				"enumeracioId=" + enumeracioId +  ")");
+		
+		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
+
+		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
+			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
+		}
+
+		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
+		if (valors!=null) {
+			for (int o=0; o<valors.size(); o++) {
+				enumeracioValorsRepository.delete(valors.get(o));
+			}
+		}
+		enumeracioValorsRepository.flush();
+		
+		enumeracioRepository.delete(entity);
+		enumeracioRepository.flush();
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioDto enumeracioFindAmbId(Long enumeracioId) throws NoTrobatException {
+		logger.debug(
+				"Consultant l'enumeracio del tipus d'expedient amb id (" +
+				"enumeracioId=" + enumeracioId +  ")");
+
+		return conversioTipusHelper.convertir(
+				enumeracioRepository.findOne(enumeracioId),
+				ExpedientTipusEnumeracioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioDto enumeracioUpdate(ExpedientTipusEnumeracioDto enumeracio)
+			throws NoTrobatException, PermisDenegatException {
+		
+		logger.debug(
+				"Modificant l'enumeració del tipus d'expedient existent (" +
+				"enumeracio.id=" + enumeracio.getId() + ", " +
+				"enumeracio =" + enumeracio + ")");
+		
+		Enumeracio entity = enumeracioRepository.findOne(enumeracio.getId());
+		entity.setCodi(enumeracio.getCodi());
+		entity.setNom(enumeracio.getNom());
+		
+		return conversioTipusHelper.convertir(
+				enumeracioRepository.save(entity),
+				ExpedientTipusEnumeracioDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ExpedientTipusEnumeracioValorDto> enumeracioValorsFindPerDatatable(Long expedientTipusId,
+			Long enumeracioId, String filtre, PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		
+		logger.debug(
+				"Consultant els valors de enumeracio per al tipus d'expedient per datatable (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"enumeracioId=" + enumeracioId + ", " +
+				"filtre=" + filtre + ")");
+		
+		Page<EnumeracioValors> resultats = enumeracioValorsRepository.findByFiltrePaginat(
+				enumeracioId,
+				filtre == null || "".equals(filtre),
+				filtre,
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		
+		PaginaDto<ExpedientTipusEnumeracioValorDto> out = paginacioHelper.toPaginaDto(resultats, ExpedientTipusEnumeracioValorDto.class);
+		
+		return out;
+	}
+
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioValorDto enumeracioValorsCreate(Long expedientTipusId, Long enumeracioId,
+			Long entornId, ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nou valor de enumeracio per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"enumeracioId =" + enumeracioId + ", " +
+				"entornId =" + entornId + ", " +
+				"document=" + enumeracio + ")");
+		
+		//Es llançará un PermisDenegatException si escau
+		entornHelper.getEntornComprovantPermisos(entornId, true, true);
+		
+		Enumeracio enumer = enumeracioRepository.findOne(enumeracioId);
+		
+		EnumeracioValors entity = new EnumeracioValors();
+		entity.setCodi(enumeracio.getCodi());
+		entity.setNom(enumeracio.getNom());
+		entity.setOrdre(enumeracio.getOrdre());
+		entity.setEnumeracio(enumer);
+
+		return conversioTipusHelper.convertir(
+				enumeracioValorsRepository.save(entity),
+				ExpedientTipusEnumeracioValorDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void enumeracioValorDelete(Long valorId) throws NoTrobatException, PermisDenegatException {
+		
+//		logger.debug(
+//				"Esborrant valor de l'enumeració del tipus d'expedient (" +
+//				"valorId=" + valorId +  ")");
+//		
+//		EnumeracioValors entity = enumeracioValorsRepository.findOne(valorId);
+//
+//		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
+//			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
+//		}
+//
+//		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
+//		if (valors!=null) {
+//			for (int o=0; o<valors.size(); o++) {
+//				enumeracioValorsRepository.delete(valors.get(o));
+//			}
+//		}
+//		enumeracioValorsRepository.flush();
+//		
+//		enumeracioRepository.delete(entity);
+//		enumeracioRepository.flush();
+	}
+
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbId(Long valorId) throws NoTrobatException {
+		
+		logger.debug(
+				"Consultant el valor de l'enumeracio del tipus d'expedient amb id (" +
+				"valorId=" + valorId +  ")");
+
+		return conversioTipusHelper.convertir(
+				enumeracioValorsRepository.findOne(valorId),
+				ExpedientTipusEnumeracioValorDto.class);
+	}
+
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioValorDto enumeracioValorUpdate(ExpedientTipusEnumeracioValorDto enumeracioValor)
+			throws NoTrobatException, PermisDenegatException {
+
+		logger.debug(
+				"Modificant el valor de l'enumeració del tipus d'expedient existent (" +
+				"enumeracioValor.id=" + enumeracioValor.getId() + ", " +
+				"enumeracioValor =" + enumeracioValor + ")");
+		
+		EnumeracioValors entity = enumeracioValorsRepository.findOne(enumeracioValor.getId());
+		entity.setCodi(enumeracioValor.getCodi());
+		entity.setNom(enumeracioValor.getNom());
+		entity.setOrdre(enumeracioValor.getOrdre());
+		
+		return conversioTipusHelper.convertir(
+				enumeracioValorsRepository.save(entity),
+				ExpedientTipusEnumeracioValorDto.class);
+	}
+
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbCodi(Long expedientTipusId, Long enumeracioId,
+			String codi) throws NoTrobatException {
+
+		logger.debug(
+				"Consultant el valor de l'enumeració del tipus d'expedient per codi (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"enumeracioId=" + enumeracioId + ", " +
+				"codi = " + codi + ")");
+		
+		Enumeracio enumeracio = enumeracioRepository.findOne(enumeracioId);
+		
+		return conversioTipusHelper.convertir(
+				enumeracioValorsRepository.findByEnumeracioAndCodi(enumeracio, codi),
+				ExpedientTipusEnumeracioValorDto.class);
+	}
 }

@@ -17,6 +17,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.web.servlet.support.RequestContext;
 
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Controlador base que implementa funcionalitats comunes.
  * 
@@ -204,5 +208,46 @@ public class BaseController implements MessageSourceAware {
 
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
+	}
+	
+	private class HTMLCharacterEscapes extends CharacterEscapes {
+		
+		private final int[] asciiEscapes;
+
+		public HTMLCharacterEscapes() {
+			int[] esc = CharacterEscapes.standardAsciiEscapesForJSON();
+			esc['<'] = CharacterEscapes.ESCAPE_STANDARD;
+			esc['>'] = CharacterEscapes.ESCAPE_STANDARD;
+			esc['&'] = CharacterEscapes.ESCAPE_STANDARD;
+			esc['\''] = CharacterEscapes.ESCAPE_STANDARD;
+			asciiEscapes = esc;
+		}
+
+		@Override
+		public int[] getEscapeCodesForAscii() {
+			return asciiEscapes;
+		}
+
+		@Override
+		public SerializableString getEscapeSequence(int ch) {
+			return null;
+		}
+		
+		private static final long serialVersionUID = 7857770126102468040L;
+	}
+
+	/**
+	 * Transforma un Object a String en format JSON
+	 */
+	protected String getObjectInJSON(Object object) {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.getFactory().setCharacterEscapes(new HTMLCharacterEscapes());
+		String result = null;
+		try {
+			result = mapper.writeValueAsString(object);			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 }

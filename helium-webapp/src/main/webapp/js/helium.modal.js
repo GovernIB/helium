@@ -24,7 +24,7 @@
 					'				<h4 class="modal-title"></h4>' +
 					'			</div>' +
 					'			<div class="modal-body" style="padding:0">' +
-					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="100%"></iframe>' +
+					'				<iframe frameborder="0" height="100' + ((settings.maximize) ? '%' : '') + '" width="100%" scrolling="auto"></iframe>' +
 					'			</div>' +
 					'			<div class="modal-footer">' +
 					'			</div>' +
