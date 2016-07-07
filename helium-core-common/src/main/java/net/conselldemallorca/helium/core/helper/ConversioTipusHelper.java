@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
@@ -117,6 +118,8 @@ public class ConversioTipusHelper {
 						target.setConsultaCampText(source.getConsultaCampText());
 						
 						target.setDominiCacheText(source.isDominiCacheText());
+						
+						target.setOrdre(source.getOrdre());
 						
 						return target;
 					}
@@ -267,6 +270,17 @@ public class ConversioTipusHelper {
 						return target;
 					}
 				});
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<Enumeracio, EnumeracioDto>() {
+					@Override
+					public EnumeracioDto convert(Enumeracio source, Type<? extends EnumeracioDto> destinationClass) {
+						EnumeracioDto target = new EnumeracioDto();
+						target.setId(source.getId());
+						target.setCodi(source.getCodi());
+						target.setNom(source.getNom());
+						return target;
+					}
+		});		
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

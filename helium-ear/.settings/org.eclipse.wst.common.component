@@ -2,7 +2,7 @@
     <wb-module deploy-name="helium">
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/ear-resources"/>
         <wb-resource deploy-path="/" source-path="/src/main/application" tag="defaultRootSource"/>
-        <dependent-module archiveName="helium-webapp-3.1.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
+        <dependent-module archiveName="helium-webapp-3.2.war" deploy-path="/" handle="module:/resource/helium-webapp/helium-webapp">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="hibernate-validator-legacy-4.0.2.GA.jar" deploy-path="/" handle="module:/classpath/var/M2_REPO/org/hibernate/hibernate-validator-legacy/4.0.2.GA/hibernate-validator-legacy-4.0.2.GA.jar">
@@ -35,7 +35,7 @@
         <dependent-module archiveName="validation-api-1.0.0.GA.jar" deploy-path="/" handle="module:/classpath/var/M2_REPO/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="helium-hibernate-entitymanager-3.1.jar" deploy-path="/" handle="module:/resource/helium-hibernate-entitymanager/helium-hibernate-entitymanager">
+        <dependent-module archiveName="helium-hibernate-entitymanager-3.2.jar" deploy-path="/" handle="module:/resource/helium-hibernate-entitymanager/helium-hibernate-entitymanager">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="hibernate-entitymanager-3.6.5.Final.jar" deploy-path="/" handle="module:/classpath/var/M2_REPO/org/hibernate/hibernate-entitymanager/3.6.5.Final/hibernate-entitymanager-3.6.5.Final.jar">

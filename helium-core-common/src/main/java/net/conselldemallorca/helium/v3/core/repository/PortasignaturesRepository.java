@@ -38,7 +38,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			"and p.estat not in :estats ")
 	List<Portasignatures> findByProcessInstanceIdAndEstatNotIn(
 			@Param("processInstanceId") String processInstanceId,
-			@Param("estat") TipusEstat[] estats);
+			@Param("estats") List<TipusEstat> estats);
 
 	@Query(
 			"from " +

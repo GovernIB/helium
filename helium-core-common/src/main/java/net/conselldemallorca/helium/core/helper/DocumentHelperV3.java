@@ -1367,14 +1367,16 @@ public class DocumentHelperV3 {
 						documentStore.getReferenciaFont(),
 						expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 			if (processInstanceId != null) {
+				
+				List<TipusEstat> estats = new ArrayList<TipusEstat>();
+				estats.add(TipusEstat.PENDENT);
+				estats.add(TipusEstat.SIGNAT);
+				estats.add(TipusEstat.REBUTJAT);
+				estats.add(TipusEstat.ERROR);
+				
 				List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
 						processInstanceId,
-						new TipusEstat[] {
-								TipusEstat.PENDENT,
-								TipusEstat.SIGNAT,
-								TipusEstat.REBUTJAT,
-								TipusEstat.ERROR
-						});
+						estats);
 				for (Portasignatures psigna: psignaPendents) {
 					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
 						psigna.setEstat(TipusEstat.ESBORRAT);
