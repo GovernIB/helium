@@ -661,7 +661,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
 			
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO || 
-					tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
+					tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT ||
+						tipus == ExecucioMassivaTipus.REASSIGNAR){
 				Object param2 = deserialize(ome.getExecucioMassiva().getParam2());
 				if (param2 instanceof Object[]) {
 					Object credentials = ((Object[])param2)[1];
