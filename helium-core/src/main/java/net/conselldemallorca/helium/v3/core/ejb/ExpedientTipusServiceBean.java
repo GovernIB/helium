@@ -225,6 +225,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean agrupacioMourePosicio(Long id, int posicio) {
+		return delegate.agrupacioMourePosicio(id, posicio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void agrupacioDelete(
 			Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
 		delegate.agrupacioDelete(agrupacioCampId);

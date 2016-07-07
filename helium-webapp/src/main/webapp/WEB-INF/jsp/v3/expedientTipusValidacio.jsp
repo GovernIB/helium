@@ -9,6 +9,7 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campValidacio.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
+<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/variable/${camp.id}/validacio"></c:url></c:set>
 
 <html>
 <head>
@@ -29,13 +30,34 @@
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
+	
+	<form:form id="validacio-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" method="post" commandName="expedientTipusValidacioCommand" 
+		style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
+		<div class="inlineLabels">        
+			<input type="hidden" name="id" id="inputValidacioId" value="${expedientTipusValidacioCommand.id}"/>
+			<hel:inputText required="true" name="expressio" textKey="expedient.tipus.campValidacio.form.camp.expressio" />
+			<hel:inputTextarea required="true" name="missatge" textKey="expedient.tipus.campValidacio.form.camp.missatge" />
+		</div>
+
+		<div id="modal-botons" class="well">
+			<button id="btnCancelar" name="submit" value="cancel" class="btn btn-default"><spring:message code="comu.boto.cancelar"/></button>
+			<button id="btnCreate" style='${mostraCreate ? "":"display:none;"}' class="btn btn-primary right" type="submit" name="accio" value="crear">
+				<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
+			</button>
+			<button id="btnUpdate" style='${mostraUpdate ? "":"display:none;"}' class="btn btn-primary right" type="submit" name="accio" value="modificar">
+				<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
+			</button>	
+		</div>
+
+	</form:form>
+	
 	<div class="botons-titol text-right">
-		<a class="btn btn-default" href="validacio/new" data-datatable-id="campValidacio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.campValidacio.llistat.accio.crear"/></a>
-	</div>
+		<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.campValidacio.llistat.accio.crear"/></button>
+	</div>	
 	<div style="height: 500px;">
 		<table	id="campValidacio"
 				data-toggle="datatable"
-				data-url="validacio/datatable"
+				data-url="${baseUrl}/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-default-order="3"
@@ -51,8 +73,8 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="validacio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="validacio/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.campValidacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a href="${baseUrl}/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.campValidacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -64,7 +86,17 @@
 	
 	<script type="text/javascript">
 	// <![CDATA[
+	            
 	$(document).ready(function() {
+		// Accions del formulari
+		$('#btnCancelar').click(function(e){
+			e.preventDefault();
+			cancelaFormulari();
+		})
+		$('#btnNew').click(function(){
+			mostraFormulariNew();
+		})
+		
 		// Quan es repinta la taula aplica la reordenació
 		$('#campValidacio').on('draw.dt', function() {
 			// Posa la taula com a ordenable
@@ -84,8 +116,59 @@
 		    }, function() {
 		        $(this.cells[0]).removeClass('showDragHandle');
 		    });	
-		  });						
+		    // Modifica l'enllaç update per carregar adaptar la vista a l'update
+		    $(".validacioUpdate").click(function(){
+				var validacioId = $(this).data('validacioid');
+				mostraFormulariUpdate(validacioId);
+				return false;
+		    });
+			// Botons eliminar
+			$(".ajax-link").click(function(e) {
+				var getUrl = $(this).attr('href');
+				$.ajax({
+					type: 'GET',
+					url: getUrl,
+					async: true,
+					success: function(result) {
+						$('#campValidacio').webutilDatatable('refresh');
+						webutilRefreshMissatges();
+					},
+					errlr: function(error) {
+						webutilRefreshMissatges();
+						console.log('Error:'+error);
+					}
+				});
+				e.stopImmediatePropagation();
+				return false;
+			});
+		  });			
 	});
+	
+	function cancelaFormulari() {
+		$('#validacio-form').hide(300);
+		$('#btnNew').show();
+		$('#validacio-form').attr('action','');
+	}
+	
+	function mostraFormulariNew() {
+		$('#btnNew').hide();
+		$('#btnCreate').show();
+		$('#btnUpdate').hide();
+		resetFormulari();
+		$('#validacio-form').attr('action','${baseUrl}/new');
+	}
+	
+	function mostraFormulariUpdate(id) {
+		$('#btnNew').hide();
+		$('#btnCreate').hide();
+		$('#btnUpdate').show();
+		resetFormulari();
+		$('#validacio-form').attr('action','${baseUrl}/'+id+'/update');
+		// Copia els valors
+		$("#inputValidacioId").val(id);
+		$("#expressio").val($("#campValidacio tr[id='row_"+id+"'] td:nth-child(1)").text());
+		$("#missatge").val($("#campValidacio tr[id='row_"+id+"'] td:nth-child(2)").text());
+	}
 	
 	function canviarPosicioValidacio( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
@@ -120,6 +203,12 @@
 		id = $("#campValidacio tr:eq("+fila+")").attr("id");	
 		id2 = id.split("_");
 		return id2[1] ;
+	}
+	
+	function resetFormulari() {
+		$('#validacio-form').trigger('reset').show(300);
+		$('#validacio-form .help-block').remove();
+		$('#validacio-form .has-error').removeClass('has-error');
 	}
 	// ]]>
 	</script>	
