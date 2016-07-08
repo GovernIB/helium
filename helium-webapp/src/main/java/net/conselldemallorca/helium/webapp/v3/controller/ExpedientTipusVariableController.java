@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -121,10 +123,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
     		expedientTipusService.campCreate(
     				expedientTipusId,
         			ExpedientTipusCampCommand.asCampDto(command));    		
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
-					"expedient.tipus.camp.controller.creat");
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.camp.controller.creat"));
+			return modalUrlTancar(false);			
         }
 	}
 
@@ -167,10 +171,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
         } else {
         	expedientTipusService.campUpdate(
         			ExpedientTipusCampCommand.asCampDto(command));
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
-					"expedient.tipus.camp.controller.modificat");
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.camp.controller.modificat"));
+			return modalUrlTancar(false);
         }
 	}
 	
@@ -190,8 +196,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
-			@PathVariable int posicio,
-			Model model) {
+			@PathVariable int posicio) {
 		
 		return expedientTipusService.campMourePosicio(id, posicio);
 	}
@@ -220,23 +225,32 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/variable/{id}/delete", method = RequestMethod.GET)
-	public String delete(
+	@ResponseBody
+	public boolean delete(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
 		
-		expedientTipusService.campDelete(id);
-		
-		MissatgesHelper.success(
-				request,
-				getMessage(
-						request,
-						"expedient.tipus.camp.controller.eliminat"));
-		
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
+		try {
+			expedientTipusService.campDelete(id);
+			
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.camp.llistat.accio.esborrar.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.camp.llistat.accio.esborrar.error"));
+			logger.error("S'ha produit un error al intentar eliminar la variable amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
+			return false;
+		}
 	}
-	
 	
 	// Mètodes pel manteniment d'agrupacions
 
@@ -251,9 +265,20 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		
 		return "v3/expedientTipusAgrupacio";
 	}
+	
+	/** Mètode per obtenir les agrupacions per al select. */
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> agrupacionsSelect(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		return obtenirParellesAgrupacions(expedientTipusId);
+	}
 
 	/** Obre una modal amb un llistat per reordenar les agrupacions. */
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/datatable", method = RequestMethod.GET)
+	@ResponseBody
 	public DatatablesResponse agrupacioDatatable(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -297,11 +322,13 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
     				expedientTipusId,
     				conversioTipusHelper.convertir(
     						command,
-    						CampAgrupacioDto.class));    		
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
-					"expedient.tipus.campAgrupacio.controller.creat");
+    						CampAgrupacioDto.class));    	
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.campAgrupacio.controller.creat"));
+			return modalUrlTancar(false);
         }
 	}	
 	
@@ -335,30 +362,61 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
         			conversioTipusHelper.convertir(
     						command,
     						CampAgrupacioDto.class));
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
-					"expedient.tipus.campAgrupacio.controller.modificat");
+			MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.campAgrupacio.controller.modificat"));
+			return modalUrlTancar(false);		
         }
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/delete", method = RequestMethod.GET)
-	public String agrupacioDelete(
+	@ResponseBody
+	public boolean agrupacioDelete(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
 		
-		expedientTipusService.agrupacioDelete(id);
-		
-		MissatgesHelper.success(
-				request,
-				getMessage(
-						request,
-						"expedient.tipus.campAgrupacio.controller.eliminat"));
-		
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
+		try {
+			expedientTipusService.agrupacioDelete(id);
+			
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.camp.llistat.agrupacio.boto.esborrar.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.camp.llistat.agrupacio.boto.esborrar.error"));
+			logger.error("S'ha produit un error al intentar eliminar la agrupació amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
+			return false;
+		}
 	}
+	/**
+	 * Mètode Ajax per moure una agrupació de posició dins del tipus d'expedient.
+	 * @param request
+	 * @param expedientTipusId
+	 * @param id
+	 * @param posicio
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/agrupacio/{id}/moure/{posicio}")
+	@ResponseBody
+	public boolean agrupacioMourePosicio(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			@PathVariable int posicio) {
+		
+		return expedientTipusService.agrupacioMourePosicio(id, posicio);
+	}		
 
 	// Mètodes pel manteniment de validacions de variables
 	
@@ -371,7 +429,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("camp", expedientTipusService.campFindAmbId(campId));
-		
+
+		ExpedientTipusValidacioCommand command = new ExpedientTipusValidacioCommand();
+		command.setExpedientTipusId(expedientTipusId);
+		command.setCampId(campId);
+		model.addAttribute("expedientTipusValidacioCommand", command);
+
 		return "v3/expedientTipusValidacio";
 	}	
 	
@@ -392,19 +455,6 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 						paginacioParams),
 				"id");
 	}		
-
-	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/new", method = RequestMethod.GET)
-	public String validacioNova(
-			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
-			@PathVariable Long campId,
-			Model model) {
-		ExpedientTipusValidacioCommand command = new ExpedientTipusValidacioCommand();
-		command.setExpedientTipusId(expedientTipusId);
-		command.setCampId(campId);
-		model.addAttribute("expedientTipusValidacioCommand", command);
-		return "v3/expedientTipusValidacioForm";
-	}	
 	
 	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/new", method = RequestMethod.POST)
 	public String validacioNovaPost(
@@ -414,8 +464,10 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@Validated(ExpedientTipusValidacioCommand.Creacio.class) ExpedientTipusValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		model.addAttribute("camp", expedientTipusService.campFindAmbId(campId));
         if (bindingResult.hasErrors()) {
-        	return "v3/expedientTipusValidacioForm";
+        	model.addAttribute("mostraCreate", true);
+        	return "v3/expedientTipusValidacio";
         } else {
         	// Verificar permisos
     		expedientTipusService.validacioCreate(
@@ -423,10 +475,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
     				conversioTipusHelper.convertir(
     						command,
     						ValidacioDto.class));    		
-			return getModalControllerReturnValueSuccess(
+			MissatgesHelper.success(
 					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
-					"expedient.tipus.campValidacio.controller.creat");
+					getMessage(
+							request,
+							"expedient.tipus.campValidacio.controller.creat"));
+        	return validacions(request, expedientTipusId, campId, model);
         }
 	}	
 	
@@ -455,37 +509,51 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@Validated(ExpedientTipusValidacioCommand.Modificacio.class) ExpedientTipusValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		model.addAttribute("camp", expedientTipusService.campFindAmbId(campId));
         if (bindingResult.hasErrors()) {
-        	return "v3/expedientTipusValidacioForm";
+        	model.addAttribute("mostraUpdate", true);
+        	return "v3/expedientTipusValidacio";
         } else {
         	expedientTipusService.validacioUpdate(
         			conversioTipusHelper.convertir(
     						command,
     						ValidacioDto.class));
-			return getModalControllerReturnValueSuccess(
+			MissatgesHelper.success(
 					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#variables",
-					"expedient.tipus.campValidacio.controller.modificat");
+					getMessage(
+							request,
+							"expedient.tipus.campValidacio.controller.modificat"));
+        	return validacions(request, expedientTipusId, campId, model);
         }
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/validacio/{id}/delete", method = RequestMethod.GET)
-	public String validacioDelete(
+	@ResponseBody
+	public boolean validacioDelete(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
 			Model model) {
-		
-		expedientTipusService.validacioDelete(id);
-		
-		MissatgesHelper.success(
-				request,
-				getMessage(
-						request,
-						"expedient.tipus.campValidacio.controller.eliminat"));
-		
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#variables";
+				
+		try {
+			expedientTipusService.validacioDelete(id);
+			
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.campValidacio.controller.eliminar.success"));			
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.campValidacio.controller.eliminar.error"));
+			logger.error("S'ha produit un error al intentar eliminar la validació amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
+			return false;
+		}
 	}
 	
 	/**
@@ -504,8 +572,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long campId,
 			@PathVariable Long id,
-			@PathVariable int posicio,
-			Model model) {
+			@PathVariable int posicio) {
 		
 		return expedientTipusService.validacioMourePosicio(id, posicio);
 	}	
@@ -561,12 +628,17 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Model model) {
+		model.addAttribute("agrupacions", obtenirParellesAgrupacions(expedientTipusId));		
+	}
+	
+	private List<ParellaCodiValorDto> obtenirParellesAgrupacions(Long expedientTipusId) {
 		List<CampAgrupacioDto> agrupacions = expedientTipusService.agrupacioFindAll(expedientTipusId);
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (CampAgrupacioDto agrupacio : agrupacions) {
 			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
 		}
-		model.addAttribute("agrupacions", resposta);		
+		return resposta;
 	}
 
+	private static final Log logger = LogFactory.getLog(ExpedientTipusVariableController.class);
 }

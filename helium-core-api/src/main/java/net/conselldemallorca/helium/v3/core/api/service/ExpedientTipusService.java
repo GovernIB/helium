@@ -6,7 +6,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
@@ -339,6 +338,14 @@ public interface ExpedientTipusService {
 	public CampAgrupacioDto agrupacioUpdate(
 			Long expedientTipusId,
 			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException;
+	
+	/** Mou la agrupacio id cap a la posició indicada reassignant el valor pel camp ordre.
+	 * 
+	 * @param id
+	 * @param posicio
+	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
+	 */
+	public boolean agrupacioMourePosicio(Long id, int posicio);
 	
 	/**
 	 * Esborra una entitat.

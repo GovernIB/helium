@@ -43,7 +43,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
@@ -59,7 +58,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
@@ -360,14 +358,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
 		ExpedientTipus tipus;
 		if (entornHelper.potDissenyarEntorn(entornId)) {
 			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
 			tipus = expedientTipusRepository.findByEntornAndId(
-					entorn,
+					entornHelper.getEntornComprovantPermisos(
+							entornId,
+							true),
 					expedientTipusId);
 		} else {
 			// Si no te permisos de disseny a damunt l'entorn només es poden veure
@@ -1016,6 +1013,27 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				campAgrupacioRepository.save(entity),
 				CampAgrupacioDto.class);
 	}
+	
+	@Override
+	@Transactional
+	public boolean agrupacioMourePosicio(
+			Long id, 
+			int posicio) {
+		boolean ret = false;
+		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(id);
+		if (agrupacio != null) {
+			List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(agrupacio.getExpedientTipus().getId());
+			if(posicio != agrupacions.indexOf(agrupacio)) {
+				agrupacions.remove(agrupacio);
+				agrupacions.add(posicio, agrupacio);
+				int i = 0;
+				for (CampAgrupacio c : agrupacions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -1035,18 +1053,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}			
 			campAgrupacioRepository.delete(entity);
 			campAgrupacioRepository.flush();
-			reordenarAgrupacions(entity.getExpedientTipus().getId());
 		}
+		reordenarAgrupacions(entity.getExpedientTipus().getId());
 	}
 	
 	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient */
 	@Transactional
-	private void reordenarAgrupacions(Long expedientTipusId) {
+	private int reordenarAgrupacions(Long expedientTipusId) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		List<CampAgrupacio> campsAgrupacio = expedientTipus.getAgrupacions();
 		int i = 0;
 		for (CampAgrupacio campAgrupacio: campsAgrupacio)
 			campAgrupacio.setOrdre(i++);
+		return campsAgrupacio.size();
 	}
 	
 	/**
@@ -1105,6 +1124,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(agrupacioId);
 		if (camp != null && agrupacio != null && camp.getExpedientTipus().getId().equals(agrupacio.getExpedientTipus().getId())) {
 			camp.setAgrupacio(agrupacio);
+			reordenarCamps(agrupacioId);
 			ret = true;
 		}
 		return ret;
@@ -1122,7 +1142,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"campId=" + campId + ")");
 		Camp camp = campRepository.findOne(campId);
 		if (camp != null && camp.getAgrupacio() != null) {
+			Long agrupacioId = camp.getAgrupacio().getId();
 			camp.setAgrupacio(null);
+			camp.setOrdre(null);
+			reordenarCamps(agrupacioId);
 			ret = true;
 		}
 		return ret;
@@ -1145,7 +1168,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setCamp(campRepository.findOne(campId));
 		entity.setExpressio(validacio.getExpressio());
 		entity.setMissatge(validacio.getMissatge());
-		validacio.setOrdre(campValidacioRepository.getNextOrdre(campId));
+		entity.setOrdre(campValidacioRepository.getNextOrdre(campId));
 		
 		return conversioTipusHelper.convertir(
 				campValidacioRepository.save(entity),
