@@ -22,7 +22,7 @@
 
 	<!-- JBoss: mvc:resources mapping="/webjars/**" location="/META-INF/resources/webjars/"/ -->
 	<!-- Tomcat: mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/ -->
-	<mvc:resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
+	<mvc:resources mapping="/webjars/**" location="/META-INF/resources/webjars/"/>
 
 	<!--mvc:resources mapping="/**/*.png" location="/" cache-period="86400"/>
 	<mvc:resources mapping="/**/*.jpg" location="/" cache-period="86400"/>
