@@ -139,7 +139,6 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNom(command.getNom());
 		dto.setDescripcio(command.getDescripcio());
 		dto.setArxiuNom(command.getArxiuNom());
-//		dto.setArxiuContingut(command.getArxiuContingut());
 		dto.setPlantilla(command.isPlantilla());
 		dto.setConvertirExtensio(command.getConvertirExtensio());
 		dto.setAdjuntarAuto(command.isAdjuntarAuto());

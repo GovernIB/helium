@@ -41,41 +41,40 @@
         
 					
 			<input type="hidden" name="id" value="${expedientTipusDocumentCommand.id}"/>
+			<input type="hidden" name="eliminarContingut" id="eliminarContingut" value="false"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.document.form.camp.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.document.form.camp.nom" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.document.form.camp.descripcio" />
 			
-			
 					<div class="form-group">
 						<label class="control-label col-xs-4" for="arxiuNom"><spring:message code='expedient.tipus.document.form.camp.arxiu' /></label>
 				        <div class="col-xs-8 arxiu">
-				        	<c:choose>
-								<c:when test="${empty arxiuContingut}">
-						            <div class="input-group">
-						                <form:input path="arxiuNom" cssClass="form-control" />
+				            <div class="input-group" id ="arxiuGrup">
+				            	<form:input path="arxiuNom" cssClass="form-control" />
+				                <c:choose>
+									<c:when test="${empty arxiuContingut}">
 						                <span class="input-group-btn">
 						                    <span class="btn btn-default btn-file">
-						                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut" value="${arxiuContingut}">
+						                        <spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut">
 						                    </span>
 						                </span>
-						            </div>
-					            </c:when>
-								<c:otherwise>
-									<div class="input-group">
-						                <form:input path="arxiuNom" cssClass="form-control" />
-						                <span class="input-group-btn">
-						                    <span class="btn btn-default btn-file-mid">
-						                        <span class="fa fa-trash"></span>
-						                    </span>
-						                </span>
-						                <span class="input-group-btn">
-						                    <span class="btn btn-default btn-file">
-						                        <span class="fa fa-file"></span>
-						                    </span>
-						                </span>
-						            </div>
-								</c:otherwise>
-							</c:choose>
+						            </c:when>
+									<c:otherwise>
+										<span class="input-group-btn" id="btnTrash" title="Eliminar document">
+											<span id="esborrarContingut" class="btn btn-default btn-file-mid">
+												<span class="fa fa-trash"></span>
+											</span>
+										</span>
+										<span class="input-group-btn" id="btnDownload" title="Descarregar">
+											<a href="<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/download" />" >
+												<span class="btn btn-default btn-file">
+													<span class="fa fa-file"></span>
+												</span>
+											</a>
+										</span>
+									</c:otherwise>
+								</c:choose>
+				            </div>
 						</div>
 					</div>
 				
@@ -117,7 +116,7 @@
 	</form:form>
 	<script type="text/javascript">
 		// <![CDATA[
-           $(document).on('change', '.btn-file :file', function() {
+        $(document).on('change', '.btn-file :file', function() {
 			var input = $(this),
 			numFiles = input.get(0).files ? input.get(0).files.length : 1,
 			label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
@@ -137,6 +136,28 @@
 			});
 			$('#arxiuNom').on('click', function() {
 				$('input[name=arxiuContingut]').click();
+			});
+			$('#esborrarContingut').on('click', function() {
+				$('#eliminarContingut').val(true);
+				$('#arxiuNom').val('');
+				$('#btnTrash').remove();
+				$('#btnDownload').remove();
+				$('#arxiuGrup').append('<span class="input-group-btn">' +
+	                    '<span class="btn btn-default btn-file">' +
+                        '<spring:message code='expedient.tipus.document.form.camp.arxiu' />… <input type="file" id="arxiuContingut" name="arxiuContingut">' +
+                    '</span>' +
+                '</span>');
+				
+				$('.btn-file :file').on('fileselect', function(event, numFiles, label) {
+					var input = $(this).parents('.input-group').find(':text'),
+					log = numFiles > 1 ? numFiles + ' files selected' : label;
+					if( input.length ) {
+						input.val(log);
+					} else {
+						if( log )
+							alert(log);
+					}
+				});
 			});
 		}); 
 		// ]]>

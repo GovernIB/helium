@@ -121,6 +121,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		ExpedientTipusDocumentDto dto = expedientTipusService.documentFindAmbId(id);
 		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(dto,
 				ExpedientTipusDocumentCommand.class);
+		command.setExpedientTipusId(expedientTipusId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelCamps(request, expedientTipusId, model);
@@ -135,6 +136,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			@RequestParam(value = "arxiuContingut", required = false) final CommonsMultipartFile arxiuContingut,
+			@RequestParam(value = "eliminarContingut", required = false) final boolean eliminarContingut,
 			@Validated(ExpedientTipusDocumentCommand.Modificacio.class) ExpedientTipusDocumentCommand command,
 			BindingResult bindingResult, Model model) {
 		try {
@@ -142,9 +144,17 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				omplirModelCamps(request, expedientTipusId, model);
 				return "v3/expedientTipusDocumentForm";
 			} else {
-				byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
 				ExpedientTipusDocumentDto dto = ExpedientTipusDocumentCommand.asExpedientTipusDocumentDto(command);
-				dto.setArxiuContingut(contingutArxiu);
+				
+				if (arxiuContingut == null && eliminarContingut) {
+					dto.setArxiuContingut(null);
+				} else if (arxiuContingut != null) {
+					byte[] contingutArxiu = IOUtils.toByteArray(arxiuContingut.getInputStream());
+					dto.setArxiuContingut(contingutArxiu);
+				} else if (arxiuContingut == null && !eliminarContingut) {
+					ExpedientTipusDocumentDto dtoVell = expedientTipusService.documentFindAmbId(id);
+					dto.setArxiuContingut(dtoVell.getArxiuContingut());
+				}
 				
 				expedientTipusService.documentUpdate(dto);
 				return getModalControllerReturnValueSuccess(request,
