@@ -432,6 +432,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean validacioMourePosicio(Long id, int posicio) {
 		return delegate.validacioMourePosicio(id, posicio);
+	}
 		
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
