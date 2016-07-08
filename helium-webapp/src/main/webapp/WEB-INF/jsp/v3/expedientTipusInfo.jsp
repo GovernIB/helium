@@ -148,7 +148,7 @@
 								<li class="divider"></li>
 							</c:if>
 							<c:if test="${potEscriure}">
-								<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/modificar"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 							</c:if>
 						</ul>
 					</div>

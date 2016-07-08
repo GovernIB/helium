@@ -357,14 +357,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant tipus d'expedient amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId = " + expedientTipusId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
 		ExpedientTipus tipus;
 		if (entornHelper.potDissenyarEntorn(entornId)) {
 			// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
 			tipus = expedientTipusRepository.findByEntornAndId(
-					entorn,
+					entornHelper.getEntornComprovantPermisos(
+							entornId,
+							true),
 					expedientTipusId);
 		} else {
 			// Si no te permisos de disseny a damunt l'entorn només es poden veure
@@ -924,17 +923,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		List<CampAgrupacio> agrupacions = null;
-		if (expedientTipus.isAmbInfoPropia()) {
-			// Recupera la informació de les agrupacions de l'expedient
-			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
-		} else {
-			// Recupera la informació de les agrupacions per a la definició de procés
-		}
+		List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
 		return conversioTipusHelper.convertirList(
 									agrupacions, 
 									CampAgrupacioDto.class);

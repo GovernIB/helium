@@ -67,6 +67,46 @@ public class BaseExpedientTipusController extends BaseController {
 		model.addAttribute(
 				"definicioProcesInicial",
 				dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
+
+		// Permisos per a les accions
+		boolean potEscriure;
+		if (entornActual.isPermisDesign()) {
+			potEscriure = true;
+		} else {
+			try {
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						false, 
+						true,  // comprovarPermisWrite 
+						false, 
+						false, 
+						false);
+				potEscriure = true;
+			} catch (Exception e){
+				potEscriure = false;
+			}
+		}
+		model.addAttribute("potEscriure", potEscriure);
+		
+		boolean potEsborrar;
+		if (entornActual.isPermisDesign()) {
+			potEsborrar = true;
+		} else {
+			try {
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+																expedientTipusId, 
+																false, 
+																false,   
+																false, 
+																true,	// comprovarPermisDelete 
+																false);
+				potEsborrar = true;
+			} catch (Exception e){
+				potEsborrar = false;
+			}
+		}		
+		model.addAttribute("potEsborrar", potEsborrar);
+		
 		return "v3/expedientTipusInfo";
 	}
 	
