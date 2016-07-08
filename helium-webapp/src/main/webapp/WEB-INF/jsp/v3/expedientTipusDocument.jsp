@@ -41,8 +41,8 @@
 							{{/if}}
 						</script>
 					</th>
-					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
-						<script id="cellAccionsTemplate" type="text/x-jsrender">
+					<th data-col-name="id" data-template="#cellAccionsDocTemplate" data-orderable="false" width="10%">
+						<script id="cellAccionsDocTemplate" type="text/x-jsrender">
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">

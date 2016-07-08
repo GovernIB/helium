@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
@@ -915,6 +916,24 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return ret;
 	}
 	
+	@Transactional(readOnly = true)
+	public List<CampDto> campFindTipusDataPerExpedientTipus(
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant els camps del tipus data" +
+				" per al tipus d'expedient desplegable");
+		
+		ExpedientTipus expedientTipus = 
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		
+		List<Camp> camps = campRepository.findByExpedientTipusAndTipus(expedientTipus, TipusCamp.DATE);
+		
+		return conversioTipusHelper.convertirList(
+				camps, 
+				CampDto.class);
+	}
 
 	// MANTENIMENT D'AGRUPACIONS DE CAMPS
 
@@ -930,7 +949,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusHelper.getExpedientTipusComprovantPermisos(
 						expedientTipusId, 
 						true);
-		List<CampAgrupacio> agrupacions = null;
+		List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
 		if (expedientTipus.isAmbInfoPropia()) {
 			// Recupera la informació de les agrupacions de l'expedient
 			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
@@ -1400,6 +1419,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
 		if (document.getCampData() != null)
 			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
+		else
+			entity.setCampData(null);
+		
 		entity.setExtensionsPermeses(document.getExtensionsPermeses());
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());

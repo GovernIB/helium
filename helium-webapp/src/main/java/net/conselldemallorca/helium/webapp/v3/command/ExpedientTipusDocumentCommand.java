@@ -35,7 +35,7 @@ public class ExpedientTipusDocumentCommand {
 	private boolean plantilla;
 	private String convertirExtensio;
 	private boolean adjuntarAuto;
-	private CampDto campData;
+	private Long campId;
 	private String extensionsPermeses;
 	private String contentType;
 	private String custodiaCodi;
@@ -102,11 +102,11 @@ public class ExpedientTipusDocumentCommand {
 	public void setAdjuntarAuto(boolean adjuntarAuto) {
 		this.adjuntarAuto = adjuntarAuto;
 	}
-	public CampDto getCampData() {
-		return campData;
+	public Long getCampId() {
+		return campId;
 	}
-	public void setCampData(CampDto campData) {
-		this.campData = campData;
+	public void setCampId(Long campId) {
+		this.campId = campId;
 	}
 	public String getExtensionsPermeses() {
 		return extensionsPermeses;
@@ -139,11 +139,16 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNom(command.getNom());
 		dto.setDescripcio(command.getDescripcio());
 		dto.setArxiuNom(command.getArxiuNom());
-//		dto.setArxiuContingut(command.getArxiuContingut());
 		dto.setPlantilla(command.isPlantilla());
 		dto.setConvertirExtensio(command.getConvertirExtensio());
 		dto.setAdjuntarAuto(command.isAdjuntarAuto());
-		dto.setCampData(command.getCampData());
+		if(command.getCampId() != null) {
+			CampDto campDto = new CampDto();
+			campDto.setId(command.getCampId());
+			dto.setCampData(campDto);
+		} else {
+			dto.setCampData(null);
+		}
 		dto.setExtensionsPermeses(command.getExtensionsPermeses());
 		dto.setContentType(command.getContentType());
 		dto.setCustodiaCodi(command.getCustodiaCodi());
