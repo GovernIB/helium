@@ -15,7 +15,7 @@
 	<c:when test="${not empty expedientTipus}">
 
 		<div class="botons-titol text-right">
-			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
+			<a id="nou_doc" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
 		</div>
 		<table	id="expedientTipusDocument"
 				data-toggle="datatable"
@@ -49,8 +49,8 @@
 									{{if arxiuNom != null }}
 										<li><a href="${expedientTipus.id}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
 									{{/if}}
-									<li><a data-toggle="modal" href="${expedientTipus.id}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${expedientTipus.id}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</ul>
 							</div>
 						</script>
@@ -69,36 +69,42 @@
 
 <script type="text/javascript">
 // <![CDATA[
+            
 $(document).ready(function() {
-	
-	// Quan es repinta la taula actualitza els enllaços
-// 	$('#expedientTipusVariable').on('draw.dt', function() {
-// 		// Botons per agrupar o desagrupar
-// 		$(".ajax-link").click(function(e) {
-// 			var getUrl = $(this).attr('href');
-// 			$.ajax({
-// 				type: 'GET',
-// 				url: getUrl,
-// 				async: true,
-// 				success: function(result) {
-// 					if (result) {
-// 						refrescaTaula();
-// 					}
-// 				}
-// 			});
-// 			e.stopImmediatePropagation();
-// 			return false;
-// 		});
-// 	});		
+
+	$('#expedientTipusDocument').on('draw.dt', function() {
+		// Botons per agrupar o desagrupar
+		$(".ajax-link").click(function(e) {
+			var getUrl = $(this).attr('href');
+			$.ajax({
+				type: 'GET',
+				url: getUrl,
+				async: true,
+				success: function(result) {
+					if (result) {
+						refrescaTaulaDocuments();
+					}
+					webutilRefreshMissatges();
+				},
+				errlr: function(error) {
+					webutilRefreshMissatges();
+					console.log('Error:'+error);
+				}
+			});
+			e.stopImmediatePropagation();
+			return false;
+		});
+	});
 });
 
-// function refrescaTaula() {
-// 	var agrupacioId = $("#agrupacions").val();
-// 	if (agrupacioId != "") {
-// 		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${expedientTipus.id}/variable/datatable?agrupacioId='+agrupacioId);		
-// 	} else {
-// 		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${expedientTipus.id}/variable/datatable');
-// 	}
-// }
+function refrescaTaulaDocuments() {
+	$('#expedientTipusDocument').webutilDatatable('refresh-url', '${expedientTipus.id}/document/datatable');
+}
+
+function callbackModalDocuments() {
+	webutilRefreshMissatges();
+	refrescaTaulaDocuments();
+}
+
 // ]]>
 </script>			

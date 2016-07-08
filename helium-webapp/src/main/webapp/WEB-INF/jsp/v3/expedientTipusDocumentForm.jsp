@@ -31,14 +31,14 @@
 	
 	<style type="text/css">
 		.btn-file {position: relative; overflow: hidden;}
-		.btn-file-mid {position: relative; overflow: hidden; border-radius: 0px}
+		.btn-file-mid {position: relative; overflow: hidden; border-radius: 0px;background-color: #eee;}
 		.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
+		.no-left-radius{border-top-left-radius: 0px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; border-bottom-left-radius: 0px;}
 	</style>
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDocumentCommand">
 		<div>
-        
 					
 			<input type="hidden" name="id" value="${expedientTipusDocumentCommand.id}"/>
 			<input type="hidden" name="eliminarContingut" id="eliminarContingut" value="false"/>
@@ -67,7 +67,7 @@
 										</span>
 										<span class="input-group-btn" id="btnDownload" title="Descarregar">
 											<a href="<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/download" />" >
-												<span class="btn btn-default btn-file">
+												<span class="btn btn-default btn-file no-left-radius">
 													<span class="fa fa-file"></span>
 												</span>
 											</a>

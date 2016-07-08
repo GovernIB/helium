@@ -102,9 +102,17 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				expedientTipusService.documentCreate(
 										expedientTipusId,
 										dto);
-				return getModalControllerReturnValueSuccess(request,
-						"redirect:/v3/expedientTipus/" + expedientTipusId + "#documents",
-						"expedient.tipus.document.controller.creat");
+				
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.document.controller.creat"));
+				return modalUrlTancar(false);
+				
+//				return getModalControllerReturnValueSuccess(request,
+//						"redirect:/v3/expedientTipus/" + expedientTipusId + "#documents",
+//						"expedient.tipus.document.controller.creat");
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document", ex);
@@ -157,9 +165,13 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				}
 				
 				expedientTipusService.documentUpdate(dto);
-				return getModalControllerReturnValueSuccess(request,
-						"redirect:/v3/expedientTipus/" + expedientTipusId + "#documents",
-						"expedient.tipus.document.controller.modificat");
+				
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.document.controller.modificat"));
+				return modalUrlTancar(false);
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document: " + id, ex);
@@ -168,14 +180,31 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/delete", method = RequestMethod.GET)
-	public String delete(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
+	@ResponseBody
+	public boolean delete(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			@PathVariable Long id,
 			Model model) {
-
-		expedientTipusService.documentDelete(id);
-
-		MissatgesHelper.success(request, getMessage(request, "expedient.tipus.document.controller.eliminat"));
-
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#documents";
+		
+		try {
+			expedientTipusService.documentDelete(id);
+			
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.document.controller.eliminat"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.document.llistat.accio.esborrar.error"));
+			logger.error("S'ha produït un error al intentar eliminar el document amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
+			return false;
+		}
 	}
 	
 	@RequestMapping(value="/{expedientTipusId}/document/{id}/download", method = RequestMethod.GET)
