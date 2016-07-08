@@ -945,17 +945,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
-		if (expedientTipus.isAmbInfoPropia()) {
-			// Recupera la informació de les agrupacions de l'expedient
-			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
-		} else {
-			// Recupera la informació de les agrupacions per a la definició de procés
-		}
+		List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
 		return conversioTipusHelper.convertirList(
 									agrupacions, 
 									CampAgrupacioDto.class);
