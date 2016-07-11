@@ -60,8 +60,8 @@
 						<a href="${expedientTipus.id}/variable/{{:id}}/validacio" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
 					</script>
 					</th>
-					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
-						<script id="cellAccionsTemplate" type="text/x-jsrender">
+					<th data-col-name="id" data-template="#cellAccionsVariableTemplate" data-orderable="false" width="10%">
+						<script id="cellAccionsVariableTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">

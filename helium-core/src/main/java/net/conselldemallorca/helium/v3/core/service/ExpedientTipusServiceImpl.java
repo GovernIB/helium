@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
@@ -39,6 +40,7 @@ import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -54,6 +56,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
@@ -92,6 +95,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DocumentRepository documentRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
+	@Resource
+	private AccioRepository accioRepository;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -639,9 +644,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		throw new NoTrobatException(PermisDto.class, permisId);
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
 
 	// MANTENIMENT DE CAMPS
 	
@@ -1469,5 +1471,133 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		return resposta;
 	}
+	
+	
+	// MANTENIMENT D'ACCIONS
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public AccioDto accioCreate(
+			Long expedientTipusId, 
+			AccioDto accio) throws PermisDenegatException {
 
+		logger.debug(
+				"Creant nova accio per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"accio=" + accio + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		
+		Accio entity = new Accio();
+				
+		entity.setCodi(accio.getCodi());
+		entity.setNom(accio.getNom());
+		entity.setJbpmAction(accio.getJbpmAction());
+		entity.setDescripcio(accio.getDescripcio());
+		entity.setPublica(accio.isPublica());
+		entity.setOculta(accio.isOculta());
+		entity.setRols(accio.getRols());		
+		// Accio associada a l'expedient
+		entity.setExpedientTipus(expedientTipus);		
+
+		return conversioTipusHelper.convertir(
+				accioRepository.save(entity),
+				AccioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public AccioDto accioUpdate(AccioDto accio) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant la accio del tipus d'expedient existent (" +
+				"accio.id=" + accio.getId() + ", " +
+				"accio =" + accio + ")");
+		Accio entity = accioRepository.findOne(accio.getId());
+
+		entity.setCodi(accio.getCodi());
+		entity.setNom(accio.getNom());
+		entity.setJbpmAction(accio.getJbpmAction());
+		entity.setDescripcio(accio.getDescripcio());
+		entity.setPublica(accio.isPublica());
+		entity.setOculta(accio.isOculta());
+		entity.setRols(accio.getRols());		
+				
+		return conversioTipusHelper.convertir(
+				accioRepository.save(entity),
+				AccioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void accioDelete(Long accioAccioId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant la accio del tipus d'expedient (" +
+				"accioId=" + accioAccioId +  ")");
+		Accio entity = accioRepository.findOne(accioAccioId);
+		accioRepository.delete(entity);	
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AccioDto accioFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant la accio del tipus d'expedient amb id (" +
+				"accioId=" + id +  ")");
+
+		return conversioTipusHelper.convertir(
+				accioRepository.findOne(id),
+				AccioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public AccioDto accioFindAmbCodiPerValidarRepeticio(Long expedientTipusId, String codi) throws NoTrobatException {
+		logger.debug(
+				"Consultant la accio del tipus d'expedient per codi per validar repetició (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codi = " + codi + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return conversioTipusHelper.convertir(
+				accioRepository.findByExpedientTipusAndCodi(expedientTipus, codi),
+				AccioDto.class);
+	}	
+		
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<AccioDto> accioFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant les accions per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<AccioDto> pagina = paginacioHelper.toPaginaDto(
+				accioRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				AccioDto.class);		
+		return pagina;		
+	}
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

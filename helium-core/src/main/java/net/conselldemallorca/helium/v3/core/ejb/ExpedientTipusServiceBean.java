@@ -12,6 +12,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -322,6 +323,14 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> campFindTipusDataPerExpedientTipus(
+			Long expedientTipusId){
+		return delegate.campFindTipusDataPerExpedientTipus(expedientTipusId);
+	}
+
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<EnumeracioDto> enumeracioFindAll(Long expedientTipusId) {
 		return delegate.enumeracioFindAll(expedientTipusId);
 	}
@@ -433,11 +442,46 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public boolean validacioMourePosicio(Long id, int posicio) {
 		return delegate.validacioMourePosicio(id, posicio);
 	}
-		
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampDto> campFindTipusDataPerExpedientTipus(
-			Long expedientTipusId){
-		return delegate.campFindTipusDataPerExpedientTipus(expedientTipusId);
+	public AccioDto accioCreate(Long expedientTipusId, AccioDto accio) throws PermisDenegatException {
+		return delegate.accioCreate(expedientTipusId, accio);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AccioDto accioUpdate(AccioDto accio) throws NoTrobatException, PermisDenegatException {
+		return delegate.accioUpdate(accio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void accioDelete(Long accioAccioId) throws NoTrobatException, PermisDenegatException {
+		delegate.accioDelete(accioAccioId);		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AccioDto accioFindAmbId(Long id) throws NoTrobatException {
+		return delegate.accioFindAmbId(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AccioDto accioFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi) throws NoTrobatException {
+		return delegate.accioFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<AccioDto> accioFindPerDatatable(
+			Long expedientTipusId,			
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.accioFindPerDatatable(
+				expedientTipusId,
+				filtre, 
+				paginacioParams);
+	}	
 }

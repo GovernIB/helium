@@ -15,10 +15,10 @@ public class AccioDto implements Serializable {
 	private Long id;
 	private String codi;
 	private String nom;
-//	private String descripcio;
 	private String jbpmAction;
+	private String descripcio;
 	private boolean publica;
-//	private boolean oculta;
+	private boolean oculta;
 	private String rols;
 //	private String cron;
 
@@ -62,11 +62,27 @@ public class AccioDto implements Serializable {
 		this.publica = publica;
 	}
 
+	public boolean isOculta() {
+		return oculta;
+	}
+
+	public void setOculta(boolean oculta) {
+		this.oculta = oculta;
+	}
+
 	public String getJbpmAction() {
 		return jbpmAction;
 	}
 
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+
+	public String getDescripcio() {
+		return descripcio;
+	}
+
+	public void setDescripcio(String descripcio) {
+		this.descripcio = descripcio;
 	}
 }

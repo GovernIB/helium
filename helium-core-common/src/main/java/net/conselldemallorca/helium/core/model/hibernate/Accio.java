@@ -20,7 +20,6 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -30,10 +29,13 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_accio",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_accio",
-		indexes = @Index(name = "hel_accio_defproc_i", columnNames = {"definicio_proces_id"}))
+		indexes = { 
+				@Index(name = "hel_accio_defproc_i", columnNames = {"definicio_proces_id"}),
+				@Index(name = "hel_accio_extip_i", columnNames = {"expedient_tipus_id"})
+		})
 public class Accio implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -54,10 +56,8 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	private String rols;
 	private String cron;
 
-
-
-	@NotNull
 	private DefinicioProces definicioProces;
+	private ExpedientTipus expedientTipus;
 
 
 
@@ -144,7 +144,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.rols = rols;
 	}
 
-	@ManyToOne(optional=false)
+	@ManyToOne(optional=true)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_accio_fk")
 	public DefinicioProces getDefinicioProces() {
@@ -154,7 +154,15 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 
-
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_accio")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
+	}
 
 	@Override
 	public int hashCode() {
@@ -163,6 +171,8 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
+		result = prime * result
+				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());		
 		return result;
 	}
 	@Override
@@ -183,6 +193,11 @@ public class Accio implements Serializable, GenericEntity<Long> {
 			if (other.definicioProces != null)
 				return false;
 		} else if (!definicioProces.equals(other.definicioProces))
+			return false;
+		if (expedientTipus == null) {
+			if (other.expedientTipus != null)
+				return false;
+		} else if (!expedientTipus.equals(other.expedientTipus))
 			return false;
 		return true;
 	}

@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -704,4 +705,97 @@ public interface ExpedientTipusService {
 	
 	public ArxiuDto getArxiuPerDocument(
 			Long id) throws NoTrobatException;
+	
+	
+	/**
+	 * Crea una nova accio.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param accio
+	 *            La informació de la accio a crear.
+	 * @return la accio creada.
+	 * @throws AccioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public AccioDto accioCreate(
+			Long expedientTipusId,
+			AccioDto accio) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'una accio existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param accio
+	 *            La informació de la accio a modificar.
+	 * @return la accio modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws AccioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public AccioDto accioUpdate(
+			AccioDto accio) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param accioId
+	 *            Atribut id de la accio.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws AccioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void accioDelete(
+			Long accioId) throws NoTrobatException, PermisDenegatException;	
+	
+	/** 
+	 * Retorna la accio del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return La accio del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public AccioDto accioFindAmbId(
+			Long id) throws NoTrobatException;	
+	
+	/** 
+	 * Retorna la llista d'accions del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<AccioDto> accioFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+	
+	/**
+	 * Retorna una accio d'un tipus d'expedient donat el seu codi.
+	 * 
+	 * @param tipusExpedientId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return La accio del tipus d'expedient o null si no el troba.
+	 */
+	public AccioDto accioFindAmbCodiPerValidarRepeticio(
+			Long tipusExpedientId,
+			String codi) throws NoTrobatException;	
 }
