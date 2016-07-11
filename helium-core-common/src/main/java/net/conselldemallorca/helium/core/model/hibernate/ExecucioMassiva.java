@@ -3,8 +3,15 @@
  */
 package net.conselldemallorca.helium.core.model.hibernate;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -23,9 +30,13 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
@@ -73,12 +84,22 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	private ExpedientTipus expedientTipus;
 	private List<ExecucioMassivaExpedient> expedients = new ArrayList<ExecucioMassivaExpedient>();
 	private Long entorn;
+	
+	@MaxLength(2000)
+	private byte[] credencials;
+	@MaxLength(2000)
+	private String rols;
 
 	public ExecucioMassiva() {}
-	public ExecucioMassiva(String usuari, ExecucioMassivaTipus tipus) {
-		this.usuari = usuari;
+	@SuppressWarnings("unchecked")
+	public ExecucioMassiva(Authentication auth, ExecucioMassivaTipus tipus) {
+		this.usuari = auth.getName();
 		this.tipus = tipus;
 		this.dataInici = new Date();
+		
+		this.setAuthenticationCredentials(auth.getCredentials());
+		Collection<GrantedAuthority> authorities = auth.getAuthorities() != null ? (Collection<GrantedAuthority>)auth.getAuthorities() : null;
+		this.setAuthenticationRoles(authorities);
 	}
 
 	@Id
@@ -184,6 +205,101 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		this.entorn = entorn;
 	}
 	
+	@Column(name="credencials")
+	public byte[] getCredencials() {
+		return credencials;
+	}
+	public void setCredencials(byte[] credencials) {
+		this.credencials = credencials;
+	}
+	
+	@Column(name="rols")
+	public String getRols() {
+		return rols;
+	}
+	public void setRols(String rols) {
+		this.rols = rols;
+	}
+	
+	public Object deserialize(byte[] bytes) {
+		Object obj = null;
+		if (bytes != null) {
+			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+			try {
+				ObjectInputStream ois = new ObjectInputStream(bis);
+				obj = ois.readObject();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		return obj;
+	}
+	
+	public byte[] serialize(Object obj){
+		byte[] bytes = null;
+		if (obj != null) {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			try {
+				ObjectOutputStream oos = new ObjectOutputStream(bos);
+				oos.writeObject(obj);
+				oos.flush();
+				oos.close();
+				bos.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			bytes = bos.toByteArray();
+		}
+		return bytes;
+	}
+	
+	@Transient
+	public Principal getAuthenticationPrincipal() {
+		final String user = usuari;
+		
+		Principal principal = new Principal() {
+			public String getName() {
+				return user;
+			}
+		};
+		
+		return principal;
+	}
+	
+	@Transient
+	public Object getAuthenticationCredentials() {
+		return deserialize(credencials);
+	}
+	private void setAuthenticationCredentials(Object credentials) {
+		this.credencials = serialize(credentials);
+	}
+	
+	@Transient
+	public List<GrantedAuthority> getAuthenticationRoles() {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		if (rols != null && !rols.isEmpty()) {
+			for (String rol: rols.split(",")) {
+				authorities.add(new SimpleGrantedAuthority(rol));
+			}
+		}
+		return authorities;
+	}
+	private void setAuthenticationRoles(Collection<GrantedAuthority> authorities) {
+		if (authorities != null) {
+			String rols = "";
+			for (GrantedAuthority gauth : authorities) {
+				rols += gauth.getAuthority() + ",";
+			}
+			if (rols.length() > 0)
+				rols.substring(0, rols.length() - 1);
+			this.rols = rols;
+		} else {
+			this.rols = null;
+		}
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -196,6 +312,7 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((usuari == null) ? 0 : usuari.hashCode());
 		return result;
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

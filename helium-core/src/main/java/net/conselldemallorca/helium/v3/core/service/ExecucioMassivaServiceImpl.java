@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +14,25 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -55,27 +73,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
@@ -143,7 +140,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			
 			ExecucioMassiva execucioMassiva = new ExecucioMassiva(
-					auth.getName(),
+					auth,
 					ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
 			if (dto.getDataInici() == null) {
 				execucioMassiva.setDataInici(new Date());
@@ -574,7 +571,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public void executarExecucioMassiva(Long ome_id) {
 		ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 		if (ome == null)
@@ -635,32 +631,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
 			
-			final String user = ome.getExecucioMassiva().getUsuari();
+//			final String user = ome.getExecucioMassiva().getUsuari();
+//	        Principal principal = new Principal() {
+//				public String getName() {
+//					return user;
+//				}
+//			};
 			
-	        Principal principal = new Principal() {
-				public String getName() {
-					return user;
-				}
-			};
-			
-			Authentication authentication =  new UsernamePasswordAuthenticationToken(principal, null);
-			
-			if (tipus == ExecucioMassivaTipus.EXECUTAR_ACCIO || 
-					tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT ||
-						tipus == ExecucioMassivaTipus.REASSIGNAR){
-				Object param2 = deserialize(ome.getExecucioMassiva().getParam2());
-				if (param2 instanceof Object[]) {
-					Object credentials = ((Object[])param2)[1];
-					List<String> rols = (List<String>)((Object[])param2)[2];
-					List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-					if (!rols.isEmpty()) {
-						for (String rol: rols) {
-							authorities.add(new SimpleGrantedAuthority(rol));
-						}
-					}
-					authentication =  new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
-				}
-			}
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(
+					ome.getExecucioMassiva().getAuthenticationPrincipal(),
+					ome.getExecucioMassiva().getAuthenticationCredentials(),
+					ome.getExecucioMassiva().getAuthenticationRoles());
 			
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
 			
@@ -669,58 +650,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
         		expedient_s = expedient.getTipus().getNom();
 	        
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
-				// Authentication
-				String param = ome.getExecucioMassiva().getParam1();
-				Object param2 = deserialize(ome.getExecucioMassiva().getParam2());
-
-				if (param2 instanceof Object[]) {
-					Object credentials = null;					
-					List<String> rols = null;
-					if (param.equals("Guardar")) {
-						credentials = ((Object[]) param2)[2];
-						rols = (List<String>) ((Object[]) param2)[3];
-					} else if (param.equals("Validar")) {
-						credentials = ((Object[]) param2)[2];
-						rols = (List<String>) ((Object[]) param2)[3];
-					} else if (param.equals("Completar")) {
-						credentials = ((Object[]) param2)[2];
-						rols = (List<String>) ((Object[]) param2)[3];
-					} else if (param.equals("Restaurar")) {
-						credentials = ((Object[]) param2)[1];
-						rols = (List<String>) ((Object[]) param2)[2];
-					} else if (param.equals("Accio")) {
-						credentials = ((Object[]) param2)[2];
-						rols = (List<String>) ((Object[]) param2)[3];
-					} else if (param.equals("DocGuardar")) {
-						credentials = ((Object[]) param2)[5];
-						rols = (List<String>) ((Object[]) param2)[6];
-					} else if (param.equals("DocEsborrar")) {
-						credentials = ((Object[]) param2)[2];
-						rols = (List<String>) ((Object[]) param2)[3];
-					} else if (param.equals("DocGenerar")) {
-						credentials = ((Object[]) param2)[3];
-						rols = (List<String>) ((Object[]) param2)[4];
-					} else if (param.equals("RegEsborrar")) {
-						credentials = ((Object[]) param2)[3];
-						rols = (List<String>) ((Object[]) param2)[4];
-					} else if (param.equals("RegGuardar")) {
-						credentials = ((Object[]) param2)[4];
-						rols = (List<String>) ((Object[]) param2)[5];
-					}
-
-					List<GrantedAuthority> authorities = null;
-					if (!rols.isEmpty()) {						
-						authorities = new ArrayList<GrantedAuthority>();
-						if (!rols.isEmpty()) {
-							for (String rol: rols) {
-								authorities.add(new SimpleGrantedAuthority(rol));
-							}
-						}
-					}
-					authentication =  new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
-				}
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-
 				gestioTasca(ome);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient_s);
