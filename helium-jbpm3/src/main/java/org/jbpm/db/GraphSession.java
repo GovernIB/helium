@@ -23,9 +23,11 @@ package org.jbpm.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +45,7 @@ import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.def.Transition;
 import org.jbpm.graph.exe.ProcessInstance;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.graph.log.ActionLog;
 import org.jbpm.graph.log.SignalLog;
@@ -65,6 +68,16 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
 @SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
 public class GraphSession {
 
+	public static Map<Long, Set<ProcessInstanceExpedient>> errorsDelete = new HashMap<Long, Set<ProcessInstanceExpedient>>();
+//	public static Map<Long, List<Object[]>> errorsDelete = new HashMap<Long, List<Object[]>>();
+//	
+//	public static enum DeleteErrorType {
+//		TASK,
+//		JOB, 
+//		ACTION, 
+//		TRANSITION;
+//	}
+	
 	JbpmSession jbpmSession = null;
 	Session session = null;
 
@@ -255,6 +268,10 @@ public class GraphSession {
 		if (processDefinition == null) {
 			throw new JbpmException("processDefinition is null");
 		}
+		
+//		List<Object[]> errors = new ArrayList<Object[]>();
+		Set<ProcessInstanceExpedient> expedientsError = new HashSet<ProcessInstanceExpedient>();
+		
 		try {
 			// delete all the process instances of this definition
 			for (ProcessInstance processInstance; ((processInstance = findNextProcessInstance(processDefinition)) != null);) {
@@ -291,6 +308,14 @@ public class GraphSession {
 					}
 				} else {
 					log.debug("   ||||- Task nova: NO S'HA TROBAT AQUESTA TASCA EN LA NOVA DEFINICIÓ DE PROCÉS.");
+//					errors.add(new Object[]{
+//									DeleteErrorType.TASK, 
+//									ti.getProcessInstance().getExpedient(),
+//									ti.getName(), 
+//									ti.getId()});
+//					errorsDelete.put(processDefinition.getId(), errors);
+					expedientsError.add(ti.getProcessInstance().getExpedient());
+					errorsDelete.put(processDefinition.getId(), expedientsError);
 					throw new JbpmException("S'han torbat tasques lligades a la definició de procés, que no tenen un substitut en la definició de procés del seu expedient.");
 				}
 				log.debug("   ||| ");
@@ -361,10 +386,20 @@ public class GraphSession {
 					job.getClass().getMethod("setAction", Action.class).invoke(job, newAction);
 					session.save(job);
 				} else {
-					if (job.getRetries() <= 0)
+					if (job.getRetries() <= 0) {
 						session.delete(job);
-					//else
+					} else {
+//						errors.add(new Object[]{
+//										DeleteErrorType.JOB,
+//										job.getProcessInstance().getExpedient(),
+//										oldAction.toString(),
+//										oldAction.getId(),										
+//										job.getId()});
+//						errorsDelete.put(processDefinition.getId(), errors);
+						expedientsError.add(job.getProcessInstance().getExpedient());
+						errorsDelete.put(processDefinition.getId(), expedientsError);
 					//	throw new JbpmException("S'han torbat jobs lligades a la definició de procés, que no tenen una acció substituta en la definició de procés del seu expedient.");
+					}
 				}
 //				session.delete(action);
 //				session.flush();
@@ -405,6 +440,15 @@ public class GraphSession {
 					al.setAction(newAction);
 				} else {
 					log.debug("   |||- No s'ha trobat substitut per aquesta acció");
+//					errors.add(new Object[]{
+//									DeleteErrorType.ACTION, 
+//									al.getToken().getProcessInstance().getExpedient(), 
+//									oldAction.toString(), 
+//									oldAction.getId(), 
+//									al.getId()});
+//					errorsDelete.put(processDefinition.getId(), errors);
+					expedientsError.add(al.getToken().getProcessInstance().getExpedient());
+					errorsDelete.put(processDefinition.getId(), expedientsError);
 				}
 			}
 //			}
@@ -446,6 +490,15 @@ public class GraphSession {
 					}
 				} else {
 					log.debug("   |||- No s'ha trobat substitut per aquesta transició");
+//					errors.add(new Object[]{
+//							DeleteErrorType.TRANSITION, 
+//							tl.getToken().getProcessInstance().getExpedient(), 
+//							oldTransition.toString(), 
+//							oldTransition.getId(), 
+//							tl.getId()});
+//					errorsDelete.put(processDefinition.getId(), errors);
+					expedientsError.add(cl.getToken().getProcessInstance().getExpedient());
+					errorsDelete.put(processDefinition.getId(), expedientsError);
 				}
 			}
 			
@@ -510,6 +563,10 @@ public class GraphSession {
 		} catch (Exception e) {
 			log.error(e);
 			jbpmSession.handleException();
+			for (ProcessInstanceExpedient expedient: expedientsError) {
+				expedient.getIdentificador();
+//				expedient.getId();
+			}
 			throw new JbpmException("couldn't delete process definition '" + processDefinition.getId() + "'", e);
 		}
 	}

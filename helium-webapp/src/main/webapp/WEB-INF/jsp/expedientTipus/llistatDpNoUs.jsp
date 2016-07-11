@@ -26,8 +26,76 @@ function selecTots() {
 		}
 	});
 }
+$(document).ready(function() {
+	$(".bexpborrarlog").click(function(){
+// 		var form = $("#logs_borrar");
+// 		form.remove("input[name=definicioProcesId]");
+// 		form.remove("input[name=expedientId]");
+// 		form.append('<input type="hidden" name="expedientId" value="' + $(this).data("expid") + '"/>');
+// 		form.submit();
+		var exp = $(this).parent();
+		var expedientId = $(this).data("expid");
+		$.ajax({
+			url: "borra_logsexp.html",
+			dataType: 'json',
+			data: {expedientId: expedientId},
+			method: 'POST',
+			success: function(data){
+				exp.remove("button");
+				exp.append('<span class="exp_info">S\'ha programat el borrat dels logs de l\'expedient</span>');
+			}
+		})
+		.fail(function( jqxhr, textStatus, error ) {
+			var err = textStatus + ', ' + error;
+			console.log( "Request Failed: " + err);
+			exp.remove("button");
+			exp.append('<span class="exp_info">Error: ' + err, '</span>');
+		})
+	});
+	
+	
+	$(".bexpborrartotslogs").click(function(){
+// 		var form = $("#logs_borrar");
+// 		form.remove("input[name=definicioProcesId]");
+// 		form.remove("input[name=expedientId]");
+// 		$(".bexpborrarlog").each(function(){
+// 			form.append('<input type="hidden" name="expedientId" value="' + $(this).data("id") + '"/>');
+// 		});
+// 		form.submit();
+		var cont_bot = $(this).parent();
+		var cont_exp = cont_bot.parent();
+		var expedientsId = []; 
+		$(".bexpborrarlog", cont_exp).each(function(){
+			expedientsId.push($(this).data("expid"));
+		});
+		$.ajax({
+			url: "borra_logsexps.html",
+			dataType: 'json',
+			data: {expedientsId: expedientsId},
+			method: 'POST',
+			success: function(data){
+				cont_bot.remove("button");
+				cont_bot.append('<span class="exp_info">S\'ha programat el borrat dels logs de tots els expedients</span>');
+			}
+		})
+		.fail(function( jqxhr, textStatus, error ) {
+			var err = textStatus + ', ' + error;
+			console.log( "Request Failed: " + err);
+			cont_bot.remove("button");
+			cont_bot.append('<span class="exp_info">Error: ' + err, '</span>');
+		})
+	});
+});
 // ]]>
 </script>
+<style type="text/css">
+	.expafectats {padding: 5px 0px;}
+	.expborrarlog, .expborrartotslogs {min-height: 22px;}
+	.expborrarlog span {font-weight: bold;}
+	.bexpborrarlog {float: right;}
+	.bexpborrartotslogs {float: right;}
+	.exp_info {float: right;}
+</style>
 </head>
 <body>
 	<c:set var="msg_afectats"><fmt:message key='defproc.llistat.llistar.afectats'/> <img src='/helium/img/bullet_error.png' title='Aquesta consulta pot resultar molt costosa!'/></c:set>
