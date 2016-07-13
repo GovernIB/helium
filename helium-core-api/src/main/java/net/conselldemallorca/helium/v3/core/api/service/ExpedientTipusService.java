@@ -11,6 +11,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
@@ -702,10 +704,9 @@ public interface ExpedientTipusService {
 	
 	public ExpedientTipusDocumentDto documentUpdate(
 			ExpedientTipusDocumentDto document) throws NoTrobatException, PermisDenegatException;
-	
+		
 	public ArxiuDto getArxiuPerDocument(
 			Long id) throws NoTrobatException;
-	
 	
 	/**
 	 * Crea una nova accio.
@@ -798,4 +799,64 @@ public interface ExpedientTipusService {
 	public AccioDto accioFindAmbCodiPerValidarRepeticio(
 			Long tipusExpedientId,
 			String codi) throws NoTrobatException;	
+
+	/***********************************************/
+	/*****************ENUMERACIONS******************/
+	/***********************************************/
+
+	public PaginaDto<ExpedientTipusEnumeracioDto> enumeracioFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	public ExpedientTipusEnumeracioDto enumeracioCreate(
+			Long expedientTipusId, 
+			Long entornId,
+			ExpedientTipusEnumeracioDto enumeracio) throws PermisDenegatException;
+	
+	public ExpedientTipusEnumeracioDto enumeracioFindAmbCodi(
+			Long expedientTipusId,
+			String codi) throws NoTrobatException;
+	
+	public void enumeracioDelete(
+			Long enumeracioId) throws NoTrobatException, PermisDenegatException;
+	
+	public ExpedientTipusEnumeracioDto enumeracioFindAmbId(
+			Long enumeracioId) throws NoTrobatException;
+	
+	public ExpedientTipusEnumeracioDto enumeracioUpdate(
+			ExpedientTipusEnumeracioDto enumeracio) throws NoTrobatException, PermisDenegatException;
+	
+	/***********************************************/
+	/***************VALORS ENUMERACIO***************/
+	/***********************************************/
+
+	public PaginaDto<ExpedientTipusEnumeracioValorDto> enumeracioValorsFindPerDatatable(
+			Long expedientTipusId,
+			Long enumeracioId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	public ExpedientTipusEnumeracioValorDto enumeracioValorsCreate(
+			Long expedientTipusId, 
+			Long enumeracioId,
+			Long entornId,
+			ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException;
+	
+	public void enumeracioValorDelete(
+			Long valorId) throws NoTrobatException, PermisDenegatException;
+	
+	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbCodi(
+			Long expedientTipusId,
+			Long enumeracioId,
+			String codi) throws NoTrobatException;	
+	
+	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbId(
+			Long valorId) throws NoTrobatException;
+	
+	public ExpedientTipusEnumeracioValorDto enumeracioValorUpdate(
+			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
+	
+	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException;
+
 }

@@ -5,10 +5,13 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -50,4 +53,15 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 	List<Enumeracio> findAmbExpedientTipus(
 			@Param("expedientTipusId") Long expedientTipusId);	
 
+	@Query(	"from Enumeracio e " +
+			"where " +
+			"   e.expedientTipus.id = :expedientTipusId " +
+			"	and (:esNullFiltre = true or lower(e.codi) like lower('%'||:filtre||'%') or lower(e.nom) like lower('%'||:filtre||'%')) ")
+	public Page<Enumeracio> findByFiltrePaginat(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);
+	
+	public Enumeracio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 }
