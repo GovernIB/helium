@@ -43,4 +43,6 @@ public interface EnumeracioValorsRepository extends JpaRepository<EnumeracioValo
 			Pageable pageable);
 	
 	public Enumeracio findByEnumeracioAndCodi(Enumeracio enumeracio, String codi);
+	
+	public List<EnumeracioValors> findByEnumeracioIdOrderByOrdreAsc(Long enumeracioId);
 }

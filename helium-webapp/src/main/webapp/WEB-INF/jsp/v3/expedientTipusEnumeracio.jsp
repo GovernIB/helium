@@ -10,6 +10,8 @@
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
 
+<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
+
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
@@ -17,6 +19,7 @@
 			<a	id="nou_camp" class="btn btn-default" 
 				href="${expedientTipus.id}/enumeracio/new" 
 				data-toggle="modal" 
+				data-callback="callbackModalEnumerats()"
 				data-datatable-id="expedientEnumeracio">
 					<span class="fa fa-plus"></span>&nbsp;
 					<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/>
@@ -42,9 +45,9 @@
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<li><a data-toggle="modal" href="${expedientTipus.id}/enumeracio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-									<li><a href="${expedientTipus.id}/enumeracio/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
-									<li><a data-toggle="modal" href="${expedientTipus.id}/enumeracio/{{:id}}/valors"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;({{:numValors}})</a></li>
+									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+									<li><a href="#" onclick="esborraEnumerat('${expedientTipus.id}/enumeracio/{{:id}}/delete');" id="enumeracioDelete" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/valors"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;({{:numValors}})</a></li>
 								</ul>
 							</div>
 						</script>
@@ -59,3 +62,33 @@
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
 	</c:otherwise>
 </c:choose>
+
+<script type="text/javascript">
+// <![CDATA[
+function refrescaTaula() {
+	$('#expedientEnumeracio').webutilDatatable('refresh-url', '${expedientTipus.id}/enumeracio/datatable');
+}
+
+function esborraEnumerat(getUrl) {
+	$.ajax({
+		type: 'GET',
+		url: getUrl,
+		async: true,
+		success: function(result) {
+			callbackModalEnumerats();
+		},
+		error: function(e) {
+			var msg = "Error esborrant l''enumeració"; 
+			alert(msg);
+			console.log(msg+': '+e);
+		}
+	});
+	return false;
+}
+
+function callbackModalEnumerats() {
+	webutilRefreshMissatges();
+	refrescaTaula();
+}
+// ]]>
+</script>	

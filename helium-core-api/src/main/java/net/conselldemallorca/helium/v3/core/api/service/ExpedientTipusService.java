@@ -749,5 +749,7 @@ public interface ExpedientTipusService {
 			Long valorId) throws NoTrobatException;
 	
 	public ExpedientTipusEnumeracioValorDto enumeracioValorUpdate(
-			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;	
+			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
+	
+	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException;	
 }

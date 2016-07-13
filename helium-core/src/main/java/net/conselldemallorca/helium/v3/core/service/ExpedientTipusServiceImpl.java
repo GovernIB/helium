@@ -934,17 +934,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public List<CampAgrupacioDto> agrupacioFindAll(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus = 
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		List<CampAgrupacio> agrupacions = null;
-		if (expedientTipus.isAmbInfoPropia()) {
-			// Recupera la informació de les agrupacions de l'expedient
-			agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
-		} else {
-			// Recupera la informació de les agrupacions per a la definició de procés
-		}
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbExpedientTipusOrdenats(expedientTipusId);
 		return conversioTipusHelper.convertirList(
 									agrupacions, 
 									CampAgrupacioDto.class);
@@ -1657,27 +1648,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public void enumeracioValorDelete(Long valorId) throws NoTrobatException, PermisDenegatException {
-		
-//		logger.debug(
-//				"Esborrant valor de l'enumeració del tipus d'expedient (" +
-//				"valorId=" + valorId +  ")");
-//		
-//		EnumeracioValors entity = enumeracioValorsRepository.findOne(valorId);
-//
-//		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
-//			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
-//		}
-//
-//		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
-//		if (valors!=null) {
-//			for (int o=0; o<valors.size(); o++) {
-//				enumeracioValorsRepository.delete(valors.get(o));
-//			}
-//		}
-//		enumeracioValorsRepository.flush();
-//		
-//		enumeracioRepository.delete(entity);
-//		enumeracioRepository.flush();
+		enumeracioValorsRepository.delete(valorId);
+		enumeracioValorsRepository.flush();
 	}
 
 	@Override
@@ -1729,5 +1701,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return conversioTipusHelper.convertir(
 				enumeracioValorsRepository.findByEnumeracioAndCodi(enumeracio, codi),
 				ExpedientTipusEnumeracioValorDto.class);
+	}
+
+	@Override
+	@Transactional
+	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException {
+		logger.debug(
+				"Moguent el valor de l'enumerat (" +
+				"valorId=" + valorId + ", " +
+				"posicio=" + posicio + ")");
+		boolean ret = false;
+		EnumeracioValors camp = enumeracioValorsRepository.findOne(valorId);
+		if (camp != null && camp.getEnumeracio() != null) {
+			List<EnumeracioValors> camps = enumeracioValorsRepository.findByEnumeracioIdOrderByOrdreAsc(camp.getEnumeracio().getId());
+			if(posicio != camps.indexOf(camp)) {
+				camps.remove(camp);
+				camps.add(posicio, camp);
+				int i = 0;
+				for (EnumeracioValors c : camps) {
+					c.setOrdre(i++);
+					enumeracioValorsRepository.save(c);
+				}
+			}
+		}
+		return ret;
 	}
 }

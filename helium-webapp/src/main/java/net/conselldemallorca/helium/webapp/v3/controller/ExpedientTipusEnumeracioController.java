@@ -87,9 +87,12 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 				
 				expedientTipusService.enumeracioCreate(expedientTipusId, entornActual.getId(), dto);
 				
-				return getModalControllerReturnValueSuccess(request,
-						"redirect:/v3/expedientTipus/" + expedientTipusId + "#contingut-enumeracions",
-						"expedient.tipus.enumeracio.controller.creat");
+	    		MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.enumeracio.controller.creat"));
+				return modalUrlTancar(false);
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar l'enumeració", ex);
@@ -122,9 +125,13 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			} else {
 				ExpedientTipusEnumeracioDto dto = ExpedientTipusEnumeracioCommand.asExpedientTipusEnumeracioDto(command);
 				expedientTipusService.enumeracioUpdate(dto);
-				return getModalControllerReturnValueSuccess(request,
-						"redirect:/v3/expedientTipus/" + expedientTipusId + "/enumeracions",
-						"expedient.tipus.enumeracio.controller.modificat");
+				
+	    		MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.enumeracio.controller.modificat"));
+				return modalUrlTancar(false);
 			}
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
@@ -133,16 +140,18 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{id}/delete", method = RequestMethod.GET)
-	public String delete(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
+	@ResponseBody
+	public boolean delete(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
 			Model model) {
 
 		try {
 			expedientTipusService.enumeracioDelete(id);
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.enumeracio.controller.eliminat"));
+			return true;
 		}catch (ValidacioException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
+			return false;
 		}
-		return "redirect:/v3/expedientTipus/" + expedientTipusId + "#contingut-enumeracions";
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);

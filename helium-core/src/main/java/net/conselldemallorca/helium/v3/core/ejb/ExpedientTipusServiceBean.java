@@ -512,4 +512,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public boolean validacioMourePosicio(Long id, int posicio) {
 		return delegate.validacioMourePosicio(id, posicio);
 	}
+
+	@Override
+	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException {
+		return delegate.enumeracioValorMourer(valorId, posicio);
+	}
 }

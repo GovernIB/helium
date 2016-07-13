@@ -14,6 +14,7 @@ public class ExpedientTipusEnumeracioValorCommand {
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
 	private String codi;
+	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	private int ordre;
