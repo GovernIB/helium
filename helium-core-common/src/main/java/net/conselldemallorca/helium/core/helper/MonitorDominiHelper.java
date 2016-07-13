@@ -59,8 +59,8 @@ public class MonitorDominiHelper {
 	}
 
 	public List<IntegracioAccioDto> findAccionsByDomini(
-			Domini domini) {
-		return getLlistaAccions(domini);
+			Long dominiId) {
+		return getLlistaAccions(dominiId);
 	}
 
 	public void addAccioOk(
@@ -118,8 +118,7 @@ public class MonitorDominiHelper {
 
 
 	private LinkedList<IntegracioAccioDto> getLlistaAccions(
-			Domini domini) {
-		Long dominiId = domini.getId();
+			Long dominiId) {
 		LinkedList<IntegracioAccioDto> accions = accionsDomini.get(dominiId);
 		if (accions == null) {
 			accions = new LinkedList<IntegracioAccioDto>();
@@ -178,7 +177,7 @@ public class MonitorDominiHelper {
 			accio.setParametres(
 					new ArrayList<IntegracioParametreDto>(Arrays.asList(parametres)));
 		}
-		LinkedList<IntegracioAccioDto> accions = getLlistaAccions(domini);
+		LinkedList<IntegracioAccioDto> accions = getLlistaAccions(domini.getId());
 		int max = getMaxAccions(domini);
 		while (accions.size() >= max) {
 			accions.poll();
