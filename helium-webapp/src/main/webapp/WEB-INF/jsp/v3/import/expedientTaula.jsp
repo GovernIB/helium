@@ -27,6 +27,7 @@
 	.fa.fa-certificate.fa-stack-1x { margin-top: -1px;}
 	#contingut-dades .campOcult {background-color: lightgray;color: white;}
 	#contingut-dades .var_dades {float: left;width:calc(100% - 15px);}
+	#contingut-dades .var_dades label {font-style: italic;}
 	#contingut-dades .var_botons {float: right;color: #428bca;}
 	#contingut-dades .var_botons span {display: block;padding-top: 5px;}
 	#contingut-dades .var_botons span:hover {color: #3071a9}	
