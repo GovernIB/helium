@@ -76,6 +76,10 @@ $(document).ready(function() {
 						</a>
 					</li>
 				</c:forEach>
+				<li class="divider"></li>
+				<li><a href="monitorDomini/0/datatable">
+						<spring:message code="monitor.domini.opcio.dominis.interns"/>
+					</a></li>
 			</ul>
 		</div>
 	</div>

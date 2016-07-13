@@ -288,7 +288,7 @@ public class DominiHelper {
 			String id,
 			Map<String, Object> parametres) {
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
-		if (DominiHelper.DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
+		if (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
 			paramsConsulta.add(
 					new ParellaCodiValor(
 							"entorn",
