@@ -165,7 +165,7 @@ function mostraEnumeracio() {
 						<c:param name="onchange">mostraConsulta()</c:param>
 					</c:import>
 				</div>
-				<div id="params_domini" <c:if test="${empty command.domini}"> style="display:none;"</c:if>>
+				<div id="params_domini" <c:if test="${empty command.domini and not command.dominiIntern}"> style="display:none;"</c:if>>
 					<c:import url="../common/formElement.jsp">
 						<c:param name="property" value="dominiId"/>
 						<c:param name="label"><fmt:message key='defproc.campform.id_domini' /></c:param>

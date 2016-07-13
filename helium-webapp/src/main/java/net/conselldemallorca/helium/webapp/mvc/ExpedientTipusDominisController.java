@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
@@ -246,6 +247,9 @@ public class ExpedientTipusDominisController extends BaseController {
 					ValidationUtils.rejectIfEmpty(errors, "jndiDatasource", "not.blank");
 					ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
 				}
+			}
+			if (DominiHelper.DOMINI_INTERN_CODI.equals(domini.getCodi())) {
+				errors.rejectValue("codi", "error.camp.domini.codi.intern");
 			}
 		}
 	}

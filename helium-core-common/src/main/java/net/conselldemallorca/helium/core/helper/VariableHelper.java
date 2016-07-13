@@ -487,7 +487,7 @@ public class VariableHelper {
 		Domini domini = new Domini();
 		domini.setId((long) 0);
 		domini.setCacheSegons(30);
-		domini.setCodi("intern");
+		domini.setCodi(DominiHelper.DOMINI_INTERN_CODI);
 		domini.setNom("Domini intern");
 		domini.setTipus(TipusDomini.CONSULTA_WS);
 		domini.setTipusAuth(TipusAuthDomini.NONE);

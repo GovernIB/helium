@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.extern.domini.DominiHelium;
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
@@ -55,11 +56,11 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return dominis;
 	}
 	public Domini findAmbEntornICodi(Long entornId, String codi) {
-		if(codi.equalsIgnoreCase("intern")){
+		if(codi.equalsIgnoreCase(DominiHelper.DOMINI_INTERN_CODI)){
 			Domini domini = new Domini();
 			domini.setId((long) 0);
 			domini.setCacheSegons(30);
-			domini.setCodi("intern");
+			domini.setCodi(DominiHelper.DOMINI_INTERN_CODI);
 			domini.setNom("Domini intern");
 			domini.setTipus(TipusDomini.CONSULTA_WS);
 			domini.setTipusAuth(TipusAuthDomini.NONE);
@@ -88,7 +89,7 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		mesuresTemporalsHelper.mesuraIniciar("DOMINI WS: " + domini.getCodi(), "domini");
 		DominiHelium client = getClientWsFromDomini(domini);
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
-		if ("intern".equalsIgnoreCase(domini.getCodi())) {
+		if (DominiHelper.DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
 			paramsConsulta.add(
 					new ParellaCodiValor(
 							"entorn",

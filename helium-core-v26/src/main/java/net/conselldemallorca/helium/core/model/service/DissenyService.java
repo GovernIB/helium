@@ -2834,7 +2834,7 @@ public class DissenyService {
 			}
 			if (camp.getCodiDomini() != null) {
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
-				if (!camp.getCodiDomini().equalsIgnoreCase("intern")) {	
+				if (!camp.isDominiIntern()) {	
 					if (domini != null) {
 						nou.setDomini(domini);
 					} else {
