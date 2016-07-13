@@ -81,6 +81,7 @@ import net.sf.ehcache.Element;
 @Component
 public class DominiHelper {
 
+	public static final String DOMINI_INTERN_CODI = "_INTERN_";
 	private static final String CACHE_DOMINI_ID = "dominiCache";
 	private static final String CACHE_KEY_SEPARATOR = "#";
 
@@ -269,7 +270,7 @@ public class DominiHelper {
 		dominiIntern.setEntorn(entorn);
 		dominiIntern.setExpedientTipus(expedientTipus);
 		dominiIntern.setCacheSegons(30);
-		dominiIntern.setCodi("intern");
+		dominiIntern.setCodi(DOMINI_INTERN_CODI);
 		dominiIntern.setNom("Domini intern");
 		dominiIntern.setTipus(TipusDomini.CONSULTA_WS);
 		dominiIntern.setTipusAuth(TipusAuthDomini.NONE);
@@ -287,7 +288,7 @@ public class DominiHelper {
 			String id,
 			Map<String, Object> parametres) {
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
-		if ("intern".equalsIgnoreCase(domini.getCodi())) {
+		if (DominiHelper.DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
 			paramsConsulta.add(
 					new ParellaCodiValor(
 							"entorn",
@@ -302,12 +303,12 @@ public class DominiHelper {
 		}
 		long t0 = System.currentTimeMillis();
 		try {
-			logger.debug("Petició de domini de tipus " + ("intern".equalsIgnoreCase(domini.getCodi()) ? "Intern" : "WS") + " (" +
+			logger.debug("Petició de domini de tipus " + (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi()) ? "Intern" : "WS") + " (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
 					"params=" + parametresToString(parametres) + ")");
 			List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-			if ("intern".equalsIgnoreCase(domini.getCodi())) {
+			if (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
 				resposta = consultaDominiIntern(id, paramsConsulta);
 			} else {
 				DominiHelium client = getClientWsFromDomini(domini);

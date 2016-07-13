@@ -866,7 +866,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"parametres=" + parametres + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
 		Domini domini;
-		if ("intern".equalsIgnoreCase(dominiCodi)) {
+		if (DominiHelper.DOMINI_INTERN_CODI.equalsIgnoreCase(dominiCodi)) {
 			domini = variableHelper.getDominiIntern(
 					expedient.getEntorn());
 		} else {
