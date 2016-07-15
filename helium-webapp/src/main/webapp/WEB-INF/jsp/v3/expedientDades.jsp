@@ -141,8 +141,8 @@ $(document).ready(function() {
 			var id = $(this).data('id');
 			panell = $('#panel_' + id);
 			var ambOcults = "";
-			if ($("#ambOcults").length)
-				ambOcults = $("#ambOcults").prop('checked');
+			if ($("#boto-ocults > span").length)
+				ambOcults = $("#boto-ocults > span").hasClass("fa-check-square-o");
 			panell.load('<c:url value="/nodeco/v3/expedient/${expedient.id}/dades/"/>' + id, {"ambOcults": ambOcults}, updatePanell);
 		}
 	});
