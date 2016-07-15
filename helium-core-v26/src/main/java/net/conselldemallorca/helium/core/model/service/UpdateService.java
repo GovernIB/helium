@@ -63,7 +63,6 @@ public class UpdateService {
 
 	public static final int VERSIO_ACTUAL_RELEASE = 0;
 
-
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
 	private UsuariDao usuariDao;

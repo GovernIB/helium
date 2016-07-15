@@ -70,6 +70,15 @@ MODIFY (
 --Afegim la columan TIMEOUT per a la taula de dominis
 ALTER TABLE HEL_DOMINI ADD TIMEOUT NUMBER(10);
 
+--------------------------------------------------------
+-- EXECUCIONS MASSIVES
+--------------------------------------------------------
+ALTER TABLE HEL_EXEC_MASSIVA 
+ADD (
+	ROLS VARCHAR2(2000 CHAR) NULL,
+	CREDENCIALS RAW(2000) NULL
+);
+
 -- Index per a consulta d'operaicons massives pendents --
 CREATE INDEX HEL_EXMASEXP_EXEMAS_I ON HEL_EXEC_MASEXP (EXECMAS_ID);
 
