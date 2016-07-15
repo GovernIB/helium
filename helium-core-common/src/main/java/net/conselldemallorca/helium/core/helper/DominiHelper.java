@@ -302,27 +302,35 @@ public class DominiHelper {
 			}
 		}
 		long t0 = System.currentTimeMillis();
+		int puntControl = 0;
 		try {
 			logger.debug("Petició de domini de tipus " + (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi()) ? "Intern" : "WS") + " (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
 					"params=" + parametresToString(parametres) + ")");
+			puntControl = 1;
 			List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+			puntControl = 2;
 			if (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
+				puntControl = 3;
 				resposta = consultaDominiIntern(id, paramsConsulta);
 			} else {
+				puntControl = 4;
 				DominiHelium client = getClientWsFromDomini(domini);
+				puntControl = 5;
 				resposta = client.consultaDomini(id, paramsConsulta);
 			}
+			puntControl = 6;
 			monitorDominiHelper.addAccioOk(
 					domini,
 					"Consulta WS (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					toIntegracioParametres(parametres));
+			puntControl = 7;
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("ERROR SISTEMA EXTERN: ", ex);
+			logger.error("ERROR SISTEMA EXTERN (Punt de control " + puntControl + "): ", ex);
 			
 			monitorDominiHelper.addAccioError(
 					domini,
