@@ -1873,7 +1873,12 @@ public class JbpmHelper {
 				
 		// Activamos recursivamente
 		while (token != null) {
-			revertTokenEnd(token.getId());
+			JbpmToken jtoken = getTokenById(String.valueOf(token.getId()));
+			RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
+			executeCommandWithAutoSave(
+					command,
+					token.getId(),
+					AddToAutoSaveCommand.TIPUS_TOKEN);
 			token = token.getParent();
 		}
 		
