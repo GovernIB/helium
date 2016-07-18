@@ -56,25 +56,12 @@ public class DominiDao extends HibernateGenericDao<Domini, Long> {
 		return dominis;
 	}
 	public Domini findAmbEntornICodi(Long entornId, String codi) {
-		if(codi.equalsIgnoreCase(DominiHelper.DOMINI_INTERN_CODI)){
-			Domini domini = new Domini();
-			domini.setId((long) 0);
-			domini.setCacheSegons(30);
-			domini.setCodi(DominiHelper.DOMINI_INTERN_CODI);
-			domini.setNom("Domini intern");
-			domini.setTipus(TipusDomini.CONSULTA_WS);
-			domini.setTipusAuth(TipusAuthDomini.NONE);
-			domini.setEntorn((Entorn)getSession().load(Entorn.class, entornId));
-			domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
-			return domini;
-		} else {
-			List<Domini> dominis = findByCriteria(
-					Restrictions.eq("entorn.id", entornId),
-					Restrictions.eq("codi", codi));
-			if (dominis.size() > 0)
-				return dominis.get(0);
-			return null;
-		}
+		List<Domini> dominis = findByCriteria(
+				Restrictions.eq("entorn.id", entornId),
+				Restrictions.eq("codi", codi));
+		if (dominis.size() > 0)
+			return dominis.get(0);
+		return null;
 	}
 
 	public void makeDirty(Long dominiId) {

@@ -248,9 +248,6 @@ public class ExpedientTipusDominisController extends BaseController {
 					ValidationUtils.rejectIfEmpty(errors, "sql", "not.blank");
 				}
 			}
-			if (DominiHelper.DOMINI_INTERN_CODI.equals(domini.getCodi())) {
-				errors.rejectValue("codi", "error.camp.domini.codi.intern");
-			}
 		}
 	}
 
