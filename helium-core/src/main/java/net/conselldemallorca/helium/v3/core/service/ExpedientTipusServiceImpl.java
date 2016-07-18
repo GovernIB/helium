@@ -1834,6 +1834,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				enumeracioValorsRepository.save(entity),
 				ExpedientTipusEnumeracioValorDto.class);
 	}
+	
+	@Override
+	@Transactional
+	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException {
+		
+		logger.debug(
+				"Esborrant els valors de l'enumeració del tipus d'expedient (" +
+				"enumeracioId=" + enumeracioId +  ")");
+		
+		Enumeracio entity = enumeracioRepository.findOne(enumeracioId);
+
+		if (entity.getCamps()!=null && entity.getCamps().size()>0) {
+			throw new ValidacioException(messageHelper.getMessage("expedient.tipus.enumeracio.controller.eliminat.us"));
+		}
+
+		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
+		if (valors!=null) {
+			for (int o=0; o<valors.size(); o++) {
+				enumeracioValorsRepository.delete(valors.get(o));
+			}
+		}
+		enumeracioValorsRepository.flush();
+	}	
 
 	@Override
 	@Transactional

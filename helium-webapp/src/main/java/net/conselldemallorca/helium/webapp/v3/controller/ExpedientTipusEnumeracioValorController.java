@@ -1,5 +1,8 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -12,8 +15,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
@@ -184,6 +192,67 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 		}
 	}
 	
+	@RequestMapping(value = "/{expedientTipusId}/enumeracio/{enumeracioId}/valor/importar", method = RequestMethod.POST)
+	public String importar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long enumeracioId,
+			@RequestParam(value = "multipartFile", required = true) final MultipartFile multipartFile,
+			@RequestParam(value = "eliminarValorsAntics", required = false) Boolean eliminarValorsAntics,
+			Model model) {
+
+		try {
+			
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			
+			if (multipartFile.getBytes() == null || multipartFile.getBytes().length == 0) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"error.especificar.arxiu.importar"));
+	        	return valors(request, expedientTipusId, enumeracioId, model);				
+			} else {
+				
+				if (eliminarValorsAntics != null && eliminarValorsAntics) {
+					expedientTipusService.enumeracioDeleteAllByEnumeracio(enumeracioId);
+				}
+				
+				BufferedReader br = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()));
+				String linia = br.readLine();
+				while (linia != null) {
+					String[] columnes = linia.contains(";") ? linia.split(";") : linia.split(",");
+					if (columnes.length > 1) {
+						ExpedientTipusEnumeracioValorDto enumeracioValors = new ExpedientTipusEnumeracioValorDto();
+			        	enumeracioValors.setId(null);
+			        	// Per evitar caràcters estranys al codi de l'enumeració
+			        	String codi = columnes[0];
+			        	while (!codi.matches("^\\w.*")) {
+			        		codi = codi.substring(1);
+			        	}
+			        	enumeracioValors.setCodi(codi);
+			        	enumeracioValors.setNom(columnes[1]);
+			        	expedientTipusService.enumeracioValorsCreate(expedientTipusId, enumeracioId, entornActual.getId(), enumeracioValors);
+					}
+					linia = br.readLine();
+				}
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.enumeracio.valors.importats"));
+	        	return valors(request, expedientTipusId, enumeracioId, model);
+			}
+		} catch (Exception ex) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.enumeracio.valors.importats.error"));
+        	return valors(request, expedientTipusId, enumeracioId, model);
+        }
+	}	
+	
 	private void ompleDadesModel(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -209,6 +278,6 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			}
 		}
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);
 }
