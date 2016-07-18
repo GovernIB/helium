@@ -200,7 +200,7 @@
 			var ambOcults = "";
 			if ($("#boto-ocults > span").length)
 				ambOcults = $("#boto-ocults > span").hasClass("fa-check-square-o");
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + proces, {"ambOcults": ambOcults}, updatePanell);
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + proces + '/dada', {"ambOcults": ambOcults}, updatePanell);
 		}
 	};
 	function refrescarAlertas() {
