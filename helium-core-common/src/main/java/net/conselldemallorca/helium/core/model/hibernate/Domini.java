@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
@@ -256,6 +257,10 @@ public class Domini implements Serializable, GenericEntity<Long> {
 		getCamps().remove(camp);
 	}
 
+	@Transient
+	public boolean isDominiIntern() {
+		return id == null || id.equals(0L);
+	}
 
 
 	@Override
