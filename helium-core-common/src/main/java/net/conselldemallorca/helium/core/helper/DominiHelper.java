@@ -348,23 +348,27 @@ public class DominiHelper {
 			}
 		}
 		long t0 = System.currentTimeMillis();
+		int puntControl = 0;
 		try {
 			logger.debug("Petició de domini de tipus WS (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
 					"params=" + parametresToString(parametres) + ")");
+			puntControl = 1;
 			DominiHelium client = getClientWsFromDomini(domini);
+			puntControl = 2;
 			List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
-
+			puntControl = 3;
 			monitorDominiHelper.addAccioOk(
 					domini,
 					"Consulta WS (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					toIntegracioParametres(parametres));
+			puntControl = 4;
 			return resposta;
 		} catch (Exception ex) {
-			logger.error("ERROR SISTEMA EXTERN: ", ex);
+			logger.error("ERROR SISTEMA EXTERN (Punt de control " + puntControl + "): ", ex);
 			
 			monitorDominiHelper.addAccioError(
 					domini,

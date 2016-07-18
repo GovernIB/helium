@@ -198,9 +198,9 @@
 			panell = $('#panel_' + proces);
 			desplegats = panell.find(".collapse.in");
 			var ambOcults = "";
-			if ($("#ambOcults").length)
-				ambOcults = $("#ambOcults").prop('checked');
-			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + proces + '/dada', {"ambOcults": ambOcults}, updatePanell);
+			if ($("#boto-ocults > span").length)
+				ambOcults = $("#boto-ocults > span").hasClass("fa-check-square-o");
+			panell.load('<c:url value="/nodeco/v3/expedient/${expedientId}/dades/"/>' + proces, {"ambOcults": ambOcults}, updatePanell);
 		}
 	};
 	function refrescarAlertas() {

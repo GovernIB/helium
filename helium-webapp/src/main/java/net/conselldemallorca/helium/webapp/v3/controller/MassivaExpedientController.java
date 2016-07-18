@@ -23,9 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -377,15 +374,15 @@ public class MassivaExpedientController extends BaseExpedientController {
 			} else if ("executar_accio".equals(accio)) {
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_ACCIO);
 					
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				Object[] params = new Object[3];
+//				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				Object[] params = new Object[1];
 				params[0] = ((ExecucioAccioCommand) command).getAccioId();
-				params[1] = auth.getCredentials();
-				List<String> rols = new ArrayList<String>();
-				for (GrantedAuthority gauth : auth.getAuthorities()) {
-					rols.add(gauth.getAuthority());
-				}
-				params[2] = rols;
+//				params[1] = auth.getCredentials();
+//				List<String> rols = new ArrayList<String>();
+//				for (GrantedAuthority gauth : auth.getAuthorities()) {
+//					rols.add(gauth.getAuthority());
+//				}
+//				params[2] = rols;
 				dto.setParam2(execucioMassivaService.serialize(params));
 				execucioMassivaService.crearExecucioMassiva(dto);				
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.executat", new Object[] {listIds.size()}));
