@@ -214,3 +214,6 @@ div.tab-content {
 	padding-top: 50px;
    	text-align: center;
 }
+.ui-dialog { 
+	z-index: 1400 !important ;
+}
