@@ -18,6 +18,25 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
+
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -41,28 +60,6 @@ import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomBooleanEditor;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 
 
 
@@ -560,7 +557,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -568,15 +565,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Guardar");
-					Object[] params = new Object[4];
+					Object[] params = new Object[2];
 					params[0] = entornId;
 					params[1] = variables;
-					params[2] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[3] = rols;
+//					params[2] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -670,7 +667,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -678,15 +675,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Validar");
-					Object[] params = new Object[4];
+					Object[] params = new Object[2];
 					params[0] = entornId;
 					params[1] = variables;
-					params[2] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[3] = rols;
+//					params[2] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -766,7 +763,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -774,14 +771,14 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Restaurar");
-					Object[] params = new Object[3];
+					Object[] params = new Object[1];
 					params[0] = entornId;
-					params[1] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[2] = rols;
+//					params[1] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[2] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
@@ -855,7 +852,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -863,15 +860,15 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Accio");
-					Object[] params = new Object[4];
+					Object[] params = new Object[2];
 					params[0] = entornId;
 					params[1] = accio;
-					params[2] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[3] = rols;
+//					params[2] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -966,7 +963,7 @@ public class TascaFormController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -974,16 +971,16 @@ public class TascaFormController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("RegEsborrar");
-					Object[] params = new Object[5];
+					Object[] params = new Object[3];
 					params[0] = entornId;
 					params[1] = camp.getCodi();
 					params[2] = registreEsborrarIndex;
-					params[3] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[4] = rols;
+//					params[3] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[4] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					

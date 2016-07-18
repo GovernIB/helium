@@ -11,6 +11,16 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.support.SessionStatus;
+
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -22,19 +32,6 @@ import net.conselldemallorca.helium.core.model.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.core.model.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.util.TascaFormUtil;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 
 
 
@@ -151,7 +148,7 @@ public class TascaRegistreController extends CommonRegistreController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -159,16 +156,16 @@ public class TascaRegistreController extends CommonRegistreController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("RegEsborrar");
-					Object[] params = new Object[5];
+					Object[] params = new Object[3];
 					params[0] = entorn.getId();
 					params[1] = campCodi;
 					params[2] = Integer.valueOf(index);
-					params[3] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[4] = rols;
+//					params[3] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[4] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					
@@ -226,7 +223,7 @@ public class TascaRegistreController extends CommonRegistreController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -234,17 +231,17 @@ public class TascaRegistreController extends CommonRegistreController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("RegGuardar");
-					Object[] params = new Object[6];
+					Object[] params = new Object[4];
 					params[0] = entorn.getId();
 					params[1] = campCodi;
 					params[2] = valors;
 					params[3] = Integer.valueOf(index);
-					params[4] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[5] = rols;
+//					params[4] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[5] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					

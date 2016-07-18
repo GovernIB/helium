@@ -134,6 +134,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countExptip.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			ExpedientDto expedient = expedientService.iniciar(
 					e.getId(),
 					usuari,
@@ -204,6 +207,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
@@ -247,6 +253,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, null, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
@@ -292,6 +301,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			if (tascaService.isTasquesGrupTramitacio(e.getId(), tascaId, usuari)) {
 				tascaService.agafar(e.getId(), usuari, tascaId);
 				agafada = true;
@@ -338,6 +350,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, null, false);
 			for (TascaLlistatDto tasca: tasques) {
 				if (tasca.getId().equals(tascaId)) {
@@ -387,6 +402,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			TascaDto tasca = tascaService.getById(
 					e.getId(),
 					tascaId,
@@ -472,6 +490,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			}
 		}
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			tascaService.validar(
 					e.getId(),
 					tascaId,
@@ -517,6 +538,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			TascaDto tasca = tascaService.getById(
 					e.getId(),
 					tascaId,
@@ -570,6 +594,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
 			documentService.guardarDocumentTasca(
 					e.getId(),
@@ -617,6 +644,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			tascaService.comprovarTascaAssignadaIValidada(e.getId(), tascaId, usuari);
 			documentService.esborrarDocument(
 					tascaId,
@@ -662,6 +692,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			tascaService.completar(
 					e.getId(),
 					tascaId,
@@ -707,6 +740,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<CampProces> resposta = new ArrayList<CampProces>();
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			if (instanciaProces.getVariables() != null) {
@@ -770,6 +806,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			if (valor instanceof Object[]) {
 				Object[] vs = (Object[])valor;
 				for (int i = 0; i < vs.length; i++) {
@@ -838,6 +877,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			expedientService.deleteVariable(
 					processInstanceId,
 					varCodi);
@@ -880,6 +922,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, true, true, true);
 			for (DocumentDto document: instanciaProces.getVarsDocuments().values()) {
@@ -958,6 +1003,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId, false, false, false);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
@@ -1013,6 +1061,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			documentService.esborrarDocument(
 					null,
 					processInstanceId,
@@ -1057,7 +1108,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
-			
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
@@ -1101,7 +1151,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
-
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
@@ -1148,6 +1197,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			expedientService.aturar(
 					processInstanceId,
 					motiu,
@@ -1190,6 +1242,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			expedientService.reprendre(
 					processInstanceId,
 					usuari);
@@ -1241,6 +1296,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			// Obtencio de dades per a fer la consulta
 			ExpedientTipus expedientTipus = null;
 			Long estatId = null;
@@ -1323,6 +1381,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			expedientService.delete(e.getId(), expedient.getId());
 		} finally {
@@ -1361,6 +1422,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<TascaLlistatDto> tasques = tascaService.findTasquesPersonalsTramitacio(e.getId(), usuari, codi, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)
@@ -1405,6 +1469,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 						e.getCodi()));
 		countEntorn.inc();
 		try {
+			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			
 			List<TascaLlistatDto> tasques = tascaService.findTasquesGrupTramitacio(e.getId(), usuari, codi, true);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
 			for (TascaLlistatDto tasca: tasques)

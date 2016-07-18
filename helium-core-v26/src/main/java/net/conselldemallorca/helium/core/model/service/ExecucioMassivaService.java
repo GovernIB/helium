@@ -105,7 +105,7 @@ public class ExecucioMassivaService {
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			ExecucioMassiva execucioMassiva = new ExecucioMassiva(
-					auth.getName(),
+					auth,
 					ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
 			if (dto.getDataInici() == null) {
 				execucioMassiva.setDataInici(new Date());
