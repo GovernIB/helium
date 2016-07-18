@@ -81,7 +81,6 @@ import net.sf.ehcache.Element;
 @Component
 public class DominiHelper {
 
-	public static final String DOMINI_INTERN_CODI = "_INTERN_";
 	private static final String CACHE_DOMINI_ID = "dominiCache";
 	private static final String CACHE_KEY_SEPARATOR = "#";
 
@@ -182,7 +181,9 @@ public class DominiHelper {
 							domini.getCodi()));
 			countDomini.inc();
 			try {
-				if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
+				if (domini.isDominiIntern())
+					resultat = this.consultaDominiIntern(domini, id, parametres);
+				else if (domini.getTipus().equals(TipusDomini.CONSULTA_WS))
 					resultat = consultaWs(domini, id, parametres);
 				else if (domini.getTipus().equals(TipusDomini.CONSULTA_SQL))
 					resultat = consultaSql(domini, parametres);
@@ -270,30 +271,75 @@ public class DominiHelper {
 		dominiIntern.setEntorn(entorn);
 		dominiIntern.setExpedientTipus(expedientTipus);
 		dominiIntern.setCacheSegons(30);
-		dominiIntern.setCodi(DOMINI_INTERN_CODI);
+		dominiIntern.setCodi("");
 		dominiIntern.setNom("Domini intern");
-		dominiIntern.setTipus(TipusDomini.CONSULTA_WS);
-		dominiIntern.setTipusAuth(TipusAuthDomini.NONE);
-		dominiIntern.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
 		return consultar(
 				dominiIntern,
 				id,
 				parametres);
 	}
 
-
+	private List<FilaResultat> consultaDominiIntern(
+			Domini domini,
+			String id,
+			Map<String, Object> parametres) {
+		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
+		paramsConsulta.add(
+				new ParellaCodiValor(
+						"entorn",
+						domini.getEntorn().getCodi()));
+		if (parametres != null) {
+			for (String codi: parametres.keySet()) {
+				paramsConsulta.add(new ParellaCodiValor(
+						codi,
+						parametres.get(codi)));
+			}
+		}
+		long t0 = System.currentTimeMillis();
+		try {
+			logger.debug("Petició de domini de tipus Intern (" +
+					"id=" + domini.getId() + ", " +
+					"params=" + parametresToString(parametres) + ")");
+			List<FilaResultat> resposta = consultaDominiIntern(id, paramsConsulta);
+			monitorDominiHelper.addAccioOk(
+					domini,
+					"Consulta domini intern (id=" + id + ")",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					toIntegracioParametres(parametres));
+			return resposta;
+		} catch (Exception ex) {
+			logger.error("ERROR SISTEMA DOMINI INTERN: ", ex);
+			
+			monitorDominiHelper.addAccioError(
+					domini,
+					"Consulta WS (id=" + id + ")",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					ex.getMessage(),
+					ex,
+					toIntegracioParametres(parametres));
+			
+			throw SistemaExternException.tractarSistemaExternException(
+					domini.getEntorn().getId(),
+					domini.getEntorn().getCodi(), 
+					domini.getEntorn().getNom(), 
+					null, 
+					null, 
+					null, 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					"(Domini intern '" + domini.getCodi() + "')", 
+					ex);
+		}
+	}
 
 	private List<FilaResultat> consultaWs(
 			Domini domini,
 			String id,
 			Map<String, Object> parametres) {
 		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
-		if (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
-			paramsConsulta.add(
-					new ParellaCodiValor(
-							"entorn",
-							domini.getEntorn().getCodi()));
-		}
 		if (parametres != null) {
 			for (String codi: parametres.keySet()) {
 				paramsConsulta.add(new ParellaCodiValor(
@@ -304,30 +350,22 @@ public class DominiHelper {
 		long t0 = System.currentTimeMillis();
 		int puntControl = 0;
 		try {
-			logger.debug("Petició de domini de tipus " + (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi()) ? "Intern" : "WS") + " (" +
+			logger.debug("Petició de domini de tipus WS (" +
 					"id=" + domini.getId() + ", " +
 					"codi=" + domini.getCodi() + ", " +
 					"params=" + parametresToString(parametres) + ")");
 			puntControl = 1;
-			List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+			DominiHelium client = getClientWsFromDomini(domini);
 			puntControl = 2;
-			if (DOMINI_INTERN_CODI.equalsIgnoreCase(domini.getCodi())) {
-				puntControl = 3;
-				resposta = consultaDominiIntern(id, paramsConsulta);
-			} else {
-				puntControl = 4;
-				DominiHelium client = getClientWsFromDomini(domini);
-				puntControl = 5;
-				resposta = client.consultaDomini(id, paramsConsulta);
-			}
-			puntControl = 6;
+			List<FilaResultat> resposta = client.consultaDomini(id, paramsConsulta);
+			puntControl = 3;
 			monitorDominiHelper.addAccioOk(
 					domini,
 					"Consulta WS (id=" + id + ")",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					toIntegracioParametres(parametres));
-			puntControl = 7;
+			puntControl = 4;
 			return resposta;
 		} catch (Exception ex) {
 			logger.error("ERROR SISTEMA EXTERN (Punt de control " + puntControl + "): ", ex);
