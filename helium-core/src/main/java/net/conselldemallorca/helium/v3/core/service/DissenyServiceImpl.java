@@ -4,9 +4,12 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -16,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -501,13 +505,13 @@ public class DissenyServiceImpl implements DissenyService {
 			Long entornId,
 			Long expedientTipusId) {
 		List<Long> ids = new ArrayList<Long>();
-		List<Object[]> tasques = new ArrayList<Object[]>();
+		Set<Object[]> tasques = new HashSet<Object[]>();
 		if (expedientTipusId.equals(-1L)) {
 			List<ExpedientTipusDto> tipusExpedient = findExpedientTipusAmbPermisReadUsuariActual(entornId);
 			for (ExpedientTipusDto tipus : tipusExpedient) {
-				ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIJbpmKey(
+				ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
 						tipus.getEntorn().getId(),
-						tipus.getJbpmProcessDefinitionKey()));
+						tipus.getId()));
 			}
 			if (ids.size() > 0)
 				tasques.addAll(
@@ -515,18 +519,34 @@ public class DissenyServiceImpl implements DissenyService {
 		}
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		if (expedientTipus != null && expedientTipus.getJbpmProcessDefinitionKey() != null) {
-			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIJbpmKey(
+			ids.addAll(definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
 					expedientTipus.getEntorn().getId(),
-					expedientTipus.getJbpmProcessDefinitionKey()));
+					expedientTipus.getId()));
 			tasques.addAll(tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
 		}
 		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
 		for (Object[] tasca: tasques) {
 			lista.add(new ParellaCodiValorDto(tasca[0].toString(), tasca[1]));
 		}
+		Collections.sort(
+				lista, 
+				new Comparator<ParellaCodiValorDto>() {
+					public int compare(ParellaCodiValorDto p1, ParellaCodiValorDto p2) {
+						if (p1 != null && p2 == null)
+							return -1;
+						if (p1 == null && p2 == null)
+							return 0;
+						if (p1 == null && p2 != null)
+							return 1;
+						String val1 = p1.getValor() == null ? "" : (String)p1.getValor();
+						String val2 = p2.getValor() == null ? "" : (String)p2.getValor();
+						int result = val1.compareTo(val2);
+						return result != 0 ? result : p1.getCodi().compareTo(p2.getCodi());
+					}
+				});
 		return lista;
 	}
-
+	
 	@Transactional(readOnly=true)
 	private List<ExpedientTipusDto> getExpedientTipusAmbEntorn(Entorn entorn) {
 		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
