@@ -1847,16 +1847,17 @@ public class DissenyService {
 			Long dominiId,
 			String dominiWsId,
 			Map<String, Object> params) {
-		if (dominiId.longValue() != 0) {
+		if (dominiId != null && !dominiId.equals(0L)) {
+			// Domini extern
 			Domini domini = dominiDao.getById(dominiId, false);
 			return dominiHelper.consultar(
 					domini,
 					(dominiId != null) ? dominiId.toString() : null,
 					params);
 		} else {
-			Entorn entorn = entornDao.getById(entornId, false);
+			// Domini intern
 			return dominiHelper.consultarIntern(
-					entorn,
+					entornDao.getById(entornId, false),
 					null,
 					dominiWsId,
 					params);
@@ -2832,22 +2833,20 @@ public class DissenyService {
 				}
 				
 			}
-			if (camp.getCodiDomini() != null) {
+			if (camp.getCodiDomini() != null &&  !camp.isDominiIntern()) {	
 				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
-				if (!camp.isDominiIntern()) {	
-					if (domini != null) {
-						nou.setDomini(domini);
-					} else {
-						domini = new Domini();
-						domini.setEntorn(entornDao.getById(entornId, false));
-						domini.setCodi(camp.getCodiDomini());
-						domini.setNom(camp.getCodiDomini());
-						domini.setTipus(TipusDomini.CONSULTA_SQL);
-						if (expedientTipusId != null)
-							domini.setExpedientTipus(
-									expedientTipusDao.getById(expedientTipusId, false));
-						dominiDao.saveOrUpdate(domini);
-					}
+				if (domini != null) {
+					nou.setDomini(domini);
+				} else {
+					domini = new Domini();
+					domini.setEntorn(entornDao.getById(entornId, false));
+					domini.setCodi(camp.getCodiDomini());
+					domini.setNom(camp.getCodiDomini());
+					domini.setTipus(TipusDomini.CONSULTA_SQL);
+					if (expedientTipusId != null)
+						domini.setExpedientTipus(
+								expedientTipusDao.getById(expedientTipusId, false));
+					dominiDao.saveOrUpdate(domini);
 				}
 			}
 			if (camp.getAgrupacioCodi() != null)
