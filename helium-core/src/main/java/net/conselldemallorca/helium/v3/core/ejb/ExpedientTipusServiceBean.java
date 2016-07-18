@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
@@ -567,5 +568,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException {
 		return delegate.enumeracioValorMourer(valorId, posicio);
+	}
+
+	@Override
+	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId)
+			throws NoTrobatException, PermisDenegatException, ValidacioException {
+		delegate.enumeracioDeleteAllByEnumeracio(enumeracioId);
 	}
 }

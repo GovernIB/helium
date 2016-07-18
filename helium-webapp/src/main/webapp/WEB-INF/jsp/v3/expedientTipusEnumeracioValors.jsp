@@ -45,13 +45,45 @@
 			</button>
 			<button id="btnUpdate" style='${mostraUpdate ? "":"display:none;"}' class="btn btn-primary right" type="submit" name="accio" value="modificar">
 				<span class="fa fa-pencil"></span> <spring:message code='comu.boto.modificar' />
-			</button>	
+			</button>
 		</div>
 
 	</form:form>
 	
+	<form:form id="importar-form" cssClass="form-horizontal" action="#" enctype="multipart/form-data" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
+	
+		<input type="hidden" name="id" value="${enumeracio.id}"/>
+	
+		<div class="inlineLabels">
+			<div class="row">
+				<label class="control-label col-xs-4 obligatori" for="nom">
+					<spring:message code='expedient.tipus.enumeracio.valors.importar.arxiu'/>
+				</label>
+				<div class="col-xs-8">
+					<input type="file" id="multipartFile" name="multipartFile"/>
+				</div>
+			</div>
+			<div class="row">
+				<label class="control-label col-xs-4" for="nom">
+					<spring:message code='expedient.tipus.enumeracio.valors.importar.eliminar'/>
+				</label>
+				<div class="col-xs-8">
+					<input type="checkbox" id="eliminarValorsAntics" name="eliminarValorsAntics"/>
+				</div>
+			</div>
+		</div>
+		
+		<div id="modal-botons" class="well">
+			<button id="btnCancelar_imp" name="submit" value="cancel" class="btn btn-default"><spring:message code="comu.boto.cancelar"/></button>
+			<button id="btnCreate_imp" class="btn btn-primary right" type="submit" name="accio" value="crear">
+				<span class="fa fa-plus"></span> <spring:message code='enumeracio.valors.importar' />
+			</button>
+		</div>
+	</form:form>
+	
 	<div class="botons-titol text-right">
 		<button id="btnNew" class="btn btn-default" style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.valors.form.titol.nou"/></button>
+		<button id="btnImp" class="btn btn-info"    style='${mostraCreate || mostraUpdate ? "display:none;" : ""}'><span class="fa fa-file-text"></span>&nbsp;<spring:message code="enumeracio.valors.import_dades"/></button>
 	</div>	
 	<div style="height: 500px;">
 		<table	id="campValidacio"
@@ -87,14 +119,33 @@
 	// <![CDATA[
 	            
 	$(document).ready(function() {
-		// Accions del formulari
+				
+		cancelaFormulariImp();
+		
+		var updateMode = ${mostraCreate || mostraUpdate ? "true;":"false;"}
+		
+		if (updateMode) {
+			$('#btnNew').hide();
+			$('#btnImp').hide();
+		}
+		
 		$('#btnCancelar').click(function(e){
 			e.preventDefault();
 			cancelaFormulari();
-		})
+		});
+		
+		$('#btnCancelar_imp').click(function(e){
+			e.preventDefault();
+			cancelaFormulariImp();
+		});
+		
 		$('#btnNew').click(function(){
 			mostraFormulariNew();
-		})
+		});
+		
+		$('#btnImp').click(function(){
+			mostraFormulariImp();
+		});
 		
 		// Quan es repinta la taula aplica la reordenació
 		$('#campValidacio').on('draw.dt', function() {
@@ -125,11 +176,20 @@
 	function cancelaFormulari() {
 		$('#validacio-form').hide(300);
 		$('#btnNew').show();
+		$('#btnImp').show();
 		$('#validacio-form').attr('action','');
+	}
+	
+	function cancelaFormulariImp() {
+		$('#importar-form').hide(300);
+		$('#btnImp').show();
+		$('#btnNew').show();
+		$('#importar-form').attr('action','');
 	}
 	
 	function mostraFormulariNew() {
 		$('#btnNew').hide();
+		$('#btnImp').hide();
 		$('#btnCreate').show();
 		$('#btnUpdate').hide();
 		resetFormulari();
@@ -137,6 +197,15 @@
 		$("#codi").val("");
 		$("#nom").val("");
 		$('#validacio-form').attr('action','${baseUrl}/new');
+	}
+	
+	function mostraFormulariImp() {
+		$('#btnImp').hide();
+		$('#btnNew').hide();
+		$('#importar-form').trigger('reset').show(300);
+		$('#importar-form .help-block').remove();
+		$('#importar-form .has-error').removeClass('has-error');
+		$('#importar-form').attr('action','${baseUrl}/importar');
 	}
 	
 	function mostraFormulariUpdate(id) {
@@ -149,6 +218,7 @@
 		$("#inputValidacioId").val(id);
 		$("#expressio").val($("#campValidacio tr[id='row_"+id+"'] td:nth-child(1)").text());
 		$("#missatge").val($("#campValidacio tr[id='row_"+id+"'] td:nth-child(2)").text());
+		cancelaFormulariImp();
 	}
 	
 	function canviarPosicioValidacio( id, pos) {
@@ -175,6 +245,14 @@
 		$('#validacio-form .help-block').remove();
 		$('#validacio-form .has-error').removeClass('has-error');
 	}
+
+	$('#btnCreate_imp').click(function(e) {
+		var valorCampFile=$("#multipartFile").val();
+		if (!valorCampFile || valorCampFile=="") {
+			alert('<spring:message code="expedient.tipus.enumeracio.valors.importar.arxiu.buid"/>');
+			e.preventDefault();
+		}
+	});
 	// ]]>
 	</script>	
 </body>

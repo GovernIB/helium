@@ -18,7 +18,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
 
 /**
  * Servei per al manteniment de tipus d'expedient.
@@ -845,6 +846,8 @@ public interface ExpedientTipusService {
 	
 	public void enumeracioValorDelete(
 			Long valorId) throws NoTrobatException, PermisDenegatException;
+	
+	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException;
 	
 	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbCodi(
 			Long expedientTipusId,
