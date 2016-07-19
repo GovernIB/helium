@@ -136,12 +136,18 @@ public class ConsultaHelper {
 			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			text = df.format(expedient.getDataInici());
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(campCodi)) {
-			if (expedient.getEstat() != null)
-				text = expedient.getEstat().getNom();
-			else if (expedient.getDataFi() != null)
+			if (expedient.getDataFi() != null)
 				text = messageHelper.getMessage("expedient.consulta.finalitzat");
+			else if (expedient.getEstat() != null)
+				text = expedient.getEstat().getNom();
 			else
-				text = messageHelper.getMessage("expedient.consulta.iniciat");	
+				text = messageHelper.getMessage("expedient.consulta.iniciat");
+//			if (expedient.getEstat() != null)
+//				text = expedient.getEstat().getNom();
+//			else if (expedient.getDataFi() != null)
+//				text = messageHelper.getMessage("expedient.consulta.finalitzat");
+//			else
+//				text = messageHelper.getMessage("expedient.consulta.iniciat");	
 		}
 		return text;
 	}
