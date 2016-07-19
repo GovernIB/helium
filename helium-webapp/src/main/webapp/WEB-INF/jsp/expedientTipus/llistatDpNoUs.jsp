@@ -28,62 +28,71 @@ function selecTots() {
 }
 $(document).ready(function() {
 	$(".bexpborrarlog").click(function(){
-// 		var form = $("#logs_borrar");
-// 		form.remove("input[name=definicioProcesId]");
-// 		form.remove("input[name=expedientId]");
-// 		form.append('<input type="hidden" name="expedientId" value="' + $(this).data("expid") + '"/>');
-// 		form.submit();
-		var exp = $(this).parent();
-		var expedientId = $(this).data("expid");
+		var btn = $(this);
+		var exp = btn.parent();
+		var expId = btn.data("id");
+		$("body").css("cursor", "progress");
 		$.ajax({
-			url: "borra_logsexp.html",
+			type: "POST",
+			url: "../nodeco/expedientTipus/borra_logsexp.html",
 			dataType: 'json',
-			data: {expedientId: expedientId},
-			method: 'POST',
+			data: {expedientId: expId, expedientTipusId: "${expedientTipusId}"},
 			success: function(data){
-				exp.remove("button");
-				exp.append('<span class="exp_info">S\'ha programat el borrat dels logs de l\'expedient</span>');
+				btn.remove();
+				exp.append('<span class="exp_info">' + data.resultat + '</span>');
+				$("body").css("cursor", "default");
 			}
 		})
 		.fail(function( jqxhr, textStatus, error ) {
+			debugger;
 			var err = textStatus + ', ' + error;
 			console.log( "Request Failed: " + err);
-			exp.remove("button");
-			exp.append('<span class="exp_info">Error: ' + err, '</span>');
+			btn.remove();
+			exp.append('<span class="exp_info">' + err + '</span>');
+			$("body").css("cursor", "default");
 		})
 	});
 	
 	
 	$(".bexpborrartotslogs").click(function(){
-// 		var form = $("#logs_borrar");
-// 		form.remove("input[name=definicioProcesId]");
-// 		form.remove("input[name=expedientId]");
-// 		$(".bexpborrarlog").each(function(){
-// 			form.append('<input type="hidden" name="expedientId" value="' + $(this).data("id") + '"/>');
-// 		});
-// 		form.submit();
-		var cont_bot = $(this).parent();
-		var cont_exp = cont_bot.parent();
-		var expedientsId = []; 
+		var btn = $(this);
+		var cont_btn = btn.parent();
+		var cont_exp = cont_btn.parent();
+		var expsId = []; 
 		$(".bexpborrarlog", cont_exp).each(function(){
-			expedientsId.push($(this).data("expid"));
+			expsId.push($(this).data("id"));
 		});
+		$("body").css("cursor", "progress");
 		$.ajax({
-			url: "borra_logsexps.html",
+			type: "POST",
+			url: "../nodeco/expedientTipus/borra_logsexps.html",
 			dataType: 'json',
-			data: {expedientsId: expedientsId},
-			method: 'POST',
+			data: {expedientsId: JSON.stringify(expsId), expedientTipusId: "${expedientTipusId}"},
 			success: function(data){
-				cont_bot.remove("button");
-				cont_bot.append('<span class="exp_info">S\'ha programat el borrat dels logs de tots els expedients</span>');
+				debugger;
+// 				btn.remove();
+// 				cont_btn.append('<span class="exp_info">' + data.error + '</span>');
+				for (var i = 0; i < data.resultats.length; i++) {
+					var entry = data.resultats[i];
+					var id = entry.id;
+					var msg = entry.resultat;
+					var btn = $("button[data-id='" + id + "']").first();
+					btn.parent().append('<span class="exp_info">' + msg + '</span>');
+					btn.remove();
+                }
+				$("body").css("cursor", "default");
 			}
 		})
 		.fail(function( jqxhr, textStatus, error ) {
 			var err = textStatus + ', ' + error;
 			console.log( "Request Failed: " + err);
-			cont_bot.remove("button");
-			cont_bot.append('<span class="exp_info">Error: ' + err, '</span>');
+			btn.remove();
+			cont_btn.append('<span class="exp_info">' + err + '</span>');
+			$("body").css("cursor", "default");
 		})
+	});
+	$(".submitButton").click(function(){
+		$("body").css("cursor", "progress");
 	});
 });
 // ]]>
