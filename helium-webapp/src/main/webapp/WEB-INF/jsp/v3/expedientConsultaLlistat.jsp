@@ -205,7 +205,11 @@ $(document).ready(function() {
 					${camp.campEtiqueta}
 					<c:if test="${camp.varCodi == 'expedient__exp__estat'}">
 						<script id="cellEstatTemplate" type="text/x-jsrender">
-							{{:estat}}
+							{{if finalitzat}}
+								<spring:message code="comu.estat.finalitzat"/>
+							{{else}}
+								{{:estat}}
+							{{/if}}
 							<div class="pull-right">
 								{{if ambErrors}}
 									<span class="label label-danger" title="<spring:message code="expedient.consulta.errors"/>"><span class="fa fa-exclamation-circle"></span> </span>
@@ -235,6 +239,7 @@ $(document).ready(function() {
 				<th data-rdt-property="comentariAnulat" data-rdt-visible="false"></th>
 				<th data-rdt-property="aturat" data-rdt-visible="false"></th>
 				<th data-rdt-property="anulat" data-rdt-visible="false"></th>
+				<th data-rdt-property="finalitzat" data-rdt-visible="false"></th>
 				<th data-rdt-property="processInstanceId" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisCreate" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisAdministration" data-rdt-visible="false"></th>		

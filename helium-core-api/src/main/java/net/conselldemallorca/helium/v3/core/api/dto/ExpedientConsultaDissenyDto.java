@@ -45,6 +45,9 @@ public class ExpedientConsultaDissenyDto {
 	public boolean isAmbErrors() {
 		return expedient.isAmbErrors();
 	}
+	public boolean isFinalitzat() {
+		return expedient.getDataFi() != null;
+	}
 	public ExpedientTipusDto getTipus() {
 		return expedient.getTipus();
 	}
