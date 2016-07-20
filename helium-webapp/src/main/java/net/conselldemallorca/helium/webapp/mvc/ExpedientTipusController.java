@@ -593,41 +593,6 @@ public class ExpedientTipusController extends BaseController {
 		return response;
 	}
 	
-//	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
-//	@ResponseBody
-//	public String borra_logsExps(
-//			HttpServletRequest request,
-//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-//			@RequestParam(value = "expedientsId", required = false) String[] expedients,
-//			ModelMap model) throws Exception {
-//		String response = "{'resultat':";
-//		if (expedients == null || expedients.length == 0) {
-//			response += "'" + getMessage("error.no.exp.selec") + "'";
-//		} else {
-//			List<Long> expedientIds = new ArrayList<Long>();
-//			for (String expedient: expedients) {
-//				Long expedientId = Long.parseLong(expedient);
-//				expedientIds.add(expedientId);
-//			}
-//			ExecucioMassivaDto dto = new ExecucioMassivaDto();
-//			dto.setDataInici(new Date());
-//			dto.setEnviarCorreu(false);
-//			dto.setExpedientIds(expedientIds);
-//			dto.setExpedientTipusId(expedientTipusId);
-//			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
-//			try {
-//				execucioMassivaService.crearExecucioMassiva(dto);
-//				response += "'" + getMessage("info.buidarlog.massiu.executat", new Object[] {1}) + "'";
-//			} catch (Exception e) {
-//				logger.error("Error al programar les accions massives", e);
-//				response += "'" + getMessage("error.no.massiu") + "'";
-//			}
-//			response += "'}";
-//		}
-//		response += "}";
-//		return response;
-//	}
-	
 	@RequestMapping(value = "/expedientTipus/borra_logsexp", method = RequestMethod.POST)
 	@ResponseBody
 	public String borra_logsExp(
@@ -635,21 +600,52 @@ public class ExpedientTipusController extends BaseController {
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
 			@RequestParam(value = "expedientId", required = true) String expedient,
 			ModelMap model) throws Exception {
-		String response = "{\"resultat\":";
+		String response = "{\"resultat\":\"";
 		if (expedient == null || expedient.isEmpty()) {
-			response += "\"" + getMessage("error.no.exp.selec") + "\"";
+			response += getMessage("error.no.exp.selec");
 		} else {
+			List<Long> expedientIds = new ArrayList<Long>();
+			expedientIds.add(Long.parseLong(expedient));
+			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+			dto.setDataInici(new Date());
+			dto.setEnviarCorreu(false);
+			dto.setExpedientIds(expedientIds);
+			dto.setExpedientTipusId(expedientTipusId);
+			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
 			try {
-				expedientService.buidarLogByExpedientId(Long.parseLong(expedient));
-				response += "\"" + getMessage("info.defproc.esborrar.log.executat") + "\"";
+				execucioMassivaService.crearExecucioMassiva(dto);
+				response += getMessage("info.defproc.esborrar.massiu.expedient.executat");
 			} catch (Exception e) {
 				logger.error("Error al programar les accions massives", e);
-				response += "\"" + getMessage("error.buidarlog.expedient") + "\"";
+				response += getMessage("error.no.massiu");
 			}
 		}
-		response += "}";
+		response += "\"}";
 		return response;
 	}
+	
+//	@RequestMapping(value = "/expedientTipus/borra_logsexp", method = RequestMethod.POST)
+//	@ResponseBody
+//	public String borra_logsExp(
+//			HttpServletRequest request,
+//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+//			@RequestParam(value = "expedientId", required = true) String expedient,
+//			ModelMap model) throws Exception {
+//		String response = "{\"resultat\":";
+//		if (expedient == null || expedient.isEmpty()) {
+//			response += "\"" + getMessage("error.no.exp.selec") + "\"";
+//		} else {
+//			try {
+//				expedientService.buidarLogByExpedientId(Long.parseLong(expedient));
+//				response += "\"" + getMessage("info.defproc.esborrar.log.executat") + "\"";
+//			} catch (Exception e) {
+//				logger.error("Error al programar les accions massives", e);
+//				response += "\"" + getMessage("error.buidarlog.expedient") + "\"";
+//			}
+//		}
+//		response += "}";
+//		return response;
+//	}
 	
 //	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
 //	@ResponseBody
