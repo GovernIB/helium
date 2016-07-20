@@ -33,6 +33,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
@@ -75,7 +76,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	}	
 
 	@RequestMapping(value = "/{expedientTipusId}", method = RequestMethod.GET)
-	public String info(
+	public String pipelles(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
@@ -85,7 +86,88 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				model,
 				null);
 	}
-
+	
+	/** Pipella d'informació. */
+	@RequestMapping(value = "/{expedientTipusId}/informacio")
+	public String informacio(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioExpedientTipusPerPipelles(
+					request,
+					expedientTipusId,
+					model,
+					"informacio");
+		}
+		omplirModelPestanyaInformacio(
+				request,
+				expedientTipusId,
+				model);		
+		return "v3/expedientTipusInformacio";
+	}
+	private void omplirModelPestanyaInformacio(
+			HttpServletRequest request,
+			Long expedientTipusId,
+			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+			// Responsable per defecte
+			if (expedientTipus.getResponsableDefecteCodi() != null) {
+				model.addAttribute(
+						"responsableDefecte",
+						aplicacioService.findPersonaAmbCodi(
+								expedientTipus.getResponsableDefecteCodi()));
+			}
+			model.addAttribute(
+					"definicioProcesInicial",
+					dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
+		}
+		// Permisos per a les accions
+		boolean potEscriure;
+		if (entornActual.isPermisDesign()) {
+			potEscriure = true;
+		} else {
+			try {
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						false, 
+						true,  // comprovarPermisWrite 
+						false, 
+						false, 
+						false);
+				potEscriure = true;
+			} catch (Exception e){
+				potEscriure = false;
+			}
+		}
+		model.addAttribute("potEscriure", potEscriure);
+		
+		boolean potEsborrar;
+		if (entornActual.isPermisDesign()) {
+			potEsborrar = true;
+		} else {
+			try {
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+																expedientTipusId, 
+																false, 
+																false,   
+																false, 
+																true,	// comprovarPermisDelete 
+																false);
+				potEsborrar = true;
+			} catch (Exception e){
+				potEsborrar = false;
+			}
+		}		
+		model.addAttribute("potEsborrar", potEsborrar);
+	}
+	
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,

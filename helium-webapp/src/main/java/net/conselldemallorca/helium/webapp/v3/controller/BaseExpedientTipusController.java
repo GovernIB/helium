@@ -37,7 +37,7 @@ public class BaseExpedientTipusController extends BaseController {
 	@Autowired
 	protected ExpedientService expedientService;
 	@Autowired
-	private AplicacioService aplicacioService;
+	protected AplicacioService aplicacioService;
 	@Autowired
 	protected DissenyService dissenyService;
 	@Autowired
@@ -48,66 +48,20 @@ public class BaseExpedientTipusController extends BaseController {
 			Long expedientTipusId,
 			Model model,
 			String pipellaActiva) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
-				entornActual.getId(),
-				expedientTipusId);
-		model.addAttribute("expedientTipus", expedientTipus);
 		if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
-			model.addAttribute("pipellaActiva", "dades");
-		// Responsable per defecte
-		if (expedientTipus.getResponsableDefecteCodi() != null) {
-			model.addAttribute(
-					"responsableDefecte",
-					aplicacioService.findPersonaAmbCodi(
-							expedientTipus.getResponsableDefecteCodi()));
-		}
-		model.addAttribute(
-				"definicioProcesInicial",
-				dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipusId));
-
-		// Permisos per a les accions
-		boolean potEscriure;
-		if (entornActual.isPermisDesign()) {
-			potEscriure = true;
-		} else {
-			try {
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						false, 
-						true,  // comprovarPermisWrite 
-						false, 
-						false, 
-						false);
-				potEscriure = true;
-			} catch (Exception e){
-				potEscriure = false;
-			}
-		}
-		model.addAttribute("potEscriure", potEscriure);
+			model.addAttribute("pipellaActiva", "informacio");
 		
-		boolean potEsborrar;
-		if (entornActual.isPermisDesign()) {
-			potEsborrar = true;
-		} else {
-			try {
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-																expedientTipusId, 
-																false, 
-																false,   
-																false, 
-																true,	// comprovarPermisDelete 
-																false);
-				potEsborrar = true;
-			} catch (Exception e){
-				potEsborrar = false;
-			}
-		}		
-		model.addAttribute("potEsborrar", potEsborrar);
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+		}
 		
-		return "v3/expedientTipusInfo";
+		return "v3/expedientTipusPipelles";
 	}
 	
 	@InitBinder

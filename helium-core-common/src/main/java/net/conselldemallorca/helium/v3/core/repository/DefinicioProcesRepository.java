@@ -5,12 +5,14 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -120,4 +122,24 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("entornId") Long entornId,
 			@Param("expedientTipusId") Long expedientTipusId);
 
+	
+	@Query(	"from DefinicioProces dp " +
+			"where " +
+			"   dp.entorn.id = :entornId " +
+			"	and (dp.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (:esNullFiltre = true or lower(dp.jbpmKey) like lower('%'||:filtre||'%')) " +
+			"	and dp.versio = (" +
+			"  		select max(dps.versio) " +
+			"    	from DefinicioProces dps " +
+			"    	where " +
+			"       	dps.entorn.id = :entornId " +
+			"			and (dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"		    and dps.jbpmKey= dp.jbpmKey) ")
+	Page<DefinicioProces> findByFiltrePaginat(
+			@Param("entornId") Long entornId,
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("incloureGlobals") boolean incloureGlobals,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);	
 }

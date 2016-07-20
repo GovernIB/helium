@@ -29,6 +29,7 @@ public class ExpedientTipusCommand {
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
+	private boolean ambInfoPropia;
 	private boolean teTitol;
 	private boolean teNumero;
 	private boolean demanaTitol;
@@ -67,6 +68,12 @@ public class ExpedientTipusCommand {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public boolean isAmbInfoPropia() {
+		return ambInfoPropia;
+	}
+	public void setAmbInfoPropia(boolean ambInfoPropia) {
+		this.ambInfoPropia = ambInfoPropia;
 	}
 	public boolean isTeNumero() {
 		return teNumero;

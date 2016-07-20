@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
@@ -575,4 +576,32 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			throws NoTrobatException, PermisDenegatException, ValidacioException {
 		delegate.enumeracioDeleteAllByEnumeracio(enumeracioId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void definicioProcesDelete(Long id) throws NoTrobatException, PermisDenegatException {
+		delegate.definicioProcesDelete(id);		
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
+			Long entornId,
+			Long expedientTipusId,
+			boolean incloureGlobals,
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.definicioProcesFindPerDatatable(
+				entornId,
+				expedientTipusId,
+				incloureGlobals,
+				filtre, 
+				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean definicioProcesSetInicial(Long expedientTipusId, Long id) {
+		return delegate.definicioProcesSetInicial(expedientTipusId, id);
+	}	
 }

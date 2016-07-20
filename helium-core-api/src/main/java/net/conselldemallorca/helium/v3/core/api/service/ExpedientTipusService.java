@@ -7,6 +7,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
@@ -861,5 +862,52 @@ public interface ExpedientTipusService {
 			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
 	
 	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException;
+
+
+	/** 
+	 * Retorna la llista de definicions de procés del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param expedientTipusId2 
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 */
+	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
+			Long entornId, 
+			Long expedientTipusId,
+			boolean incloureGlobals,
+			String filtre, 
+			PaginacioParamsDto paginacioParams);
+
+	/**
+	 * Esborra una entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param id
+	 *            Atribut id de la definicio de procés.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws AccioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void definicioProcesDelete(
+			Long id) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Marca la definició de procés com a inicial al tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @param id
+	 *            Identificador del tipus d'expedient.
+	 */
+	public boolean definicioProcesSetInicial(
+			Long expedientTipusId, 
+			Long id);
 
 }

@@ -15,25 +15,25 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
-
-		<div class="row well well-small">
-			<div class="col-sm-10">
-				<hel:inputSelect required="false" emptyOption="true" name="agrupacions" textKey="expedient.tipus.camp.llistat.agrupacio.seleccionada" placeholderKey="expedient.tipus.camp.llistat.agrupacio.seleccionada" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			</div>
-			<div class="col-sm-2">
-				<div id="agrupacionsAccions" class="dropdown">
-					<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-					<ul class="dropdown-menu">
-						<li><a href="${expedientTipus.id}/agrupacio/new" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.crear"/></a></li>
-						<li style="display: none;"><a id="agrupacioUpdate" href="${expedientTipus.id}/agrupacio/update" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.modificar"/></a></li>
-						<li style="display: none;"><a id="agrupacioDelete" href="${expedientTipus.id}/agrupacio/delete" data-confirm="<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar.confirm"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar"/></a></li>
-						<li class="divider"></li>
-						<li><a href="${expedientTipus.id}/agrupacio" data-toggle="modal" data-callback="refrescarAgrupacions()"><span class="fa fa-arrows-v"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.ordenar"/></a></li>
-					</ul>
+		<form class="well">
+			<div class="row">
+				<div class="col-sm-10">
+					<hel:inputSelect required="false" emptyOption="true" name="agrupacions" textKey="expedient.tipus.camp.llistat.agrupacio.seleccionada" placeholderKey="expedient.tipus.camp.llistat.agrupacio.seleccionada.placeholder" optionItems="${agrupacions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				</div>
+				<div class="col-sm-2 text-right">
+					<div id="agrupacionsAccions" class="dropdown" style="margin-right: -10px;">
+						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+						<ul class="dropdown-menu">
+							<li><a href="${expedientTipus.id}/agrupacio/new" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.crear"/></a></li>
+							<li style="display: none;"><a id="agrupacioUpdate" href="${expedientTipus.id}/agrupacio/update" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.modificar"/></a></li>
+							<li style="display: none;"><a id="agrupacioDelete" href="${expedientTipus.id}/agrupacio/delete" data-confirm="<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar.confirm"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar"/></a></li>
+							<li class="divider"></li>
+							<li><a href="${expedientTipus.id}/agrupacio" data-toggle="modal" data-callback="refrescarAgrupacions()"><span class="fa fa-arrows-v"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.ordenar"/></a></li>
+						</ul>
+					</div>
 				</div>
 			</div>
-		</div>
-
+		</form>
 		<div class="botons-titol text-right">
 			<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-callback="callbackModalVariables()" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
 		</div>

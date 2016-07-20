@@ -29,9 +29,11 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
@@ -41,13 +43,13 @@ import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
@@ -67,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
@@ -107,6 +110,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private AccioRepository accioRepository;
 	@Resource
+	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -143,6 +148,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setEntorn(entorn);
 		entity.setCodi(expedientTipus.getCodi());
 		entity.setNom(expedientTipus.getNom());
+		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setTeTitol(expedientTipus.isTeTitol());
 		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
 		entity.setTeNumero(expedientTipus.isTeNumero());
@@ -195,6 +201,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entorn,
 				expedientTipus.getId());
 		entity.setNom(expedientTipus.getNom());
+		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setTeTitol(expedientTipus.isTeTitol());
 		entity.setDemanaTitol(expedientTipus.isDemanaTitol());
 		entity.setTeNumero(expedientTipus.isTeNumero());
@@ -1899,4 +1906,72 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return ret;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void definicioProcesDelete(Long id) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant la definicioProces del tipus d'expedient (" +
+				"definicioProcesId=" + id +  ")");
+		DefinicioProces entity = definicioProcesRepository.findOne(id);
+		definicioProcesRepository.delete(entity);	
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
+			Long entornId,
+			Long expedientTipusId,
+			boolean incloureGlobals,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant les definicions de processos per al tipus d'expedient per datatable (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"incloureGlobals=" + incloureGlobals + ", " +
+				"filtre=" + filtre + ")");
+						
+		Page<DefinicioProces> page = definicioProcesRepository.findByFiltrePaginat(
+				entornId,
+				expedientTipusId,
+				incloureGlobals,
+				filtre == null || "".equals(filtre), 
+				filtre, 
+				paginacioHelper.toSpringDataPageable(
+						paginacioParams));
+		
+		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
+				page,
+				DefinicioProcesDto.class);
+		
+		return pagina;		
+	}
+
+	@Override
+	@Transactional
+	public boolean definicioProcesSetInicial(
+			Long expedientTipusId, 
+			Long id) {
+		logger.debug(
+				"Modificant la clau de la definicio de proces inicial d'un tipus d'expedient(" +
+				"expedientTipusId=" + expedientTipusId +  ", definicioProcesId=" + id + ")");
+		boolean ret = false;
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(id);
+		if (expedientTipus != null 
+				&& definicioProces != null 
+				&& expedientTipus.getEntorn().getId().equals(definicioProces.getEntorn().getId())) {
+			expedientTipus.setJbpmProcessDefinitionKey(definicioProces.getJbpmKey());
+			ret = true;
+		}
+		return ret;
+	}
+	
 }
