@@ -11,5 +11,5 @@ target
 
 
 # Maven
-log/
+# log/
 target/
