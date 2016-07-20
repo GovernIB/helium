@@ -53,7 +53,43 @@ $(document).ready(function() {
 		})
 	});
 	
-	
+// 	$(".bexpborrartotslogs").click(function(){
+// 		var btn = $(this);
+// 		var cont_btn = btn.parent();
+// 		var cont_exp = cont_btn.parent();
+// 		var expsId = []; 
+// 		$(".bexpborrarlog", cont_exp).each(function(){
+// 			expsId.push($(this).data("id"));
+// 		});
+// 		$("body").css("cursor", "progress");
+// 		$.ajax({
+// 			type: "POST",
+// 			url: "../nodeco/expedientTipus/borra_logsexps.html",
+// 			dataType: 'json',
+// 			data: {expedientsId: JSON.stringify(expsId), expedientTipusId: "${expedientTipusId}"},
+// 			success: function(data){
+// 				debugger;
+// 				btn.remove();
+// 				for (var i = 0; i < data.resultats.length; i++) {
+// 					var entry = data.resultats[i];
+// 					var id = entry.id;
+// 					var msg = entry.resultat;
+// 					var btn = $("button[data-id='" + id + "']").first();
+// 					btn.parent().append('<span class="exp_info">' + msg + '</span>');
+// 					btn.remove();
+//                 }
+// 				$("body").css("cursor", "default");
+// 			}
+// 		})
+// 		.fail(function( jqxhr, textStatus, error ) {
+// 			var err = textStatus + ', ' + error;
+// 			console.log( "Request Failed: " + err);
+// 			btn.remove();
+// 			cont_btn.append('<span class="exp_info">' + err + '</span>');
+// 			$("body").css("cursor", "default");
+// 		})
+// 	});
+
 	$(".bexpborrartotslogs").click(function(){
 		var btn = $(this);
 		var cont_btn = btn.parent();
@@ -69,17 +105,11 @@ $(document).ready(function() {
 			dataType: 'json',
 			data: {expedientsId: JSON.stringify(expsId), expedientTipusId: "${expedientTipusId}"},
 			success: function(data){
-				debugger;
-// 				btn.remove();
-// 				cont_btn.append('<span class="exp_info">' + data.error + '</span>');
-				for (var i = 0; i < data.resultats.length; i++) {
-					var entry = data.resultats[i];
-					var id = entry.id;
-					var msg = entry.resultat;
-					var btn = $("button[data-id='" + id + "']").first();
-					btn.parent().append('<span class="exp_info">' + msg + '</span>');
-					btn.remove();
-                }
+				cont_btn.append('<span class="exp_info">' + data.resultat + '</span>');
+				btn.remove();
+				$(".bexpborrarlog", cont_exp).each(function(){
+					$(this).remove();
+				});
 				$("body").css("cursor", "default");
 			}
 		})
@@ -91,6 +121,7 @@ $(document).ready(function() {
 			$("body").css("cursor", "default");
 		})
 	});
+	
 	$(".submitButton").click(function(){
 		$("body").css("cursor", "progress");
 	});

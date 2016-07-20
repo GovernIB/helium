@@ -428,11 +428,11 @@ public class ExpedientTipusController extends BaseController {
 							
 							Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
 							if (GraphSession.errorsDelete.containsKey(processInstanceId)){
-								msg += "<div><div class=\"expafectats\">Expedients afectats:</div>";
+								msg += "<div><div class=\"expafectats\">" + getMessage("info.defproc.esborrar.afectats") + "</div>";
 								for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
 									msg += "<div class=\"expborrarlog\"><span>" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "</span><button class=\"bexpborrarlog\" data-id=\"" + expedient.getId() + "\">Borrar logs</button></div>";
 								}
-								msg += "<hr/><div class=\"expborrartotslogs\"><button class=\"bexpborrartotslogs\">Borrar logs de tots els expedients afectats</button></div></div>";
+								msg += "<hr/><div class=\"expborrartotslogs\"><button class=\"bexpborrartotslogs\">" + getMessage("info.defproc.esborrar.afectats.programar") + "</button></div></div>";
 								GraphSession.errorsDelete.remove(processInstanceId);
 							}
 							
@@ -557,43 +557,42 @@ public class ExpedientTipusController extends BaseController {
 		return "redirect:/expedientTipus/afectats_df.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 	}
 	
-//	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
-//	@ResponseBody
-//	public String borra_logsExps(
-//			HttpServletRequest request,
-//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-//			@RequestParam(value = "expedientsId", required = false) String[] expedients,
-//			ModelMap model) throws Exception {
-//		String response = "{'error':";
-//		if (expedients == null || expedients.length == 0) {
-////			throw new Exception(getMessage("error.no.exp.selec"));
-//			response += "'" + getMessage("error.no.exp.selec") + "'";
-//		} else {
-//			List<Long> expedientIds = new ArrayList<Long>();
-//			for (String expedient: expedients) {
-//				Long expedientId = Long.parseLong(expedient);
-//				expedientIds.add(expedientId);
-//			}
-//			ExecucioMassivaDto dto = new ExecucioMassivaDto();
-//			dto.setDataInici(new Date());
-//			dto.setEnviarCorreu(false);
-//			dto.setExpedientIds(expedientIds);
-//			dto.setExpedientTipusId(expedientTipusId);
-//			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
-//			try {
-//				execucioMassivaService.crearExecucioMassiva(dto);
-//				missatgeInfo(request, getMessage("info.buidarlog.massiu.executat", new Object[] {expedients.length}));
-//				response += "'" + getMessage("info.buidarlog.massiu.executat", new Object[] {expedients.length}) + "'";
-//			} catch (Exception e) {
-////				missatgeError(request, getMessage("error.no.massiu"));
-//				logger.error("Error al programar les accions massives", e);
-//				response += "'" + getMessage("error.no.massiu") + "'";
-//			}
-//		}
-//		response += "}";
-//		return response;
-//	}
-//	
+	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
+	@ResponseBody
+	public String borra_logsExps(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "expedientsId", required = false) String expedients,
+			ModelMap model) throws Exception {
+		String response = "{\"resultat\":\"";
+		if (expedients == null || expedients.isEmpty()) {
+			response += getMessage("error.no.exp.selec");
+		} else {
+			List<Long> expedientIds = new ArrayList<Long>();
+			expedients = expedients.substring(1, expedients.length() - 1);
+			String[] expedientsId = expedients.split(",");
+			for (String expedient: expedientsId) {
+				Long expedientId = Long.parseLong(expedient);
+				expedientIds.add(expedientId);
+			}
+			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+			dto.setDataInici(new Date());
+			dto.setEnviarCorreu(false);
+			dto.setExpedientIds(expedientIds);
+			dto.setExpedientTipusId(expedientTipusId);
+			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				response += getMessage("info.defproc.esborrar.massiu.executat", new Object[] {expedientIds.size()});
+			} catch (Exception e) {
+				logger.error("Error al programar les accions massives", e);
+				response += getMessage("error.no.massiu");
+			}
+		}
+		response += "\"}";
+		return response;
+	}
+	
 //	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
 //	@ResponseBody
 //	public String borra_logsExps(
@@ -642,7 +641,7 @@ public class ExpedientTipusController extends BaseController {
 		} else {
 			try {
 				expedientService.buidarLogByExpedientId(Long.parseLong(expedient));
-				response += "\"" + getMessage("info.buidarlog.executat") + "\"";
+				response += "\"" + getMessage("info.defproc.esborrar.log.executat") + "\"";
 			} catch (Exception e) {
 				logger.error("Error al programar les accions massives", e);
 				response += "\"" + getMessage("error.buidarlog.expedient") + "\"";
@@ -652,34 +651,34 @@ public class ExpedientTipusController extends BaseController {
 		return response;
 	}
 	
-	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
-	@ResponseBody
-	public String borra_logsExps(
-			HttpServletRequest request,
-			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-			@RequestParam(value = "expedientsId", required = true) String expedients,
-			ModelMap model) throws Exception {
-		String response = "{\"resultats\":[";
-		if (expedients == null || expedients.isEmpty()) {
-			response += "\"" + getMessage("error.no.exp.selec") + "\"";
-		} else {
-			expedients = expedients.substring(1, expedients.length() - 1);
-			String[] expedientsId = expedients.split(",");
-			for (String expedient: expedientsId) {
-				response += "{\"id\":\"" + expedient + "\", \"resultat\":\"";
-				try {
-					expedientService.buidarLogByExpedientId(Long.parseLong(expedient.trim()));
-					response += getMessage("info.buidarlog.executat");
-				} catch (Exception e) {
-					logger.error("Error al programar les accions massives", e);
-					response += getMessage("error.buidarlog.expedient");
-				}
-				response += "\"}";
-			}
-		}
-		response += "]}";
-		return response;
-	}
+//	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
+//	@ResponseBody
+//	public String borra_logsExps(
+//			HttpServletRequest request,
+//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+//			@RequestParam(value = "expedientsId", required = true) String expedients,
+//			ModelMap model) throws Exception {
+//		String response = "{\"resultats\":[";
+//		if (expedients == null || expedients.isEmpty()) {
+//			response += "\"" + getMessage("error.no.exp.selec") + "\"";
+//		} else {
+//			expedients = expedients.substring(1, expedients.length() - 1);
+//			String[] expedientsId = expedients.split(",");
+//			for (String expedient: expedientsId) {
+//				response += "{\"id\":\"" + expedient + "\", \"resultat\":\"";
+//				try {
+//					expedientService.buidarLogByExpedientId(Long.parseLong(expedient.trim()));
+//					response += getMessage("info.buidarlog.executat");
+//				} catch (Exception e) {
+//					logger.error("Error al programar les accions massives", e);
+//					response += getMessage("error.buidarlog.expedient");
+//				}
+//				response += "\"}";
+//			}
+//		}
+//		response += "]}";
+//		return response;
+//	}
 	
 //	CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS -- Fi
 	
