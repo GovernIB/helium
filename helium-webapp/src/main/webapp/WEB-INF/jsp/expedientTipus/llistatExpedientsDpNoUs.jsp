@@ -76,6 +76,7 @@ function selecTots() {
 		<script type="text/javascript">initSelectable();</script>
 	</form>		
 	<div class="buttonHolder">
+<%-- 
 		<button href="#canviVersioForm" type="button" class="submitButton canviVersioLink"><fmt:message key='defproc.llistat.llistar.afectats.canviar.versio' /></button>
 		<script type="text/javascript">
 			$('.canviVersioLink').openDOMWindow({
@@ -88,6 +89,7 @@ function selecTots() {
 				windowPadding: 10,
 				draggable: 1});
 		</script>
+--%>
 		<button id="btn_borrarLogs" type="button" class="submitButton"><fmt:message key='defproc.llistat.llistar.afectats.buidar.logs' /></button>
 		<form action="netejar_df.html" style="display:inline;">
 				<input type="hidden" name="id" value="${expedientTipusId}"/>

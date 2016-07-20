@@ -41,9 +41,9 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-/*import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
+import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
-import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;*/
+import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 public class Action implements ActionHandler, Parsable, Serializable {
@@ -190,12 +190,12 @@ public class Action implements ActionHandler, Parsable, Serializable {
 		countTipexp.inc();
 		try {
 			// Si el handler implementa HeliumActionhandler passarem l'HeliumApi enlloc de l'ExecutionContext 
-			/*if (actionHandler instanceof HeliumActionHandler) {
+			if (actionHandler instanceof HeliumActionHandler) {
 				HeliumApi heliumApi = new HeliumApiImpl(executionContext);
 				((HeliumActionHandler)actionHandler).execute(heliumApi);
-			} else {*/
+			} else {
 				actionHandler.execute(executionContext);
-			/*}*/
+			}
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
