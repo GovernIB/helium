@@ -402,6 +402,51 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>filtrar.helium.servlet</id>
+								<phase>prepare-package</phase>
+								<configuration>
+									<target>
+										<copy file="${basedir}/src/main/webapp/WEB-INF/helium-servlet.xml"
+											todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
+										<replace file="${basedir}/target/replace-dir/WEB-INF/helium-servlet.xml">
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- resources.mapping.webjar.tomcat.begin]]></replacetoken>
+												<replacevalue><![CDATA[<]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[resources.mapping.webjar.tomcat.end -->]]></replacetoken>
+												<replacevalue><![CDATA[>]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- resources.mapping.webjar.begin -->]]></replacetoken>
+												<replacevalue><![CDATA[<!--]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- resources.mapping.webjar.end -->]]></replacetoken>
+												<replacevalue><![CDATA[-->]]></replacevalue>
+											</replacefilter>
+										</replace>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>ant-contrib</groupId>
+								<artifactId>ant-contrib</artifactId>
+								<version>20020829</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
 						<artifactId>maven-war-plugin</artifactId>
 						<configuration>
 							<packagingExcludes>META-INF/context.xml</packagingExcludes>
@@ -459,6 +504,51 @@
 			</dependencies>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>filtrar.helium.servlet</id>
+								<phase>prepare-package</phase>
+								<configuration>
+									<target>
+										<copy file="${basedir}/src/main/webapp/WEB-INF/helium-servlet.xml"
+											todir="${basedir}/target/replace-dir/WEB-INF" overwrite="true" />
+										<replace file="${basedir}/target/replace-dir/WEB-INF/helium-servlet.xml">
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- resources.mapping.webjar.jboss.begin]]></replacetoken>
+												<replacevalue><![CDATA[<]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[resources.mapping.webjar.jboss.end -->]]></replacetoken>
+												<replacevalue><![CDATA[>]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- resources.mapping.webjar.begin -->]]></replacetoken>
+												<replacevalue><![CDATA[<!--]]></replacevalue>
+											</replacefilter>
+											<replacefilter>
+												<replacetoken><![CDATA[<!-- resources.mapping.webjar.end -->]]></replacetoken>
+												<replacevalue><![CDATA[-->]]></replacevalue>
+											</replacefilter>
+										</replace>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>ant-contrib</groupId>
+								<artifactId>ant-contrib</artifactId>
+								<version>20020829</version>
+							</dependency>
+						</dependencies>
+					</plugin>
 					<plugin>
 						<artifactId>maven-war-plugin</artifactId>
 						<configuration>
@@ -605,8 +695,22 @@
 					<webResources>
 						<webResource>
 							<directory>${basedir}/src/main/webapp/WEB-INF</directory>
+							<excludes>
+								<exclude>helium-servlet.xml</exclude>
+							</excludes>
 							<includes>
 								<include>web.xml</include>
+							</includes>
+							<targetPath>WEB-INF</targetPath>
+							<filtering>true</filtering>
+						</webResource>
+						<webResource>
+							<directory>${basedir}/target/replace-dir/WEB-INF</directory>
+							<excludes>
+								<exclude>web.xml</exclude>
+							</excludes>
+							<includes>
+								<include>helium-servlet.xml</include>
 							</includes>
 							<targetPath>WEB-INF</targetPath>
 							<filtering>true</filtering>

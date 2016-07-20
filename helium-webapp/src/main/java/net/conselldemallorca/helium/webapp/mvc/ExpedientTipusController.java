@@ -21,6 +21,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.exception.ConstraintViolationException;
+import org.jbpm.db.GraphSession;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -422,7 +425,19 @@ public class ExpedientTipusController extends BaseController {
 								msg = getMessage("error.defpro.eliminar.constraint.job");
 							if (msg.contains("HELIUM.FK_LOG_"))
 								msg = getMessage("error.defpro.eliminar.constraint.log");
+							
+							Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+							if (GraphSession.errorsDelete.containsKey(processInstanceId)){
+								msg += "<div><div class=\"expafectats\">" + getMessage("info.defproc.esborrar.afectats") + "</div>";
+								for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
+									msg += "<div class=\"expborrarlog\"><span>" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "</span><button class=\"bexpborrarlog\" data-id=\"" + expedient.getId() + "\">Borrar logs</button></div>";
+								}
+								msg += "<hr/><div class=\"expborrartotslogs\"><button class=\"bexpborrartotslogs\">" + getMessage("info.defproc.esborrar.afectats.programar") + "</button></div></div>";
+								GraphSession.errorsDelete.remove(processInstanceId);
+							}
+							
 							missatgeError(request, getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getJbpmName(), definicioProces.getVersio()}), msg);
+							
 						} else { 
 							missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 						}
@@ -435,21 +450,6 @@ public class ExpedientTipusController extends BaseController {
 	        }
 		}
 		
-//		try {
-//			if (!dfBorrar.isEmpty()) {
-//				dissenyService.undeploy(entorn.getId(), dfBorrar);
-//				if (msg.length() > 0) 
-//					msg = msg.substring(0, msg.length() - 2);
-//				missatgeInfo(request, getMessage("info.defproc.esborrades", new Object[]{msg}) );
-//			}
-//		} catch (Exception ex) {
-//			if (ex instanceof DataIntegrityViolationException || ex.getCause() instanceof DataIntegrityViolationException) {
-//				missatgeError(request, getMessage("error.defpro.eliminar.constraint"));
-//			} else {
-//				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-//			}
-//			logger.error("No s'han pogut esborrar les definicions de procés", ex);
-//		}
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(expedientTipusId));
 		return "/expedientTipus/llistatDpNoUs";
@@ -556,6 +556,130 @@ public class ExpedientTipusController extends BaseController {
 		
 		return "redirect:/expedientTipus/afectats_df.html?expedientTipusId=" + expedientTipusId + "&definicioProcesId=" + definicioProcesId;
 	}
+	
+	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
+	@ResponseBody
+	public String borra_logsExps(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "expedientsId", required = false) String expedients,
+			ModelMap model) throws Exception {
+		String response = "{\"resultat\":\"";
+		if (expedients == null || expedients.isEmpty()) {
+			response += getMessage("error.no.exp.selec");
+		} else {
+			List<Long> expedientIds = new ArrayList<Long>();
+			expedients = expedients.substring(1, expedients.length() - 1);
+			String[] expedientsId = expedients.split(",");
+			for (String expedient: expedientsId) {
+				Long expedientId = Long.parseLong(expedient);
+				expedientIds.add(expedientId);
+			}
+			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+			dto.setDataInici(new Date());
+			dto.setEnviarCorreu(false);
+			dto.setExpedientIds(expedientIds);
+			dto.setExpedientTipusId(expedientTipusId);
+			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				response += getMessage("info.defproc.esborrar.massiu.executat", new Object[] {expedientIds.size()});
+			} catch (Exception e) {
+				logger.error("Error al programar les accions massives", e);
+				response += getMessage("error.no.massiu");
+			}
+		}
+		response += "\"}";
+		return response;
+	}
+	
+//	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
+//	@ResponseBody
+//	public String borra_logsExps(
+//			HttpServletRequest request,
+//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+//			@RequestParam(value = "expedientsId", required = false) String[] expedients,
+//			ModelMap model) throws Exception {
+//		String response = "{'resultat':";
+//		if (expedients == null || expedients.length == 0) {
+//			response += "'" + getMessage("error.no.exp.selec") + "'";
+//		} else {
+//			List<Long> expedientIds = new ArrayList<Long>();
+//			for (String expedient: expedients) {
+//				Long expedientId = Long.parseLong(expedient);
+//				expedientIds.add(expedientId);
+//			}
+//			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+//			dto.setDataInici(new Date());
+//			dto.setEnviarCorreu(false);
+//			dto.setExpedientIds(expedientIds);
+//			dto.setExpedientTipusId(expedientTipusId);
+//			dto.setTipus(ExecucioMassivaTipus.BUIDARLOG);
+//			try {
+//				execucioMassivaService.crearExecucioMassiva(dto);
+//				response += "'" + getMessage("info.buidarlog.massiu.executat", new Object[] {1}) + "'";
+//			} catch (Exception e) {
+//				logger.error("Error al programar les accions massives", e);
+//				response += "'" + getMessage("error.no.massiu") + "'";
+//			}
+//			response += "'}";
+//		}
+//		response += "}";
+//		return response;
+//	}
+	
+	@RequestMapping(value = "/expedientTipus/borra_logsexp", method = RequestMethod.POST)
+	@ResponseBody
+	public String borra_logsExp(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "expedientId", required = true) String expedient,
+			ModelMap model) throws Exception {
+		String response = "{\"resultat\":";
+		if (expedient == null || expedient.isEmpty()) {
+			response += "\"" + getMessage("error.no.exp.selec") + "\"";
+		} else {
+			try {
+				expedientService.buidarLogByExpedientId(Long.parseLong(expedient));
+				response += "\"" + getMessage("info.defproc.esborrar.log.executat") + "\"";
+			} catch (Exception e) {
+				logger.error("Error al programar les accions massives", e);
+				response += "\"" + getMessage("error.buidarlog.expedient") + "\"";
+			}
+		}
+		response += "}";
+		return response;
+	}
+	
+//	@RequestMapping(value = "/expedientTipus/borra_logsexps", method = RequestMethod.POST)
+//	@ResponseBody
+//	public String borra_logsExps(
+//			HttpServletRequest request,
+//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+//			@RequestParam(value = "expedientsId", required = true) String expedients,
+//			ModelMap model) throws Exception {
+//		String response = "{\"resultats\":[";
+//		if (expedients == null || expedients.isEmpty()) {
+//			response += "\"" + getMessage("error.no.exp.selec") + "\"";
+//		} else {
+//			expedients = expedients.substring(1, expedients.length() - 1);
+//			String[] expedientsId = expedients.split(",");
+//			for (String expedient: expedientsId) {
+//				response += "{\"id\":\"" + expedient + "\", \"resultat\":\"";
+//				try {
+//					expedientService.buidarLogByExpedientId(Long.parseLong(expedient.trim()));
+//					response += getMessage("info.buidarlog.executat");
+//				} catch (Exception e) {
+//					logger.error("Error al programar les accions massives", e);
+//					response += getMessage("error.buidarlog.expedient");
+//				}
+//				response += "\"}";
+//			}
+//		}
+//		response += "]}";
+//		return response;
+//	}
+	
 //	CODI DE LA FUNCIONALITAT DE BORRAT DE DEFINICIONS DE PROCÉS -- Fi
 	
 	@Autowired
