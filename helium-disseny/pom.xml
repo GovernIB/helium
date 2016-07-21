@@ -58,7 +58,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<excludes>
-						<exclude>**/*Handler.*</exclude>
+						<exclude>**/handlers/*Handler.*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
