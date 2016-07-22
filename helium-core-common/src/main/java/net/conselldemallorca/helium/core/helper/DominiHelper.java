@@ -499,7 +499,8 @@ public class DominiHelper {
 				auth = WsClientAuth.NONE;
 				break;
 			}
-		else auth = WsClientAuth.NONE;
+		else 
+			auth = WsClientAuth.NONE;
 		return wsClientHelper.getDominiService(
 				domini.getUrl(),
 				auth,
