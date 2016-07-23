@@ -760,7 +760,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						true);
 		List<Termini> terminis = null;
 		if (expedientTipus.isAmbInfoPropia()) {
-			// Recupera la informació de les agrupacions de l'expedient
+			// Recupera la informació dels terminis de l'expedient
 			terminis = terminiRepository.findByExpedientTipusId(
 					expedientTipusId, 
 					paginacioHelper.toSpringDataPageable(paginacioParams));
@@ -772,5 +772,99 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return conversioTipusHelper.convertirList(
 									terminis, 
 									TerminiDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TerminiDto terminiFindAmbId(Long terminiId) {
+		Termini termini = terminiRepository.findOne(terminiId);
+		if (termini == null) {
+			throw new NoTrobatException(Termini.class, terminiId);
+		}
+		return conversioTipusHelper.convertir(
+				termini, 
+				TerminiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public TerminiDto terminiCreate(Long expedientTipusId, TerminiDto dto) {
+		ExpedientTipus expedientTipus =	
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true,
+						false,
+						false,
+						true);
+		Termini termini = new Termini();
+		termini.setCodi(dto.getCodi());
+		termini.setNom(dto.getNom());
+		termini.setDescripcio(dto.getDescripcio());
+		termini.setDuradaPredefinida(dto.isDuradaPredefinida());
+		termini.setAnys(dto.getAnys());
+		termini.setMesos(dto.getMesos());
+		termini.setDies(dto.getDies());
+		termini.setLaborable(dto.isLaborable());
+		termini.setManual(dto.isManual());
+		termini.setDiesPrevisAvis(dto.getDiesPrevisAvis());
+		termini.setAlertaPrevia(dto.isAlertaPrevia());
+		termini.setAlertaFinal(dto.isAlertaFinal());
+		termini.setAlertaCompletat(dto.isAlertaCompletat());
+		termini.setExpedientTipus(expedientTipus);
+		return conversioTipusHelper.convertir(
+				terminiRepository.save(termini),
+				TerminiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public TerminiDto terminiUpdate(TerminiDto dto) {
+		Termini termini = terminiRepository.findOne(dto.getId());
+		if (termini == null) {
+			throw new NoTrobatException(Termini.class, dto.getId());
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				termini.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				true);
+		
+		termini.setCodi(dto.getCodi());
+		termini.setNom(dto.getNom());
+		termini.setDescripcio(dto.getDescripcio());
+		termini.setDuradaPredefinida(dto.isDuradaPredefinida());
+		termini.setAnys(dto.getAnys());
+		termini.setMesos(dto.getMesos());
+		termini.setDies(dto.getDies());
+		termini.setLaborable(dto.isLaborable());
+		termini.setManual(dto.isManual());
+		termini.setDiesPrevisAvis(dto.getDiesPrevisAvis());
+		termini.setAlertaPrevia(dto.isAlertaPrevia());
+		termini.setAlertaFinal(dto.isAlertaFinal());
+		termini.setAlertaCompletat(dto.isAlertaCompletat());
+		
+		return conversioTipusHelper.convertir(
+				terminiRepository.save(termini),
+				TerminiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException {
+		Termini termini = terminiRepository.findOne(terminiId);
+		if (termini == null) {
+			throw new NoTrobatException(Termini.class, terminiId);
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				termini.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				true);
+		
+		terminiRepository.delete(termini);
 	}
 }

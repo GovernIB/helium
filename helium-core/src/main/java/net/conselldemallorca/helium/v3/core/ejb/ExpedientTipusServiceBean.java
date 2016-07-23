@@ -280,11 +280,40 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	 * @throws NoTrobatException
 	 * @throws PermisDenegatException
 	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TerminiDto> terminiFindAll(
 			Long expedientTipusId,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
 		return delegate.terminiFindAll(
 				expedientTipusId, 
 				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto terminiFindAmbId(Long terminiId) {
+		return delegate.terminiFindAmbId(terminiId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto terminiCreate(
+			Long expedientTipusId, 
+			TerminiDto termini) {
+		return delegate.terminiCreate(expedientTipusId, termini);
+		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto terminiUpdate(TerminiDto termini) {
+		return delegate.terminiUpdate(termini);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException {
+		delegate.terminiDelete(terminiId);
 	}
 }
