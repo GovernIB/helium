@@ -9,6 +9,7 @@
 <%@ attribute name="placeholderKey" required="false" rtexprvalue="true"%>
 <%@ attribute name="inline" required="false" rtexprvalue="true"%>
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
+<%@ attribute name="comment" required="false" rtexprvalue="true"%>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:set var="campLabelText"><c:choose><c:when test="${not empty textKey}"><spring:message code="${textKey}"/></c:when><c:when test="${not empty text}">${text}</c:when><c:otherwise>${campPath}</c:otherwise></c:choose></c:set>
@@ -22,6 +23,9 @@
 				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}"/>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
+			<c:if test="${not empty comment}">
+				<p class="comment col-xs-8 col-xs-offset-4"><spring:message code="${comment}"/></p>
+			</c:if>
 		</div>
 	</c:when>
 	<c:otherwise>

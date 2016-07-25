@@ -28,32 +28,99 @@
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#anys").select2({
+			    width: 'resolve',
+			    theme: "bootstrap",
+			    allowClear: true,
+			    minimumResultsForSearch: Infinity
+			});
+			$("#mesos").select2({
+			    width: 'resolve',
+			    theme: "bootstrap",
+			    allowClear: true,
+			    minimumResultsForSearch: Infinity
+			});
+			$(".terSel").on('select2-open', function() {
+				var iframe = $('.modal-body iframe', window.parent.document);
+				var height = $('html').height() + 30;
+				iframe.height(height + 'px');
+			});
+			$(".terSel").on('select2-close', function() {
+				var iframe = $('.modal-body iframe', window.parent.document);
+				var height = $('html').height();
+				iframe.height(height + 'px');
+			});
+			$(".enter").keyfilter(/^[-+]?[0-9]*$/);
+			$("#duradaPredefinida").change(function(){
+				if( $(this).prop('checked') ) {
+					$("#anys").prop("disabled", false);
+					$("#mesos").prop("disabled", false);
+					$("#dies").prop("disabled", false);
+				} else {
+					$("#anys").prop("disabled", true);
+					$("#mesos").prop("disabled", true);
+					$("#dies").prop("disabled", true);
+				}
+			});
+			$("#duradaPredefinida").change();
+		});
+	</script>
+	<style type="text/css">
+	.terSel {
+		padding-left: 0px;
+		padding-right: 0px;
+	}
+	</style>
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusTerminiCommand">
 		<div>
-        
-			<script type="text/javascript">
-				// <![CDATA[
-				// ]]>
-			</script>
-			
+        					
 			<input type="hidden" name="id" value="${expedientTipusTerminiCommand.id}"/>
-			<hel:inputText required="true" name="codi" textKey="expedient.tipus.termini.form.camp.codi" />
-			<hel:inputText required="true" name="nom" textKey="expedient.tipus.termini.form.camp.nom" />
-			<hel:inputText required="true" name="desripcio" textKey="expedient.tipus.termini.form.camp.descripcio" />
-			<hel:inputCheckbox name="duradaPredefinida" textKey="expedient.tipus.termini.form.camp.duradaPredefinida" />
-			<hel:inputTermini required="true" anys="anys" mesos="mesos" dies="dies"/>
-			<hel:inputCheckbox name="laborable" textKey="expedient.tipus.termini.form.camp.laborable" />
-			<hel:inputCheckbox name="manual" textKey="expedient.tipus.termini.form.camp.manual" />
-			<hel:inputText required="true" name="diesPrevisAvis" textKey="expedient.tipus.termini.form.camp.diesPrevisAvis" />
-<%-- 			<c:param name="comment"><fmt:message key='defproc.termform.es_generara' /></c:param> --%>
-			<hel:inputCheckbox name="alertaPrevia" textKey="expedient.tipus.termini.form.camp.alertaPrevia" />
-			<hel:inputCheckbox name="alertaFinal" textKey="expedient.tipus.termini.form.camp.alertaFinal" />
-			<hel:inputCheckbox name="alertaCompletat" textKey="expedient.tipus.termini.form.camp.alertaCompletat" />
+			<hel:inputText required="true" name="codi" textKey="comuns.codi" />
+			<hel:inputText required="true" name="nom" textKey="comuns.nom" />
+			<hel:inputText required="true" name="descripcio" textKey="comuns.descripcio" />
+			<hel:inputCheckbox name="duradaPredefinida" textKey="defproc.termform.durada_predef" comment="defproc.termform.si_no_esta"/>
+			
+			<%-- Termini - Inici --%>
+			
+			<c:set var="campErrorsAnys"><form:errors path="anys"/></c:set>
+			<c:set var="campErrorsMesos"><form:errors path="mesos"/></c:set>
+			<c:set var="campErrorsDies"><form:errors path="dies"/></c:set>
+			
+			<div class="form-group <c:if test="${not empty campErrorsAnys or not empty campErrorsMesos or not empty campErrorsDies}"> has-error</c:if>">
+				<label for="durada" class="control-label col-xs-4"><spring:message code="defproc.termform.durada"/></label>
+				<div class="controls col-xs-8">
+					<div class="form-group termgrup row">
+						<div class="termpre col-xs-4">
+							<label class="control-label label-term" for="anys"><spring:message code="common.camptasca.anys"/></label>
+							<form:select itemLabel="valor" itemValue="codi" items="${listTerminis}" path="anys" id="anys" cssClass="termini terSel col-xs-12" />
+						</div>
+						<div class="termmig col-xs-4">
+		 					<label class="control-label label-term" for="mesos"><spring:message code="common.camptasca.mesos"/></label>
+							<form:select itemLabel="valor" itemValue="codi" items="${listTerminis}" path="mesos" id="mesos" cssClass="termini terSel col-xs-12" />
+		 				</div>
+		 				<div class="termpost col-xs-4">
+		 					<label class="control-label label-term" for="dies"><spring:message code="common.camptasca.dies"/></label>
+							<form:input path="dies" id="dies" cssClass="form-control termini enter" />
+		 				</div>
+		 			</div>
+					<c:if test="${not empty campErrorsAnys}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;${campErrorsAnys}</p></c:if>
+					<c:if test="${not empty campErrorsMesos}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;${campErrorsMesos}</p></c:if>
+					<c:if test="${not empty campErrorsDies}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;${campErrorsDies}</p></c:if>
+				</div>
+			</div>
+			<%-- Termini - Fi --%>
+			
+			<hel:inputCheckbox name="laborable" textKey="defproc.termform.dies_lab" />
+			<hel:inputCheckbox name="manual" textKey="defproc.termform.permet_ctrl" />
+			<hel:inputText required="true" name="diesPrevisAvis" textKey="defproc.termform.dies_previs" comment="defproc.termform.es_generara"/>
+			<hel:inputCheckbox name="alertaPrevia" textKey="defproc.termform.gen_alert_previa" />
+			<hel:inputCheckbox name="alertaFinal" textKey="defproc.termform.gen_alert_final" />
+			<hel:inputCheckbox name="alertaCompletat" textKey="defproc.termform.gen_alert_complet" />
 		</div>
-		
-		<p class="aclaracio"><fmt:message key='comuns.camps_marcats' /> <img src="<c:url value="/img/bullet_red.png"/>" alt="<fmt:message key='comuns.camp_oblig' />" title="<fmt:message key='comuns.camp_oblig' />" border="0"/> <fmt:message key='comuns.son_oblig' /></p>
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
@@ -69,9 +136,7 @@
 					</button>
 				</c:otherwise>
 			</c:choose>
-	
 		</div>
-
 	</form:form>
 </body>
 </html>

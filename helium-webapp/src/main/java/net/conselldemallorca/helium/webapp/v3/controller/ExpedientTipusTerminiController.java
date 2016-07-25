@@ -3,6 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,21 +13,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusTerminiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -39,6 +46,15 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+	
+	@ModelAttribute("listTerminis")
+	public List<ParellaCodiValorDto> populateValorTerminis() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (int i = 0; i <= 12; i++) {
+			resposta.add(new ParellaCodiValorDto(Integer.toString(i), i));
+		}
+		return resposta;
+	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/terminis")
 	public String documents(
@@ -106,10 +122,17 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
     				conversioTipusHelper.convertir(
     						command,
     						TerminiDto.class));    		
-			return getModalControllerReturnValueSuccess(
-					request,
-					"redirect:/v3/expedientTipus/" + expedientTipusId + "#terminis",
-					"expedient.tipus.termini.controller.creat");
+//			return getModalControllerReturnValueSuccess(
+//					request,
+//					"redirect:/v3/expedientTipus/" + expedientTipusId + "#terminis",
+//					"expedient.tipus.termini.controller.creat");
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.termini.controller.creat"));
+			return modalUrlTancar(false);	
+			
         }
 	}
 
@@ -123,11 +146,11 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		ExpedientTipusTerminiCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusTerminiCommand.class);
-		model.addAttribute("expedientTipusCampCommand", command);
+		model.addAttribute("expedientTipusTerminiCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		return "v3/expedientTipusTerminiForm";
 	}
-	@RequestMapping(value = "/{expedientTipusId}/termini/{id}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{expedientTipusId}/termini/update/{id}", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
@@ -143,10 +166,42 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         			conversioTipusHelper.convertir(
     						command,
     						TerminiDto.class));
+        	MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.termini.controller.modificat"));
+			return modalUrlTancar(false);
+//			return getModalControllerReturnValueSuccess(
+//					request,
+//					"redirect:/v3/expedientTipus/" + expedientTipusId,
+//					"expedient.tipus.termini.controller.modificat");
+        }
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/termini/{id}/delete", method = RequestMethod.GET)
+	public String borrar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model,
+			final RedirectAttributes redirectAttributes) {
+		try {
+			expedientTipusService.terminiDelete(id);
 			return getModalControllerReturnValueSuccess(
 					request,
 					"redirect:/v3/expedientTipus/" + expedientTipusId + "#terminis",
-					"expedient.tipus.termini.controller.modificat");
-        }
+					"expedient.tipus.termini.controller.eliminat");
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(request, "expedient.tipus.termini.controller.eliminat"));
+			redirectAttributes.addAttribute("pipellaActiva", "terminis");
+			return getModalControllerReturnValueError(
+					request,
+					"redirect:/v3/expedientTipus/" + expedientTipusId,
+					null);
+		}
+//		return "v3/expedientTipusTerminiForm";
 	}
 }

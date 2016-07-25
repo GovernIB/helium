@@ -53,7 +53,9 @@ public class BaseExpedientTipusController extends BaseController {
 				entornActual.getId(),
 				expedientTipusId);
 		model.addAttribute("expedientTipus", expedientTipus);
-		if (request.getParameter("pipellaActiva") != null)
+		if (pipellaActiva != null) {
+			model.addAttribute("pipellaActiva", pipellaActiva);
+		} else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
 			model.addAttribute("pipellaActiva", "dades");
