@@ -203,22 +203,22 @@ public interface HeliumApi {
 	 */
 	public void setVariableInstanciaProces(String varCodi, Object varValor);
 
-	/**
-	 * Deprecated method.  
-	 * Use: {@link #setVariableInstanciaProces(String, Object) setVariableInstanciaProces}or {@link #setVariableInstanciaTasca(String, Object) setVariableInstanciaTasca} methods instead.
-	 * <pre> Ex. {@code setVariableInstanciaTasca(varName, new TerminiInfo(anys, mesos, dies))}</pre>
-	 * @param varName Nom de la variable on desar el termini
-	 * @param anys Anys de duració del termini
-	 * @param mesos Mesos de duració del termini
-	 * @param dies Dies de duració del termini
-	 * @throws HeliumHandlerException en el cas que s'executi la acció fora de l'ambit de tasca
-	 */
-	@Deprecated
-	public void terminiGuardar(
-			String varName,
-			int anys,
-			int mesos,
-			int dies) throws HeliumHandlerException;
+//	/**
+//	 * Deprecated method.  
+//	 * Use: {@link #setVariableInstanciaProces(String, Object) setVariableInstanciaProces}or {@link #setVariableInstanciaTasca(String, Object) setVariableInstanciaTasca} methods instead.
+//	 * <pre> Ex. {@code setVariableInstanciaTasca(varName, new TerminiInfo(anys, mesos, dies))}</pre>
+//	 * @param varName Nom de la variable on desar el termini
+//	 * @param anys Anys de duració del termini
+//	 * @param mesos Mesos de duració del termini
+//	 * @param dies Dies de duració del termini
+//	 * @throws HeliumHandlerException en el cas que s'executi la acció fora de l'ambit de tasca
+//	 */
+//	@Deprecated
+//	public void terminiGuardar(
+//			String varName,
+//			int anys,
+//			int mesos,
+//			int dies) throws HeliumHandlerException;
 	
 	/**
 	 * Obté la informació de l'expedient a on s'està executant el handler
@@ -249,6 +249,19 @@ public interface HeliumApi {
 			String codiDomini,
 			String id,
 			Map<String, Object> parametres) throws HeliumHandlerException;
+	
+	/**
+	 * Realitza una consulta de domini intern i retorna el resultat
+	 * 
+	 * @param id Id del domini a consultar
+	 * @param parametres Paràmetres per a la consulta de domini
+	 * @return Una llista amb els resultats retornats per la consulta de domini
+	 * @throws HeliumHandlerException Si no es troba el domini amb el codi indicat es produirà una excepció
+	 */
+	public List<FilaResultat> consultaDominiIntern(
+			String id,
+			Map<String, Object> parametres) throws HeliumHandlerException;
+	
 	/**
 	 * Realitza una consulta dels valors d'una enumeració
 	 * 

@@ -271,14 +271,14 @@ public class HeliumApiImpl implements HeliumApi {
 		executionContext.getContextInstance().setVariable(varCodi, varValor);
 	}
 	
-	@Override
-	public void terminiGuardar(
-			String varName,
-			int anys,
-			int mesos,
-			int dies) throws HeliumHandlerException {
-		throw new HeliumHandlerException("Deprecated method. Use setVariableInstanciaTasca(varName, new TerminiInfo(anys, mesos, dies)) or setVariableInstanciaProces(varName, new TerminiInfo(anys, mesos, dies)) instead");
-	}
+//	@Override
+//	public void terminiGuardar(
+//			String varName,
+//			int anys,
+//			int mesos,
+//			int dies) throws HeliumHandlerException {
+//		throw new HeliumHandlerException("Deprecated method. Use setVariableInstanciaTasca(varName, new TerminiInfo(anys, mesos, dies)) or setVariableInstanciaProces(varName, new TerminiInfo(anys, mesos, dies)) instead");
+//	}
 	
 	@Override
 	public ExpedientInfo getExpedient() {
@@ -320,6 +320,34 @@ public class HeliumApiImpl implements HeliumApi {
 			return resposta;
 		} catch (NoTrobatException ex) {
 			throw new HeliumHandlerException("No s'ha trobat el domini (codi=" + codiDomini + ")", ex);
+		}
+	}
+	
+	@Override
+	public List<FilaResultat> consultaDominiIntern(
+			String id,
+			Map<String, Object> parametres) throws HeliumHandlerException {
+		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
+		try {
+			List<DominiRespostaFilaDto> files = Jbpm3HeliumBridge.getInstanceService().dominiInternConsultar(
+					getProcessInstanceId(),
+					id,
+					parametres);
+			if (files != null) {
+				for (DominiRespostaFilaDto fila: files) {
+					FilaResultat fres = new FilaResultat();
+					for (DominiRespostaColumnaDto columna: fila.getColumnes()) {
+						fres.addColumna(
+								new ParellaCodiValor(
+										columna.getCodi(),
+										columna.getValor()));
+					}
+					resposta.add(fres);
+				}
+			}
+			return resposta;
+		} catch (Exception ex) {
+			throw new HeliumHandlerException("Error al executar el domini intern (id=" + id + ")", ex);
 		}
 	}
 	
