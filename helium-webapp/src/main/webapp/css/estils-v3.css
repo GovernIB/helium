@@ -201,3 +201,16 @@ form .btn-group > .btn-default:hover:HOVER {
 .botons-titol {
 	margin-bottom: 10px;
 }
+.fright {
+	float: right;
+}
+.botons.fright {
+	padding-left: 10px;
+}
+.botons.fright a {
+	padding: 4px 12px;
+}
+.comment {
+	font-size: 12px;
+	color: #999;
+}

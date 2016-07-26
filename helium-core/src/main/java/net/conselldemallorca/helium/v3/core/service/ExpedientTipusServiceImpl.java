@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -60,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -76,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -111,6 +114,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private AccioRepository accioRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private TerminiRepository terminiRepository;
+	
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
@@ -1615,7 +1621,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				AccioDto.class);		
 		return pagina;		
 	}
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
 	/***********************************************/
 	/*****************ENUMERACIONS******************/
@@ -1974,4 +1979,130 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return ret;
 	}
 	
+	/***********************************************/
+	/******************TERMINIS*********************/
+	/***********************************************/
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<TerminiDto> terminiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		// Recupera el tipus d'expedient
+		ExpedientTipus expedientTipus =	
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		List<Termini> terminis = null;
+		if (expedientTipus.isAmbInfoPropia()) {
+			// Recupera la informació dels terminis de l'expedient
+			terminis = terminiRepository.findByExpedientTipusId(
+					expedientTipusId, 
+					paginacioHelper.toSpringDataPageable(paginacioParams));
+		} else {
+			// Recupera la informació de les agrupacions per a la definició de procés
+//			Set<DefinicioProces> definicionsProces = expedientTipus.getDefinicionsProces();
+//			terminis = terminiRepository.findByDefinicioProcesId(definicionsProces.iterator().next().getId());
+		}
+		return conversioTipusHelper.convertirList(
+									terminis, 
+									TerminiDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public TerminiDto terminiFindAmbId(Long terminiId) {
+		Termini termini = terminiRepository.findOne(terminiId);
+		if (termini == null) {
+			throw new NoTrobatException(Termini.class, terminiId);
+		}
+		return conversioTipusHelper.convertir(
+				termini, 
+				TerminiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public TerminiDto terminiCreate(Long expedientTipusId, TerminiDto dto) {
+		ExpedientTipus expedientTipus =	
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true,
+						false,
+						false,
+						false,
+						true);
+		Termini termini = new Termini();
+		termini.setCodi(dto.getCodi());
+		termini.setNom(dto.getNom());
+		termini.setDescripcio(dto.getDescripcio());
+		termini.setDuradaPredefinida(dto.isDuradaPredefinida());
+		termini.setAnys(dto.getAnys());
+		termini.setMesos(dto.getMesos());
+		termini.setDies(dto.getDies());
+		termini.setLaborable(dto.isLaborable());
+		termini.setManual(dto.isManual());
+		termini.setDiesPrevisAvis(dto.getDiesPrevisAvis());
+		termini.setAlertaPrevia(dto.isAlertaPrevia());
+		termini.setAlertaFinal(dto.isAlertaFinal());
+		termini.setAlertaCompletat(dto.isAlertaCompletat());
+		termini.setExpedientTipus(expedientTipus);
+		return conversioTipusHelper.convertir(
+				terminiRepository.save(termini),
+				TerminiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public TerminiDto terminiUpdate(TerminiDto dto) {
+		Termini termini = terminiRepository.findOne(dto.getId());
+		if (termini == null) {
+			throw new NoTrobatException(Termini.class, dto.getId());
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				termini.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				false,
+				true);
+		
+		termini.setCodi(dto.getCodi());
+		termini.setNom(dto.getNom());
+		termini.setDescripcio(dto.getDescripcio());
+		termini.setDuradaPredefinida(dto.isDuradaPredefinida());
+		termini.setAnys(dto.getAnys());
+		termini.setMesos(dto.getMesos());
+		termini.setDies(dto.getDies());
+		termini.setLaborable(dto.isLaborable());
+		termini.setManual(dto.isManual());
+		termini.setDiesPrevisAvis(dto.getDiesPrevisAvis());
+		termini.setAlertaPrevia(dto.isAlertaPrevia());
+		termini.setAlertaFinal(dto.isAlertaFinal());
+		termini.setAlertaCompletat(dto.isAlertaCompletat());
+		
+		return conversioTipusHelper.convertir(
+				terminiRepository.save(termini),
+				TerminiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException {
+		Termini termini = terminiRepository.findOne(terminiId);
+		if (termini == null) {
+			throw new NoTrobatException(Termini.class, terminiId);
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				termini.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				false,
+				true);
+		
+		terminiRepository.delete(termini);
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

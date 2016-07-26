@@ -48,7 +48,10 @@ public class BaseExpedientTipusController extends BaseController {
 			Long expedientTipusId,
 			Model model,
 			String pipellaActiva) {
-		if (request.getParameter("pipellaActiva") != null)
+		
+		if (pipellaActiva != null)
+			model.addAttribute("pipellaActiva", pipellaActiva);
+		else if (request.getParameter("pipellaActiva") != null)
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
 			model.addAttribute("pipellaActiva", "informacio");

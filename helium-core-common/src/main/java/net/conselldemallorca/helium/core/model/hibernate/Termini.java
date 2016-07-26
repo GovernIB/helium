@@ -21,13 +21,12 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import net.conselldemallorca.helium.core.common.TerminiStringUtil;
-
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import net.conselldemallorca.helium.core.common.TerminiStringUtil;
 
 /**
  * Objecte de domini que representa un termini de la definició
@@ -37,10 +36,12 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
  */
 @Entity
 @Table(	name="hel_termini",
-		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id"})})
+		uniqueConstraints={@UniqueConstraint(columnNames={"codi", "definicio_proces_id", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(
 		appliesTo = "hel_termini",
-		indexes = @Index(name = "hel_termini_defproc_i", columnNames = {"definicio_proces_id"}))
+		indexes = {
+				@Index(name = "hel_termini_defproc_i", columnNames = {"definicio_proces_id"}),
+				@Index(name = "hel_termini_exptip_i", columnNames = {"expedient_tipus_id"})})
 public class Termini implements Serializable, GenericEntity<Long> {
 
 	private Long id;
@@ -63,8 +64,8 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	private boolean alertaFinal;
 	private boolean alertaCompletat;
 
-	@NotNull
 	private DefinicioProces definicioProces;
+	private ExpedientTipus expedientTipus;
 
 	private Set<TerminiIniciat> iniciats = new HashSet<TerminiIniciat>();
 
@@ -73,6 +74,15 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	public Termini() {}
 	public Termini(DefinicioProces definicioProces, String codi, String nom, int anys, int mesos, int dies, boolean laborable) {
 		this.definicioProces = definicioProces;
+		this.codi = codi;
+		this.nom = nom;
+		this.anys = anys;
+		this.mesos = mesos;
+		this.dies = dies;
+		this.laborable = laborable;
+	}
+	public Termini(ExpedientTipus expedientTipus, String codi, String nom, int anys, int mesos, int dies, boolean laborable) {
+		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.nom = nom;
 		this.anys = anys;
@@ -208,7 +218,7 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		this.alertaCompletat = alertaCompletat;
 	}
 	
-	@ManyToOne(optional=false, fetch=FetchType.LAZY)
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	@JoinColumn(name="definicio_proces_id")
 	@ForeignKey(name="hel_defproc_termini_fk")
 	public DefinicioProces getDefinicioProces() {
@@ -216,6 +226,16 @@ public class Termini implements Serializable, GenericEntity<Long> {
 	}
 	public void setDefinicioProces(DefinicioProces definicioProces) {
 		this.definicioProces = definicioProces;
+	}
+	
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_termini_fk")
+	public ExpedientTipus getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipus expedientTipus) {
+		this.expedientTipus = expedientTipus;
 	}
 
 	@OneToMany(mappedBy="termini")
@@ -241,6 +261,8 @@ public class Termini implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
+		result = prime * result
+				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		return result;
 	}
 	@Override
@@ -262,10 +284,13 @@ public class Termini implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!definicioProces.equals(other.definicioProces))
 			return false;
+		if (expedientTipus == null) {
+			if (other.expedientTipus != null)
+				return false;
+		} else if (!expedientTipus.equals(other.expedientTipus))
+			return false;
 		return true;
 	}
-
-
 
 	private static final long serialVersionUID = 1L;
 

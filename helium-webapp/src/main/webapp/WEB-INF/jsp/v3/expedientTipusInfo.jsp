@@ -72,8 +72,51 @@
 		float: right;
 		margin-top: -4px;
 	}
+	.wrapper {
+	    position:relative;
+	    margin:0 auto;
+	    overflow:hidden;
+		padding:5px;
+	  	height:50px;
+	}
+	.pipelles {
+	    position:absolute;
+	    left:0px;
+	    top:0px;
+	  	min-width:3000px;
+	  	margin-left:0px;
+	    margin-top:0px;
+	}
+	.pipelles li{
+		display:table-cell;
+	    position:relative;
+	    text-align:center;
+	    cursor:grab;
+	    cursor:-webkit-grab;
+	    color:#efefef;
+	    vertical-align:middle;
+	}
+	.scroller {
+	  text-align:center;
+	  cursor:pointer;
+	  display:none;
+	  padding:7px;
+	  padding-top:11px;
+	  white-space:no-wrap;
+	  vertical-align:middle;
+	  background-color:#fff;
+	}
+	.scroller-right{
+	  float:right;
+	}
+	.scroller-left {
+	  float:left;
+	}
 </style>
 <script type="text/javascript">
+	var hidWidth;
+	var scrollBarWidths = 40;
+
 	$(document).ready(function() {		
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			var targetHref = $(e.target).attr('href');
@@ -86,6 +129,36 @@
 			<c:when test="${not empty pipellaActiva}">$('#expedientTipus-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#expedientTipus-pipelles li:first a').click();</c:otherwise>
 		</c:choose>
+		
+		$(window).on('resize', function(e) {
+			reAdjust();
+		});
+
+		$('.scroller-right').click(function() {
+
+			$('.scroller-left').fadeIn('slow');
+			$('.scroller-right').fadeOut('slow');
+
+			$('.pipelles').animate({
+				left : "+=" + widthOfHidden() + "px"
+			}, 'slow', function() {
+
+			});
+		});
+
+		$('.scroller-left').click(function() {
+
+			$('.scroller-right').fadeIn('slow');
+			$('.scroller-left').fadeOut('slow');
+
+			$('.pipelles').animate({
+				left : "-=" + getLeftPosi() + "px"
+			}, 'slow', function() {
+
+			});
+		});
+		
+		reAdjust();
 	});
 	
 	function carregaTab(targetHref) {
@@ -103,7 +176,45 @@
 				}
 			}
 		);
-	}	
+	}
+	
+	var widthOfList = function() {
+		var itemsWidth = 0;
+		$('.pipelles li').each(function() {
+			var itemWidth = $(this).outerWidth();
+			itemsWidth += itemWidth;
+		});
+		return itemsWidth;
+	};
+
+	var widthOfHidden = function() {
+		return (($('.wrapper').outerWidth()) - widthOfList() - getLeftPosi())
+				- scrollBarWidths;
+	};
+
+	var getLeftPosi = function() {
+		if ($('.pipelles').size() > 0)
+			return $('.pipelles').position().left;
+		else 
+			return 0;
+	};
+
+	var reAdjust = function() {
+		if (($('.wrapper').outerWidth()) < widthOfList()) {
+			$('.scroller-right').show();
+		} else {
+			$('.scroller-right').hide();
+		}
+
+		if (getLeftPosi() < 0) {
+			$('.scroller-left').show();
+		} else {
+			$('.item').animate({
+				left : "-=" + getLeftPosi() + "px"
+			}, 'slow');
+			$('.scroller-left').hide();
+		}
+	}
 </script>
 </head>
 <body>
@@ -156,20 +267,23 @@
 			</div>
 		</div>
 		<div id="expedientTipus-pipelles" class="col-md-9">
-			<ul class="nav nav-tabs" role="tablist">
-			
-				<li id="pipella-estats"><a href="#contingut-estats" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.estats"/></a></li>
-				<li id="pipella-variables"><a href="#contingut-variables" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.variables"/></a></li>
-				<li id="pipella-definicions-proces"><a href="#contingut-definicions-proces" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.definicions.proces"/></a></li>
-				<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.integracio.tramits"/></a></li>
-				<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.integracio.forms"/></a></li>
-				<li id="pipella-enumeracions"><a href="#contingut-enumeracions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.enumeracions"/></a></li>
-				<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.documents"/></a></li>
-				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.terminis"/></a></li>
-				<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.accions"/></a></li>
-				<li id="pipella-dominis"><a href="#contingut-dominis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.dominis"/></a></li>
-				<li id="pipella-consultes"><a href="#contingut-consultes" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.consultes"/></a></li>
-			</ul>
+			<div class="scroller scroller-left"><i class="glyphicon glyphicon-chevron-left"></i></div>
+  			<div class="scroller scroller-right"><i class="glyphicon glyphicon-chevron-right"></i></div>
+  			<div class="wrapper">
+				<ul class="nav nav-tabs pipelles" role="tablist">
+					<li id="pipella-estats"><a href="#contingut-estats" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.estats"/></a></li>
+					<li id="pipella-variables"><a href="#contingut-variables" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.variables"/></a></li>
+					<li id="pipella-definicions-proces"><a href="#contingut-definicions-proces" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.definicions.proces"/></a></li>
+					<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.integracio.tramits"/></a></li>
+					<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.integracio.forms"/></a></li>
+					<li id="pipella-enumeracions"><a href="#contingut-enumeracions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.enumeracions"/></a></li>	
+					<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.documents"/></a></li>
+					<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.terminis"/></a></li>
+					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.accions"/></a></li>
+					<li id="pipella-dominis"><a href="#contingut-dominis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.dominis"/></a></li>
+					<li id="pipella-consultes"><a href="#contingut-consultes" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.info.pipella.consultes"/></a></li>
+				</ul>
+			</div>
 			<div class="tab-content">
 				<div id="contingut-estats" class="tab-pane">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
@@ -192,7 +306,7 @@
 				<div id="contingut-documents" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/documents"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-terminis" class="tab-pane">
+				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/terminis"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/accions"/>">

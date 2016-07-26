@@ -6,7 +6,7 @@
 			pageLength: 10,
 			lengthMenu: [10, 20, 50],
 			infoEnabled: true,
-			infoType: 'botons', // 'botons', 'search'
+			infoType: 'botons', // 'botons', 'search', 'search+button'
 			searchEnabled: true,
 			pagingEnabled: true,
 			selectionEnabled: false,
@@ -60,11 +60,15 @@
 				});
 			}
 			var colMd50p = plugin.settings.bootstrapRowCols / 2;
+			var colMd33p = plugin.settings.bootstrapRowCols / 3;
 			var colMd25p = plugin.settings.bootstrapRowCols / 4;
+			var colMd66p = colMd33p * 2;
 			var colMd75p = colMd25p * 3;
 			var domPrefix;
 			if (plugin.settings.infoType == 'search' || plugin.settings.pagingStyle == 'scroll')
 				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"f>>';
+			else if (plugin.settings.infoType == 'search+button')
+				domPrefix = '<"row"<"col-md-' + colMd33p + '"i><"col-md-' + colMd66p + '"<"botons fright"><"fright"f>>>';
 			else
 				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"<"botons">>>';
 			var language = window.navigator.userLanguage || window.navigator.language;

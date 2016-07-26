@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
@@ -909,5 +910,66 @@ public interface ExpedientTipusService {
 	public boolean definicioProcesSetInicial(
 			Long expedientTipusId, 
 			Long id);
+
+	
+	/***********************************************/
+	/*******************TERMINIS********************/
+	/***********************************************/
+	
+	/**
+	 * Retorna els terminis per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	public List<TerminiDto> terminiFindAll(
+			Long expedientTipusId,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+
+	/** 
+	 * Retorna el termini del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param terminiId
+	 * 
+	 * @return El termini del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public TerminiDto terminiFindAmbId(Long terminiId);
+
+	/**
+	 * Crea un nou termini.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param expedientTipusId	Atribut id del tipus d'expedient.
+	 * @param termini	La informació del camp a crear.
+	 * @return el termini creat.
+	 * @throws CampDenegatException Si no es tenen els permisos necessaris.
+	 */
+	public TerminiDto terminiCreate(Long expedientTipusId, TerminiDto termini);
+	
+	/**
+	 * Modificació d'un termini existent.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param expedientTipusId	Atribut id del tipus d'expedient.
+	 * @param trmini	La informació del termini a modificar.
+	 * @return el termini modificat.
+	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 */
+	public TerminiDto terminiUpdate(TerminiDto termini);
+	
+	/**
+	 * Esborra un termini.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param terminiId	Atribut id del termini.
+	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 */
+	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException;
 
 }

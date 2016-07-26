@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValo
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -604,4 +605,53 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public boolean definicioProcesSetInicial(Long expedientTipusId, Long id) {
 		return delegate.definicioProcesSetInicial(expedientTipusId, id);
 	}	
+	
+	/***********************************************/
+	/*******************TERMINIS********************/
+	/***********************************************/
+	
+	/**
+	 * Retorna els terminis per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiDto> terminiFindAll(
+			Long expedientTipusId,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		return delegate.terminiFindAll(
+				expedientTipusId, 
+				paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto terminiFindAmbId(Long terminiId) {
+		return delegate.terminiFindAmbId(terminiId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto terminiCreate(
+			Long expedientTipusId, 
+			TerminiDto termini) {
+		return delegate.terminiCreate(expedientTipusId, termini);
+		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public TerminiDto terminiUpdate(TerminiDto termini) {
+		return delegate.terminiUpdate(termini);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException {
+		delegate.terminiDelete(terminiId);
+	}
 }
