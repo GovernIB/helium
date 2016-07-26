@@ -17,17 +17,18 @@
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
-		<div class="botons-titol text-right">
-			<a id="nova_accio" class="btn btn-default" href="${expedientTipus.id}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
-		</div>
+<!-- 		<div class="botons-titol text-right"> -->
+<%-- 			<a id="nova_accio" class="btn btn-default" href="${expedientTipus.id}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a> --%>
+<!-- 		</div> -->
 		<table	id="expedientTipusAccio"
 				data-rowId="id"
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/accio/datatable"
 				data-paging-enabled="true"
-				data-info-type="search"
+				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="3"
+				data-botons-template="#tableButtonsAccionsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -49,6 +50,11 @@
 				</tr>
 			</thead>
 		</table>
+		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a id="nova_accio" class="btn btn-default" href="${expedientTipus.id}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
+			</div>
+		</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
