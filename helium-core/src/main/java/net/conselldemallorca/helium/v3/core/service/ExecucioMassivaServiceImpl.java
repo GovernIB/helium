@@ -638,9 +638,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 //				}
 //			};
 			
-			Authentication authentication =  new UsernamePasswordAuthenticationToken(
+			Authentication authentication =  new UsernamePasswordAuthenticationToken (
 					ome.getExecucioMassiva().getAuthenticationPrincipal(),
-					ome.getExecucioMassiva().getAuthenticationCredentials(),
+//					ome.getExecucioMassiva().getAuthenticationCredentials(),
+					"N/A",
 					ome.getExecucioMassiva().getAuthenticationRoles());
 			
 	        SecurityContextHolder.getContext().setAuthentication(authentication);

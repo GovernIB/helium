@@ -542,6 +542,22 @@ public interface Jbpm3HeliumService {
 			Map<String, Object> parametres) throws NoTrobatException, SistemaExternException;
 
 	/**
+	 * Consulta un domini i retorna el resultat.
+	 * 
+	 * @param processInstanceId
+	 * @param dominiCodi
+	 * @param dominiId
+	 * @param parametres
+	 * @return
+	 * @throws ExpedientNotFoundException
+	 * @throws DominiConsultaException
+	 */
+	public List<DominiRespostaFilaDto> dominiInternConsultar(
+			String processInstanceId, 
+			String id,
+			Map<String, Object> parametres) throws Exception;
+	
+	/**
 	 * Retorna tots els valors d'una enumeració.
 	 * 
 	 * @param processInstanceId
@@ -1075,4 +1091,5 @@ public interface Jbpm3HeliumService {
 	 * @return booleà si la tasca està en segón pla o no
 	 */
 	public boolean isTascaEnSegonPla(Long taskId);
+
 }

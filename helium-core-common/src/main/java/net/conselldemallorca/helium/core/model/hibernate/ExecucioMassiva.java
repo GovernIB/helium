@@ -97,7 +97,7 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		this.tipus = tipus;
 		this.dataInici = new Date();
 		
-		this.setAuthenticationCredentials(auth.getCredentials());
+//		this.setAuthenticationCredentials(auth.getCredentials());
 		Collection<GrantedAuthority> authorities = auth.getAuthorities() != null ? (Collection<GrantedAuthority>)auth.getAuthorities() : null;
 		this.setAuthenticationRoles(authorities);
 	}
@@ -268,13 +268,13 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		return principal;
 	}
 	
-	@Transient
-	public Object getAuthenticationCredentials() {
-		return deserialize(credencials);
-	}
-	private void setAuthenticationCredentials(Object credentials) {
-		this.credencials = serialize(credentials);
-	}
+//	@Transient
+//	public Object getAuthenticationCredentials() {
+//		return deserialize(credencials);
+//	}
+//	private void setAuthenticationCredentials(Object credentials) {
+//		this.credencials = serialize(credentials);
+//	}
 	
 	@Transient
 	public List<GrantedAuthority> getAuthenticationRoles() {
