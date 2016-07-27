@@ -3,11 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.hibernate;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -85,8 +80,8 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	private List<ExecucioMassivaExpedient> expedients = new ArrayList<ExecucioMassivaExpedient>();
 	private Long entorn;
 	
-	@MaxLength(2000)
-	private byte[] credencials;
+//	@MaxLength(2000)
+//	private byte[] credencials;
 	@MaxLength(2000)
 	private String rols;
 
@@ -205,13 +200,13 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		this.entorn = entorn;
 	}
 	
-	@Column(name="credencials")
-	public byte[] getCredencials() {
-		return credencials;
-	}
-	public void setCredencials(byte[] credencials) {
-		this.credencials = credencials;
-	}
+//	@Column(name="credencials")
+//	public byte[] getCredencials() {
+//		return credencials;
+//	}
+//	public void setCredencials(byte[] credencials) {
+//		this.credencials = credencials;
+//	}
 	
 	@Column(name="rols")
 	public String getRols() {
@@ -221,39 +216,39 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		this.rols = rols;
 	}
 	
-	public Object deserialize(byte[] bytes) {
-		Object obj = null;
-		if (bytes != null) {
-			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-			try {
-				ObjectInputStream ois = new ObjectInputStream(bis);
-				obj = ois.readObject();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		return obj;
-	}
-	
-	public byte[] serialize(Object obj){
-		byte[] bytes = null;
-		if (obj != null) {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			try {
-				ObjectOutputStream oos = new ObjectOutputStream(bos);
-				oos.writeObject(obj);
-				oos.flush();
-				oos.close();
-				bos.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			bytes = bos.toByteArray();
-		}
-		return bytes;
-	}
+//	public Object deserialize(byte[] bytes) {
+//		Object obj = null;
+//		if (bytes != null) {
+//			ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+//			try {
+//				ObjectInputStream ois = new ObjectInputStream(bis);
+//				obj = ois.readObject();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (ClassNotFoundException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return obj;
+//	}
+//	
+//	public byte[] serialize(Object obj){
+//		byte[] bytes = null;
+//		if (obj != null) {
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//			try {
+//				ObjectOutputStream oos = new ObjectOutputStream(bos);
+//				oos.writeObject(obj);
+//				oos.flush();
+//				oos.close();
+//				bos.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			bytes = bos.toByteArray();
+//		}
+//		return bytes;
+//	}
 	
 	@Transient
 	public Principal getAuthenticationPrincipal() {
@@ -287,17 +282,23 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		return authorities;
 	}
 	private void setAuthenticationRoles(Collection<GrantedAuthority> authorities) {
+		String rols = null;
 		if (authorities != null) {
-			String rols = "";
+			rols = "";
 			for (GrantedAuthority gauth : authorities) {
 				rols += gauth.getAuthority() + ",";
 			}
 			if (rols.length() > 0)
-				rols.substring(0, rols.length() - 1);
-			this.rols = rols;
+				rols = rols.substring(0, rols.length() - 1);
 		} else {
-			this.rols = null;
+			rols = null;
 		}
+		System.out.println(">> EXEC_MASS - ROLS: '" + rols + "'");
+		if (rols != null && rols.length() > 2000) {
+			rols = rols.substring(0, 2000);
+			rols = rols.substring(0, rols.lastIndexOf(","));
+		}
+		this.rols = rols;
 	}
 	
 	@Override

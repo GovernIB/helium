@@ -194,9 +194,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
-			if (expedients)
-				execucioMassivaRepository.save(execucioMassiva);
-			else 
+			if (expedients) {
+				logger.info(">> EXEC:MASS - Parametres: ");
+				logger.info(">>>>> usuari:  " + execucioMassiva.getUsuari());
+				logger.info(">>>>> rols:    " + (execucioMassiva.getRols() != null ? execucioMassiva.getRols() + " (" + execucioMassiva.getRols().length() + " chars.)" : ""));
+				logger.info(">>>>> entorn:  " + execucioMassiva.getEntorn());
+				logger.info(">>>>> dat_ini: " + execucioMassiva.getDataInici());
+				logger.info(">>>>> dat_fi:  " + execucioMassiva.getDataFi());
+				if (execucioMassiva.getExpedientTipus() != null)
+					logger.info(">>>>> tip_exp: " + execucioMassiva.getExpedientTipus().getCodi());
+				logger.info(">>>>> tipus:   " + execucioMassiva.getTipus());
+				logger.info(">>>>> env_cor: " + (execucioMassiva.getEnviarCorreu() != null ? (execucioMassiva.getEnviarCorreu() ? "SI" : "NO") : "NO"));
+				logger.info(">>>>> param1:  " + execucioMassiva.getParam1());
+
+				execucioMassivaRepository.save(execucioMassiva);				
+			} else 
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
 	}
