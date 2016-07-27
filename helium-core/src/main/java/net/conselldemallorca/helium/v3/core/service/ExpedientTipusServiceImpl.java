@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -68,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
@@ -100,6 +103,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private CampAgrupacioRepository campAgrupacioRepository;
 	@Resource
 	private CampValidacioRepository campValidacioRepository;
+	@Resource
+	private CampRegistreRepository campRegistreRepository;
 	@Resource
 	private EnumeracioRepository enumeracioRepository;
 	@Resource
@@ -1942,21 +1947,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"incloureGlobals=" + incloureGlobals + ", " +
 				"filtre=" + filtre + ")");
-						
-		Page<DefinicioProces> page = definicioProcesRepository.findByFiltrePaginat(
-				entornId,
-				expedientTipusId,
-				incloureGlobals,
-				filtre == null || "".equals(filtre), 
-				filtre, 
-				paginacioHelper.toSpringDataPageable(
-						paginacioParams));
 		
-		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
-				page,
-				DefinicioProcesDto.class);
-		
-		return pagina;		
+		return paginacioHelper.toPaginaDto(
+				definicioProcesRepository.findByFiltrePaginat(
+						entornId,
+						expedientTipusId,
+						incloureGlobals,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				DefinicioProcesDto.class);		
 	}
 
 	@Override
@@ -2103,6 +2104,276 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		terminiRepository.delete(termini);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<TerminiDto> terminiFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els terminis per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<TerminiDto> pagina = paginacioHelper.toPaginaDto(
+				terminiRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				TerminiDto.class);		
+		return pagina;		
+	}
+	
+	@Override
+	@Transactional
+	public boolean definicioProcesImportar(
+			Long expedientTipusId, 
+			Long id,
+			boolean sobreescriure) {
+		logger.debug(
+				"Importació la informació de la definicio de proces al tipus d'expedient(" +
+				"expedientTipusId=" + expedientTipusId +  ", " + 
+				"definicioProcesId=" + id +  ", " + 
+				"sobreescriure=" + sobreescriure + ")");
+		boolean ret = false;
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		Entorn entorn = expedientTipus.getEntorn();
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(id);
+		if (expedientTipus != null 
+				&& definicioProces != null) {
+			// Propaga les agrupacions
+			Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
+			for (CampAgrupacio agrupacio : definicioProces.getAgrupacions()) {
+				CampAgrupacio nova = campAgrupacioRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						agrupacio.getCodi());
+				if (nova == null || sobreescriure) {
+					if (nova == null) {
+						nova = new CampAgrupacio(
+								expedientTipus,
+								agrupacio.getCodi(),
+								agrupacio.getNom(),
+								agrupacio.getOrdre());
+						expedientTipus.getAgrupacions().add(nova);
+					} else if (sobreescriure) {
+						nova.setNom(agrupacio.getNom());
+						nova.setOrdre(agrupacio.getOrdre());
+					}
+					nova.setDescripcio(agrupacio.getDescripcio());
+				}
+				agrupacions.put(agrupacio.getCodi(), nova);
+			}
+			// Propaga les accions
+			for (Accio accio: definicioProces.getAccions()) {
+				Accio nova = accioRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						accio.getCodi());
+				if (nova == null || sobreescriure) {
+					if (nova == null) {
+						nova = new Accio(
+								expedientTipus,
+								accio.getCodi(),
+								accio.getNom(),
+								accio.getJbpmAction());
+						expedientTipus.getAccions().add(nova);
+					} else if (sobreescriure) {
+						nova.setNom(accio.getNom());
+						nova.setJbpmAction(accio.getJbpmAction());
+					}
+					nova.setDescripcio(accio.getDescripcio());
+					nova.setPublica(accio.isPublica());
+					nova.setOculta(accio.isOculta());
+					nova.setRols(accio.getRols());
+				}
+			}
+			// Propaga els camps
+			Map<String, Camp> camps = new HashMap<String, Camp>();
+			Map<String, Camp> registres = new HashMap<String, Camp>();
+			for (Camp camp: definicioProces.getCamps()) {
+				Camp nou = campRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						camp.getCodi());
+				if (nou == null || sobreescriure) {
+					if (nou == null) {
+						nou = new Camp(
+								expedientTipus,
+								camp.getCodi(),
+								camp.getTipus(),
+								camp.getEtiqueta());
+						expedientTipus.getCamps().add(nou);
+					} else {
+						nou.setTipus(camp.getTipus());
+						nou.setEtiqueta(camp.getEtiqueta());
+					}
+					nou.setIgnored(camp.isIgnored());
+					nou.setObservacions(camp.getObservacions());
+					nou.setDominiId(camp.getDominiId());
+					nou.setDominiParams(camp.getDominiParams());
+					nou.setDominiCampText(camp.getDominiCampText());
+					nou.setDominiCampValor(camp.getDominiCampValor());
+					nou.setDominiCacheText(camp.isDominiCacheText());
+					nou.setMultiple(camp.isMultiple());
+					nou.setOcult(camp.isOcult());
+					nou.setDominiIntern(camp.isDominiIntern());
+					nou.setJbpmAction(camp.getJbpmAction());
+					nou.setOrdre(camp.getOrdre());
+					
+					if (camp.getEnumeracio() != null && camp.getEnumeracio().getCodi() != null) {
+						// Propaga la enumeració referenciada pel camp
+						Enumeracio enumeracioEntorn = enumeracioRepository.findByEntornAndCodiAndExpedientTipusNull(
+								entorn, 
+								camp.getEnumeracio().getCodi());
+						if(enumeracioEntorn==null){
+							Enumeracio enumeracio = enumeracioRepository.findByEntornAndExpedientTipusAndCodi(
+									entorn, 
+									expedientTipus, 
+									camp.getEnumeracio().getCodi());
+							if (enumeracio == null || sobreescriure) {
+								if (enumeracio == null) {
+									enumeracio = new Enumeracio();
+									enumeracio.setEntorn(entorn);
+									expedientTipus.getEnumeracions().add(enumeracio);
+								}
+								enumeracio.setNom(camp.getEnumeracio().getNom());
+							}											
+						}else{
+							nou.setEnumeracio(enumeracioEntorn);
+						}						
+					}
+					// Propaga les validacions del camp
+					for (Validacio validacio: nou.getValidacions())
+						campValidacioRepository.delete(validacio);
+					nou.getValidacions().clear();
+					for (Validacio validacio: camp.getValidacions()) {
+						Validacio nova = new Validacio(
+								nou,
+								validacio.getExpressio(),
+								validacio.getMissatge());
+						nova.setOrdre(validacio.getOrdre());
+						nou.addValidacio(nova);
+					}				
+					if (nou.getTipus() == TipusCamp.REGISTRE) {
+						registres.put(nou.getCodi(), nou);
+					}
+				}
+				camps.put(nou.getCodi(), nou);				
+				if (camp.getDomini() != null &&  !camp.isDominiIntern()) {
+					// Propaga el domini referenciat 
+					Domini domini = dominiRepository.findByExpedientTipusAndCodi(
+							expedientTipus,
+							camp.getDomini().getCodi());
+					if (domini != null) {
+						nou.setDomini(domini);
+					} else {
+						domini = new Domini();
+						domini.setCodi(camp.getDomini().getCodi());
+						domini.setEntorn(entorn);
+						domini.setNom(camp.getDomini().getNom());
+						domini.setTipus(camp.getDomini().getTipus());
+						domini.setExpedientTipus(expedientTipus);
+						expedientTipus.getDominis().add(domini);
+					}
+				}
+				if (camp.getAgrupacio() != null)
+					nou.setAgrupacio(agrupacions.get(camp.getAgrupacio().getCodi()));
+				campRepository.save(nou);
+			} // Fi propagació camps
+			// Propaga els membres dels camps de tipus registre
+			for (Camp camp: registres.values()) {
+				for (CampRegistre campRegistre: camp.getRegistreMembres()) {
+					campRegistre.getMembre().getRegistrePares().remove(campRegistre);
+					campRegistre.setMembre(null);
+					campRegistre.setRegistre(null);
+					campRegistreRepository.delete(campRegistre);
+				}
+				camp.getRegistreMembres().clear();
+			}
+			campRegistreRepository.flush();
+			for (Camp camp: definicioProces.getCamps()) {
+				if (camp.getTipus() == TipusCamp.REGISTRE && registres.containsKey(camp.getCodi())) {
+					for (CampRegistre membre: camp.getRegistreMembres()) {
+						CampRegistre campRegistre = new CampRegistre(
+								camps.get(camp.getCodi()),
+								camps.get(membre.getMembre().getCodi()),
+								membre.getOrdre());
+						campRegistre.setLlistar(membre.isLlistar());
+						campRegistre.setObligatori(membre.isObligatori());
+						registres.get(camp.getCodi()).getRegistreMembres().add(campRegistre);
+					}
+				}
+			}
+			// Propaga els documents
+			Map<String, Document> documents = new HashMap<String, Document>();
+			for (Document document: definicioProces.getDocuments()) {
+				Document nou = documentRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						document.getCodi());
+				if (nou == null || sobreescriure) {
+					if (nou == null) {
+						nou = new Document(
+								expedientTipus,
+								document.getCodi(),
+								document.getNom());
+						expedientTipus.getDocuments().add(nou);
+					} else if (sobreescriure) {
+						nou.setNom(document.getNom());
+					}
+					nou.setDescripcio(document.getDescripcio());
+					nou.setArxiuContingut(document.getArxiuContingut());
+					nou.setPlantilla(document.isPlantilla());
+					nou.setCustodiaCodi(document.getCustodiaCodi());
+					nou.setContentType(document.getContentType());
+					nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+					nou.setAdjuntarAuto(document.isAdjuntarAuto());
+					if (document.getCampData() != null && document.getCampData().getCodi() != null)
+						nou.setCampData(camps.get(document.getCampData().getCodi()));
+					nou.setConvertirExtensio(document.getConvertirExtensio());
+					nou.setExtensionsPermeses(document.getExtensionsPermeses());
+					documents.put(nou.getCodi(), nou);
+				}				
+			}
+			// Propaga els terminis
+			for (Termini termini: definicioProces.getTerminis()) {
+				Termini nou = terminiRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						termini.getCodi());
+				if (nou == null || sobreescriure) {
+					if (nou == null) {
+						nou = new Termini(
+								expedientTipus,
+								termini.getCodi(),
+								termini.getNom(),
+								termini.getAnys(),
+								termini.getMesos(),
+								termini.getDies(),
+								termini.isLaborable());
+						expedientTipus.getTerminis().add(nou);
+					} else if (sobreescriure) {
+						nou.setNom(termini.getNom());
+						nou.setAnys(termini.getAnys());
+						nou.setMesos(termini.getMesos());
+						nou.setDies(termini.getDies());
+						nou.setLaborable(termini.isLaborable());
+					}
+					nou.setDescripcio(termini.getDescripcio());
+					nou.setDiesPrevisAvis(termini.getDiesPrevisAvis());
+					nou.setAlertaPrevia(termini.isAlertaPrevia());
+					nou.setAlertaFinal(termini.isAlertaFinal());
+					nou.setAlertaCompletat(termini.isAlertaCompletat());
+					nou.setManual(termini.isManual());
+				}	
+			}
+			ret = true;
+		}
+		return ret;
+	}	
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

@@ -910,7 +910,25 @@ public interface ExpedientTipusService {
 	public boolean definicioProcesSetInicial(
 			Long expedientTipusId, 
 			Long id);
-
+	
+	/**
+	 * Importa al tipus d'expedient la informació de la definició de procés
+	 * com són:
+	 * - Agrupacions
+	 * - Variables amb les validacions
+	 * - Tasques
+	 * - Documents
+	 * - Terminis
+	 * - Accions
+	 * - Recursos
+	 * @param expedientTipusId
+	 * @param id Identificador del tipus d'expedient.
+	 * @param sobreescriure Indica si les variables se sobreesciuran al tipus d'expedient o es deixaran sense sobreescriure.
+	 */
+	public boolean definicioProcesImportar(
+			Long expedientTipusId, 
+			Long id, 
+			boolean sobreescriure);
 	
 	/***********************************************/
 	/*******************TERMINIS********************/
@@ -962,6 +980,23 @@ public interface ExpedientTipusService {
 	 */
 	public TerminiDto terminiUpdate(TerminiDto termini);
 	
+	/** 
+	 * Retorna la llista de terminis del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<TerminiDto> terminiFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;		
 	/**
 	 * Esborra un termini.
 	 * 

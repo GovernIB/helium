@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
@@ -69,7 +68,6 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	DatatablesResponse datatable(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@RequestParam(required = false) 
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(

@@ -211,6 +211,22 @@ public class DissenyServiceImpl implements DissenyService {
 	
 	@Transactional(readOnly=true)
 	@Override
+	public DefinicioProcesExpedientDto getDefinicioProcesByEntorIdAndProcesId(
+			Long entornId, 
+			Long procesId) {		
+		DefinicioProces definicioProces = definicioProcesRepository.findById(procesId);
+		if (definicioProces != null) {
+			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());
+			return getDefinicioProcesByEntornIdAmbJbpmId(
+					definicioProces.getEntorn().getId(), 
+					jb.getKey(), 
+					null);
+		} else
+			return null;
+	}
+	
+	@Transactional(readOnly=true)
+	@Override
 	public List<DefinicioProcesExpedientDto> getSubprocessosByProces(String jbpmId) {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jbpmId);
 		

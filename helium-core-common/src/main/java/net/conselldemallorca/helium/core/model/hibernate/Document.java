@@ -85,6 +85,11 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.codi = codi;
 		this.nom = nom;
 	}
+	public Document(ExpedientTipus expedientTipus, String codi, String nom) {
+		this.expedientTipus = expedientTipus;
+		this.codi = codi;
+		this.nom = nom;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_document")

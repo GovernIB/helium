@@ -654,4 +654,17 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException {
 		delegate.terminiDelete(terminiId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<TerminiDto> terminiFindPerDatatable(Long expedientTipusId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.terminiFindPerDatatable(expedientTipusId, filtre, paginacioParams);
+	}	
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean definicioProcesImportar(Long expedientTipusId, Long id, boolean sobreescriure) {
+		return delegate.definicioProcesImportar(expedientTipusId, id, sobreescriure);
+	}
 }

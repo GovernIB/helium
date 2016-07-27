@@ -3,21 +3,31 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesImportarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesImportarCommand.Importar;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -103,6 +113,69 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 							request,
 							"expedient.tipus.definicioProces.llistat.definicioProces.inicial.error"));
 		return ret;
+	}
+	
+
+	/** Mètode per importar cap al tipus d'expedient la informació d'una definició de procés. */
+	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/importar", method = RequestMethod.GET)
+	public String importar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDefinicioProcesImportarCommand command = new ExpedientTipusDefinicioProcesImportarCommand();
+		command.setSobreescriure(false);
+		model.addAttribute("expedientTipusDefinicioProcesImportarCommand", command);
+		model.addAttribute("versions", obtenirParellesVersions(entornActual.getId(), id));
+
+		return "v3/expedientTipusDefinicioProcesImportarForm";
+	}
+			
+	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/importar", method = RequestMethod.POST)
+	public String importarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			@Validated(Importar.class) ExpedientTipusDefinicioProcesImportarCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+    		model.addAttribute("versions", obtenirParellesVersions(entornActual.getId(), id));
+        	return "v3/expedientTipusDefinicioProcesImportarForm";
+        } else {
+        	if (command.getDefinicioProcesId() == null)
+        		command.setDefinicioProcesId(id);
+        	if (expedientTipusService.definicioProcesImportar(
+        			expedientTipusId, 
+        			command.getDefinicioProcesId(),
+        			command.isSobreescriure()))
+	    		MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.definicioProces.llistat.definicioProces.importar.correcte"));
+        	else
+	    		MissatgesHelper.error(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.definicioProces.llistat.definicioProces.importar.error"));
+			return modalUrlTancar(false);
+			
+        }
+	}		
+	
+	private List<ParellaCodiValorDto> obtenirParellesVersions(Long entornId, Long definicioProcesId) {
+		
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByEntorIdAndProcesId(entornId, definicioProcesId);
+		for (IdAmbEtiqueta idAmbEtiqueta: definicioProcesIniciExpedientDto.getListIdAmbEtiqueta()) {
+			resposta.add(new ParellaCodiValorDto(idAmbEtiqueta.getId().toString(), idAmbEtiqueta.getEtiqueta()));
+		}
+		return resposta;
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/delete", method = RequestMethod.GET)

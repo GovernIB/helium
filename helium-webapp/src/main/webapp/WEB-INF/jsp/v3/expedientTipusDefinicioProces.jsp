@@ -51,6 +51,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
+								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/importar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.importar"/></a></li>
 								{{if expedientTipus != null}}
 									<li><a class="btn-delete" href="${expedientTipus.id}/definicionsProces/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
 								{{/if}}
@@ -75,19 +76,20 @@ $(document).ready(function() {
 	var jbpmProcessDefinitionKey = "${expedientTipus.jbpmProcessDefinitionKey}";
 	
 	$('#expedientTipusDefinicioProces').on('draw.dt', function() {
-		// Mira si la definicio de proces coincideix amb la del tipus d'expedient
+		// Mira si la definicio de proces coincideix amb la del tipus d'expedient inicial
 		$("tr", this).each(function(){
 			if ($(this).find("td").length > 0) {
 				$jbpmKey = $(this).find("td:nth-child(4)");
-				if ($jbpmKey.html() == jbpmProcessDefinitionKey) 
+				if ($jbpmKey.html() == jbpmProcessDefinitionKey) {
 					$jbpmKey.html("<spring:message code='comu.true'></spring:message>");
+					$(this).css('font-weight', 'bold');	// Sesaltem la línia amb el procés inicial
+				}
 				else
 					$jbpmKey.html("<spring:message code='comu.false'></spring:message>");
 			}
 		});		    	
 		// Botó per marcar com a inicial una definicó de procés
 		$("#expedientTipusDefinicioProces a.btn-inicial").click(function(e) {
-			debugger;
 			var getUrl = $(this).attr('href');
 			var jbpmKey = $(this).data('jbpmkey');
 			$.ajax({
@@ -95,13 +97,12 @@ $(document).ready(function() {
 				url: getUrl,
 				async: true,
 				success: function(result) {
-					debugger;
 					if (result) {
 						jbpmProcessDefinitionKey = jbpmKey;
 						refrescaTaula();
 					}
 				},
-				errlr: function(error) {
+				error: function(error) {
 					console.log('Error:'+error);
 				},
 				complete: function() {
@@ -112,6 +113,26 @@ $(document).ready(function() {
 			return false;
 		});
 
+		// Botó per importar la informació de la definició de procés
+		$("#expedientTipusDefinicioProces a.btn-importar").click(function(e) {
+			var $a = $(this);
+			var getUrl = $a.attr('href');
+			$.ajax({
+				type: 'GET',
+				url: getUrl,
+				async: true,
+				error: function(error) {
+					console.log('Error:'+error);
+				},
+				complete: function() {
+					webutilRefreshMissatges();
+					$a.closest('div .dropdown').removeClass('open');
+				}
+			});
+			e.stopImmediatePropagation();
+			return false;
+		});
+		
 		// Botó per esborrar una definicó de procés
 		$("#expedientTipusDefinicioProces a.btn-delete").click(function(e) {
 			var getUrl = $(this).attr('href');
@@ -124,7 +145,7 @@ $(document).ready(function() {
 						refrescaTaula();
 					}
 				},
-				errlr: function(error) {
+				error: function(error) {
 					console.log('Error:'+error);
 				},
 				complete: function() {
@@ -139,11 +160,11 @@ $(document).ready(function() {
 
 function callbackModaldefinicionsProces() {
 	webutilRefreshMissatges();
-	refrescaTaula();
 }
 
 function refrescaTaula() {
 	$('#expedientTipusDefinicioProces').webutilDatatable('refresh');
 }
+
 // ]]>
 </script>			

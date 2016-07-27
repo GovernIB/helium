@@ -133,7 +133,7 @@
 						$('#campValidacio').webutilDatatable('refresh');
 						webutilRefreshMissatges();
 					},
-					errlr: function(error) {
+					error: function(error) {
 						webutilRefreshMissatges();
 						console.log('Error:'+error);
 					}

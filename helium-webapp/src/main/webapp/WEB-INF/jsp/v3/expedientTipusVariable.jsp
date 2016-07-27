@@ -53,7 +53,16 @@
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.camp.llistat.columna.codi"/></th>
 					<th data-col-name="etiqueta"><spring:message code="expedient.tipus.camp.llistat.columna.etiqueta"/></th>
 					<th data-col-name="tipus"><spring:message code="expedient.tipus.camp.llistat.columna.tipus"/></th>
-					<th data-col-name="multiple"><spring:message code="expedient.tipus.camp.llistat.columna.multiple"/></th>
+					<th data-col-name="multiple" data-template="#cellexpedientTipusVariableMultibleTemplate">
+					<spring:message code="expedient.tipus.camp.llistat.columna.multiple"/>
+						<script id="cellexpedientTipusVariableMultibleTemplate" type="text/x-jsrender">
+						{{if multiple }}
+							<spring:message code="comu.true"></spring:message>
+						{{else}}
+							<spring:message code="comu.false"></spring:message>
+						{{/if}}
+						</script>
+					</th>
 					<th data-col-name="validacioCount" data-template="#cellValidacionsTemplate" data-orderable="false" width="13%">
 						<script id="cellValidacionsTemplate" type="text/x-jsrender">
 						<a href="${expedientTipus.id}/variable/{{:id}}/validacio" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
@@ -174,7 +183,7 @@ $(document).ready(function() {
 					}
 					webutilRefreshMissatges();
 				},
-				errlr: function(error) {
+				error: function(error) {
 					webutilRefreshMissatges();
 					console.log('Error:'+error);
 				}

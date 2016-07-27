@@ -46,7 +46,7 @@
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-									<li><a href="#" onclick="esborraEnumerat('${expedientTipus.id}/enumeracio/{{:id}}/delete');" id="enumeracioDelete" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+									<li><a href="${expedientTipus.id}/enumeracio/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.enumeracio.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 									<li><a data-toggle="modal" data-callback="callbackModalEnumerats()" href="${expedientTipus.id}/enumeracio/{{:id}}/valors"><span class="fa fa-bars"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.boto.valors"/>&nbsp;({{:numValors}})</a></li>
 								</ul>
 							</div>
@@ -65,25 +65,38 @@
 
 <script type="text/javascript">
 // <![CDATA[
+            
+$(document).ready(function() {
+
+	// Quan es repinta la taula actualitza els enllaços
+	$('#expedientEnumeracio').on('draw.dt', function() {
+
+		// Botons per agrupar o desagrupar
+		$(".ajax-link").click(function(e) {
+			var getUrl = $(this).attr('href');
+			$.ajax({
+				type: 'GET',
+				url: getUrl,
+				async: true,
+				success: function(result) {
+					if (result) {
+						refrescaTaula();
+					}
+					webutilRefreshMissatges();
+				},
+				error: function(error) {
+					webutilRefreshMissatges();
+					console.log('Error:'+error);
+				}
+			});
+			e.stopImmediatePropagation();
+			return false;
+		});
+	  });		
+});
+
 function refrescaTaula() {
 	$('#expedientEnumeracio').webutilDatatable('refresh-url', '${expedientTipus.id}/enumeracio/datatable');
-}
-
-function esborraEnumerat(getUrl) {
-	$.ajax({
-		type: 'GET',
-		url: getUrl,
-		async: true,
-		success: function(result) {
-			callbackModalEnumerats();
-		},
-		error: function(e) {
-			var msg = "Error esborrant l''enumeració"; 
-			alert(msg);
-			console.log(msg+': '+e);
-		}
-	});
-	return false;
 }
 
 function callbackModalEnumerats() {

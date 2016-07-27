@@ -32,7 +32,7 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			"where " +
 			"   a.expedientTipus.id = :expedientTipusId " +
 			"	and (:esNullFiltre = true or lower(a.codi) like lower('%'||:filtre||'%') or lower(a.nom) like lower('%'||:filtre||'%')) ")
-	Page<ExpedientTipus> findByFiltrePaginat(
+	Page<Accio> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		

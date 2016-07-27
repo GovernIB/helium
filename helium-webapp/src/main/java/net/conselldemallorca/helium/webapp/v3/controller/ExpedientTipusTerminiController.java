@@ -86,9 +86,10 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.terminiFindAll(
-						expedientTipusId, 
-						paginacioParams));
+				expedientTipusService.terminiFindPerDatatable(
+						expedientTipusId,
+						paginacioParams.getFiltre(),
+						paginacioParams));		
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/termini/new", method = RequestMethod.GET)

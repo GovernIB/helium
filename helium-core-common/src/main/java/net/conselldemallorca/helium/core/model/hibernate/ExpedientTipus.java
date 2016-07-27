@@ -119,6 +119,9 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 	private Set<Camp> camps = new HashSet<Camp>();
 	private List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
+	private List<Document> documents = new ArrayList<Document>();
+	private List<Termini> terminis = new ArrayList<Termini>();
+	private List<Accio> accions = new ArrayList<Accio>();
 	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
@@ -539,6 +542,30 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.agrupacions = agrupacions;
 	}
 	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public List<Document> getDocuments() {
+		return this.documents;
+	}	
+	public void setDocuments(List<Document> documents) {
+		this.documents = documents;
+	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public List<Termini> getTerminis() {
+		return this.terminis;
+	}	
+	public void setTerminis(List<Termini> terminis) {
+		this.terminis = terminis;
+	}
+	
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL})
+	public List<Accio> getAccions() {
+		return this.accions;
+	}	
+	public void setAccions(List<Accio> accions) {
+		this.accions = accions;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

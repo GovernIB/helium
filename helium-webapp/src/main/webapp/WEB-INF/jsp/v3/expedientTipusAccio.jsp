@@ -17,9 +17,6 @@
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
-<!-- 		<div class="botons-titol text-right"> -->
-<%-- 			<a id="nova_accio" class="btn btn-default" href="${expedientTipus.id}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a> --%>
-<!-- 		</div> -->
 		<table	id="expedientTipusAccio"
 				data-rowId="id"
 				data-toggle="datatable"
@@ -79,7 +76,7 @@ $(document).ready(function() {
 					}
 					webutilRefreshMissatges();
 				},
-				errlr: function(error) {
+				error: function(error) {
 					webutilRefreshMissatges();
 					console.log('Error:'+error);
 				}

@@ -68,6 +68,12 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 		this.jbpmAction = jbpmAction;
 	}
+	public Accio(ExpedientTipus expedientTipus, String codi, String nom, String jbpmAction) {
+		this.expedientTipus = expedientTipus;
+		this.codi = codi;
+		this.nom = nom;
+		this.jbpmAction = jbpmAction;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_document")

@@ -86,7 +86,7 @@ $(document).ready(function() {
 					}
 					webutilRefreshMissatges();
 				},
-				errlr: function(error) {
+				error: function(error) {
 					webutilRefreshMissatges();
 					console.log('Error:'+error);
 				}

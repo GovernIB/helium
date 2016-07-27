@@ -123,7 +123,7 @@ $(document).ready(function() {
 						refrescaTaula();
 					}
 				},
-				errlr: function(error) {
+				error: function(error) {
 					console.log('Error:'+error);
 				},
 				complete: function() {
@@ -146,7 +146,7 @@ $(document).ready(function() {
 						refrescaTaula();
 					}
 				},
-				errlr: function(error) {
+				error: function(error) {
 					console.log('Error:'+error);
 				},
 				complete: function() {

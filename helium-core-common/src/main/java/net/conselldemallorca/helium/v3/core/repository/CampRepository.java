@@ -38,7 +38,7 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			"   c.expedientTipus.id = :expedientTipusId " +
 			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
 			"	and (:esNullFiltre = true or lower(c.codi) like lower('%'||:filtre||'%') or lower(c.etiqueta) like lower('%'||:filtre||'%')) ")
-	Page<ExpedientTipus> findByFiltrePaginat(
+	Page<Camp> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId,
 			@Param("agrupacioId") Long agrupacioId,		
