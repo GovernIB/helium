@@ -138,6 +138,15 @@ public class TascaHelper {
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
 				task.getTaskName(),
 				definicioProces);
+		if (tasca == null) {
+			throw new NoTrobatException(
+					Tasca.class,
+					"(taskName=" + task.getTaskName() + ", " +
+					"definicioProcesId=" + definicioProces.getId() + ", " +
+					"definicioProcesJbpmKey=" + definicioProces.getJbpmKey() + ", " +
+					"definicioProcesVersio=" + definicioProces.getVersio() + ")");
+							
+		}
 		String titol = tasca.getNom();
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
 			titol = getTitolPerTasca(task, tasca);
