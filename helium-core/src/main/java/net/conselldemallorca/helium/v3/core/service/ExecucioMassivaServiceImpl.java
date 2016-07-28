@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,6 +40,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -59,6 +61,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -117,6 +121,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MailHelper mailHelper;
 	@Resource
 	private IndexHelper indexHelper;
+	@Resource(name = "permisosHelperV3") 
+	private PermisosHelper permisosHelper;
 	
 	@Autowired
 	private TascaService tascaService;
@@ -140,7 +146,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			
 			ExecucioMassiva execucioMassiva = new ExecucioMassiva(
-					auth,
+					auth.getName(),
 					ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
 			if (dto.getDataInici() == null) {
 				execucioMassiva.setDataInici(new Date());
@@ -150,8 +156,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			execucioMassiva.setEnviarCorreu(dto.getEnviarCorreu());
 			execucioMassiva.setParam1(dto.getParam1());
 			execucioMassiva.setParam2(dto.getParam2());
+			ExpedientTipus expedientTipus = null;
 			if (dto.getExpedientTipusId() != null) {
-				ExpedientTipus expedientTipus = expedientTipusRepository.findById(dto.getExpedientTipusId());
+				expedientTipus = expedientTipusRepository.findById(dto.getExpedientTipusId());
 				execucioMassiva.setExpedientTipus(expedientTipus);
 			}
 			int ordre = 0;
@@ -166,6 +173,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null && expedient != null)
+						expedientTipus = expedient.getTipus();
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
@@ -182,6 +191,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null && expedient != null)
+						expedientTipus = expedient.getTipus();
 				}
 			} else if (dto.getProcInstIds() != null) {
 				for (String procinstId: dto.getProcInstIds()) {
@@ -191,26 +202,78 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null) {
+						Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(procinstId);
+						if (expedient != null)
+							expedientTipus = expedient.getTipus();
+					}
 				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
+			
 			if (expedients) {
-				logger.info(">> EXEC:MASS - Parametres: ");
-				logger.info(">>>>> usuari:  " + execucioMassiva.getUsuari());
-				logger.info(">>>>> rols:    " + (execucioMassiva.getRols() != null ? execucioMassiva.getRols() + " (" + execucioMassiva.getRols().length() + " chars.)" : ""));
-				logger.info(">>>>> entorn:  " + execucioMassiva.getEntorn());
-				logger.info(">>>>> dat_ini: " + execucioMassiva.getDataInici());
-				logger.info(">>>>> dat_fi:  " + execucioMassiva.getDataFi());
-				if (execucioMassiva.getExpedientTipus() != null)
-					logger.info(">>>>> tip_exp: " + execucioMassiva.getExpedientTipus().getCodi());
-				logger.info(">>>>> tipus:   " + execucioMassiva.getTipus());
-				logger.info(">>>>> env_cor: " + (execucioMassiva.getEnviarCorreu() != null ? (execucioMassiva.getEnviarCorreu() ? "SI" : "NO") : "NO"));
-				logger.info(">>>>> param1:  " + execucioMassiva.getParam1());
+				
+				execucioMassiva.setRols(getRols(auth, expedientTipus));
+				
+//				logger.info(">> EXEC:MASS - Parametres: ");
+//				logger.info(">>>>> usuari:  " + execucioMassiva.getUsuari());
+//				logger.info(">>>>> rols:    " + execucioMassiva.getRols());
+//				logger.info(">>>>> entorn:  " + execucioMassiva.getEntorn());
+//				logger.info(">>>>> dat_ini: " + execucioMassiva.getDataInici());
+//				logger.info(">>>>> dat_fi:  " + execucioMassiva.getDataFi());
+//				if (execucioMassiva.getExpedientTipus() != null)
+//					logger.info(">>>>> tip_exp: " + execucioMassiva.getExpedientTipus().getCodi());
+//				logger.info(">>>>> tipus:   " + execucioMassiva.getTipus());
+//				logger.info(">>>>> env_cor: " + (execucioMassiva.getEnviarCorreu() != null ? (execucioMassiva.getEnviarCorreu() ? "SI" : "NO") : "NO"));
+//				logger.info(">>>>> param1:  " + execucioMassiva.getParam1());
 
 				execucioMassivaRepository.save(execucioMassiva);				
 			} else 
 				throw new ValidacioException("S'ha intentat crear una execució massiva sense assignar expedients.");
 		}
+	}
+	
+	private String getRols(Authentication auth, ExpedientTipus expedientTipus) {
+
+		String rols = "";
+		// Rols usuari
+		List<String> rolsUsuari = new ArrayList<String>();
+		if (auth != null && auth.getAuthorities() != null) {
+			for (GrantedAuthority gauth : auth.getAuthorities()) {
+				rolsUsuari.add(gauth.getAuthority());
+			}
+		}
+		// Rols tipus expedient
+		List<String> rolsTipusExpedient = new ArrayList<String>();
+		rolsTipusExpedient.add("ROLE_ADMIN");
+		rolsTipusExpedient.add("ROLE_USER");
+		rolsTipusExpedient.add("ROLE_WS");
+		if (expedientTipus != null) {
+			List<PermisDto> permisos = permisosHelper.findPermisos(
+					expedientTipus.getId(),
+					ExpedientTipus.class);
+			if (permisos != null)
+				for (PermisDto permis: permisos) {
+					if (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()))
+						rolsTipusExpedient.add(permis.getPrincipalNom());
+				}
+		}
+		rolsUsuari.retainAll(rolsTipusExpedient);
+		
+		for (String rol : rolsUsuari) {
+			rols += rol + ",";
+		}
+		if (rols.length() > 0) {
+			rols = rols.substring(0, rols.length() - 1);
+			if (rols.length() > 2000) {
+				rols = rols.substring(0, 2000);
+				rols = rols.substring(0, rols.lastIndexOf(","));
+			}
+		} else {
+			rols = null;
+		}
+			
+		return rols;
 	}
 	
 	@Transactional
@@ -652,8 +715,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			Authentication authentication =  new UsernamePasswordAuthenticationToken (
 					ome.getExecucioMassiva().getAuthenticationPrincipal(),
-//					ome.getExecucioMassiva().getAuthenticationCredentials(),
-					"N/A",
+					"N/A",	//	ome.getExecucioMassiva().getAuthenticationCredentials(),
 					ome.getExecucioMassiva().getAuthenticationRoles());
 			
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
