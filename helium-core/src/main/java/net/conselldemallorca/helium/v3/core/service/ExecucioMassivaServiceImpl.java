@@ -265,6 +265,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		}
 		if (rols.length() > 0) {
 			rols = rols.substring(0, rols.length() - 1);
+			logger.info(">>> EXECUCIÓ MASSIVA - ROLS Reals: " + rols);
 			if (rols.length() > 2000) {
 				rols = rols.substring(0, 2000);
 				rols = rols.substring(0, rols.lastIndexOf(","));
@@ -272,7 +273,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} else {
 			rols = null;
 		}
-			
+		
+		logger.info(">>> EXECUCIÓ MASSIVA - ROLS Finals: " + rols);
 		return rols;
 	}
 	
