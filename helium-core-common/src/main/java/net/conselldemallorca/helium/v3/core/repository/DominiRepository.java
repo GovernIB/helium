@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,5 +43,17 @@ public interface DominiRepository extends JpaRepository<Domini, Long> {
 			"    nom")
 	List<Domini> findAmbExpedientTipus(
 			@Param("expedientTipusId") Long expedientTipusId);
+
+	List<Domini> findByExpedientTipusId(Long expedientTipusId, Pageable springDataPageable);
+
+	@Query(	"from Domini d " +
+			"where " +
+			"   d.expedientTipus.id = :expedientTipusId " +
+			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
+	Page<Domini> findByFiltrePaginat(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);
 
 }

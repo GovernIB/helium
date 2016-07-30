@@ -98,7 +98,7 @@ public class DominiIntern implements DominiHelium {
 //		this.pluginService = pluginService;
 //	}
 	@Autowired
-	public void seDissenyservice(DissenyService dissenyService) {
+	public void setDissenyService(DissenyService dissenyService) {
 		this.dissenyService = dissenyService;
 	}
 

@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
@@ -666,5 +667,75 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean definicioProcesImportar(Long expedientTipusId, Long id, boolean sobreescriure) {
 		return delegate.definicioProcesImportar(expedientTipusId, id, sobreescriure);
+	}
+
+	@Override
+	public List<DominiDto> dominiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.dominiFindAll(expedientTipusId, paginacioParams);
+	}
+
+	@Override
+	public DominiDto dominiFindAmbId(Long dominiId) {
+		return delegate.dominiFindAmbId(dominiId);
+	}
+
+	@Override
+	public DominiDto dominiCreate(Long expedientTipusId, DominiDto termini) {
+		return delegate.dominiCreate(expedientTipusId, termini);
+	}
+
+	@Override
+	public DominiDto dominiUpdate(DominiDto domini) {
+		return delegate.dominiUpdate(domini);
+	}
+
+	@Override
+	public PaginaDto<DominiDto> dominiFindPerDatatable(Long expedientTipusId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.dominiFindPerDatatable(expedientTipusId, filtre, paginacioParams);
+	}
+
+	@Override
+	public void dominiDelete(Long dominiId) throws NoTrobatException, PermisDenegatException {
+		delegate.dominiDelete(dominiId);
+	}
+
+	@Override
+	public List<EstatDto> estatFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.estatFindAll(expedientTipusId, paginacioParams);
+	}
+
+	@Override
+	public EstatDto estatFindAmbId(Long estatId) {
+		return delegate.estatFindAmbId(estatId);
+	}
+
+	@Override
+	public EstatDto estatCreate(Long expedientTipusId, EstatDto estat) {
+		return delegate.estatCreate(expedientTipusId, estat);
+	}
+
+	@Override
+	public EstatDto estatUpdate(EstatDto estat) {
+		return delegate.estatUpdate(estat);
+	}
+
+	@Override
+	public PaginaDto<EstatDto> estatFindPerDatatable(Long expedientTipusId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.estatFindPerDatatable(expedientTipusId, filtre, paginacioParams);
+	}
+
+	@Override
+	public void estatDelete(Long estatId) throws NoTrobatException, PermisDenegatException {
+		delegate.estatDelete(estatId);
+		
+	}
+
+	@Override
+	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException {
+		return delegate.estatMoure(estatId, posicio);
 	}
 }

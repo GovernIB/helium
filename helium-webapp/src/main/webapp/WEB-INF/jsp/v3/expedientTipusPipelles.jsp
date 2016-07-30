@@ -217,7 +217,7 @@
 				<div id="contingut-informacio" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/informacio"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-estats" class="tab-pane">
+				<div id="contingut-estats" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/estats"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-variables" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/variables"/>">
@@ -244,7 +244,7 @@
 				<div id="contingut-accions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/accions"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-dominis" class="tab-pane">
+				<div id="contingut-dominis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/dominis"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-consultes" class="tab-pane">

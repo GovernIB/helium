@@ -39,13 +39,17 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
-import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -55,6 +59,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
@@ -62,8 +67,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValo
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -79,6 +84,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -121,6 +127,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
+	@Resource
+	private EstatRepository estatRepository;
 	
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
@@ -2130,6 +2138,328 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				TerminiDto.class);		
 		return pagina;		
 	}
+	
+	/***********************************************/
+	/******************DOMINIS**********************/
+	/***********************************************/
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<DominiDto> dominiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		// Recupera el tipus d'expedient
+//		ExpedientTipus expedientTipus =	
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		List<Domini> dominis = null;
+		// Recupera la informació dels terminis de l'expedient
+		dominis = dominiRepository.findByExpedientTipusId(
+				expedientTipusId, 
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		return conversioTipusHelper.convertirList(
+				dominis, 
+				DominiDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public DominiDto dominiFindAmbId(Long dominiId) {
+		Domini domini = dominiRepository.findOne(dominiId);
+		if (domini == null) {
+			throw new NoTrobatException(Domini.class, dominiId);
+		}
+		return conversioTipusHelper.convertir(
+				domini, 
+				DominiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public DominiDto dominiCreate(Long expedientTipusId, DominiDto dto) {
+		ExpedientTipus expedientTipus =	
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true,
+						false,
+						false,
+						false,
+						true);
+		
+		Domini domini = new Domini();
+		domini.setCodi(dto.getCodi());
+		domini.setNom(dto.getNom());
+		domini.setDescripcio(dto.getDescripcio());
+		if (dto.getTipus() != null)
+			domini.setTipus(TipusDomini.valueOf(dto.getTipus().name()));
+		domini.setUrl(dto.getUrl());
+		if (dto.getTipusAuth() != null)
+			domini.setTipusAuth(TipusAuthDomini.valueOf(dto.getTipusAuth().name()));
+		if (dto.getOrigenCredencials() != null)
+			domini.setOrigenCredencials(OrigenCredencials.valueOf(dto.getOrigenCredencials().name()));
+		domini.setUsuari(dto.getUsuari());
+		domini.setContrasenya(dto.getContrasenya());
+		domini.setSql(dto.getSql());
+		domini.setJndiDatasource(dto.getJndiDatasource());
+		domini.setCacheSegons(dto.getCacheSegons());
+		domini.setTimeout(dto.getTimeout());
+		domini.setOrdreParams(dto.getOrdreParams());
+		domini.setEntorn(expedientTipus.getEntorn());
+		domini.setExpedientTipus(expedientTipus);
+		return conversioTipusHelper.convertir(
+				dominiRepository.save(domini),
+				DominiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public DominiDto dominiUpdate(DominiDto dto) {
+		Domini domini = dominiRepository.findOne(dto.getId());
+		if (domini == null) {
+			throw new NoTrobatException(Domini.class, dto.getId());
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				domini.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				false,
+				true);
+		
+		domini.setCodi(dto.getCodi());
+		domini.setNom(dto.getNom());
+		domini.setDescripcio(dto.getDescripcio());
+		if (dto.getTipus() != null)
+			domini.setTipus(TipusDomini.valueOf(dto.getTipus().name()));
+		domini.setUrl(dto.getUrl());
+		if (dto.getTipusAuth() != null)
+			domini.setTipusAuth(TipusAuthDomini.valueOf(dto.getTipusAuth().name()));
+		if (dto.getOrigenCredencials() != null)
+			domini.setOrigenCredencials(OrigenCredencials.valueOf(dto.getOrigenCredencials().name()));
+		domini.setUsuari(dto.getUsuari());
+		domini.setContrasenya(dto.getContrasenya());
+		domini.setSql(dto.getSql());
+		domini.setJndiDatasource(dto.getJndiDatasource());
+		domini.setCacheSegons(dto.getCacheSegons());
+		domini.setTimeout(dto.getTimeout());
+		domini.setOrdreParams(dto.getOrdreParams());
+		
+		return conversioTipusHelper.convertir(
+				dominiRepository.save(domini),
+				DominiDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void dominiDelete(Long dominiId) throws NoTrobatException, PermisDenegatException {
+		Domini domini = dominiRepository.findOne(dominiId);
+		if (domini == null) {
+			throw new NoTrobatException(Domini.class, dominiId);
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				domini.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				false,
+				true);
+		
+		dominiRepository.delete(domini);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<DominiDto> dominiFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els dominis per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<DominiDto> pagina = paginacioHelper.toPaginaDto(
+				dominiRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				DominiDto.class);		
+		return pagina;		
+	}
+	
+	/***********************************************/
+	/*******************ESTATS**********************/
+	/***********************************************/
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatDto> estatFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		// Recupera el tipus d'expedient
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				expedientTipusId, 
+				true);
+		List<Estat> estats = null;
+		// Recupera la informació dels terminis de l'expedient
+		estats = estatRepository.findByExpedientTipusId(
+				expedientTipusId, 
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		return conversioTipusHelper.convertirList(
+				estats, 
+				EstatDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public EstatDto estatFindAmbId(Long estatId) {
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		return conversioTipusHelper.convertir(
+				estat, 
+				EstatDto.class);
+	}
+
+	@Override
+	@Transactional
+	public EstatDto estatCreate(Long expedientTipusId, EstatDto dto) {
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				expedientTipusId, 
+				true,
+				false,
+				false,
+				false,
+				true);
+		Estat estat = new Estat();
+		estat.setExpedientTipus(expedientTipus);
+		estat.setCodi(dto.getCodi());
+		estat.setNom(dto.getNom());
+		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId); 
+		estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
+		return conversioTipusHelper.convertir(
+				estatRepository.save(estat),
+				EstatDto.class);
+	}
+
+	@Override
+	@Transactional
+	public EstatDto estatUpdate(EstatDto dto) {
+		Estat estat = estatRepository.findOne(dto.getId());
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, dto.getId());
+		}
+		
+		expedientTipusHelper.getExpedientTipusComprovantPermisos(
+				estat.getExpedientTipus().getId(), 
+				true,
+				false,
+				false,
+				false,
+				true);
+		
+		estat.setCodi(dto.getCodi());
+		estat.setNom(dto.getNom());
+		
+		return conversioTipusHelper.convertir(
+				estatRepository.save(estat),
+				EstatDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void estatDelete(Long estatId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		
+		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						estat.getExpedientTipus().getId(), 
+						true,
+						false,
+						false,
+						false,
+						true));
+		int i = 0;
+		for (Estat e: estats) {
+			if (estatId.equals(e.getId())) {
+				estatRepository.delete(e);	
+			} else {
+				e.setOrdre(i++);
+			}		
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<EstatDto> estatFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els estats per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<EstatDto> pagina = paginacioHelper.toPaginaDto(
+				estatRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				EstatDto.class);		
+		return pagina;		
+	}
+	
+	@Override
+	@Transactional
+	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException {
+		logger.debug(
+				"Moguent l'estat (" +
+				"estatId=" + estatId + ", " +
+				"posicio=" + posicio + ")");
+		boolean ret = false;
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		
+		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						estat.getExpedientTipus().getId(), 
+						true,
+						false,
+						false,
+						false,
+						true));
+		if(posicio != estats.indexOf(estat)) {
+			estats.remove(estat);
+			estats.add(posicio, estat);
+			int i = 0;
+			for (Estat e : estats) {
+				e.setOrdre(i++);
+				estatRepository.save(e);
+			}
+		}
+		return ret;
+	}
+	
+	
+	
+	
 	
 	@Override
 	@Transactional

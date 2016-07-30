@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
@@ -17,8 +18,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValo
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
@@ -964,7 +965,6 @@ public interface ExpedientTipusService {
 	 * @param expedientTipusId	Atribut id del tipus d'expedient.
 	 * @param termini	La informació del camp a crear.
 	 * @return el termini creat.
-	 * @throws CampDenegatException Si no es tenen els permisos necessaris.
 	 */
 	public TerminiDto terminiCreate(Long expedientTipusId, TerminiDto termini);
 	
@@ -1006,5 +1006,167 @@ public interface ExpedientTipusService {
 	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
 	 */
 	public void terminiDelete(Long terminiId) throws NoTrobatException, PermisDenegatException;
+
+	/***********************************************/
+	/*******************DOMINIS*********************/
+	/***********************************************/
+	
+	/**
+	 * Retorna els dominis per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	List<DominiDto> dominiFindAll(
+			Long expedientTipusId, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+	
+	/** 
+	 * Retorna el domini del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param terminiId
+	 * 
+	 * @return El domini del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public DominiDto dominiFindAmbId(Long dominiId);
+
+	/**
+	 * Crea un nou domini.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param expedientTipusId	Atribut id del tipus d'expedient.
+	 * @param domini	La informació del domini a crear.
+	 * @return el domini creat.
+	 */
+	public DominiDto dominiCreate(Long expedientTipusId, DominiDto termini);
+	
+	/**
+	 * Modificació d'un termini existent.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param expedientTipusId	Atribut id del tipus d'expedient.
+	 * @param trmini	La informació del termini a modificar.
+	 * @return el termini modificat.
+	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 */
+	public DominiDto dominiUpdate(DominiDto domini);
+	
+	/** 
+	 * Retorna la llista de dominis del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<DominiDto> dominiFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;		
+	/**
+	 * Esborra un domini.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param dominiId	Atribut id del domini.
+	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 */
+	public void dominiDelete(Long dominiId) throws NoTrobatException, PermisDenegatException;
+	
+	/***********************************************/
+	/********************ESTATS*********************/
+	/***********************************************/
+	
+	/**
+	 * Retorna els estats per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 * @throws NoTrobatException
+	 * @throws PermisDenegatException
+	 */
+	public List<EstatDto> estatFindAll(
+			Long expedientTipusId,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+
+	/** 
+	 * Retorna el estat del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param estatId
+	 * 
+	 * @return El estat del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public EstatDto estatFindAmbId(Long estatId);
+
+	/**
+	 * Crea un nou estat.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param expedientTipusId	Atribut id del tipus d'expedient.
+	 * @param estat	La informació del camp a crear.
+	 * @return el estat creat.
+	 * @throws CampDenegatException Si no es tenen els permisos necessaris.
+	 */
+	public EstatDto estatCreate(Long expedientTipusId, EstatDto estat);
+	
+	/**
+	 * Modificació d'un estat existent.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param expedientTipusId	Atribut id del tipus d'expedient.
+	 * @param trmini	La informació del estat a modificar.
+	 * @return el estat modificat.
+	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 */
+	public EstatDto estatUpdate(EstatDto estat);
+	
+	/** 
+	 * Retorna la llista de estats del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<EstatDto> estatFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;		
+	/**
+	 * Esborra un estat.
+	 * 
+	 * @param entornId	Atribut id de l'entorn.
+	 * @param estatId	Atribut id del estat.
+	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 */
+	public void estatDelete(Long estatId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Canvia un estat de posició
+	 * @param estatId	Identificador de l'estat a moure
+	 * @param posicio	Posició on situar l'estat
+	 * @return
+	 * @throws NoTrobatException	Si no es troba l'estat
+	 */
+	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException;
 
 }
