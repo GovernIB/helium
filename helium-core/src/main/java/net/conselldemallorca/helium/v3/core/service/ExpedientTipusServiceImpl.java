@@ -2265,6 +2265,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				false,
 				true);
 		
+		if (domini.getExpedientTipus() != null) {
+			domini.getExpedientTipus().removeDomini(domini);
+		}
+		if (domini.getCamps() != null) {
+			for (Camp camp : domini.getCamps()) {
+				camp.removeDomini(domini);
+			}
+		}
+		
 		dominiRepository.delete(domini);
 	}
 	

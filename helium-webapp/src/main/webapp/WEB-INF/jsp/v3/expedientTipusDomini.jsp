@@ -31,7 +31,6 @@
 					<th data-col-name="nom"><spring:message code="comuns.nom"/></th>
 					<th data-col-name="tipus" data-template="#cellTipusDomTemplate" data-orderable="false"><spring:message code="comuns.tipus"/>
 						<script id="cellTipusDomTemplate" type="text/x-jsrender">
-							{{:tipus}}
 							{{if tipus == 'CONSULTA_SQL'}}
 								<spring:message code="expedient.tipus.domini.tipus.sql"/>
 							{{else}}

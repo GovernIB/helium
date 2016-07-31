@@ -3,13 +3,19 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,9 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.OrigenCredencials;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusDomini;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDominiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -39,6 +49,34 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+	
+	@ModelAttribute("tipusDominis")
+	public List<ParellaCodiValorDto> populateTipusDominis() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (TipusDomini tipus: TipusDomini.values()) {
+			resposta.add(new ParellaCodiValorDto(tipus.name(), "expedient.tipus.domini.tipus." + tipus.name()));
+		}
+		
+		return resposta;
+	}
+	
+	@ModelAttribute("tipusAutenticacio")
+	public List<ParellaCodiValorDto> populateTipusAutenticacio() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (TipusAuthDomini tipus: TipusAuthDomini.values()) {
+			resposta.add(new ParellaCodiValorDto(tipus.name(), "expedient.tipus.domini.tipus.auth." + tipus.name()));
+		}
+		return resposta;
+	}
+	
+	@ModelAttribute("credencialsOrigen")
+	public List<ParellaCodiValorDto> populateOrigenCredencials() {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		for (OrigenCredencials tipus: OrigenCredencials.values()) {
+			resposta.add(new ParellaCodiValorDto(tipus.name(), "expedient.tipus.domini.origen." + tipus.name()));
+		}
+		return resposta;
+	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/dominis")
 	public String documents(
@@ -156,7 +194,7 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
         }
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/dominin/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientTipusId}/domini/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean borrar(
 			HttpServletRequest request,
@@ -173,10 +211,13 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 							"expedient.tipus.domini.controller.eliminat"));
 			return true;
 		} catch (Exception e) {
+			logger.error("No s'ha pogut eliminar el nomini", e);
 			MissatgesHelper.error(
 					request, 
-					getMessage(request, "expedient.tipus.domini.controller.eliminat"));
+					getMessage(request, "expedient.tipus.domini.controller.eliminat.no"));
 			return false;
 		}
 	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientTipusDominiController.class);
 }

@@ -1,9 +1,9 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.OrigenCredencials;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto.TipusAuthDomini;
@@ -16,10 +16,10 @@ public class ExpedientTipusDominiCommand {
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
 	private String codi;
-	@NotEmpty
+	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
-	@NotNull
+	@NotNull(groups = {Creacio.class, Modificacio.class})
 	private TipusDomini tipus;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String descripcio;
@@ -35,7 +35,8 @@ public class ExpedientTipusDominiCommand {
 	private String sql;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jndiDatasource;
-	private int cacheSegons = 0;
+	@NotNull(groups = {Creacio.class, Modificacio.class})
+	private Integer cacheSegons = 0;
 	private Integer timeout = 0;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String ordreParams;
