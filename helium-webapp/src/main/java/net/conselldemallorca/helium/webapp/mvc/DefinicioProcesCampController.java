@@ -214,11 +214,11 @@ public class DefinicioProcesCampController extends BaseController {
 		if (entorn != null) {
 			DefinicioProcesDto definicioProcesDto = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
 			if (potDissenyarDefinicioProces(entorn, definicioProcesDto)) {
-				model.addAttribute("definicioProces", definicioProcesDto);
 				if ("submit".equals(submit) || submit.length() == 0) {
 					annotationValidator.validate(command, result);
 					additionalValidator.validate(command, result);
 			        if (result.hasErrors()) {
+						model.addAttribute("definicioProces", definicioProcesDto);
 			        	return "definicioProces/campForm";
 			        }
 			        try {
@@ -229,6 +229,7 @@ public class DefinicioProcesCampController extends BaseController {
 			        	missatgeInfo(request, getMessage("info.camp.guardat") );
 			        	status.setComplete();
 			        } catch (Exception ex) {
+						model.addAttribute("definicioProces", definicioProcesDto);
 			        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
 			        	logger.error("No s'ha pogut guardar el registre", ex);
 			        	return "definicioProces/campForm";
