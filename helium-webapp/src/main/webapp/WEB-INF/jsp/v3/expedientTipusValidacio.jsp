@@ -68,8 +68,8 @@
 					<th data-col-name="expressio"><spring:message code="expedient.tipus.campValidacio.llistat.columna.expressio"/></th>
 					<th data-col-name="missatge"><spring:message code="expedient.tipus.campValidacio.llistat.columna.missatge"/></th>
 					<th data-col-name="ordre"><spring:message code="expedient.tipus.campValidacio.llistat.columna.ordre"/></th>
-					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
-						<script id="cellAccionsTemplate" type="text/x-jsrender">
+					<th data-col-name="id" data-template="#cellValidacioTemplate" data-orderable="false" width="10%">
+						<script id="cellValidacioTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">

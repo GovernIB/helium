@@ -14,7 +14,7 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
-		
+
 		<table	id="expedientEnumeracio"
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/enumeracio/datatable"
@@ -22,7 +22,7 @@
 				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="2"
-				data-botons-template="#tableButtonsEnumeracionsTemplate"
+				data-botons-template="#tableButtonsEnumeracioTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -30,8 +30,8 @@
 					<th data-col-name="numValors" data-visible="false"/>
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.enumeracio.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.enumeracio.llistat.columna.titol"/></th>
-					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
-						<script id="cellAccionsTemplate" type="text/x-jsrender">
+					<th data-col-name="id" data-template="#cellEnumTemplate" data-orderable="false" width="10%">
+						<script id="cellEnumTemplate" type="text/x-jsrender">
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
@@ -45,11 +45,12 @@
 				</tr>
 			</thead>
 		</table>
-		<script id="tableButtonsEnumeracionsTemplate" type="text/x-jsrender">
+		<script id="tableButtonsEnumeracioTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nova_enumeracio" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-callback="callbackModalEnumerats()" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-callback="callbackModalEnumerats()" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
 			</div>
 		</script>
+		
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>
