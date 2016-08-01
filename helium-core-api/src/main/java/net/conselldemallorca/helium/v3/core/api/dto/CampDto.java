@@ -60,6 +60,8 @@ public class CampDto implements Serializable {
 	/** Per mostrar el número de validacions a la taula de variables. */
 	private int validacioCount = 0;
 
+	/** Per mostrar el número de membres de les variables de tipus registre la taula de variables. */
+	private int campRegistreCount = 0;
 	
 	public Long getId() {
 		return id;
@@ -302,6 +304,12 @@ public class CampDto implements Serializable {
 	}
 	public void setValidacioCount(int validacioCount) {
 		this.validacioCount = validacioCount;
+	}
+	public int getCampRegistreCount() {
+		return campRegistreCount;
+	}
+	public void setCampRegistreCount(int campRegistreCount) {
+		this.campRegistreCount = campRegistreCount;
 	}
 	public Integer getOrdre() {
 		return ordre;

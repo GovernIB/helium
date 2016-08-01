@@ -362,7 +362,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		getValidacions().remove(validacio);
 	}
 
-	@OneToMany(mappedBy="membre", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="membre")
 	public Set<CampRegistre> getRegistrePares() {
 		return this.registrePares;
 	}

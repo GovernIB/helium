@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -333,6 +334,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.campFindTipusDataPerExpedientTipus(expedientTipusId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long expedientTipusId) {
+		return delegate.campFindAllOrdenatsPerCodi(expedientTipusId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -523,6 +529,51 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean validacioMourePosicio(Long id, int posicio) {
 		return delegate.validacioMourePosicio(id, posicio);
+	}
+	
+	/// CampsRegistre
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampRegistreDto campRegistreCreate(Long campId, CampRegistreDto campRegistre) throws PermisDenegatException {
+		return delegate.campRegistreCreate(campId, campRegistre);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampRegistreDto campRegistreUpdate(CampRegistreDto campRegistre) throws NoTrobatException, PermisDenegatException {
+		return delegate.campRegistreUpdate(campRegistre);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void campRegistreDelete(Long id) throws NoTrobatException, PermisDenegatException {
+		delegate.campRegistreDelete(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampRegistreDto campRegistreFindAmbId(Long id) throws NoTrobatException {
+		return delegate.campRegistreFindAmbId(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> campRegistreFindMembresAmbRegistreId(Long registreId) {
+		return delegate.campRegistreFindMembresAmbRegistreId(registreId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<CampRegistreDto> campRegistreFindPerDatatable(Long campId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.campRegistreFindPerDatatable(campId, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean campRegistreMourePosicio(Long id, int posicio) {
+		return delegate.campRegistreMourePosicio(id, posicio);
 	}
 	
 	@Override

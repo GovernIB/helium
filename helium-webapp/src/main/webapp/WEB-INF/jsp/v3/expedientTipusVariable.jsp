@@ -68,6 +68,13 @@
 						<a href="${expedientTipus.id}/variable/{{:id}}/validacio" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
 					</script>
 					</th>
+					<th data-col-name="campRegistreCount" data-template="#cellMembresTemplate" data-orderable="false" width="13%">
+						<script id="cellMembresTemplate" type="text/x-jsrender">
+						{{if tipus == "REGISTRE" }}
+							<a href="${expedientTipus.id}/variable/{{:id}}/campRegistre" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.campsRegistre"/>&nbsp;<span class="badge">{{:campRegistreCount}}</span></a>
+						{{/if}}
+					</script>
+					</th>
 					<th data-col-name="id" data-template="#cellAccionsVariableTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsVariableTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -94,7 +101,7 @@
 		</table>
 		<script id="tableButtonsVariableTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-callback="callbackModalVariables()" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
 			</div>
 		</script>
 	</c:when>

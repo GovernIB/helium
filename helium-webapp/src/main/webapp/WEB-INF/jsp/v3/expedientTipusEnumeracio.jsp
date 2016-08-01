@@ -14,25 +14,15 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
-
-		<div class="botons-titol text-right">
-			<a	id="nou_camp" class="btn btn-default" 
-				href="${expedientTipus.id}/enumeracio/new" 
-				data-toggle="modal" 
-				data-callback="callbackModalEnumerats()"
-				data-datatable-id="expedientEnumeracio">
-					<span class="fa fa-plus"></span>&nbsp;
-					<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/>
-			</a>
-		</div>
 		
 		<table	id="expedientEnumeracio"
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/enumeracio/datatable"
 				data-paging-enabled="true"
-				data-info-type="search"
+				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="2"
+				data-botons-template="#tableButtonsEnumeracionsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -55,8 +45,11 @@
 				</tr>
 			</thead>
 		</table>
-
-		
+		<script id="tableButtonsEnumeracionsTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a id="nova_enumeracio" class="btn btn-default" href="${expedientTipus.id}/enumeracio/new" data-toggle="modal" data-callback="callbackModalEnumerats()" data-datatable-id="expedientEnumeracio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.enumeracio.llistat.accio.nova"/></a>
+			</div>
+		</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>

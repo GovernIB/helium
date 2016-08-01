@@ -33,7 +33,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -44,13 +43,15 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
-import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -62,8 +63,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValo
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -824,16 +825,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Camp entity = campRepository.findOne(campCampId);
 
 		if (entity != null) {
-			for (CampTasca campTasca: entity.getCampsTasca()) {
-				campTasca.getTasca().removeCamp(campTasca);
-				int i = 0;
-				for (CampTasca ct: campTasca.getTasca().getCamps())
-					ct.setOrder(i++);
+			for (CampRegistre campRegistre : entity.getRegistrePares()) {
+				campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
+				campRegistreRepository.delete(campRegistre);	
+				campRegistreRepository.flush();
+				reordenarCampsRegistre(campRegistre.getRegistre().getId());						
 			}
-			if (entity.getAgrupacio() != null)
+			campRepository.delete(entity);	
+			campRepository.flush();
+			if (entity.getAgrupacio() != null) {
 				reordenarCamps(entity.getAgrupacio().getId());
+			}
 		}
-		campRepository.delete(entity);	
 	}
 
 	/** Funció per reasignar el valor d'ordre dins d'una agrupació de variables. */
@@ -902,8 +905,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 				CampDto.class);
 		
-		// Omple els comptador de validacions 
+		// Omple els comptador de validacions i de membres
 		List<Object[]> countValidacions = campRepository.countValidacions(
+				expedientTipusId,
+				agrupacioId == null,
+				agrupacioId); 
+		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
 				agrupacioId == null,
 				agrupacioId); 
@@ -913,7 +920,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				if (campId.equals(dto.getId())) {
 					Integer count = (Integer)reg[1];
 					dto.setValidacioCount(count.intValue());
+					countValidacions.remove(reg);
 					break;
+				}
+			}
+			if (dto.getTipus() == CampTipusDto.REGISTRE) {
+				for (Object[] reg: countMembres) {
+					Long campId = (Long)reg[0];
+					if (campId.equals(dto.getId())) {
+						Integer count = (Integer)reg[1];
+						dto.setCampRegistreCount(count.intValue());
+						countMembres.remove(reg);
+						break;
+					}
 				}
 			}
 		}		
@@ -956,6 +975,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						true);
 		
 		List<Camp> camps = campRepository.findByExpedientTipusAndTipus(expedientTipus, TipusCamp.DATE);
+		
+		return conversioTipusHelper.convertirList(
+				camps, 
+				CampDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long expedientTipusId) {
+		logger.debug(
+				"Consultant tots els camps del tipus expedient per al desplegable " +
+				" de camps del registre (expedientTipusId=" + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = 
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		
+		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
 		
 		return conversioTipusHelper.convertirList(
 				camps, 
@@ -1296,6 +1334,164 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				ValidacioDto.class);		
+	}	
+	
+	// MANTENIMENT  DE CAMPS DE LES VARIABLES DE TIPUS REGISTRE DEL TIPUS D'EXPEDIENT
+	
+	@Override
+	@Transactional
+	public CampRegistreDto campRegistreCreate(
+			Long campId, 
+			CampRegistreDto campRegistre) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nou campRegistre per un camp de tipus d'expedient (" +
+				"campId =" + campId + ", " +
+				"campRegistre=" + campRegistre + ")");
+
+		CampRegistre entity = new CampRegistre();
+		entity.setRegistre(campRepository.findOne(campId));
+		entity.setMembre(campRepository.findOne(campRegistre.getMembreId()));
+		entity.setObligatori(campRegistre.isObligatori());
+		entity.setLlistar(campRegistre.isLlistar());
+		entity.setOrdre(campRegistreRepository.getNextOrdre(campId));
+		
+		return conversioTipusHelper.convertir(
+				campRegistreRepository.save(entity),
+				CampRegistreDto.class);
+	}
+
+	@Override
+	@Transactional
+	public CampRegistreDto campRegistreUpdate(CampRegistreDto campRegistre) 
+						throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant el campRegistre del camp del tipus d'expedient existent (" +
+				"campRegistre.id=" + campRegistre.getId() + ", " +
+				"campRegistre =" + campRegistre + ")");
+		
+		CampRegistre entity = campRegistreRepository.findOne(campRegistre.getId());
+
+		entity.setRegistre(campRepository.findOne(campRegistre.getRegistreId()));
+		entity.setMembre(campRepository.findOne(campRegistre.getMembreId()));
+		entity.setObligatori(campRegistre.isObligatori());
+		entity.setLlistar(campRegistre.isLlistar());
+		
+		return conversioTipusHelper.convertir(
+				campRegistreRepository.save(entity),
+				CampRegistreDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void campRegistreDelete(Long campRegistreId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant la campRegistre del tipus d'expedient (" +
+				"campRegistreId=" + campRegistreId +  ")");
+		
+		CampRegistre campRegistre = campRegistreRepository.findOne(campRegistreId);
+		campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
+		campRegistreRepository.delete(campRegistre);	
+		campRegistreRepository.flush();
+		
+		reordenarCampsRegistre(campRegistre.getRegistre().getId());
+	}
+
+	/** Funció per reasignar el valor d'ordre dins dels camps d'una variable de tipus registre. */
+	private void reordenarCampsRegistre(Long campId) {
+		List<CampRegistre> campRegistres = campRegistreRepository.findAmbCampOrdenats(campId);		
+		int i=-1;
+		for (CampRegistre c : campRegistres) {
+			c.setOrdre(i);
+			campRegistreRepository.saveAndFlush(c);
+			i--;
+		}
+		i = 0;
+		for (CampRegistre c : campRegistres) {
+			c.setOrdre(i);
+			campRegistreRepository.saveAndFlush(c);
+			i++;
+		}
+	}
+
+	@Override
+	@Transactional
+	public boolean campRegistreMourePosicio(
+			Long id, 
+			int posicio) {
+		
+		boolean ret = false;
+		CampRegistre campRegistre = campRegistreRepository.findOne(id);
+		if (campRegistre != null) {
+			List<CampRegistre> campsRegistre = campRegistreRepository.findAmbCampOrdenats(campRegistre.getRegistre().getId());
+			int index = campsRegistre.indexOf(campRegistre);
+			if(posicio != index) {	
+				campRegistre = campsRegistre.get(index);
+				campsRegistre.remove(campRegistre);
+				campsRegistre.add(posicio, campRegistre);
+				int i=-1;
+				for (CampRegistre c : campsRegistre) {
+					c.setOrdre(i);
+					campRegistreRepository.saveAndFlush(c);
+					i--;
+				}
+				i = 0;
+				for (CampRegistre c : campsRegistre) {
+					c.setOrdre(i);
+					campRegistreRepository.saveAndFlush(c);
+					i++;
+				}
+			}
+		}
+		return ret;				
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public CampRegistreDto campRegistreFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant la campRegistre del camp del tipus d'expedient amb id (" +
+				"campRegistreId=" + id +  ")");
+
+		return conversioTipusHelper.convertir(
+				campRegistreRepository.findOne(id),
+				CampRegistreDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> campRegistreFindMembresAmbRegistreId(Long registreId) {
+		logger.debug(
+				"Consultant els membres del registre(" +
+				"registreId=" + registreId +  ")");
+		return conversioTipusHelper.convertirList(
+				campRegistreRepository.findMembresAmbRegistreId(registreId),
+				CampDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<CampRegistreDto> campRegistreFindPerDatatable(
+			Long campId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els campRegistres per un camp registre del tipus d'expedient per datatable (" +
+				"entornId=" + campId + ", " +
+				"filtre=" + filtre + ")");
+						
+		Map<String, String> mapeigPropietatsOrdenacio = new HashMap<String, String>();
+		mapeigPropietatsOrdenacio.put("membreCodi", "membre.codi");
+		mapeigPropietatsOrdenacio.put("membreEtiqueta", "membre.etiqueta");
+		mapeigPropietatsOrdenacio.put("membreTipus", "membre.tipus");
+		
+		return paginacioHelper.toPaginaDto(
+				campRegistreRepository.findByFiltrePaginat(
+						campId, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams,
+								mapeigPropietatsOrdenacio)),
+				CampRegistreDto.class);		
 	}	
 	
 	// MANTENIMENT D'ENUMERACIONS

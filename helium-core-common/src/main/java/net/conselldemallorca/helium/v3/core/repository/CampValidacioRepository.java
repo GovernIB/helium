@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 
 /**
@@ -27,7 +26,7 @@ public interface CampValidacioRepository extends JpaRepository<Validacio, Long> 
 			"	and (:esNullFiltre = true " +
 			"			or lower(v.expressio) like lower('%'||:filtre||'%') " +
 			"			or lower(v.missatge) like lower('%'||:filtre||'%')) ")
-	Page<ExpedientTipus> findByFiltrePaginat(
+	Page<Validacio> findByFiltrePaginat(
 			@Param("campId") Long campId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		

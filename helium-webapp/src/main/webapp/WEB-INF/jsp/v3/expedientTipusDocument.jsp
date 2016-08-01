@@ -14,16 +14,14 @@
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
-		<div class="botons-titol text-right">
-			<a id="nou_doc" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
-		</div>
 		<table	id="expedientTipusDocument"
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/document/datatable"
 				data-paging-enabled="true"
-				data-info-type="search"
+				data-info-type="search+button"
 				data-ordering="true"
 				data-default-order="1"
+				data-botons-template="#tableButtonsDocumentsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
@@ -59,8 +57,11 @@
 				</tr>
 			</thead>
 		</table>
-
-		
+		<script id="tableButtonsDocumentsTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a id="nou_document" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()()" data-datatable-id="expedientTipusDocument"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
+			</div>
+		</script>		
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>

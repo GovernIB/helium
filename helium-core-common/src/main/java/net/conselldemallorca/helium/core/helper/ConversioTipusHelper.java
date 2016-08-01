@@ -19,6 +19,7 @@ import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
@@ -30,6 +31,7 @@ import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -278,6 +280,23 @@ public class ConversioTipusHelper {
 						target.setId(source.getId());
 						target.setCodi(source.getCodi());
 						target.setNom(source.getNom());
+						return target;
+					}
+		});		
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<CampRegistre, CampRegistreDto>() {
+					@Override
+					public CampRegistreDto convert(CampRegistre source, Type<? extends CampRegistreDto> destinationClass) {
+						CampRegistreDto target = new CampRegistreDto();
+						target.setId(source.getId());
+						target.setMembreId(source.getMembre().getId());
+						target.setMembreCodi(source.getMembre().getCodi());
+						target.setMembreEtiqueta(source.getMembre().getEtiqueta());
+						target.setMembreTipus(  
+								CampTipusDto.valueOf(source.getMembre().getTipus().toString()));
+						target.setOrdre(source.getOrdre());
+						target.setObligatori(source.isObligatori());
+						target.setLlistar(source.isLlistar());
 						return target;
 					}
 		});		

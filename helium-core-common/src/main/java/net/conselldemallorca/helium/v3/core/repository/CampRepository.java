@@ -60,8 +60,11 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	List<Camp> findByExpedientTipusAndTipus(
 			ExpedientTipus expedientTipus,
 			TipusCamp estat);
-
-	/** Compta el número d'arxius per a cada meta-expedient de la entitat. */
+	
+	List<Camp> findByExpedientTipusOrderByCodiAsc(
+			ExpedientTipus expedientTipus);
+	
+	/** Compta el número de validacions per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
 			"    id, " +
 			"    size(validacions) " +
@@ -76,4 +79,19 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
 			@Param("agrupacioId") Long agrupacioId);
 
+	/** Compta el número de registres per a cada camp passat per la llista d'identificadors. */
+	@Query(	"select " +
+			"    id, " +
+			"    size(registreMembres) " +
+			"from " +
+			"   Camp c " +
+			"where " +
+			"   c.expedientTipus.id = :expedientTipusId " +
+			"   and c.tipus = net.conselldemallorca.helium.core.model.hibernate.Camp$TipusCamp.REGISTRE " +
+			"	and ((:esNullAgrupacioId = true and c.agrupacio.id = null) or (:esNullAgrupacioId = false and c.agrupacio.id = :agrupacioId)) " +
+			"group by id ")
+	List<Object[]> countMembres(
+			@Param("expedientTipusId") Long expedientTipusId, 
+			@Param("esNullAgrupacioId") boolean esNullAgrupacioId, 
+			@Param("agrupacioId") Long agrupacioId);
 }
