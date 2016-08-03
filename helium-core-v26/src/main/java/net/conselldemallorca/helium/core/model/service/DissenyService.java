@@ -1435,7 +1435,8 @@ public class DissenyService {
 			dtoExp.setJndiDatasource(domini.getJndiDatasource());
 			dtoExp.setSql(domini.getSql());
 			dtoExp.setCacheSegons(domini.getCacheSegons());
-			dtoExp.setTimeout(domini.getTimeout().intValue());
+			if (domini.getTimeout() != null)
+				dtoExp.setTimeout(domini.getTimeout().intValue());
 			dominisExp.add(dtoExp);
 		}
 		dto.setDominis(dominisExp); 
