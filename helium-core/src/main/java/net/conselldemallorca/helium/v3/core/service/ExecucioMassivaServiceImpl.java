@@ -990,8 +990,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				// Proces principal
 				Long definicioProcesId = (Long)param2[0];
 				Long expedientProcesInstanceId = Long.parseLong(exp.getProcessInstanceId());
+				InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(exp.getProcessInstanceId());
 				DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
-				expedientService.procesDefinicioProcesActualitzar(exp.getProcessInstanceId(), definicioProces.getVersio());
+				int versioActual = instanciaProces.getDefinicioProces().getVersio();
+				int versioNova = definicioProces.getVersio();
+				
+				if (versioActual != versioNova)
+					expedientService.procesDefinicioProcesActualitzar(exp.getProcessInstanceId(), definicioProces.getVersio());
 				
 				// Subprocessos
 				Long[] subProcesIds = (Long[])param2[1];
@@ -1000,7 +1005,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedientProcesInstanceId);
 					for (InstanciaProcesDto ip : arbreProcessos) {
 						int versio = findVersioDefProcesActualitzar(keys, subProcesIds, ip.getDefinicioProces().getJbpmKey());
-						if (versio != -1)
+						if (versio != -1 && versio != ip.getDefinicioProces().getVersio())
 							expedientService.procesDefinicioProcesActualitzar(ip.getId(), versio);
 					}
 				}
