@@ -72,6 +72,16 @@
 		float: right;
 		margin-top: -4px;
 	}
+	dd.proces {
+		margin-bottom: -5px !important;
+	}
+	dt.subproc {
+		padding-left: 15px;
+	}
+	dd.subproc {
+		padding-left: 15px;
+		font-size: 14px !important;
+	}
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {		
@@ -265,7 +275,7 @@
 						</c:choose>					
 					</dd>
 					<dt><spring:message code="expedient.info.camp.defproc"/></dt>
-					<dd>	
+					<dd class="proces">	
 						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
 						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
 <%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
@@ -275,6 +285,14 @@
 							<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
 						</div> 
 						--%>
+						<c:if test="${not empty subprocessos}">
+							<dt class="subproc"><spring:message code="expedient.info.camp.defproc.subprocessos"/></dt>
+							<c:forEach var="subproces" items="${subprocessos}">
+								<dd class="subproc">
+									${subproces}
+								</dd>
+							</c:forEach>
+						</c:if>
 					</dd>
 <%-- 					<div id="canviDefinicioProcesJbpm" class="hide">
  						<select id="definicioProcesVersio">
