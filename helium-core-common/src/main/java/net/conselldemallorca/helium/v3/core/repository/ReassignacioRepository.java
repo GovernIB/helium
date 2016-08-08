@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.v3.core.repository;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -66,4 +68,14 @@ public interface ReassignacioRepository extends JpaRepository<Reassignacio, Long
 			@Param("dataFi") Date dataFi, 
 			@Param("dataInici") Date dataInici);
 
+	@Query(	"from Reassignacio r " +
+			"where " +
+			"   r.tipusExpedientId = :tipusExpedientId " +
+			"	and (:esNullFiltre = true or lower(r.usuariOrigen) like lower('%'||:filtre||'%') or lower(r.usuariDesti) like lower('%'||:filtre||'%')) ")
+	Page<Reassignacio> findByFiltrePaginat(
+			@Param("tipusExpedientId") Long expedientTipusId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,		
+			Pageable pageable);	
+	
 }

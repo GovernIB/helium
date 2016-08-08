@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValo
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -1181,6 +1182,87 @@ public interface ExpedientTipusService {
 	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
 	 */
 	public void dominiDelete(Long dominiId) throws NoTrobatException, PermisDenegatException;
+	
+	
+	/**
+	 * Crea una nova reassignacio.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param reassignacio
+	 *            La informació de la reassignacio a crear.
+	 * @return la reassignacio creada.
+	 * @throws ReassignacioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ReassignacioDto reassignacioCreate(
+			Long expedientTipusId,
+			ReassignacioDto reassignacio) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'una reassignacio existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param reassignacio
+	 *            La informació de la reassignacio a modificar.
+	 * @return la reassignacio modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws ReassignacioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ReassignacioDto reassignacioUpdate(
+			ReassignacioDto reassignacio) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param reassignacioId
+	 *            Atribut id de la reassignacio.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws ReassignacioDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void reassignacioDelete(
+			Long reassignacioId) throws NoTrobatException, PermisDenegatException;	
+	
+	/** 
+	 * Retorna la reassignacio del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return La reassignacio del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public ReassignacioDto reassignacioFindAmbId(
+			Long id) throws NoTrobatException;	
+	
+	/** 
+	 * Retorna la llista d'reassignacions del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<ReassignacioDto> reassignacioFindPerDatatable(
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
 	
 	/***********************************************/
 	/********************ESTATS*********************/

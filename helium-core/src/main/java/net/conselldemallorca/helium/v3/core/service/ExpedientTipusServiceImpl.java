@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
@@ -68,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValo
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -87,6 +89,7 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
@@ -118,6 +121,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private EnumeracioValorsRepository enumeracioValorsRepository;	
 	@Resource
 	private DominiRepository dominiRepository;
+	@Resource
+	private ReassignacioRepository reassignacioRepository;
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
@@ -2496,6 +2501,114 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				DominiDto.class);		
+		return pagina;		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public ReassignacioDto reassignacioCreate(
+			Long expedientTipusId, 
+			ReassignacioDto reassignacio) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nova reassignacio per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"reassignacio=" + reassignacio + ")");
+		
+		Reassignacio entity = new Reassignacio();
+				
+		entity.setTipusExpedientId(reassignacio.getTipusExpedientId());
+		entity.setId(reassignacio.getId());
+		entity.setUsuariOrigen(reassignacio.getUsuariOrigen());
+		entity.setUsuariDesti(reassignacio.getUsuariDesti());
+		entity.setDataInici(reassignacio.getDataInici());
+		entity.setDataFi(reassignacio.getDataFi());
+		entity.setDataCancelacio(reassignacio.getDataCancelacio());
+
+		return conversioTipusHelper.convertir(
+				reassignacioRepository.save(entity),
+				ReassignacioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public ReassignacioDto reassignacioUpdate(ReassignacioDto reassignacio) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant la reassignacio del tipus d'expedient existent (" +
+				"reassignacio.id=" + reassignacio.getId() + ", " +
+				"reassignacio =" + reassignacio + ")");
+		Reassignacio entity = reassignacioRepository.findOne(reassignacio.getId());
+
+		entity.setTipusExpedientId(reassignacio.getTipusExpedientId());
+		entity.setId(reassignacio.getId());
+		entity.setUsuariOrigen(reassignacio.getUsuariOrigen());
+		entity.setUsuariDesti(reassignacio.getUsuariDesti());
+		entity.setDataInici(reassignacio.getDataInici());
+		entity.setDataFi(reassignacio.getDataFi());
+		entity.setDataCancelacio(reassignacio.getDataCancelacio());
+				
+		return conversioTipusHelper.convertir(
+				reassignacioRepository.save(entity),
+				ReassignacioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void reassignacioDelete(Long reassignacioReassignacioId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant la reassignacio del tipus d'expedient (" +
+				"reassignacioId=" + reassignacioReassignacioId +  ")");
+		Reassignacio entity = reassignacioRepository.findOne(reassignacioReassignacioId);
+		reassignacioRepository.delete(entity);	
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ReassignacioDto reassignacioFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant la reassignacio del tipus d'expedient amb id (" +
+				"reassignacioId=" + id +  ")");
+
+		return conversioTipusHelper.convertir(
+				reassignacioRepository.findOne(id),
+				ReassignacioDto.class);
+	}
+
+		
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ReassignacioDto> reassignacioFindPerDatatable(
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant les reassignacions per al tipus d'expedient per datatable (" +
+				"entornId=" + expedientTipusId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<ReassignacioDto> pagina = paginacioHelper.toPaginaDto(
+				reassignacioRepository.findByFiltrePaginat(
+						expedientTipusId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				ReassignacioDto.class);		
 		return pagina;		
 	}
 	
