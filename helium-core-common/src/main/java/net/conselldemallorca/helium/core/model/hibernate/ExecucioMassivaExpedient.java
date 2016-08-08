@@ -53,6 +53,7 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	private Expedient expedient;
 	private String tascaId;
 	private String processInstanceId;
+	private Long definicioProcesId;
 
 
 	public ExecucioMassivaExpedient() {}
@@ -74,6 +75,13 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, String processInstanceId, int ordre) {
 		this.execucioMassiva = execucioMassiva;
 		this.processInstanceId = processInstanceId;
+		this.ordre = ordre;
+		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+		this.dataInici = execucioMassiva.getDataInici();
+	}
+	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Long definicioProcesId, int ordre) {
+		this.execucioMassiva = execucioMassiva;
+		this.definicioProcesId = definicioProcesId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
 		this.dataInici = execucioMassiva.getDataInici();
@@ -167,6 +175,14 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	}
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
+	}
+	
+	@Column(name="defproc_id", nullable=true)
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	
 	@Override

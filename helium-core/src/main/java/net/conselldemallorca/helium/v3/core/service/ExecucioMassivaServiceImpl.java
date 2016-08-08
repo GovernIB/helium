@@ -208,6 +208,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							expedientTipus = expedient.getTipus();
 					}
 				}
+			} else if (dto.getDefProcIds() != null) {
+				for (Long defProcId: dto.getDefProcIds()) {
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+							execucioMassiva,
+							defProcId,
+							ordre++);
+					execucioMassiva.addExpedient(eme);
+				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
 			

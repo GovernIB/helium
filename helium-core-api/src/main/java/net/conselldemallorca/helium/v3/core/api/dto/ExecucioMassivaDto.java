@@ -17,6 +17,7 @@ public class ExecucioMassivaDto {
 	public enum ExecucioMassivaTipusDto {
 		EXECUTAR_TASCA,
 		ACTUALITZAR_VERSIO_DEFPROC,
+		ELIMINAR_VERSIO_DEFPROC,
 		EXECUTAR_SCRIPT,
 		EXECUTAR_ACCIO,
 		ATURAR_EXPEDIENT,
@@ -43,6 +44,7 @@ public class ExecucioMassivaDto {
 	private List<Long> expedientIds;
 	private String[] tascaIds;
 	private List<String> procInstIds;
+	private List<Long> defProcIds;
 
 
 
@@ -118,5 +120,10 @@ public class ExecucioMassivaDto {
 	public void setProcInstIds(List<String> procInstIds) {
 		this.procInstIds = procInstIds;
 	}
-	
+	public List<Long> getDefProcIds() {
+		return defProcIds;
+	}
+	public void setDefProcIds(List<Long> defProcIds) {
+		this.defProcIds = defProcIds;
+	}
 }
