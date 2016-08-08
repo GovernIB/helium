@@ -1428,9 +1428,15 @@ public class DissenyService {
 					domini.getTipus().toString());
 			dtoExp.setDescripcio(domini.getDescripcio());
 			dtoExp.setUrl(domini.getUrl());
+			dtoExp.setTipusAuth(domini.getTipusAuth());
+			dtoExp.setOrigenCredencials(domini.getOrigenCredencials());
+			dtoExp.setUsuari(domini.getUsuari());
+			dtoExp.setContrasenya(domini.getContrasenya());
 			dtoExp.setJndiDatasource(domini.getJndiDatasource());
 			dtoExp.setSql(domini.getSql());
 			dtoExp.setCacheSegons(domini.getCacheSegons());
+			if (domini.getTimeout() != null)
+				dtoExp.setTimeout(domini.getTimeout().intValue());
 			dominisExp.add(dtoExp);
 		}
 		dto.setDominis(dominisExp); 
@@ -1614,10 +1620,15 @@ public class DissenyService {
 				}
 				dnou.setDescripcio(domini.getDescripcio());
 				dnou.setTipus(TipusDomini.valueOf(domini.getTipus()));
-				dnou.setCacheSegons(domini.getCacheSegons());
+				dnou.setTipusAuth(domini.getTipusAuth());
+				dnou.setOrigenCredencials(domini.getOrigenCredencials());
+				dnou.setUsuari(domini.getUsuari());
+				dnou.setContrasenya(domini.getContrasenya());
 				dnou.setSql(domini.getSql());
 				dnou.setJndiDatasource(domini.getJndiDatasource());
 				dnou.setUrl(domini.getUrl());
+				dnou.setCacheSegons(domini.getCacheSegons());
+				dnou.setTimeout(domini.getTimeout());
 				dominiDao.saveOrUpdate(dnou);
 			}
 		}

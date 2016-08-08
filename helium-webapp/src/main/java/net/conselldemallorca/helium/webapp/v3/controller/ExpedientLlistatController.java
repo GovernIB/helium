@@ -76,6 +76,16 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		if ("netejar".equals(accio)) {
 			SessionHelper.getSessionManager(request).removeFiltreConsultaGeneral();
 		} else {
+			ExpedientConsultaCommand filtreAnterior = SessionHelper.getSessionManager(request).getFiltreConsultaGeneral();
+			if (filtreAnterior != null && filtreCommand.getExpedientTipusId() != null) {
+				if (!filtreCommand.getExpedientTipusId().equals(filtreAnterior.getExpedientTipusId())) {
+					// Netejar selecció d'expedients
+					SessionManager sessionManager = SessionHelper.getSessionManager(request);
+					Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+					if (ids != null)
+						ids.clear();
+				}
+			}
 			SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		}
 		return "redirect:expedient";

@@ -147,6 +147,13 @@ public class ExpedientServiceBean implements ExpedientService {
 		delegate.delete(id);
 	}
 
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Long findIdAmbProcessInstanceId(String processInstanceId) {
+		return delegate.findIdAmbProcessInstanceId(processInstanceId);
+	}
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDto findAmbId(Long id) {

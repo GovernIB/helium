@@ -343,7 +343,8 @@
 								<label>${subProces.jbpmKey}</label>								
 								<select id="subprocesId[${status.index}]" name="subprocesId">
 									<c:forEach var="item" items="${subProces.listIdAmbEtiqueta}">
-										<option value="${item.jbpmId}">${item.etiqueta}</option>
+<%-- 										<option value="${item.jbpmId}">${item.etiqueta}</option> --%>
+										<option value="${item.id}">${item.etiqueta}</option>
 									</c:forEach>
 								</select>
 								

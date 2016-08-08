@@ -5,6 +5,9 @@ package net.conselldemallorca.helium.core.model.exportacio;
 
 import java.io.Serializable;
 
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
+
 
 
 /**
@@ -18,10 +21,15 @@ public class DominiExportacio implements Serializable {
 	private String nom;
 	private String tipus;
 	private String url;
+	private TipusAuthDomini tipusAuth;
+	private OrigenCredencials origenCredencials;
+	private String usuari;
+	private String contrasenya;
 	private String sql;
 	private String jndiDatasource;
 	private String descripcio;
 	private int cacheSegons = 0;
+	private int timeout = 0;
 
 
 
@@ -58,6 +66,38 @@ public class DominiExportacio implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+	public TipusAuthDomini getTipusAuth() {
+		return tipusAuth;
+	}
+
+	public void setTipusAuth(TipusAuthDomini tipusAuth) {
+		this.tipusAuth = tipusAuth;
+	}
+
+	public OrigenCredencials getOrigenCredencials() {
+		return origenCredencials;
+	}
+
+	public void setOrigenCredencials(OrigenCredencials origenCredencials) {
+		this.origenCredencials = origenCredencials;
+	}
+
+	public String getUsuari() {
+		return usuari;
+	}
+
+	public void setUsuari(String usuari) {
+		this.usuari = usuari;
+	}
+
+	public String getContrasenya() {
+		return contrasenya;
+	}
+
+	public void setContrasenya(String contrasenya) {
+		this.contrasenya = contrasenya;
+	}
+
 	public String getSql() {
 		return sql;
 	}
@@ -82,9 +122,12 @@ public class DominiExportacio implements Serializable {
 	public void setCacheSegons(int cacheSegons) {
 		this.cacheSegons = cacheSegons;
 	}
-
-
-
+	public int getTimeout() {
+		return timeout;
+	}
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
 	private static final long serialVersionUID = 1L;
 
 }

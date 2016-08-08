@@ -821,4 +821,6 @@ public interface ExpedientService {
 
 	public boolean existsExpedientAmbEntornTipusINumero(Long entornId, Long expedientTipusId, String numero);
 
+	public Long findIdAmbProcessInstanceId(String processInstanceId);
+
 }
