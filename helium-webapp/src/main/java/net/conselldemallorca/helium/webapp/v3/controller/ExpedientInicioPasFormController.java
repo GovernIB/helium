@@ -286,7 +286,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientController {
 	public List<ParellaCodiValorDto> getAnysSeleccionables() {
 		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
 		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 10; i++) {
 			anys.add(new ParellaCodiValorDto(String.valueOf(anyActual - i), anyActual - i));
 		}
 		return anys;
