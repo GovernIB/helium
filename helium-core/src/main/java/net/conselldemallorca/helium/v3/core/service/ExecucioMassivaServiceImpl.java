@@ -570,6 +570,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
 				label = messageHelper.getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
 			}
+		} else if (tipus.equals(ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC)){
+			// CRIDA DE PROCEDIMENTS PER A ELIMINAR DEFINICIO DE PROCES
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
 			String script = "";
 			if (execucioMassiva.getParam2() != null) {
