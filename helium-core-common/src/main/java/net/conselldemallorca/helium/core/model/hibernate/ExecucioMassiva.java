@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,9 +24,12 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
@@ -73,12 +77,18 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	private ExpedientTipus expedientTipus;
 	private List<ExecucioMassivaExpedient> expedients = new ArrayList<ExecucioMassivaExpedient>();
 	private Long entorn;
+	
+	@MaxLength(2000)
+	private String rols;
 
 	public ExecucioMassiva() {}
 	public ExecucioMassiva(String usuari, ExecucioMassivaTipus tipus) {
 		this.usuari = usuari;
 		this.tipus = tipus;
 		this.dataInici = new Date();
+		
+//		Collection<GrantedAuthority> authorities = auth.getAuthorities() != null ? (Collection<GrantedAuthority>)auth.getAuthorities() : null;
+//		this.setAuthenticationRoles(authorities);
 	}
 
 	@Id
@@ -184,6 +194,38 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		this.entorn = entorn;
 	}
 	
+	@Column(name="rols")
+	public String getRols() {
+		return rols;
+	}
+	public void setRols(String rols) {
+		this.rols = rols;
+	}
+	
+	@Transient
+	public Principal getAuthenticationPrincipal() {
+		final String user = usuari;
+		
+		Principal principal = new Principal() {
+			public String getName() {
+				return user;
+			}
+		};
+		
+		return principal;
+	}
+	
+	@Transient
+	public List<GrantedAuthority> getAuthenticationRoles() {
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		if (rols != null && !rols.isEmpty()) {
+			for (String rol: rols.split(",")) {
+				authorities.add(new SimpleGrantedAuthority(rol));
+			}
+		}
+		return authorities;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -196,6 +238,7 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		result = prime * result + ((usuari == null) ? 0 : usuari.hashCode());
 		return result;
 	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

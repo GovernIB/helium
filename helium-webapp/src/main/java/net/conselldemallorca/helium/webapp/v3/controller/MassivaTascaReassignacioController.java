@@ -154,7 +154,8 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		}
 		try {
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		
+//			Authentication massiuAuthentication = SecurityContextHolder.getContext().getAuthentication();
+			
 			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 			dto.setDataInici(dInici);
 			dto.setEnviarCorreu(correu);
@@ -166,7 +167,16 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			dto.setExpedientTipusId(ids.iterator().next());
 			dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
 			dto.setParam1(expression);
-			Object[] params = new Object[] {entorn.getId()};
+			
+			Object[] params = new Object[1];
+			params[0] = entorn.getId();
+//			params[1] = massiuAuthentication.getCredentials();
+//			List<String> rols = new ArrayList<String>();
+//			for (GrantedAuthority gauth : massiuAuthentication.getAuthorities()) {
+//				rols.add(gauth.getAuthority());
+//			}
+//			params[2] = rols;
+			
 			dto.setParam2(execucioMassivaService.serialize(params));
 			execucioMassivaService.crearExecucioMassiva(dto);
 			MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reassignat", new Object[] {ids.size()}));

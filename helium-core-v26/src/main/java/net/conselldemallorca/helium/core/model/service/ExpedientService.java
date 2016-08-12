@@ -1260,6 +1260,11 @@ public class ExpedientService {
 		logger.debug("Buidant logs de l'expedient amb processInstance(id=" + processInstanceId + ")");
 		jbpmHelper.deleteProcessInstanceTreeLogs(processInstanceId);
 	}
+	public void buidarLogByExpedientId(Long expedientId) {
+		logger.debug("Buidant logs de l'expedient amb id=" + expedientId + "");
+		Expedient exp = expedientDao.getById(expedientId, false);
+		jbpmHelper.deleteProcessInstanceTreeLogs(exp.getProcessInstanceId());
+	}
 	public void reprendreExpedient(String processInstanceId) throws Exception {
 		Expedient expedient = expedientDao.findAmbProcessInstanceId(processInstanceId);
 		logger.debug("Desfinalitzant l'expedient (" +

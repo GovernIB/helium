@@ -14,6 +14,19 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.dto.TascaDto;
@@ -33,22 +46,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 import net.conselldemallorca.helium.webapp.mvc.util.TramitacioMassiva;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controlador per la gestió de tasques
@@ -799,7 +796,7 @@ public class TascaController extends BaseController {
 					Boolean bCorreu = false;
 					if (parametresTram[1] != null && parametresTram[1].equals("true")) bCorreu = true;
 					
-					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//					Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 					ExecucioMassivaDto dto = new ExecucioMassivaDto();
 					dto.setDataInici(dInici);
 					dto.setEnviarCorreu(bCorreu);
@@ -807,15 +804,15 @@ public class TascaController extends BaseController {
 					dto.setExpedientTipusId(expTipusId);
 					dto.setTipus(ExecucioMassivaTipus.EXECUTAR_TASCA);
 					dto.setParam1("Completar");
-					Object[] params = new Object[4];
+					Object[] params = new Object[2];
 					params[0] = entornId;
 					params[1] = transicio;
-					params[2] = auth.getCredentials();
-					List<String> rols = new ArrayList<String>();
-					for (GrantedAuthority gauth : auth.getAuthorities()) {
-						rols.add(gauth.getAuthority());
-					}
-					params[3] = rols;
+//					params[2] = auth.getCredentials();
+//					List<String> rols = new ArrayList<String>();
+//					for (GrantedAuthority gauth : auth.getAuthorities()) {
+//						rols.add(gauth.getAuthority());
+//					}
+//					params[3] = rols;
 					dto.setParam2(execucioMassivaService.serialize(params));
 					execucioMassivaService.crearExecucioMassiva(dto);
 					

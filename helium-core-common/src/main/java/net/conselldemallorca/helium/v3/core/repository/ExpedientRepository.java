@@ -29,8 +29,6 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 
 	List<Expedient> findByIdIn(Collection<Long> id);
 
-	Expedient findByProcessInstanceId(String processInstanceId);
-	
 	List<Expedient> findByReindexarDataNotNullOrderByReindexarDataAsc();
 
 	Expedient findByEntornIdAndTipusIdAndNumero(
@@ -320,5 +318,10 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("ids2") Collection<Long> ids2,
 			@Param("ids3") Collection<Long> ids3,
 			@Param("ids4") Collection<Long> ids4,
-			@Param("ids5") Collection<Long> ids5);	
+			@Param("ids5") Collection<Long> ids5);
+
+	@Query(	"select e.id " +
+			"from Expedient e " +
+			"where e.processInstanceId = :processInstanceId")
+	Long findIdByProcessInstanceId(@Param("processInstanceId") String processInstanceId);
 }

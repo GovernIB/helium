@@ -1088,4 +1088,6 @@ public interface ExpedientService {
 
 	public List<PortasignaturesDto> findDocumentsPendentsPortasignatures(String processInstanceId);
 
+	public Long findIdAmbProcessInstanceId(String processInstanceId);
+
 }

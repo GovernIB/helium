@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +45,7 @@ public class MonitorDominiHelper {
 
 
 
-	public List<DominiDto> findByEntorn(Entorn entorn) {
+	public synchronized List<DominiDto> findByEntorn(Entorn entorn) {
 		List<Domini> dominis;
 		if (entorn != null) {
 			dominis = dominiRepository.findByEntorn(
@@ -58,9 +60,9 @@ public class MonitorDominiHelper {
 		return dtos;
 	}
 
-	public List<IntegracioAccioDto> findAccionsByDomini(
-			Domini domini) {
-		return getLlistaAccions(domini);
+	public synchronized List<IntegracioAccioDto> findAccionsByDomini(
+			Long dominiId) {
+		return getLlistaAccions(dominiId);
 	}
 
 	public void addAccioOk(
@@ -116,21 +118,24 @@ public class MonitorDominiHelper {
 	}
 
 
-
 	private LinkedList<IntegracioAccioDto> getLlistaAccions(
-			Domini domini) {
-		Long dominiId = domini.getId();
-		LinkedList<IntegracioAccioDto> accions = accionsDomini.get(dominiId);
-		if (accions == null) {
-			accions = new LinkedList<IntegracioAccioDto>();
-			accionsDomini.put(
-					dominiId,
-					accions);
-		} else {
-			int index = 0;
-			for (IntegracioAccioDto accio: accions) {
-				accio.setIndex(new Long(index++));
+			Long dominiId) {
+		LinkedList<IntegracioAccioDto> accions = new LinkedList<IntegracioAccioDto>();
+		try {
+			accions = accionsDomini.get(dominiId);
+			if (accions == null) {
+				accions = new LinkedList<IntegracioAccioDto>();
+				accionsDomini.put(
+						dominiId,
+						accions);
+			} else {
+				int index = 0;
+				for (IntegracioAccioDto accio: accions) {
+					accio.setIndex(new Long(index++));
+				}
 			}
+		} catch (Exception ex) {
+			logger.error("ERROR MONITOR DOMINI - GetLlistaAccions: ", ex);
 		}
 		return accions;
 	}
@@ -147,7 +152,7 @@ public class MonitorDominiHelper {
 		return max.intValue();
 	}
 
-	private void addAccio(
+	private synchronized void addAccio(
 			Domini domini,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,
@@ -178,7 +183,7 @@ public class MonitorDominiHelper {
 			accio.setParametres(
 					new ArrayList<IntegracioParametreDto>(Arrays.asList(parametres)));
 		}
-		LinkedList<IntegracioAccioDto> accions = getLlistaAccions(domini);
+		LinkedList<IntegracioAccioDto> accions = getLlistaAccions(domini.getId());
 		int max = getMaxAccions(domini);
 		while (accions.size() >= max) {
 			accions.poll();
@@ -208,4 +213,5 @@ public class MonitorDominiHelper {
 		return dto;
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(MonitorDominiHelper.class);
 }

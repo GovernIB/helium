@@ -25,7 +25,6 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
-import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusAuthDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -410,30 +409,33 @@ public class VariableHelper {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
-			if (camp.getDomini() != null || camp.isDominiIntern()) {
-				Domini domini;
+			if (camp.isDominiIntern() || camp.getDomini() != null ) {
+				Map<String, Object> parametres = getParamsConsulta(
+						taskInstanceId,
+						processInstanceId,
+						camp,
+						registreCamp,
+						registreIndex,
+						valorsAddicionals);
+				List<FilaResultat> resultatConsultaDomini;
+				Domini domini;		
 				if (camp.isDominiIntern()) {
 					domini = getDominiIntern(camp.getDefinicioProces().getEntorn());
-				} else {
+				} else { 
 					domini = camp.getDomini();
 				}
-				List<FilaResultat> resultatConsultaDomini = dominiHelper.consultar(
-						domini,
-						camp.getDominiId(),
-						getParamsConsulta(
-								taskInstanceId,
-								processInstanceId,
-								camp,
-								registreCamp,
-								registreIndex,
-								valorsAddicionals));
+				resultatConsultaDomini = dominiHelper.consultar(
+					domini,
+					camp.getDominiId(),
+					parametres);
+
 				String columnaCodi = camp.getDominiCampValor();
 				String columnaValor = camp.getDominiCampText();
 				Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
 				while (it.hasNext()) {
 					FilaResultat fr = it.next();
 					for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-						boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(domini.getTipus());
+						boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(camp.getDomini() != null? camp.getDomini().getTipus() : null);
 						boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
 						if (matches &&
 								(
@@ -487,12 +489,9 @@ public class VariableHelper {
 		Domini domini = new Domini();
 		domini.setId((long) 0);
 		domini.setCacheSegons(30);
-		domini.setCodi("intern");
+		domini.setCodi("");
 		domini.setNom("Domini intern");
-		domini.setTipus(TipusDomini.CONSULTA_WS);
-		domini.setTipusAuth(TipusAuthDomini.NONE);
 		domini.setEntorn(entorn);
-		domini.setUrl(GlobalProperties.getInstance().getProperty("app.domini.intern.url","http://localhost:8080/helium/ws/DominiIntern"));
 		return domini;
 	}
 

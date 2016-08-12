@@ -186,11 +186,14 @@ public class AdminServiceImpl implements AdminService {
 			Long dominiId) {
 		logger.debug("Consultant la llista d'accions per al domini (" +
 				"dominiId=" + dominiId + ")");
-		Domini domini = dominiRepository.findOne(dominiId);
-		if (domini == null) {
-			throw new NoTrobatException(Domini.class,dominiId);
+		if (dominiId != 0L) {
+			// Domini no intern
+			Domini domini = dominiRepository.findOne(dominiId);
+			if (domini == null) {
+				throw new NoTrobatException(Domini.class,dominiId);
+			}
 		}
-		return monitorDominiHelper.findAccionsByDomini(domini);
+		return monitorDominiHelper.findAccionsByDomini(dominiId);
 	}
 
 	/**

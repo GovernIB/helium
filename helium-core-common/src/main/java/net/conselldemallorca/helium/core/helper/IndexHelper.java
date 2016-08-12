@@ -150,7 +150,7 @@ public class IndexHelper {
 	public void expedientIndexLuceneUpdate(
 			String processInstanceId) {
 		
-		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (expedient.getTipus().isReindexacioAsincrona()) {
 			if (expedient.getReindexarData() == null) {
 				expedient.setReindexarData(new Date());
@@ -420,10 +420,11 @@ public class IndexHelper {
 			}
 //			if (!ctxLuceneStoped) {
 				// Aturam els timers de indexació amb Lucene
+			if (contextIndexarTotal != null) {
 				contextIndexarTotal.stop();
 				contextIndexarEntorn.stop();
 				contextIndexarTipExp.stop();
-//			}
+			}
 //			// Aturam els timers de indexació amb MongoDB
 //			contextMongoTotal.stop();
 //			contextMongoEntorn.stop();

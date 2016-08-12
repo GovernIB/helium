@@ -631,7 +631,12 @@ public class JbpmHelper {
 	//Guardar l'error de finalitzacio a BBDD
 	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) {
 		final long id = Long.parseLong(taskId);
-		GuardarErrorFinalitzacioCommand command = new GuardarErrorFinalitzacioCommand(id, errorFinalitzacio);
+		String errorTractat;
+		if (errorFinalitzacio.length() > 1000)
+			errorTractat = errorFinalitzacio.substring(0, 1000);
+		else
+			errorTractat = errorFinalitzacio;
+		GuardarErrorFinalitzacioCommand command = new GuardarErrorFinalitzacioCommand(id, errorTractat);
 		commandService.execute(command);
 	}
 	
@@ -1873,7 +1878,12 @@ public class JbpmHelper {
 				
 		// Activamos recursivamente
 		while (token != null) {
-			revertTokenEnd(token.getId());
+			JbpmToken jtoken = getTokenById(String.valueOf(token.getId()));
+			RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
+			executeCommandWithAutoSave(
+					command,
+					token.getId(),
+					AddToAutoSaveCommand.TIPUS_TOKEN);
 			token = token.getParent();
 		}
 		

@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.mvc;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.helper.DominiHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;

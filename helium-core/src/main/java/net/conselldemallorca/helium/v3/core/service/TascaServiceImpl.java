@@ -684,7 +684,7 @@ public class TascaServiceImpl implements TascaService {
 			pidCalculat = task.getProcessInstanceId();
 		}
 		// Consulta els valors possibles
-		if (camp.getDomini() != null) {
+		if (camp.getDomini() != null || camp.isDominiIntern()) {
 			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
 						camp,
 						registreCamp,
@@ -941,7 +941,7 @@ public class TascaServiceImpl implements TascaService {
 				taskId,
 				true,
 				true);
-		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
 				taskId,
 				expedient.getId(),
@@ -984,7 +984,7 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				true,
 				true);
-		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
 				tascaId,
 				expedient.getId(),
@@ -1024,7 +1024,7 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				true,
 				true);
-		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		expedientLoggerHelper.afegirLogExpedientPerTasca(
 				tascaId,
 				expedient.getId(),
@@ -1104,7 +1104,7 @@ public class TascaServiceImpl implements TascaService {
 		
 		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
 		Tasca tasca = tascaHelper.findTascaByJbpmTask(task);
-		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		if (tasca.isFinalitzacioSegonPla()) {
 			//cridar command per a marcar la tasca per a finalitzar en segón pla
 			Date marcadaFinalitzar = new Date();
@@ -1388,7 +1388,7 @@ public class TascaServiceImpl implements TascaService {
 							}
 							
 							infoSegonPla.setError(nouError);
-							logger.error(logError);
+							logger.error("ERROR SEGON PLA: ",ex);
 						}
 						tascaSegonPlaHelper.guardarErrorFinalitzacio(tascaId, infoSegonPla.getError());
 			        }

@@ -50,8 +50,12 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return custodiaId;
 		} catch (Exception ex) {
-			//logger.error("No s'ha pogut custodiar la signatura: " + ex.getMessage());
-			throw new CustodiaPluginException("No s'ha pogut custodiar la signatura", ex);
+			if (ex instanceof CustodiaPluginException)
+				throw (CustodiaPluginException)ex;
+			else
+				throw new CustodiaPluginException(
+						"No s'ha pogut custodiar la signatura",
+						ex);
 		}
 	}
 
@@ -70,8 +74,12 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				return resposta;
 			}
 		} catch (Exception ex) {
-			//logger.error("No s'han pogut obtenir les signatures: " + ex.getMessage());
-			throw new CustodiaPluginException("No s'han pogut obtenir les signatures", ex);
+			if (ex instanceof CustodiaPluginException)
+				throw (CustodiaPluginException)ex;
+			else
+				throw new CustodiaPluginException(
+						"No s'han pogut obtenir les signatures",
+						ex);
 		}
 	}
 
@@ -88,8 +96,12 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				return consultar;
 			}
 		} catch (Exception ex) {
-			//logger.error("No s'ha pogut obtenir l'arxiu amb les signatures: " + ex.getMessage());
-			throw new CustodiaPluginException("No s'ha pogut obtenir l'arxiu amb les signatures", ex);
+			if (ex instanceof CustodiaPluginException)
+				throw (CustodiaPluginException)ex;
+			else
+				throw new CustodiaPluginException(
+						"No s'ha pogut obtenir l'arxiu amb les signatures",
+						ex);
 		}
 	}
 
@@ -100,8 +112,12 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			if (resposta.isError() && !"DOCUMENTO_NO_ENCONTRADO".equals(resposta.getErrorCodi()))
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 		} catch (Exception ex) {
-			//logger.error("No s'han pogut esborrar les signatures: " + ex.getMessage());
-			throw new CustodiaPluginException("No s'han pogut esborrar les signatures", ex);
+			if (ex instanceof CustodiaPluginException)
+				throw (CustodiaPluginException)ex;
+			else
+				throw new CustodiaPluginException(
+						"No s'han pogut esborrar les signatures",
+						ex);
 		}
 	}
 
@@ -113,8 +129,12 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 				throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
 			return parseSignatures(xml);
 		} catch (Exception ex) {
-			//logger.error("No s'han pogut verificar les signatures: " + ex.getMessage());
-			throw new CustodiaPluginException("No s'han pogut verificar les signatures", ex);
+			if (ex instanceof CustodiaPluginException)
+				throw (CustodiaPluginException)ex;
+			else
+				throw new CustodiaPluginException(
+						"No s'han pogut verificar les signatures",
+						ex);
 		}
 	}
 
@@ -130,15 +150,23 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 		try {
 			String token = cacheHash.get(id);
 			if (token == null) {
-				byte[] resposta = getClienteCustodia().reservarDocumento(getIdCustodia(id));
-				token = new String(resposta);
+				byte[] xml = getClienteCustodia().reservarDocumento(getIdCustodia(id));
+				token = new String(xml);
+				if (token.startsWith("<?xml")) {
+					CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
+					if (resposta.isError())
+						throw new CustodiaPluginException("Error en la petició de custòdia: [" + resposta.getErrorCodi() + "] " + resposta.getErrorDescripcio());
+				}
 				cacheHash.put(id, token);
 			}
 			String baseUrl = GlobalProperties.getInstance().getProperty("app.custodia.plugin.caib.verificacio.baseurl");
 			return baseUrl + token;
 		} catch (Exception ex) {
-			//logger.error("No s'ha pogut generar la url de comprovació de signatura: " + ex.getMessage());
-			throw new CustodiaPluginException("No s'ha pogut generar la url de comprovació de signatura", ex);
+			if (ex instanceof CustodiaPluginException)
+				throw (CustodiaPluginException)ex;
+			else
+				throw new CustodiaPluginException(
+						"No s'ha pogut generar la url de comprovació de signatura", ex);
 		}
 	}
 

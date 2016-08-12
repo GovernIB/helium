@@ -435,7 +435,7 @@
 <body>	
 	<div id="massiva_contens"><div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div></div>
 	<div id="modal-botons" class="well">
-		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
+		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 		
 		<button type="button" class="btn btn-primary" name="previousPage" value="previousPage"><span class="fa fa-arrow-left"></span>&nbsp;<spring:message code="comuns.previous"/></button>
 		<button type="button" class="btn btn-primary" name="nextPage" value="nextPage"><spring:message code="comuns.next"/>&nbsp;<span class="fa fa-arrow-right"></span></button>

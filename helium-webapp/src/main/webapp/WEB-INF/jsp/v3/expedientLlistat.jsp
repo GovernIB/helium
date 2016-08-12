@@ -130,7 +130,7 @@ $(document).ready(function() {
 		$('#estatText option[value!=""]').remove();
 		$('#consultaTipo').hide();
 		if ($(this).val()) {
-			$.get('expedient/estatsPerTipus/' + $(this).val())
+			$.get('<c:url value="/v3/expedient/estatsPerTipus/"/>' + $(this).val())
 			.done(function(data) {
 				$('#estatText').append('<option value="<%=net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
 				for (var i = 0; i < data.length; i++) {

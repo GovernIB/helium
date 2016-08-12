@@ -3,3 +3,13 @@ target
 .project
 .settings/
 
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+
+# Maven
+# log/
+target/

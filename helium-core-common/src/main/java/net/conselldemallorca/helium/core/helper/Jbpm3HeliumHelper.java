@@ -865,21 +865,58 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"dominiId=" + dominiId + ", " +
 				"parametres=" + parametres + ")");
 		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
-		Domini domini;
-		if ("intern".equalsIgnoreCase(dominiCodi)) {
-			domini = variableHelper.getDominiIntern(
-					expedient.getEntorn());
-		} else {
-			domini = dominiRepository.findByEntornAndCodi(
+		Domini domini = dominiRepository.findByEntornAndCodi(
 					expedient.getEntorn(),
 					dominiCodi);
-			if (domini == null)
-				throw new NoTrobatException(Domini.class, dominiCodi);
-		}
+		if (domini == null)
+			throw new NoTrobatException(Domini.class, dominiCodi);
 		List<FilaResultat> files = dominiHelper.consultar(
 				domini,
 				dominiId,
 				parametres);
+		List<DominiRespostaFilaDto> resposta = new ArrayList<DominiRespostaFilaDto>();
+		if (files != null) {
+			for (FilaResultat fila: files) {
+				DominiRespostaFilaDto filaDto = new DominiRespostaFilaDto();
+				for (ParellaCodiValor columna: fila.getColumnes()) {
+					DominiRespostaColumnaDto columnaDto = new DominiRespostaColumnaDto();
+					columnaDto.setCodi(columna.getCodi());
+					columnaDto.setValor(columna.getValor());
+					filaDto.getColumnes().add(columnaDto);
+				}
+				resposta.add(filaDto);
+			}
+		}
+		return resposta;
+	}
+	
+	@Override
+	public List<DominiRespostaFilaDto> dominiInternConsultar(
+			String processInstanceId,
+			String dominiId,
+			Map<String, Object> parametres) throws Exception {
+		logger.debug("Executant una consulta de domini (" +
+				"processInstanceId=" + processInstanceId + ", " +
+				"dominiId=" + dominiId + ", " +
+				"parametres=" + parametres + ")");
+		Expedient expedient = getExpedientDonatProcessInstanceId(processInstanceId);
+
+		List<ParellaCodiValor> paramsConsulta = new ArrayList<ParellaCodiValor>();
+		paramsConsulta.add(
+				new ParellaCodiValor(
+						"entorn",
+						expedient.getEntorn().getCodi()));
+		if (parametres != null) {
+			for (String codi: parametres.keySet()) {
+				paramsConsulta.add(new ParellaCodiValor(
+						codi,
+						parametres.get(codi)));
+			}
+		}
+		
+		List<FilaResultat> files = dominiHelper.consultaDominiIntern(
+				dominiId,
+				paramsConsulta);
 		List<DominiRespostaFilaDto> resposta = new ArrayList<DominiRespostaFilaDto>();
 		if (files != null) {
 			for (FilaResultat fila: files) {

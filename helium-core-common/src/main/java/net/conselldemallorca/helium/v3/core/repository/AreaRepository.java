@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.v3.core.repository;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -21,7 +23,8 @@ public interface AreaRepository extends JpaRepository<Area, Long> {
 			Entorn entorn,
 			String codi);
 
-	Area findById(
-			Long id);
+	List<Area> findByEntornAndPareCodi(
+			Entorn entorn,
+			String pareCodi);
 
 }

@@ -1428,9 +1428,15 @@ public class DissenyService {
 					domini.getTipus().toString());
 			dtoExp.setDescripcio(domini.getDescripcio());
 			dtoExp.setUrl(domini.getUrl());
+			dtoExp.setTipusAuth(domini.getTipusAuth());
+			dtoExp.setOrigenCredencials(domini.getOrigenCredencials());
+			dtoExp.setUsuari(domini.getUsuari());
+			dtoExp.setContrasenya(domini.getContrasenya());
 			dtoExp.setJndiDatasource(domini.getJndiDatasource());
 			dtoExp.setSql(domini.getSql());
 			dtoExp.setCacheSegons(domini.getCacheSegons());
+			if (domini.getTimeout() != null)
+				dtoExp.setTimeout(domini.getTimeout().intValue());
 			dominisExp.add(dtoExp);
 		}
 		dto.setDominis(dominisExp); 
@@ -1614,10 +1620,15 @@ public class DissenyService {
 				}
 				dnou.setDescripcio(domini.getDescripcio());
 				dnou.setTipus(TipusDomini.valueOf(domini.getTipus()));
-				dnou.setCacheSegons(domini.getCacheSegons());
+				dnou.setTipusAuth(domini.getTipusAuth());
+				dnou.setOrigenCredencials(domini.getOrigenCredencials());
+				dnou.setUsuari(domini.getUsuari());
+				dnou.setContrasenya(domini.getContrasenya());
 				dnou.setSql(domini.getSql());
 				dnou.setJndiDatasource(domini.getJndiDatasource());
 				dnou.setUrl(domini.getUrl());
+				dnou.setCacheSegons(domini.getCacheSegons());
+				dnou.setTimeout(domini.getTimeout());
 				dominiDao.saveOrUpdate(dnou);
 			}
 		}
@@ -1847,16 +1858,17 @@ public class DissenyService {
 			Long dominiId,
 			String dominiWsId,
 			Map<String, Object> params) {
-		if (dominiId.longValue() != 0) {
+		if (dominiId != null && !dominiId.equals(0L)) {
+			// Domini extern
 			Domini domini = dominiDao.getById(dominiId, false);
 			return dominiHelper.consultar(
 					domini,
 					(dominiId != null) ? dominiId.toString() : null,
 					params);
 		} else {
-			Entorn entorn = entornDao.getById(entornId, false);
+			// Domini intern
 			return dominiHelper.consultarIntern(
-					entorn,
+					entornDao.getById(entornId, false),
 					null,
 					dominiWsId,
 					params);
@@ -2832,9 +2844,8 @@ public class DissenyService {
 				}
 				
 			}
-			if (camp.getCodiDomini() != null) {
-				Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
-				if (!camp.getCodiDomini().equalsIgnoreCase("intern")) {	
+			if (camp.getCodiDomini() != null &&  !camp.isDominiIntern()) {	
+					Domini domini = dominiDao.findAmbEntornICodi(entornId, camp.getCodiDomini());
 					if (domini != null) {
 						nou.setDomini(domini);
 					} else {
@@ -2848,7 +2859,6 @@ public class DissenyService {
 									expedientTipusDao.getById(expedientTipusId, false));
 						dominiDao.saveOrUpdate(domini);
 					}
-				}
 			}
 			if (camp.getAgrupacioCodi() != null)
 				nou.setAgrupacio(agrupacions.get(camp.getAgrupacioCodi()));

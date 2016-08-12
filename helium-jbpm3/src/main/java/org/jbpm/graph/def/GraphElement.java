@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
+import org.jbpm.graph.action.Script;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.RuntimeAction;
 import org.jbpm.graph.exe.Token;
@@ -41,6 +42,8 @@ import org.jbpm.instantiation.UserCodeInterceptorConfig;
 import org.jbpm.job.ExecuteActionJob;
 import org.jbpm.msg.MessageService;
 import org.jbpm.persistence.db.DbPersistenceService;
+import org.jbpm.scheduler.def.CancelTimerAction;
+import org.jbpm.scheduler.def.CreateTimerAction;
 import org.jbpm.signal.EventService;
 import org.jbpm.svc.Service;
 import org.jbpm.svc.Services;
@@ -315,7 +318,17 @@ public abstract class GraphElement implements Identifiable, Serializable {
 
     } catch (Exception exception) {
       // NOTE that Errors are not caught because that might halt the JVM and mask the original Error
-      //log.error("action threw exception: " + exception.getMessage(), exception);
+    	if (action != null) {
+	    	String actionName = (action.getName() != null ? action.getName() : 
+	    								action instanceof CreateTimerAction ? ((CreateTimerAction)action).getTimerName() : 
+	    									action instanceof CancelTimerAction ? ((CancelTimerAction)action).getTimerName() :
+	    										action instanceof Script ? ((Script)action).getExpression() : 
+	    											"-SENSE NOM-");
+	    										
+	    	log.error(">>> ERROR EXECUTANT LA ACCIO (" + actionName + ") AMB ID (" + action.getId() + "): " + action.toString() + " <<< " + exception.getMessage(), exception);
+    	} else {
+    		log.error(">>> ERROR EXECUTANT L'ACCIO. NO S'HA TROBAT ACTION. <<<" + exception.getMessage(), exception);
+    	}
 
       // log the action exception
       actionLog.setException(exception);
