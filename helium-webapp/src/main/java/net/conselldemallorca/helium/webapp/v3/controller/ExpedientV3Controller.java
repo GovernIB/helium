@@ -73,6 +73,23 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				model,
 				null);
 	}
+	
+	@RequestMapping(value = "/proces/{processInstanceId}", method = RequestMethod.GET)
+	public String infoProces(
+			HttpServletRequest request, 
+			@PathVariable String processInstanceId, 
+			Model model) {
+		Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
+		if (expedientId == null) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"error.expedientService.noExisteix"));
+			return "redirect:/v3/expedient";
+		}
+		return "redirect:/v3/expedient/" + expedientId;
+	}
 
 	@RequestMapping(value = "/{expedientId}/delete", method = RequestMethod.GET)
 	public String delete(
@@ -85,7 +102,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 						request,
 						"info.expedient.esborrat"));
 			
-		return "redirect:/v3/expedient/";
+		return "redirect:/v3/expedient";
 	}
 
 	@RequestMapping(value = "/{expedientId}/reindexa", method = RequestMethod.GET)

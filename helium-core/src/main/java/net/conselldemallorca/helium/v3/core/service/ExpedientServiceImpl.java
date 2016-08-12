@@ -669,6 +669,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public Long findIdAmbProcessInstanceId(String processInstanceId) {
+		return expedientRepository.findIdByProcessInstanceId(processInstanceId);
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
 	public ExpedientDto findAmbId(Long id) {
 		logger.debug("Consultant l'expedient (id=" + id + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(

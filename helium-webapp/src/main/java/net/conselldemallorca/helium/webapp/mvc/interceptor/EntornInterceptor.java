@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.webapp.mvc.interceptor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
@@ -158,6 +160,11 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 								break;
 							}
 						}
+						// Netejar selecció d'expedients
+						SessionManager sessionManager = SessionHelper.getSessionManager(request);
+						Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+						if (ids != null)
+							ids.clear();
 					} else {
 						SessionHelper.removeAttribute(
 								request,

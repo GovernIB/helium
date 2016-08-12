@@ -13,9 +13,11 @@ import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -26,6 +28,9 @@ import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -58,6 +63,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.Execuci
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient.ExecucioMassivaEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
@@ -82,6 +88,7 @@ public class ExecucioMassivaService {
 	private TascaService tascaService;
 	private DocumentService documentService;
 	private PluginService pluginService;
+	private PermissionService permissionService;
 
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
@@ -105,7 +112,7 @@ public class ExecucioMassivaService {
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			ExecucioMassiva execucioMassiva = new ExecucioMassiva(
-					auth,
+					auth.getName(),
 					ExecucioMassivaTipus.valueOf(dto.getTipus().toString()));
 			if (dto.getDataInici() == null) {
 				execucioMassiva.setDataInici(new Date());
@@ -115,11 +122,12 @@ public class ExecucioMassivaService {
 			execucioMassiva.setEnviarCorreu(dto.getEnviarCorreu());
 			execucioMassiva.setParam1(dto.getParam1());
 			execucioMassiva.setParam2(dto.getParam2());
+			ExpedientTipus expedientTipus = null;
 			if (dto.getExpedientTipusId() != null) {
-				execucioMassiva.setExpedientTipus(
-						expedientTipusDao.getById(
-								dto.getExpedientTipusId(),
-								false));
+				expedientTipus = expedientTipusDao.getById(
+						dto.getExpedientTipusId(),
+						false);
+				execucioMassiva.setExpedientTipus(expedientTipus);
 			}
 			int ordre = 0;
 			boolean expedients = false;
@@ -133,6 +141,8 @@ public class ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null && expedient != null)
+						expedientTipus = expedient.getTipus();
 				}
 			} else if (dto.getTascaIds() != null) {
 				for (String tascaId: dto.getTascaIds()) {
@@ -144,6 +154,8 @@ public class ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null && tasca.getExpedient() != null)
+						expedientTipus = tasca.getExpedient().getTipus();
 				}
 			} else if (dto.getProcInstIds() != null) {
 				for (String procinstId: dto.getProcInstIds()) {
@@ -153,14 +165,66 @@ public class ExecucioMassivaService {
 							ordre++);
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
+					if (expedientTipus == null) {
+						Expedient expedient = expedientDao.findAmbProcessInstanceId(procinstId);
+						if (expedient != null)
+							expedientTipus = expedient.getTipus();
+					}
 				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
-			if (expedients)
+			if (expedients) {
+				execucioMassiva.setRols(getRols(auth, expedientTipus));
 				execucioMassivaDao.saveOrUpdate(execucioMassiva);
-			else 
+			} else { 
 				throw new Exception("S'ha intentat crear una execució massiva sense assignar expedients.");
+			}
 		}
+	}
+	
+	private String getRols(Authentication auth, ExpedientTipus expedientTipus) {
+
+		String rols = "";
+		// Rols usuari
+		List<String> rolsUsuari = new ArrayList<String>();
+		if (auth != null && auth.getAuthorities() != null) {
+			for (GrantedAuthority gauth : auth.getAuthorities()) {
+				rolsUsuari.add(gauth.getAuthority());
+			}
+		}
+		// Rols tipus expedient
+		Set<String> rolsTipusExpedient = new HashSet<String>();
+		rolsTipusExpedient.add("ROLE_ADMIN");
+		rolsTipusExpedient.add("ROLE_USER");
+		rolsTipusExpedient.add("ROLE_WS");
+		if (expedientTipus != null) {
+			Map<Sid, List<AccessControlEntry>> permisos = permissionService.getAclEntriesGroupedBySid(
+					expedientTipus.getId(), 
+					ExpedientTipus.class);
+			if (permisos != null)
+				for (Sid sid: permisos.keySet()) {
+					if (sid instanceof GrantedAuthoritySid)
+						rolsTipusExpedient.add(((GrantedAuthoritySid)sid).getGrantedAuthority());
+				}
+		}
+		rolsUsuari.retainAll(rolsTipusExpedient);
+		
+		for (String rol : rolsUsuari) {
+			rols += rol + ",";
+		}
+		if (rols.length() > 0) {
+			rols = rols.substring(0, rols.length() - 1);
+			logger.info(">>> EXECUCIÓ MASSIVA - ROLS Reals: " + rols);
+			if (rols.length() > 2000) {
+				rols = rols.substring(0, 2000);
+				rols = rols.substring(0, rols.lastIndexOf(","));
+			}
+		} else {
+			rols = null;
+		}
+		
+		logger.info(">>> EXECUCIÓ MASSIVA - ROLS Finals: " + rols);
+		return rols;
 	}
 
 	public List<ExecucioMassivaDto> getExecucionsMassivesActives() {
@@ -1322,6 +1386,11 @@ public class ExecucioMassivaService {
 	public void setPluginService(PluginService pluginService) {
 		this.pluginService = pluginService;
 	}
+	@Autowired
+	public void setPermissionService(PermissionService permissionService) {
+		this.permissionService = permissionService;
+	}
+
 	@Autowired
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;

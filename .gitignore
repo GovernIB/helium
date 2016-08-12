@@ -3,7 +3,6 @@ target
 .project
 .settings/
 
-
 # Eclipse
 .classpath
 .project
@@ -11,6 +10,6 @@ target
 
 
 # Maven
-#log/
+# log/
 target/
-.gitignore
+

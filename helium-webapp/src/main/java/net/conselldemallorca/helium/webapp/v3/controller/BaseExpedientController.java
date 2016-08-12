@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,13 +51,21 @@ public class BaseExpedientController extends BaseController {
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 //		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		int numAccions = 0;
+		List<String> subprocessos = new ArrayList<String>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+			// Subprocessos
+			if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+				String subproces = instanciaProces.getTitol() + " v." + instanciaProces.getDefinicioProces().getVersio();
+				subprocessos.add(subproces);
+			}
+			// Accions
 			List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(
 					expedientId,
 					instanciaProces.getId());
 //			accions.put(instanciaProces, accionsTrobades);
 			numAccions += accionsTrobades.size();
 		}
+		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
 		return "v3/expedientPipelles";
 	}

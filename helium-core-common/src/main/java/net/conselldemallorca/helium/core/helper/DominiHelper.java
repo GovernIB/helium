@@ -487,17 +487,20 @@ public class DominiHelper {
 			}
 		}
 		WsClientAuth auth;
-		switch (domini.getTipusAuth()) {
-		case HTTP_BASIC:
-			auth = WsClientAuth.BASIC;
-			break;
-		case USERNAMETOKEN:
-			auth = WsClientAuth.USERNAMETOKEN;
-			break;
-		default:
+		if (domini.getTipusAuth() != null)
+			switch (domini.getTipusAuth()) {
+			case HTTP_BASIC:
+				auth = WsClientAuth.BASIC;
+				break;
+			case USERNAMETOKEN:
+				auth = WsClientAuth.USERNAMETOKEN;
+				break;
+			default:
+				auth = WsClientAuth.NONE;
+				break;
+			}
+		else 
 			auth = WsClientAuth.NONE;
-			break;
-		}
 		return wsClientHelper.getDominiService(
 				domini.getUrl(),
 				auth,

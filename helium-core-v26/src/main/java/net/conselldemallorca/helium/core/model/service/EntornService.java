@@ -244,9 +244,14 @@ public class EntornService {
 					domini.getTipus().toString());
 			dto.setDescripcio(domini.getDescripcio());
 			dto.setUrl(domini.getUrl());
+			dto.setTipusAuth(domini.getTipusAuth());
+			dto.setOrigenCredencials(domini.getOrigenCredencials());
+			dto.setUsuari(domini.getUsuari());
+			dto.setContrasenya(domini.getContrasenya());
 			dto.setJndiDatasource(domini.getJndiDatasource());
 			dto.setSql(domini.getSql());
 			dto.setCacheSegons(domini.getCacheSegons());
+			dto.setTimeout(domini.getTimeout().intValue());
 			dominisDto.add(dto);
 		}
 		entornExportacio.setDominis(dominisDto);
@@ -417,10 +422,15 @@ public class EntornService {
 			}
 			nou.setDescripcio(domini.getDescripcio());
 			nou.setTipus(TipusDomini.valueOf(domini.getTipus()));
-			nou.setCacheSegons(domini.getCacheSegons());
+			nou.setTipusAuth(domini.getTipusAuth());
+			nou.setOrigenCredencials(domini.getOrigenCredencials());
+			nou.setUsuari(domini.getUsuari());
+			nou.setContrasenya(domini.getContrasenya());
 			nou.setSql(domini.getSql());
 			nou.setJndiDatasource(domini.getJndiDatasource());
 			nou.setUrl(domini.getUrl());
+			nou.setCacheSegons(domini.getCacheSegons());
+			nou.setTimeout(domini.getTimeout());
 			dominiDao.saveOrUpdate(nou);
 		}
 		// Crea les enumeracions

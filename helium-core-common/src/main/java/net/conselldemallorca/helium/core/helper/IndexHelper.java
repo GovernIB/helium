@@ -420,10 +420,11 @@ public class IndexHelper {
 			}
 //			if (!ctxLuceneStoped) {
 				// Aturam els timers de indexació amb Lucene
+			if (contextIndexarTotal != null) {
 				contextIndexarTotal.stop();
 				contextIndexarEntorn.stop();
 				contextIndexarTipExp.stop();
-//			}
+			}
 //			// Aturam els timers de indexació amb MongoDB
 //			contextMongoTotal.stop();
 //			contextMongoEntorn.stop();

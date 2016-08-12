@@ -59,7 +59,8 @@ function confirmar(e) {
 			</form>
 		</display:column> 
 <%-- --%>
-			<display:column>
+
+		<display:column>
 		    	<form action="<c:url value="/permisos/expedientTipus.html"/>">
 					<input type="hidden" name="id" value="${registre.id}"/>
 					<button type="submit" class="submitButton">Permisos</button>
