@@ -40,7 +40,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a data-toggle="modal" data-callback="callbackModalRedireccions()" href="${expedientTipus.id}/redireccio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${expedientTipus.id}/redireccio/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.redireccio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.redireccio.llistat.accio.esborrar"/></a></li>
+								<li><a href="${expedientTipus.id}/redireccio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.redireccio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.redireccio.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -62,30 +62,6 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
-
-	$('#expedientTipusRedireccio').on('draw.dt', function() {
-		// Botons per agrupar o desagrupar
-		$(".ajax-link").click(function(e) {
-			var getUrl = $(this).attr('href');
-			$.ajax({
-				type: 'GET',
-				url: getUrl,
-				async: true,
-				success: function(result) {
-					if (result) {
-						refrescaTaula();
-					}
-					webutilRefreshMissatges();
-				},
-				error: function(error) {
-					webutilRefreshMissatges();
-					console.log('Error:'+error);
-				}
-			});
-			e.stopImmediatePropagation();
-			return false;
-		});
-	});
 });
 
 function callbackModalRedireccions() {

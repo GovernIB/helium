@@ -81,7 +81,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${expedientTipus.id}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${expedientTipus.id}/variable/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="${expedientTipus.id}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								<li class="divider"></li>
 								<li id="accioAgrupacions">
 									{{if agrupacio == null}}
@@ -89,7 +89,7 @@
 										<br/>						
 									{{else}}
 										<a href="${expedientTipus.id}/variable/{{:id}}/desagrupar"
-												class="ajax-link"><span class="fa fa-minus" data-rdt-link-ajax="true"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.desagrupar"/>
+												data-toggle="ajax" ><span class="fa fa-minus"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.desagrupar"/>
 									{{/if}}																		
 								</li>
 							</ul>
@@ -172,32 +172,17 @@ $(document).ready(function() {
 					$agrupacions = $(this).find("#accioAgrupacions");
 					$("#agrupacions option").each(function(){
 						if ($(this).val() != "")
-							$agrupacions.append("<a href='${expedientTipus.id}/variable/"+campId+"/agrupar/"+$(this).val()+"' class='ajax-link'>"+$(this).text()+"</a>");
+							$agrupacions.append("<a href='${expedientTipus.id}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
 					});
 				}
-			});	
-		}
-		// Botons per agrupar o desagrupar
-		$(".ajax-link").click(function(e) {
-			var getUrl = $(this).attr('href');
-			$.ajax({
-				type: 'GET',
-				url: getUrl,
-				async: true,
-				success: function(result) {
-					if (result) {
-						refrescaTaula();
-					}
-					webutilRefreshMissatges();
-				},
-				error: function(error) {
-					webutilRefreshMissatges();
-					console.log('Error:'+error);
-				}
 			});
-			e.stopImmediatePropagation();
-			return false;
-		});
+			$('[data-toggle="ajax"]', $(this)).each(function() {
+				if (!$(this).attr('data-ajax-eval')) {
+					$(this).webutilAjax();
+					$(this).attr('data-ajax-eval', 'true');
+				}
+			});			
+		}
 		if ($('#agrupacions').val() != "") {
 			// Posa la taula com a ordenable
 			$("#expedientTipusVariable").tableDnD({

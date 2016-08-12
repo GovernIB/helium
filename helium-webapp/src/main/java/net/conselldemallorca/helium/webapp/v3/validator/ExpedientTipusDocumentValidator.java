@@ -45,29 +45,6 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 						.addConstraintViolation();	
 				valid = false;
 			}
-			// Que no comenci amb una majúscula seguida de minúscula
-			if (document.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.maymin", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			// Que no contingui punts
-			if (document.getCodi().contains(".")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.char.nok", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			if (document.getCodi().contains(" ")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.char.espai", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
 		}
 
 		return valid;

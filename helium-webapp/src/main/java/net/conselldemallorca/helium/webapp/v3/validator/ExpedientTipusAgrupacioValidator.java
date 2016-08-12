@@ -14,9 +14,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
  * Validador per al manteniment d'agrupació de variables del tipus d'expedient:
  * - Comprova que el codi:
  * 		- no estigui duplicat
- * 		- No comenci per majúscula seguida de minúscula
- * 		- No contingui espais
- * 
  */
 public class ExpedientTipusAgrupacioValidator implements ConstraintValidator<ExpedientTipusAgrupacio, ExpedientTipusAgrupacioCommand>{
 
@@ -40,29 +37,6 @@ public class ExpedientTipusAgrupacioValidator implements ConstraintValidator<Exp
 			if(repetit != null && (agrupacio.getId() == null || !agrupacio.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			// Que no comenci amb una majúscula seguida de minúscula
-			if (agrupacio.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.maymin", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			// Que no contingui punts
-			if (agrupacio.getCodi().contains(".")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.char.nok", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			if (agrupacio.getCodi().contains(" ")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.char.espai", null))
 						.addNode("codi")
 						.addConstraintViolation();	
 				valid = false;

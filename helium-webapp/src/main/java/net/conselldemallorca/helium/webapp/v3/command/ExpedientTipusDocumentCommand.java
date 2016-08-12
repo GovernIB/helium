@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.validator.Codi;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusDocument;
 
 /**
@@ -25,6 +26,7 @@ public class ExpedientTipusDocumentCommand {
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
+	@Codi(groups = {Creacio.class, Modificacio.class})
 	private String codi;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;

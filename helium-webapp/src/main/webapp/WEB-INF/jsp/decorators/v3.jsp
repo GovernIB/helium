@@ -185,6 +185,7 @@
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/enumeracio/llistat.html"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/domini/llistat.html"/>"><spring:message code='decorators.entorn.dominis' /></a></li></c:if>
 									<c:if test="${dadesPersona.admin}"><li><a target="_BLANK" href="<c:url value="/consulta/llistat.html"/>"><spring:message code='decorator.menu.consultes' /></a></li></c:if>
+									<li><a href="<c:url value="/v3/consulta"/>"><spring:message code='decorator.menu.consultes' /></a></li>
 								</ul>
 							</div>
 						</c:if>

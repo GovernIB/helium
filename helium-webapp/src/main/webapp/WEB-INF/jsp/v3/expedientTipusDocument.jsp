@@ -48,7 +48,7 @@
 										<li><a href="${expedientTipus.id}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
 									{{/if}}
 									<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${expedientTipus.id}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</ul>
 							</div>
 						</script>
@@ -73,30 +73,6 @@
 // <![CDATA[
             
 $(document).ready(function() {
-
-	$('#expedientTipusDocument').on('draw.dt', function() {
-		// Botons per agrupar o desagrupar
-		$(".ajax-link").click(function(e) {
-			var getUrl = $(this).attr('href');
-			$.ajax({
-				type: 'GET',
-				url: getUrl,
-				async: true,
-				success: function(result) {
-					if (result) {
-						refrescaTaulaDocuments();
-					}
-					webutilRefreshMissatges();
-				},
-				error: function(error) {
-					webutilRefreshMissatges();
-					console.log('Error:'+error);
-				}
-			});
-			e.stopImmediatePropagation();
-			return false;
-		});
-	});
 });
 
 function refrescaTaulaDocuments() {

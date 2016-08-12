@@ -40,7 +40,7 @@
 		<div class="inlineLabels">        
 			<input type="hidden" name="id" id="inputCampRegistreId" value="${expedientTipusCampRegistreCommand.id}"/>
 			<input type="hidden" name="registreId" id="inputMembreId" value="${expedientTipusCampRegistreCommand.registreId}"/>
-			<hel:inputSelect required="true" emptyOption="true" name="membreId" textKey="expedient.tipus.campRegistre.form.camp.variable" placeholderKey="expedient.tipus.campRegistre.form.camp.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+			<hel:inputSelect required="true" emptyOption="true" name="membreId" textKey="expedient.tipus.consulta.vars.form.variable" placeholderKey="expedient.tipus.consulta.vars.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			<hel:inputCheckbox name="obligatori" textKey="expedient.tipus.campRegistre.form.camp.obligatori" />
 			<hel:inputCheckbox name="llistar" textKey="expedient.tipus.campRegistre.form.camp.llistar" />
 		</div>

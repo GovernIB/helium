@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -34,6 +35,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -56,7 +58,7 @@ public class ConversioTipusHelper {
 
 	public ConversioTipusHelper() {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
-		
+				
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<Document, DocumentDto>() {
 					@Override
@@ -297,6 +299,24 @@ public class ConversioTipusHelper {
 						target.setOrdre(source.getOrdre());
 						target.setObligatori(source.isObligatori());
 						target.setLlistar(source.isLlistar());
+						return target;
+					}
+		});		
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<ConsultaCamp, ConsultaCampDto>() {
+					@Override
+					public ConsultaCampDto convert(ConsultaCamp source, Type<? extends ConsultaCampDto> destinationClass) {
+						ConsultaCampDto target = new ConsultaCampDto();
+						target.setId(source.getId());
+						target.setCampCodi(source.getCampCodi());
+						target.setCampDescripcio(source.getCampDescripcio());
+						if (source.getParamTipus() != null)
+							target.setParamTipus(ConsultaCampDto.TipusParamConsultaCamp.valueOf(source.getParamTipus().toString()));
+						if (source.getCamp() != null) {
+							target.setCampId(source.getCamp().getId());
+							target.setCampTipus(CampTipusDto.valueOf(source.getCamp().getTipus().toString()));
+						}
+						target.setOrdre(source.getOrdre());
 						return target;
 					}
 		});		

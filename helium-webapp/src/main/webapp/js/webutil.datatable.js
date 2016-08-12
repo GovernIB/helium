@@ -90,7 +90,11 @@
 						if (plugin.settings.filtre) {
 							data = $.extend(
 									data,
-									$(plugin.settings.filtre).serializeObject());
+									JSON.stringify($(plugin.settings.filtre).serializeArray()));
+							var valors = $(plugin.settings.filtre).serializeArray();
+							for (i=0; i<valors.length; i++) {
+								data[valors[i].name] = valors[i].value;
+							}
 						}
 					}
 				},

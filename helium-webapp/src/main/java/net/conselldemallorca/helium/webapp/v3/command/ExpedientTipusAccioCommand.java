@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.validator.Codi;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusAccio;
 
 /**
@@ -24,6 +25,7 @@ public class ExpedientTipusAccioCommand {
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
+	@Codi(groups = {Creacio.class, Modificacio.class})
 	private String codi;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})

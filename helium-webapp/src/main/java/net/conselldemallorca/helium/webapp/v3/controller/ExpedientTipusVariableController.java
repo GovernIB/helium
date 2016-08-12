@@ -235,6 +235,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long id,
 			Model model) {
 		
+		// Valida que la variable no s'utilitzi en cap registre o consulta
 		try {
 			expedientTipusService.campDelete(id);
 			

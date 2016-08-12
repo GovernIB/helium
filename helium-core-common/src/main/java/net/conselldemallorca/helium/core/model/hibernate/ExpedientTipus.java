@@ -434,6 +434,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 
 	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
+	@OrderBy("ordre asc")
 	public Set<Consulta> getConsultes() {
 		return this.consultes;
 	}

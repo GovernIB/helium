@@ -7,6 +7,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -22,6 +23,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
@@ -1349,5 +1351,196 @@ public interface ExpedientTipusService {
 	 * @throws NoTrobatException	Si no es troba l'estat
 	 */
 	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException;
+	
+	
+	/**
+	 * Crea una nova consulta.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param consulta
+	 *            La informació de la consulta a crear.
+	 * @return la consulta creada.
+	 * @throws ConsultaDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ConsultaDto consultaCreate(
+			Long expedientTipusId,
+			ConsultaDto consulta) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'una consulta existent.
+	 * 
+	 * @param consulta
+	 *            La informació de la consulta a modificar.
+	 * @param actualitzarContingut Indica si el contingut del blob ha canviat.
+	 * @return la consulta modificada.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws ConsultaDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ConsultaDto consultaUpdate(
+			ConsultaDto consulta, 
+			boolean actualitzarContingut) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un entitat.
+	 * 
+	 * @param consultaId
+	 *            Atribut id de la consulta.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws ConsultaDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void consultaDelete(
+			Long consultaId) throws NoTrobatException, PermisDenegatException;	
+	
+	/** 
+	 * Retorna la consulta del tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return La consulta del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public ConsultaDto consultaFindAmbId(
+			Long id) throws NoTrobatException;	
+	
+	/** 
+	 * Retorna la llista d'consultes del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param expedientTipusId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param string 
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<ConsultaDto> consultaFindPerDatatable(
+			Long entornId,
+			Long expedientTipusId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+	
+	/**
+	 * Retorna una consulta d'una consulta d'un tipus d'expedient donat el seu codi.
+	 * 
+	 * @param tipusExpedientId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return La consulta del tipus d'expedient o null si no el troba.
+	 */
+	public ConsultaDto consultaFindAmbCodiPerValidarRepeticio(
+			Long tipusExpedientId,
+			String codi) throws NoTrobatException;	
+	
+	/** Mou la consulta id cap a la posició indicada reassignant el valor pel camp ordre.
+	 * 
+	 * @param id
+	 * @param posicio
+	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
+	 */
+	public boolean consultaMourePosicio(Long id, int posicio);
+	
+	/**
+	 * Crea un nou camp per la consulta.
+	 * 
+	 * @param consultaId
+	 *            Atribut id de la consulta.
+	 * @param consultaCamp
+	 *            La informació del camp de la consulta a crear.
+	 * @return el camp de la consulta creat.
+	 * @throws ConsultaCampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ConsultaCampDto consultaCampCreate(
+			Long consultaId,
+			ConsultaCampDto consultaCamp) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'un paràmentre de consulta existent.
+	 * 
+	 * @param consultaCamp
+	 *            La informació del camp del registre a modificar.
+	 * @return el camp del registre modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ConsultaCampDto consultaCampUpdate(
+			ConsultaCampDto consultaCamp) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un camp de la consulta.
+	 * 
+	 * @param id
+	 *            Atribut id del camp de la consulta.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void consultaCampDelete(
+			Long id) throws NoTrobatException, PermisDenegatException;	
+	
 
+	/** 
+	 * Retorna la llista de camps de la consulta del tipus d'expedient paginada per la datatable.
+	 * 
+	 * @param consultaId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina de la llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<ConsultaCampDto> consultaCampFindPerDatatable(
+			Long consultaId,
+			TipusConsultaCamp tipus,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+
+	/** Mou el camp de la consulta amb id de camp cap a la posició indicada reassignant el valor pel camp ordre.
+	 * 
+	 * @param id
+	 * @param posicio
+	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
+	 */
+	public boolean consultaCampMourePosicio(Long id, int posicio);
+
+	/** Mètode per consultar tots els camps d'una consulta filtrant per tipus
+	 * 
+	 * @param consultaId
+	 * @param tipus
+	 * @return
+	 */
+	public List<ConsultaCampDto> consultaCampFindCampAmbConsultaIdAndTipus(
+			Long consultaId, 
+			TipusConsultaCamp tipus);
+	
+	/**
+	 * Retorna una consulta d'un camp de consulta d'un tipus d'expedient donat el seu codi i 
+	 * el tipus.
+	 * 
+	 * @param consultaId
+	 * @param tipus
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return La consulta del tipus d'expedient o null si no el troba.
+	 */
+	public ConsultaCampDto consultaCampFindAmbTipusICodiPerValidarRepeticio(
+			Long consultaId,
+			TipusConsultaCamp tipus,
+			String codi) throws NoTrobatException;		
 }

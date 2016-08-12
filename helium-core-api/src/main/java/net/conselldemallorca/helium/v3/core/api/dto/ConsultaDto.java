@@ -29,6 +29,13 @@ public class ConsultaDto implements Serializable, Comparable<ConsultaDto> {
 
 	private Set<ConsultaCampDto> camps = new HashSet<ConsultaCampDto>();
 	private String formatExport;
+	
+	/** Per mostrar el comptador de variables de tipus filtre */
+	private int varsFiltreCount = 0;
+	/** Per mostrar el comptador de variables de tipus informe */
+	private int varsInformeCount = 0;
+	/** Per mostrar el comptador de variables de tipus paràmetre */
+	private int parametresCount = 0;
 
 	public ConsultaDto() {}
 	public ConsultaDto(String codi, String nom) {
@@ -126,8 +133,26 @@ public class ConsultaDto implements Serializable, Comparable<ConsultaDto> {
 	}
 	public void setFormatExport(String formatExport) {
 		this.formatExport = formatExport;
-	}
+	}	
 
+	public int getVarsFiltreCount() {
+		return varsFiltreCount;
+	}
+	public void setVarsFiltreCount(int varsFiltreCount) {
+		this.varsFiltreCount = varsFiltreCount;
+	}
+	public int getVarsInformeCount() {
+		return varsInformeCount;
+	}
+	public void setVarsInformeCount(int varsInformeCount) {
+		this.varsInformeCount = varsInformeCount;
+	}
+	public int getParametresCount() {
+		return parametresCount;
+	}
+	public void setParametresCount(int parametresCount) {
+		this.parametresCount = parametresCount;
+	}
 	@Override
 	public int compareTo(ConsultaDto o) {
 		return this.getNom().compareTo(o.getNom());

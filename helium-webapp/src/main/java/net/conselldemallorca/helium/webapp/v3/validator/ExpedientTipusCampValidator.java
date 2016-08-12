@@ -15,8 +15,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
  * Validador per al manteniment de variables del tipus d'expedient:
  * - Comprova que el codi:
  * 		- no estigui duplicat
- * 		- No comenci per majúscula seguida de minúscula
- * 		- No contingui espais
  * - Comprova que el tipus:
  * 
  */
@@ -42,29 +40,6 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			// Que no comenci amb una majúscula seguida de minúscula
-			if (camp.getCodi().matches("^[A-Z]{1}[a-z]{1}.*")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.maymin", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			// Que no contingui punts
-			if (camp.getCodi().contains(".")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.char.nok", null))
-						.addNode("codi")
-						.addConstraintViolation();	
-				valid = false;
-			}
-			if (camp.getCodi().contains(" ")) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.char.espai", null))
 						.addNode("codi")
 						.addConstraintViolation();	
 				valid = false;

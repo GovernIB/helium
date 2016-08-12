@@ -74,7 +74,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${baseUrl}/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.campValidacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="${baseUrl}/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.campValidacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -122,25 +122,6 @@
 				mostraFormulariUpdate(validacioId);
 				return false;
 		    });
-			// Botons eliminar
-			$(".ajax-link").click(function(e) {
-				var getUrl = $(this).attr('href');
-				$.ajax({
-					type: 'GET',
-					url: getUrl,
-					async: true,
-					success: function(result) {
-						$('#campValidacio').webutilDatatable('refresh');
-						webutilRefreshMissatges();
-					},
-					error: function(error) {
-						webutilRefreshMissatges();
-						console.log('Error:'+error);
-					}
-				});
-				e.stopImmediatePropagation();
-				return false;
-			});
 		  });			
 	});
 	

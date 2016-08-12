@@ -33,7 +33,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a data-toggle="modal" data-callback="callbackModalEstats()" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${expedientTipus.id}/estat/{{:id}}/delete" class="ajax-link" data-confirm="<spring:message code="expedient.tipus.estat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="${expedientTipus.id}/estat/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.estat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -55,27 +55,6 @@
 <script>
 $(document).ready(function() {
 	$('#expedientTipusEstat').on('draw.dt', function() {
-		// Botons per agrupar o desagrupar
-		$(".ajax-link").click(function(e) {
-			var getUrl = $(this).attr('href');
-			$.ajax({
-				type: 'GET',
-				url: getUrl,
-				async: true,
-				success: function(result) {
-					if (result) {
-						refrescaTaula();
-					}
-					webutilRefreshMissatges();
-				},
-				errlr: function(error) {
-					webutilRefreshMissatges();
-					console.log('Error:'+error);
-				}
-			});
-			e.stopImmediatePropagation();
-			return false;
-		});
 		// Posa la taula com a ordenable
 		$("#expedientTipusEstat").tableDnD({
 	    	onDragClass: "drag",

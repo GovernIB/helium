@@ -7,16 +7,11 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand.Modificacio;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusAgrupacio;
-
 /**
  * Command per editar la informació de les validacions de variables dels tipus d'expedient 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@ExpedientTipusAgrupacio(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusValidacioCommand {
 	
 	private Long expedientTipusId;

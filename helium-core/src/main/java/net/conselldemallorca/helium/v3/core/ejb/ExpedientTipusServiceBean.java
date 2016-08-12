@@ -17,6 +17,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -825,5 +827,95 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				expedientTipusId,
 				filtre, 
 				paginacioParams);
-	}		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaDto consultaCreate(Long expedientTipusId, ConsultaDto consulta) throws PermisDenegatException {
+		return delegate.consultaCreate(expedientTipusId, consulta);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaDto consultaUpdate(ConsultaDto consulta, boolean actualitzarContingut) throws NoTrobatException, PermisDenegatException {
+		return delegate.consultaUpdate(consulta, actualitzarContingut);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void consultaDelete(Long consultaId) throws NoTrobatException, PermisDenegatException {
+		delegate.consultaDelete(consultaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaDto consultaFindAmbId(Long id) throws NoTrobatException {
+		return delegate.consultaFindAmbId(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<ConsultaDto> consultaFindPerDatatable(Long entornId, Long expedientTipusId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.consultaFindPerDatatable(entornId, expedientTipusId, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaDto consultaFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi)
+			throws NoTrobatException {
+		return delegate.consultaFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean consultaMourePosicio(Long id, int posicio) {
+		return delegate.consultaMourePosicio(id, posicio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaCampDto consultaCampCreate(Long consultaId, ConsultaCampDto consultaCamp)
+			throws PermisDenegatException {
+		return delegate.consultaCampCreate(consultaId, consultaCamp);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void consultaCampDelete(Long id) throws NoTrobatException, PermisDenegatException {
+		delegate.consultaCampDelete(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<ConsultaCampDto> consultaCampFindPerDatatable(Long consultaId, TipusConsultaCamp tipus,
+			String filtre, PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.consultaCampFindPerDatatable(consultaId, tipus, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean consultaCampMourePosicio(Long id, int posicio) {
+		return delegate.consultaCampMourePosicio(id, posicio);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ConsultaCampDto> consultaCampFindCampAmbConsultaIdAndTipus(Long consultaId, TipusConsultaCamp tipus) {
+		return delegate.consultaCampFindCampAmbConsultaIdAndTipus(consultaId, tipus);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaCampDto consultaCampUpdate(ConsultaCampDto consultaCamp)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.consultaCampUpdate(consultaCamp);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ConsultaCampDto consultaCampFindAmbTipusICodiPerValidarRepeticio(Long consultaId, TipusConsultaCamp tipus,
+			String codi) throws NoTrobatException {
+		return delegate.consultaCampFindAmbTipusICodiPerValidarRepeticio(consultaId, tipus, codi);
+	}
 }
