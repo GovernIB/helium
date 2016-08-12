@@ -22,7 +22,7 @@
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
 			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">${campLabelText}</label>
 			<div class="col-xs-${12 - labelSize}">
-				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}"/>
+				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" placeholder="${campPlaceholder}"/>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 			<c:if test="${not empty comment}">

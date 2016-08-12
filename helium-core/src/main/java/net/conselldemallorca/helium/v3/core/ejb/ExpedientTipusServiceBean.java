@@ -81,6 +81,22 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateIntegracioForms(
+			Long entornId, 
+			Long expedientTipusId, 
+			String url, 
+			String usuari,
+			String contrasenya) {
+		return delegate.updateIntegracioForms(
+				entornId, 
+				expedientTipusId, 
+				url, 
+				usuari, 
+				contrasenya);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(
 			Long entornId,
 			Long expedientTipusId) {

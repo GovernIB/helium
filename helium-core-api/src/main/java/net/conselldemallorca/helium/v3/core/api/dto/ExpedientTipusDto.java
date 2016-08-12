@@ -47,8 +47,11 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 
 	private int permisCount = 0;
 
-
-
+	// integració amb forms
+	private String formextUrl;
+	private String formextUsuari;
+	private String formextContrasenya;
+	
 	public Long getId() {
 		return id;
 	}
@@ -215,6 +218,24 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 		return consultes;
 	}
 
+	public String getFormextUrl() {
+		return formextUrl;
+	}
+	public void setFormextUrl(String formextUrl) {
+		this.formextUrl = formextUrl;
+	}
+	public String getFormextUsuari() {
+		return formextUsuari;
+	}
+	public void setFormextUsuari(String formextUsuari) {
+		this.formextUsuari = formextUsuari;
+	}
+	public String getFormextContrasenya() {
+		return formextContrasenya;
+	}
+	public void setFormextContrasenya(String formextContrasenya) {
+		this.formextContrasenya = formextContrasenya;
+	}
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

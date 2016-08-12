@@ -81,6 +81,28 @@ public interface ExpedientTipusService {
 			List<Integer> sequenciesAny, 
 			List<Long> sequenciesValor) throws NoTrobatException, PermisDenegatException;
 
+	/** Modifica les dades del tipus d'expedient referents a la integració amb formularis externs.
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param url
+	 * @param usuari
+	 * @param contrasenya
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto updateIntegracioForms(
+			Long entornId, 
+			Long expedientTipusId, 
+			String url, 
+			String usuari, 
+			String contrasenya);		
+
 	/**
 	 * Esborra una entitat.
 	 * 
@@ -1542,5 +1564,5 @@ public interface ExpedientTipusService {
 	public ConsultaCampDto consultaCampFindAmbTipusICodiPerValidarRepeticio(
 			Long consultaId,
 			TipusConsultaCamp tipus,
-			String codi) throws NoTrobatException;		
+			String codi) throws NoTrobatException;
 }

@@ -221,6 +221,11 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultMap.put(entry.getKey(), valueDto);
 						}					    
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultMap);
+						
+						target.setFormextUrl(source.getFormextUrl());
+						target.setFormextUsuari(source.getFormextUsuari());
+						target.setFormextContrasenya(source.getFormextContrasenya());
+
 						return target;
 					}
 				});

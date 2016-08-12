@@ -21,9 +21,7 @@ public class CodiValidator implements ConstraintValidator<Codi, String>{
 
 		boolean valid = true;
 		
-		if (codi == null) {
-			valid = false;
-		} else {
+		if (codi != null) {
 			// Que no comenci amb una majúscula seguida de minúscula
 			if (codi.matches("^[A-Z]{1}[a-z]{1}.*")) {
 				context.buildConstraintViolationWithTemplate(

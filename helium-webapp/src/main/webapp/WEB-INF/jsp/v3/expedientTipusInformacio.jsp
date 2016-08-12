@@ -17,13 +17,16 @@
 		color: #999;
 		font-style: italic;
 		font-weight: normal;
+		float: left;
+		width: 20em;
+		margin: 0 0 0 0;
+		padding: .2em .5em;
 	}
 	#expedientTipus-info dd {
 		font-size: medium;
 		font-weight: bold;
-		margin-bottom: 0.4em;
-	    display: block;
-	    margin-left: 150px;
+		margin: 0 0 0 0;
+		padding: .2em .5em;
 	}
 	#expedientTipus-info-accio {
 		margin-top: 1em;
@@ -34,7 +37,7 @@
 	<c:when test="${not empty expedientTipus}">		
 		<form class="well">
 			<div id="expedientTipus-info" class="row">
-				<div class="col-md-10">
+				<div class="col-md-12">
 					<dl>
 						<dt><spring:message code="expedient.tipus.info.camp.codi"/></dt>
 						<dd>${expedientTipus.codi}</dd>
@@ -62,8 +65,6 @@
 							<dd>${definicioProcesInicial.jbpmKey}</dd>
 						</c:if>
 					</dl>
-				</div>
-				<div class="col-md-2 text-right text-bottom">
 					<c:if test="${potEscriure or potEsborrar}">
 						<div id="expedientTipus-info-accio" class="dropdown">
 							<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}}/imatgeProces"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.eines"/>&nbsp;<span class="caret"></span></a>

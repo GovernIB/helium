@@ -274,6 +274,42 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 */
 	@Override
 	@Transactional
+	public ExpedientTipusDto updateIntegracioForms(
+			Long entornId, 
+			Long expedientTipusId, 
+			String url, 
+			String usuari,
+			String contrasenya) {
+		logger.debug(
+				"Modificant tipus d'expedient amb dades d'integracio amb formularis externs (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipus=" + expedientTipusId + ", " +
+				"url=" + url + ", " +
+				"usuari=" + usuari + ", " +
+				"contrasenya=" + contrasenya + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
+				entorn,
+				expedientTipusId);
+		entity.setFormextUrl(url);
+		entity.setFormextUsuari(usuari);
+		entity.setFormextContrasenya(contrasenya);
+
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);	
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
 	public void delete(
 			Long entornId,
 			Long expedientTipusId) {
@@ -3423,5 +3459,4 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}		
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
 }
