@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Map;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -8,6 +9,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
@@ -17,13 +19,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
@@ -102,6 +105,25 @@ public interface ExpedientTipusService {
 			String url, 
 			String usuari, 
 			String contrasenya);		
+
+	/** Modifica les dades del tipus d'expedient referents amb la integració amb els tràmits de 
+	 * Sistra.
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @param tramitCodi
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto updateIntegracioTramits(
+			Long entornId, 
+			Long expedientTipusId, 
+			String tramitCodi);
 
 	/**
 	 * Esborra una entitat.
@@ -1565,4 +1587,107 @@ public interface ExpedientTipusService {
 			Long consultaId,
 			TipusConsultaCamp tipus,
 			String codi) throws NoTrobatException;
+	
+	/** Mètode per consultar tots els mapejos d'un tipus d'expedient segons el tipus
+	 * per validar la repetició i per filtrar variables ja utilitzades.
+	 * 
+	 * @param consultaId
+	 * @param tipus
+	 * @return
+	 */
+	public List<String> mapeigFindCodiHeliumAmbTipus(
+			Long expedientTipusId, 
+			TipusMapeig tipus);
+
+	/** Compta les variables, documents i adjunts per a un tipus d'expedient. 
+	 * @param expedientTipusId 
+	 * @return Retorna un Map segons el tipus i el recompte.
+	 */
+	public Map<TipusMapeig, Long> mapeigCountsByTipus(Long expedientTipusId);
+
+	/** 
+	 * Retorna la llista de mapejos de la integració amb Sistra del tipus 
+	 * d'expedient paginada per la datatable.
+	 * 
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina de la llistat de tipus d'expedients.
+	 */
+	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(
+			Long expedientTipusId, 
+			TipusMapeig tipus, 
+			PaginacioParamsDto paginacioParams);
+
+	/**
+	 * Crea un nou mapeig per a la integració amb Sistra del tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del camp del tipus d'expedient.
+	 * @param mapeig
+	 *            La informació del mapeig a crear.
+	 * @return el mapeig creat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public MapeigSistraDto mapeigCreate(
+			Long expedientTipusId,
+			MapeigSistraDto mapeig) throws PermisDenegatException;
+	
+
+	/**
+	 * Modificació d'un mapeig existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param mapeig
+	 *            La informació del mapeig a modificar.
+	 * @return el mapeig modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public MapeigSistraDto mapeigUpdate(
+			MapeigSistraDto mapeig) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un mapeig.
+	 * 
+	 * @param mapeigId
+	 *            Atribut id del mapeig.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void mapeigDelete(
+			Long mapeigId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna una mapeig d'un tipus d'expedient donat el seu codi helium.
+	 * 
+	 * @param tipusExpedientId
+	 * @param codiHelium
+	 *            El codi per a la consulta.
+	 * @return La accio del tipus d'expedient o null si no el troba.
+	 */
+	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(
+			Long expedientTipusId, 
+			String codiHelium);		
+	
+	/**
+	 * Retorna una mapeig d'un tipus d'expedient donat el seu codi Sistra.
+	 * 
+	 * @param tipusExpedientId
+	 * @param codiSistra
+	 *            El codi per a la consulta.
+	 * @return La accio del tipus d'expedient o null si no el troba.
+	 */
+	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
+			Long expedientTipusId, 
+			String codiSistra);		
 }

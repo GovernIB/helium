@@ -48,6 +48,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -70,6 +71,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
@@ -94,6 +97,7 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -142,6 +146,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private TerminiRepository terminiRepository;
 	@Resource
 	private EstatRepository estatRepository;
+	@Resource
+	private MapeigSistraRepository mapeigSistraRepository;
 	
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
@@ -304,6 +310,36 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public ExpedientTipusDto updateIntegracioTramits(
+			Long entornId, 
+			Long expedientTipusId, 
+			String tramitCodi) {
+		logger.debug(
+				"Modificant tipus d'expedient amb dades d'integracio amb tramits de Sistra (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipus=" + expedientTipusId + ", " +
+				"tramitCodi=" + tramitCodi + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		ExpedientTipus entity = expedientTipusRepository.findByEntornAndId(
+				entorn,
+				expedientTipusId);
+		entity.setSistraTramitCodi(tramitCodi);
+
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);	
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -3458,5 +3494,181 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ConsultaCampDto.class);
 	}		
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> mapeigFindCodiHeliumAmbTipus(
+			Long expedientTipusId, 
+			TipusMapeig tipus) {
+		logger.debug(
+				"Consultant els codis helium dels mapegos segons un tipus de filtre");
+		
+		ExpedientTipus expedientTipus = 
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		List<String> codisHelium = mapeigSistraRepository.findCodiHeliumByExpedientTipusAndTipus(
+				expedientTipus, 
+				MapeigSistra.TipusMapeig.valueOf(tipus.toString()));
+
+		return codisHelium;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Map<TipusMapeig, Long> mapeigCountsByTipus(Long expedientTipusId) {
+		logger.debug(
+				"Consultant els codis helium dels mapegos segons un tipus de filtre");
+		
+		ExpedientTipus expedientTipus = 
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		List<Object[]> mapejosCount = mapeigSistraRepository.countTipus(
+				expedientTipus);
+		Map<TipusMapeig, Long> recomptes = new HashMap<TipusMapeig, Long>();
+		MapeigSistra.TipusMapeig tipus;
+		Long count;
+		for (Object[] mc : mapejosCount) {
+			tipus = (MapeigSistra.TipusMapeig) mc[0];
+			count = (Long) mc[1];
+			recomptes.put(TipusMapeig.valueOf(tipus.toString()), count);
+		}
+		// Assegura que el valor hi sigui en el resultat del recompte
+		for (TipusMapeig t : TipusMapeig.values())
+			if (! recomptes.containsKey(t))
+				recomptes.put(t, 0L);
+
+		return recomptes;
+	}	
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
+	@Override
+	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(
+			Long expedientTipusId, 
+			TipusMapeig tipus, 
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els mapejos per un tipus d'expedient per datatable (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"tipus=" + tipus + ")");
+		
+		return paginacioHelper.toPaginaDto(
+				mapeigSistraRepository.findByFiltrePaginat(
+						expedientTipusId, 
+						MapeigSistra.TipusMapeig.valueOf(tipus.toString()),
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				MapeigSistraDto.class);		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public MapeigSistraDto mapeigCreate(
+			Long expedientTipusId, 
+			MapeigSistraDto mapeig) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant un nou mapeig per un tipus d'expedient (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"mapeig=" + mapeig + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		
+		MapeigSistra entity = new MapeigSistra();
+				
+		entity.setCodiSistra(mapeig.getCodiSistra());
+		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
+			entity.setCodiHelium(mapeig.getCodiSistra());
+		else
+			entity.setCodiHelium(mapeig.getCodiHelium());
+		entity.setTipus(MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString()));
+		// MapeigSistra associat a l'expedient
+		entity.setExpedientTipus(expedientTipus);		
+
+		return conversioTipusHelper.convertir(
+				mapeigSistraRepository.save(entity),
+				MapeigSistraDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public MapeigSistraDto mapeigUpdate(MapeigSistraDto mapeig) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant el mapeig del tipus d'expedient existent (" +
+				"mapeig.id=" + mapeig.getId() + ", " +
+				"mapeig =" + mapeig + ")");
+		MapeigSistra entity = mapeigSistraRepository.findOne(mapeig.getId());
+
+		entity.setCodiSistra(mapeig.getCodiSistra());
+		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
+			entity.setCodiHelium(mapeig.getCodiSistra());
+		else
+			entity.setCodiHelium(mapeig.getCodiHelium());
+				
+		return conversioTipusHelper.convertir(
+				mapeigSistraRepository.save(entity),
+				MapeigSistraDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void mapeigDelete(Long mapeigMapeigSistraId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant el mapeig del tipus d'expedient (" +
+				"mapeigId=" + mapeigMapeigSistraId +  ")");
+		MapeigSistra entity = mapeigSistraRepository.findOne(mapeigMapeigSistraId);
+		mapeigSistraRepository.delete(entity);	
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(
+			Long expedientTipusId, 
+			String codiHelium) {
+		logger.debug(
+				"Consultant el mapeig del tipus d'expedient per codi helium per validar repetició (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codiHelium = " + codiHelium + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return conversioTipusHelper.convertir(
+				mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, codiHelium),
+				MapeigSistraDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
+			Long expedientTipusId, 
+			String codiSistra) {
+		logger.debug(
+				"Consultant el mapeig del tipus d'expedient per codi sistra per validar repetició (" +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"codiSistra = " + codiSistra + ")");
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		return conversioTipusHelper.convertir(
+				mapeigSistraRepository.findByExpedientTipusAndCodiSistra(expedientTipus, codiSistra),
+				MapeigSistraDto.class);
+	}	
 }

@@ -225,6 +225,8 @@ public class ConversioTipusHelper {
 						target.setFormextUrl(source.getFormextUrl());
 						target.setFormextUsuari(source.getFormextUsuari());
 						target.setFormextContrasenya(source.getFormextContrasenya());
+						
+						target.setSistraTramitCodi(source.getSistraTramitCodi());
 
 						return target;
 					}

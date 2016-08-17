@@ -51,6 +51,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String formextUrl;
 	private String formextUsuari;
 	private String formextContrasenya;
+	// Integració amb tràmits Sistra
+	private String sistraTramitCodi;
 	
 	public Long getId() {
 		return id;
@@ -235,6 +237,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setFormextContrasenya(String formextContrasenya) {
 		this.formextContrasenya = formextContrasenya;
+	}
+	public String getSistraTramitCodi() {
+		return sistraTramitCodi;
+	}
+	public void setSistraTramitCodi(String sistraTramitCodi) {
+		this.sistraTramitCodi = sistraTramitCodi;
 	}
 	public int hashCode() {
 		final int prime = 31;

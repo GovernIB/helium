@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -28,6 +29,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
@@ -95,6 +98,18 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				contrasenya);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateIntegracioTramits(
+			Long entornId, 
+			Long expedientTipusId, 
+			String tramitCodi) {
+		return delegate.updateIntegracioTramits(
+				entornId, 
+				expedientTipusId, 
+				tramitCodi);
+	}
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void delete(
@@ -933,5 +948,54 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public ConsultaCampDto consultaCampFindAmbTipusICodiPerValidarRepeticio(Long consultaId, TipusConsultaCamp tipus,
 			String codi) throws NoTrobatException {
 		return delegate.consultaCampFindAmbTipusICodiPerValidarRepeticio(consultaId, tipus, codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> mapeigFindCodiHeliumAmbTipus(Long expedientTipusId, TipusMapeig tipus) {
+		return delegate.mapeigFindCodiHeliumAmbTipus(expedientTipusId, tipus);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Map<TipusMapeig, Long> mapeigCountsByTipus(Long expedientTipusId) {
+		return delegate.mapeigCountsByTipus(expedientTipusId);
+	}
+
+	@Override
+	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(Long expedientTipusId, TipusMapeig tipus,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.mapeigFindPerDatatable(expedientTipusId, tipus, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public MapeigSistraDto mapeigCreate(Long expedientTipusId, MapeigSistraDto mapeig) throws PermisDenegatException {
+		return delegate.mapeigCreate(expedientTipusId, mapeig);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public MapeigSistraDto mapeigUpdate(MapeigSistraDto mapeig) throws NoTrobatException, PermisDenegatException {
+		return delegate.mapeigUpdate(mapeig);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void mapeigDelete(Long mapeigId) throws NoTrobatException, PermisDenegatException {
+		delegate.mapeigDelete(mapeigId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(Long expedientTipusId, String codiHelium) {
+		// TODO Auto-generated method stub
+		return delegate.mapeigFindAmbCodiHeliumPerValidarRepeticio(expedientTipusId, codiHelium);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(Long expedientTipusId, String codiSistra) {
+		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, codiSistra);
 	}
 }
