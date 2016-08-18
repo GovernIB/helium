@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -113,10 +114,14 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 
 	/**************************/
 	
-	public static void saveError(Long operacioMassivaId, Throwable error) {
-		StringWriter out = new StringWriter();
-		error.printStackTrace(new PrintWriter(out));
-		errorsMassiva.put(operacioMassivaId, out.toString());
+	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
+		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
+			StringWriter out = new StringWriter();
+			error.printStackTrace(new PrintWriter(out));
+			errorsMassiva.put(operacioMassivaId, out.toString());
+		} else {
+			errorsMassiva.put(operacioMassivaId, error.getMessage());
+		}
 	}
 	
 	private static String getError(Long operacioMassivaId) {

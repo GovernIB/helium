@@ -54,6 +54,7 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	private String tascaId;
 	private String processInstanceId;
 	private Long definicioProcesId;
+	private String auxText;
 
 
 	public ExecucioMassivaExpedient() {}
@@ -185,6 +186,14 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.definicioProcesId = definicioProcesId;
 	}
 	
+	@Column(name="aux_text", nullable=true)
+	public String getAuxText() {
+		return auxText;
+	}
+	public void setAuxText(String auxText) {
+		this.auxText = auxText;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -216,8 +225,6 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 			return false;
 		return true;
 	}
-
-
 
 	private static final long serialVersionUID = 1L;
 

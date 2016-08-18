@@ -100,7 +100,8 @@ public class ExecucioMassivaService {
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) throws Exception {
 		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) ||
 			(dto.getTascaIds() != null && dto.getTascaIds().length > 0) ||
-			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty())) {
+			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty()) ||
+			(dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
 			String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
 			if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
 			log += ", numExpedients=";
@@ -171,9 +172,17 @@ public class ExecucioMassivaService {
 							expedientTipus = expedient.getTipus();
 					}
 				}
+			} else if (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0) {
+				for (Long defProcId: dto.getDefProcIds()) {
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+							execucioMassiva,
+							defProcId,
+							ordre++);
+					execucioMassiva.addExpedient(eme);
+				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
-			if (expedients) {
+			if (expedients || (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
 				execucioMassiva.setRols(getRols(auth, expedientTipus));
 				execucioMassivaDao.saveOrUpdate(execucioMassiva);
 			} else { 
@@ -267,8 +276,10 @@ public class ExecucioMassivaService {
 			    			titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
 			    		if (titol.length() == 0)
 			    			titol = exp.getNumeroDefault();
-					} else {
+					} else if (execucio.getTipus() == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 						titol = getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
+					} else if (execucio.getTipus() == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC){
+						titol = getMessage("expedient.massiva.eliminar.dp") + " " + expedient.getDefinicioProcesId();
 					}
 					
 					Map mjson_exp = new LinkedHashMap();

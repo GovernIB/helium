@@ -8,11 +8,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -20,15 +23,19 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
@@ -51,6 +58,8 @@ public class ExpedientTipusController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
+	@Autowired
+	private ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	private AplicacioService aplicacioService;
 	@Autowired
@@ -338,6 +347,46 @@ public class ExpedientTipusController extends BaseExpedientController {
 		model.addAttribute(new PermisCommand());
 		return "redirect:/v3/expedientTipus/" + id + "/permis";
 	}
+	
+	
+	@RequestMapping(value = "{id}/borra_logsexps", method = RequestMethod.POST)
+	@ResponseBody
+	public String borra_logsExps(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@RequestParam(value = "definicioProcesId", required = true) String definicioProcesId,
+			@RequestParam(value = "expedientsId", required = false) String expedients,
+			ModelMap model) throws Exception {
+		String response = "{\"resultat\":\"";
+		if (expedients == null || expedients.isEmpty()) {
+			response += getMessage(request, "error.no.exp.selec");
+		} else {
+			List<Long> expedientIds = new ArrayList<Long>();
+			expedients = expedients.substring(1, expedients.length() - 1);
+			String[] expedientsId = expedients.split(",");
+			for (String expedient: expedientsId) {
+				Long expedientId = Long.parseLong(expedient);
+				expedientIds.add(expedientId);
+			}
+			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+			dto.setDataInici(new Date());
+			dto.setEnviarCorreu(false);
+			dto.setExpedientIds(expedientIds);
+			dto.setExpedientTipusId(id);
+			dto.setTipus(ExecucioMassivaTipusDto.BUIDARLOG);
+			dto.setParam1(definicioProcesId);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				response += getMessage(request, "info.defproc.esborrar.massiu.executat", new Object[] {expedientIds.size()});
+			} catch (Exception e) {
+				logger.error("Error al programar les accions massives", e);
+				response += getMessage(request, "error.no.massiu");
+			}
+		}
+		response += "\"}";
+		return response;
+	}
+	
 
 	@RequestMapping(value = "/{id}/permis/datatable", method = RequestMethod.GET)
 	@ResponseBody
@@ -361,5 +410,6 @@ public class ExpedientTipusController extends BaseExpedientController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
-
+	
+	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);
 }

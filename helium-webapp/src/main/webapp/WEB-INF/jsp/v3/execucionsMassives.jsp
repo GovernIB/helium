@@ -96,6 +96,23 @@
 		.one-line{
 			display: inline-flex;
 		}
+		.massiu-expedient-edp {
+			width: 350px !important;
+		}
+		.massiu-estat-edp {
+			text-overflow: ellipsis;
+		    overflow: hidden;
+		    white-space: normal !important;
+		}
+		.massiu-data-edp {
+			width: 175px !important;
+		}
+		.lin-exp {
+			margin-top: 7px;
+		}
+		.bexpborrartotslogs {
+			margin-bottom: 8px;
+		}
 	</style>
 	<script type="text/javascript">	
 		var page = 0;
@@ -123,7 +140,6 @@
 			});
 			
 			carregaExecucionsMassives(0, true);
-			
 		});
 	    
 		var changeTooltipPosition = function(event) {
@@ -165,6 +181,75 @@
 			var el = document.elementFromPoint(event.pageX, event.pageY);
 	   		$('div.tooltip').remove();
 		};
+		
+		function bindButtons() {
+// 			$(".bexpborrarlog").off('click');
+			$(".bexpborrartotslogs").off('click');
+			
+// 			$(".bexpborrarlog").on('click', function(){
+// 				var btn = $(this);
+// 				var expId = btn.data("id");
+// 				var expTipus = btn.data("expedienttipus");
+// 				$("body").css("cursor", "progress");
+// 				$.ajax({
+// 					type: "POST",
+// 					url: '<c:url value="/nodeco/expedientTipus/borra_logsexp.html"/>',
+// 					dataType: 'json',
+// 					data: {expedientId: expId, expedientTipusId: expTipus},
+// 					success: function(data){
+// 						btn.after('<span class="exp_info">' + data.resultat + '</span>');
+// 						btn.remove();
+// 						$("body").css("cursor", "default");
+// 					}
+// 				})
+// 				.fail(function( jqxhr, textStatus, error ) {
+// 					var err = textStatus + ', ' + error;
+// 					console.log( "Request Failed: " + err);
+// 					btn.after('<span class="exp_info">' + err + '</span>');
+// 					btn.remove();
+// 					$("body").css("cursor", "default");
+// 				})
+// 			});
+			
+			$(".bexpborrartotslogs").on('click', function(){
+				var btn = $(this);
+				var exmid = btn.data("exmid");
+				var dpid = btn.data("dpid");
+				var cont_exp = $('#eliminacio_' + exmid);
+				var expTipus = btn.data("expedienttipus");
+				var expsId = []; 
+				$(".bexpborrarlog", cont_exp).each(function(){
+					expsId.push($(this).data("id"));
+				});
+				$("body").css("cursor", "progress");
+				$.ajax({
+					type: "POST",
+					url: '<c:url value="/v3/expedientTipus/' + expTipus + '/borra_logsexps"/>',
+					dataType: 'json',
+					data: {definicioProcesId: dpid, expedientsId: JSON.stringify(expsId), expedientTipusId: expTipus},
+					success: function(data){
+						btn.after('<div class="alert alert-warning" role="alert">'
+								  + '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>'
+								  + '<span class="sr-only">Error:</span>'
+								  + ' ' + data.resultat
+								  + '</div>');
+						btn.remove();
+						$("body").css("cursor", "default");
+					}
+				})
+				.fail(function( jqxhr, textStatus, error ) {
+					var err = textStatus + ', ' + error;
+					console.log( "Request Failed: " + err);
+					btn.after('<div class="alert alert-danger" role="alert">'
+							  + '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>'
+							  + '<span class="sr-only">Error:</span>'
+							  + ' ' + err
+							  + '</div>');
+					btn.remove();
+					$("body").css("cursor", "default");
+				})
+			});
+		}
 	    
 	    function createBar(id, executades) {
 	    	var text = '<div class="progress">';
@@ -206,8 +291,33 @@
 			var row = "";
 			if (expedient.estat == "ESTAT_CANCELAT"){
 				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.cancelat'/></label>";
-			} else if (expedient.estat == "ESTAT_ERROR"){
-				estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";
+			} else if (expedient.estat == "ESTAT_ERROR" && expedient.error != undefined && expedient.error != ""){
+				if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
+// 					estat = expedient.error.replace(/\\/g, '');
+					var error_tractat = expedient.error.replace(/\\/g, '');
+					var split_error = error_tractat.split("####exp_afectats");
+					var texte_error = split_error[0];
+					var text_expedients = "";
+					if (split_error[1] != undefined) {
+						var dades_error = split_error[1].split("###");
+						var dpId= dades_error[1];
+						if (dades_error[2] != undefined) {
+							var expedients_error = dades_error[2].split("&&&");
+							expedients_error.shift();
+							if (expedients_error.length > 0) {
+								text_expedients = '<div id="eliminacio_' + expedient.id + '"><br><br>Expedients relacionats:<br>';
+								$.each(expedients_error, function(key, exp) {
+									var exp_split = exp.split("@"); 
+			                        text_expedients += '<div class="lin-exp"><span class="pull-left bexpborrarlog" data-id="' + exp_split[1] + '" data-expedienttipus="' + execucio.expedientTipusId + '"><strong>' + exp_split[0] + '</strong></span></div><br>';
+			                    });
+								text_expedients += '<br><div class="pull-right"><button class="btn btn-default bexpborrartotslogs" data-dpid="' + dpId + '" data-exmid="' + expedient.id + '" data-expedienttipus="' + execucio.expedientTipusId + '">Programar borrat de logs dels expedients afectats i eliminar definició de procés</button></div></div>'
+							}
+						}
+					}
+					estat = texte_error + text_expedients;
+				} else {
+					estat = "<span class='fa fa-exclamation-circle'></span><label class='msg-error' data-msg-error='" + expedient.error + "' style='cursor: pointer;padding-left: 10px'><spring:message code='expedient.termini.estat.error'/></label>";					
+				}
 			} else if (expedient.estat == "ESTAT_FINALITZAT"){
 				estat = "<span class='fa fa-check-circle'></span><label style='padding-left: 10px'><spring:message code='expedient.termini.estat.finalizat'/></label>";
 			} else if (expedient.estat == "ESTAT_PENDENT"){
@@ -224,11 +334,19 @@
 				var estat_org = $("#massexp_" + expedient.id + " td:nth-child(2)").html();
 				if (estat != estat_org) $("#massexp_" + expedient.id + " td:nth-child(2)").html(estat);	
 			} else {
-				return	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + (expedient.estat == "ESTAT_ERROR" ? ' danger' : '') + '">' +
-							'<td class="massiu-expedient">' + expedient.titol + '</td>' +
-							'<td class="massiu-estat">' + estat + '</td>' +
-							'<td class="massiu-estat">' + (expedient.dataFi != undefined ? (expedient.dataFi) : '') + '</td>' +
-   						'</tr>';
+				if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
+					return	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + (expedient.estat == "ESTAT_ERROR" ? ' danger' : '') + '">' +
+					'<td class="massiu-expedient-edp">' + expedient.titol + '</td>' +
+					'<td class="massiu-estat-edp">' + estat + '</td>' +
+					'<td class="massiu-data-edp">' + (expedient.dataFi != undefined ? (expedient.dataFi) : '') + '</td>' +
+					'</tr>';	
+				} else {
+					return	'<tr id="massexp_' + expedient.id + '" + class="mass_expedient exp_' + execucio.id + ' ' + (j % 2 == 0 ? 'odd' : 'even') + (expedient.estat == "ESTAT_ERROR" ? ' danger' : '') + '">' +
+					'<td class="massiu-expedient">' + expedient.titol + '</td>' +
+					'<td class="massiu-estat">' + estat + '</td>' +
+					'<td class="massiu-estat">' + (expedient.dataFi != undefined ? (expedient.dataFi) : '') + '</td>' +
+					'</tr>';	
+				}
 			}
 	    }
 		
@@ -284,16 +402,29 @@
 							
 							var exps =  execucio.total;
 							if (exps > 0) {
-								content += 
-									'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
-										'<thead>' +
-											'<tr>' +
-												'<th class="massiu-expedient"><spring:message code="expedient.llistat.expedient"/></th>' +
-												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
-												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
-											'</tr>' +
-										'</thead>' +
-									'<tbody>';
+								if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+											'<thead>' +
+												'<tr>' +
+													'<th class="massiu-expedient-edp"><spring:message code="expedient.llistat.expedient"/></th>' +
+													'<th class="massiu-estat-edp"><spring:message code="expedient.consulta.estat"/></th>' +
+													'<th class="massiu-data-edp"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+												'</tr>' +
+											'</thead>' +
+										'<tbody>';
+								} else {
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+											'<thead>' +
+												'<tr>' +
+													'<th class="massiu-expedient"><spring:message code="expedient.llistat.expedient"/></th>' +
+													'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+													'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+												'</tr>' +
+											'</thead>' +
+										'<tbody>';
+								}
 								content += '</tbody></table>';
 							}
 							content += '</div>';
@@ -365,6 +496,7 @@
 				   mousemove : changeTooltipPosition,
 				   mouseenter : showTooltip
 			});
+			bindButtons();
 		}
 		
 		/*function refreshExecucionsMassives() {

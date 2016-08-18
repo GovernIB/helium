@@ -28,6 +28,7 @@ ALTER TABLE HEL_EXPEDIENT ADD REINDEXAR_ERROR NUMBER(1) DEFAULT 0 NOT NULL;
 
 -- Nova columna per a incloure l'eliminació de definicions de procés com a execucions massives
 ALTER TABLE HEL_EXEC_MASEXP ADD DEFPROC_ID NUMBER(19);
+ALTER TABLE HEL_EXEC_MASEXP ADD AUX_TEXT VARCHAR2(255 CHAR);
 
 --------------------------------------------------------
 -- TASQUES EN SEGÓN PLA

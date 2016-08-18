@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.repository;
 import java.util.List;
 
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,8 @@ import org.springframework.data.repository.query.Param;
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 
 	Consulta findById(Long id);
+	
+	List<Consulta> findByEntorn(Entorn entorn);
 	
 	@Query("select c from Consulta c, Expedient e where c.id = e.numero and e.id = :expedientId")
 	Consulta findByIdExpedient(@Param("expedientId") Long id);

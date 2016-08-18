@@ -44,9 +44,7 @@ public class ExecucioMassivaDto {
 	private List<Long> expedientIds;
 	private String[] tascaIds;
 	private List<String> procInstIds;
-	private List<Long> defProcIds;
-
-
+	private Long[] defProcIds;
 
 	public Long getId() {
 		return id;
@@ -120,10 +118,10 @@ public class ExecucioMassivaDto {
 	public void setProcInstIds(List<String> procInstIds) {
 		this.procInstIds = procInstIds;
 	}
-	public List<Long> getDefProcIds() {
+	public Long[] getDefProcIds() {
 		return defProcIds;
 	}
-	public void setDefProcIds(List<Long> defProcIds) {
+	public void setDefProcIds(Long[] defProcIds) {
 		this.defProcIds = defProcIds;
 	}
 }

@@ -330,7 +330,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 		dto.setDataInici(dInici);
 		dto.setEnviarCorreu(correu);
 		dto.setExpedientIds(listIds);
-		dto.setExpedientTipusId(listIds.get(0));
+		ExpedientDto expedientAux = expedientService.findAmbId(listIds.get(0));
+		dto.setExpedientTipusId(expedientAux.getTipus().getId());
 		
 		try {					
 			if ("reindexar".equals(accio)) {
