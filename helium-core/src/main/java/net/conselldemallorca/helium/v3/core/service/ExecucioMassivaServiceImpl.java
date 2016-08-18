@@ -5,21 +5,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jbpm.db.GraphSession;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -35,7 +43,9 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import net.conselldemallorca.helium.core.helper.DissenyHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
@@ -43,9 +53,13 @@ import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
@@ -53,11 +67,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -70,6 +86,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
@@ -102,7 +119,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private PersonaRepository personaRepository;
 	@Resource
+	private ConsultaRepository consultaRepository;
+	@Resource
 	private ExpedientHelper expedientHelper;
+	@Resource
+	private TerminiHelper terminiHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
@@ -111,6 +132,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MessageHelper messageHelper;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private DissenyHelper dissenyHelper;
 	@Resource 
 	private DocumentHelperV3 documentHelperV3;
 	@Autowired
@@ -119,6 +142,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private MailHelper mailHelper;
+	@Resource
+	private EntornHelper entornHelper;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource(name = "permisosHelperV3") 
@@ -134,7 +159,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	public void crearExecucioMassiva(ExecucioMassivaDto dto) {
 		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) ||
 			(dto.getTascaIds() != null && dto.getTascaIds().length > 0) ||
-			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty())) {
+			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty()) ||
+			(dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
 			String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
 			if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
 			log += ", numExpedients=";
@@ -208,10 +234,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							expedientTipus = expedient.getTipus();
 					}
 				}
+			} else if (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0) {
+				for (Long defProcId: dto.getDefProcIds()) {
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(
+							execucioMassiva,
+							defProcId,
+							ordre++);
+					execucioMassiva.addExpedient(eme);
+				}
 			}
 			execucioMassiva.setEntorn(EntornActual.getEntornId());
 			
-			if (expedients) {
+			if (expedients || (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
 				
 				execucioMassiva.setRols(getRols(auth, expedientTipus));
 				
@@ -345,6 +379,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					
 					Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
 					mjson.put("id", id);
+					mjson.put("tipus", execucio.getTipus() != null ? execucio.getTipus().toString() : "");
+					mjson.put("expedientTipusId", execucio.getExpedientTipus() != null ? execucio.getExpedientTipus().getId() : "");
 					mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
 					
 					mjson.put("error", error);
@@ -450,8 +486,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		    			titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
 		    		if (titol.length() == 0)
 		    			titol = exp.getNumeroDefault();
-				} else {
+				} else if (execucio.getTipus() == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 					titol = messageHelper.getMessage("expedient.massiva.actualitzar.dp") + " " + expedient.getExecucioMassiva().getParam1();
+				} else if (execucio.getTipus() == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC){
+					DefinicioProces dp = definicioProcesRepository.findOne(expedient.getDefinicioProcesId());
+					String idPerMostrar = dp != null ? dp.getIdPerMostrar() : expedient.getAuxText();
+					titol = messageHelper.getMessage("expedient.massiva.eliminar.dp") + " (" + idPerMostrar + ")";
 				}
 				
 				Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
@@ -478,6 +518,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		}		
 		Map<String, Serializable> mjson = new LinkedHashMap<String, Serializable>();
 		mjson.put("id", execucio.getId());
+		mjson.put("tipus", execucio.getTipus() != null ? execucio.getTipus().toString() : "");
+		mjson.put("expedientTipusId", execucio.getExpedientTipus() != null ? execucio.getExpedientTipus().getId() : "");
 		mjson.put("text", JSONValue.escape(getTextExecucioMassiva(execucio, tasca)));
 		
 		long total = (long) expedients.size();
@@ -562,6 +604,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				DefinicioProces definicioProces = getDefinicioProces(execucioMassiva);
 				label = messageHelper.getMessage("expedient.massiva.actualitzar") + (definicioProces == null ? "" : " (" + definicioProces.getJbpmKey() + " v." + definicioProces.getVersio() + ")");
 			}
+		} else if (tipus.equals(ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC)){
+				label = messageHelper.getMessage("expedient.massiva.eliminar.versio.dp") + " (" + execucioMassiva.getExpedientTipus().getNom() + ")";
 		} else if (tipus.equals(ExecucioMassivaTipus.EXECUTAR_SCRIPT)){
 			String script = "";
 			if (execucioMassiva.getParam2() != null) {
@@ -653,19 +697,25 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (ome == null)
 			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
 		
-		Expedient expedient;
+		ExecucioMassiva exm = ome.getExecucioMassiva();
+		ExecucioMassivaTipus tipus = exm.getTipus();
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				exm.getEntorn(),
+				false); 
+		
+		Expedient expedient = null;
 		if (ome.getExpedient() != null) {
 			expedient = ome.getExpedient();
-		} else {
+		} else if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC){
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 		
 		logger.debug(
 				"Executant la acció massiva (" +
-				"expedientTipusId=" + expedient.getTipus() + ", " +
+				"expedientTipusId=" + exm.getExpedientTipus() + ", " +
 				"dataInici=" + ome.getDataInici() + ", " +
 				"expedient=" + ome.getId() + ", " +
-				"acció=" + ome.getExecucioMassiva().getTipus());
+				"acció=" + exm.getTipus());
 		
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
@@ -681,34 +731,32 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"executar",
-						expedient.getEntorn().getCodi()));
+						entorn.getCodi()));
 		final Timer.Context contextEntorn = timerEntorn.time();
 		Counter countEntorn = metricRegistry.counter(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"executar.count",
-						expedient.getEntorn().getCodi()));
+						entorn.getCodi()));
 		countEntorn.inc();
 		final Timer timerTipexp = metricRegistry.timer(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"completar",
-						expedient.getEntorn().getCodi(),
-						expedient.getTipus().getCodi()));
+						entorn.getCodi(),
+						exm.getExpedientTipus().getCodi()));
 		final Timer.Context contextTipexp = timerTipexp.time();
 		Counter countTipexp = metricRegistry.counter(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"completar.count",
-						expedient.getEntorn().getCodi(),
-						expedient.getTipus().getCodi()));
+						entorn.getCodi(),
+						exm.getExpedientTipus().getCodi()));
 		countTipexp.inc();
 		try {
-			ExecucioMassivaTipus tipus = ome.getExecucioMassiva().getTipus();
-			
 			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
 			
-//			final String user = ome.getExecucioMassiva().getUsuari();
+//			final String user = exm.getUsuari();
 //	        Principal principal = new Principal() {
 //				public String getName() {
 //					return user;
@@ -724,13 +772,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			String expedient_s = null;
 	        if (MesuresTemporalsHelper.isActiu())
-        		expedient_s = expedient.getTipus().getNom();
+        		expedient_s = exm.getExpedientTipus().getNom();
 	        
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
 				gestioTasca(ome);
 			} else if (tipus == ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC){
 				mesuresTemporalsHelper.mesuraIniciar("Actualitzar", "massiva", expedient_s);
 				actualitzarVersio(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC){
+				mesuresTemporalsHelper.mesuraIniciar("Eliniar", "massiva", expedient_s);
+				eliminarVersio(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Actualitzar", "massiva", expedient_s);
 			} else if (tipus == ExecucioMassivaTipus.EXECUTAR_SCRIPT){
 				mesuresTemporalsHelper.mesuraIniciar("Executar script", "massiva", expedient_s);
@@ -776,18 +828,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
-			logger.error("Error al executar la acció massiva (expedientTipusId=" + expedient.getTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + expedient.getId() + ", acció=" + ome, ex);
-			TascaProgramadaServiceImpl.saveError(ome_id, ex);
+			logger.error("Error al executar la acció massiva (expedientTipusId=" + exm.getExpedientTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + (expedient == null ? null : expedient.getId()) + ", acció=" + ome, ex);
+			TascaProgramadaServiceImpl.saveError(ome_id, ex, exm.getTipus());
 			throw new ExecucioMassivaException(
-					expedient.getEntorn().getId(), 
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
+					entorn.getId(), 
+					entorn.getCodi(), 
+					entorn.getNom(), 
+					expedient == null ? null : expedient.getId(), 
+					expedient == null ? null : expedient.getTitol(), 
+					expedient == null ? null : expedient.getNumero(), 
+					exm.getExpedientTipus().getId(), 
+					exm.getExpedientTipus().getCodi(), 
+					exm.getExpedientTipus().getNom(), 
 					ome.getExecucioMassiva().getId(), 
 					ome.getId(), 
 					"Error al executar la acció massiva", 
@@ -805,18 +857,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (ome == null)
 			throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
 		
-		if(ome.getExecucioMassiva().getExpedients().size() == ome.getOrdre() + 1) {
+		if (ome.getExecucioMassiva().getExpedients().size() == ome.getOrdre() + 1) {
 			try {
 				ExecucioMassiva em = ome.getExecucioMassiva();
 				em.setDataFi(new Date());
 				execucioMassivaRepository.save(em);
+				if (em.getTipus() == ExecucioMassivaTipus.BUIDARLOG && em.getParam1() != null && !em.getParam1().isEmpty()) {
+					programarEliminarDp(Long.parseLong(em.getParam1()), em.getExpedientTipus().getId());
+				}
 			} catch (Exception ex) {
 				logger.error("EXPEDIENTMASSIU:" + ome.getExecucioMassiva().getId() + ". No s'ha pogut finalitzar l'expedient massiu", ex);
 				throw new ExecucioMassivaException(
 						ome.getExpedient().getEntorn().getId(), 
 						ome.getExpedient().getEntorn().getCodi(), 
-						ome.getExpedient().getEntorn().getNom(), 
-						ome.getExpedient().getId(), 
+						ome.getExpedient().getEntorn().getNom(),
+						ome.getExpedient().getId(),
 						ome.getExpedient().getTitol(), 
 						ome.getExpedient().getNumero(), 
 						ome.getExpedient().getTipus().getId(), 
@@ -878,6 +933,19 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		
 		ome.setError(error);
 		execucioMassivaExpedientRepository.save(ome);
+	}
+	
+	private void programarEliminarDp(Long dpId, Long expedientTipusId) throws Exception {
+		Date dInici = new Date();
+		ExecucioMassivaDto emdto = new ExecucioMassivaDto();
+		
+		emdto.setDataInici(dInici);
+		emdto.setEnviarCorreu(false);
+		emdto.setExpedientTipusId(expedientTipusId);
+		emdto.setTipus(ExecucioMassivaTipusDto.ELIMINAR_VERSIO_DEFPROC);
+		emdto.setDefProcIds(new Long[]{dpId});
+		
+		this.crearExecucioMassiva(emdto);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1023,6 +1091,131 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut canviar la versió del procés", ex);
 			throw ex;
 		}
+	}
+	
+	private void eliminarVersio(ExecucioMassivaExpedient ome) throws Exception {
+		boolean esborrarDf = false;
+		Long entornId = ome.getExecucioMassiva().getEntorn();
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				false);
+		DefinicioProces definicioProces = definicioProcesRepository.findById(ome.getDefinicioProcesId());
+		List<Consulta> consultes = consultaRepository.findByEntorn(entorn);
+		boolean esborrar = true;
+		if (consultes.isEmpty()) {
+			esborrarDf = true;
+		} else {
+			for(Consulta consulta: consultes){
+				Set<ConsultaCamp> llistat = consulta.getCamps();
+				for(ConsultaCamp c: llistat){
+					if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
+						esborrar = false;
+					}
+				}
+				if(!esborrar){
+					throw new Exception(messageHelper.getMessage("error.exist.cons.df", new Object[]{consulta.getNom(), definicioProces.getIdPerMostrar(), definicioProces.getVersio()}));
+				} else {
+					esborrarDf = true;
+				}
+			}
+		}
+		if (esborrarDf) {
+			try {
+				undeploy(entorn, ome.getExecucioMassiva().getExpedientTipus().getId(), definicioProces);
+				ome.setAuxText(definicioProces.getIdPerMostrar());
+				ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+				ome.setDataFi(new Date());
+				execucioMassivaExpedientRepository.saveAndFlush(ome);
+			} catch (Exception ex) {
+				logger.error("No s'han pogut esborrar les definicions de procés", ex);
+				if (ex instanceof DataIntegrityViolationException || ex.getCause() instanceof DataIntegrityViolationException || (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause() instanceof DataIntegrityViolationException) ||
+					ex.getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException") || (ex.getCause() != null && ex.getCause().getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException")) || (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException"))) {
+					
+					String msg = (ex instanceof DataIntegrityViolationException || ex.getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException")) ? getErrorMsg(ex) : 
+								  (ex.getCause() instanceof DataIntegrityViolationException || ex.getCause().getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException")) ? getErrorMsg(ex.getCause()) : getErrorMsg(ex.getCause().getCause());
+								  
+					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
+						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
+					if (msg.contains("HELIUM.FK_JOB_ACTION"))
+						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
+					if (msg.contains("HELIUM.FK_LOG_"))
+						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
+					
+					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
+						
+						
+						
+						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
+						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
+							msg += "&&&" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "@" + expedient.getId();
+						}
+						
+						
+						
+//						msg += "<div><div class='expafectats'>" + messageHelper.getMessage("info.defproc.esborrar.afectats") + "</div>";
+//						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
+//							msg += "<div><span>" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "</span><button class='pull-right' data-id='" + expedient.getId() + "'>Borrar logs</button></div>";
+//						}
+//						msg += "<hr/><div><button class='bexpborrartotslogs'>" + messageHelper.getMessage("info.defproc.esborrar.afectats.programar") + "</button></div></div>";
+						
+						
+						
+						
+						GraphSession.errorsDelete.remove(processInstanceId);
+					}
+					
+					throw new Exception(messageHelper.getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getIdPerMostrar(), ""}) + ": " + msg);
+					
+				} else { 
+					throw new Exception(messageHelper.getMessage("error.proces.peticio"), ex.getCause());
+				}
+			}
+		}
+	}
+	
+	@CacheEvict(value = "consultaCache", allEntries=true)
+	private void undeploy(
+			Entorn entorn,
+			Long expedientTipusId,
+			DefinicioProces definicioProces) {
+		if (expedientTipusId == null) {
+			jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+			for (Document doc: definicioProces.getDocuments())
+				documentRepository.delete(doc.getId());
+			for (Termini termini: definicioProces.getTerminis())
+				dissenyHelper.deleteTermini(termini.getId());
+			definicioProcesRepository.delete(definicioProces);
+		} else {
+			if (comprovarExpedientTipus(expedientTipusId, definicioProces.getId())) {
+				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
+				for (Document doc: definicioProces.getDocuments())
+					documentRepository.delete(doc);
+				for (Termini termini: definicioProces.getTerminis())
+					dissenyHelper.deleteTermini(termini.getId());
+				definicioProcesRepository.delete(definicioProces);
+			} else {
+				throw new IllegalArgumentException(messageHelper.getMessage("error.dissenyService.noTipusExp"));
+			}
+		}
+	}
+	
+	private String getErrorMsg(Throwable ex) {
+		StringWriter errors = new StringWriter();
+		ex.printStackTrace(new PrintWriter(errors));
+		String errorFull = errors.toString();	
+		errorFull = errorFull.replace("'", "&#8217;").replace("\"", "&#8220;").replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;");
+		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
+		return errorFull;
+	}
+	
+	private boolean comprovarExpedientTipus(Long expedientTipusId, Long definicioProcesId) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		if (expedientTipus != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+			return expedientTipus.equals(definicioProces.getExpedientTipus());
+		}
+		return false;
 	}
 	
 	private int findVersioDefProcesActualitzar(String[] keys, Long[] defProces, String key) {
@@ -1247,7 +1440,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 //			expedientService.luceneReindexarExpedient(exp.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
-			execucioMassivaExpedientRepository.save(ome);
+			execucioMassivaExpedientRepository.saveAndFlush(ome);
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut reindexar l'expedient", ex);
 			throw ex;

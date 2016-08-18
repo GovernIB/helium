@@ -53,6 +53,8 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	private Expedient expedient;
 	private String tascaId;
 	private String processInstanceId;
+	private Long definicioProcesId;
+	private String auxText;
 
 
 	public ExecucioMassivaExpedient() {}
@@ -74,6 +76,13 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, String processInstanceId, int ordre) {
 		this.execucioMassiva = execucioMassiva;
 		this.processInstanceId = processInstanceId;
+		this.ordre = ordre;
+		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+		this.dataInici = execucioMassiva.getDataInici();
+	}
+	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Long definicioProcesId, int ordre) {
+		this.execucioMassiva = execucioMassiva;
+		this.definicioProcesId = definicioProcesId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
 		this.dataInici = execucioMassiva.getDataInici();
@@ -169,6 +178,22 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 		this.processInstanceId = processInstanceId;
 	}
 	
+	@Column(name="defproc_id", nullable=true)
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
+	}
+	
+	@Column(name="aux_text", nullable=true)
+	public String getAuxText() {
+		return auxText;
+	}
+	public void setAuxText(String auxText) {
+		this.auxText = auxText;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -200,8 +225,6 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 			return false;
 		return true;
 	}
-
-
 
 	private static final long serialVersionUID = 1L;
 
