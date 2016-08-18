@@ -88,7 +88,7 @@ public class MonitorIntegracioHelper {
 		return integracions;
 	}
 
-	public List<IntegracioAccioDto> findAccionsByIntegracioCodi(
+	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodi(
 			String integracioCodi) {
 		return getLlistaAccions(integracioCodi);
 	}
@@ -175,7 +175,7 @@ public class MonitorIntegracioHelper {
 		return max.intValue();
 	}
 
-	private void addAccio(
+	private synchronized void addAccio(
 			String integracioCodi,
 			String descripcio,
 			IntegracioAccioTipusEnumDto tipus,

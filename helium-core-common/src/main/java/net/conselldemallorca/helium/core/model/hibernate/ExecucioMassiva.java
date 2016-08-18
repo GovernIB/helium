@@ -49,6 +49,7 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 	public enum ExecucioMassivaTipus {
 		EXECUTAR_TASCA,
 		ACTUALITZAR_VERSIO_DEFPROC,
+		ELIMINAR_VERSIO_DEFPROC,
 		EXECUTAR_SCRIPT,
 		EXECUTAR_ACCIO,
 		ATURAR_EXPEDIENT,
