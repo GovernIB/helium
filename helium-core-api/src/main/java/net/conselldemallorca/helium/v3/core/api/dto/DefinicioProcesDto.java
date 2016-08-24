@@ -48,6 +48,9 @@ public class DefinicioProcesDto {
 
 
 	private ExpedientTipusDto expedientTipus;
+	
+	/** Comptador per mostrar el número de versions al llistat de definicions de procés. */
+	private Long versioCount;
 
 	public Long getId() {
 		return id;
@@ -183,5 +186,20 @@ public class DefinicioProcesDto {
 		public void setDescripcio(String descripcio) {
 			this.descripcio = descripcio;
 		}
+	}
+
+	public String getIdPerMostrar() {
+		if (etiqueta != null) {
+			return etiqueta + " (" + jbpmKey + " v." + versio + ")";
+		} else {
+			return jbpmKey + " v." + versio;
+		}
+	}
+
+	public void setVersioCount(Long count) {
+		this.versioCount = count;
+	}
+	public Long getVersioCount() {
+		return this.versioCount;
 	}
 }

@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -222,6 +223,18 @@ public class DissenyServiceBean implements DissenyService {
 	public List<DocumentDto> documentFindAmbDefinicioProces(
 			Long definicioProcesId) throws NoTrobatException {
 		return delegate.documentFindAmbDefinicioProces(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public Set<String> getRecursosNom(Long definicioProcesId) {
+		return delegate.getRecursosNom(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
+		return delegate.getRecursContingut(definicioProcesId, nom);
 	}
 
 }

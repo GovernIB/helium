@@ -22,7 +22,6 @@ function confirmar(e) {
 </script>
 </head>
 <body>
-
 	<display:table name="llistat" id="registre" requestURI="" class="displaytag selectable">
 		<display:column property="jbpmName" titleKey="comuns.nom" sortable="true" url="/definicioProces/info.html" paramId="definicioProcesId" paramProperty="id"/>
 		<display:column property="numIdsWithSameKey" titleKey="defproc.llistat.versions" sortable="true"/>

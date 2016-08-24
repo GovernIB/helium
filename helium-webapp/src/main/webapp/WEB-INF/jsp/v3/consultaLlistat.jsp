@@ -54,10 +54,8 @@
 				<th data-col-name="ocultarActiu" data-template="#cellExpedientTipusConsultaActiuTemplate">
 				<spring:message code="expedient.tipus.consulta.llistat.columna.actiu"/>
 					<script id="cellExpedientTipusConsultaActiuTemplate" type="text/x-jsrender">
-						{{if ocultarActiu }}
-							<spring:message code="comu.false"></spring:message>
-						{{else}}
-							<spring:message code="comu.true"></spring:message>
+						{{if !ocultarActiu }}
+							<spring:message code="comu.check"></spring:message>
 						{{/if}}
 						</script>
 				</th>

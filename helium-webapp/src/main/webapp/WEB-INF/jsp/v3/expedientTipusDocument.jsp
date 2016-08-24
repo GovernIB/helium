@@ -6,6 +6,8 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
+<c:set var="ambInfoPropiaText"><spring:message code="expedient.tipus.form.camp.ambInfoPropia"/></c:set>
+
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
@@ -13,6 +15,13 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
+
+		<c:if test="${!expedientTipus.ambInfoPropia}">
+			<div class="alert alert-warning">
+				<span class="fa fa-exclamation-triangle"></span>
+				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
+			</div>
+		</c:if>
 
 		<table	id="expedientTipusDocument"
 				data-toggle="datatable"
@@ -32,7 +41,7 @@
 					<spring:message code="expedient.tipus.document.llistat.columna.arxiu"/>
 						<script id="arxiuTemplate" type="text/x-jsrender">
 							{{if arxiuNom != null }}
-								<span class="label label-success">SI</span>
+								<spring:message code="comu.check"></spring:message>
 								{{if plantilla }}
 									<span class="label label-info" title="plantilla">P</span>
 								{{/if}}

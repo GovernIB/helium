@@ -34,6 +34,9 @@ public class ExpedientTipusAccioCommand {
 	private String descripcio;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String defprocJbpmKey;
+	@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
 	private boolean publica;
 	private boolean oculta;
@@ -70,6 +73,12 @@ public class ExpedientTipusAccioCommand {
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
 	}
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
+	}
 	public String getJbpmAction() {
 		return jbpmAction;
 	}
@@ -101,6 +110,7 @@ public class ExpedientTipusAccioCommand {
 		dto.setId(command.getId());
 		dto.setCodi(command.getCodi());
 		dto.setNom(command.getNom());
+		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		dto.setDescripcio(command.getDescripcio());
 		dto.setPublica(command.isPublica());

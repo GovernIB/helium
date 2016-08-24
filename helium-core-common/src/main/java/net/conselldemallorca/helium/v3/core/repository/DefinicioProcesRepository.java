@@ -141,5 +141,35 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			Pageable pageable);	
+			Pageable pageable);
+
+	@Query(	"select dp.jbpmKey " + 
+			"from DefinicioProces dp " +
+			"where " +
+			"   dp.entorn.id = :entornId " +
+			"	and (dp.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and dp.versio = (" +
+			"  		select max(dps.versio) " +
+			"    	from DefinicioProces dps " +
+			"    	where " +
+			"       	dps.entorn.id = :entornId " +
+			"			and (dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"		    and dps.jbpmKey= dp.jbpmKey) ")
+	List<String> findJbpmKeys(
+			@Param("entornId") Long entornId,
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("incloureGlobals") boolean incloureGlobals);
+
+	/** Mètode per consultar quantes versions hi ha per definició de procés en un entorn.
+	 * Aquesta consulta s'utilitza en el datatable de definicions de procés.
+	 * Retorna una llista amb els valors <[jbpmKey, count]>*/
+	@Query(	"select d.jbpmKey as jbpmKey, " +
+			"		count(d) as nversions " +
+			"from DefinicioProces d " +
+			"where d.entorn.id = :entornId " + 
+			"		and d.jbpmKey in (:consultaJbpmKeys) " +
+			"group by d.jbpmKey")
+	List<Object[]> countVersions(
+			@Param("entornId") Long entornId,
+			@Param("consultaJbpmKeys") List<String> consultaJbpmKeys);	
 }

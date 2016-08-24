@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -439,6 +440,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long expedientTipusId) {
+		return delegate.documentFindAllOrdenatsPerCodi(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDocumentDto documentUpdate(ExpedientTipusDocumentDto document) {
 		return delegate.documentUpdate(document);
 	}
@@ -692,6 +699,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.definicioProcesSetInicial(expedientTipusId, id);
 	}	
 	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> definicioProcesFindJbjmKey(Long entornId, Long expedientTipusId, boolean incloureGlobals) {
+		return delegate.definicioProcesFindJbjmKey(entornId, expedientTipusId, incloureGlobals);
+	}
+
 	/***********************************************/
 	/*******************TERMINIS********************/
 	/***********************************************/
@@ -989,7 +1002,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public MapeigSistraDto mapeigFindAmbCodiHeliumPerValidarRepeticio(Long expedientTipusId, String codiHelium) {
-		// TODO Auto-generated method stub
 		return delegate.mapeigFindAmbCodiHeliumPerValidarRepeticio(expedientTipusId, codiHelium);
 	}
 
@@ -998,4 +1010,5 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(Long expedientTipusId, String codiSistra) {
 		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, codiSistra);
 	}
+
 }

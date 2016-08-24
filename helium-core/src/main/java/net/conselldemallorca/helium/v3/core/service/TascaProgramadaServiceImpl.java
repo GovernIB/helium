@@ -50,40 +50,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
-		boolean active = true;
-		Long ultimaExecucioMassiva = null;
-		
-		int timeBetweenExecutions = 500;
-		try {
-			timeBetweenExecutions = Integer.parseInt(
-					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions")); 
-		} catch (Exception ex) {}
-		
-		while (active) {
-			try {
-				Long ome_id = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
-				if (ome_id != null) {
-					try {
-						execucioMassivaService.executarExecucioMassiva(ome_id);
-					}
-					catch (Exception e) {
-						// si s'ha produit una excepció, deseram l'error a la operació
-						execucioMassivaService.generaInformeError(ome_id, getError(ome_id));
-					}
-					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
-					if (ome == null)
-						throw new NoTrobatException(ExecucioMassivaExpedient.class, ome_id);
-					ultimaExecucioMassiva = ome.getExecucioMassiva().getId();
-					execucioMassivaService.actualitzaUltimaOperacio(ome.getId());
-				} else {
-					active = false;
-				}
-				Thread.sleep(timeBetweenExecutions);
-			} catch (Exception e) {
-				logger.error("La execució de execucions massives ha estat interromput");
-				active = false;
-			}
-		}
+		// NO PUJAR ARXIU!!!
 	}
 	
 	/*** REINDEXACIO ASÍNCRONA ***/

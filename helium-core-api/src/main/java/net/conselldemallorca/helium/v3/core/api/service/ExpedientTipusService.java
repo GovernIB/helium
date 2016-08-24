@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -846,7 +847,15 @@ public interface ExpedientTipusService {
 	public ExpedientTipusDocumentDto documentFindAmbCodi(
 			Long expedientTipusId, 
 			String codi) throws NoTrobatException;
-	
+
+	/**
+	 * Retorna tots els documents d'un tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param tipusExpedientId
+	 * @return Els documents del tipus d'expedient.
+	 */
+	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long expedientTipusId);		
+
 	public void documentDelete(
 			Long documentId) throws NoTrobatException, PermisDenegatException;
 	
@@ -1018,7 +1027,7 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 * @param expedientTipusId
-	 * @param expedientTipusId2 
+	 * @param incloureGlobals 
 	 * 
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
@@ -1032,6 +1041,20 @@ public interface ExpedientTipusService {
 			boolean incloureGlobals,
 			String filtre, 
 			PaginacioParamsDto paginacioParams);
+	
+	/** 
+	 * Retorna la llista de codis de definicions de procés per poder seleccionar
+	 * una definició de procés ordenat per codi.
+	 * 
+	 * @param entornId
+	 * @param expedientTipusId
+	 * 
+	 * @return La llista de codis de les diferents definicions de procés.
+	 */
+	public List<String> definicioProcesFindJbjmKey(
+			Long entornId, 
+			Long expedientTipusId,
+			boolean incloureGlobals);	
 
 	/**
 	 * Esborra una entitat.
@@ -1689,5 +1712,5 @@ public interface ExpedientTipusService {
 	 */
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
-			String codiSistra);		
+			String codiSistra);
 }

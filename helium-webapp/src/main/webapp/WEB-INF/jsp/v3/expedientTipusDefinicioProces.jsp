@@ -32,16 +32,14 @@
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="jbpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.nom"/></th>
-					<th data-col-name="versio"><spring:message code="expedient.tipus.definicioProces.llistat.columna.versio"/></th>
+					<th data-col-name="versioCount" data-orderable="false"><spring:message code="expedient.tipus.definicioProces.llistat.columna.versions"/></th>
 					<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="expedient.tipus.definicioProces.llistat.columna.dataVersio"/></th>
 					<th data-col-name="jbpmKey"><spring:message code="expedient.tipus.definicioProces.llistat.columna.inicial"/></th>
 					<th data-col-name="expedientTipus.id" data-template="#cellexpedientTipusDefinicioProcesGlobalTemplate">
 					<spring:message code="expedient.tipus.definicioProces.llistat.columna.global"/>
 						<script id="cellexpedientTipusDefinicioProcesGlobalTemplate" type="text/x-jsrender">
-						{{if expedientTipus == null}}
-							<spring:message code="comu.true"></spring:message>
-						{{else}}
-							<spring:message code="comu.false"></spring:message>
+						{{if expedientTipus == null }}
+							<spring:message code="comu.check"></spring:message>
 						{{/if}}
 						</script>
 					</th>
@@ -50,6 +48,7 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
+								<li><a href="../definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
 								<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
 								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/importar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.importar"/></a></li>
 								{{if expedientTipus != null}}
@@ -81,11 +80,11 @@ $(document).ready(function() {
 			if ($(this).find("td").length > 0) {
 				$jbpmKey = $(this).find("td:nth-child(4)");
 				if ($jbpmKey.html() == jbpmProcessDefinitionKey) {
-					$jbpmKey.html("<spring:message code='comu.true'></spring:message>");
+					$jbpmKey.html("<spring:message code='comu.check'></spring:message>");
 					$(this).css('font-weight', 'bold');	// Sesaltem la línia amb el procés inicial
 				}
 				else
-					$jbpmKey.html("<spring:message code='comu.false'></spring:message>");
+					$jbpmKey.html("");
 			}
 		});		    	
 		// Botó per marcar com a inicial una definicó de procés

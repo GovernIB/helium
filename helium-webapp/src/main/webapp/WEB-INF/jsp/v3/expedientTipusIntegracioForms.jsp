@@ -21,7 +21,7 @@
 			<div style="height: 400px">        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioFormsCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.forms.activar"/>
-				<div id="inputs" style="display:${expedientTipusIntegracioFormsCommand.actiu? 'inline' : 'none'}">
+				<div id="inputs_integracioForms" style="display:${expedientTipusIntegracioFormsCommand.actiu? 'inline' : 'none'}">
 					<hel:inputText required="true" name="url" textKey="expedient.tipus.integracio.forms.url" />
 					<hel:inputText name="usuari" textKey="expedient.tipus.integracio.forms.usuari"  placeholderKey="expedient.tipus.integracio.forms.noaut"/>
 					<hel:inputText name="contrasenya" textKey="expedient.tipus.integracio.forms.contrasenya" placeholderKey="expedient.tipus.integracio.forms.noaut" />
@@ -30,7 +30,7 @@
 			
 			<div id="modal-botons" class="well" style="text-align: right;">
 				<span id="accioGuardarProcessant" style="display:none;">
-					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="expedient.tipus.integracio.forms.processant"/>"></span><span class="sr-only">&hellip;</span>
+					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
 				</span>			
 				<button class="btn btn-primary right" type="submit" name="accio" value="guardar">
 					<span class="fa fa-save"></span> <spring:message code='comu.boto.guardar' />
@@ -48,11 +48,11 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
-	$('#actiu').change(function() {
+	$('#actiu','#expedientTipusIntegracioFormsCommand').change(function() {
 		if ($(this).is(':checked')) {
-			$('#inputs').show();
+			$('#inputs_integracioForms').show();
 		} else {
-			$('#inputs').hide();
+			$('#inputs_integracioForms').hide();
 		}
 	})
 	$('#expedientTipusIntegracioFormsCommand').submit(function(e){
