@@ -419,7 +419,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 			identificador = getNumero();
 		else if (!tipus.isTeNumero() && tipus.isTeTitol())
 			identificador = getTitol();
-		if (identificador == null)
+		if (identificador == null || "[null] null".equals(identificador))
 			return this.getNumeroDefault();
 		else
 			return identificador;

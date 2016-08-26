@@ -46,10 +46,11 @@
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-							<ul class="dropdown-menu">
+							<ul class="dropdown-menu pull-right">
 								<li><a href="expedientTipus/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.dissenyar"/></a></li>
 								<li><a data-toggle="modal" href="expedientTipus/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 								<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
 							</ul>
 						</div>
 					</script>

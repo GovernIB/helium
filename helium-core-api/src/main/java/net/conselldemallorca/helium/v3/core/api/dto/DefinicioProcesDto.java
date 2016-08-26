@@ -162,7 +162,13 @@ public class DefinicioProcesDto {
 		this.versio = versio;
 	}
 
-
+	public String getIdPerMostrar() {
+		if (etiqueta != null) {
+			return etiqueta + " (" + jbpmKey + " v." + versio + ")";
+		} else {
+			return jbpmKey + " v." + versio;
+		}
+	}
 
 	public class JbpmIdAmbDescripcio {
 		private Long jbpmId;

@@ -476,19 +476,19 @@ public class ExpedientTipusController extends BaseController {
 //		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
 //		return errorFull;
 //	}
-//	@RequestMapping(value = "/expedientTipus/afectats_df", method = RequestMethod.GET)
-//	public String afectats_df(
-//			HttpServletRequest request,
-//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-//			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
-//			ModelMap model) {
-//		model.addAttribute("expedientTipusId", expedientTipusId);
-//		model.addAttribute("definicioProcesId", definicioProcesId);
-//		DefinicioProcesDto definicioProces = dissenyService.getById(definicioProcesId, false);
-//		model.addAttribute("definicioProces", definicioProces);
-//		model.addAttribute("llistat", dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(expedientTipusId, Long.parseLong(definicioProces.getJbpmId())));
-//		return "/expedientTipus/llistatExpedientsDpNoUs";
-//	}
+	@RequestMapping(value = "/expedientTipus/afectats_df", method = RequestMethod.GET)
+	public String afectats_df(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			ModelMap model) {
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		DefinicioProcesDto definicioProces = dissenyService.getById(definicioProcesId, false);
+		model.addAttribute("definicioProces", definicioProces);
+		model.addAttribute("llistat", dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(expedientTipusId, Long.parseLong(definicioProces.getJbpmId())));
+		return "/expedientTipus/llistatExpedientsDpNoUs";
+	}
 	
 	@RequestMapping(value = "/expedientTipus/canvi_versio", method = RequestMethod.POST)
 	public String canvi_versio(

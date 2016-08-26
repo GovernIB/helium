@@ -18,7 +18,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -105,6 +108,46 @@ public interface DissenyService {
 	public ExpedientTipusDto findExpedientTipusAmbPermisReadUsuariActual(
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna les definicions de procés no utilitzades amb paginació
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les definiciones de procés no utilitzades per aquell
+	 * 			tipus d'expedient
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
+			Long entornId,
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna els ids de totes les definicions de procés no utilitzades per
+	 * a un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return ids de les definiciones de procés no utilitzades per aquell
+	 * 			tipus d'expedient
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<Long> findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
+			Long entornId,
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
 
 	/**
 	 * Retorna les consultes d'un tipus d'expedient per les quals l'usuari actual
@@ -165,4 +208,44 @@ public interface DissenyService {
 
 	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) throws NoTrobatException;	
 
+	/**
+	 * Retorna els exepdients relacionats amb la definició de procés no utilitzada
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param jbpmId
+	 *            Atribut jbpmId de la definició de procés.
+	 * @return expedients relacionats amb la definició de procés no utilitzada
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public PaginaDto<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long entornId,
+			Long expedientTipusId,
+			Long jbpmId,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna les ids dels exepdients relacionats amb la definició de procés no utilitzada
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param jbpmId
+	 *            Atribut jbpmId de la definició de procés.
+	 * @return ids dels expedients relacionats amb la definició de procés no utilitzada
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<Long> findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long entornId,
+			Long expedientTipusId,
+			Long jbpmId) throws NoTrobatException, PermisDenegatException;
 }

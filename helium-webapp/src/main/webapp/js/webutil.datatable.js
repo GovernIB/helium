@@ -32,7 +32,7 @@
 			// Inicialització de les options per a crear la datatable
 			if (plugin.settings.selectionEnabled) {
 				$('thead tr,tfoot tr', $taula).each(function() {
-					$(this).prepend($('<th>&nbsp;</th>'));
+					$(this).prepend($('<th style="width:25px">&nbsp;</th>'));
 				});
 				$('tbody tr', $taula).each(function() {
 					$(this).prepend($('<td></td>'));
@@ -106,6 +106,16 @@
 						$('span', $cell).click(function() {
 							$(this).parent().trigger('click');
 						});
+						
+						var rowServerId = data['DT_Id'];
+						var serverIds = window[$taula.data('id') + '_selected_ids'];
+						
+						var api = $taula.dataTable().api();
+						if($.inArray(rowServerId, serverIds) !== -1){
+							api.row(row._DT_RowIndex).select();
+						} else {
+							api.row(row._DT_RowIndex).deselect();
+						}
 					}
 					if (plugin.settings.editable) {
 						var deleteUrl = getBaseUrl() + '/' + data['DT_Id'] + '/delete';
@@ -124,35 +134,28 @@
 					}
 				},
 				preDrawCallback: function(settings_) {
-					if (plugin.settings.botonsTemplate && plugin.settings.botonsTemplate.length > 0) {
-						$.templates("templateNew", $(plugin.settings.botonsTemplate).html());
-						var targetBotons = $('.botons', this.parent());
-						if (!targetBotons.data('botons-creats')) {
-							targetBotons.html($.render.templateNew());
-							targetBotons.data('botons-creats', 'true');
-						}
-					}
-					$('div.dataTables_length', $(this).closest('.dataTables_wrapper')).each(function() {
-						if (!$('label', $(this)).data('processed')) {
-							var label = $('label', $(this));
-							var botons = $('<div class="btn-group"></div>');
-							$('option', label).each(function() {
-								var active = ($(this).val() == plugin.settings.pageLength);
-								botons.append('<button value="' + $(this).val() + '" class="btn btn-default' + ((active) ? ' active': '') + '">' + $(this).val() + '</button>')
-							});
-							label.css('display', 'none');
-							label.data('processed', 'true');
-							$(this).prepend(botons);
-							var select = $('select', $(this));
-							$('button', $(this)).on('click', function() {
-								$('button', $(this).parent()).removeClass('active');
-								$(this).addClass('active');
-								select.val($(this).val()).trigger('change');
-							});
-						}
-					});
-					if (plugin.settings.filtre) {
-						$(plugin.settings.filtre).webutilNetejarErrorsCamps();
+					var that = this;
+					if (plugin.settings.selectionEnabled) {
+						window[$taula.data('id') + '_prevent_next_select'] = false;
+						$.ajax({
+							type: 'POST',
+							url: plugin.settings.selectionUrl,
+							data: {
+								"ids": null,
+								"method": null
+							},
+							success: function(resposta) {
+								$(plugin.settings.selectionCounter).html(resposta.length);
+								window[$taula.data('id') + '_selected_ids'] = resposta;
+							},
+							complete: function() {
+								preDrawMethod(that,settings_);
+							}
+							
+						});
+						
+					} else {
+						preDrawMethod(that,settings_);
 					}
 				},
 				drawCallback: function(settings_) {
@@ -255,6 +258,10 @@
 							$icon.toggleClass('fa-caret-down');
 							return false;
 						});
+					}
+					if (plugin.settings.selectionEnabled) {
+						triggerSelectionChangeFunction();
+						window[$taula.data('id') + '_prevent_next_select'] = true;
 					}
 				}
 			}
@@ -415,7 +422,18 @@
 							[ids]);
 				};
 				$taula.on('select.dt', function (e, dt, type, indexes) {
+					if (window[$taula.data('id') + '_prevent_next_select'] && event.type != 'click') {
+//						event.preventDefault();
+//						return false;
+						indexes = [];
+						if (window[$taula.data('id') + '_selected_ids'].length == 0) {
+							var api = $taula.dataTable().api();
+							api.rows({selected:true}).deselect();
+						}
+					}
+					
 					if (indexes) {
+						var ids_server = getIdsServerByRowIndex(indexes);
 						for (var i = 0; i < indexes.length; i++) {
 							var $row = $taula.dataTable().api()[type](indexes[i]).nodes().to$();
 							var $cell = $('td:first', $row);
@@ -424,11 +442,14 @@
 								$(this).parent().trigger('click');
 							});
 						}
+						if (event.type == 'click' && ids_server.length > 0)
+							editSelection(ids_server, 'add');
 						triggerSelectionChangeFunction();
 					}
 				});
 				$taula.on('deselect.dt', function (e, dt, type, indexes) {
 					if (indexes) {
+						var ids_server = getIdsServerByRowIndex(indexes);
 						for (var i = 0; i < indexes.length; i++) {
 							var $row = $taula.dataTable().api()[type](indexes[i]).nodes().to$();
 							var $cell = $('td:first', $row);
@@ -437,6 +458,8 @@
 								$(this).parent().trigger('click');
 							});
 						}
+						if (event.type == 'click')
+							editSelection(ids_server, 'remove');
 						triggerSelectionChangeFunction();
 					}
 				});
@@ -589,6 +612,66 @@
 			$taula.dataTable().api().ajax.url(url).load();
 		}
 		// Mètodes privats
+		var editSelection = function(ids,method) {
+			$.ajax({
+				type: 'POST',
+				url: plugin.settings.selectionUrl,
+				data: {
+					"ids": ids,
+					"method": method
+				},
+				success: function(resposta) {
+					$(plugin.settings.selectionCounter).html(resposta.length);
+					window[$taula.data('id') + '_selected_ids'] = resposta;
+				}
+			});
+		}
+		
+		var getIdsServerByRowIndex = function(indexes) {
+			var api = $taula.dataTable().api();
+			var rowsData = api.rows({
+				search: 'applied'}).data();
+			
+			var ids_server = [];
+			for (var d = 0; d < indexes.length; d++) {
+				var row = rowsData[indexes[d]];
+				ids_server.push(row['DT_Id']);
+			}
+			
+			return ids_server;
+		}
+		var preDrawMethod = function(that,settings_){
+			if (plugin.settings.botonsTemplate && plugin.settings.botonsTemplate.length > 0) {
+				$.templates("templateNew", $(plugin.settings.botonsTemplate).html());
+				var targetBotons = $('.botons', that.parent());
+				if (!targetBotons.data('botons-creats')) {
+					targetBotons.html($.render.templateNew());
+					targetBotons.data('botons-creats', 'true');
+				}
+			}
+			$('div.dataTables_length', $(that).closest('.dataTables_wrapper')).each(function() {
+				if (!$('label', $(this)).data('processed')) {
+					var label = $('label', $(this));
+					var botons = $('<div class="btn-group"></div>');
+					$('option', label).each(function() {
+						var active = ($(this).val() == plugin.settings.pageLength);
+						botons.append('<button value="' + $(this).val() + '" class="btn btn-default' + ((active) ? ' active': '') + '">' + $(this).val() + '</button>')
+					});
+					label.css('display', 'none');
+					label.data('processed', 'true');
+					$(this).prepend(botons);
+					var select = $('select', $(this));
+					$('button', $(this)).on('click', function() {
+						$('button', $(this).parent()).removeClass('active');
+						$(this).addClass('active');
+						select.val($(this).val()).trigger('change');
+					});
+				}
+			});
+			if (plugin.settings.filtre) {
+				$(plugin.settings.filtre).webutilNetejarErrorsCamps();
+			}
+		}
 		var headerTrFunction = function() {
 			return $('thead:first tr', $taula.closest('.dataTables_wrapper'));
 		}

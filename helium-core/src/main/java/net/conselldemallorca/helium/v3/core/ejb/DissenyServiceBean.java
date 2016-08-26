@@ -9,6 +9,9 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
@@ -20,13 +23,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 /**
  * Servei que proporciona la funcionalitat de disseny d'expedients.
@@ -224,4 +227,53 @@ public class DissenyServiceBean implements DissenyService {
 		return delegate.documentFindAmbDefinicioProces(definicioProcesId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
+			Long entornId,
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findDefinicionsProcesNoUtilitzadesExpedientTipus(
+				entornId, 
+				expedientTipusId, 
+				filtre, 
+				paginacioParams);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
+			Long entornId,
+			Long expedientTipusId) {
+		return delegate.findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
+				entornId, 
+				expedientTipusId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long entornId,
+			Long expedientTipusId,
+			Long jbpmId,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+				entornId, 
+				expedientTipusId, 
+				jbpmId, 
+				paginacioParams);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long entornId,
+			Long expedientTipusId,
+			Long jbpmId) {
+		return delegate.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+				entornId, 
+				expedientTipusId, 
+				jbpmId);
+	}
 }

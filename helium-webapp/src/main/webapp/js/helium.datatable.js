@@ -360,7 +360,6 @@
 							}
 						});
 					}
-					debugger;
 					if (settings.drawCallback)
 						settings.drawCallback(oSettings);
 					$('[title]').tooltip({container: 'body'});
@@ -474,7 +473,6 @@
 						settings.serverParamsCallback(aoData);
 				}
 			};
-			debugger;
 			if (settings.ajaxSourceUrl !== null) {
 				dataTableParams.sAjaxSource = settings.ajaxSourceUrl;
 				var ajaxRequestType = settings.ajaxRequestType;
@@ -496,7 +494,6 @@
 					});
 				};
 			}
-			debugger;
 			$(this).dataTable(dataTableParams);
 		});
 	};
