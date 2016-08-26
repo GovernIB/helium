@@ -15,6 +15,7 @@ public class AccioDto implements Serializable {
 	private Long id;
 	private String codi;
 	private String nom;
+	private String defprocJbpmKey;
 	private String jbpmAction;
 	private String descripcio;
 	private boolean publica;
@@ -76,6 +77,14 @@ public class AccioDto implements Serializable {
 
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
 	public String getDescripcio() {

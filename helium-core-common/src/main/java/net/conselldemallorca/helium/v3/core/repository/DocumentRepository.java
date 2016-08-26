@@ -71,4 +71,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			Pageable pageable);
 	
 	public Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
+
+	List<Document> findByExpedientTipusOrderByCodiAsc(ExpedientTipus expedientTipus);
 }

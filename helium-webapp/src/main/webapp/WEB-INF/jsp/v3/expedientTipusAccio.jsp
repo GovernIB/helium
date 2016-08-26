@@ -6,6 +6,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
+<c:set var="ambInfoPropiaText"><spring:message code="expedient.tipus.form.camp.ambInfoPropia"/></c:set>
 
 <script src="<c:url value="/js/webutil.common.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -16,6 +17,13 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
+
+		<c:if test="${!expedientTipus.ambInfoPropia}">
+			<div class="alert alert-warning">
+				<span class="fa fa-exclamation-triangle"></span>
+				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
+			</div>
+		</c:if>
 
 		<table	id="expedientTipusAccio"
 				data-rowId="id"
@@ -32,6 +40,7 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.accio.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.accio.llistat.columna.nom"/></th>
+					<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
 					<th data-col-name="jbpmAction"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
 					<th data-col-name="id" data-template="#cellAccionsAccioTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsAccioTemplate" type="text/x-jsrender">

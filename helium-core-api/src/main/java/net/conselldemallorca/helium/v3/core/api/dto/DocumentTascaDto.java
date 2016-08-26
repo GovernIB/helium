@@ -18,7 +18,7 @@ public class DocumentTascaDto {
 	private boolean readOnly;
 	private int order;
 
-	private DocumentDissenyDto document;
+	private DocumentDto document;
 
 
 	public Long getId() {
@@ -45,10 +45,10 @@ public class DocumentTascaDto {
 	public void setOrder(int order) {
 		this.order = order;
 	}
-	public DocumentDissenyDto getDocument() {
+	public DocumentDto getDocument() {
 		return document;
 	}
-	public void setDocument(DocumentDissenyDto document) {
+	public void setDocument(DocumentDto document) {
 		this.document = document;
 	}
 

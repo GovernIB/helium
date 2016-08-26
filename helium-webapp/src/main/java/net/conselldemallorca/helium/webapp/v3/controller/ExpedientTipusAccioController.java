@@ -84,9 +84,15 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusAccioCommand command = new ExpedientTipusAccioCommand();
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusAccioCommand", command);
+		model.addAttribute("definicionsProces", 
+				expedientTipusService.definicioProcesFindJbjmKey(
+						entornActual.getId(), 
+						expedientTipusId, 
+						true));
 		return "v3/expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.POST)
@@ -97,6 +103,12 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+    		model.addAttribute("definicionsProces", 
+    				expedientTipusService.definicioProcesFindJbjmKey(
+    						entornActual.getId(), 
+    						expedientTipusId, 
+    						true));
         	return "v3/expedientTipusAccioForm";
         } else {
         	// Verificar permisos
@@ -118,11 +130,17 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AccioDto dto = expedientTipusService.accioFindAmbId(id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
 		model.addAttribute("expedientTipusAccioCommand", command);
+		model.addAttribute("definicionsProces", 
+				expedientTipusService.definicioProcesFindJbjmKey(
+						entornActual.getId(), 
+						expedientTipusId, 
+						true));
 		return "v3/expedientTipusAccioForm";
 	}
 	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/update", method = RequestMethod.POST)
@@ -134,6 +152,12 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+    		model.addAttribute("definicionsProces", 
+    				expedientTipusService.definicioProcesFindJbjmKey(
+    						entornActual.getId(), 
+    						expedientTipusId, 
+    						true));
         	return "v3/expedientTipusAccioForm";
         } else {
         	expedientTipusService.accioUpdate(

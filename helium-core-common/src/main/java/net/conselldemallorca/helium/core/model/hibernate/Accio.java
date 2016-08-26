@@ -58,8 +58,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
-
-
+	
+	@MaxLength(255)
+	private String defprocJbpmKey;
 
 	public Accio() {}
 	public Accio(DefinicioProces definicioProces, String codi, String nom, String jbpmAction) {
@@ -68,10 +69,11 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 		this.jbpmAction = jbpmAction;
 	}
-	public Accio(ExpedientTipus expedientTipus, String codi, String nom, String jbpmAction) {
+	public Accio(ExpedientTipus expedientTipus, String codi, String nom, String defprocJbpmKey, String jbpmAction) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.nom = nom;
+		this.defprocJbpmKey = defprocJbpmKey;
 		this.jbpmAction = jbpmAction;
 	}
 
@@ -169,6 +171,15 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	public void setExpedientTipus(ExpedientTipus expedientTipus) {
 		this.expedientTipus = expedientTipus;
 	}
+	
+	@Column(name="defproc_jbpmkey", length=255)
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
+	}
+
 
 	@Override
 	public int hashCode() {
@@ -178,7 +189,9 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
 		result = prime * result
-				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());		
+				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
+		result = prime * result
+				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
 		return result;
 	}
 	@Override
@@ -205,6 +218,12 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!expedientTipus.equals(other.expedientTipus))
 			return false;
+		if (defprocJbpmKey == null) {
+			if (other.defprocJbpmKey != null)
+				return false;
+		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
+			return false;
+		
 		return true;
 	}
 

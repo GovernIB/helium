@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.acls.model.NotFoundException;
 
@@ -163,6 +164,14 @@ public interface DissenyService {
 
 	public DocumentDto documentFindOne(Long documentId) throws NoTrobatException;
 
-	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) throws NoTrobatException;	
+	public List<DocumentDto> documentFindAmbDefinicioProces(Long definicioProcesId) throws NoTrobatException;
+
+	/** Retorna la llista de recursos per a una definició de procés específica. */
+	public Set<String> getRecursosNom(Long definicioProcesId);
+
+	/** Retorna el contingut d'un recurs de la definició de procés. */
+	public byte[] getRecursContingut(
+			Long definicioProcesId, 
+			String nom);	
 
 }

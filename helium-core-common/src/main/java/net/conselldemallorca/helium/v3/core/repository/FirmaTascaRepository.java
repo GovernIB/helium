@@ -5,11 +5,13 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 
 /**
  * Dao pels objectes de tipus firma de tasca
@@ -17,13 +19,13 @@ import org.springframework.data.repository.query.Param;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
-	@Query("select " +
-			"	 max(ft.order) " +
-			"from " +
-			"    FirmaTasca ft " +
+	
+	/** Consulta el següent valor per a ordre de les agrupacions. */
+	@Query(	"select coalesce( max( ft.order), -1) + 1 " +
+			"from FirmaTasca ft " +
 			"where " +
-			"    ft.tasca.id=:tascaId")
-	int getNextOrder(@Param("tascaId") Long tascaId);
+			"    ft.tasca.id = :tascaId " )
+	public Integer getNextOrdre(@Param("tascaId") Long tascaId);
 
 	@Query("select ft from " +
 			"    FirmaTasca ft " +
@@ -42,6 +44,12 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 	List<FirmaTasca> findAmbTascaOrdenats(
 			@Param("jbpmName") String name,
 			@Param("jbpmId") String jbpmId);
+	
+	@Query("from FirmaTasca ft " +
+			"where ft.tasca.id=:tascaId " +
+			"order by ft.order")
+	public List<FirmaTasca> findAmbTascaIdOrdenats(
+			@Param("tascaId") Long tascaId);	
 
 	@Query("select count(ft) from " +
 			"    FirmaTasca ft " +
@@ -58,4 +66,21 @@ public interface FirmaTascaRepository extends JpaRepository<FirmaTasca, Long> {
 			"    ft.document.id=:documentId " +
 			"and ft.tasca.id=:tascaId")
 	FirmaTasca findAmbDocumentTasca(@Param("documentId") Long documentId, @Param("tascaId") Long tascaId);
+	
+	@Query(	"from FirmaTasca ft " +
+			"where " +
+			"   ft.tasca.id = :tascaId " +
+			"	and (:esNullFiltre = true or lower(ft.document.codi) like lower('%'||:filtre||'%') or lower(ft.document.nom) like lower('%'||:filtre||'%')) ")
+	public Page<FirmaTasca> findByFiltrePaginat(
+			@Param("tascaId") Long tascaId,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,
+			Pageable pageable);
+	
+	@Query("select ft " +
+			"from FirmaTasca ft " +
+			"where ft.tasca.id = :tascaId " +
+			"order by ft.order asc ")
+	List<FirmaTasca> findFirmesTasca(
+			@Param("tascaId") Long tascaId);	
 }

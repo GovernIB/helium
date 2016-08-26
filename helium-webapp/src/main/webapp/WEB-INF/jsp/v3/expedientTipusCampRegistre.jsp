@@ -79,9 +79,7 @@
 					<spring:message code="expedient.tipus.campRegistre.llistat.columna.obligatori"/>
 						<script id="cellexpedientTipusCampRegistreMultibleTemplate" type="text/x-jsrender">
 						{{if obligatori }}
-							<spring:message code="comu.true"></spring:message>
-						{{else}}
-							<spring:message code="comu.false"></spring:message>
+							<spring:message code="comu.check"></spring:message>
 						{{/if}}
 						</script>
 					</th>
@@ -89,9 +87,7 @@
 					<spring:message code="expedient.tipus.campRegistre.llistat.columna.llistar"/>
 						<script id="cellexpedientTipusCampRegistreLlistarTemplate" type="text/x-jsrender">
 						{{if llistar }}
-							<spring:message code="comu.true"></spring:message>
-						{{else}}
-							<spring:message code="comu.false"></spring:message>
+							<spring:message code="comu.check"></spring:message>
 						{{/if}}
 						</script>
 					</th>

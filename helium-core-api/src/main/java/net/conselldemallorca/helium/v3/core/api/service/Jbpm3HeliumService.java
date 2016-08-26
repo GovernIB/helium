@@ -1092,4 +1092,11 @@ public interface Jbpm3HeliumService {
 	 */
 	public boolean isTascaEnSegonPla(Long taskId);
 
+	/** Retorna la llista de definicions de processos que siguin sub proces de l'indicat.
+	 * 
+	 * @param definicioProcesId
+	 * @return
+	 */
+	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId);
+
 }

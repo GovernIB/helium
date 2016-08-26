@@ -115,7 +115,7 @@ public class DissenyServiceImpl implements DissenyService {
 	private AreaRepository areaRepository;
 	@Resource
 	private DominiHelper dominiHelper;
-	
+	@Resource
 	private DocumentRepository documentRepository;
 
 
@@ -628,6 +628,24 @@ public class DissenyServiceImpl implements DissenyService {
 		return conversioTipusHelper.convertirList(
 				documents,
 				DocumentDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Set<String> getRecursosNom(Long definicioProcesId) {
+		Set<String> resposta = null;
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		if (definicioProces != null)
+			resposta = jbpmHelper.getResourceNames(definicioProces.getJbpmId());
+		return resposta;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
+		return jbpmHelper.getResourceBytes(
+				definicioProcesRepository.findOne(definicioProcesId).getJbpmId(), 
+				nom);
 	}
 
 }

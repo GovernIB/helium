@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -64,6 +65,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -636,13 +638,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		}
 		PaginaDto<ExpedientTipusDto> pagina = paginacioHelper.toPaginaDto(
-				expedientTipusRepository.findByFiltreGeneralPaginat(
-						entorn, 
-						tipusPermesosIds,
-						filtre == null || "".equals(filtre),
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
+				tipusPermesosIds.size() > 0 ?
+					expedientTipusRepository.findByFiltreGeneralPaginat(
+							entorn, 
+							tipusPermesosIds,
+							filtre == null || "".equals(filtre),
+							filtre,
+							paginacioHelper.toSpringDataPageable(
+									paginacioParams))
+						// pàgina buida si no hi ha tipus permesos
+					:	new PageImpl<ExpedientTipus>(new ArrayList<ExpedientTipus>()),
 				ExpedientTipusDto.class);
 		// Afegeix el contador de permisos
 		List<Long> ids = new ArrayList<Long>();
@@ -1776,11 +1781,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		ArxiuDto resposta = new ArxiuDto();
 		
-//		return documentHelper.getArxiuPerDocumentStoreId(
-//				id,
-//				false,
-//				false);
-		
 		resposta.setNom(document.getArxiuNom());
 		resposta.setContingut(document.getArxiuContingut());
 		
@@ -1809,6 +1809,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				
 		entity.setCodi(accio.getCodi());
 		entity.setNom(accio.getNom());
+		entity.setDefprocJbpmKey(accio.getDefprocJbpmKey());
 		entity.setJbpmAction(accio.getJbpmAction());
 		entity.setDescripcio(accio.getDescripcio());
 		entity.setPublica(accio.isPublica());
@@ -1836,6 +1837,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		entity.setCodi(accio.getCodi());
 		entity.setNom(accio.getNom());
+		entity.setDefprocJbpmKey(accio.getDefprocJbpmKey());
 		entity.setJbpmAction(accio.getJbpmAction());
 		entity.setDescripcio(accio.getDescripcio());
 		entity.setPublica(accio.isPublica());
@@ -2236,7 +2238,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"incloureGlobals=" + incloureGlobals + ", " +
 				"filtre=" + filtre + ")");
 		
-		return paginacioHelper.toPaginaDto(
+		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
 				definicioProcesRepository.findByFiltrePaginat(
 						entornId,
 						expedientTipusId,
@@ -2245,8 +2247,56 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						filtre, 
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
-				DefinicioProcesDto.class);		
+				DefinicioProcesDto.class);
+		// Consulta els valors pels comptadors 
+		// List< Object[String jbpmKey, Long count]>
+		List<String> paginaJbpmKeys = new ArrayList<String>();
+		for (DefinicioProcesDto d : pagina.getContingut()) {
+					paginaJbpmKeys.add(d.getJbpmKey());
+		}
+		if (paginaJbpmKeys.size() > 0) {
+			List<Object[]> countVersions = definicioProcesRepository.countVersions(
+					entornId,
+					paginaJbpmKeys); 
+			// Omple els comptadors de tipus de camps
+			String jbpmKey;
+			Long count;
+			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
+			for (DefinicioProcesDto definicio: pagina.getContingut()) {
+				for (Object[] countVersio: countVersions) {
+					jbpmKey = (String) countVersio[0];
+					if (definicio.getJbpmKey().equals(jbpmKey)) {
+						count = (Long) countVersio[1];
+						definicio.setVersioCount(count);
+						processats.add(countVersio);
+					}
+				}
+				countVersions.removeAll(processats);
+				processats.clear();
+			}		
+		}
+		return pagina;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<String> definicioProcesFindJbjmKey(
+			Long entornId,
+			Long expedientTipusId,
+			boolean incloureGlobals) {
+		logger.debug(
+				"Consultant les jbpmKey de les definicions de processos per al tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"incloureGlobals=" + incloureGlobals + ")");
+		return definicioProcesRepository.findJbpmKeys(
+				entornId, 
+				expedientTipusId, 
+				incloureGlobals);
+	}	
 
 	@Override
 	@Transactional
@@ -2583,6 +2633,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return pagina;		
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long expedientTipusId) {
+		logger.debug(
+				"Consultant tots els documents del tipus expedient per al desplegable " +
+				" de documents de la tasca a la definicio de processos (expedientTipusId=" + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = 
+				expedientTipusHelper.getExpedientTipusComprovantPermisos(
+						expedientTipusId, 
+						true);
+		
+		List<Document> documents = documentRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+		
+		return conversioTipusHelper.convertirList(
+				documents, 
+				DocumentDto.class);
+	}	
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2908,6 +2977,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								accio.getCodi(),
 								accio.getNom(),
+								definicioProces.getJbpmKey(),
 								accio.getJbpmAction());
 						expedientTipus.getAccions().add(nova);
 					} else if (sobreescriure) {
@@ -3254,34 +3324,36 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		for (ConsultaDto c : pagina.getContingut()) {
 			paginaIds.add(c.getId());
 		}
-		List<Object[]> countCamps = consultaRepository.countCamps(paginaIds);
-		List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
-		// Omple els comptadors de tipus de camps
-		for (ConsultaDto consulta: pagina.getContingut()) {
-			for (Object[] countCamp: countCamps) {
-				Long campId = (Long) countCamp[0];
-				if (campId.equals(consulta.getId())) {
-					Long count = (Long)countCamp[2];
-					ConsultaCamp.TipusConsultaCamp tipus = (ConsultaCamp.TipusConsultaCamp) countCamp[1]; 
-					switch(tipus) {
-					case FILTRE:
-						consulta.setVarsFiltreCount(count.intValue());
-						break;
-					case INFORME:
-						consulta.setVarsInformeCount(count.intValue());
-						break;
-					case PARAM:
-						consulta.setParametresCount(count.intValue());
-						break;
-					default:
-						break;
+		if (paginaIds.size() > 0) {
+			List<Object[]> countCamps = consultaRepository.countCamps(paginaIds);
+			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
+			// Omple els comptadors de tipus de camps
+			for (ConsultaDto consulta: pagina.getContingut()) {
+				for (Object[] countCamp: countCamps) {
+					Long campId = (Long) countCamp[0];
+					if (campId.equals(consulta.getId())) {
+						Long count = (Long)countCamp[2];
+						ConsultaCamp.TipusConsultaCamp tipus = (ConsultaCamp.TipusConsultaCamp) countCamp[1]; 
+						switch(tipus) {
+						case FILTRE:
+							consulta.setVarsFiltreCount(count.intValue());
+							break;
+						case INFORME:
+							consulta.setVarsInformeCount(count.intValue());
+							break;
+						case PARAM:
+							consulta.setParametresCount(count.intValue());
+							break;
+						default:
+							break;
+						}
+						processats.add(countCamp);
 					}
-					processats.add(countCamp);
 				}
-			}
-			countCamps.removeAll(processats);
-			processats.clear();
-		}		
+				countCamps.removeAll(processats);
+				processats.clear();
+			}		
+		}
 		return pagina;		
 	}	
 	
@@ -3547,8 +3619,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return recomptes;
 	}	
 	
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
-
 	@Override
 	public PaginaDto<MapeigSistraDto> mapeigFindPerDatatable(
 			Long expedientTipusId, 
@@ -3670,5 +3740,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		return conversioTipusHelper.convertir(
 				mapeigSistraRepository.findByExpedientTipusAndCodiSistra(expedientTipus, codiSistra),
 				MapeigSistraDto.class);
-	}	
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

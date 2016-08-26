@@ -35,6 +35,7 @@
 			<input type="hidden" name="id" value="${expedientTipusAccioCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.accio.form.accio.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.accio.form.accio.nom" />
+			<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
 			<hel:inputText required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.accio.form.accio.descripcio" />
 			<hel:inputCheckbox name="publica" textKey="expedient.tipus.accio.form.accio.publica" />

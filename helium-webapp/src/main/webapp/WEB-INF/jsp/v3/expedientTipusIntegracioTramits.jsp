@@ -20,7 +20,7 @@
 			<div style="height: 400px">        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioTramitsCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.tramits.activar"/>
-				<div id="inputs" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
+				<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
 					<hel:inputText required="true" name="tramitCodi" textKey="expedient.tipus.integracio.tramits.tramitCodi" />
 					<!-- Botons per obrir els formularis dels mapejos -->
 					<div class="form-group">
@@ -59,7 +59,7 @@
 			
 			<div id="modal-botons" class="well" style="text-align: right;">
 				<span id="accioGuardarProcessant" style="display:none;">
-					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="expedient.tipus.integracio.tramits.processant"/>"></span><span class="sr-only">&hellip;</span>
+					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
 				</span>			
 				<button class="btn btn-primary right" type="submit" name="accio" value="guardar">
 					<span class="fa fa-save"></span> <spring:message code='comu.boto.guardar' />
@@ -77,11 +77,11 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
-	$('#actiu').change(function() {
+	$('#actiu', '#expedientTipusIntegracioTramitsCommand').change(function() {
 		if ($(this).is(':checked')) {
-			$('#inputs').show();
+			$('#inputs_integracioTramits').show();
 		} else {
-			$('#inputs').hide();
+			$('#inputs_integracioTramits').hide();
 		}
 	})
 	$('#expedientTipusIntegracioTramitsCommand').submit(function(e){
