@@ -194,14 +194,6 @@ public class DefinicioProcesDto {
 		}
 	}
 
-	public String getIdPerMostrar() {
-		if (etiqueta != null) {
-			return etiqueta + " (" + jbpmKey + " v." + versio + ")";
-		} else {
-			return jbpmKey + " v." + versio;
-		}
-	}
-
 	public void setVersioCount(Long count) {
 		this.versioCount = count;
 	}
