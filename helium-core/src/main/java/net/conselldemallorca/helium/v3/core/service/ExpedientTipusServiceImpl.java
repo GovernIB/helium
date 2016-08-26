@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -637,13 +638,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		}
 		PaginaDto<ExpedientTipusDto> pagina = paginacioHelper.toPaginaDto(
-				expedientTipusRepository.findByFiltreGeneralPaginat(
-						entorn, 
-						tipusPermesosIds,
-						filtre == null || "".equals(filtre),
-						filtre,
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
+				tipusPermesosIds.size() > 0 ?
+					expedientTipusRepository.findByFiltreGeneralPaginat(
+							entorn, 
+							tipusPermesosIds,
+							filtre == null || "".equals(filtre),
+							filtre,
+							paginacioHelper.toSpringDataPageable(
+									paginacioParams))
+						// pàgina buida si no hi ha tipus permesos
+					:	new PageImpl<ExpedientTipus>(new ArrayList<ExpedientTipus>()),
 				ExpedientTipusDto.class);
 		// Afegeix el contador de permisos
 		List<Long> ids = new ArrayList<Long>();
@@ -3320,34 +3324,36 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		for (ConsultaDto c : pagina.getContingut()) {
 			paginaIds.add(c.getId());
 		}
-		List<Object[]> countCamps = consultaRepository.countCamps(paginaIds);
-		List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
-		// Omple els comptadors de tipus de camps
-		for (ConsultaDto consulta: pagina.getContingut()) {
-			for (Object[] countCamp: countCamps) {
-				Long campId = (Long) countCamp[0];
-				if (campId.equals(consulta.getId())) {
-					Long count = (Long)countCamp[2];
-					ConsultaCamp.TipusConsultaCamp tipus = (ConsultaCamp.TipusConsultaCamp) countCamp[1]; 
-					switch(tipus) {
-					case FILTRE:
-						consulta.setVarsFiltreCount(count.intValue());
-						break;
-					case INFORME:
-						consulta.setVarsInformeCount(count.intValue());
-						break;
-					case PARAM:
-						consulta.setParametresCount(count.intValue());
-						break;
-					default:
-						break;
+		if (paginaIds.size() > 0) {
+			List<Object[]> countCamps = consultaRepository.countCamps(paginaIds);
+			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
+			// Omple els comptadors de tipus de camps
+			for (ConsultaDto consulta: pagina.getContingut()) {
+				for (Object[] countCamp: countCamps) {
+					Long campId = (Long) countCamp[0];
+					if (campId.equals(consulta.getId())) {
+						Long count = (Long)countCamp[2];
+						ConsultaCamp.TipusConsultaCamp tipus = (ConsultaCamp.TipusConsultaCamp) countCamp[1]; 
+						switch(tipus) {
+						case FILTRE:
+							consulta.setVarsFiltreCount(count.intValue());
+							break;
+						case INFORME:
+							consulta.setVarsInformeCount(count.intValue());
+							break;
+						case PARAM:
+							consulta.setParametresCount(count.intValue());
+							break;
+						default:
+							break;
+						}
+						processats.add(countCamp);
 					}
-					processats.add(countCamp);
 				}
-			}
-			countCamps.removeAll(processats);
-			processats.clear();
-		}		
+				countCamps.removeAll(processats);
+				processats.clear();
+			}		
+		}
 		return pagina;		
 	}	
 	
