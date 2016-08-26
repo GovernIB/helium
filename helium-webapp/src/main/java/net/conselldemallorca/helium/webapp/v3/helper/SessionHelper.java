@@ -3,7 +3,9 @@
  */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +40,8 @@ public class SessionHelper {
 	public static final String VARIABLE_SELECCIO_CONSULTA_GENERAL = "seleccioConsultaGeneral";
 	public static final String VARIABLE_SELECCIO_INFORME = "seleccioInforme";
 	public static final String VARIABLE_SELECCIO_TASCA = "seleccioTasca";
+	public static final String VARIABLE_SELECCIO_CONSULTA_DP_NU = "seleccioDpNoUtilitzades";
+	public static final String VARIABLE_SELECCIO_CONSULTA_AFECTATS_DP = "seleccioExpedientsAfectatsDp";
 	public static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM = "filtreConsultaTipusParam";
@@ -197,6 +201,46 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_CONSULTA_GENERAL,
 					seleccioConsultaGeneral);
+		}
+		@SuppressWarnings("unchecked")
+		public Set<Long> getSeleccioConsultaDpNoUtilitzades(Long expedientTipusId) {
+			Map<Long,Set<Long>> mapaDpNu = (Map<Long,Set<Long>>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_CONSULTA_DP_NU);
+			return mapaDpNu != null ? mapaDpNu.get(expedientTipusId) : null;
+		}
+		@SuppressWarnings("unchecked")
+		public void setSeleccioConsultaDpNoUtilitzades(Long expedientTipusId, Set<Long> seleccioConsultaDpNoUtilitzades) {
+			Map<Long,Set<Long>> mapaDpNu = (Map<Long,Set<Long>>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_CONSULTA_DP_NU);
+			if (mapaDpNu == null)
+				mapaDpNu = new HashMap<Long, Set<Long>>();
+			mapaDpNu.put(expedientTipusId, seleccioConsultaDpNoUtilitzades);
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_CONSULTA_DP_NU,
+					mapaDpNu);
+		}
+		@SuppressWarnings("unchecked")
+		public List<Long> getSeleccioConsultaAfectatsDp (Long dpId) {
+			Map<Long,List<Long>> mapaAfDp = (Map<Long,List<Long>>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_CONSULTA_AFECTATS_DP);
+			return mapaAfDp != null ? mapaAfDp.get(dpId) : null;
+		}
+		@SuppressWarnings("unchecked")
+		public void setSeleccioConsultaAfectatsDp (Long dpId, List<Long> seleccioConsultaAfectatsDp) {
+			Map<Long,List<Long>> mapaAfDp = (Map<Long,List<Long>>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_CONSULTA_AFECTATS_DP);
+			if (mapaAfDp == null)
+				mapaAfDp = new HashMap<Long, List<Long>>();
+			mapaAfDp.put(dpId, seleccioConsultaAfectatsDp);
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_CONSULTA_AFECTATS_DP,
+					mapaAfDp);
 		}
 		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioConsultaTasca() {

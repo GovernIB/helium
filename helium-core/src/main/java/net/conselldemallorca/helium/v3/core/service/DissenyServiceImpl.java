@@ -7,14 +7,19 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +29,12 @@ import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DominiHelper;
+import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -51,8 +59,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -94,6 +106,10 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
+	private EntornHelper entornHelper;
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
@@ -116,6 +132,8 @@ public class DissenyServiceImpl implements DissenyService {
 	@Resource
 	private DominiHelper dominiHelper;
 	@Resource
+	private PaginacioHelper paginacioHelper;
+	
 	private DocumentRepository documentRepository;
 
 
@@ -648,4 +666,193 @@ public class DissenyServiceImpl implements DissenyService {
 				nom);
 	}
 
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<DefinicioProcesDto> findDefinicionsProcesNoUtilitzadesExpedientTipus(
+			Long entornId,
+			Long expedientTipusId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant definicions de procés no utilitzades del tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		
+		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
+			PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
+					definicioProcesRepository.findAmbExpedientTipusIJbpmIds(
+							expedientTipusId, 
+							noUtilitzades,
+							paginacioHelper.toSpringDataPageable(
+									paginacioParams)),
+					DefinicioProcesDto.class);
+			return pagina;
+		}
+		return new PaginaDto<DefinicioProcesDto>();
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(
+			Long entornId,
+			Long expedientTipusId) {
+		
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		
+		List<String> noUtilitzades = jbpmHelper.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
+		List<Long> result = new ArrayList<Long>();
+		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {
+			result = definicioProcesRepository.findIdsAmbExpedientTipusIJbpmIds(
+					expedientTipusId,
+					noUtilitzades);
+		}
+		return result;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long entornId,
+			Long expedientTipusId,
+			Long jbpmId,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant definicions de procés no utilitzades del tipus d'expedient (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		
+		ExpedientTipusDto expedientTipus = conversioTipusHelper.convertir(
+				expedientTipusRepository.findOne(
+						expedientTipusId), 
+						ExpedientTipusDto.class);
+		
+		List<ProcessInstanceExpedient> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+				expedientTipusId,
+				jbpmId);
+		
+		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
+		
+		for (ProcessInstanceExpedient pie : afectats) {
+			ExpedientDto exp = new ExpedientDto();
+			exp.setId(pie.getId());
+			exp.setTipus(expedientTipus);
+			exp.setTitol(pie.getTitol());
+			exp.setNumero(pie.getNumero());
+			exp.setNumeroDefault(pie.getNumeroDefault());
+			exp.setDataInici(pie.getDataInici());
+			exp.setDataFi(pie.getDataFi());
+			exp.setProcessInstanceId(pie.getProcessInstanceId());
+			expedients.add(exp);
+		}
+		
+		PaginaDto<ExpedientDto> pagina = paginacioHelper.toPaginaDto(
+				expedients,
+				expedients.size(),
+				paginacioParams);
+		
+		return pagina;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<Long> findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+			Long entornId,
+			Long expedientTipusId,
+			Long jbpmId) {
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		expedientTipusHelper.comprovarPermisDissenyEntornITipusExpedient(
+				entornId,
+				expedientTipusId);
+		
+		List<ProcessInstanceExpedient> afectats = jbpmHelper.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+				expedientTipusId,
+				jbpmId);
+		
+		List<Long> ids = new ArrayList<Long>();
+		
+		for (ProcessInstanceExpedient pie : afectats) {
+			ids.add(pie.getId());
+		}
+		
+		return ids;
+	}
+	//////////////////////
+	public PaginaDto<ExpedientTipusDto> findPerDatatable(
+			Long entornId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant tipus d'expedient per datatable (" +
+				"entornId=" + entornId + ", " +
+				"filtre=" + filtre + ")");
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);
+		// Filtra els expedients deixant només els permesos
+		if (!entornHelper.potDissenyarEntorn(entornId)) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			Iterator<Long> it = tipusPermesosIds.iterator();
+			while (it.hasNext()) {
+				Long id = it.next();
+				if (!permisosHelper.isGrantedAny(
+						id,
+						ExpedientTipus.class,
+						new Permission[] {
+								ExtendedPermission.DESIGN,
+								ExtendedPermission.MANAGE,
+								ExtendedPermission.ADMINISTRATION},
+						auth)) {
+					it.remove();
+				}
+			}
+		}
+		PaginaDto<ExpedientTipusDto> pagina = paginacioHelper.toPaginaDto(
+				expedientTipusRepository.findByFiltreGeneralPaginat(
+						entorn, 
+						tipusPermesosIds,
+						filtre == null || "".equals(filtre),
+						filtre,
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				ExpedientTipusDto.class);
+		// Afegeix el contador de permisos
+		List<Long> ids = new ArrayList<Long>();
+		for (ExpedientTipusDto dto: pagina.getContingut()) {
+			ids.add(dto.getId());
+		}
+		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
+				ids,
+				ExpedientTipus.class);
+		for (ExpedientTipusDto dto: pagina.getContingut()) {
+			if (permisos.get(dto.getId()) != null) {
+				dto.setPermisCount(permisos.get(dto.getId()).size());
+			}
+		}
+		return pagina;
+	}
+	//////////////////////
+	
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

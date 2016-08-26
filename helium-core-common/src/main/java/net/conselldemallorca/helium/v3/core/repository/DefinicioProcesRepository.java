@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -172,4 +173,21 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	List<Object[]> countVersions(
 			@Param("entornId") Long entornId,
 			@Param("consultaJbpmKeys") List<String> consultaJbpmKeys);	
+	
+	@Query("from DefinicioProces dp " +
+			"where " +
+			"		dp.expedientTipus.id = :expedientTipusId " +
+			"  	and dp.jbpmId in (:jbpmIds) ")
+	Page<DefinicioProces> findAmbExpedientTipusIJbpmIds(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("jbpmIds") Collection<String> jbpmIds,
+			Pageable pageable);
+	
+	@Query("select dp.id from DefinicioProces dp " +
+			"where " +
+			"		dp.expedientTipus.id = :expedientTipusId " +
+			"  	and dp.jbpmId in (:jbpmIds) ")
+	List<Long> findIdsAmbExpedientTipusIJbpmIds(
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("jbpmIds") Collection<String> jbpmIds);
 }

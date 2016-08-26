@@ -2,7 +2,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -45,6 +48,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.Datatables
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador per al manteniment de tipus d'expedient.
@@ -315,6 +319,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						id));
 		return "v3/expedientTipusPermis";
 	}
+	
+	@RequestMapping(value = "/{id}/permis/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse permisDatatable(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.permisFindAll(
+						entornActual.getId(),
+						id));
+	}
 
 	@RequestMapping(value = "/{id}/permis/new", method = RequestMethod.GET)
 	public String permisNewGet(
@@ -417,6 +436,260 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		return "redirect:/v3/expedientTipus/" + id + "/permis";
 	}
 	
+	//eliminar versions de definicons de procés
+	@RequestMapping(value = "/{id}/netejarDp", method = RequestMethod.GET)
+	public String netejarDp(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPermisDissenyar(
+						entornActual.getId(),
+						id));
+		return "v3/llistatDpNoUs";
+	}
+	
+	@RequestMapping(value = "/{id}/netejarDp/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse netejarDpDatatable(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(
+						entornActual.getId(),
+						id,
+						paginacioParams.getFiltre(),
+						paginacioParams),
+				"id");
+	}
+	
+	@RequestMapping(value = "/{id}/netejarSelectedDp", method = RequestMethod.GET)
+	public String netejarSelectedDp(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		try {
+			SessionManager sessionManager = SessionHelper.getSessionManager(request);
+			Set<Long> seleccio = sessionManager.getSeleccioConsultaDpNoUtilitzades(id);
+			
+			if (seleccio != null && seleccio.size() > 0) {
+				Long longIds[] = new Long[seleccio.size()];
+				longIds = seleccio.toArray(longIds);
+			
+				Date dInici = new Date();
+				ExecucioMassivaDto emdto = new ExecucioMassivaDto();
+				emdto.setTipus(ExecucioMassivaTipusDto.ELIMINAR_VERSIO_DEFPROC);
+				emdto.setDataInici(dInici);
+				emdto.setDefProcIds(longIds);
+				emdto.setExpedientTipusId(id);
+				emdto.setEnviarCorreu(false);
+				
+				execucioMassivaService.crearExecucioMassiva(emdto);
+				
+				MissatgesHelper.success(
+						request,
+						"S'ha programat l'eliminació de les definicions de procés");
+			} else {
+				MissatgesHelper.warning(
+						request, 
+						"No s'ha seleccionat cap definició de procés");
+	        	logger.error("No s'ha seleccionat cap definició de procés");
+			}
+			
+		} catch (Exception ex) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"error.proces.peticio"));
+        	logger.error("No s'han pogut programar l'eliminació de les definicions de procés", ex);
+		}
+		
+		return "redirect:/v3/expedientTipus/" + id + "/netejarDp";
+	}
+	
+	
+	//expedients afectats per una definició de procés que vol ser borrada
+	@RequestMapping(value = "/{id}/afectatsDp/{dpId}", method = RequestMethod.GET)
+	public String afectatsDp(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable Long dpId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		model.addAttribute(
+				"expedientTipus",
+				expedientTipusService.findAmbIdPermisDissenyar(
+						entornActual.getId(),
+						id));
+		model.addAttribute(
+				"definicioProces",
+				dissenyService.getById(dpId));
+		return "v3/llistatAfectatsDp";
+	}
+	
+	@RequestMapping(value = "/{id}/afectatsDp/{dpId}/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse netejarDpDatatable(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable Long dpId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		DefinicioProcesDto definicioProces = dissenyService.getById(dpId);
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+						entornActual.getId(),
+						id,
+						Long.parseLong(definicioProces.getJbpmId()),
+						paginacioParams),
+				"id");
+	}
+	
+	@RequestMapping(value = "/{id}/eliminarLogs/{dpId}", method = RequestMethod.GET)
+	public String eliminarLogs(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable Long dpId,
+			Model model) {
+		try {
+			SessionManager sessionManager = SessionHelper.getSessionManager(request);
+			List<Long> seleccio = sessionManager.getSeleccioConsultaAfectatsDp(dpId);
+			
+			if (seleccio != null && seleccio.size() > 0) {
+				Date dInici = new Date();
+				ExecucioMassivaDto emdto = new ExecucioMassivaDto();
+				emdto.setDataInici(dInici);
+				emdto.setEnviarCorreu(false);
+				emdto.setExpedientIds(seleccio);
+				emdto.setExpedientTipusId(id);
+				emdto.setTipus(ExecucioMassivaTipusDto.BUIDARLOG);
+				
+				execucioMassivaService.crearExecucioMassiva(emdto);
+				
+				MissatgesHelper.success(
+						request,
+						"S'ha programat l'eliminació dels logs dels expedients seleccionats");
+			} else {
+				MissatgesHelper.warning(
+						request, 
+						"No s'ha seleccionat cap expedient");
+	        	logger.error("No s'ha seleccionat cap expedient");
+			}
+			
+		} catch (Exception ex) {
+			MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"error.proces.peticio"));
+        	logger.error("No s'han pogut programar l'eliminació dels logs dels expedients seleccionats", ex);
+		}
+		
+		return "redirect:/v3/expedientTipus/" + id + "/afectatsDp/" + dpId;
+	}
+	
+	
+	@RequestMapping(value = "/{id}/selectionDp/{global}")
+	@ResponseBody
+	public Set<Long> seleccioDp(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable String global,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method
+			) {
+		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaDpNoUtilitzades(id);
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaDpNoUtilitzades(id,seleccio);
+		}
+		
+		if ("selection".equalsIgnoreCase(global)) {
+			if ("add".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (!seleccio.contains(idu)) {
+						seleccio.add(idu);
+					}
+				}
+			} else if ("remove".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (seleccio.contains(idu)) {
+						seleccio.remove(idu);
+					}
+				}
+			}	
+		} else if ("clear".equalsIgnoreCase(global)) {
+			seleccio.clear();
+		} else if ("all".equalsIgnoreCase(global)) {
+			seleccio.clear();
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			seleccio.addAll(dissenyService.findIdsDefinicionsProcesNoUtilitzadesExpedientTipus(entornActual.getId(), id));
+		}
+
+		sessionManager.setSeleccioConsultaDpNoUtilitzades(id, seleccio);
+		return seleccio;
+	}
+	
+	@RequestMapping(value = "/{id}/afectatsDp/{dpId}/{global}")
+	@ResponseBody
+	public List<Long> afectatsDp(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			@PathVariable Long dpId,
+			@PathVariable String global,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method
+			) {
+		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		List<Long> seleccio = sessionManager.getSeleccioConsultaAfectatsDp(dpId);
+		if (seleccio == null) {
+			seleccio = new ArrayList<Long>();
+			sessionManager.setSeleccioConsultaAfectatsDp(dpId,seleccio);
+		}
+		
+		if ("selection".equalsIgnoreCase(global)) {
+			if ("add".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (!seleccio.contains(idu)) {
+						seleccio.add(idu);
+					}
+				}
+			} else if ("remove".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (seleccio.contains(idu)) {
+						seleccio.remove(idu);
+					}
+				}
+			}	
+		} else if ("clear".equalsIgnoreCase(global)) {
+			seleccio.clear();
+		} else if ("all".equalsIgnoreCase(global)) {
+			seleccio.clear();
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			DefinicioProcesDto definicioProces = dissenyService.getById(dpId);
+			seleccio.addAll(dissenyService.findIdsExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
+					entornActual.getId(), 
+					id, 
+					Long.parseLong(definicioProces.getJbpmId())));
+		}
+
+		sessionManager.setSeleccioConsultaAfectatsDp(dpId,seleccio);
+		return seleccio;
+	}
 	
 	@RequestMapping(value = "{id}/borra_logsexps", method = RequestMethod.POST)
 	@ResponseBody
@@ -454,22 +727,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		response += "\"}";
 		return response;
-	}
-	
-
-	@RequestMapping(value = "/{id}/permis/datatable", method = RequestMethod.GET)
-	@ResponseBody
-	DatatablesResponse permisDatatable(
-			HttpServletRequest request,
-			@PathVariable Long id,
-			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		return DatatablesHelper.getDatatableResponse(
-				request,
-				null,
-				expedientTipusService.permisFindAll(
-						entornActual.getId(),
-						id));
 	}
 	
 	@InitBinder
