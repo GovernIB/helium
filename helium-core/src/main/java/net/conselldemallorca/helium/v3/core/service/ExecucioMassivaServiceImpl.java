@@ -877,7 +877,25 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				em.setDataFi(new Date());
 				execucioMassivaRepository.save(em);
 				if (em.getTipus() == ExecucioMassivaTipus.BUIDARLOG && em.getParam1() != null && !em.getParam1().isEmpty()) {
+					
+					//Establim les dades d'autenticació i d'entorn per a poder crear i executar una execució massiva programada
+					Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
+					Authentication authentication =  new UsernamePasswordAuthenticationToken (
+							ome.getExecucioMassiva().getAuthenticationPrincipal(),
+							"N/A",
+							ome.getExecucioMassiva().getAuthenticationRoles());
+
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+					
+					Long ea = EntornActual.getEntornId();
+					EntornActual.setEntornId(em.getEntorn());
+					
+					//programem l'execució massiva
 					programarEliminarDp(Long.parseLong(em.getParam1()), em.getExpedientTipus().getId());
+					
+					//torem a deixar els valors d'entor i autenticació tal i com estaven abans
+					EntornActual.setEntornId(ea);
+					SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 				}
 			} catch (Exception ex) {
 				logger.error("EXPEDIENTMASSIU:" + ome.getExecucioMassiva().getId() + ". No s'ha pogut finalitzar l'expedient massiu", ex);
