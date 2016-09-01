@@ -24,10 +24,12 @@ import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -455,9 +457,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 				expedientHelper.findDefinicioProcesByProcessInstanceId(
 						processInstanceId),
+				expedientTipus,
 				documentCodi);
 		Date documentData = new Date();
 		return documentHelper.generarDocumentAmbPlantillaIConvertir(
@@ -492,9 +496,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 				expedientHelper.findDefinicioProcesByProcessInstanceId(
 						processInstanceId),
+				expedientTipus,
 				documentCodi);
 		return document.isExtensioPermesa(
 				getExtensio(arxiuNom));
@@ -517,9 +523,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				true);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
 				task.getProcessInstanceId());
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 				expedientHelper.findDefinicioProcesByProcessInstanceId(
 						task.getProcessInstanceId()),
+				expedientTipus,
 				documentCodi);
 		Date documentData = new Date();
 		ArxiuDto arxiu = documentHelper.generarDocumentAmbPlantillaIConvertir(
@@ -561,9 +569,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				tascaId,
 				true,
 				true);
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(
-						task.getProcessInstanceId()),
+		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+				task.getProcessInstanceId());
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+				definicioProces,
+				expedientTipus,
 				documentCodi);
 		return document.isExtensioPermesa(
 				getExtensio(arxiuNom));

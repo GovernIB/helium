@@ -103,8 +103,10 @@ public class DocumentHelperV3 {
 		if (!documentStore.isAdjunt()) {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
-			Document document = documentRepository.findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+					definicioProces,
+					expedient.getTipus(),
 					documentStore.getCodiDocument());
 			if (document != null) {
 				return crearDtoPerDocumentExpedient(
@@ -132,8 +134,10 @@ public class DocumentHelperV3 {
 		if (!documentStore.isAdjunt()) {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
-			Document document = documentRepository.findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+			Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+					definicioProces,
+					expedient.getTipus(),
 					documentStore.getCodiDocument());
 			if (document != null) {
 				return crearDtoPerDocumentExpedient(
@@ -339,8 +343,10 @@ public class DocumentHelperV3 {
 						getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
 						documentStoreId);
 			} else {
-				Document document =  documentRepository.findByDefinicioProcesAndCodi(
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+				Document document =  documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 						definicioProces,
+						expedient.getTipus(),
 						documentStore.getCodiDocument());
 				if (document != null) {
 					return crearDtoPerDocumentExpedient(
@@ -976,7 +982,11 @@ public class DocumentHelperV3 {
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
 							jpd.getVersion());
-					Document doc = documentRepository.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
+					Document doc = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+							definicioProces, 
+							expedient.getTipus(),
+							codiDocument);
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
 						dto.setCustodiaCodi(doc.getCustodiaCodi());
@@ -1415,7 +1425,11 @@ public class DocumentHelperV3 {
 			JbpmProcessInstance processInstance = jbpmHelper.getProcessInstance(processInstanceId);
 			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
 		}
-		return documentRepository.findAmbDefinicioProcesICodi(definicioProces.getId(), documentCodi);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		return documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+				definicioProces, 
+				expedient.getTipus(),
+				documentCodi);
 	}
 	
 	private Long getDocumentStoreIdDeVariableJbpm(

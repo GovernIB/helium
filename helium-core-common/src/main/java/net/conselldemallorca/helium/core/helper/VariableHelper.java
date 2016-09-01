@@ -216,7 +216,8 @@ public class VariableHelper {
 			boolean incloureVariablesBuides) {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		ExpedientTipus expedientTipus = definicioProces.getExpedientTipus();
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
 		
 		Camp camp = campRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 				definicioProces,

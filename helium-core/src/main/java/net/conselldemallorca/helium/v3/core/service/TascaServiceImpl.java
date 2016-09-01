@@ -584,9 +584,11 @@ public class TascaServiceImpl implements TascaService {
 		} else {
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
 					task.getProcessInstanceId());
-			Document document = documentRepository.findByDefinicioProcesAndCodi(
+			ExpedientTipus expedientTipus = expedient.getTipus();
+			Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 					expedientHelper.findDefinicioProcesByProcessInstanceId(
 							task.getProcessInstanceId()),
+					expedientTipus,
 					documentCodi);
 			Date documentData = new Date();
 			return documentHelper.generarDocumentAmbPlantillaIConvertir(

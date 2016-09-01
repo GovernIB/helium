@@ -26,22 +26,26 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
 	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
 
-	Document findByDefinicioProcesAndCodi(
-			DefinicioProces definicioProces,
-			String codi);
+//	Document findByDefinicioProcesAndCodi(
+//			DefinicioProces definicioProces,
+//			String codi);
+	
+	@Query(	"select d from " +
+			"    Document d " +
+			"where " +
+			"    (d.definicioProces = :definicioProces OR "
+			+ "	  d.expedientTipus = :expedientTipus) AND "
+			+ "  d.codi = :codi")
+	Document findByDefinicioProcesOrExpedientTipusAndCodi(
+			@Param("definicioProces") DefinicioProces definicioProces,
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
+			@Param("codi") String codi);
 
 	@Query(	"select d from " +
 			"    Document d " +
 			"where " +
 			"    d.definicioProces.id=:id")
 	List<Document> findAmbDefinicioProces(@Param("id") Long id);
-
-	@Query(	"select d from " +
-			"    Document d " +
-			"where " +
-			"    d.definicioProces.id=:definicioProcesId " +
-			"and d.codi=:codi")
-	Document findAmbDefinicioProcesICodi(@Param("definicioProcesId") Long definicioProcesId, @Param("codi") String codi);
 
 	@Query(	"select " +
 			"    dt.document, " +
