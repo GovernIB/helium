@@ -511,13 +511,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("totalsPerProces", totalsPerProces);
 	}
 
-	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesId) {
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
 		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
-		List<CampDto> camps = dissenyService.findCampsAmbDefinicioProcesOrdenatsPerCodi(instanciaProces.getDefinicioProces().getId());
+		List<CampDto> camps = expedientDadaService.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
-				procesId);
+				procesInstanceId);
 		if (dadesInstancia != null) {
 			Collections.sort(
 				dadesInstancia, 
@@ -557,7 +556,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		if (dadesInstancia == null || dadesInstancia.isEmpty())
 			return null;
 		
-		// Obtenim les agrupacions de la definició de procés
+		// Obtenim les agrupacions de la definició de procés o del tipus d'expedient
 		// Les posam amb un map per a que obtenir el nom sigui directe
 		List<CampAgrupacioDto> agrupacions = expedientDadaService.agrupacionsFindAmbInstanciaProces(
 				expedientId,

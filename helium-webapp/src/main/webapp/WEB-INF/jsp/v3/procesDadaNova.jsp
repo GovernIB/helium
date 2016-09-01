@@ -38,12 +38,12 @@
 		<div id="selCamp_controls" class="col-xs-9 controls">
 			<form:select path="varCodi" cssClass="form-control" id="varCodi">
 				<option value=""></option>
-				<optgroup label="<spring:message code='expedient.nova.data.nova'/>">
+				<optgroup label="<spring:message code='expedient.nova.data.no.definida'/>">
 					<option value="String"><spring:message code="expedient.nova.data.string"/></option>
 				</optgroup>
-				<optgroup label="<spring:message code='expedient.nova.data.existent'/>">
+				<optgroup label="<spring:message code='expedient.nova.data.definida'/>">
 					<c:forEach var="opt" items="${camps}">
-						<form:option value="${opt.codi}">${opt.etiqueta}</form:option>
+						<form:option value="${opt.codi}">${opt.codi} / ${opt.etiqueta}</form:option>
 					</c:forEach>
 				</optgroup>
 			</form:select>
@@ -165,9 +165,9 @@
 			} else {
 				$("#valordada").removeClass("hide");
 				$("#nova").addClass("hide");
-				if (e.val != codi)
-					window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + e.val + '/new');
 			}
+			if (e.val != "" && e.val != codi)
+				window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + e.val + '/new');
 			codi = e.val;
 		});
 		if (codi != "") {

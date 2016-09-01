@@ -33,6 +33,7 @@ public class CampDto implements Serializable {
 	private boolean ignored;
 	
 	private DefinicioProcesDto definicioProces;
+	private ExpedientTipusDto expedientTipus;
 	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 	
 	// Dades consulta
@@ -100,6 +101,12 @@ public class CampDto implements Serializable {
 		this.definicioProces = definicioProces;
 	}
 
+	public ExpedientTipusDto getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
+		this.expedientTipus = expedientTipus;
+	}
 	@SuppressWarnings("rawtypes")
 	public Class getJavaClass() {
 		if (CampTipusDto.STRING.equals(tipus)) {

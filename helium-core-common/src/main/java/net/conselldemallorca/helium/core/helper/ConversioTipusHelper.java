@@ -95,6 +95,10 @@ public class ConversioTipusHelper {
 						target.setOcult(source.isOcult());
 						target.setIgnored(source.isIgnored());
 						
+						if (source.getExpedientTipus() != null) {
+							target.setExpedientTipus(convertir(source.getExpedientTipus(), ExpedientTipusDto.class));
+						}
+						
 						// Dades consulta
 						target.setEnumeracio(
 								mapperFacade.map(

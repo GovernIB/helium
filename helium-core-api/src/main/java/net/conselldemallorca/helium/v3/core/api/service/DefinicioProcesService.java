@@ -75,7 +75,8 @@ public interface DefinicioProcesService {
 	 */
 	public TascaDto tascaFindAmbId(
 			Long id) throws NoTrobatException;
-
+	
+	
 	/**
 	 * Modificació d'una tasca existent.
 	 * 

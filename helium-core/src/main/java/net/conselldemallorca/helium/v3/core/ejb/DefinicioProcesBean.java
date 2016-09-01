@@ -204,5 +204,4 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId) {
 		return delegate.tascaFirmaFindById(firmaTascaId);
 	}
-	
 }

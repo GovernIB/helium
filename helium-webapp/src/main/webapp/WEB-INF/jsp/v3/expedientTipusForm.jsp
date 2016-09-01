@@ -134,7 +134,7 @@
 					</div>
 			</div>						
 			</div>
-			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="../../tasca/persona/suggestInici" urlConsultaLlistat="../../tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
+			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/helium/v3/tasca/persona/suggestInici" urlConsultaLlistat="/helium/v3/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
 			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" />
 			<hel:inputCheckbox name="seleccionarAny" textKey="expedient.tipus.form.camp.seleccionarAny" />
 <%-- 			<c:if test="${potAdministrar}"> --%>

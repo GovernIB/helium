@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 
 /**
@@ -98,6 +101,13 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 		return delegate.agrupacionsFindAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> findCampsDisponiblesOrdenatsPerCodi(Long expedientId, String procesInstanceId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
 	}
 
 }

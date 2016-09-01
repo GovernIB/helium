@@ -29,6 +29,16 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			DefinicioProces definicioProces,
 			String codi);
 	
+	@Query(	"from Camp c " +
+			"where " +
+			"   (c.definicioProces = :definicioProces OR " +
+			" 	 c.expedientTipus = :expedientTipus) AND " + 
+			"	 c.codi = :codi")
+	Camp findByDefinicioProcesOrExpedientTipusAndCodi(
+			@Param("definicioProces") DefinicioProces definicioProces,
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
+			@Param("codi") String codi);
+	
 	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 
 	Camp findById(Long registreEsborrarId);

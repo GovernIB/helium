@@ -6,12 +6,17 @@ package net.conselldemallorca.helium.core.helper;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
@@ -30,6 +35,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
@@ -49,10 +55,6 @@ import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a gestionar les variables dels expedients.
@@ -147,15 +149,18 @@ public class VariableHelper {
 			String processInstanceId,
 			boolean incloureVariablesBuides) {
 		String tipusExp = null;
+		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = exp.getTipus();
 		if (MesuresTemporalsHelper.isActiu()) {
-			Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
 			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
 		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		Set<Camp> camps = definicioProces.getCamps();
+		Set<Camp> camps = new HashSet<Camp>();
+		camps.addAll(definicioProces.getCamps());
+		camps.addAll(expedientTipus.getCamps());
 		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
 		for (Camp camp: camps)
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
@@ -211,9 +216,18 @@ public class VariableHelper {
 			boolean incloureVariablesBuides) {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
+		ExpedientTipus expedientTipus = definicioProces.getExpedientTipus();
+		
+		Camp camp = campRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 				definicioProces,
+				expedientTipus,
 				variableCodi);
+		
+//		Camp camp = campRepository.findByDefinicioProcesAndCodi(
+//				definicioProces,
+//				variableCodi);
+		
+		
 		Object valor = jbpmHelper.getProcessInstanceVariable(
 				processInstanceId,
 				variableCodi);

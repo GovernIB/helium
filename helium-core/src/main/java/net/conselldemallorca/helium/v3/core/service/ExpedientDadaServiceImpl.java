@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,21 +18,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientDadaHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -65,6 +72,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
+	@Resource
+	private ExpedientDadaHelper expedientDadaHelper;
 
 
 
@@ -241,12 +250,18 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		logger.debug("Consulta de les agrupacions de dades de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
+		List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
 				false,
 				false,
 				false);
+		
+		ExpedientTipus expedientTipus = expedient.getTipus();
+//		if (expedientTipus.isAmbInfoPropia())
+			agrupacions.addAll(expedientTipus.getAgrupacions());
+		
 		DefinicioProces definicioProces;
 		if (processInstanceId == null) {
 			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
@@ -258,12 +273,43 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
 		}
+		agrupacions.addAll(definicioProces.getAgrupacions());
+		
 		return conversioTipusHelper.convertirList(
-				definicioProces.getAgrupacions(),
+				agrupacions,
 				CampAgrupacioDto.class);
 	}
 
+	/**
+	 * MÈTODES COMUNS PER A OBTENIR DADES TANT DEL TIPUS D'EXPEDIENT COM DE LA DEFINICIÓ DE PROCÉS
+	 * DEPENENT DE SI EL TIPUS D'EXPEDIENT TÉ EL FLAG "AMB INFORMACIÓ PRÒPIA" ACTIVAT O NO
+	 */
+	
+	public List<CampDto> findCampsDisponiblesOrdenatsPerCodi(
+			Long expedientId, 
+			String procesInstanceId) {
+		
+		logger.debug("Consulta les dades disponibles donada la id d'epxedient"
+				+ "i un una id d'instància de procés");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		
+		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(procesInstanceId);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(instanciaProces.getDefinicioProces().getId());
 
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, instanciaProces.getDefinicioProces().getId());
+		
+		
+		return conversioTipusHelper.convertirList(expedientDadaHelper.findCampsDisponiblesOrdenatsPerCodi(expedient.getTipus(), definicioProces), CampDto.class);
+	}
+	
+	
+	/*********************/
 
 	private void optimitzarValorPerConsultesDominiGuardar(
 			String processInstanceId,

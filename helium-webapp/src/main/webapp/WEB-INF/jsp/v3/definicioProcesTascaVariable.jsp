@@ -77,7 +77,18 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="camp.codi"><spring:message code="definicio.proces.tasca.variable.columna.variable"/></th>
+					<th data-col-name="camp.codi" data-template="#celldefinicioProcesTascaVariable" width="30%">
+						<spring:message code="definicio.proces.tasca.variable.columna.variable"/>
+						<script id="celldefinicioProcesTascaVariable" type="text/x-jsrender">
+							{{:camp.codi}} / {{:camp.etiqueta}}
+							{{if camp.expedientTipus != null}}
+								<span class="label label-info pull-right" title="Tipus Expedient">TE</span>
+							{{else}}
+								<span class="label label-warning pull-right" title="Definició de Procés">DP</span>
+							{{/if}}
+							
+						</script>
+					</th>
 					<th data-col-name="readFrom" data-template="#celldefinicioProcesTascaVariableReadFromTemplate">
 					<spring:message code="definicio.proces.tasca.variable.columna.readFrom"/>
 						<script id="celldefinicioProcesTascaVariableReadFromTemplate" type="text/x-jsrender">

@@ -166,7 +166,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				tasca, 
 				TascaDto.class);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
