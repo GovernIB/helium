@@ -41,6 +41,8 @@ public class TascaDocumentDto {
 	private boolean registreEntrada = true;
 	private boolean adjuntarAuto;
 	
+	private boolean arxiuContingutDefinit;
+	
 	private boolean plantilla;
 	
 	private String arxiuNom;
@@ -60,6 +62,14 @@ public class TascaDocumentDto {
 	public void setAdjuntarAuto(boolean adjuntarAuto) {
 		this.adjuntarAuto = adjuntarAuto;
 	}
+	public boolean isArxiuContingutDefinit() {
+		return arxiuContingutDefinit;
+	}
+
+	public void setArxiuContingutDefinit(boolean arxiuContingutDefinit) {
+		this.arxiuContingutDefinit = arxiuContingutDefinit;
+	}
+
 	public Long getId() {
 		return id;
 	}
