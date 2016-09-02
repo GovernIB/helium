@@ -239,7 +239,10 @@ public class DocumentHelperV3 {
 		// Consulta els documents de la definició de procés
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		List<Document> documents = documentRepository.findByDefinicioProces(definicioProces);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		List<Document> documents = documentRepository.findByDefinicioProcesOrExpedientTipus(
+				definicioProces,
+				expedient.getTipus());
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {

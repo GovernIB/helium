@@ -24,11 +24,9 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  */
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
-
-//	Document findByDefinicioProcesAndCodi(
-//			DefinicioProces definicioProces,
-//			String codi);
+//	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
+	
+	List<Document> findByDefinicioProcesOrExpedientTipus(DefinicioProces definicioProces, ExpedientTipus expedientTipus);
 	
 	@Query(	"select d from " +
 			"    Document d " +
