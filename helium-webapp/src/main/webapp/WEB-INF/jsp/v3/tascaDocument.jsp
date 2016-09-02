@@ -70,7 +70,7 @@
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
-		 			<c:if test="${not empty document.arxiuNom and tasca.validada}">
+		 			<c:if test="${not empty document.arxiuNom and document.arxiuContingutDefinit and tasca.validada}">
 						<a 	class="icon" 
 							id="plantilla${document.id}" 
 							href="${documentGenerarAction}"
