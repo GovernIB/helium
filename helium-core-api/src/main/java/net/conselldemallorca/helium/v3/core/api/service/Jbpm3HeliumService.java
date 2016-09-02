@@ -862,6 +862,7 @@ public interface Jbpm3HeliumService {
 	 */
 	public DocumentDissenyDto getDocumentDisseny(
 			Long definicioProcesId,
+			String processInstanceId,
 			String documentCodi) throws NoTrobatException;
 
 	/**

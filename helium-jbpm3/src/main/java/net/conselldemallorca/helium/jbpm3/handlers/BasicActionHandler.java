@@ -230,6 +230,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		DefinicioProcesDto definicioProces = getDefinicioProces(executionContext);
 		DocumentDissenyDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentDisseny(
 				definicioProces.getId(),
+				String.valueOf(executionContext.getProcessInstance().getId()),
 				codiDocument);
 		if (document == null)
 			return null;

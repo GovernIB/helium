@@ -484,17 +484,20 @@ public class DocumentHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi) {
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (taskInstanceId != null) {
 			JbpmTask taskInstance = jbpmDao.getTaskById(taskInstanceId);
 			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
-			return documentRepository.findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
+			return documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+					definicioProces,
+					expedient.getTipus(),
 					documentCodi);
 		} else {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
 			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
-			return documentRepository.findAmbDefinicioProcesICodi(
-					definicioProces.getId(),
+			return documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+					definicioProces,
+					expedient.getTipus(),
 					documentCodi);
 		}
 	}
@@ -539,7 +542,11 @@ public class DocumentHelper {
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
 							jpd.getVersion());
-					Document doc = documentRepository.findAmbDefinicioProcesICodi(definicioProces.getId(), codiDocument);
+					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
+					Document doc = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
+							definicioProces,
+							expedient.getTipus(),
+							codiDocument);
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
 						dto.setCustodiaCodi(doc.getCustodiaCodi());

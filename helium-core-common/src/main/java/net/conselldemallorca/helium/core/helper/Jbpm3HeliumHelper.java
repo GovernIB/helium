@@ -643,8 +643,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Document document = documentRepository.findByDefinicioProcesAndCodi(
+		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 				definicioProces,
+				expedient.getTipus(),
 				documentCodi);
 		if (document == null)
 			throw new NoTrobatException(Document.class, documentCodi);
@@ -1589,16 +1590,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public DocumentDissenyDto getDocumentDisseny(
 			Long definicioProcesId,
+			String processInstanceId,
 			String documentCodi) {
 		logger.debug("Obtenint el document de disseny donada la definició de procés i el codi (" +
 				"definicioProcesId=" + definicioProcesId + ", " +
 				"documentCodi=" + documentCodi + ")");
 		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
 		return conversioTipusHelper.convertir(
-				documentRepository.findByDefinicioProcesAndCodi(
+				documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
 						definicioProces,
+						expedient.getTipus(),
 						documentCodi),
 				DocumentDissenyDto.class);
 	}
