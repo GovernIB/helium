@@ -29,15 +29,9 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			DefinicioProces definicioProces,
 			String codi);
 	
-	@Query(	"from Camp c " +
-			"where " +
-			"   (c.definicioProces = :definicioProces OR " +
-			" 	 c.expedientTipus = :expedientTipus) AND " + 
-			"	 c.codi = :codi")
-	Camp findByDefinicioProcesOrExpedientTipusAndCodi(
-			@Param("definicioProces") DefinicioProces definicioProces,
-			@Param("expedientTipus") ExpedientTipus expedientTipus,
-			@Param("codi") String codi);
+	Camp findByExpedientTipusAndCodi(
+			ExpedientTipus expedientTipus, 
+			String codi);
 	
 	List<Camp> findByDefinicioProcesOrderByCodiAsc(DefinicioProces definicioProces);
 
@@ -56,8 +50,6 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-	Camp findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
-
 	/** Consulta el següent valor per a ordre dins d'una agrupació. */
 	@Query(	"select coalesce( max( c.ordre), -1) + 1 " +
 			"from Camp c " +

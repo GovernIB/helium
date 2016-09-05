@@ -260,21 +260,22 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				false);
 		
 		ExpedientTipus expedientTipus = expedient.getTipus();
-//		if (expedientTipus.isAmbInfoPropia())
+		if (expedientTipus.isAmbInfoPropia()) {
 			agrupacions.addAll(expedientTipus.getAgrupacions());
-		
-		DefinicioProces definicioProces;
-		if (processInstanceId == null) {
-			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					expedient.getProcessInstanceId());
 		} else {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					processInstanceId);
+			DefinicioProces definicioProces;
+			if (processInstanceId == null) {
+				definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+						expedient.getProcessInstanceId());
+			} else {
+				expedientHelper.comprovarInstanciaProces(
+						expedient,
+						processInstanceId);
+				definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+						processInstanceId);
+			}
+			agrupacions.addAll(definicioProces.getAgrupacions());
 		}
-		agrupacions.addAll(definicioProces.getAgrupacions());
 		
 		return conversioTipusHelper.convertirList(
 				agrupacions,
