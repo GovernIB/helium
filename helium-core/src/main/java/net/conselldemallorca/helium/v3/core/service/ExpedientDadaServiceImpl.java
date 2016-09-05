@@ -92,7 +92,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ", " +
 				"varValor=" + varValor + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
@@ -101,7 +101,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varCodi);
-		optimitzarValorPerConsultesDominiGuardar(processInstanceId, varCodi, varValor);
+		optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
@@ -128,7 +128,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ", " +
 				"varValor=" + varValor + ")");
-		expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.DATA_MANAGE,
@@ -141,6 +141,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				varCodi);
 		optimitzarValorPerConsultesDominiGuardar(
+				expedient.getTipus(),
 				processInstanceId,
 				varCodi,
 				varValor);
@@ -312,14 +313,22 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	/*********************/
 
 	private void optimitzarValorPerConsultesDominiGuardar(
+			ExpedientTipus expedientTipus, 
 			String processInstanceId,
 			String varName,
 			Object varValue) {
 		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
-				definicioProces,
-				varName);
+		Camp camp;
+		if (expedientTipus.isAmbInfoPropia()) {
+			camp = campRepository.findByExpedientTipusAndCodi(
+					expedientTipus, 
+					varName);
+		} else {
+			camp = campRepository.findByDefinicioProcesAndCodi(
+					definicioProces,
+					varName);			
+		}
 		if (camp != null && camp.isDominiCacheText()) {
 			if (varValue != null) {
 				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||

@@ -383,6 +383,7 @@ public class TascaHelper {
 				Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(task.getId());
 				valors.putAll(jbpmHelper.getProcessInstanceVariables(task.getProcessInstanceId()));
 				for (String campCodi: campsExpressio) {
+					//TODO: revisar procedència camps
 					Set<Camp> campsDefinicioProces = tasca.getDefinicioProces().getCamps();
 					for (Camp camp: campsDefinicioProces) {
 						if (camp.getCodi().equals(campCodi)) {

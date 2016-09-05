@@ -489,18 +489,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesInstancia = null;
+			int contadorTotals = 0;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
 				dadesInstancia = getDadesInstanciaProces(
 						expedientId,
 						instanciaProces.getId(),
 						ambOcults);
-			}
-			dades.put(instanciaProces, dadesInstancia);
-			int contadorTotals = 0;
-			if(dadesInstancia != null)
 				for(List<ExpedientDadaDto> list: dadesInstancia.values()){
 					contadorTotals += list.size();
 				}
+			}
+			dades.put(instanciaProces, dadesInstancia);
 			totalsPerProces.put(instanciaProces, contadorTotals);
 		}
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
@@ -512,8 +511,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 	}
 
 	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesInstanceId);
 		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
-		List<CampDto> camps = expedientDadaService.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		List<CampDto> camps = dissenyService.findCampsOrdenatsPerCodi(
+				expedient.getTipus().getId(),
+				instanciaProces.getDefinicioProces().getId());
+//		List<CampDto> camps = expedientDadaService.findCampsDisponiblesOrdenatsPerCodi(expedientId, procesInstanceId);
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
 				procesInstanceId);

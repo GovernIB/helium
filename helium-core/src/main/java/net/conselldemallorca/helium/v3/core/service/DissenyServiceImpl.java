@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Area;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -606,17 +607,34 @@ public class DissenyServiceImpl implements DissenyService {
 				SecurityContextHolder.getContext().getAuthentication());
 		return tipus;
 	}
-
+	
 	@Override
 	@Transactional(readOnly=true)
-	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) {
-		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+	public List<CampDto> findCampsOrdenatsPerCodi(
+			Long expedientTipusId,
+			Long definicioProcesId) {
 		
-		if (definicioProces == null)
-			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-		
-		return conversioTipusHelper.convertirList(campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces), CampDto.class);
-	}
+		ExpedientTipus expedientTipus = null;
+		DefinicioProces definicioProces = null;
+		if (expedientTipusId != null) {
+			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+			if (expedientTipus == null)
+				throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
+		}
+		if (definicioProcesId != null) {
+			definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+			if (definicioProces == null)
+				throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		}
+		List<Camp> camps;
+		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+		} else if (definicioProces != null) {
+			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		} else 
+			camps = new ArrayList<Camp>();
+		return conversioTipusHelper.convertirList(camps, CampDto.class);
+	}	
 
 	@Override
 	@Transactional(readOnly=true)

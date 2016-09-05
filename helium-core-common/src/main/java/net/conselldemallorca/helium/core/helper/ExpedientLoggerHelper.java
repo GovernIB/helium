@@ -64,6 +64,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -263,9 +264,19 @@ public class ExpedientLoggerHelper {
 				if(variableInstance.getProcessInstance()!=null){
 					String codi = variableInstance.getName();
 					DefinicioProces pDef = definicioProcesRepository.findByJbpmId(String.valueOf(variableInstance.getProcessInstance().getProcessDefinition().getId()));
-					Camp camp = campRepository.findByDefinicioProcesAndCodi(
-							pDef,
-							codi);		
+					Camp camp = null;
+					Expedient expedient = expedientRepository.findOne(
+							variableInstance.getProcessInstance().getExpedient().getId());
+					ExpedientTipus expedientTipus = expedient != null ? expedient.getTipus() : null;
+					if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
+						camp = campRepository.findByExpedientTipusAndCodi(
+								expedientTipus, 
+								codi);
+					} else {
+						camp = campRepository.findByDefinicioProcesAndCodi(
+								pDef,
+								codi);		
+					}
 					if(camp != null){
 						ignored = camp.isIgnored();
 					}

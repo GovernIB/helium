@@ -161,9 +161,8 @@ public class DissenyServiceBean implements DissenyService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(
-			Long definicioProcesId) {
-		return delegate.findCampsAmbDefinicioProcesOrdenatsPerCodi(definicioProcesId);
+	public List<CampDto> findCampsOrdenatsPerCodi(Long expedientTipusId, Long definicioProcesId) {
+		return delegate.findCampsOrdenatsPerCodi(expedientTipusId, definicioProcesId);
 	}
 
 	@Override

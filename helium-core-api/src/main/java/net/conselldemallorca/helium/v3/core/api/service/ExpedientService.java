@@ -807,7 +807,17 @@ public interface ExpedientService {
 
 	public List<TascaDadaDto> findConsultaInformeParams(Long consultaId);
 
-	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId);
+	/**
+	 * Retorna els camps de la instància de procés. Si el tipus d'expedient té informació pròpia
+	 * es lligarà la informació per codi amb les variables del tipus d'expedient, si no es lligaran
+	 * amb la de la definició de procés.
+	 * @param expedientTipusId
+	 * @param processInstanceId
+	 * @return
+	 */
+	public List<CampDto> getCampsInstanciaProcesById(
+			Long expedientTipusId, 
+			String processInstanceId);
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
 

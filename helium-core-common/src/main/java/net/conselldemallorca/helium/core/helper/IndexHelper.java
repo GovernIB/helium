@@ -6,11 +6,18 @@ package net.conselldemallorca.helium.core.helper;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
@@ -18,20 +25,16 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.Registre;
 import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-
-import org.springframework.stereotype.Service;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 /**
  * Utilitats comunes pels serveis
@@ -47,6 +50,8 @@ public class IndexHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private CampRepository campRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
@@ -468,10 +473,19 @@ public class IndexHelper {
 	private Map<String, Set<Camp>> getMapCamps(String processInstanceId) {
 		Map<String, Set<Camp>> resposta = new HashMap<String, Set<Camp>>();
 		List<JbpmProcessInstance> tree = jbpmHelper.getProcessInstanceTree(processInstanceId);
+		Set<Camp> camps;
+		ExpedientTipus expedientTipus;
 		for (JbpmProcessInstance pi: tree) {
+			expedientTipus = expedientRepository.findOne(
+					pi.getProcessInstance().getExpedient().getId()).getTipus();
+			if (expedientTipus.isAmbInfoPropia()) {
+				camps = new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus));
+			} else {
+				camps = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()).getCamps();		
+			}
 			resposta.put(
 					pi.getId(),
-					definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()).getCamps());
+					camps);
 		}
 		return resposta;
 	}

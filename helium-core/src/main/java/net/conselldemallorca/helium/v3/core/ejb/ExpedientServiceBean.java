@@ -518,8 +518,10 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
-		return delegate.getCampsInstanciaProcesById(processInstanceId);
+	public List<CampDto> getCampsInstanciaProcesById(
+			Long expedientTipusId,
+			String processInstanceId) {
+		return delegate.getCampsInstanciaProcesById(expedientTipusId, processInstanceId);
 	}
 
 	@Override

@@ -186,7 +186,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 			// Variables
 			List<CampDto> variables = new ArrayList<CampDto>();
 			if (instanciaProces != null) {
-				for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedient.getProcessInstanceId())){
+				for (CampDto camp : expedientService.getCampsInstanciaProcesById(
+						expedient.getTipus().getId(),
+						expedient.getProcessInstanceId())){
 					if (!CampTipusDto.ACCIO.equals(camp.getTipus())) {
 						variables.add(camp);
 					}
@@ -496,7 +498,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 				ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 				String varCodi = null;
 				String processInstanceId = expedient.getProcessInstanceId();
-				for (CampDto camp : expedientService.getCampsInstanciaProcesById(processInstanceId)){
+				for (CampDto camp : expedientService.getCampsInstanciaProcesById(
+						expedient.getTipus().getId(),
+						processInstanceId)){
 					if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
 						varCodi = camp.getCodi();
 					}
@@ -560,7 +564,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 			List<Long> listIds = new ArrayList<Long>(ids);			
 			ExpedientDto expedient = expedientService.findAmbId(listIds.get(0));
 			CampDto campo = null;
-			for (CampDto camp : expedientService.getCampsInstanciaProcesById(expedient.getProcessInstanceId())){
+			for (CampDto camp : expedientService.getCampsInstanciaProcesById(
+					expedient.getTipus().getId(),
+					expedient.getProcessInstanceId())){
 				if (!CampTipusDto.ACCIO.equals(camp.getTipus()) && campId.equals(camp.getId())) {
 					campo = camp;
 				}

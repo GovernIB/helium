@@ -189,7 +189,15 @@ public interface DissenyService {
 
 	public ConsultaDto findConsulteById(Long id) throws NoTrobatException;
 
-	public List<CampDto> findCampsAmbDefinicioProcesOrdenatsPerCodi(Long definicioProcesId) throws NoTrobatException;
+	/** Retorna la llista de camps definits al tius d'expedient si està informat i està cofigurat amb informació pròpia o 
+	 * la llista de camps de la definició de procés si està informat. El resultat està ordentat per codi.
+	 * @param expedientTipusId
+	 * @param definicioProcesId
+	 * @return
+	 */
+	public List<CampDto> findCampsOrdenatsPerCodi(
+			Long expedientTipusId,
+			Long definicioProcesId);
 
 	/** Retorna la informació de disseny d'una definició de procés donat l'identificador de l'entorn i l'id de
 	 * la definició de procés. */

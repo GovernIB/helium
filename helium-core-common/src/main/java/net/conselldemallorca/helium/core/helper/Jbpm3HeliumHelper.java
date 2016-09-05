@@ -1649,6 +1649,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
+		//TODO: revisar procedència camps
 		Camp camp = campRepository.findByDefinicioProcesAndCodi(
 				definicioProces,
 				varCodi);
@@ -1677,6 +1678,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class);
+		//TODO: revisar procedència camps
 		Camp camp = campRepository.findByDefinicioProcesAndCodi(
 				definicioProces,
 				varCodi);

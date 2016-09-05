@@ -158,9 +158,15 @@ public class VariableHelper {
 		}
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		Set<Camp> camps = new HashSet<Camp>();
-		camps.addAll(definicioProces.getCamps());
-		camps.addAll(expedientTipus.getCamps());
+		Set<Camp> camps;
+		if (exp != null && exp.getTipus().isAmbInfoPropia()) {
+			camps = new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(exp.getTipus()));
+		} else {
+			camps = definicioProces.getCamps();
+		}
+//		Set<Camp> camps = new HashSet<Camp>();
+//		camps.addAll(definicioProces.getCamps());
+//		camps.addAll(expedientTipus.getCamps());
 		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
 		for (Camp camp: camps)
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
@@ -216,6 +222,7 @@ public class VariableHelper {
 			boolean incloureVariablesBuides) {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
+		//TODO: revisar procedència camps
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		

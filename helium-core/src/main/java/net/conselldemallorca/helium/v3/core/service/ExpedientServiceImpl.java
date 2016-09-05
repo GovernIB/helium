@@ -1847,11 +1847,22 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	@Transactional(readOnly=true)
-	public List<CampDto> getCampsInstanciaProcesById(String processInstanceId) {
+	public List<CampDto> getCampsInstanciaProcesById(
+			Long expedientTipusId,
+			String processInstanceId) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
-		List<Camp> camps = new ArrayList<Camp>(definicioProces.getCamps());
+
+		List<Camp> camps;
+		if (expedientTipus.isAmbInfoPropia()) {
+			camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+		} else {
+			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		} 
 		return conversioTipusHelper.convertirList(camps, CampDto.class);
+			
+		
 	}
 
 	/**
