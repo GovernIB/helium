@@ -162,11 +162,11 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public boolean isExtensioPermesaPerTasca(
 			String tascaId,
-			String documentCodi,
+			Long documentId,
 			String arxiuNom) {
 		return delegate.isExtensioPermesaPerTasca(
 				tascaId,
-				documentCodi,
+				documentId,
 				arxiuNom);
 	}
 

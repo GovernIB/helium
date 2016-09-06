@@ -646,10 +646,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-				definicioProces,
-				expedient.getTipus(),
-				documentCodi);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
+		
 		if (document == null)
 			throw new NoTrobatException(Document.class, documentCodi);
 		ArxiuDto generat = documentHelper.generarDocumentAmbPlantillaIConvertir(
@@ -1619,12 +1626,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
-		return conversioTipusHelper.convertir(
-				documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-						definicioProces,
-						expedient.getTipus(),
-						documentCodi),
-				DocumentDissenyDto.class);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		if (expedientTipus.isAmbInfoPropia())
+			return conversioTipusHelper.convertir(
+					documentRepository.findByExpedientTipusAndCodi(
+							expedientTipus, 
+							documentCodi),
+					DocumentDissenyDto.class);
+		else
+			return conversioTipusHelper.convertir(
+					documentRepository.findByDefinicioProcesAndCodi(
+							definicioProces, 
+							documentCodi),
+					DocumentDissenyDto.class);
 	}
 
 	@Override

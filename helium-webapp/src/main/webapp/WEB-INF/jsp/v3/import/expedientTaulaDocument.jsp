@@ -11,7 +11,27 @@
 <td id="cela-${expedientId}-${document.id}">									
 	<c:choose>
 		<c:when test="${not empty document.error}">
-			<span class="fa fa-warning fa-2x" title="${document.error}"></span>
+			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments">
+				<thead>
+					<tr>
+						<td class="left">
+							<a href="<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar"/>">
+								<span class="fa fa-file fa-4x no-doc" title="Descarregar document"></span>
+								<span class="extensionIcon" title="${document.error}"><span class="fa fa-warning fa-lg"></span></span>
+							</a>
+						</td>
+						<td class="right">
+							
+						</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td colspan="2">
+						</td>
+					</tr>
+				</tbody>
+			</table>
 		</c:when>
 		<c:otherwise>
 			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments">

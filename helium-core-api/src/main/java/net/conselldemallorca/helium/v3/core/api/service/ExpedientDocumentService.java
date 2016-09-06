@@ -253,7 +253,7 @@ public interface ExpedientDocumentService {
 	 */
 	public boolean isExtensioPermesaPerTasca(
 			String tascaId,
-			String documentCodi,
+			Long documentId,
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
 	/*

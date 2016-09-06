@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
@@ -485,21 +486,24 @@ public class DocumentHelper {
 			String processInstanceId,
 			String documentCodi) {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		DefinicioProces definicioProces;
 		if (taskInstanceId != null) {
 			JbpmTask taskInstance = jbpmDao.getTaskById(taskInstanceId);
-			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
-			return documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-					definicioProces,
-					expedient.getTipus(),
-					documentCodi);
+			definicioProces = definicioProcesRepository.findByJbpmId(taskInstance.getProcessDefinitionId());
 		} else {
 			JbpmProcessInstance processInstance = jbpmDao.getProcessInstance(processInstanceId);
-			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
-			return documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-					definicioProces,
-					expedient.getTipus(),
-					documentCodi);
+			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
 		}
+		
+		if (expedientTipus.isAmbInfoPropia())
+			return documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			return documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
 	}
 
 	private DocumentDto toDocumentDto(
@@ -543,10 +547,17 @@ public class DocumentHelper {
 							jpd.getKey(),
 							jpd.getVersion());
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
-					Document doc = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-							definicioProces,
-							expedient.getTipus(),
-							codiDocument);
+					ExpedientTipus expedientTipus = expedient.getTipus();
+					Document doc;
+					if (expedientTipus.isAmbInfoPropia())
+						doc = documentRepository.findByExpedientTipusAndCodi(
+								expedientTipus,
+								codiDocument);
+					else
+						doc = documentRepository.findByDefinicioProcesAndCodi(
+								definicioProces, 
+								codiDocument);
+					
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
 						dto.setCustodiaCodi(doc.getCustodiaCodi());

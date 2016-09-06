@@ -71,6 +71,9 @@ public class ConversioTipusHelper {
 						target.setNom(source.getNom());
 						target.setDescripcio(source.getDescripcio());
 						target.setPlantilla(source.isPlantilla());
+						target.setExpedientTipus(mapperFacade.map(
+								source.getExpedientTipus(), 
+								ExpedientTipusDto.class));
 						return target;
 					}
 		});

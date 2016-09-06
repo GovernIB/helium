@@ -67,6 +67,8 @@ public class DocumentDto implements Serializable {
 	private boolean adjuntarAuto;
 
 	private String urlVerificacioCustodia;
+	
+	private ExpedientTipusDto expedientTipus;
 
 	public String getCodi() {
 		return codi;
@@ -169,6 +171,12 @@ public class DocumentDto implements Serializable {
 	}
 	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
 		this.urlVerificacioCustodia = urlVerificacioCustodia;
+	}
+	public ExpedientTipusDto getExpedientTipus() {
+		return expedientTipus;
+	}
+	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
+		this.expedientTipus = expedientTipus;
 	}
 	public Long getId() {
 		return id;

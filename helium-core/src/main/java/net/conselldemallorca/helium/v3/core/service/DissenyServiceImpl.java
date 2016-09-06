@@ -134,7 +134,7 @@ public class DissenyServiceImpl implements DissenyService {
 	private DominiHelper dominiHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
-	
+	@Resource
 	private DocumentRepository documentRepository;
 
 

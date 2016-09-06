@@ -18,6 +18,7 @@
 	.tableDocuments .right {padding-left: 3px;padding-right: 10px;width: 100%;}
 	.tableDocumentsTd {font-size: 10px;}
 	.nom_document {padding-left: 5px;}
+	.no-doc {color: darkgray}
 	#contingut-dades .icon.modificar {padding-left: 5px;padding-right: 5px;}
 	#contingut-dades .icon.registre {padding-right: 5px;}
 	.icon, .icon:hover, .icon:focus {text-decoration: none;color: #2a6496;}

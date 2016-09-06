@@ -24,21 +24,12 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
  */
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-//	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
+	List<Document> findByDefinicioProces(DefinicioProces definicioProces);
+	List<Document> findByExpedientTipus(ExpedientTipus expedientTipus);
 	
-	List<Document> findByDefinicioProcesOrExpedientTipus(DefinicioProces definicioProces, ExpedientTipus expedientTipus);
+	Document findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);
+	Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 	
-	@Query(	"select d from " +
-			"    Document d " +
-			"where " +
-			"    (d.definicioProces = :definicioProces OR "
-			+ "	  d.expedientTipus = :expedientTipus) AND "
-			+ "  d.codi = :codi")
-	Document findByDefinicioProcesOrExpedientTipusAndCodi(
-			@Param("definicioProces") DefinicioProces definicioProces,
-			@Param("expedientTipus") ExpedientTipus expedientTipus,
-			@Param("codi") String codi);
-
 	@Query(	"select d from " +
 			"    Document d " +
 			"where " +
@@ -72,7 +63,5 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-	public Document findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
-
 	List<Document> findByExpedientTipusOrderByCodiAsc(ExpedientTipus expedientTipus);
 }
