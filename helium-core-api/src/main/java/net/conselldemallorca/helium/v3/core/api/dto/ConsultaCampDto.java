@@ -28,6 +28,7 @@ public class ConsultaCampDto implements Serializable {
 	private Long id;
 	private Long campId;
 	private String campCodi;
+	private String campEtiqueta;
 	private String campDescripcio;
 	private String defprocJbpmKey;
 	private int defprocVersio = -1;
@@ -67,6 +68,12 @@ public class ConsultaCampDto implements Serializable {
 	public void setCampCodi(String campCodi) {
 		this.campCodi = campCodi;
 	}
+	public String getCampEtiqueta() {
+		return this.campEtiqueta;
+	}
+	public void setCampEtiqueta(String campEtiqueta) {
+		this.campEtiqueta = campEtiqueta;
+	}	
 	public String getCampDescripcio() {
 		return campDescripcio;
 	}
@@ -104,6 +111,5 @@ public class ConsultaCampDto implements Serializable {
 	public void setParamTipus(TipusParamConsultaCamp paramTipus) {
 		this.paramTipus = paramTipus;
 	}
-
 	private static final long serialVersionUID = 1L;
 }

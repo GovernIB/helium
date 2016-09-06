@@ -953,9 +953,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant el camp del tipus d'expedient amb id (" +
 				"campId=" + id +  ")");
-
+		Camp camp = campRepository.findOne(id);
+		if (camp == null) {
+			throw new NoTrobatException(Camp.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				campRepository.findOne(id),
+				camp,
 				CampDto.class);
 	}
 
@@ -1120,9 +1123,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la agrupacio de camps del tipus d'expedient amb id (" +
 				"campAgrupacioId=" + id +  ")");
-
+		CampAgrupacio  agrupacio = campAgrupacioRepository.findOne(id);
+		if (agrupacio == null) {
+			throw new NoTrobatException(CampAgrupacio.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				campAgrupacioRepository.findOne(id),
+				agrupacio,
 				CampAgrupacioDto.class);
 	}
 	
@@ -1405,9 +1411,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la validacio del camp del tipus d'expedient amb id (" +
 				"validacioId=" + id +  ")");
-
+		Validacio validacio = campValidacioRepository.findOne(id);
+		if (validacio == null) {
+			throw new NoTrobatException(Validacio.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				campValidacioRepository.findOne(id),
+				validacio,
 				ValidacioDto.class);
 	}
 		
@@ -1549,9 +1558,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la campRegistre del camp del tipus d'expedient amb id (" +
 				"campRegistreId=" + id +  ")");
-
+		CampRegistre camp = campRegistreRepository.findOne(id);
+		if (camp == null) {
+			throw new NoTrobatException(CampRegistre.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				campRegistreRepository.findOne(id),
+				camp,
 				CampRegistreDto.class);
 	}
 
@@ -1730,9 +1742,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant el document del tipus d'expedient amb id (" +
 				"documentId=" + id +  ")");
-
+		Document document = documentRepository.findOne(id);
+		if (document == null) {
+			throw new NoTrobatException(Document.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				documentRepository.findOne(id),
+				document,
 				ExpedientTipusDocumentDto.class);
 	}
 	
@@ -1870,9 +1885,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la accio del tipus d'expedient amb id (" +
 				"accioId=" + id +  ")");
-
+		Accio accio = accioRepository.findOne(id);
+		if (accio == null) {
+			throw new NoTrobatException(Accio.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				accioRepository.findOne(id),
+				accio,
 				AccioDto.class);
 	}
 
@@ -2027,9 +2045,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant l'enumeracio del tipus d'expedient amb id (" +
 				"enumeracioId=" + enumeracioId +  ")");
-
+		Enumeracio enumeracio = enumeracioRepository.findOne(enumeracioId);
+		if (enumeracio == null) {
+			throw new NoTrobatException(Enumeracio.class, enumeracioId);
+		}
 		return conversioTipusHelper.convertir(
-				enumeracioRepository.findOne(enumeracioId),
+				enumeracio,
 				ExpedientTipusEnumeracioDto.class);
 	}
 	
@@ -2112,13 +2133,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public ExpedientTipusEnumeracioValorDto enumeracioValorFindAmbId(Long valorId) throws NoTrobatException {
-		
 		logger.debug(
 				"Consultant el valor de l'enumeracio del tipus d'expedient amb id (" +
 				"valorId=" + valorId +  ")");
-
+		EnumeracioValors valor = enumeracioValorsRepository.findOne(valorId);
+		if (valor == null) {
+			throw new NoTrobatException(EnumeracioValors.class, valorId);
+		}
 		return conversioTipusHelper.convertir(
-				enumeracioValorsRepository.findOne(valorId),
+				valor,
 				ExpedientTipusEnumeracioValorDto.class);
 	}
 
@@ -2321,34 +2344,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	/***********************************************/
 	/******************TERMINIS*********************/
 	/***********************************************/
-	
-	@Override
-	@Transactional(readOnly = true)
-	public List<TerminiDto> terminiFindAll(Long expedientTipusId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
-		// Recupera el tipus d'expedient
-		ExpedientTipus expedientTipus =	
-				expedientTipusHelper.getExpedientTipusComprovantPermisos(
-						expedientTipusId, 
-						true);
-		List<Termini> terminis = null;
-		if (expedientTipus.isAmbInfoPropia()) {
-			// Recupera la informació dels terminis de l'expedient
-			terminis = terminiRepository.findByExpedientTipusId(
-					expedientTipusId, 
-					paginacioHelper.toSpringDataPageable(paginacioParams));
-		} else {
-			// Recupera la informació de les agrupacions per a la definició de procés
-//			Set<DefinicioProces> definicionsProces = expedientTipus.getDefinicionsProces();
-//			terminis = terminiRepository.findByDefinicioProcesId(definicionsProces.iterator().next().getId());
-		}
-		return conversioTipusHelper.convertirList(
-									terminis, 
-									TerminiDto.class);
-	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public TerminiDto terminiFindAmbId(Long terminiId) {
+		logger.debug(
+				"Consultant el termini amb id (" +
+				"terminiId=" + terminiId +  ")");
 		Termini termini = terminiRepository.findOne(terminiId);
 		if (termini == null) {
 			throw new NoTrobatException(Termini.class, terminiId);
@@ -2494,6 +2496,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public DominiDto dominiFindAmbId(Long dominiId) {
+		logger.debug(
+				"Consultant el domini amb id (" +
+				"dominiId=" + dominiId +  ")");
 		Domini domini = dominiRepository.findOne(dominiId);
 		if (domini == null) {
 			throw new NoTrobatException(Domini.class, dominiId);
@@ -2727,9 +2732,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la reassignacio del tipus d'expedient amb id (" +
 				"reassignacioId=" + id +  ")");
-
+		Reassignacio reassignacio = reassignacioRepository.findOne(id);
+		if (reassignacio == null) {
+			throw new NoTrobatException(Reassignacio.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				reassignacioRepository.findOne(id),
+				reassignacio,
 				ReassignacioDto.class);
 	}
 
@@ -2784,6 +2792,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public EstatDto estatFindAmbId(Long estatId) {
+		logger.debug(
+				"Consultant el l'estat amb id (" +
+				"estatId=" + estatId +  ")");
 		Estat estat = estatRepository.findOne(estatId);
 		if (estat == null) {
 			throw new NoTrobatException(Estat.class, estatId);
@@ -3271,9 +3282,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant la consulta del tipus d'expedient amb id (" +
 				"consultaId=" + id +  ")");
-
+		Consulta consulta = consultaRepository.findOne(id);
+		if (consulta == null) {
+			throw new NoTrobatException(Consulta.class, id);
+		}
 		return conversioTipusHelper.convertir(
-				consultaRepository.findOne(id),
+				consulta,
 				ConsultaDto.class);
 	}
 
@@ -3487,6 +3501,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						
 		Map<String, String> mapeigPropietatsOrdenacio = new HashMap<String, String>();
 		mapeigPropietatsOrdenacio.put("campTipus", "camp.tipus");
+		mapeigPropietatsOrdenacio.put("campEtiqueta", "camp.etiqueta");
 		
 		return paginacioHelper.toPaginaDto(
 				consultaCampRepository.findByFiltrePaginat(

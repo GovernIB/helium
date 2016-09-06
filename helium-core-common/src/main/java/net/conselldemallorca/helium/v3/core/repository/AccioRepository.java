@@ -22,10 +22,14 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	public List<Accio> findAmbDefinicioProcesAndOcultaFalse(
 			@Param("definicioProces") DefinicioProces definicioProces);
 
-	public List<Accio> findByDefinicioProcesAndId(
-			DefinicioProces definicioProces,
-			Long id);
-	
+	@Query("select a "
+			+ "from Accio a "
+			+ "where a.expedientTipus = :expedientTipus "
+			+ "and a.oculta = false "
+			+ "order by a.nom")
+	public List<Accio> findAmbExpedientTipusAndOcultaFalse(
+			@Param("expedientTipus") ExpedientTipus expedientTipus);
+		
 	Accio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 	
 	@Query(	"from Accio a " +

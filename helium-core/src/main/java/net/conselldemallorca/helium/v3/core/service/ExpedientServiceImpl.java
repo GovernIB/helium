@@ -1503,8 +1503,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
-		List<Accio> accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
+		List<Accio> accions = null;
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			accions = accioRepository.findAmbExpedientTipusAndOcultaFalse(expedient.getTipus());
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+			accions = accioRepository.findAmbDefinicioProcesAndOcultaFalse(definicioProces);
+		}
 		Iterator<Accio> it = accions.iterator();
 		while (it.hasNext()) {
 			Accio accio = it.next();
@@ -1540,12 +1545,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
 		return conversioTipusHelper.convertir(
-				accioRepository.findByDefinicioProcesAndId(
-						definicioProces,
-						accioId),
+				accioRepository.findOne(accioId),
 				AccioDto.class);
 	}
 

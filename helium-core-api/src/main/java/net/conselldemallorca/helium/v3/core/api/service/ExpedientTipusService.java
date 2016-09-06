@@ -1104,18 +1104,6 @@ public interface ExpedientTipusService {
 	/***********************************************/
 	/*******************TERMINIS********************/
 	/***********************************************/
-	
-	/**
-	 * Retorna els terminis per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 * @throws NoTrobatException
-	 * @throws PermisDenegatException
-	 */
-	public List<TerminiDto> terminiFindAll(
-			Long expedientTipusId,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 
 	/** 
 	 * Retorna el termini del tipus d'expedient donat el seu identificador.

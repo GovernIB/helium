@@ -326,6 +326,7 @@ public class ConversioTipusHelper {
 						if (source.getCamp() != null) {
 							target.setCampId(source.getCamp().getId());
 							target.setCampTipus(CampTipusDto.valueOf(source.getCamp().getTipus().toString()));
+							target.setCampEtiqueta(source.getCamp().getEtiqueta());
 						}
 						target.setOrdre(source.getOrdre());
 						return target;

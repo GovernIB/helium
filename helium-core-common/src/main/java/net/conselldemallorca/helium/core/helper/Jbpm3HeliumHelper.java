@@ -108,6 +108,7 @@ import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -154,6 +155,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private CampRepository campRepository;
 	@Resource
 	private DocumentTascaRepository documentTascaRepository;
+	@Resource
+	private TerminiRepository terminiRepository;
 
 	
 	@Resource(name = "documentHelperV3")
@@ -679,10 +682,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Obtenint termini donada la instància de procés i el codi (" +
 				"processInstanceId=" + processInstanceId + "," +
 				"terminiCodi=" + terminiCodi + ")");
-		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
-		Termini termini = terminiHelper.findAmbDefinicioProcesICodi(
-				definicioProces,
-				terminiCodi);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		Termini termini = null;
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			termini = terminiHelper.findAmbExpedientTipusICodi(
+					expedient.getTipus(), 
+					terminiCodi);
+		} else {
+			DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
+			termini = terminiHelper.findAmbDefinicioProcesICodi(
+					definicioProces,
+					terminiCodi);
+		}				
 		if (termini == null)
 			throw new NoTrobatException(Termini.class, terminiCodi);
 		return conversioTipusHelper.convertir(
@@ -697,11 +708,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		logger.debug("Obtenint termini iniciat donada la instància de procés i el codi (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"terminiCodi=" + terminiCodi + ")");
-		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
-		TerminiIniciat terminiIniciat = terminiHelper.findIniciatAmbDefinicioProcesICodi(
-				definicioProces,
-				processInstanceId,
-				terminiCodi);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		TerminiIniciat terminiIniciat = null;
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			terminiIniciat = terminiHelper.findIniciatAmbExpedientTipusICodi(
+					expedient.getTipus(),
+					processInstanceId,
+					terminiCodi);
+		} else {
+			DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
+			terminiIniciat = terminiHelper.findIniciatAmbDefinicioProcesICodi(
+					definicioProces,
+					processInstanceId,
+					terminiCodi);
+		}				
 		if (terminiIniciat == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiCodi);
 		return conversioTipusHelper.convertir(

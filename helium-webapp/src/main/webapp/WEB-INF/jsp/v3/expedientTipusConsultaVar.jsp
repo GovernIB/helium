@@ -61,13 +61,19 @@
 				data-url="${baseUrl}/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
-				data-default-order="3"
+				data-default-order="4"
 				data-filtre="#consultaVarFiltre"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="campCodi"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.variable"/></th>
+					<th data-col-name="campEtiqueta" data-visible="false"/>
+					<th data-col-name="campCodi" data-template="#cellConsultaVarCodiEtiquetaTemplate" data-orderable="true">
+						<spring:message code="expedient.tipus.consulta.vars.llistat.columna.variable"/>
+						<script id="cellConsultaVarCodiEtiquetaTemplate" type="text/x-jsrender">
+							{{:campCodi}} / {{:campEtiqueta}}
+						</script>
+					</th>
 					<th data-col-name="campTipus"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.tipus"/></th>
 					<th data-col-name="ordre"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.ordre"/></th>
 					<th data-col-name="id" width="100px" data-template="#cellConsultaVarTemplate" data-orderable="false" width="10%">
@@ -132,7 +138,7 @@
 	
 	function canviarPosicioConsultaVar( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
-		$('#consultaVar').DataTable().order([3, 'asc']);
+		$('#consultaVar').DataTable().order([4, 'asc']);
 		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var/"/>'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',

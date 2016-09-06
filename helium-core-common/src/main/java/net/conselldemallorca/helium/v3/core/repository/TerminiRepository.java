@@ -33,8 +33,8 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 			"where " +
 			"    t.definicioProces.id = :definicioProcesId")
 	List<Termini> findByDefinicioProcesId(@Param("definicioProcesId") Long definicioProcesId);
-//	List<Termini> findByDefinicioProcesId(Long definicioProcesId);
-	List<Termini> findByExpedientTipusId(Long expedientTipusId, Pageable pageable);
+
+	List<Termini> findByExpedientTipusId(Long expedientTipusId);
 
 	Termini findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 

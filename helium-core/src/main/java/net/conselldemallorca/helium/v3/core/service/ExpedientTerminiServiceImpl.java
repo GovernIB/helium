@@ -298,10 +298,16 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				processInstanceId);
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
+		List<Termini> terminis = null;
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			terminis = terminiRepository.findByExpedientTipusId(expedient.getTipus().getId());			
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					processInstanceId);
+			terminis = terminiRepository.findByDefinicioProcesId(definicioProces.getId());
+		}
 		return conversioTipusHelper.convertirList(
-				terminiRepository.findByDefinicioProcesId(definicioProces.getId()),
+				terminis,
 				TerminiDto.class);
 	}
 

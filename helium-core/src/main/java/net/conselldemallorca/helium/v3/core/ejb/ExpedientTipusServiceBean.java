@@ -708,24 +708,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	/***********************************************/
 	/*******************TERMINIS********************/
 	/***********************************************/
-	
-	/**
-	 * Retorna els terminis per a un tipus d'expedient.
-	 * 
-	 * @param expedientTipusId
-	 * @return
-	 * @throws NoTrobatException
-	 * @throws PermisDenegatException
-	 */
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TerminiDto> terminiFindAll(
-			Long expedientTipusId,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
-		return delegate.terminiFindAll(
-				expedientTipusId, 
-				paginacioParams);
-	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

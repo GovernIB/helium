@@ -9,7 +9,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -20,8 +23,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
-
-import org.springframework.stereotype.Component;
 
 /**
  * Helper per a enviament de correus
@@ -265,6 +266,14 @@ public class TerminiHelper {
 				terminiCodi);
 	}
 
+	public Termini findAmbExpedientTipusICodi(
+			ExpedientTipus expedientTipus,
+			String terminiCodi) {
+		return terminiRepository.findByExpedientTipusAndCodi(
+				expedientTipus,
+				terminiCodi);
+	}
+	
 	public TerminiIniciat findIniciatAmbDefinicioProcesICodi(
 			DefinicioProces definicioProces,
 			String processInstanceId,
@@ -279,7 +288,19 @@ public class TerminiHelper {
 				processInstanceId);
 	}
 
-
+	public TerminiIniciat findIniciatAmbExpedientTipusICodi(
+			ExpedientTipus tipus, 
+			String processInstanceId,
+			String terminiCodi) {
+			Termini termini = terminiRepository.findByExpedientTipusAndCodi(
+					tipus, 
+					terminiCodi);
+			if (termini == null)
+				return null;
+			return terminiIniciatRepository.findByTerminiAndProcessInstanceId(
+					termini,
+					processInstanceId);
+		}
 
 	private void sumarDies(Calendar cal, int numDies) {
 		int signe = (numDies < 0) ? -1 : 1;
