@@ -458,11 +458,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				expedient,
 				processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(
-						processInstanceId),
-				expedientTipus,
-				documentCodi);
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					expedientHelper.findDefinicioProcesByProcessInstanceId(
+							processInstanceId), 
+					documentCodi);
+		
+		
 		Date documentData = new Date();
 		return documentHelper.generarDocumentAmbPlantillaIConvertir(
 				expedient,
@@ -497,11 +504,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				expedient,
 				processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(
-						processInstanceId),
-				expedientTipus,
-				documentCodi);
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					expedientHelper.findDefinicioProcesByProcessInstanceId(
+							processInstanceId), 
+					documentCodi);
 		return document.isExtensioPermesa(
 				getExtensio(arxiuNom));
 	}
@@ -524,11 +536,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
 				task.getProcessInstanceId());
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-				expedientHelper.findDefinicioProcesByProcessInstanceId(
-						task.getProcessInstanceId()),
-				expedientTipus,
-				documentCodi);
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					expedientHelper.findDefinicioProcesByProcessInstanceId(
+							task.getProcessInstanceId()), 
+					documentCodi);
 		Date documentData = new Date();
 		ArxiuDto arxiu = documentHelper.generarDocumentAmbPlantillaIConvertir(
 				expedient,
@@ -573,10 +590,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				task.getProcessInstanceId());
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		ExpedientTipus expedientTipus = expedient.getTipus();
-		Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-				definicioProces,
-				expedientTipus,
-				documentCodi);
+		Document document;
+		if (expedientTipus.isAmbInfoPropia())
+			document = documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			document = documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
 		return document.isExtensioPermesa(
 				getExtensio(arxiuNom));
 	}

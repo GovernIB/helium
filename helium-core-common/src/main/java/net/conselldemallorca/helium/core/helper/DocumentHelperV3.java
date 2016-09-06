@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
@@ -104,10 +105,16 @@ public class DocumentHelperV3 {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-					definicioProces,
-					expedient.getTipus(),
-					documentStore.getCodiDocument());
+			ExpedientTipus expedientTipus = expedient.getTipus();
+			Document document;
+			if (expedientTipus.isAmbInfoPropia())
+				document = documentRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						documentStore.getCodiDocument());
+			else
+				document = documentRepository.findByDefinicioProcesAndCodi(
+						definicioProces, 
+						documentStore.getCodiDocument());
 			if (document != null) {
 				return crearDtoPerDocumentExpedient(
 								document,
@@ -135,10 +142,16 @@ public class DocumentHelperV3 {
 			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 					processInstanceId);
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			Document document = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-					definicioProces,
-					expedient.getTipus(),
-					documentStore.getCodiDocument());
+			ExpedientTipus expedientTipus = expedient.getTipus();
+			Document document;
+			if (expedientTipus.isAmbInfoPropia())
+				document = documentRepository.findByExpedientTipusAndCodi(
+						expedientTipus,
+						documentStore.getCodiDocument());
+			else
+				document = documentRepository.findByDefinicioProcesAndCodi(
+						definicioProces, 
+						documentStore.getCodiDocument());
 			if (document != null) {
 				return crearDtoPerDocumentExpedient(
 								document,
@@ -240,9 +253,13 @@ public class DocumentHelperV3 {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		List<Document> documents = documentRepository.findByDefinicioProcesOrExpedientTipus(
-				definicioProces,
-				expedient.getTipus());
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		List<Document> documents;
+		if (expedientTipus.isAmbInfoPropia())
+			documents = documentRepository.findByExpedientTipus(expedientTipus);
+		else
+			documents = documentRepository.findByDefinicioProces(definicioProces);
+			
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
@@ -347,10 +364,16 @@ public class DocumentHelperV3 {
 						documentStoreId);
 			} else {
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-				Document document =  documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-						definicioProces,
-						expedient.getTipus(),
-						documentStore.getCodiDocument());
+				ExpedientTipus expedientTipus = expedient.getTipus();
+				Document document;
+				if (expedientTipus.isAmbInfoPropia())
+					document = documentRepository.findByExpedientTipusAndCodi(
+							expedientTipus,
+							documentStore.getCodiDocument());
+				else
+					document = documentRepository.findByDefinicioProcesAndCodi(
+							definicioProces, 
+							documentStore.getCodiDocument());
 				if (document != null) {
 					return crearDtoPerDocumentExpedient(
 									document,
@@ -986,11 +1009,19 @@ public class DocumentHelperV3 {
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
 							jpd.getVersion());
+					
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
-					Document doc = documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-							definicioProces, 
-							expedient.getTipus(),
-							codiDocument);
+					ExpedientTipus expedientTipus = expedient.getTipus();
+					Document doc;
+					if (expedientTipus.isAmbInfoPropia())
+						doc = documentRepository.findByExpedientTipusAndCodi(
+								expedientTipus,
+								codiDocument);
+					else
+						doc = documentRepository.findByDefinicioProcesAndCodi(
+								definicioProces, 
+								codiDocument);
+					
 					if (doc != null) {
 						dto.setContentType(doc.getContentType());
 						dto.setCustodiaCodi(doc.getCustodiaCodi());
@@ -1430,10 +1461,15 @@ public class DocumentHelperV3 {
 			definicioProces = definicioProcesRepository.findByJbpmId(processInstance.getProcessDefinitionId());
 		}
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		return documentRepository.findByDefinicioProcesOrExpedientTipusAndCodi(
-				definicioProces, 
-				expedient.getTipus(),
-				documentCodi);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		if (expedientTipus.isAmbInfoPropia())
+			return documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					documentCodi);
+		else
+			return documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					documentCodi);
 	}
 	
 	private Long getDocumentStoreIdDeVariableJbpm(

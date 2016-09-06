@@ -71,7 +71,20 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="document.codi"><spring:message code="definicio.proces.tasca.document.columna.document"/></th>
+					<th data-col-name="document.codi" data-template="#celldefinicioProcesTascaDocument" width="30%">
+						<spring:message code="definicio.proces.tasca.document.columna.document"/>
+						<script id="celldefinicioProcesTascaDocument" type="text/x-jsrender">
+							{{:document.codi}} / {{:document.nom}}
+							{{if document.expedientTipus != null}}
+								<span class="label label-info pull-right" title="Tipus Expedient">TE</span>
+							{{else}}
+								<span class="label label-warning pull-right" title="Definició de Procés">DP</span>
+							{{/if}}
+							
+						</script>
+					</th>
+					
+					
 					<th data-col-name="required" data-template="#celldefinicioProcesTascaDocumentRequiredTemplate">
 					<spring:message code="definicio.proces.tasca.document.columna.required"/>
 						<script id="celldefinicioProcesTascaDocumentRequiredTemplate" type="text/x-jsrender">
