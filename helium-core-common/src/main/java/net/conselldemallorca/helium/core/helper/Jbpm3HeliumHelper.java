@@ -1669,10 +1669,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
-		//TODO: revisar procedència camps
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
-				definicioProces,
-				varCodi);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Camp camp;
+		if (expedientTipus.isAmbInfoPropia()) {
+			camp = campRepository.findByExpedientTipusAndCodi(expedientTipus,
+					varCodi);
+		} else {
+			camp = campRepository.findByDefinicioProcesAndCodi(
+					definicioProces,
+					varCodi);
+		}
+		
 		if (camp == null)
 			throw new NoTrobatException(Camp.class, varCodi);
 		ExpedientDadaDto resposta = new ExpedientDadaDto();
@@ -1698,10 +1706,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class);
-		//TODO: revisar procedència camps
-		Camp camp = campRepository.findByDefinicioProcesAndCodi(
-				definicioProces,
-				varCodi);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		Camp camp;
+		if (expedientTipus.isAmbInfoPropia()) {
+			camp = campRepository.findByExpedientTipusAndCodi(
+					expedientTipus,
+					varCodi);
+		} else {
+			camp = campRepository.findByDefinicioProcesAndCodi(
+					definicioProces,
+					varCodi);
+		}
+		
 		if (camp == null)
 			throw new NoTrobatException(Camp.class,varCodi);
 		TascaDadaDto resposta = new TascaDadaDto();
