@@ -285,6 +285,7 @@ public class DocumentHelperV3 {
 						} else {
 							ExpedientDocumentDto dto = new ExpedientDocumentDto();
 							dto.setId(documentStoreId);
+							dto.setProcessInstanceId(processInstanceId);
 							dto.setError("No s'ha trobat el document de la definició de procés (" +
 										"documentCodi=" + documentCodi + ")");
 							resposta.add(dto);

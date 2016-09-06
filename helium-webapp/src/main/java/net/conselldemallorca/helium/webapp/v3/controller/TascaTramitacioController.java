@@ -427,11 +427,11 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/tascaSignatura";
 	}
 
-	@RequestMapping(value = "/{tascaId}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/document/{documentId}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
-			@PathVariable String documentCodi,
+			@PathVariable Long documentId,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
@@ -443,16 +443,17 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
 					tascaId,
-					documentCodi,
+					documentId,
 					nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
 			} else {
+				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
 				accioDocumentAdjuntar(
 						request,
 						tascaId,
-						documentCodi,
+						doc.getDocumentCodi(),
 						nomArxiu,
 						contingutArxiu,
 						(data == null) ? new Date() : data).toString();
@@ -461,7 +462,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error al adjuntar el document a la tasca(" +
 					"tascaId=" + tascaId + ", " +
-					"documentCodi=" + documentCodi + ")",
+					"documentId=" + documentId + ")",
 					ex);
 		}
 		return mostrarInformacioTascaPerPipelles(
@@ -471,12 +472,12 @@ public class TascaTramitacioController extends BaseTascaController {
 				"document");
 	}
 	
-	@RequestMapping(value = "/{tascaId}/{tascaId2}/document/{documentCodi}/adjuntar", method = RequestMethod.POST)
+	@RequestMapping(value = "/{tascaId}/{tascaId2}/document/{documentId}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar2(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable String tascaId2,
-			@PathVariable String documentCodi,
+			@PathVariable Long documentId,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,	
 			@RequestParam(value = "data", required = false) Date data,
 			Model model) {
@@ -488,16 +489,17 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 			} else if (!expedientDocumentService.isExtensioPermesaPerTasca(
 					tascaId,
-					documentCodi,
+					documentId,
 					nomArxiu)) {
 				MissatgesHelper.error(request, getMessage(request, "error.extensio.document"));
 			} else if (nomArxiu.isEmpty() || contingutArxiu.length == 0) {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document"));
 			} else {
+				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId);
 				accioDocumentAdjuntar(
 						request,
 						tascaId,
-						documentCodi,
+						doc.getDocumentCodi(),
 						nomArxiu,
 						contingutArxiu,
 						(data == null) ? new Date() : data).toString();
@@ -506,7 +508,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error al adjuntar el document a la tasca(" +
 					"tascaId=" + tascaId + ", " +
-					"documentCodi=" + documentCodi + ")",
+					"documentId=" + documentId + ")",
 					ex);
 		}
 		return mostrarInformacioTascaPerPipelles(

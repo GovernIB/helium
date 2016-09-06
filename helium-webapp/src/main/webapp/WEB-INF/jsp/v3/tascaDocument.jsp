@@ -54,12 +54,12 @@
 				
 		<c:choose>
 			<c:when test="${isModal}">
-				<c:url var="tascaDocumentAction" value="/modal/v3/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
+				<c:url var="tascaDocumentAction" value="/modal/v3/tasca/${tasca.id}/document/${document.id}/adjuntar"/>
 				<c:url var="documentGenerarAction" value='/modal/v3/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
 				<c:url var="documentBorrarAction" value="/modal/v3/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
 			</c:when>
 			<c:otherwise>
-				<c:url var="tascaDocumentAction" value="/v3/tasca/${tasca.id}/document/${document.documentCodi}/adjuntar"/>
+				<c:url var="tascaDocumentAction" value="/v3/tasca/${tasca.id}/document/${document.id}/adjuntar"/>
 				<c:url var="documentGenerarAction" value='/v3/tasca/${tasca.id}/document/${document.documentCodi}/generar'/>
 				<c:url var="documentBorrarAction" value="/v3/tasca/${tasca.id}/document/${document.documentCodi}/esborrar"/>
 			</c:otherwise>
