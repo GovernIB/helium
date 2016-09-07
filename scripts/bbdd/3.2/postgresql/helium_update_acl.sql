@@ -1,41 +1,33 @@
-﻿--DROP TABLE HEL_ACL_ENTRY;
---DROP TABLE HEL_ACL_OBJECT_IDENTITY;
---DROP TABLE HEL_ACL_SID;
---DROP TABLE HEL_ACL_CLASS;
---DROP SEQUENCE HEL_ACL_CLASS_SEQ;
---DROP SEQUENCE HEL_ACL_ENTRY_SEQ;
---DROP SEQUENCE HEL_ACL_OBJECT_IDENTITY_SEQ;
---DROP SEQUENCE HEL_ACL_SID_SEQ;
 
-ALTER TABLE HEL_ACL_CLASS RENAME TO OLD_ACL_CLASS;
-ALTER TABLE HEL_ACL_ENTRY RENAME TO OLD_ACL_ENTRY;
-ALTER TABLE HEL_ACL_OBJECT_IDENTITY RENAME TO OLD_ACL_OBJECT_IDENTITY;
-ALTER TABLE HEL_ACL_SID RENAME TO OLD_ACL_SID;
+ALTER TABLE hel_acl_class RENAME TO old_acl_class;
+ALTER TABLE hel_acl_entry RENAME TO old_acl_entry;
+ALTER TABLE hel_acl_object_identity RENAME TO old_acl_object_identity;
+ALTER TABLE hel_acl_sid RENAME TO old_acl_sid;
 
 --------------------------------------------------------
 -- ACL_CLASS Table
 --------------------------------------------------------
-CREATE TABLE "HEL_ACL_CLASS" (
-  "ID" BIGINT NOT NULL,
-  "CLASS" VARCHAR(100) NOT NULL,
-  PRIMARY KEY ("ID"),
-  CONSTRAINT "ACL_CLASS_CLASS_UQ" UNIQUE ("CLASS")
+CREATE TABLE "hel_acl_class" (
+  "id" BIGINT NOT NULL,
+  "class" VARCHAR(100) NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "ACL_CLASS_CLASS_UQ" UNIQUE ("class")
 );
  
 --------------------------------------------------------
 -- ACL_ENTRY Table
 --------------------------------------------------------
-CREATE TABLE "HEL_ACL_ENTRY" (
-  "ID" BIGINT NOT NULL,
-  "ACL_OBJECT_IDENTITY" BIGINT NOT NULL,
-  "ACE_ORDER" BIGINT NOT NULL,
-  "SID" BIGINT NOT NULL,
-  "MASK" BIGINT NOT NULL,
-  "GRANTING" BOOLEAN NOT NULL,
-  "AUDIT_SUCCESS" BOOLEAN NOT NULL,
-  "AUDIT_FAILURE" BOOLEAN NOT NULL,
-  PRIMARY KEY ("ID"),
-  CONSTRAINT "HEL_ACL_ENTRY_IDENT_ORDER_UQ" UNIQUE ("ACL_OBJECT_IDENTITY", "ACE_ORDER")
+CREATE TABLE "hel_acl_entry" (
+  "id" BIGINT NOT NULL,
+  "acl_object_identity" BIGINT NOT NULL,
+  "ace_order" BIGINT NOT NULL,
+  "sid" BIGINT NOT NULL,
+  "mask" BIGINT NOT NULL,
+  "granting" BOOLEAN NOT NULL,
+  "audit_success" BOOLEAN NOT NULL,
+  "audit_failure" BOOLEAN NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "HEL_ACL_ENTRY_IDENT_ORDER_UQ" UNIQUE ("acl_object_identity", "ace_order")
 );
 
 
@@ -43,27 +35,27 @@ CREATE TABLE "HEL_ACL_ENTRY" (
 --------------------------------------------------------
 -- ACL_OBJECT_IDENTITY Table
 --------------------------------------------------------
-CREATE TABLE "HEL_ACL_OBJECT_IDENTITY" (
-  "ID" BIGINT NOT NULL,
-  "OBJECT_ID_CLASS" BIGINT NOT NULL,
-  "OBJECT_ID_IDENTITY" BIGINT NOT NULL,
-  "PARENT_OBJECT" BIGINT,
-  "OWNER_SID" BIGINT NOT NULL,
-  "ENTRIES_INHERITING" BOOLEAN NOT NULL,
-  PRIMARY KEY ("ID"),
-  CONSTRAINT "HEL_ACL_OBJ_ID_CLASS_IDENT_UQ" UNIQUE ("OBJECT_ID_CLASS", "OBJECT_ID_IDENTITY")
+CREATE TABLE "hel_acl_object_identity" (
+  "id" BIGINT NOT NULL,
+  "object_id_class" BIGINT NOT NULL,
+  "object_id_identity" BIGINT NOT NULL,
+  "parent_object" BIGINT,
+  "owner_sid" BIGINT NOT NULL,
+  "entries_inheriting" BOOLEAN NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "HEL_ACL_OBJ_ID_CLASS_IDENT_UQ" UNIQUE ("object_id_class", "object_id_identity")
 );
 
  
 --------------------------------------------------------
 -- ACL_SID Table
 --------------------------------------------------------
-CREATE TABLE "HEL_ACL_SID" (
-  "ID" BIGINT NOT NULL,
-  "PRINCIPAL" BOOLEAN NOT NULL,
-  "SID" VARCHAR(100) NOT NULL,
-  PRIMARY KEY ("ID"),
-  CONSTRAINT "HEL_ACL_SID_PRINCIPAL_SID_UQ" UNIQUE ("SID", "PRINCIPAL")
+CREATE TABLE "hel_acl_sid" (
+  "id" BIGINT NOT NULL,
+  "principal" BOOLEAN NOT NULL,
+  "sid" VARCHAR(100) NOT NULL,
+  PRIMARY KEY ("id"),
+  CONSTRAINT "HEL_ACL_SID_PRINCIPAL_SID_UQ" UNIQUE ("sid", "principal")
 );
 
 
@@ -72,22 +64,22 @@ CREATE TABLE "HEL_ACL_SID" (
 -- Relationships
 --------------------------------------------------------
  
-ALTER TABLE "HEL_ACL_ENTRY" ADD CONSTRAINT "FK_ACL_ENTRY_ACL_OBJECT_ID"
-  FOREIGN KEY ("ACL_OBJECT_IDENTITY")
-  REFERENCES "HEL_ACL_OBJECT_IDENTITY" ("ID");
-ALTER TABLE "HEL_ACL_ENTRY" ADD CONSTRAINT "FK_ACL_ENTRY_SID"
-  FOREIGN KEY ("SID")
-  REFERENCES "HEL_ACL_SID" ("ID");
+ALTER TABLE "hel_acl_entry" ADD CONSTRAINT "FK_ACL_ENTRY_ACL_OBJECT_ID"
+  FOREIGN KEY ("acl_object_identity")
+  REFERENCES "hel_acl_object_identity" ("id");
+ALTER TABLE "hel_acl_entry" ADD CONSTRAINT "FK_ACL_ENTRY_SID"
+  FOREIGN KEY ("sid")
+  REFERENCES "hel_acl_sid" ("id");
  
-ALTER TABLE "HEL_ACL_OBJECT_IDENTITY" ADD CONSTRAINT "FK_ACL_OBJ_ID_CLASS"
-  FOREIGN KEY ("OBJECT_ID_CLASS")
-  REFERENCES "HEL_ACL_CLASS" ("ID");
-ALTER TABLE "HEL_ACL_OBJECT_IDENTITY" ADD CONSTRAINT "FK_ACL_OBJ_ID_PARENT"
-  FOREIGN KEY ("PARENT_OBJECT")
-  REFERENCES "HEL_ACL_OBJECT_IDENTITY" ("ID");
-ALTER TABLE "HEL_ACL_OBJECT_IDENTITY" ADD CONSTRAINT "FK_ACL_OBJ_ID_SID"
-  FOREIGN KEY ("OWNER_SID")
-  REFERENCES "HEL_ACL_SID" ("ID");
+ALTER TABLE "hel_acl_object_identity" ADD CONSTRAINT "FK_ACL_OBJ_ID_CLASS"
+  FOREIGN KEY ("object_id_class")
+  REFERENCES "hel_acl_class" ("id");
+ALTER TABLE "hel_acl_object_identity" ADD CONSTRAINT "FK_ACL_OBJ_ID_PARENT"
+  FOREIGN KEY ("parent_object")
+  REFERENCES "hel_acl_object_identity" ("id");
+ALTER TABLE "hel_acl_object_identity" ADD CONSTRAINT "FK_ACL_OBJ_ID_SID"
+  FOREIGN KEY ("owner_sid")
+  REFERENCES "hel_acl_sid" ("id");
 
 --------------------------------------------------------
 -- Copy from old tables

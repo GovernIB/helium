@@ -20,6 +20,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.security.acls.domain.AccessControlEntryImpl;
@@ -42,6 +44,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+
 
 /**
  * Provides a base JDBC implementation of {@link MutableAclService}.
@@ -60,27 +64,19 @@ import org.springframework.util.Assert;
  */
 public class JdbcMutableAclService extends JdbcAclService implements MutableAclService {
     //~ Instance fields ================================================================================================
-
+	
     private boolean foreignKeysInDatabase = true;
     private final AclCache aclCache;
     private String deleteEntryByObjectIdentityForeignKey = "delete from " + TableNames.TABLE_ENTRY + " where acl_object_identity=?";
     private String deleteObjectIdentityByPrimaryKey = "delete from " + TableNames.TABLE_OBJECT_IDENTITY + " where id=?";
-    // Original
-    //private String classIdentityQuery = "call identity()";
-    //private String sidIdentityQuery = "call identity()";
-    // Oracle
-    private String classIdentityQuery = "SELECT " + TableNames.SEQUENCE_CLASS + ".CURRVAL FROM DUAL";
-    private String sidIdentityQuery = "SELECT " + TableNames.SEQUENCE_SID + ".CURRVAL FROM DUAL";
-    // PostgreSQL
-    //private String classIdentityQuery = "select currval(pg_get_serial_sequence('acl_class', 'id'))";
-    //private String sidIdentityQuery = "select currval(pg_get_serial_sequence('acl_sid', 'id'))";
-    private String insertClass = "insert into " + TableNames.TABLE_CLASS + " (class) values (?)";
-    private String insertEntry = "insert into " + TableNames.TABLE_ENTRY + " "
-        + "(acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)"
-        + "values (?, ?, ?, ?, ?, ?, ?)";
-    private String insertObjectIdentity = "insert into " + TableNames.TABLE_OBJECT_IDENTITY + " "
-        + "(object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "values (?, ?, ?, ?)";
-    private String insertSid = "insert into " + TableNames.TABLE_SID + " (principal, sid) values (?, ?)";
+
+    private String classIdentityQuery;
+    private String sidIdentityQuery;
+    private String insertSid;
+    private String insertClass;
+    private String insertObjectIdentity;
+    private String insertEntry;
+
     private String selectClassPrimaryKey = "select id from " + TableNames.TABLE_CLASS + " where class=?";
     private String selectObjectIdentityPrimaryKey = "select " + TableNames.TABLE_OBJECT_IDENTITY + ".id from " + TableNames.TABLE_OBJECT_IDENTITY + ", " + TableNames.TABLE_CLASS + " "
         + "where " + TableNames.TABLE_OBJECT_IDENTITY + ".object_id_class = " + TableNames.TABLE_CLASS + ".id and " + TableNames.TABLE_CLASS + ".class=? "
@@ -92,9 +88,34 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
     //~ Constructors ===================================================================================================
 
     public JdbcMutableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache) {
+    	
         super(dataSource, lookupStrategy);
         Assert.notNull(aclCache, "AclCache required");
         this.aclCache = aclCache;
+        
+        classIdentityQuery = "SELECT " + TableNames.SEQUENCE_CLASS + ".CURRVAL FROM DUAL";
+        sidIdentityQuery = "SELECT " + TableNames.SEQUENCE_SID + ".CURRVAL FROM DUAL";
+        insertSid = "insert into " + TableNames.TABLE_SID + " (principal, sid) values (?, ?)";
+        insertClass = "insert into " + TableNames.TABLE_CLASS + " (class) values (?)";
+        insertObjectIdentity = "insert into " + TableNames.TABLE_OBJECT_IDENTITY + " (object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "values (?, ?, ?, ?)";
+        insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (?, ?, ?, ?, ?, ?, ?)";        
+        
+        try {
+			Resource resource = new UrlResource(System.getProperty("es.caib.helium.properties.path"));
+			GlobalProperties gp = new GlobalProperties(resource);
+	        String dialecteBBDD = gp.getProperty("app.hibernate.dialect");
+	        
+	        if (dialecteBBDD!= null && "Postgre".indexOf(dialecteBBDD)!=-1) {
+	            classIdentityQuery = "SELECT currval('" + TableNames.SEQUENCE_CLASS + "')";
+	            sidIdentityQuery = "SELECT currval('" + TableNames.SEQUENCE_SID + "')";
+	            insertSid = "insert into " + TableNames.TABLE_SID + " (id, principal, sid) values (nextval('" + TableNames.SEQUENCE_SID + "'), ?, ?)";
+	            insertClass = "insert into " + TableNames.TABLE_CLASS + " (id, class) values (nextval('" + TableNames.SEQUENCE_CLASS + "'), ?)";
+	            insertObjectIdentity = "insert into " + TableNames.TABLE_OBJECT_IDENTITY + " (id, object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "values (nextval('" + TableNames.SEQUENCE_OBJECT_IDENTITY + "'), ?, ?, ?, ?)";
+	            insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (nextval('" + TableNames.SEQUENCE_ENTRY + "'), ?, ?, ?, ?, ?, ?, ?)";
+	        }
+        }catch (Exception ex) {
+        	ex.printStackTrace();
+        }
     }
 
     //~ Methods ========================================================================================================
