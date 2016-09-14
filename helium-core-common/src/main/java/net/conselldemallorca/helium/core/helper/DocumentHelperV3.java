@@ -45,6 +45,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDt
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -91,6 +92,8 @@ public class DocumentHelperV3 {
 	private PortasignaturesRepository portasignaturesRepository;
 	@Resource
 	private OpenOfficeUtils openOfficeUtils;
+	@Resource
+	private MessageHelper messageHelper;
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -223,6 +226,20 @@ public class DocumentHelperV3 {
 						vistaContingut,
 						extensioDesti);
 				resposta.setContingut(vistaContingut.toByteArray());
+			} catch (SistemaExternConversioDocumentException ex) {
+				logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+				throw new SistemaExternConversioDocumentException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						messageHelper.getMessage("error.document.conversio.externa"));
 			} catch (Exception ex) {
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 				throw SistemaExternException.tractarSistemaExternException(
@@ -1094,7 +1111,6 @@ public class DocumentHelperV3 {
 							if (document.getRegistreData() != null)
 								dataRegistre = df.format(document.getRegistreData());
 							String numeroRegistre = document.getRegistreNumero();
-							try {
 								getPdfUtils().estampar(
 										arxiuOrigenNom,
 										arxiuOrigenContingut,
@@ -1107,10 +1123,21 @@ public class DocumentHelperV3 {
 										document.isRegistreEntrada(),
 										vistaContingut,
 										extensioDesti);
-							} catch (Exception ex) {
-								throw ex;
-							}
 							dto.setVistaContingut(vistaContingut.toByteArray());
+						} catch (SistemaExternConversioDocumentException ex) {
+							logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + document.getCodiDocument() + "'", ex.getCause());
+							Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
+							throw new SistemaExternConversioDocumentException(
+									expedient.getEntorn().getId(),
+									expedient.getEntorn().getCodi(), 
+									expedient.getEntorn().getNom(), 
+									expedient.getId(), 
+									expedient.getTitol(), 
+									expedient.getNumero(), 
+									expedient.getTipus().getId(), 
+									expedient.getTipus().getCodi(), 
+									expedient.getTipus().getNom(), 
+									messageHelper.getMessage("error.document.conversio.externa"));
 						} catch (Exception ex) {
 							logger.error("No s'ha pogut generar la vista pel document '" + document.getCodiDocument() + "'", ex);
 							Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(document.getProcessInstanceId());
@@ -1572,7 +1599,7 @@ public class DocumentHelperV3 {
 									getExtensioVista(document)));
 					resultat.setContingut(baos.toByteArray());
 				} catch (Exception ex) {
-					throw SistemaExternException.tractarSistemaExternException(
+					throw new SistemaExternConversioDocumentException(
 							expedient.getEntorn().getId(),
 							expedient.getEntorn().getCodi(), 
 							expedient.getEntorn().getNom(), 
@@ -1582,8 +1609,7 @@ public class DocumentHelperV3 {
 							expedient.getTipus().getId(), 
 							expedient.getTipus().getCodi(), 
 							expedient.getTipus().getNom(), 
-							"Error en la conversió del document", 
-							ex);
+							messageHelper.getMessage("error.document.conversio.externa"));
 				}
 			}
 			return resultat;

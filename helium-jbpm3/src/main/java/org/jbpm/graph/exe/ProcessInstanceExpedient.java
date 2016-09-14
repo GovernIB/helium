@@ -34,7 +34,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private String geoReferencia;
 	private boolean anulat;
 	private String errorDesc;
-	private int errorsIntegs;
+	private boolean errorsIntegs;
 	private String processInstanceId;
 	private boolean ambRetroaccio;
 
@@ -124,10 +124,10 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	public void setErrorDesc(String errorDesc) {
 		this.errorDesc = errorDesc;
 	}
-	public int getErrorsIntegs() {
+	public boolean isErrorsIntegs() {
 		return errorsIntegs;
 	}
-	public void setErrorsIntegs(int errorsIntegs) {
+	public void setErrorsIntegs(boolean errorsIntegs) {
 		this.errorsIntegs = errorsIntegs;
 	}
 	public String getProcessInstanceId() {

@@ -52,14 +52,12 @@ public interface ExecucioMassivaExpedientRepository extends JpaRepository<Execuc
 			"			 from 	ExecucioMassiva " +
 			"			 where 	dataInici <= :ara " +
 			"					and dataFi is null) " +
-			"	and	e.dataFi is null " +
-			" order by e.ordre")
+			"	and	e.dataFi is null ")
 	public Long findExecucioMassivaExpedientId(@Param("ara") Date ara);
 	
 	@Query("select min(e.id) " +
 			"from	ExecucioMassivaExpedient e " +
 			"where	e.execucioMassiva.id = :nextMassiu " +
-			"   and	e.dataFi is null " +
-			" order by e.ordre")
+			"   and	e.dataFi is null ")
 	public Long findNextExecucioMassivaExpedient(@Param("nextMassiu") Long nextMassiu);
 }

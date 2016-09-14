@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
@@ -261,13 +262,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
-				expedientId,
-				processInstanceId,
-				documentStoreId);
-		if (arxiu != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		try {
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+		} catch (SistemaExternConversioDocumentException e) {
+			MissatgesHelper.error(request, e.getPublicMessage());
 		}
 		return "arxiuView";
 	}
@@ -436,6 +441,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long documentId,
 			Model model) {
+<<<<<<< HEAD
 		ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
 					expedientId,
 					documentId);
@@ -445,6 +451,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute(
 				ArxiuView.MODEL_ATTRIBUTE_DATA,
 				arxiu.getContingut());
+=======
+		try {
+			ArxiuDto arxiu = expedientService.getArxiuPerDocument(
+						expedientId,
+						documentId);
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+					arxiu.getNom());
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					arxiu.getContingut());
+		} catch (SistemaExternConversioDocumentException e) {
+			MissatgesHelper.error(request, e.getPublicMessage());
+		}
+>>>>>>> refs/heads/task_891-Millora_missatges_OF
 		return "arxiuView";
 	}*/
 

@@ -105,13 +105,13 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 			GlobalProperties gp = new GlobalProperties(resource);
 	        String dialecteBBDD = gp.getProperty("app.hibernate.dialect");
 	        
-	        if (dialecteBBDD!= null && "Postgre".indexOf(dialecteBBDD)!=-1) {
-	            classIdentityQuery = "SELECT currval('" + TableNames.SEQUENCE_CLASS + "')";
-	            sidIdentityQuery = "SELECT currval('" + TableNames.SEQUENCE_SID + "')";
-	            insertSid = "insert into " + TableNames.TABLE_SID + " (id, principal, sid) values (nextval('" + TableNames.SEQUENCE_SID + "'), ?, ?)";
-	            insertClass = "insert into " + TableNames.TABLE_CLASS + " (id, class) values (nextval('" + TableNames.SEQUENCE_CLASS + "'), ?)";
-	            insertObjectIdentity = "insert into " + TableNames.TABLE_OBJECT_IDENTITY + " (id, object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "values (nextval('" + TableNames.SEQUENCE_OBJECT_IDENTITY + "'), ?, ?, ?, ?)";
-	            insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (nextval('" + TableNames.SEQUENCE_ENTRY + "'), ?, ?, ?, ?, ?, ?, ?)";
+	        if (dialecteBBDD != null && dialecteBBDD.indexOf("Postgre") != -1) {
+	            classIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_CLASS + "', 'id'))";
+	            sidIdentityQuery = "SELECT currval(pg_get_serial_sequence('" + TableNames.TABLE_SID + "', 'id'))";
+	            insertSid = "insert into " + TableNames.TABLE_SID + " (id, principal, sid) values (nextval(pg_get_serial_sequence('" + TableNames.TABLE_SID + "', 'id')), ?, ?)";
+	            insertClass = "insert into " + TableNames.TABLE_CLASS + " (id, class) values (nextval(pg_get_serial_sequence('" + TableNames.TABLE_CLASS + "', 'id')), ?)";
+	            insertObjectIdentity = "insert into " + TableNames.TABLE_OBJECT_IDENTITY + " (id, object_id_class, object_id_identity, owner_sid, entries_inheriting) " + "values (nextval(pg_get_serial_sequence('" + TableNames.TABLE_OBJECT_IDENTITY + "', 'id')), ?, ?, ?, ?)";
+	            insertEntry = "insert into " + TableNames.TABLE_ENTRY + " (id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure) values (nextval(pg_get_serial_sequence('" + TableNames.TABLE_ENTRY + "', 'id')), ?, ?, ?, ?, ?, ?, ?)";
 	        }
         }catch (Exception ex) {
         	ex.printStackTrace();

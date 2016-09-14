@@ -14,7 +14,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 public class SistemaExternException extends HeliumException {
 
 	private String sistemaExtern;
-	private String publicMessage;
+	protected String publicMessage;
 	
 	public SistemaExternException(
 			Long entornId,
@@ -37,10 +37,10 @@ public class SistemaExternException extends HeliumException {
 				expedientTipusId,
 				expedientTipusCodi,
 				expedientTipusNom,
-				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + ExceptionUtils.getRootCauseMessage(cause),
+				"Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + ExceptionUtils.getRootCauseMessage(cause),
 				cause);
 		this.sistemaExtern = sistemaExtern;
-		this.publicMessage = "Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + ExceptionUtils.getRootCauseMessage(cause);
+		this.publicMessage = "Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + ExceptionUtils.getRootCauseMessage(cause);
 	}
 	
 	public SistemaExternException(
@@ -64,10 +64,14 @@ public class SistemaExternException extends HeliumException {
 				expedientTipusId,
 				expedientTipusCodi,
 				expedientTipusNom,
-				"Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + causa,
+				"Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + causa,
 				null);
 		this.sistemaExtern = sistemaExtern;
-		this.publicMessage = "Error en la comunicació amb el sistema extern " + sistemaExtern + ": " + causa;
+		this.publicMessage = "Error en la comunicació amb el sistema extern '" + sistemaExtern + "': " + causa;
+	}
+	
+	public SistemaExternException(Throwable cause) {
+		super(cause);
 	}
 	
 	public static SistemaExternException tractarSistemaExternException(

@@ -381,7 +381,9 @@ public class TascaHelper {
 			if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0) {
 				List<String> campsExpressio = getCampsExpressioTitol(tasca.getNomScript());
 				Map<String, Object> valors = jbpmHelper.getTaskInstanceVariables(task.getId());
-				valors.putAll(jbpmHelper.getProcessInstanceVariables(task.getProcessInstanceId()));
+				Map<String, Object> procesInstanceVariables = jbpmHelper.getProcessInstanceVariables(task.getProcessInstanceId());
+				if (procesInstanceVariables != null)
+					valors.putAll(procesInstanceVariables);
 				for (String campCodi: campsExpressio) {
 					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient.getTipus();
