@@ -12,6 +12,14 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -26,12 +34,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.IndexacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-
-import org.springframework.stereotype.Service;
-
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 
 /**
  * Utilitats comunes pels serveis
@@ -253,6 +255,15 @@ public class IndexHelper {
 					mapValorsDomini,
 					isExpedientFinalitzat);
 		} catch (Exception ex) {
+			if (ex instanceof NullPointerException) {
+				System.out.println("###===> ERROR REINDEXACIO NULLPOINTEREXCEPTION <===###");
+				ex.printStackTrace();
+				System.out.println("###================================================###");
+				
+				logger.error("###===> ERROR REINDEXACIO NULLPOINTEREXCEPTION <===###");
+				logger.error("Traça detallada: ", ex);
+				logger.error("###================================================###");
+			}
 			throw new IndexacioException("Update Indexació", ex);
 		} finally {
 			if (perTasca) {
@@ -565,4 +576,5 @@ public class IndexHelper {
 		}
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(IndexHelper.class);
 }
