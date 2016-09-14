@@ -20,6 +20,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfStamper;
 
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+
 /**
  * Classe per converir documents a PDF.
  * 
@@ -59,12 +61,22 @@ public class PdfUtils {
 		ByteArrayOutputStream outputConversio = null;
 		if (!outputExtension.equalsIgnoreCase(extensioOrigen)) {
 			if (isArxiuConvertiblePdf(arxiuNom)) {
-				outputConversio = new ByteArrayOutputStream();
-				getOpenOfficeUtils().convertir(
-						arxiuNom,
-						arxiuContingut,
-						outputExtension,
-						outputConversio);
+				try {
+					outputConversio = new ByteArrayOutputStream();
+					getOpenOfficeUtils().convertir(
+							arxiuNom,
+							arxiuContingut,
+							outputExtension,
+							outputConversio);
+				} catch (Exception ex) {
+					/**
+					 * Retornem una SistemaExternOpenOfficeException buida, només amb
+					 * l'excepció original per tal que els mètodes que criden aquesta
+					 * funció puguin distingir quin tipus d'error hi ha hagut
+					 * (pdf o openoffice)
+					 */
+					throw new SistemaExternConversioDocumentException(ex);
+				}
 			} else {
 				throw new Exception("L'arxiu '" + arxiuNom + "' no es pot convertir a format PDF");
 			}

@@ -55,6 +55,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
@@ -657,6 +658,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 				logger.error("Error generant el document " + docId);
 				return documentModificarGet(request, docId, inici, correu, model);
 			} 
+		} catch (SistemaExternConversioDocumentException ex) {
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getPublicMessage());
+			logger.error("Error generant el document " + docId, ex);
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
 			logger.error("Error generant el document " + docId, ex);

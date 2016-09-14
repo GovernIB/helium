@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -1151,6 +1152,11 @@ public class TascaTramitacioController extends BaseTascaController {
 	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
 	        					ex.getPublicMessage());
 				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
+			} catch (SistemaExternException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.finalitzar.tasca") + " : " + ex.getPublicMessage());
+				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
 			} catch (Exception ex) {
 				MissatgesHelper.error(
 	        			request,
@@ -1188,6 +1194,11 @@ public class TascaTramitacioController extends BaseTascaController {
 	        			request,
 	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
 	        					ex.getPublicMessage());
+				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
+			} catch (SistemaExternException ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.finalitzar.tasca") + " : " + ex.getPublicMessage());
 				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
 			} catch (Exception ex) {
 				MissatgesHelper.error(
@@ -1377,6 +1388,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.success(
 						request,
 						getMessage(request, "info.tasca.massiu.document.generar", new Object[] {tascaIds.length}));
+			} catch (SistemaExternConversioDocumentException ex) {
+				MissatgesHelper.error(request, getMessage(request, "error.no.massiu") + " : " + ex.getPublicMessage());
+				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
 				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
@@ -1387,13 +1401,18 @@ public class TascaTramitacioController extends BaseTascaController {
 						tascaId,
 						documentCodi);
 				MissatgesHelper.success(request, getMessage(request, "info.document.generat"));
-			} catch (Exception ex) {
-				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
+			} catch (SistemaExternConversioDocumentException ex) {
 				MissatgesHelper.error(
 	        			request,
-	        			getMessage(request, "error.generar.document") + " " + descripcioTasca + ": " + 
+	        			getMessage(request, "error.generar.document") + " : " + 
+	        					ex.getPublicMessage());
+				logger.error("No s'ha pogut generar el document '" + documentCodi + "' de la tasca '" + tascaId + "'", ex);
+			} catch (Exception ex) {
+				MissatgesHelper.error(
+	        			request,
+	        			getMessage(request, "error.generar.document") + " : " + 
 	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-				logger.error("No s'ha pogut generar el document " + tascaId, ex);
+				logger.error("No s'ha pogut generar el document '" + documentCodi + "' de la tasca '" + tascaId + "'", ex);
 			}
 		}
 		return generat;

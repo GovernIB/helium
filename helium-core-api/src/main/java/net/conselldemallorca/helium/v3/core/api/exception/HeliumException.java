@@ -18,6 +18,9 @@ public abstract class HeliumException extends RuntimeException {
 	public HeliumException() {
 		super();
 	}
+	public HeliumException(Throwable cause) {
+		super(cause);
+	}
 	public HeliumException(
 			String message,
 			Throwable cause) {

@@ -11,19 +11,6 @@ import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +35,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -129,11 +130,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getContingut());
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
-			logger.error("Error generant el document: " + documentCodi, ex);
+			if (ex instanceof SistemaExternConversioDocumentException) {
+				MissatgesHelper.error(
+						request, 
+						getMessage(request, "error.generar.document") + " : " + ((SistemaExternConversioDocumentException)ex).getPublicMessage());
+				logger.error("Error generant el document: " + documentCodi, ex);
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
+				logger.error("Error generant el document: " + documentCodi, ex);
+			}
 			Long documentStoreId = expedientService.findDocumentStorePerInstanciaProcesAndDocumentCodi(processInstanceId, documentCodi);
 			return "redirect:/modal/v3/expedient/" + expedientId + "/document/" + processInstanceId + "/" + documentStoreId + "/modificar";
-//			return modalUrlTancar(false);
 		} 
 		return "arxiuView";
 	}
@@ -330,10 +337,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
-		ArxiuDto arxiu = expedientService.getArxiuPerDocument(expedientId, documentStoreId);
-		if (arxiu != null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+		try {
+			ArxiuDto arxiu = expedientService.getArxiuPerDocument(expedientId, documentStoreId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+		} catch (SistemaExternConversioDocumentException e) {
+			MissatgesHelper.error(request, e.getPublicMessage());
 		}
 		return "arxiuView";
 	}
@@ -424,15 +435,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long documentId,
 			Model model) {
-		ArxiuDto arxiu = expedientService.getArxiuPerDocument(
-					expedientId,
-					documentId);
-		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_FILENAME,
-				arxiu.getNom());
-		model.addAttribute(
-				ArxiuView.MODEL_ATTRIBUTE_DATA,
-				arxiu.getContingut());
+		try {
+			ArxiuDto arxiu = expedientService.getArxiuPerDocument(
+						expedientId,
+						documentId);
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_FILENAME,
+					arxiu.getNom());
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					arxiu.getContingut());
+		} catch (SistemaExternConversioDocumentException e) {
+			MissatgesHelper.error(request, e.getPublicMessage());
+		}
 		return "arxiuView";
 	}
 
