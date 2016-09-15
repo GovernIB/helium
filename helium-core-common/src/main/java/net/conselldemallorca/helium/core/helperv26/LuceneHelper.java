@@ -1068,12 +1068,12 @@ public class LuceneHelper extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
 			return new BigDecimal(valor);
 		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {
-			String[] parts = valor.split("/");
+			/*String[] parts = valor.split("/");
 			Termini term = new Termini();
 			term.setAnys(Integer.parseInt(parts[0]));
 			term.setMesos(Integer.parseInt(parts[0]));
-			term.setDies(Integer.parseInt(parts[0]));
-			return term;
+			term.setDies(Integer.parseInt(parts[0]));*/
+			return valor;
 		} else if (camp.getTipus().equals(TipusCamp.SELECCIO)) {
 			return (String) valor;
 		} else if (camp.getTipus().equals(TipusCamp.SUGGEST)) {
