@@ -240,7 +240,9 @@ CREATE TABLE HEL_CONSULTA_CAMP
   DEFPROC_VERSIO   BIGINT,
   ORDRE            BIGINT                   NOT NULL,
   TIPUS            BIGINT                   NOT NULL,
-  CONSULTA_ID      BIGINT                   NOT NULL
+  CONSULTA_ID      BIGINT                   NOT NULL,
+  PARAM_TIPUS 	   BIGINT,
+  CAMP_DESCRIPCIO  VARCHAR(255)
 );
 
 

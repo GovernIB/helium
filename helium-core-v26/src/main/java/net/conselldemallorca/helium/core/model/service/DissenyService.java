@@ -2411,42 +2411,46 @@ public class DissenyService {
 	private DefinicioProcesDto toDto(
 			DefinicioProces definicioProces,
 			boolean ambTascaInicial) {
-		DefinicioProcesDto dto = new DefinicioProcesDto();
-		dto.setId(definicioProces.getId());
-		dto.setJbpmId(definicioProces.getJbpmId());
-		dto.setJbpmKey(definicioProces.getJbpmKey());
-		dto.setVersio(definicioProces.getVersio());
-		dto.setEtiqueta(definicioProces.getEtiqueta());
-		dto.setDataCreacio(definicioProces.getDataCreacio());
-		dto.setEntorn(definicioProces.getEntorn());
-		dto.setExpedientTipus(definicioProces.getExpedientTipus());
-		JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
-		if (jpd != null)
-			dto.setJbpmName(jpd.getName());
-		else
-			dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
-
-		List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
-				definicioProces.getEntorn().getId(),
-				definicioProces.getJbpmKey());
-		dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
-		dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
-		for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-			dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
-			dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
-			dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
-		}
-		if (ambTascaInicial) {
-			dto.setHasStartTask(hasStartTask(definicioProces));
-			dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
-			dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+		if (definicioProces != null) {
+			DefinicioProcesDto dto = new DefinicioProcesDto();
+			dto.setId(definicioProces.getId());
+			dto.setJbpmId(definicioProces.getJbpmId());
+			dto.setJbpmKey(definicioProces.getJbpmKey());
+			dto.setVersio(definicioProces.getVersio());
+			dto.setEtiqueta(definicioProces.getEtiqueta());
+			dto.setDataCreacio(definicioProces.getDataCreacio());
+			dto.setEntorn(definicioProces.getEntorn());
+			dto.setExpedientTipus(definicioProces.getExpedientTipus());
+			JbpmProcessDefinition jpd = jbpmDao.getProcessDefinition(definicioProces.getJbpmId());
+			if (jpd != null)
+				dto.setJbpmName(jpd.getName());
+			else
+				dto.setJbpmName("[" + definicioProces.getJbpmKey() + "]");
+	
+			List<DefinicioProces> mateixaKeyIEntorn = definicioProcesDao.findAmbEntornIJbpmKey(
+					definicioProces.getEntorn().getId(),
+					definicioProces.getJbpmKey());
+			dto.setIdsWithSameKey(new Long[mateixaKeyIEntorn.size()]);
+			dto.setIdsMostrarWithSameKey(new String[mateixaKeyIEntorn.size()]);
+			dto.setJbpmIdsWithSameKey(new String[mateixaKeyIEntorn.size()]);
 			for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
-				dto.getHasStartTaskWithSameKey()[i] = new Boolean(
-						hasStartTask(mateixaKeyIEntorn.get(i)));
+				dto.getIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getId();
+				dto.getIdsMostrarWithSameKey()[i] = mateixaKeyIEntorn.get(i).getIdPerMostrar();
+				dto.getJbpmIdsWithSameKey()[i] = mateixaKeyIEntorn.get(i).getJbpmId();
 			}
+			if (ambTascaInicial) {
+				dto.setHasStartTask(hasStartTask(definicioProces));
+				dto.setStartTaskName(jbpmDao.getStartTaskName(definicioProces.getJbpmId()));
+				dto.setHasStartTaskWithSameKey(new Boolean[mateixaKeyIEntorn.size()]);
+				for (int i = 0; i < mateixaKeyIEntorn.size(); i++) {
+					dto.getHasStartTaskWithSameKey()[i] = new Boolean(
+							hasStartTask(mateixaKeyIEntorn.get(i)));
+				}
+			}
+			return dto;
+		} else {
+			return null;
 		}
-		return dto;
 	}
 	private boolean hasStartTask(DefinicioProces definicioProces) {
 		Long definicioProcesId = definicioProces.getId();

@@ -240,7 +240,9 @@ CREATE TABLE HEL_CONSULTA_CAMP
   DEFPROC_VERSIO   NUMBER(10),
   ORDRE            NUMBER(10)                   NOT NULL,
   TIPUS            NUMBER(10)                   NOT NULL,
-  CONSULTA_ID      NUMBER(19)                   NOT NULL
+  CONSULTA_ID      NUMBER(19)                   NOT NULL,
+  PARAM_TIPUS 	   NUMBER(10),
+  CAMP_DESCRIPCIO  VARCHAR2(255)
 );
 
 
