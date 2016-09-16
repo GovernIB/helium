@@ -67,6 +67,8 @@
 		
 		<fieldset id="dadesAccio" class="dades accio" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
+			<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.camp.form.camp.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.camp.form.camp.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+			<hel:inputText required="true" name="jbpmAction" textKey="expedient.tipus.camp.form.camp.jbpmAction" />
 		</fieldset>
 		
 		<div id="modal-botons" class="well">

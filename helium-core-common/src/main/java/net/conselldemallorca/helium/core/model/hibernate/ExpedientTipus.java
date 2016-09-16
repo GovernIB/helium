@@ -373,7 +373,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		this.entorn = entorn;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
 	@OrderBy("ordre asc")
 	@Fetch(value = FetchMode.SUBSELECT)
 	public List<Estat> getEstats() {
@@ -432,7 +432,7 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 		getDefinicionsProces().remove(definicioProces);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
 	@Fetch(value = FetchMode.SUBSELECT)
 	@OrderBy("ordre asc")
 	public Set<Consulta> getConsultes() {

@@ -26,8 +26,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesImportarCommand;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesImportarCommand.Importar;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesIncorporarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDefinicioProcesIncorporarCommand.Incorporar;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -116,39 +116,39 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 	}
 	
 
-	/** Mètode per importar cap al tipus d'expedient la informació d'una definició de procés. */
-	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/importar", method = RequestMethod.GET)
-	public String importar(
+	/** Mètode per incorporar cap al tipus d'expedient la informació d'una definició de procés. */
+	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/incorporar", method = RequestMethod.GET)
+	public String incorporar(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
 
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDefinicioProcesImportarCommand command = new ExpedientTipusDefinicioProcesImportarCommand();
+		ExpedientTipusDefinicioProcesIncorporarCommand command = new ExpedientTipusDefinicioProcesIncorporarCommand();
 		command.setSobreescriure(false);
 		model.addAttribute("expedientTipusDefinicioProcesImportarCommand", command);
 		model.addAttribute("versions", obtenirParellesVersions(entornActual.getId(), id));
 
-		return "v3/expedientTipusDefinicioProcesImportarForm";
+		return "v3/expedientTipusDefinicioProcesIncorporarForm";
 	}
 			
-	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/importar", method = RequestMethod.POST)
-	public String importarPost(
+	@RequestMapping(value = "/{expedientTipusId}/definicionsProces/{id}/incorporar", method = RequestMethod.POST)
+	public String incorporarPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
-			@Validated(Importar.class) ExpedientTipusDefinicioProcesImportarCommand command,
+			@Validated(Incorporar.class) ExpedientTipusDefinicioProcesIncorporarCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		model.addAttribute("versions", obtenirParellesVersions(entornActual.getId(), id));
-        	return "v3/expedientTipusDefinicioProcesImportarForm";
+        	return "v3/expedientTipusDefinicioProcesIncorporarForm";
         } else {
         	if (command.getDefinicioProcesId() == null)
         		command.setDefinicioProcesId(id);
-        	if (expedientTipusService.definicioProcesImportar(
+        	if (expedientTipusService.definicioProcesIncorporar(
         			expedientTipusId, 
         			command.getDefinicioProcesId(),
         			command.isSobreescriure()))
@@ -156,13 +156,13 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 						request, 
 						getMessage(
 								request, 
-								"expedient.tipus.definicioProces.llistat.definicioProces.importar.correcte"));
+								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.correcte"));
         	else
 	    		MissatgesHelper.error(
 						request, 
 						getMessage(
 								request, 
-								"expedient.tipus.definicioProces.llistat.definicioProces.importar.error"));
+								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error"));
 			return modalUrlTancar(false);
 			
         }

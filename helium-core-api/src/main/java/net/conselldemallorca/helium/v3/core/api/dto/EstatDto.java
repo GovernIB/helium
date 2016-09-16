@@ -18,7 +18,7 @@ public class EstatDto implements Serializable {
 	private Long id;
 	private String codi;
 	private String nom;
-	
+
 	public EstatDto(Long id, String codi, String nom) {
 		super();
 		this.id = id;
@@ -47,5 +47,4 @@ public class EstatDto implements Serializable {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-
 }

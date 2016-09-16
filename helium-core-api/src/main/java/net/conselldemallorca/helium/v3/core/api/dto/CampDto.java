@@ -53,6 +53,10 @@ public class CampDto implements Serializable {
 	private String consultaCampText;
 	private String consultaCampValor;
 	
+	// Dades de la acció
+	private String defprocJbpmKey;
+	private String jbpmAction;
+	
 	boolean dominiCacheText;
 
 	/** Ordre dins la agrupació. */
@@ -299,6 +303,18 @@ public class CampDto implements Serializable {
 	}
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
 	}
 	public boolean isDominiCacheText() {
 		return dominiCacheText;

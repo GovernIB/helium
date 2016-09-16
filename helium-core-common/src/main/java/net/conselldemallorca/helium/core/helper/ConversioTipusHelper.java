@@ -128,6 +128,10 @@ public class ConversioTipusHelper {
 						target.setConsultaCampValor(source.getConsultaCampValor());
 						target.setConsultaCampText(source.getConsultaCampText());
 						
+						// Dades accio
+						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
+						target.setJbpmAction(source.getJbpmAction());
+						
 						target.setDominiCacheText(source.isDominiCacheText());
 						
 						target.setOrdre(source.getOrdre());

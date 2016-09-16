@@ -47,4 +47,14 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);	
+	
+	@Query("select t from " +
+			"    Termini t " +
+			"where " +
+			"    t.expedientTipus.id=:expedientTipusId " +
+			"order by " +
+			"    codi")
+	
+	List<Termini> findAmbExpedientTipus(
+			@Param("expedientTipusId") Long expedientTipusId);	
 }

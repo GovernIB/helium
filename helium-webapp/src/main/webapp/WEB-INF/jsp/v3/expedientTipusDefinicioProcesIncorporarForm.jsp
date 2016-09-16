@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title><spring:message code="expedient.tipus.definicioProces.importar.titol"/></title>
+	<title><spring:message code="expedient.tipus.definicioProces.incorporar.titol"/></title>
 	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
@@ -21,14 +21,14 @@
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDefinicioProcesImportarCommand">
 		<div>        
-			<hel:inputSelect name="definicioProcesId" required="false" emptyOption="true" textKey="expedient.tipus.definicioProces.importar.versio" placeholderKey="expedient.tipus.definicioProces.importar.versio.placeholder" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			<hel:inputCheckbox name="sobreescriure" textKey="expedient.tipus.definicioProces.importar.sobreescriure" />
+			<hel:inputSelect name="definicioProcesId" required="false" emptyOption="true" textKey="expedient.tipus.definicioProces.incorporar.versio" placeholderKey="expedient.tipus.definicioProces.incorporar.versio.placeholder" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+			<hel:inputCheckbox name="sobreescriure" textKey="expedient.tipus.definicioProces.incorporar.sobreescriure" />
 		</div>
 		
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
-			<button class="btn btn-primary right" type="submit" name="accio" value="importar">
-				<span class="fa fa-download"></span> <spring:message code='expedient.tipus.definicioProces.importar.accio.importar' />
+			<button class="btn btn-primary right" type="submit" name="accio" value="incorporar">
+				<span class="fa fa-download"></span> <spring:message code='expedient.tipus.definicioProces.incorporar.accio.incorporar' />
 			</button>	
 		</div>
 		<div style="height: 200px;">

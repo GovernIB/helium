@@ -7,7 +7,7 @@ package net.conselldemallorca.helium.webapp.v3.command;
  * Command per importar la informació d'una definició de procés dins
  * del llistat de definicios al disseny del tipus d'expedient. 
  */
-public class ExpedientTipusDefinicioProcesImportarCommand {
+public class ExpedientTipusDefinicioProcesIncorporarCommand {
 	
 	private Long definicioProcesId;
 	private boolean sobreescriure;
@@ -25,5 +25,5 @@ public class ExpedientTipusDefinicioProcesImportarCommand {
 		this.sobreescriure = sobreescriure;
 	}
 	
-	public interface Importar {}
+	public interface Incorporar {}
 }

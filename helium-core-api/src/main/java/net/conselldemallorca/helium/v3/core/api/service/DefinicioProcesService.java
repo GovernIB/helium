@@ -65,6 +65,15 @@ public interface DefinicioProcesService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
 	/** 
+	 * Retorna la llista de tasques per a una definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 * 
+	 * @return La llista de tasques de la definició de procés.
+	 */
+	public List<TascaDto> tascaFindAll(Long definicioProcesId);
+	
+	/** 
 	 * Retorna la tasca de la definició de procés donat el seu identificador.
 	 * 
 	 * @param id

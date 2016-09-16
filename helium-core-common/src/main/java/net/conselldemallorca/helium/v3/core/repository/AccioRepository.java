@@ -40,6 +40,12 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
-			Pageable pageable);	
+			Pageable pageable);
+
+	@Query("select a "
+			+ "from Accio a "
+			+ "where a.expedientTipus.id = :expedientTipusId "
+			+ "order by a.codi")
+	public List<Accio> findAmbExpedientTipus(@Param("expedientTipusId")Long expedientTipusId);	
 
 }

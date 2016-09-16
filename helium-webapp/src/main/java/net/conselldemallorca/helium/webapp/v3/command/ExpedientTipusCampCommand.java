@@ -70,6 +70,14 @@ public class ExpedientTipusCampCommand {
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
 	private String consultaCampValor;
 	
+	// Dades de la acció
+	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String defprocJbpmKey;
+	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String jbpmAction;
+	
 	boolean dominiCacheText;
 
 
@@ -201,6 +209,18 @@ public class ExpedientTipusCampCommand {
 	public void setConsultaCampValor(String consultaCampValor) {
 		this.consultaCampValor = consultaCampValor;
 	}
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
+	}
+	public String getJbpmAction() {
+		return jbpmAction;
+	}
+	public void setJbpmAction(String jbpmAction) {
+		this.jbpmAction = jbpmAction;
+	}
 	public boolean isDominiCacheText() {
 		return dominiCacheText;
 	}
@@ -252,6 +272,10 @@ public class ExpedientTipusCampCommand {
 		dto.setConsultaParams(command.getConsultaParams());
 		dto.setConsultaCampText(command.getConsultaCampText());
 		dto.setConsultaCampValor(command.getConsultaCampValor());
+		
+		// Dades de la acció
+		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
+		dto.setJbpmAction(command.getJbpmAction());
 		
 		dto.setDominiCacheText(command.isDominiCacheText());		
 		

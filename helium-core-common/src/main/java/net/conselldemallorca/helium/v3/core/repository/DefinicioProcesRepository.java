@@ -190,4 +190,10 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	List<Long> findIdsAmbExpedientTipusIJbpmIds(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("jbpmIds") Collection<String> jbpmIds);
+
+	@Query("from DefinicioProces dp " +
+			"where dp.expedientTipus.id = :expedientTipusId " +
+			"order by dp.etiqueta")
+	List<DefinicioProces> findAmbExpedientTipus(
+			@Param("expedientTipusId") Long expedientTipusId);	
 }

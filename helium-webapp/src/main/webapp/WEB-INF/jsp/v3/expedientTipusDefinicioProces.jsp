@@ -50,7 +50,7 @@
 							<ul class="dropdown-menu">
 								<li><a href="../definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
 								<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
-								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/importar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.importar"/></a></li>
+								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
 								{{if expedientTipus != null}}
 									<li><a class="btn-delete" href="${expedientTipus.id}/definicionsProces/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
 								{{/if}}
@@ -112,8 +112,8 @@ $(document).ready(function() {
 			return false;
 		});
 
-		// Botó per importar la informació de la definició de procés
-		$("#expedientTipusDefinicioProces a.btn-importar").click(function(e) {
+		// Botó per incorporar la informació de la definició de procés
+		$("#expedientTipusDefinicioProces a.btn-incorporar").click(function(e) {
 			var $a = $(this);
 			var getUrl = $a.attr('href');
 			$.ajax({

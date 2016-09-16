@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,9 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class DefinicioProcesDto {
+public class DefinicioProcesDto implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private Long id;
 	private EntornDto entorn;

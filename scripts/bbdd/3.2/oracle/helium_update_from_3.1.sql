@@ -26,6 +26,7 @@ WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 310) = 0;
 -- Crea les noves columnes
 ALTER TABLE HEL_EXPEDIENT_TIPUS ADD AMB_INFO_PROPIA NUMBER(1) DEFAULT 0 NOT NULL;
 ALTER TABLE HEL_CAMP 		ADD EXPEDIENT_TIPUS_ID NUMBER(19,0);
+ALTER TABLE HEL_CAMP		ADD DEFPROC_JBPMKEY  VARCHAR2(255 CHAR);
 ALTER TABLE HEL_CAMP_AGRUP 	ADD EXPEDIENT_TIPUS_ID NUMBER(19,0);
 ALTER TABLE HEL_DOCUMENT 	ADD EXPEDIENT_TIPUS_ID NUMBER(19,0);
 ALTER TABLE HEL_TERMINI 	ADD EXPEDIENT_TIPUS_ID NUMBER(19,0);
@@ -105,3 +106,41 @@ ALTER TABLE HEL_CONSULTA_CAMP ADD ( CONSTRAINT HEL_CAMP_CONCAMP_FK FOREIGN KEY (
 
 
 
+--------------------------------------------------------
+-- 8889 Millores en el procés d'importació de tipus d'expedients
+--------------------------------------------------------
+
+-- Esborra la restricció de clau única [id entorn - codi] del comini i hi afegeix la clau [id entorn, id tipus expedient, codi]
+DECLARE
+ PROCEDURE Borra_unique(p_tab VARCHAR2) IS
+  src_cur pls_integer;
+  src_rows  pls_integer;
+  v_sql VARCHAR2(1000);
+  CURSOR cur_rest IS
+           
+	SELECT UQ.CONSTRAINT_NAME nom
+	FROM USER_CONSTRAINTS UQ
+	    INNER JOIN USER_CONS_COLUMNS C1 ON C1.CONSTRAINT_NAME = UQ.CONSTRAINT_NAME
+	    INNER JOIN USER_CONS_COLUMNS C2 ON C2.CONSTRAINT_NAME = UQ.CONSTRAINT_NAME
+	WHERE
+	    UQ.TABLE_NAME = UPPER(p_tab)    
+	    AND C1.column_name LIKE UPPER('CODI')
+	    AND C2.column_name LIKE UPPER('ENTORN_ID');
+    
+ BEGIN
+  FOR i IN cur_rest LOOP
+      src_cur := DBMS_SQL.OPEN_CURSOR;
+       v_sql := 'ALTER TABLE ' || p_tab || ' DROP CONSTRAINT ' || i.nom ;
+       DBMS_SQL.PARSE(src_cur, v_sql, 2 );     -- Desactivar la restricción
+       src_rows := DBMS_SQL.EXECUTE(src_cur);
+       DBMS_SQL.CLOSE_CURSOR(src_cur); -- Cerrar el cursor
+  END LOOP;
+ END;
+BEGIN
+ Borra_unique('HEL_DOMINI');
+ Borra_unique('HEL_CONSULTA');
+END;
+
+-- Afegeix les constraints úniques de 3 camps
+ALTER TABLE HEL_DOMINI 		ADD UNIQUE (CODI, ENTORN_ID, EXPEDIENT_TIPUS_ID);
+ALTER TABLE HEL_CONSULTA		ADD UNIQUE (CODI, ENTORN_ID, EXPEDIENT_TIPUS_ID);

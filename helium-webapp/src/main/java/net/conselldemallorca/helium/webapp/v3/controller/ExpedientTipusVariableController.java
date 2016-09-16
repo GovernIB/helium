@@ -98,12 +98,14 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusCampCommand command = new ExpedientTipusCampCommand();
 		command.setAgrupacioId(agrupacioId);
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("expedientTipusCampCommand", command);
 		this.omplirModelVariableForm(
 				request, 
+				entornActual.getId(),
 				expedientTipusId, 
 				model);
 		return "v3/expedientTipusVariableForm";
@@ -116,8 +118,10 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		this.omplirModelVariableForm(
     				request, 
+    				entornActual.getId(),
     				expedientTipusId, 
     				model);
         	return "v3/expedientTipusVariableForm";
@@ -141,6 +145,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		CampDto dto = expedientTipusService.campFindAmbId(id);
 		ExpedientTipusCampCommand command = conversioTipusHelper.convertir(
 				dto,
@@ -153,6 +158,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		model.addAttribute("expedientTipusCampCommand", command);
 		this.omplirModelVariableForm(
 				request, 
+				entornActual.getId(),
 				expedientTipusId, 
 				model);
 		return "v3/expedientTipusVariableForm";
@@ -166,8 +172,10 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		this.omplirModelVariableForm(
     				request, 
+    				entornActual.getId(),
     				expedientTipusId, 
     				model);
         	return "v3/expedientTipusVariableForm";
@@ -583,6 +591,7 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 	
 	private void omplirModelVariableForm(
 			HttpServletRequest request,
+			Long entornId,
 			Long expedientTipusId,
 			Model model) {
 		
@@ -608,8 +617,12 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 		// Consultes
 		model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
 		
-		//accionsJbpm
-		//TODO: encara falta pensar com es lligaran 		
+		//Accions
+		model.addAttribute("definicionsProces", 
+				expedientTipusService.definicioProcesFindJbjmKey(
+						entornId, 
+						expedientTipusId, 
+						true));
 	}
 		
 	// Mètodes pel manteniment dels camps de variables de tipus registre

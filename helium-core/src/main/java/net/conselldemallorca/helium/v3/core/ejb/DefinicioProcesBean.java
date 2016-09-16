@@ -68,6 +68,12 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TascaDto> tascaFindAll(Long definicioProcesId) {
+		return delegate.tascaFindAll(definicioProcesId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TascaDto tascaUpdate(TascaDto tasca) throws NoTrobatException, PermisDenegatException {
 		return delegate.tascaUpdate(tasca);
 	}

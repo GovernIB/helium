@@ -154,6 +154,23 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				TascaDto.class);
 		return pagina;		
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<TascaDto> tascaFindAll(
+			Long definicioProcesId) {
+		logger.debug(
+				"Consultant totes les tasques de la definicio de procés(" +
+				"definicioProcesId=" + definicioProcesId + ")");
+								
+		return conversioTipusHelper.convertirList(
+				tascaRepository.findByDefinicioProcesIdOrderByNomAsc(
+						definicioProcesId), 
+				TascaDto.class);
+	}
 
 	@Override
 	@Transactional(readOnly = true)

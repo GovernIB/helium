@@ -47,11 +47,20 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 		}
 		if (camp.getTipus() != null) {
 				if (camp.getTipus().equals(CampTipusDto.ACCIO)) {
-					context.buildConstraintViolationWithTemplate(
-							"Per al tipus ACCIO és obligatori un nom de handler")
-							.addNode("tipus")
-							.addConstraintViolation();	
-					valid = false;
+					if(camp.getDefprocJbpmKey() == null || "".equals(camp.getDefprocJbpmKey().trim())) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage("NotEmpty", null))
+								.addNode("defprocJbpmKey")
+								.addConstraintViolation();	
+						valid = false;								
+					}
+					if(camp.getJbpmAction() == null || "".equals(camp.getJbpmAction().trim())) {
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage("NotEmpty", null))
+								.addNode("jbpmAction")
+								.addConstraintViolation();	
+						valid = false;								
+					}
 				}
 				if (camp.getTipus().equals(CampTipusDto.SELECCIO) || camp.getTipus().equals(CampTipusDto.SUGGEST)) {
 					if ((camp.getDominiId() == null 
@@ -102,6 +111,9 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 					}
 				}
 		}
+		if (!valid)
+			context.disableDefaultConstraintViolation();
+		
 		return valid;
 	}
 

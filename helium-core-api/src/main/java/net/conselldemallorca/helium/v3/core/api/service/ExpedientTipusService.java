@@ -30,7 +30,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;;
 
 /**
  * Servei per al manteniment de tipus d'expedient.
@@ -142,6 +144,34 @@ public interface ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
+	
+	/**
+	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
+	 * segons l'objecte DTO de la comanda d'exportació.
+	 * @param command Objecte amb la informació que s'ha d'incloure a l'exportació.
+	 * @return Objecte d'exportació serialitzable.
+	 */
+	public ExpedientTipusExportacio exportar(
+			Long entornId,
+			Long expedientTipusId,
+			ExpedientTipusExportacioCommandDto command);
+	
+	/** Mètode per importar la informació d'un fitxer d'exportació de tipus d'expedient cap a un nou tipus
+	 * d'expedient si aquest no està especificat o un tipus d'expedient existent. La importació es fa de 
+	 * forma selectiva segons el expedientTipusExportacioCommand.
+	 * @param entornId Especifica l'entorn de treball de l'usuari.
+	 * @param expedientTipusId Tipus d'expedient on fer la importació. Si està buit llavors es crea un de nou.
+	 * @param command Llista de codis de la informació a importar.
+	 * @param importacio Objecte desserialitzat amb la informació per a la importació.
+	 * @return Retorna l'expedient tipus creat o modificat.
+	 */
+	public ExpedientTipusDto importar(
+			Long entornId, 
+			Long expedientTipusId, 
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio);	
+
+	
 	/**
 	 * Retorna els tipus d'expedient d'un entorn que es poden consultar.
 	 * 
@@ -848,6 +878,8 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			String codi) throws NoTrobatException;
 
+	public List<ExpedientTipusDocumentDto> documentFindAll(Long expedientTipusId);	
+	
 	/**
 	 * Retorna tots els documents d'un tipus d'expedient donat el seu identificador.
 	 * 
@@ -929,6 +961,20 @@ public interface ExpedientTipusService {
 	 */
 	public AccioDto accioFindAmbId(
 			Long id) throws NoTrobatException;	
+	
+	/**
+	 * Retorna les accions per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les accions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<AccioDto> accioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 	
 	/** 
 	 * Retorna la llista d'accions del tipus d'expedient paginada per la datatable.
@@ -1057,6 +1103,21 @@ public interface ExpedientTipusService {
 			boolean incloureGlobals);	
 
 	/**
+	 * Retorna les definicions de procés per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les definicions de procés del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<DefinicioProcesDto> definicioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	
+	/**
 	 * Esborra una entitat.
 	 * 
 	 * @param entornId
@@ -1083,7 +1144,7 @@ public interface ExpedientTipusService {
 			Long id);
 	
 	/**
-	 * Importa al tipus d'expedient la informació de la definició de procés
+	 * Incorpora al tipus d'expedient la informació de la definició de procés
 	 * com són:
 	 * - Agrupacions
 	 * - Variables amb les validacions
@@ -1096,7 +1157,7 @@ public interface ExpedientTipusService {
 	 * @param id Identificador del tipus d'expedient.
 	 * @param sobreescriure Indica si les variables se sobreesciuran al tipus d'expedient o es deixaran sense sobreescriure.
 	 */
-	public boolean definicioProcesImportar(
+	public boolean definicioProcesIncorporar(
 			Long expedientTipusId, 
 			Long id, 
 			boolean sobreescriure);
@@ -1116,6 +1177,20 @@ public interface ExpedientTipusService {
 	 */
 	public TerminiDto terminiFindAmbId(Long terminiId);
 
+	/**
+	 * Retorna els terminis per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els terminis del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<TerminiDto> terminiFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
 	/**
 	 * Crea un nou termini.
 	 * 
@@ -1303,6 +1378,19 @@ public interface ExpedientTipusService {
 	public ReassignacioDto reassignacioFindAmbId(
 			Long id) throws NoTrobatException;	
 	
+	/**
+	 * Retorna les reassignacions per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les reassignacions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<ReassignacioDto> reassignacioFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 	/** 
 	 * Retorna la llista d'reassignacions del tipus d'expedient paginada per la datatable.
 	 * 
@@ -1701,4 +1789,19 @@ public interface ExpedientTipusService {
 	public MapeigSistraDto mapeigFindAmbCodiSistraPerValidarRepeticio(
 			Long expedientTipusId, 
 			String codiSistra);
+	
+	/**
+	 * Retorna els mapejos de sistra per a un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els mapejos del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<MapeigSistraDto> mapeigFindAll(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+
 }

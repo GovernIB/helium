@@ -41,6 +41,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
@@ -118,7 +120,26 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long expedientTipusId) {
 		delegate.delete(entornId, expedientTipusId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusExportacio exportar(
+			Long entornId, 
+			Long expedientTipusId,
+			ExpedientTipusExportacioCommandDto command) {
+		return delegate.exportar(entornId, expedientTipusId, command);
+	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto importar(
+			Long entornId, 
+			Long expedientTipusId, 
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio) {
+		return delegate.importar(entornId, expedientTipusId, command, importacio);
+	}
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
@@ -457,6 +478,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.getArxiuPerDocument(id);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDocumentDto> documentFindAll(Long expedientTipusId) {
+		return delegate.documentFindAll(expedientTipusId);
+	}
+
 	/***********************************************/
 	/*****************ENUMERACIONS******************/
 	/***********************************************/
@@ -644,6 +671,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AccioDto> accioFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		return delegate.accioFindAll(expedientTipusId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public AccioDto accioFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi) throws NoTrobatException {
 		return delegate.accioFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
 	}
@@ -692,6 +725,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				filtre, 
 				paginacioParams);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DefinicioProcesDto> definicioFindAll(Long expedientTipusId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.definicioFindAll(expedientTipusId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -714,7 +754,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public TerminiDto terminiFindAmbId(Long terminiId) {
 		return delegate.terminiFindAmbId(terminiId);
 	}
-
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiDto> terminiFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		return delegate.terminiFindAll(expedientTipusId);
+	}
+	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public TerminiDto terminiCreate(
@@ -745,8 +791,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean definicioProcesImportar(Long expedientTipusId, Long id, boolean sobreescriure) {
-		return delegate.definicioProcesImportar(expedientTipusId, id, sobreescriure);
+	public boolean definicioProcesIncorporar(Long expedientTipusId, Long id, boolean sobreescriure) {
+		return delegate.definicioProcesIncorporar(expedientTipusId, id, sobreescriure);
 	}
 
 	@Override
@@ -841,6 +887,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ReassignacioDto reassignacioFindAmbId(Long id) throws NoTrobatException {
 		return delegate.reassignacioFindAmbId(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ReassignacioDto> reassignacioFindAll(Long expedientTipusId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.reassignacioFindAll(expedientTipusId);
 	}
 
 	@Override
@@ -993,4 +1046,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.mapeigFindAmbCodiSistraPerValidarRepeticio(expedientTipusId, codiSistra);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<MapeigSistraDto> mapeigFindAll(Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		return delegate.mapeigFindAll(expedientTipusId);
+	}
 }

@@ -103,6 +103,8 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	private boolean dominiCacheText;
 	private boolean dominiIntern;
 	@MaxLength(255)
+	private String defprocJbpmKey;
+	@MaxLength(255)
 	private String jbpmAction;
 	private boolean multiple;
 	private boolean ocult;
@@ -226,6 +228,14 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
+	}
+
+	@Column(name="defproc_jbpmkey", length=255)
+	public String getDefprocJbpmKey() {
+		return defprocJbpmKey;
+	}
+	public void setDefprocJbpmKey(String defprocJbpmKey) {
+		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
 	@Column(name="jbpm_action", length=255)
@@ -363,7 +373,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		getValidacions().remove(validacio);
 	}
 
-	@OneToMany(mappedBy="membre")
+	@OneToMany(mappedBy="membre", cascade = {CascadeType.ALL})
 	public Set<CampRegistre> getRegistrePares() {
 		return this.registrePares;
 	}
