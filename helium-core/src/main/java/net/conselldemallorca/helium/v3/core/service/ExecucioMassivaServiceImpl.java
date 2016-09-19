@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.db.GraphSession;
@@ -1163,10 +1164,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			} catch (Exception ex) {
 				logger.error("No s'han pogut esborrar les definicions de procés", ex);
 				if (ex instanceof DataIntegrityViolationException || ex.getCause() instanceof DataIntegrityViolationException || (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause() instanceof DataIntegrityViolationException) ||
-					ex.getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException") || (ex.getCause() != null && ex.getCause().getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException")) || (ex.getCause() != null && ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException"))) {
+					"ConstraintViolationException".equalsIgnoreCase(ex.getClass().getSimpleName()) || (ex.getCause() != null && "ConstraintViolationException".equalsIgnoreCase(ex.getCause().getClass().getSimpleName())) || (ex.getCause() != null && ex.getCause().getCause() != null && "ConstraintViolationException".equalsIgnoreCase(ex.getCause().getCause().getClass().getSimpleName()))) {
 					
-					String msg = (ex instanceof DataIntegrityViolationException || ex.getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException")) ? getErrorMsg(ex) : 
-								  (ex.getCause() instanceof DataIntegrityViolationException || ex.getCause().getClass().getSimpleName().equalsIgnoreCase("ConstraintViolationException")) ? getErrorMsg(ex.getCause()) : getErrorMsg(ex.getCause().getCause());
+					String msg = (ex instanceof DataIntegrityViolationException || "ConstraintViolationException".equalsIgnoreCase(ex.getClass().getSimpleName())) ? getErrorMsg(ex) : 
+								  (ex.getCause() instanceof DataIntegrityViolationException || "ConstraintViolationException".equalsIgnoreCase(ex.getCause().getClass().getSimpleName())) ? getErrorMsg(ex.getCause()) : 
+									  getErrorMsg(ex.getCause().getCause());
 								  
 					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
@@ -1174,27 +1176,18 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
 					if (msg.contains("HELIUM.FK_LOG_"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
+					if (msg.contains("HELIUM.FK_SWL_ASSDEL"))
+						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.swl");
+					if (msg.contains("HELIUM.FK_TRANS_PROCDEF"))
+						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.procdef");
 					
 					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
 					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
-						
-						
 						
 						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
 						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
 							msg += "&&&" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "@" + expedient.getId();
 						}
-						
-						
-						
-//						msg += "<div><div class='expafectats'>" + messageHelper.getMessage("info.defproc.esborrar.afectats") + "</div>";
-//						for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
-//							msg += "<div><span>" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "</span><button class='pull-right' data-id='" + expedient.getId() + "'>Borrar logs</button></div>";
-//						}
-//						msg += "<hr/><div><button class='bexpborrartotslogs'>" + messageHelper.getMessage("info.defproc.esborrar.afectats.programar") + "</button></div></div>";
-						
-						
-						
 						
 						GraphSession.errorsDelete.remove(processInstanceId);
 					}
@@ -1202,7 +1195,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					throw new Exception(messageHelper.getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getIdPerMostrar(), ""}) + ": " + msg);
 					
 				} else { 
-					throw new Exception(messageHelper.getMessage("error.proces.peticio"), ex.getCause());
+					throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": " + ExceptionUtils.getRootCauseMessage(ex), ExceptionUtils.getRootCause(ex));
 				}
 			}
 		}
@@ -1223,10 +1216,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} else {
 			if (comprovarExpedientTipus(expedientTipusId, definicioProces.getId())) {
 				jbpmHelper.esborrarDesplegament(definicioProces.getJbpmId());
-				for (Document doc: definicioProces.getDocuments())
+				for (Document doc: definicioProces.getDocuments()) {
 					documentRepository.delete(doc);
-				for (Termini termini: definicioProces.getTerminis())
+				}
+				definicioProces.setDocuments(null);
+				for (Termini termini: definicioProces.getTerminis()) {
 					dissenyHelper.deleteTermini(termini.getId());
+				}
+				definicioProces.setTerminis(null);
 				definicioProcesRepository.delete(definicioProces);
 			} else {
 				throw new IllegalArgumentException(messageHelper.getMessage("error.dissenyService.noTipusExp"));
