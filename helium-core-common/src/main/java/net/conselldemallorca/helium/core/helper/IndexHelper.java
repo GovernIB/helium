@@ -12,8 +12,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.codahale.metrics.Counter;
@@ -566,6 +564,4 @@ public class IndexHelper {
 			return valor;
 		}
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(IndexHelper.class);
 }
