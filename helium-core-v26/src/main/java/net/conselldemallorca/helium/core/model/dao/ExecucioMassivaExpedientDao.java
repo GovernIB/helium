@@ -6,10 +6,10 @@ package net.conselldemallorca.helium.core.model.dao;
 import java.util.Date;
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
-
 import org.hibernate.Query;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 
 /**
  * Dao pels objectes del tipus ExecucioMassivaExpedient.
@@ -162,5 +162,17 @@ public class ExecucioMassivaExpedientDao extends HibernateGenericDao<ExecucioMas
 		}
 		
 		return percentatge;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ExecucioMassivaExpedient> getExecucioMassivaPendentByDefinicioProces(Long definicioProcesId) {
+		Query query = null;
+		query = getSession().createQuery(
+				"select e " +
+				"from	ExecucioMassivaExpedient e " +
+				"where 	e.definicioProcesId =	" + definicioProcesId +
+				" and dataFi is null");
+
+		return (List<ExecucioMassivaExpedient>)query.list();
 	}
 }

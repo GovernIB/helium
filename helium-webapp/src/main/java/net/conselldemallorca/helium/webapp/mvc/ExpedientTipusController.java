@@ -373,99 +373,41 @@ public class ExpedientTipusController extends BaseController {
 			@RequestParam(value = "dpId", required = false) Long[] dpId,
 			ModelMap model) {
 		
-		
-		try {
-			Date dInici = new Date();
-			ExecucioMassivaDto emdto = new ExecucioMassivaDto();
-			emdto.setTipus(ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC);
-			emdto.setDataInici(dInici);
-			emdto.setDefProcIds(dpId);
-			emdto.setExpedientTipusId(expedientTipusId);
-			emdto.setEnviarCorreu(false);
-			
-			execucioMassivaService.crearExecucioMassiva(emdto);
-			
-			missatgeInfo(request, "S'ha programat l'eliminació de les definicions de procés");
-		} catch (Exception ex) {
-			missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-        	logger.error("No s'han pogut programar l'eliminació de les definicions de procés", ex);
+		List<Long> dpIdLlista = new ArrayList<Long>();
+		for (Long id: dpId) {
+			DefinicioProcesDto definicioProces = dissenyService.getById(id, false);
+			if (definicioProces != null && !execucioMassivaService.existeixenOperacionsPendents(definicioProces.getId())) {
+				dpIdLlista.add(definicioProces.getId());
+			}
 		}
 		
+		if (!dpIdLlista.isEmpty()) {
+			try {
+				Long[] dpIdFinals = new Long[dpIdLlista.size()];
+				dpIdFinals = dpIdLlista.toArray(dpIdFinals);
+				Date dInici = new Date();
+				ExecucioMassivaDto emdto = new ExecucioMassivaDto();
+				emdto.setTipus(ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC);
+				emdto.setDataInici(dInici);
+				emdto.setDefProcIds(dpIdFinals);
+				emdto.setExpedientTipusId(expedientTipusId);
+				emdto.setEnviarCorreu(false);
+				
+				execucioMassivaService.crearExecucioMassiva(emdto);
+				
+				missatgeInfo(request, "S'ha programat l'eliminació de les definicions de procés");
+			} catch (Exception ex) {
+				missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
+	        	logger.error("S'ha produït un problema programant les definicions de procés", ex);
+			}
+		} else {
+			missatgeError(request, getMessage("error.proces.esborrar.empty"));
+        	logger.error(getMessage("error.proces.esborrar.empty"));
+		}
 		
-			
-//		Entorn entorn = getEntornActiu(request);
-//		List<Long> dfBorrar = new ArrayList<Long>();
-//		for (Long definicioProcesId : dpId) {
-//			DefinicioProcesDto definicioProces = dissenyService.getByIdAmbComprovacio(entorn.getId(), definicioProcesId);
-//			try {
-//				List<Consulta> consultes = dissenyService.findConsultesAmbEntorn(entorn.getId());
-//				boolean esborrar = true;
-//				if (consultes.isEmpty()) {
-//					if (!dfBorrar.contains(definicioProcesId)) {
-//						dfBorrar.add(definicioProcesId);
-//					}
-//				} else {
-//					for(Consulta consulta: consultes){
-//						Set<ConsultaCamp> llistat = consulta.getCamps();
-//						for(ConsultaCamp c: llistat){
-//							if((definicioProces.getVersio() == c.getDefprocVersio()) && (definicioProces.getJbpmKey().equals(c.getDefprocJbpmKey()))){
-//								esborrar = false;
-//							}
-//						}
-//						if(!esborrar){
-//							missatgeError(request, getMessage("error.exist.cons.df", new Object[]{consulta.getNom(), definicioProces.getJbpmName(), definicioProces.getVersio()}) );
-//						} else {
-//							if (!dfBorrar.contains(definicioProcesId)) {
-//								dfBorrar.add(definicioProcesId);
-//							}
-//						}
-//					}
-//				}
-//				if (dfBorrar.contains(definicioProcesId)) {
-//					try {
-//						dissenyService.undeploy(entorn.getId(), expedientTipusId, definicioProcesId);
-//						missatgeInfo(request, getMessage("info.defproc.esborrada", new Object[]{definicioProces.getJbpmName(), definicioProces.getVersio()}) );
-//					} catch (Exception ex) {
-//						if (ex instanceof DataIntegrityViolationException || ex.getCause() instanceof DataIntegrityViolationException || (ex.getCause() != null && ex.getCause().getCause() instanceof DataIntegrityViolationException) ||
-//							ex instanceof ConstraintViolationException || ex.getCause() instanceof ConstraintViolationException || (ex.getCause() != null && ex.getCause().getCause() instanceof ConstraintViolationException)) {
-//							String msg = (ex instanceof DataIntegrityViolationException || ex instanceof ConstraintViolationException) ? getErrorMsg(ex) : 
-//										  (ex.getCause() instanceof DataIntegrityViolationException || ex.getCause() instanceof ConstraintViolationException) ? getErrorMsg(ex.getCause()) : getErrorMsg(ex.getCause().getCause());
-//							if (msg.contains("HELIUM.FK_TASKINST_TASK"))
-//								msg = getMessage("error.defpro.eliminar.constraint.taskinstance");
-//							if (msg.contains("HELIUM.FK_JOB_ACTION"))
-//								msg = getMessage("error.defpro.eliminar.constraint.job");
-//							if (msg.contains("HELIUM.FK_LOG_"))
-//								msg = getMessage("error.defpro.eliminar.constraint.log");
-//							
-//							Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
-//							if (GraphSession.errorsDelete.containsKey(processInstanceId)){
-//								msg += "<div><div class=\"expafectats\">" + getMessage("info.defproc.esborrar.afectats") + "</div>";
-//								for (ProcessInstanceExpedient expedient: GraphSession.errorsDelete.get(processInstanceId)) {
-//									msg += "<div class=\"expborrarlog\"><span>" + (expedient.getIdentificador().equals("[null] null") ? expedient.getNumeroDefault() : expedient.getIdentificador()) + "</span><button class=\"bexpborrarlog\" data-id=\"" + expedient.getId() + "\">Borrar logs</button></div>";
-//								}
-//								msg += "<hr/><div class=\"expborrartotslogs\"><button class=\"bexpborrartotslogs\">" + getMessage("info.defproc.esborrar.afectats.programar") + "</button></div></div>";
-//								GraphSession.errorsDelete.remove(processInstanceId);
-//							}
-//							
-//							missatgeError(request, getMessage("error.defpro.eliminar.constraint", new Object[] {definicioProces.getJbpmName(), definicioProces.getVersio()}), msg);
-//							
-//						} else { 
-//							missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-//						}
-//						logger.error("No s'han pogut esborrar les definicions de procés", ex);
-//					}
-//				}
-//	        } catch (Exception ex) {
-//	        	missatgeError(request, getMessage("error.proces.peticio"), ex.getLocalizedMessage());
-//	        	logger.error("No s'han pogut esborrar les definicions de procés", ex);
-//	        }
-//		}
-		
-		
-		
-		model.addAttribute("expedientTipusId", expedientTipusId);
-		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(expedientTipusId));
-		return "/expedientTipus/llistatDpNoUs";
+//		model.addAttribute("expedientTipusId", expedientTipusId);
+//		model.addAttribute("llistat", dissenyService.findDefinicionsProcesNoUtilitzadesExpedientTipus(expedientTipusId));
+		return "redirect:/expedientTipus/netejar_df.html?id=" + expedientTipusId;
 	}
 	
 //	private String getErrorMsg(Throwable ex) {
@@ -476,19 +418,20 @@ public class ExpedientTipusController extends BaseController {
 //		errorFull = StringEscapeUtils.escapeJavaScript(errorFull);
 //		return errorFull;
 //	}
-//	@RequestMapping(value = "/expedientTipus/afectats_df", method = RequestMethod.GET)
-//	public String afectats_df(
-//			HttpServletRequest request,
-//			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
-//			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
-//			ModelMap model) {
-//		model.addAttribute("expedientTipusId", expedientTipusId);
-//		model.addAttribute("definicioProcesId", definicioProcesId);
-//		DefinicioProcesDto definicioProces = dissenyService.getById(definicioProcesId, false);
-//		model.addAttribute("definicioProces", definicioProces);
-//		model.addAttribute("llistat", dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(expedientTipusId, Long.parseLong(definicioProces.getJbpmId())));
-//		return "/expedientTipus/llistatExpedientsDpNoUs";
-//	}
+	
+	@RequestMapping(value = "/expedientTipus/afectats_df", method = RequestMethod.GET)
+	public String afectats_df(
+			HttpServletRequest request,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId,
+			@RequestParam(value = "definicioProcesId", required = true) Long definicioProcesId,
+			ModelMap model) {
+		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("definicioProcesId", definicioProcesId);
+		DefinicioProcesDto definicioProces = dissenyService.getById(definicioProcesId, false);
+		model.addAttribute("definicioProces", definicioProces);
+		model.addAttribute("llistat", dissenyService.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(expedientTipusId, Long.parseLong(definicioProces.getJbpmId())));
+		return "/expedientTipus/llistatExpedientsDpNoUs";
+	}
 	
 	@RequestMapping(value = "/expedientTipus/canvi_versio", method = RequestMethod.POST)
 	public String canvi_versio(

@@ -250,6 +250,11 @@ public class ExecucioMassivaService {
 		return resposta;
 	}
 	
+	public boolean existeixenOperacionsPendents(Long definicioPorcesId) {
+		List<ExecucioMassivaExpedient> pendents = execucioMassivaExpedientDao.getExecucioMassivaPendentByDefinicioProces(definicioPorcesId);
+		return (pendents != null && !pendents.isEmpty());
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public String getJsonExecucionsMassivesByUser(String username, Integer results) {
 		JSONArray ljson = new JSONArray();

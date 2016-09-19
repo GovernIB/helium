@@ -255,15 +255,6 @@ public class IndexHelper {
 					mapValorsDomini,
 					isExpedientFinalitzat);
 		} catch (Exception ex) {
-			if (ex instanceof NullPointerException) {
-				System.out.println("###===> ERROR REINDEXACIO NULLPOINTEREXCEPTION <===###");
-				ex.printStackTrace();
-				System.out.println("###================================================###");
-				
-				logger.error("###===> ERROR REINDEXACIO NULLPOINTEREXCEPTION <===###");
-				logger.error("Traça detallada: ", ex);
-				logger.error("###================================================###");
-			}
 			throw new IndexacioException("Update Indexació", ex);
 		} finally {
 			if (perTasca) {
