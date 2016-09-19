@@ -376,8 +376,9 @@ public class ExpedientTipusController extends BaseController {
 		List<Long> dpIdLlista = new ArrayList<Long>();
 		for (Long id: dpId) {
 			DefinicioProcesDto definicioProces = dissenyService.getById(id, false);
-			if (definicioProces != null)
+			if (definicioProces != null && !execucioMassivaService.existeixenOperacionsPendents(definicioProces.getId())) {
 				dpIdLlista.add(definicioProces.getId());
+			}
 		}
 		
 		if (!dpIdLlista.isEmpty()) {
