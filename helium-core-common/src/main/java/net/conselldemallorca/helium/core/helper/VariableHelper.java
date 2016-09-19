@@ -450,32 +450,34 @@ public class VariableHelper {
 
 				String columnaCodi = camp.getDominiCampValor();
 				String columnaValor = camp.getDominiCampText();
-				Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
-				while (it.hasNext()) {
-					FilaResultat fr = it.next();
-					for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
-						boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(camp.getDomini() != null? camp.getDomini().getTipus() : null);
-						boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
-						if (matches &&
-								(
-									valor == null || 
-									parellaCodi.getValor().toString().equals(valor) ||
-									(tipus.equals(TipusCamp.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
-								)
-							) {
-							for (ParellaCodiValor parellaValor: fr.getColumnes()) {
-								matches = (ignoreCase) ? parellaValor.getCodi().equalsIgnoreCase(columnaValor) : parellaValor.getCodi().equals(columnaValor);
-								if (matches) {
-									ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
-											parellaCodi.getValor().toString(),
-											parellaValor.getValor());
-									resposta.add(codiValor);
-									if (valor != null) {
-										break;
+				if (resultatConsultaDomini != null) {
+					Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
+					while (it.hasNext()) {
+						FilaResultat fr = it.next();
+						for (ParellaCodiValor parellaCodi: fr.getColumnes()) {
+							boolean ignoreCase = TipusDomini.CONSULTA_SQL.equals(camp.getDomini() != null? camp.getDomini().getTipus() : null);
+							boolean matches = (ignoreCase) ? parellaCodi.getCodi().equalsIgnoreCase(columnaCodi) : parellaCodi.getCodi().equals(columnaCodi);
+							if (matches &&
+									(
+										valor == null || 
+										parellaCodi.getValor().toString().equals(valor) ||
+										(tipus.equals(TipusCamp.SUGGEST) && parellaCodi.getValor().toString().toUpperCase().indexOf(valor.toString().toUpperCase()) != -1)
+									)
+								) {
+								for (ParellaCodiValor parellaValor: fr.getColumnes()) {
+									matches = (ignoreCase) ? parellaValor.getCodi().equalsIgnoreCase(columnaValor) : parellaValor.getCodi().equals(columnaValor);
+									if (matches) {
+										ParellaCodiValorDto codiValor = new ParellaCodiValorDto(
+												parellaCodi.getValor().toString(),
+												parellaValor.getValor());
+										resposta.add(codiValor);
+										if (valor != null) {
+											break;
+										}
 									}
 								}
+								break;
 							}
-							break;
 						}
 					}
 				}
