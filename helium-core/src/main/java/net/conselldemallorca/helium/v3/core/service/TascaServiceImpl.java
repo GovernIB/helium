@@ -1330,10 +1330,16 @@ public class TascaServiceImpl implements TascaService {
 				tascaId,
 				true,
 				true);
-		FormulariExternDto dto = formulariExternHelper.iniciar(
+		
+		ExpedientTipus expedientTipus = expedientTipusHelper.findAmbTaskId(
+				tascaId);
+		
+		Tasca tasca = tascaHelper.findTascaByJbpmTaskId(tascaId);
+		return formulariExternHelper.iniciar(
 				tascaId,
-				variableHelper.getVariablesJbpmTascaValor(tascaId));
-		return dto;
+				tasca,
+				expedientTipus,
+				false);
 	}
 	
 	@Override
