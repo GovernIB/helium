@@ -44,20 +44,6 @@ public class FormulariExternHelper {
 	@Autowired
 	private WsClientHelper wsClientHelper;
 	
-
-	public FormulariExternDto iniciar(
-			String taskId,
-			Map<String, Object> valors) {
-		ExpedientTipus expedientTipus = expedientTipusHelper.findAmbTaskId(
-				taskId);
-		Tasca tasca = tascaHelper.findTascaByJbpmTaskId(taskId);
-		return iniciar(
-				taskId,
-				tasca,
-				expedientTipus,
-				false);
-	}
-	
 	public FormulariExternDto iniciar(
 		String taskId,
 		Tasca tasca,
@@ -80,6 +66,7 @@ public class FormulariExternHelper {
 			password = GlobalProperties.getInstance().getProperty(
 					"app.forms.service.password");
 		}
+		
 		IniciFormulari clientWs = wsClientHelper.getIniciFormulariService(
 				url,
 				WsClientAuth.NONE,
@@ -89,11 +76,14 @@ public class FormulariExternHelper {
 				tasca.getFormExtern(),
 				taskId,
 				(!tascaIniciExpedient) ? getVariablesPerIniciFormulari(taskId) : null);
-		/*RespostaIniciFormulari resposta = new RespostaIniciFormulari();
-		resposta.setFormulariId(taskId);
-		resposta.setUrl("http://oficina.limit.es");
-		resposta.setWidth(800);
-		resposta.setHeight(600);*/
+		
+		
+//		RespostaIniciFormulari resposta = new RespostaIniciFormulari();
+//		resposta.setFormulariId(taskId);
+//		resposta.setUrl("http://oficina.limit.es");
+//		resposta.setWidth(800);
+//		resposta.setHeight(600);
+		
 		FormulariExtern fext = formulariExternRepository.findByFormulariId(resposta.getFormulariId());
 		if (fext == null) {
 			fext = new FormulariExtern(
@@ -125,7 +115,7 @@ public class FormulariExternHelper {
 		List<ParellaCodiValor> varsForm = new ArrayList<ParellaCodiValor>();
 		if (varsTasca != null) {
 			for (String key: varsTasca.keySet()) {
-				if (!key.startsWith(JbpmVars.VAR_TASCA_PREFIX))
+				if (!key.startsWith(JbpmVars.VAR_PREFIX))
 					varsForm.add(new ParellaCodiValor(key, varsTasca.get(key)));
 			}
 		}
