@@ -46,10 +46,8 @@ public class SignaturaCaibApplet extends Applet {
 			String contentType) throws SignaturaException {
 		HttpURLConnection conn;
 		try {
-			System.out.println("Recuperar documento: " + url);
 			conn = (HttpURLConnection)new URL(url).openConnection();
 			conn.connect();
-			System.out.println("Recuperar documento: OK");
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			getSigner().signPDF(
 					conn.getInputStream(),
@@ -61,7 +59,6 @@ public class SignaturaCaibApplet extends Applet {
 					Signer.PDF_SIGN_POSITION_NONE,
 					true);
 			String file = new String(Base64Coder.encode(baos.toByteArray()));
-			System.out.println("Size baos: " + baos.toByteArray().length);
 			return split(file, MAX_SIZE_STRING);
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -73,7 +70,6 @@ public class SignaturaCaibApplet extends Applet {
 	    String[] result = new String[(int)Math.ceil((double)src.length()/(double)len)];
 	    for (int i=0; i<result.length; i++)
 	        result[i] = src.substring(i*len, Math.min(src.length(), (i+1)*len));
-	    System.out.println("Partes del documento: " + result.length);
 	    return result;
 	}
 

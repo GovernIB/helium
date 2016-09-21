@@ -1353,7 +1353,6 @@ public class TascaServiceImpl implements TascaService {
 	@Scheduled(fixedRate = 30000)
 	@Async
 	public void comprovarTasquesSegonPla() {
-//		System.out.println("Comprovant si hi ha tasques pendents d'executar en segon pla. (" + Thread.currentThread().getId() + ")");
 		
 //		Si encara no hem inicialitzat la variable en memòria ho feim i li carregam les tasques
 		tascaSegonPlaHelper.carregaTasquesSegonPla();
@@ -1411,7 +1410,7 @@ public class TascaServiceImpl implements TascaService {
 						iter.remove();
 					} catch (Exception ex) {
 						if (ex.getCause() != null) {
-							System.out.println(">>> No es pot eliminar l'iteració: " + ex.getCause().getMessage());
+							logger.error(">>> No es pot eliminar l'iteració: " + ex.getCause().getMessage());
 						}
 					}
 				}

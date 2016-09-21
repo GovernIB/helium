@@ -95,7 +95,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		List<Expedient> expedients = expedientRepository.findByReindexarDataNotNullOrderByReindexarDataAsc();
 		for (Expedient expedient: expedients) {
 			try {
-				System.out.println("Reindexant ==> " + expedient.getIdentificador());
 				indexHelper.expedientIndexLuceneUpdate(
 						expedient.getProcessInstanceId(),
 						false,
