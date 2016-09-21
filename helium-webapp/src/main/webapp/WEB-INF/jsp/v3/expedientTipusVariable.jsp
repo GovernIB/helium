@@ -22,6 +22,10 @@
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
 			</div>
 		</c:if>
+		
+		<c:import url="selectorMode.jsp">
+		</c:import>
+		
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-10">
