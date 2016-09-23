@@ -171,8 +171,12 @@
 				</c:choose>
 				<c:set var="placeholder"><spring:message code="js.helforms.selec_valor"/></c:set>
 				<c:choose>
-					<c:when test="${dada.campMultiple or isMultiple}"><input type="text" id="${campCodi}" name="${campNom}" class="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" value="${command[campNom][campIndex]}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:when>
-					<c:otherwise><form:input path="${campCodi}" id="${campCodi}" cssClass="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/></c:otherwise>
+					<c:when test="${dada.campMultiple or isMultiple}">
+						<input type="text" id="${campCodi}" name="${campNom}" class="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" value="${command[campNom][campIndex]}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/>
+					</c:when>
+					<c:otherwise>
+						<form:input path="${campCodi}" id="${campCodi}" cssClass="seleccio" data-required="${dada.required}" data-campid="${dada.campId}" data-placeholder="${placeholder}" data-urlconsultainicial="${urlConsultaInicial}" data-urlconsultallistat="${urlConsultaLlistat}" data-campparams="${dada.campParamsConcatenats}"/>
+					</c:otherwise>
 				</c:choose>
 			</c:if>
 			
