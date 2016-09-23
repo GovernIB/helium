@@ -28,11 +28,6 @@ public class SignaturaTest {
 				ex.printStackTrace(); 
 				return;
 		    }
-			if (certList != null) {
-				for (String cert: certList) {
-					System.out.println(">>> " + cert);
-				}
-			}
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 			InputStream is = new FileInputStream("c:/signat1.pdf");
 			int nRead;

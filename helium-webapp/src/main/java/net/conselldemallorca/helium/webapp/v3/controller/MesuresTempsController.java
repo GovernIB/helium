@@ -201,7 +201,6 @@ public class MesuresTempsController extends BaseController {
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
 
-		System.out.print("[TEMPS] >>>>>>>> Generant pestanya GENERAL ... ");
 		// GENERAL
 		HSSFSheet sheet = wb.createSheet("Mesures de temps");
 		sheet.setColumnWidth(0, 15000);
@@ -329,7 +328,6 @@ public class MesuresTempsController extends BaseController {
 		}
 		
 		logger.debug("OK");
-		System.out.print("[TEMPS] >>>>>>>> Generant pestanya PER TIPUS EXPEDIENT ... ");
 
 		// PER TIPUS EXPEDIENT
 		List<MesuraTemporalDto> mesuresTipusExpedient = adminService.mesuraTemporalFindByTipusExpedient();
@@ -398,7 +396,6 @@ public class MesuresTempsController extends BaseController {
 		}
 
 		logger.debug("OK");
-		System.out.print("[TEMPS] >>>>>>>> Generant pestanya PER TASCA ... ");
 		
 		// PER TASCA
 		List<MesuraTemporalDto> mesuresTasca = adminService.mesuraTemporalFindByTasca();
