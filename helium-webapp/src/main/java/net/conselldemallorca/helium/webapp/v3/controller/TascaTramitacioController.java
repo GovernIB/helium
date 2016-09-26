@@ -48,9 +48,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -126,7 +125,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					tascaId,
 					model,
 					"form");
-		} catch (NoTrobatException ex) {
+		} catch (Exception ex) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
 			if (ModalHelper.isModal(request)) {
 				return modalUrlTancar(false);
@@ -687,9 +686,22 @@ public class TascaTramitacioController extends BaseTascaController {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 			return modalUrlTancar(true);
 		}
-		String tascaId = guardarDatosTramitacionMasiva(request, seleccio, inici, correu);
-
-		return getReturnUrl(request, tascaId, "form");
+		
+		try{
+			String tascaId = guardarDatosTramitacionMasiva(request, seleccio, inici, correu);
+			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			return getReturnUrl(request, tasca.getId(), "form");
+		} catch (Exception ex) {
+			
+			MissatgesHelper.warning(request, ex.getMessage());
+				
+			if (ModalHelper.isModal(request)) {
+				return modalUrlTancar(true);
+			} else {
+				String referer = request.getHeader("Referer");
+				return "redirect:"+ referer;
+			}
+		}
 	}
 
 	@RequestMapping(value = "/massivaTramitacioTasca/taula", method = RequestMethod.GET)

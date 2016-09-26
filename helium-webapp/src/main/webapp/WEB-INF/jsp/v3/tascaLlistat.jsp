@@ -125,6 +125,7 @@
 		//ícones d'estat de les tasques en segon pla
 		<c:set var="refrescaSegonPla" value="${globalProperties['app.segonpla.refrescar.auto'] == 'false' ? false : true}"/>
 		<c:set var="refrescaSegonPlaPeriode" value="${globalProperties['app.segonpla.refrescar.auto.periode'] != null ? globalProperties['app.segonpla.refrescar.auto.periode'] : 10}"/>
+		<c:set var="refrescaSegonPlaUrl" value="${tascaConsultaCommand.consultaTramitacioMassivaTascaId != null ? '../../tasca/actualitzaEstatsSegonPla' : 'tasca/actualitzaEstatsSegonPla'}"/>
 		<c:if test="${refrescaSegonPla}">
 			setInterval(refrescaEstatSegonPla, (${refrescaSegonPlaPeriode} * 1000));
 		</c:if>
@@ -137,7 +138,7 @@
 		});
 		if (tasquesSegonPlaIds.length > 0) {
 			$.ajax({
-			    url: "tasca/actualitzaEstatsSegonPla",
+			    url: "${refrescaSegonPlaUrl}",
 			    data: {"tasquesSegonPlaIds": tasquesSegonPlaIds},
 			    type: "POST",
 			    success: function(data) {
