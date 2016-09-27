@@ -68,8 +68,11 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 						execucioMassivaService.executarExecucioMassiva(ome_id);
 					}
 					catch (Exception e) {
-						// si s'ha produit una excepció, deseram l'error a la operació
-						execucioMassivaService.generaInformeError(ome_id, getError(ome_id));
+						// recuperem l'error de la aplicació
+						String errMsg = getError(ome_id);
+						if (errMsg == null || "".equals(errMsg))
+							errMsg = e.getMessage();
+						execucioMassivaService.generaInformeError(ome_id, errMsg);
 					}
 					ExecucioMassivaExpedient ome = execucioMassivaExpedientRepository.findOne(ome_id);
 					if (ome == null)

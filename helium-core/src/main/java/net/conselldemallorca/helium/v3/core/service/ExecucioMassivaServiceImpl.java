@@ -505,8 +505,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 				
 				String error = expedient.getError();
-				if (error != null) {
-					error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
+				if ( error != null || expedient.getEstat() == ExecucioMassivaEstat.ESTAT_ERROR) {
+					if (error != null)
+						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
 					danger++;
 				} else if (expedient.getDataFi() == null && ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())){
 					pendent++;
