@@ -1118,7 +1118,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-				tascaService.completar(tascaId, transicioSortida);
+				tascaService.completarMassiu(tascaId, transicioSortida);
 				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
