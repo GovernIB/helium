@@ -712,9 +712,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 		
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		
 		logger.debug(
 				"Executant la acció massiva (" +
-				"expedientTipusId=" + exm.getExpedientTipus() + ", " +
+				"expedientTipusId=" + (expedientTipus != null ? expedientTipus.getId() : "") + ", " +
 				"dataInici=" + ome.getDataInici() + ", " +
 				"expedient=" + ome.getId() + ", " +
 				"acció=" + exm.getTipus());
@@ -746,14 +748,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						ExecucioMassivaService.class,
 						"completar",
 						entorn.getCodi(),
-						exm.getExpedientTipus().getCodi()));
+						(expedientTipus != null ? expedientTipus.getCodi() : "")));
 		final Timer.Context contextTipexp = timerTipexp.time();
 		Counter countTipexp = metricRegistry.counter(
 				MetricRegistry.name(
 						ExecucioMassivaService.class,
 						"completar.count",
 						entorn.getCodi(),
-						exm.getExpedientTipus().getCodi()));
+						(expedientTipus != null ? expedientTipus.getCodi() : "")));
 		countTipexp.inc();
 		try {
 			Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
@@ -774,7 +776,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			
 			String expedient_s = null;
 	        if (MesuresTemporalsHelper.isActiu())
-        		expedient_s = exm.getExpedientTipus().getNom();
+        		expedient_s = (expedientTipus != null ? expedientTipus.getNom() : "");
 	        
 			if (tipus == ExecucioMassivaTipus.EXECUTAR_TASCA){
 				gestioTasca(ome);
@@ -830,7 +832,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
-			logger.error("Error al executar la acció massiva (expedientTipusId=" + exm.getExpedientTipus() + ", dataInici=" + ome.getDataInici() + ", expedient=" + (expedient == null ? null : expedient.getId()) + ", acció=" + ome, ex);
+			logger.error("Error al executar la acció massiva (expedientTipusId=" + (expedientTipus != null ? expedientTipus.getId() : "") + ", dataInici=" + ome.getDataInici() + ", expedient=" + (expedient == null ? null : expedient.getId()) + ", acció=" + ome, ex);
 			TascaProgramadaServiceImpl.saveError(ome_id, ex, exm.getTipus());
 			throw new ExecucioMassivaException(
 					entorn.getId(), 
@@ -839,9 +841,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					expedient == null ? null : expedient.getId(), 
 					expedient == null ? null : expedient.getTitol(), 
 					expedient == null ? null : expedient.getNumero(), 
-					exm.getExpedientTipus().getId(), 
-					exm.getExpedientTipus().getCodi(), 
-					exm.getExpedientTipus().getNom(), 
+					expedientTipus == null ? null : expedientTipus.getId(),
+					expedientTipus == null ? null : expedientTipus.getCodi(),
+					expedientTipus == null ? null : expedientTipus.getNom(),
 					ome.getExecucioMassiva().getId(), 
 					ome.getId(), 
 					"Error al executar la acció massiva", 
@@ -1000,7 +1002,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				String transicio = (String)param2[1];
 				Long ea = EntornActual.getEntornId();
 				EntornActual.setEntornId(entornId);
-				tascaService.completar(tascaId, transicio);
+				tascaService.completarMassiu(tascaId, transicio);
 				EntornActual.setEntornId(ea);
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {

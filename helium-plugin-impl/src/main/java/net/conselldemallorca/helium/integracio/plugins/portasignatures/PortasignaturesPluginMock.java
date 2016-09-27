@@ -46,7 +46,12 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 	 */
 	public List<byte[]> obtenirSignaturesDocument(
 			Integer documentId) throws PortasignaturesPluginException {
-		return new ArrayList<byte[]>();
+		byte[] array1 = new byte[50];
+//		byte[] array2 = new byte[50];
+		List<byte[]> result = new ArrayList<byte[]>();
+		result.add(array1);
+//		result.add(array2);
+		return result;
 	}
 	
 	public void deleteDocuments (

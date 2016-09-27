@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDire
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.TascaNoDisponibleException;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -79,6 +80,8 @@ public class TascaHelper {
 	private PluginHelper pluginHelper;
 	@Resource
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
+	@Resource
+	private MessageHelper messageHelper;
 
 
 
@@ -98,14 +101,14 @@ public class TascaHelper {
 				logger.debug("La persona no té la tasca assignada (" +
 						"id=" + id + ", " +
 						"personaCodi=" + auth.getName() + ")");
-				throw new NoTrobatException(JbpmTask.class, id);
+				throw new TascaNoDisponibleException(id, messageHelper.getMessage("error.tascaService.noAssignada"), null);
 			}
 		}
 		if (comprovarPendent) {
 			if (!task.isOpen() || task.isCancelled() || task.isSuspended()) {
 				logger.debug("La tasca no està en estat pendent (" +
 						"id=" + id + ")");
-				throw new NoTrobatException(JbpmTask.class, id);
+				throw new TascaNoDisponibleException(id, messageHelper.getMessage("error.tascaService.noPendent"), null);
 			}
 		}
 		return task;
