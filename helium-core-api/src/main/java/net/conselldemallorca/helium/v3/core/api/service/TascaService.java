@@ -341,6 +341,25 @@ public interface TascaService {
 	public void completar(
 			String tascaId,
 			String outcome) throws NoTrobatException, ValidacioException;
+	
+	/**
+	 * Completa la tasca des de l'execució massiva.
+	 * 
+	 * @param tascaId
+	 *            Atribut id de la tasca.
+	 * @param outcome
+	 *            Transició de sortida de la tasca.
+	 * @return la tasca completada.
+	 * @throws NotFoundException
+	 *             Si no s'ha trobat la tasca amb l'id especificat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 * @throws IllegalStateException
+	 *             Si la tasca no es troba en disposició de ser completada.
+	 */
+	public void completarMassiu(
+			String tascaId,
+			String outcome) throws NoTrobatException, ValidacioException;
 
 	/**
 	 * Cancel·la la delegació d'una tasca. Aquesta acció només la podrà fer

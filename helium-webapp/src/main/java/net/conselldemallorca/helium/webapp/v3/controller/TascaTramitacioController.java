@@ -48,9 +48,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -128,7 +127,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					tascaId,
 					model,
 					"form");
-		} catch (NoTrobatException ex) {
+		} catch (Exception ex) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.finalitzada"));
 			if (ModalHelper.isModal(request)) {
 				return modalUrlTancar(false);
@@ -1116,7 +1115,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-				tascaService.completar(tascaId, transicioSortida);
+				tascaService.completarMassiu(tascaId, transicioSortida);
 				
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));

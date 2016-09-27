@@ -1134,6 +1134,41 @@ public class TascaServiceImpl implements TascaService {
 		}
 	}
 	
+	
+	@Override
+	@Transactional
+	public void completarMassiu(
+			String tascaId,
+			String outcome) {
+		logger.debug("Completant la tasca (" +
+				"tascaId=" + tascaId + ", " +
+				"variables=...)");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String usuari = auth.getName();
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		if (!tascaHelper.isTascaValidada(task)) {
+			throw new ValidacioException("La tasca amb id '" + tascaId + "' no està validada");
+		}
+		if (!tascaHelper.isDocumentsComplet(task)) {
+			throw new ValidacioException("Falten documents per la tasca amb id '" + tascaId + "'.");
+		}
+		if (!tascaHelper.isSignaturesComplet(task)) {
+			throw new ValidacioException("Falten signatures per la tasca amb id '" + tascaId + "'.");
+		}
+		
+		//A partir d'aquí distingirem si la tasca s'ha d'executar en segon pla o no
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
+		completarTasca(
+				tascaId,
+				expedient.getId(),
+				task,
+				outcome,
+				usuari);
+	}
+	
 	/**
 	 * Es comprova si tenim carregades les dades de les tasques en segon
 	 * pla en memòria. Si ja tenim la tasca (s'ha provat d'executar algún cop)

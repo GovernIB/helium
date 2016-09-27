@@ -20,6 +20,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -373,5 +375,11 @@ public class TascaServiceBean implements TascaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void updateVariable(Long expedientId, String taskId, String codiVariable, Object valor){
 		delegate.updateVariable(expedientId, taskId, codiVariable, valor);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void completarMassiu(String tascaId, String outcome) throws NoTrobatException, ValidacioException {
+		delegate.completarMassiu(tascaId, outcome);
 	}
 }

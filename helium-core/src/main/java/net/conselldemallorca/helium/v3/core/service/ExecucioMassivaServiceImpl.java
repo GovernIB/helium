@@ -1014,7 +1014,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				String transicio = (String)param2[1];
 				Long ea = EntornActual.getEntornId();
 				EntornActual.setEntornId(entornId);
-				tascaService.completar(tascaId, transicio);
+				tascaService.completarMassiu(tascaId, transicio);
 				EntornActual.setEntornId(ea);
 				mesuresTemporalsHelper.mesuraCalcular("Completar", "massiva_tasca", expedient, tasca);
 			} else if ("Restaurar".equals(accio)) {
