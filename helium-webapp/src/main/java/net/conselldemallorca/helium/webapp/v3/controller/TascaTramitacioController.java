@@ -936,7 +936,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);
+//				dto.setTascaIds(tascaIds);
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
 //				dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Guardar");
@@ -985,7 +986,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				ExecucioMassivaDto dto = new ExecucioMassivaDto();
 				dto.setDataInici((Date) datosTramitacionMasiva.get("inici"));
 				dto.setEnviarCorreu((Boolean) datosTramitacionMasiva.get("correu"));
-				dto.setTascaIds(tascaIds);
+//				dto.setTascaIds(tascaIds);
+				dto.setTascaIds((String[])ArrayUtils.removeElement(tascaIds, tascaId));
 //				dto.setExpedientTipusId(expTipusId);
 				dto.setTipus(ExecucioMassivaTipusDto.EXECUTAR_TASCA);
 				dto.setParam1("Validar");
