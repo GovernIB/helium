@@ -712,7 +712,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 		
-		ExpedientTipus expedientTipus = expedient.getTipus();
+		ExpedientTipus expedientTipus;
+		if (expedient == null && tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC)
+			expedientTipus = exm.getExpedientTipus();
+		else
+			expedientTipus = expedient.getTipus();
 		
 		logger.debug(
 				"Executant la acció massiva (" +
@@ -833,7 +837,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
 			logger.error("Error al executar la acció massiva (expedientTipusId=" + (expedientTipus != null ? expedientTipus.getId() : "") + ", dataInici=" + ome.getDataInici() + ", expedient=" + (expedient == null ? null : expedient.getId()) + ", acció=" + ome, ex);
-			TascaProgramadaServiceImpl.saveError(ome_id, ex, exm.getTipus());
+			
+			Throwable excepcioRetorn = ex;
+			if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC && ExceptionUtils.getRootCause(ex) != null) {
+				excepcioRetorn = ExceptionUtils.getRootCause(ex);
+			}
+			
+			TascaProgramadaServiceImpl.saveError(ome_id, excepcioRetorn, exm.getTipus());
 			throw new ExecucioMassivaException(
 					entorn.getId(), 
 					entorn.getCodi(), 
@@ -1163,7 +1173,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
 					if (msg.contains("HELIUM.FK_LOG_"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
-					if (msg.contains("HELIUM.FK_SWL_ASSDEL"))
+					if (msg.contains("HELIUM.FK_SWL_ASSDEL") || msg.contains("HELIUM.FK_SWIMLANEINST_SL"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.swl");
 					if (msg.contains("HELIUM.FK_TRANS_PROCDEF"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.procdef");
