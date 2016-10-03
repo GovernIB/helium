@@ -22,7 +22,9 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
@@ -671,6 +673,97 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		return conversioTipusHelper.convertir(
 				firmaTasca,
 				FirmaTascaDto.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long entornId, 
+			Long definicioProcesId, 
+			Long agrupacioId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		
+		logger.debug(
+				"Consultant els camps per la definició de procés per datatable (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"agrupacioId=" + agrupacioId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
+				campRepository.findByFiltrePaginat(
+						null,
+						definicioProcesId,
+						agrupacioId == null,
+						agrupacioId != null ? agrupacioId : 0L,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				CampDto.class);
+		
+		// Omple els comptador de validacions i de membres
+		List<Object[]> countValidacions = campRepository.countValidacions(
+				null,
+				definicioProcesId,
+				agrupacioId == null,
+				agrupacioId); 
+		List<Object[]> countMembres= campRepository.countMembres(
+				null,
+				definicioProcesId,
+				agrupacioId == null,
+				agrupacioId); 
+		for (CampDto dto: pagina.getContingut()) {
+			for (Object[] reg: countValidacions) {
+				Long campId = (Long)reg[0];
+				if (campId.equals(dto.getId())) {
+					Integer count = (Integer)reg[1];
+					dto.setValidacioCount(count.intValue());
+					countValidacions.remove(reg);
+					break;
+				}
+			}
+			if (dto.getTipus() == CampTipusDto.REGISTRE) {
+				for (Object[] reg: countMembres) {
+					Long campId = (Long)reg[0];
+					if (campId.equals(dto.getId())) {
+						Integer count = (Integer)reg[1];
+						dto.setCampRegistreCount(count.intValue());
+						countMembres.remove(reg);
+						break;
+					}
+				}
+			}
+		}		
+		
+		return pagina;		
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesDto findAmbIdAndEntorn(
+			Long entornId,
+			Long definicioProcesId) {
+		logger.debug(
+				"Consultant definicioProces amb id i amb permisos de disseny (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId = " + definicioProcesId + ")");
+		DefinicioProces definicioProces;
+			definicioProces = definicioProcesRepository.findByIdAndEntornId(
+					definicioProcesId,
+					entornId);
+		return conversioTipusHelper.convertir(
+				definicioProces,
+				DefinicioProcesDto.class);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);

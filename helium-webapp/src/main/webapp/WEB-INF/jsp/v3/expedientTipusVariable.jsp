@@ -15,17 +15,13 @@
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
 
 <c:choose>
-	<c:when test="${not empty expedientTipus}">
-		<c:if test="${!expedientTipus.ambInfoPropia}">
+	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
+		<c:if test="${empty expedientTipus || !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
 			</div>
 		</c:if>
-		
-		<c:import url="selectorMode.jsp">
-		</c:import>
-		
 		<form class="well">
 			<div class="row">
 				<div class="col-sm-10">

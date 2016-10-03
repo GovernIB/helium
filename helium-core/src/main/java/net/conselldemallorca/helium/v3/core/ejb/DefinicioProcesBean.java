@@ -12,6 +12,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
@@ -209,5 +210,18 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId) {
 		return delegate.tascaFirmaFindById(firmaTascaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<CampDto> campFindPerDatatable(Long entornId, Long definicioProcesId, Long agrupacioId,
+			String filtre, PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.campFindPerDatatable(entornId, definicioProcesId, agrupacioId, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findAmbIdAndEntorn(Long entornId, Long definicioProcesId) throws NoTrobatException {
+		return delegate.findAmbIdAndEntorn(entornId, definicioProcesId);
 	}
 }

@@ -34,6 +34,10 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			String jbpmKey,
 			int versio);
 
+	DefinicioProces findByIdAndEntornId(
+			Long id,
+			Long entornId);
+	
 	List<DefinicioProces> findByEntornAndJbpmKeyOrderByVersioDesc(
 			Entorn entorn,
 			String jbpmKey);

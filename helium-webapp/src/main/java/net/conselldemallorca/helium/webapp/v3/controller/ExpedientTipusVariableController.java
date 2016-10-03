@@ -587,7 +587,6 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 				request, 
 				expedientTipusId, 
 				model);
-		this.omplirModelMode(model);
 	}
 	
 	private void omplirModelVariableForm(
@@ -799,10 +798,6 @@ public class ExpedientTipusVariableController extends BaseExpedientTipusControll
 			Long expedientTipusId,
 			Model model) {
 		model.addAttribute("agrupacions", obtenirParellesAgrupacions(expedientTipusId));		
-	}
-	private void omplirModelMode(
-			Model model) {
-		model.addAttribute("opcioMode", "tipusExpedient");		
 	}
 	
 	private List<ParellaCodiValorDto> obtenirParellesAgrupacions(Long expedientTipusId) {

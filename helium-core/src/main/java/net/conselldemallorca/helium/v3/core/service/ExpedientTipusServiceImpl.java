@@ -2098,6 +2098,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
 				campRepository.findByFiltrePaginat(
 						expedientTipusId,
+						null,
 						agrupacioId == null,
 						agrupacioId != null ? agrupacioId : 0L,
 						filtre == null || "".equals(filtre), 
@@ -2109,10 +2110,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Omple els comptador de validacions i de membres
 		List<Object[]> countValidacions = campRepository.countValidacions(
 				expedientTipusId,
+				null,
 				agrupacioId == null,
 				agrupacioId); 
 		List<Object[]> countMembres= campRepository.countMembres(
 				expedientTipusId,
+				null,
 				agrupacioId == null,
 				agrupacioId); 
 		for (CampDto dto: pagina.getContingut()) {

@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
@@ -364,5 +365,44 @@ public interface DefinicioProcesService {
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId);
-
+	
+	/** 
+	 * Retorna la llista de camps de la definició de procés paginada per la datatable.
+	 * 
+	 * @param entornId
+	 * @param definicioProcesId
+	 * @param agrupacioId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de camps.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long entornId, 
+			Long definicioProcesId, 
+			Long agrupacioId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	/**
+	 * Retorna una definicio de procés donat el seu id per a dissenyar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definicio de proces.
+	 * @return Definicio de proces
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public DefinicioProcesDto findAmbIdAndEntorn(
+			Long entornId,
+			Long definicioProcesId) throws NoTrobatException;
+	
 }
