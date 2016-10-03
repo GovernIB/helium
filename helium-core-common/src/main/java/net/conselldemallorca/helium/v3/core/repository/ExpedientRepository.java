@@ -294,32 +294,27 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			@Param("entornId") Long entornId,
 			@Param("text") String text);
 
+	/** Consulta els tipus d'expedient per id. El conjunt ids no pot tenir
+	 * més de 1000 registres per evitar l'error de BBDD de la clàusula in(...).
+	 * @param ids
+	 * @return
+	 */
 	@Query("select e from Expedient e where " +
-			"        e.id in (:ids1) " +
-			"        or e.id in (:ids2) " +
-			"        or e.id in (:ids3) " +
-			"        or e.id in (:ids4) " +
-			"        or e.id in (:ids5) ")
+			"        e.id in (:ids) ")
 	List<Expedient> findAmbIds(
-			@Param("ids1") Collection<Long> ids1,
-			@Param("ids2") Collection<Long> ids2,
-			@Param("ids3") Collection<Long> ids3,
-			@Param("ids4") Collection<Long> ids4,
-			@Param("ids5") Collection<Long> ids5);
+			@Param("ids") Collection<Long> ids);
 
+	
+	/** Consulta els diferents tipus per id. El conjunt ids no pot tenir
+	 * més de 1000 registres per evitar l'error de BBDD de la clàusula in(...).
+	 * @param ids
+	 * @return
+	 */
 	@Query("select distinct e.tipus.id from Expedient e where " +
-			"        e.id in (:ids1) " +
-			"        or e.id in (:ids2) " +
-			"        or e.id in (:ids3) " +
-			"        or e.id in (:ids4) " +
-			"        or e.id in (:ids5) ")
+			"        e.id in (:ids) ")
 	List<Long> getIdsDiferentsTipusExpedients(
-			@Param("ids1") Collection<Long> ids1,
-			@Param("ids2") Collection<Long> ids2,
-			@Param("ids3") Collection<Long> ids3,
-			@Param("ids4") Collection<Long> ids4,
-			@Param("ids5") Collection<Long> ids5);
-
+			@Param("ids") Collection<Long> ids);
+	
 	@Query(	"select e.id " +
 			"from Expedient e " +
 			"where e.processInstanceId = :processInstanceId")
