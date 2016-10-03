@@ -699,43 +699,27 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
 		List<ExpedientDto> listExpedient = new ArrayList<ExpedientDto>();
 		logger.debug("Consultant l'expedient (ids=" + ids + ")");
-		Set<Long> ids1 = null;
-		Set<Long> ids2 = null;
-		Set<Long> ids3 = null;
-		Set<Long> ids4 = null;
-		Set<Long> ids5 = null;
-		int index = 0;
-		for (Long id: ids) {
-			if (index == 0)
-				ids1 = new HashSet<Long>();
-			if (index == 1000)
-				ids2 = new HashSet<Long>();
-			if (index == 2000)
-				ids3 = new HashSet<Long>();
-			if (index == 3000)
-				ids4 = new HashSet<Long>();
-			if (index == 4000)
-				ids5 = new HashSet<Long>();
-			if (index < 1000)
-				ids1.add(id);
-			else if (index < 2000)
-				ids2.add(id);
-			else if (index < 3000)
-				ids3.add(id);
-			else if (index < 4000)
-				ids4.add(id);
-			else
-				ids5.add(id);
-			index++;
-		}
-		for (Expedient expedient : expedientRepository.findAmbIds(ids1, ids2, ids3, ids4, ids5)) {
-			listExpedient.add(conversioTipusHelper.convertir(
-					expedient,
-					ExpedientDto.class));
+		Iterator<Long> iterator = ids.iterator();
+		Set<Long> idsConsulta = new HashSet<Long>();
+		int consultats = 0;
+		int n, i;
+		while (consultats < ids.size()) {
+			idsConsulta.clear();
+			// Fa la consulta cada 1000 perquè és el màxim d'ids per clàusula in() a la BBDD
+			n = Math.min(1000, ids.size()-consultats);
+			for (i=0; i< n; i++) {
+				idsConsulta.add(iterator.next());
+			}
+			consultats += n;
+			for (Expedient expedient : expedientRepository.findAmbIds(idsConsulta)) {
+				listExpedient.add(conversioTipusHelper.convertir(
+						expedient,
+						ExpedientDto.class));
+			}
 		}
 		return listExpedient;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -969,43 +953,25 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public boolean isDiferentsTipusExpedients(Set<Long> ids) {
-		Set<Long> ids1 = null;
-		Set<Long> ids2 = null;
-		Set<Long> ids3 = null;
-		Set<Long> ids4 = null;
-		Set<Long> ids5 = null;
-		int index = 0;
-		for (Long id: ids) {
-			if (index == 0)
-				ids1 = new HashSet<Long>();
-			if (index == 1000)
-				ids2 = new HashSet<Long>();
-			if (index == 2000)
-				ids3 = new HashSet<Long>();
-			if (index == 3000)
-				ids4 = new HashSet<Long>();
-			if (index == 4000)
-				ids5 = new HashSet<Long>();
-			if (index < 1000)
-				ids1.add(id);
-			else if (index < 2000)
-				ids2.add(id);
-			else if (index < 3000)
-				ids3.add(id);
-			else if (index < 4000)
-				ids4.add(id);
-			else
-				ids5.add(id);
-			index++;
-		}
 		
-		List<Long> idsTipusExpedients = expedientRepository.getIdsDiferentsTipusExpedients(
-				ids1,
-				ids2,
-				ids3,
-				ids4,
-				ids5);
-		return idsTipusExpedients.size() > 1;
+		boolean diferents = false;
+		Set<Long> idsTipusExpedients = new HashSet<Long>();
+		Set<Long> idsConsulta = new HashSet<Long>();
+		Iterator<Long> iterator = ids.iterator();
+		int consultats = 0;
+		int n, i; 
+		while (!diferents && consultats < ids.size()) {
+			idsConsulta.clear();
+			// Fa la consulta cada 1000 perquè és el màxim d'ids per clàusula in() a la BBDD
+			n = Math.min(1000, ids.size()-consultats);
+			for (i=0; i< n; i++) {
+				idsConsulta.add(iterator.next());
+			}
+			consultats += n;
+			idsTipusExpedients.addAll(expedientRepository.getIdsDiferentsTipusExpedients(idsConsulta));
+			diferents = idsTipusExpedients.size() > 1;
+		}
+		return diferents;
 	}
 
 	/**
