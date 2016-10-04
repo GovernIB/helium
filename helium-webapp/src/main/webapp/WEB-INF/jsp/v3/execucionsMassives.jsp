@@ -460,6 +460,8 @@
 								})
 					        }
 				   		});
+					} else {
+						$("#massiva_contens").html('<div class="well"><span class="fa fa-info-circle"></span> No hi ha execucions massives a mostrar</div>');	
 					}
 				}
 			})
@@ -499,70 +501,6 @@
 			});
 			bindButtons();
 		}
-		
-		/*function refreshExecucionsMassives() {
-			$.ajax({
-				url: nivell + "/refreshBarsExpedientMassive",
-				dataType: 'json',
-				data: {results: numResults},
-				async: false,
-				success: function(data) {
-					var length = data.length;
-					var execucio = null;
-					if (length > 0) {
-						// Actualitzam barres de progrés
-						for (var i = 0; i < length; i++) {
-							execucio = data[i];
-							createBar("pbar_" + execucio.id, execucio.executades);
-						}
-						
-						for (var i = 0; i < length; i++) {
-							execucio = data[i];
-							var exps =  execucio.total;
-							var content = "";
-							// Afegim noves execucions
-							if ($("#mass_" + execucio.id).length == 0) {
-								content +=	'<div class="panel-group"><div class="panel panel-default">';
-								content += createTit(execucio);
-								content +=	'<div id="collapse_' + execucio.id + '" class="panel-collapse collapse">';
-								
-								if (exps > 0) {
-									content += 
-										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
-											'<thead>' +
-												'<tr>' +
-													'<th class="massiu-expedient"><spring:message code="expedient.llistat.expedient"/></th>' +
-													'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
-												'</tr>' +
-											'</thead>' +
-										'<tbody>';
-									content += '</tbody></table>';
-								}
-								content += '</div></div>';
-								$("#accordio_massiva").prepend(content);
-								createBar("pbar_" + execucio.id, execucio.executades);
-								
-							    $("#accordio_massiva .panel-heading").click(function() {
-							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-down');
-							    	$(this).find(".icona-collapse").toggleClass('fa-chevron-up');
-						   		});
-							    
-							    $(document).ready(function(){					 
-									$(".msg-error").bind({
-									   mousemove : changeTooltipPosition,
-									   mouseenter : showTooltip
-									});
-								});
-							}
-						}
-					}
-				}
-			})
-			.fail(function( jqxhr, textStatus, error ) {
-				var err = textStatus + ', ' + error;
-				console.log( "Request Failed: " + err);
-			})
-		}*/
 	</script>
 </head>
 <body>	
