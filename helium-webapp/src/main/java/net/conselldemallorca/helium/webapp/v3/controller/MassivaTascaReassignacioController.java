@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -149,8 +148,9 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		if ("user".equals(tipus)) {
 			expression = "user(" + reassignacioTasquesCommand.getUsuari() + ")";
 		} else if ("grup".equals(tipus)) {
-			AreaDto grup = dissenyService.findAreaById(reassignacioTasquesCommand.getGrup());
-			expression = "group(" + grup.getCodi() + ")";
+//			AreaDto grup = dissenyService.findAreaById(reassignacioTasquesCommand.getGrup());
+//			expression = "group(" + grup.getCodi() + ")";
+			expression = "group(" + reassignacioTasquesCommand.getGrup() + ")";
 		}
 		try {
 			EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();

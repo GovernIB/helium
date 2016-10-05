@@ -657,7 +657,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 			label = messageHelper.getMessage("expedient.massiva.accions") + " " + accio;
 		} else if (tipus.equals(ExecucioMassivaTipus.ATURAR_EXPEDIENT)){
-			String motiu = ((String) deserialize(execucioMassiva.getParam2()));
+			Object paramDos = deserialize(execucioMassiva.getParam2());
+			String motiu = null;
+			if (paramDos != null)
+				motiu = paramDos.toString();
 			label = messageHelper.getMessage("expedient.massiva.aturar")+ (motiu == null ? "" : ": "+ (motiu.length() > 20 ? motiu.substring(0,20) : motiu));
 		} else if (tipus.equals(ExecucioMassivaTipus.MODIFICAR_VARIABLE)){
 			label = messageHelper.getMessage("expedient.massiva.modificar_variables") + " " + execucioMassiva.getParam1();
