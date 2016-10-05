@@ -7,7 +7,7 @@ package net.conselldemallorca.helium.webapp.v3.command;
  */
 public class ReassignacioTasquesCommand {
 	private String usuari;
-	private Long grup;
+	private String grup;
 	private String expression;
 	
 	public String getUsuari() {
@@ -16,10 +16,10 @@ public class ReassignacioTasquesCommand {
 	public void setUsuari(String usuari) {
 		this.usuari = usuari;
 	}
-	public Long getGrup() {
+	public String getGrup() {
 		return grup;
 	}
-	public void setGrup(Long grup) {
+	public void setGrup(String grup) {
 		this.grup = grup;
 	}
 	public String getExpression() {
