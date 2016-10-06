@@ -286,8 +286,10 @@ public class TascaTramitacioController extends BaseTascaController {
 		status.setComplete();
 		
 		TascaConsultaCommand filtreCommand = SessionHelper.getSessionManager(request).getFiltreConsultaTasca();
-		filtreCommand.setConsultaTramitacioMassivaTascaId(null);
-		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
+		if (filtreCommand != null) {
+			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
+			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
+		}
 		
 		if (ModalHelper.isModal(request))
 			return modalUrlTancar(false);
