@@ -7,20 +7,21 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusAgrupacio;
+import net.conselldemallorca.helium.webapp.v3.validator.Agrupacio;
 
 /**
  * Command per editar la informació de les agrupacions de variables dels tipus d'expedient 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@ExpedientTipusAgrupacio(groups = {Creacio.class, Modificacio.class})
-public class ExpedientTipusAgrupacioCommand {
+@Agrupacio(groups = {Creacio.class, Modificacio.class})
+public class AgrupacioCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class})
@@ -41,6 +42,12 @@ public class ExpedientTipusAgrupacioCommand {
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	public Long getId() {
 		return id;

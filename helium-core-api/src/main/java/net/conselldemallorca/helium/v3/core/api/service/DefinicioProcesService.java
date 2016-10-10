@@ -2,10 +2,14 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -146,7 +150,7 @@ public interface DefinicioProcesService {
 	
 
 	/** 
-	 * Retorna la llista de camps de la tasca del tipus d'expedient paginada per la datatable.
+	 * Retorna la llista de camps de la tasca de la definició de procés paginada per la datatable.
 	 * 
 	 * @param tascaId
 	 * 
@@ -234,7 +238,7 @@ public interface DefinicioProcesService {
 	
 
 	/** 
-	 * Retorna la llista de documents de la tasca del tipus d'expedient paginada per la datatable.
+	 * Retorna la llista de documents de la tasca de la definició de procés paginada per la datatable.
 	 * 
 	 * @param tascaId
 	 * 
@@ -323,7 +327,7 @@ public interface DefinicioProcesService {
 	
 
 	/** 
-	 * Retorna la llista de firmes de la tasca del tipus d'expedient paginada per la datatable.
+	 * Retorna la llista de firmes de la tasca de la definició de procés paginada per la datatable.
 	 * 
 	 * @param tascaId
 	 * 
@@ -404,5 +408,295 @@ public interface DefinicioProcesService {
 	public DefinicioProcesDto findAmbIdAndEntorn(
 			Long entornId,
 			Long definicioProcesId) throws NoTrobatException;
+	
+	
+	public List<CampAgrupacioDto> agrupacioFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+	
+	/** 
+	 * Retorna la llista d'agrupacions de la definició de procés paginada per la datatable.
+	 * 
+	 * @param definicioProces
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina de la llistat d'agrupacions de la definicio de procés
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<CampAgrupacioDto> agrupacioFindPerDatatable(
+			Long definicioProces,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;	
+	
+	/**
+	 * Crea una nova agrupació.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definicio de procés.
+	 * @param agrupacio
+	 *            La informació de la agrupació a crear.
+	 * @return la agrupació creada.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampAgrupacioDto agrupacioCreate(
+			Long definicioProcesId,
+			CampAgrupacioDto agrupacio) throws PermisDenegatException;
+	
+	/** 
+	 * Retorna la agrupació de camps de la definicio de procés donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return La agrupació de camps de la definició de procés.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public CampAgrupacioDto agrupacioFindAmbId(
+			Long id) throws NoTrobatException;	
+	
+	/**
+	 * Modificació d'una agrupació existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definicio de procés
+	 * @param agrupacio
+	 *            La informació de la agrupació a modificar.
+	 * @return la agrupació modificada.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampAgrupacioDto agrupacioUpdate(
+			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra una entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param agrupacioCampId
+	 *            Atribut id de la agrupació.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void agrupacioDelete(
+			Long agrupacioCampId) throws NoTrobatException, PermisDenegatException;
+	
+	/** Mou la agrupacio id cap a la posició indicada reassignant el valor pel camp ordre.
+	 * 
+	 * @param id
+	 * @param posicio
+	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
+	 */
+	public boolean agrupacioMourePosicio(Long id, int posicio);
+	
+	/**
+	 * Retorna una agrupació de camps d'un tipus d'expedient donat el seu codi.
+	 * 
+	 * @param definicioProcesId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return La agrupació de camps de la definició de procés o null si no el troba.
+	 */
+	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(
+			Long definicioProcesId,
+			String codi) throws NoTrobatException;
+	
+	/**
+	 * Afegeix un camp a una agrupació.
+	 * @param id
+	 * 			Identificador del camp
+	 * @param agrupacioId
+	 * 			Identificador de la agrupació
+	 * @return
+	 * 			Retorna true si ha anat bé o false si no s'ha trobat el camp o la agrupació 
+	 * 			o la seva definicio de procés no és la mateixa
+	 */
+	public boolean campAfegirAgrupacio(Long campId, Long agrupacioId);
+	
+	/**
+	 * Remou un camp de la seva agrupació.
+	 * 
+	 * @param id
+	 * 			Identificador del camp
+	 * @return
+	 * 			Retorna cert si s'ha remogut correctament o false si no existia el camp o no tenia
+	 * 			agrupació.
+	 */
+	public boolean campRemoureAgrupacio(Long campId);
+	
+	/**
+	 * Crea un nou camp.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definició de procés.
+	 * @param camp
+	 *            La informació del camp a crear.
+	 * @return el camp creat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampDto campCreate(
+			Long definicioProcesId,
+			CampDto camp) throws PermisDenegatException;
+	
+	/**
+	 * Modificació d'un camp existent.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id de la definició de procés.
+	 * @param camp
+	 *            La informació del camp a modificar.
+	 * @return el camp modificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public CampDto campUpdate(
+			CampDto camp) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Esborra un entitat.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param campCampId
+	 *            Atribut id del camp.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws CampDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void campDelete(
+			Long campCampId) throws NoTrobatException, PermisDenegatException;	
+	
+	/** 
+	 * Retorna el camp de la definició de procés donat el seu identificador.
+	 * 
+	 * @param id
+	 * 
+	 * @return El camp de la definició de procés.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public CampDto campFindAmbId(
+			Long id) throws NoTrobatException;	
+	
+	/** 
+	 * Retorna la llista de camps de la definició de procés paginada per la datatable.
+	 * 
+	 * @param definicioProcesId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long definicioProcesId,
+			Long agrupacioId,
+			String filtre, 
+			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+	
+	/** 
+	 * Retorna la llista de camps de la definició de procés
+	 * i del tipus data per llistar en un selector.
+	 * 
+	 * @param definicioProcesId
+	 * 
+	 * @return Llistat de camps.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<CampDto> campFindTipusDataPerDefinicioProces(
+			Long definicioProcesId) throws NoTrobatException;
+	
+	/**
+	 * Retorna un camp d'un tipus d'expedient donat el seu codi.
+	 * 
+	 * @param definicioProcesId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return El camp de la definició de procés o null si no el troba.
+	 */
+	public CampDto campFindAmbCodiPerValidarRepeticio(
+			Long definicioProcesId,
+			String codi) throws NoTrobatException;
+
+	/**
+	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador.
+	 * 
+	 * @param definicioProcesId
+	 * @return Els camps de la definició de procés.
+	 */
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long definicioProcesId);
+
+
+	/** Mou el camp id cap a la posició indicada reassignant el valor pel camp ordre dins de la agrupació.
+	 * 
+	 * @param id
+	 * @param posicio
+	 * @return Retorna true si ha anat bé o false si no té agrupació o la posició no és correcta.
+	 */
+	public boolean campMourePosicio(Long id, int posicio);
+	
+	
+	/**
+	 * Retorna les enumeracions de l'entorn
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn
+	 * @return les enumeracions de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<EnumeracioDto> enumeracioFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna els dominis de l'entorn
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn
+	 * @return els dominis de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<DominiDto> dominiFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna les consultes per l'entorn
+	 * 
+	 * @param entorndId
+	 *            Atribut id de l'entorn
+	 * @return les consultes de l'entorn
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
 	
 }

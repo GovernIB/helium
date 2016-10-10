@@ -16,17 +16,28 @@ import org.springframework.transaction.annotation.Transactional;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -35,11 +46,16 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
@@ -52,19 +68,29 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	
 	@Resource
-	DefinicioProcesRepository definicioProcesRepository;
+	private DominiRepository dominiRepository;
 	@Resource
-	TascaRepository tascaRepository;
+	private ConsultaRepository consultaRepository;
 	@Resource
-	CampTascaRepository campTascaRepository;
+	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
-	CampRepository campRepository;
+	private TascaRepository tascaRepository;
 	@Resource
-	DocumentTascaRepository documentTascaRepository;
+	private CampTascaRepository campTascaRepository;
 	@Resource
-	DocumentRepository documentRepository;
+	private CampRepository campRepository;
 	@Resource
-	FirmaTascaRepository firmaTascaRepository;
+	private DocumentTascaRepository documentTascaRepository;
+	@Resource
+	private DocumentRepository documentRepository;
+	@Resource
+	private EnumeracioRepository enumeracioRepository;
+	@Resource
+	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private CampAgrupacioRepository campAgrupacioRepository;
+	@Resource
+	private CampRegistreRepository campRegistreRepository;
 	@Autowired
 	protected Jbpm3HeliumService jbpm3HeliumService;
 
@@ -223,7 +249,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			CampTascaDto tascaCamp) throws PermisDenegatException {
 
 		logger.debug(
-				"Creant nou camp per una tasca del tipus d'expedient (" +
+				"Creant nou camp per una tasca de la definició de procés (" +
 				"tascaId =" + tascaId + ", " +
 				"tascaCamp=" + tascaCamp + ")");
 
@@ -246,7 +272,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional
 	public void tascaCampDelete(Long tascaCampId) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
-				"Esborrant la tascaCamp del tipus d'expedient (" +
+				"Esborrant la tascaCamp de la definició de procés (" +
 				"tascaCampId=" + tascaCampId +  ")");
 		
 		CampTasca tascaCamp = campTascaRepository.findOne(tascaCampId);
@@ -339,7 +365,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	public CampTascaDto tascaCampUpdate(CampTascaDto tascaCamp) 
 						throws NoTrobatException, PermisDenegatException {
 		logger.debug(
-				"Modificant el parametre de la tasca del tipus d'expedient existent (" +
+				"Modificant el parametre de la tasca de la definició de procés existent (" +
 				"tascaCamp.id=" + tascaCamp.getId() + ", " +
 				"tascaCamp =" + tascaCamp + ")");
 		
@@ -381,7 +407,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			DocumentTascaDto tascaDocument) throws PermisDenegatException {
 
 		logger.debug(
-				"Creant nou document per una tasca del tipus d'expedient (" +
+				"Creant nou document per una tasca de la definició de procés (" +
 				"tascaId =" + tascaId + ", " +
 				"tascaDocument=" + tascaDocument + ")");
 
@@ -402,7 +428,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional
 	public void tascaDocumentDelete(Long tascaDocumentId) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
-				"Esborrant la tascaDocument del tipus d'expedient (" +
+				"Esborrant la tascaDocument de la definició de procés (" +
 				"tascaDocumentId=" + tascaDocumentId +  ")");
 		
 		DocumentTasca tascaDocument = documentTascaRepository.findOne(tascaDocumentId);
@@ -495,7 +521,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	public DocumentTascaDto tascaDocumentUpdate(DocumentTascaDto tascaDocument) 
 						throws NoTrobatException, PermisDenegatException {
 		logger.debug(
-				"Modificant el parametre de la tasca del tipus d'expedient existent (" +
+				"Modificant el parametre de la tasca de la definició de procés existent (" +
 				"tascaDocument.id=" + tascaDocument.getId() + ", " +
 				"tascaDocument =" + tascaDocument + ")");
 		
@@ -533,7 +559,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 			FirmaTascaDto tascaFirma) throws PermisDenegatException {
 
 		logger.debug(
-				"Creant nova firma per una tasca del tipus d'expedient (" +
+				"Creant nova firma per una tasca de la definició de procés (" +
 				"tascaId =" + tascaId + ", " +
 				"tascaFirma=" + tascaFirma + ")");
 
@@ -553,7 +579,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	@Transactional
 	public void tascaFirmaDelete(Long tascaFirmaId) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
-				"Esborrant la tascaFirma del tipus d'expedient (" +
+				"Esborrant la tascaFirma de la definició de procés (" +
 				"tascaFirmaId=" + tascaFirmaId +  ")");
 		
 		FirmaTasca tascaFirma = firmaTascaRepository.findOne(tascaFirmaId);
@@ -757,15 +783,633 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Consultant definicioProces amb id i amb permisos de disseny (" +
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
-		DefinicioProces definicioProces;
-			definicioProces = definicioProcesRepository.findByIdAndEntornId(
+		DefinicioProces definicioProces = definicioProcesRepository.findByIdAndEntornId(
 					definicioProcesId,
 					entornId);
 		return conversioTipusHelper.convertir(
 				definicioProces,
 				DefinicioProcesDto.class);
 	}
+	
+	
+	// MANTENIMENT DE CAMPS
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public CampDto campCreate(
+			Long definicioProcesId, 
+			CampDto camp) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nou camp per una definicio de procés (" +
+				"definicioProcesId =" + definicioProcesId + ", " +
+				"camp=" + camp + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		
+		Camp entity = new Camp();
+		entity.setCodi(camp.getCodi());
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setEtiqueta(camp.getEtiqueta());
+		entity.setObservacions(camp.getObservacions());
+		entity.setMultiple(camp.isMultiple());
+		entity.setOcult(camp.isOcult());
+		entity.setIgnored(camp.isIgnored());
+		CampAgrupacio agrupacio = null;
+		if (camp.getAgrupacio() != null) 
+			agrupacio = campAgrupacioRepository.findOne(camp.getAgrupacio().getId());
+		entity.setAgrupacio(agrupacio);
+		if (agrupacio != null && entity.getOrdre() == null) {
+			// Informa de l'ordre dins de la agrupació
+			entity.setOrdre(
+					campRepository.getNextOrdre(
+							agrupacio.getId()));
+		}		
+		// Camp associat a la definicio de procés
+		entity.setDefinicioProces(definicioProces);		
+		
+		// Dades consulta
+		Enumeracio enumeracio = null;
+		if (camp.getEnumeracio() != null) {
+			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
+		}
+		entity.setEnumeracio(enumeracio);
+		Domini domini = null;
+		if (camp.getDomini() != null) {
+			domini = dominiRepository.findOne(camp.getDomini().getId());
+		}
+		entity.setDomini(domini);
+		Consulta consulta = null;
+		if (camp.getConsulta() != null) {
+			consulta = consultaRepository.findOne(camp.getConsulta().getId());
+		}
+		entity.setConsulta(consulta);		
+		entity.setDominiIntern(camp.isDominiIntern());
+
+		// Paràmetres del domini
+		entity.setDominiId(camp.getDominiIdentificador());
+		entity.setDominiParams(camp.getDominiParams());
+		entity.setDominiCampValor(camp.getDominiCampValor());
+		entity.setDominiCampText(camp.getDominiCampText());
+		
+		// Paràmetres de la consulta
+		entity.setConsultaParams(camp.getConsultaParams());
+		entity.setConsultaCampValor(camp.getConsultaCampValor());
+		entity.setConsultaCampText(camp.getConsultaCampText());
+		
+		// Dades de la acció
+		entity.setDefprocJbpmKey(camp.getDefprocJbpmKey());
+		entity.setJbpmAction(camp.getJbpmAction());
+		
+		entity.setDominiCacheText(camp.isDominiCacheText());
+
+		return conversioTipusHelper.convertir(
+				campRepository.save(entity),
+				CampDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public CampDto campUpdate(CampDto camp) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant el camp de la definició de procés existent (" +
+				"camp.id=" + camp.getId() + ", " +
+				"camp =" + camp + ")");
+		Camp entity = campRepository.findOne(camp.getId());
+		entity.setCodi(camp.getCodi());
+		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
+		entity.setEtiqueta(camp.getEtiqueta());
+		entity.setObservacions(camp.getObservacions());
+		entity.setMultiple(camp.isMultiple());
+		entity.setOcult(camp.isOcult());
+		entity.setIgnored(camp.isIgnored());
+		CampAgrupacio agrupacio = null;
+		if (camp.getAgrupacio() != null) 
+			agrupacio = campAgrupacioRepository.findOne(camp.getAgrupacio().getId());
+		entity.setAgrupacio(agrupacio);
+		if (agrupacio != null && entity.getOrdre() == null) {
+			// Informa de l'ordre dins de la agrupació
+			entity.setOrdre(
+					campRepository.getNextOrdre(
+							agrupacio.getId()));
+		}		
+		
+		// Dades consulta
+		Enumeracio enumeracio = null;
+		if (camp.getEnumeracio() != null) {
+			enumeracio = enumeracioRepository.findOne(camp.getEnumeracio().getId());
+		}
+		entity.setEnumeracio(enumeracio);
+		Domini domini = null;
+		if (camp.getDomini() != null) {
+			domini = dominiRepository.findOne(camp.getDomini().getId());
+		}
+		entity.setDomini(domini);
+		Consulta consulta = null;
+		if (camp.getConsulta() != null) {
+			consulta = consultaRepository.findOne(camp.getConsulta().getId());
+		}
+		entity.setConsulta(consulta);		
+		entity.setDominiIntern(camp.isDominiIntern());
+
+		// Paràmetres del domini
+		entity.setDominiId(camp.getDominiIdentificador());
+		entity.setDominiParams(camp.getDominiParams());
+		entity.setDominiCampValor(camp.getDominiCampValor());
+		entity.setDominiCampText(camp.getDominiCampText());
+		
+		// Paràmetres de la consulta
+		entity.setConsultaParams(camp.getConsultaParams());
+		entity.setConsultaCampValor(camp.getConsultaCampValor());
+		entity.setConsultaCampText(camp.getConsultaCampText());
+		
+		// Dades de la acció
+		entity.setDefprocJbpmKey(camp.getDefprocJbpmKey());
+		entity.setJbpmAction(camp.getJbpmAction());
+
+		entity.setDominiCacheText(camp.isDominiCacheText());
+		
+		return conversioTipusHelper.convertir(
+				campRepository.save(entity),
+				CampDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void campDelete(Long campCampId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant el camp de la definició de procés (" +
+				"campId=" + campCampId +  ")");
+		Camp entity = campRepository.findOne(campCampId);
+
+		if (entity != null) {
+			for (CampRegistre campRegistre : entity.getRegistrePares()) {
+				campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
+				campRegistreRepository.delete(campRegistre);	
+				campRegistreRepository.flush();
+				reordenarCampsRegistre(campRegistre.getRegistre().getId());						
+			}
+			campRepository.delete(entity);	
+			campRepository.flush();
+			if (entity.getAgrupacio() != null) {
+				reordenarCamps(entity.getAgrupacio().getId());
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CampDto campFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant el camp de la definició de procés amb id (" +
+				"campId=" + id +  ")");
+		Camp camp = campRepository.findOne(id);
+		if (camp == null) {
+			throw new NoTrobatException(Camp.class, id);
+		}
+		return conversioTipusHelper.convertir(
+				camp,
+				CampDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CampDto campFindAmbCodiPerValidarRepeticio(Long definicioProcesId, String codi) throws NoTrobatException {
+		logger.debug(
+				"Consultant el camp de la definició de procés per codi per validar repetició (" +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"codi = " + codi + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		return conversioTipusHelper.convertir(
+				campRepository.findByDefinicioProcesAndCodi(definicioProces, codi),
+				CampDto.class);
+	}	
+		
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<CampDto> campFindPerDatatable(
+			Long definicioProcesId,
+			Long agrupacioId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els camps per la definicio de procés per datatable (" +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"agrupacioId=" + agrupacioId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		PaginaDto<CampDto> pagina = paginacioHelper.toPaginaDto(
+				campRepository.findByFiltrePaginat(
+						null,
+						definicioProcesId,
+						agrupacioId == null,
+						agrupacioId != null ? agrupacioId : 0L,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				CampDto.class);
+		
+		// Omple els comptador de validacions i de membres
+		List<Object[]> countValidacions = campRepository.countValidacions(
+				null,
+				definicioProcesId,
+				agrupacioId == null,
+				agrupacioId); 
+		List<Object[]> countMembres= campRepository.countMembres(
+				null,
+				definicioProcesId,
+				agrupacioId == null,
+				agrupacioId); 
+		for (CampDto dto: pagina.getContingut()) {
+			for (Object[] reg: countValidacions) {
+				Long campId = (Long)reg[0];
+				if (campId.equals(dto.getId())) {
+					Integer count = (Integer)reg[1];
+					dto.setValidacioCount(count.intValue());
+					countValidacions.remove(reg);
+					break;
+				}
+			}
+			if (dto.getTipus() == CampTipusDto.REGISTRE) {
+				for (Object[] reg: countMembres) {
+					Long campId = (Long)reg[0];
+					if (campId.equals(dto.getId())) {
+						Integer count = (Integer)reg[1];
+						dto.setCampRegistreCount(count.intValue());
+						countMembres.remove(reg);
+						break;
+					}
+				}
+			}
+		}		
+		
+		return pagina;		
+		
+	}
+	
+	@Override
+	@Transactional
+	public boolean campMourePosicio(
+			Long id, 
+			int posicio) {
+		boolean ret = false;
+		Camp camp = campRepository.findOne(id);
+		if (camp != null && camp.getAgrupacio() != null) {
+			List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(camp.getAgrupacio().getId());
+			if(posicio != camps.indexOf(camp)) {
+				camps.remove(camp);
+				camps.add(posicio, camp);
+				int i = 0;
+				for (Camp c : camps) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<CampDto> campFindTipusDataPerDefinicioProces(
+			Long definicioProcesId) {
+		logger.debug(
+				"Consultant els camps del tipus data" +
+				" per la definicio de procés desplegable");
+		
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		
+		List<Camp> camps = campRepository.findByDefinicioProcesAndTipus(definicioProces, TipusCamp.DATE);
+		
+		return conversioTipusHelper.convertirList(
+				camps, 
+				CampDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long definicioProcesId) {
+		logger.debug(
+				"Consultant tots els camps de la definicio de proces per al desplegable " +
+				" de camps del registre (definicioProcesId=" + definicioProcesId + ")");
+		
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		
+		List<Camp> camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		
+		return conversioTipusHelper.convertirList(
+				camps, 
+				CampDto.class);
+	}
+	
+	
+	// MANTENIMENT D'AGRUPACIONS DE CAMPS
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampAgrupacioDto> agrupacioFindAll(Long definicioProcesId){
+		List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProcesId);
+		return conversioTipusHelper.convertirList(
+									agrupacions, 
+									CampAgrupacioDto.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CampAgrupacioDto agrupacioFindAmbId(Long id) throws NoTrobatException {
+		logger.debug(
+				"Consultant la agrupacio de camps del la definició de procés amb id (" +
+				"campAgrupacioId=" + id +  ")");
+		CampAgrupacio  agrupacio = campAgrupacioRepository.findOne(id);
+		if (agrupacio == null) {
+			throw new NoTrobatException(CampAgrupacio.class, id);
+		}
+		return conversioTipusHelper.convertir(
+				agrupacio,
+				CampAgrupacioDto.class);
+	}
+	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public CampAgrupacioDto agrupacioCreate(
+			Long definicioProcesId, 
+			CampAgrupacioDto agrupacio) throws PermisDenegatException {
+
+		logger.debug(
+				"Creant nova agrupació de camp per una definicio de procés (" +
+				"definicioProcesId =" + definicioProcesId + ", " +
+				"agrupacio=" + agrupacio + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		
+		CampAgrupacio entity = new CampAgrupacio();
+		entity.setCodi(agrupacio.getCodi());
+		entity.setNom(agrupacio.getNom());
+		entity.setDescripcio(agrupacio.getDescripcio());
+		entity.setOrdre(campAgrupacioRepository.getNextOrdre(null, definicioProcesId));
+
+		// Camp associat a la definicio de procés
+		entity.setDefinicioProces(definicioProces);
+
+		return conversioTipusHelper.convertir(
+				campAgrupacioRepository.save(entity),
+				CampAgrupacioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public CampAgrupacioDto agrupacioUpdate(
+			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Modificant la agrupacio de camp de la definició de procés existent (" +
+				"agrupacio.id=" + agrupacio.getId() + ", " +
+				"agrupacio =" + agrupacio + ")");
+		CampAgrupacio entity = campAgrupacioRepository.findOne(agrupacio.getId());
+		entity.setCodi(agrupacio.getCodi());
+		entity.setNom(agrupacio.getNom());
+		entity.setDescripcio(agrupacio.getDescripcio());
+		
+		return conversioTipusHelper.convertir(
+				campAgrupacioRepository.save(entity),
+				CampAgrupacioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public boolean agrupacioMourePosicio(
+			Long id, 
+			int posicio) {
+		boolean ret = false;
+		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(id);
+		if (agrupacio != null) {
+			List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(agrupacio.getDefinicioProces().getId());
+			if(posicio != agrupacions.indexOf(agrupacio)) {
+				agrupacions.remove(agrupacio);
+				agrupacions.add(posicio, agrupacio);
+				int i = 0;
+				for (CampAgrupacio c : agrupacions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void agrupacioDelete(Long agrupacioCampId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant la agrupacio de camp de la definició de procés (" +
+				"agrupacioCampId=" + agrupacioCampId +  ")");
+		CampAgrupacio entity = campAgrupacioRepository.findOne(agrupacioCampId);
+		if (entity != null) {			
+			for (Camp camp : entity.getCamps()) {
+				camp.setAgrupacio(null);
+				camp.setOrdre(null);
+				campRepository.save(camp);
+			}			
+			campAgrupacioRepository.delete(entity);
+			campAgrupacioRepository.flush();
+		}
+		reordenarAgrupacions(entity.getDefinicioProces().getId());
+	}
+	
+	/** Funció per reasignar el valor d'ordre per a les agrupacions d'una definicio de procés */
+	@Transactional
+	private int reordenarAgrupacions(Long definicioProcesId) {
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		List<CampAgrupacio> campsAgrupacio = definicioProces.getAgrupacions();
+		int i = 0;
+		for (CampAgrupacio campAgrupacio: campsAgrupacio)
+			campAgrupacio.setOrdre(i++);
+		return campsAgrupacio.size();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CampAgrupacioDto agrupacioFindAmbCodiPerValidarRepeticio(
+								Long definicioProcesId, 
+								String codi) throws NoTrobatException {
+		logger.debug(
+				"Consultant la agrupacio de camps de la definició de procés per codi per validar repetició (" +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"codi = " + codi + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		return conversioTipusHelper.convertir(
+				campAgrupacioRepository.findByDefinicioProcesAndCodi(definicioProces, codi),
+				CampAgrupacioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<CampAgrupacioDto> agrupacioFindPerDatatable(
+			Long definicioProcesId,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant les agrupacions per la definicio de procés per datatable (" +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				campAgrupacioRepository.findByFiltrePaginat(
+						null,
+						definicioProcesId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				CampAgrupacioDto.class);		
+	}	
+	
+	@Override
+	@Transactional
+	public boolean campAfegirAgrupacio(
+			Long campId, 
+			Long agrupacioId) {
+		boolean ret = false;
+		logger.debug(
+				"Afegint camp de definicio de proces a la agrupació (" +
+				"campId=" + campId + ", " +
+				"agrupacioId = " + agrupacioId + ")");
+		Camp camp = campRepository.findOne(campId);
+		CampAgrupacio agrupacio = campAgrupacioRepository.findOne(agrupacioId);
+		if (camp != null && agrupacio != null && camp.getDefinicioProces().getId().equals(agrupacio.getDefinicioProces().getId())) {
+			camp.setAgrupacio(agrupacio);
+			reordenarCamps(agrupacioId);
+			ret = true;
+		}
+		return ret;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public boolean campRemoureAgrupacio(Long campId) {
+		boolean ret = false;
+		logger.debug(
+				"Remoguent el camp de tipus de definició de procés de la seva agrupació(" +
+				"campId=" + campId + ")");
+		Camp camp = campRepository.findOne(campId);
+		if (camp != null && camp.getAgrupacio() != null) {
+			Long agrupacioId = camp.getAgrupacio().getId();
+			camp.setAgrupacio(null);
+			camp.setOrdre(null);
+			reordenarCamps(agrupacioId);
+			ret = true;
+		}
+		return ret;
+	}
+	/////////////////
+	/////////////////
+	
+	
+	/** Funció per reasignar el valor d'ordre dins d'una agrupació de variables. */
+	private void reordenarCamps(Long agrupacioId) {
+		List<Camp> camps = campRepository.findByAgrupacioIdOrderByOrdreAsc(agrupacioId);		
+		int i = 0;
+		for (Camp camp: camps)
+			camp.setOrdre(i++);
+	}
+	
+	/** Funció per reasignar el valor d'ordre dins dels camps d'una variable de tipus registre. */
+	private void reordenarCampsRegistre(Long campId) {
+		List<CampRegistre> campRegistres = campRegistreRepository.findAmbCampOrdenats(campId);		
+		int i=-1;
+		for (CampRegistre c : campRegistres) {
+			c.setOrdre(i);
+			campRegistreRepository.saveAndFlush(c);
+			i--;
+		}
+		i = 0;
+		for (CampRegistre c : campRegistres) {
+			c.setOrdre(i);
+			campRegistreRepository.saveAndFlush(c);
+			i++;
+		}
+	}
+	
+	
+	// MANTENIMENT D'ENUMERACIONS
+	@Override
+	@Transactional(readOnly = true)
+	public List<EnumeracioDto> enumeracioFindByEntorn(
+			Long entornId) {
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<Enumeracio> enumeracions = enumeracioRepository.findByEntorn(entorn);
+		return conversioTipusHelper.convertirList(
+									enumeracions, 
+									EnumeracioDto.class);
+	}
+	
+	// MANTENIMENT DE DOMINIS
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<DominiDto> dominiFindByEntorn(
+			Long entornId) {
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<Domini> dominins = dominiRepository.findByEntorn(entorn);
+		return conversioTipusHelper.convertirList(
+									dominins, 
+									DominiDto.class);
+	}
+
+	// MANTENIMENT DE CONSULTES
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<ConsultaDto> consultaFindByEntorn(
+			Long entornId) {
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		List<Consulta> consultans = consultaRepository.findByEntorn(entorn);
+		return conversioTipusHelper.convertirList(
+									consultans, 
+									ConsultaDto.class);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
-
 }

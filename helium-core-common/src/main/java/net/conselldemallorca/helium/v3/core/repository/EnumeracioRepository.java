@@ -32,6 +32,8 @@ public interface EnumeracioRepository extends JpaRepository<Enumeracio, Long> {
 	Enumeracio findByEntornAndCodi(
 			Entorn entorn,
 			String codi);
+	
+	List<Enumeracio> findByEntorn(Entorn entorn);
 
 	@Query(	"from " +
 			"    Enumeracio enu " +

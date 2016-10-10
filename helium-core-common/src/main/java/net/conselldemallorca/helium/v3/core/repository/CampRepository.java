@@ -68,6 +68,10 @@ public interface CampRepository extends JpaRepository<Camp, Long> {
 	List<Camp> findByExpedientTipusOrderByCodiAsc(
 			ExpedientTipus expedientTipus);
 	
+	List<Camp> findByDefinicioProcesAndTipus(
+			DefinicioProces definicioProces,
+			TipusCamp estat);
+	
 	/** Compta el número de validacions per a cada camp passat per la llista d'identificadors. */
 	@Query(	"select " +
 			"    id, " +

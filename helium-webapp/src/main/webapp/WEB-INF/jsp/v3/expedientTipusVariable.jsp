@@ -16,7 +16,7 @@
 
 <c:choose>
 	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
-		<c:if test="${empty expedientTipus || !expedientTipus.ambInfoPropia}">
+		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
@@ -31,11 +31,11 @@
 					<div id="agrupacionsAccions" class="dropdown" style="margin-right: -10px;">
 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 						<ul class="dropdown-menu">
-							<li><a href="${expedientTipus.id}/agrupacio/new" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.crear"/></a></li>
-							<li style="display: none;"><a id="agrupacioUpdate" href="${expedientTipus.id}/agrupacio/update" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.modificar"/></a></li>
-							<li style="display: none;"><a id="agrupacioDelete" href="${expedientTipus.id}/agrupacio/delete" data-confirm="<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar.confirm"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar"/></a></li>
+							<li><a href="${baseUrl}/agrupacio/new" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.crear"/></a></li>
+							<li style="display: none;"><a id="agrupacioUpdate" href="${baseUrl}/agrupacio/update" data-toggle="modal" data-callback="callbackModalAgrupacions()"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.modificar"/></a></li>
+							<li style="display: none;"><a id="agrupacioDelete" href="${baseUrl}/agrupacio/delete" data-confirm="<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar.confirm"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.esborrar"/></a></li>
 							<li class="divider"></li>
-							<li><a href="${expedientTipus.id}/agrupacio" data-toggle="modal" data-callback="refrescarAgrupacions()"><span class="fa fa-arrows-v"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.ordenar"/></a></li>
+							<li><a href="${baseUrl}/agrupacio" data-toggle="modal" data-callback="refrescarAgrupacions()"><span class="fa fa-arrows-v"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.agrupacio.boto.ordenar"/></a></li>
 						</ul>
 					</div>
 				</div>
@@ -45,7 +45,7 @@
 		<table	id="expedientTipusVariable"
 				data-rowId="id"
 				data-toggle="datatable"
-				data-url="${expedientTipus.id}/variable/datatable"
+				data-url="${baseUrl}/variable/datatable"
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-ordering="true"
@@ -70,13 +70,13 @@
 					</th>
 					<th data-col-name="validacioCount" data-template="#cellValidacionsTemplate" data-orderable="false" width="13%">
 						<script id="cellValidacionsTemplate" type="text/x-jsrender">
-						<a href="${expedientTipus.id}/variable/{{:id}}/validacio" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
+						<a href="${baseUrl}/variable/{{:id}}/validacio" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.validacions"/>&nbsp;<span class="badge">{{:validacioCount}}</span></a>
 					</script>
 					</th>
 					<th data-col-name="campRegistreCount" data-template="#cellMembresTemplate" data-orderable="false" width="13%">
 						<script id="cellMembresTemplate" type="text/x-jsrender">
 						{{if tipus == "REGISTRE" }}
-							<a href="${expedientTipus.id}/variable/{{:id}}/campRegistre" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.campsRegistre"/>&nbsp;<span class="badge">{{:campRegistreCount}}</span></a>
+							<a href="${baseUrl}/variable/{{:id}}/campRegistre" data-toggle="modal" data-callback="callbackModalVariables()" class="btn btn-default"><spring:message code="expedient.tipus.camp.llistat.accio.campsRegistre"/>&nbsp;<span class="badge">{{:campRegistreCount}}</span></a>
 						{{/if}}
 					</script>
 					</th>
@@ -85,15 +85,15 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${expedientTipus.id}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${expedientTipus.id}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a data-toggle="modal" data-callback="callbackModalVariables()" href="${baseUrl}/variable/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a href="${baseUrl}/variable/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								<li class="divider"></li>
 								<li id="accioAgrupacions">
 									{{if agrupacio == null}}
 										<span class="fa fa-plus" style="margin-left:10px"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.agrupar"/>
 										<br/>						
 									{{else}}
-										<a href="${expedientTipus.id}/variable/{{:id}}/desagrupar"
+										<a href="${baseUrl}/variable/{{:id}}/desagrupar"
 												data-toggle="ajax" ><span class="fa fa-minus"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.desagrupar"/>
 									{{/if}}																		
 								</li>
@@ -106,7 +106,7 @@
 		</table>
 		<script id="tableButtonsVariableTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/variable/new" data-toggle="modal" data-callback="callbackModalVariables()" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/variable/new" data-toggle="modal" data-callback="callbackModalVariables()" data-datatable-id="expedientTipusVariable"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.camp.llistat.accio.nova"/></a>
 			</div>
 		</script>
 	</c:when>
@@ -148,15 +148,15 @@ $(document).ready(function() {
 	$('#agrupacions').change(function() {
 		var agrupacioId = $(this).val();
 		if (agrupacioId != "") {
-			$('#nou_camp').attr('href', '${expedientTipus.id}/variable/new?agrupacioId=' + agrupacioId);
-			$('#agrupacioUpdate').attr('href', '${expedientTipus.id}/agrupacio/' + agrupacioId + '/update');
-			$('#agrupacioDelete').attr('href', '${expedientTipus.id}/agrupacio/' + agrupacioId + '/delete');
+			$('#nou_camp').attr('href', '${baseUrl}/variable/new?agrupacioId=' + agrupacioId);
+			$('#agrupacioUpdate').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/update');
+			$('#agrupacioDelete').attr('href', '${baseUrl}/agrupacio/' + agrupacioId + '/delete');
 			$('#agrupacioUpdate,#agrupacioDelete').closest('li').show();			
 			// Mostra la columna d'ordre
 			$('#expedientTipusVariable').DataTable().order([2, 'asc']);
 			$('#expedientTipusVariable').DataTable().column(2).visible(true);
 		} else {
-			$('#nou_camp').attr('href', '${expedientTipus.id}/variable/new');
+			$('#nou_camp').attr('href', '${baseUrl}/variable/new');
 			$('#agrupacioUpdate,#agrupacioDelete').closest('li').hide();
 			// Amaga la columna d'ordre
 			$('#expedientTipusVariable').DataTable().order([3, 'asc']);
@@ -177,7 +177,7 @@ $(document).ready(function() {
 					$agrupacions = $(this).find("#accioAgrupacions");
 					$("#agrupacions option").each(function(){
 						if ($(this).val() != "")
-							$agrupacions.append("<a href='${expedientTipus.id}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
+							$agrupacions.append("<a href='${baseUrl}/variable/"+campId+"/agrupar/"+$(this).val()+"' data-toggle='ajax'>"+$(this).text()+"</a>");
 					});
 				}
 			});
@@ -213,7 +213,7 @@ $(document).ready(function() {
 });
 
 function canviarPosicioVariable( id, pos) {
-	var getUrl = '${expedientTipus.id}/variable/'+id+'/moure/'+pos;
+	var getUrl = '${baseUrl}/variable/'+id+'/moure/'+pos;
 	$.ajax({
 		type: 'GET',
 		url: getUrl,
@@ -248,15 +248,15 @@ function obtenirId(pos){
 function refrescaTaula() {
 	var agrupacioId = $("#agrupacions").val();
 	if (agrupacioId != "" && agrupacioId != null) {
-		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${expedientTipus.id}/variable/datatable?agrupacioId='+agrupacioId);		
+		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable?agrupacioId='+agrupacioId);		
 	} else {
-		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${expedientTipus.id}/variable/datatable');
+		$('#expedientTipusVariable').webutilDatatable('refresh-url', '${baseUrl}/variable/datatable');
 	}
 }
 
 function refrescarAgrupacions() {
 	$("#agrupacionsAccions").removeClass('open');
-	var getUrl = '${expedientTipus.id}/agrupacio/select';
+	var getUrl = '${baseUrl}/agrupacio/select';
 	var vActual = $("#agrupacions").val();
 	$.ajax({
 		type: 'GET',

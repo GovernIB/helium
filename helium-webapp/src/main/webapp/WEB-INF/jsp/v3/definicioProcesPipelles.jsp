@@ -200,13 +200,13 @@
 				<div class="col-sm-10">
 					<hel:inputSelect required="false" emptyOption="false" name="versions" textKey="definicio.proces.pipelles.definicio.proces.actual" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
-				<div class="col-sm-2 text-right">
-					<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
-						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-						</ul>
-					</div>
-				</div>
+<!-- 				<div class="col-sm-2 text-right"> -->
+<!-- 					<div id="versioAccions" class="dropdown" style="margin-right: -10px;"> -->
+<%-- 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> --%>
+<!-- 						<ul class="dropdown-menu"> -->
+<!-- 						</ul> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
 			</div>
 		</form>
 
@@ -229,7 +229,7 @@
 				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/tasca"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-variables" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/variables"/>">
+				<div id="contingut-variables" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/variable"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-recursos" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/recurs"/>">

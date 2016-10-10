@@ -37,7 +37,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -280,10 +279,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampAgrupacioDto agrupacioUpdate(
-			Long expedientTipusId, 
 			CampAgrupacioDto agrupacio) throws NoTrobatException, PermisDenegatException {
 		return delegate.agrupacioUpdate(
-				expedientTipusId, 
 				agrupacio);
 	}
 
@@ -561,45 +558,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.enumeracioValorFindAmbCodi(expedientTipusId, enumeracioId, codi);
 	}
 
-	/// Validacions
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ValidacioDto validacioCreate(Long campId, ValidacioDto validacio) throws PermisDenegatException {
-		return delegate.validacioCreate(campId, validacio);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ValidacioDto validacioUpdate(ValidacioDto validacio) throws NoTrobatException, PermisDenegatException {
-		return delegate.validacioUpdate(validacio);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void validacioDelete(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.validacioDelete(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ValidacioDto validacioFindAmbId(Long id) throws NoTrobatException {
-		return delegate.validacioFindAmbId(id);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ValidacioDto> validacioFindPerDatatable(Long campId, String filtre,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.validacioFindPerDatatable(campId, filtre, paginacioParams);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean validacioMourePosicio(Long id, int posicio) {
-		return delegate.validacioMourePosicio(id, posicio);
-	}
-	
 	/// CampsRegistre
 	
 	@Override

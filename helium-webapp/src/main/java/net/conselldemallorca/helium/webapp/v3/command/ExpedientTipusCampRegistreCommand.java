@@ -5,16 +5,16 @@ package net.conselldemallorca.helium.webapp.v3.command;
 
 import javax.validation.constraints.NotNull;
 
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand.Modificacio;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusAgrupacio;
+import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.validator.Agrupacio;
 
 /**
  * Command per editar la informació de les validacions de variables dels tipus d'expedient 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@ExpedientTipusAgrupacio(groups = {Creacio.class, Modificacio.class})
+@Agrupacio(groups = {Creacio.class, Modificacio.class})
 public class ExpedientTipusCampRegistreCommand {
 	
 	private Long expedientTipusId;

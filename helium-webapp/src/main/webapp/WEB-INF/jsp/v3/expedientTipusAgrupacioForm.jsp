@@ -6,7 +6,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <c:choose>
-	<c:when test="${empty expedientTipusAgrupacioCommand.id}"><
+	<c:when test="${empty agrupacioCommand.id}"><
 		<c:set var="titol"><spring:message code="expedient.tipus.campAgrupacio.form.titol.nou"/></c:set>
 		<c:set var="formAction">new</c:set>
 	</c:when>
@@ -26,14 +26,14 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusAgrupacioCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="agrupacioCommand">
 		<div class="inlineLabels">
         
 			<script type="text/javascript">
 				// <![CDATA[
 				// ]]>
 			</script>			
-			<input type="hidden" name="id" value="${expedientTipusAgrupacioCommand.id}"/>
+			<input type="hidden" name="id" value="${agrupacioCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.campAgrupacio.form.camp.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.campAgrupacio.form.camp.nom" />
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.campAgrupacio.form.camp.descripcio" />
@@ -42,7 +42,7 @@
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<c:choose>
-				<c:when test="${empty expedientTipusAgrupacioCommand.id}">
+				<c:when test="${empty expedientTipusAgrupacioagrupacioCommand.id}">
 					<button class="btn btn-primary right" type="submit" name="accio" value="crear">
 						<span class="fa fa-plus"></span> <spring:message code='comu.boto.crear' />
 					</button>
