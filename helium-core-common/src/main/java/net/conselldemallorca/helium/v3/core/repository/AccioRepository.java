@@ -30,6 +30,8 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 	public List<Accio> findAmbExpedientTipusAndOcultaFalse(
 			@Param("expedientTipus") ExpedientTipus expedientTipus);
 		
+	Accio findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);
+
 	Accio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);
 	
 	@Query(	"from Accio a " +
@@ -42,6 +44,12 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 
+	@Query("select a "
+			+ "from Accio a "
+			+ "where a.definicioProces.id = :definicioProcesId "
+			+ "order by a.codi")
+	public List<Accio> findAmbDefinicioProces(@Param("definicioProcesId")Long definicioProcesId);	
+	
 	@Query("select a "
 			+ "from Accio a "
 			+ "where a.expedientTipus.id = :expedientTipusId "

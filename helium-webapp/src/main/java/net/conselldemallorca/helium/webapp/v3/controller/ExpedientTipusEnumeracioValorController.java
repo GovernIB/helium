@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand;
@@ -264,7 +264,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),	expedientTipusId);
 			model.addAttribute("expedientTipus", expedientTipus);
 			
-			ExpedientTipusEnumeracioDto enumeracio = expedientTipusService.enumeracioFindAmbId(enumeracioId);
+			EnumeracioDto enumeracio = expedientTipusService.enumeracioFindAmbId(enumeracioId);
 			model.addAttribute("enumeracio", enumeracio);
 			
 			if (ficaCommand) {

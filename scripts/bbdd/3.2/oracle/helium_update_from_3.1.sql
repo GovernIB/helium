@@ -96,17 +96,6 @@ ALTER TABLE HEL_TERMINI		ADD ( CONSTRAINT HEL_EXPTIP_TERMINI_FK 		FOREIGN KEY (E
 ALTER TABLE HEL_ACCIO 		ADD ( CONSTRAINT HEL_EXPTIP_ACCIO_FK 		FOREIGN KEY (EXPEDIENT_TIPUS_ID) REFERENCES HEL_EXPEDIENT_TIPUS (ID));
 
 --------------------------------------------------------
--- 821 Manteniment de tipus d'expedient
---------------------------------------------------------
-
--- Afegeix la FK camp al camp als camps de consultes
-ALTER TABLE HEL_CONSULTA_CAMP ADD CAMP_ID NUMBER(19,0);
-CREATE INDEX HEL_CONSULTACAMP_CAMP_I ON HEL_CONSULTA_CAMP (CAMP_ID);
-ALTER TABLE HEL_CONSULTA_CAMP ADD ( CONSTRAINT HEL_CAMP_CONCAMP_FK FOREIGN KEY (CAMP_ID) REFERENCES HEL_CAMP (ID));
-
-
-
---------------------------------------------------------
 -- 8889 Millores en el procés d'importació de tipus d'expedients
 --------------------------------------------------------
 

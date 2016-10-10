@@ -16,7 +16,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExpedientTipusImportar {
 
-	String message() default "expedient.tipus.exportar.validacio";
+	String message() default "exportar.validacio";
 
 	Class<?>[] groups() default {};
 

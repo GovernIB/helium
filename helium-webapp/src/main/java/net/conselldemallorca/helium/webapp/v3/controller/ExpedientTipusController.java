@@ -331,6 +331,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 
 		ExpedientTipusExportarCommand command = new ExpedientTipusExportarCommand();
 		command.setId(expedientTipusId);
+		command.setEntornId(entornActual.getId());
 		command.setIntegracioSistra(true);
 		command.setIntegracioForms(true);
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment

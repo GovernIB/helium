@@ -32,7 +32,10 @@ import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusUpload;
 public class ExpedientTipusExportarCommand {
 
 	@NotNull(groups = {Exportacio.class})
+	private Long entornId = null;
+	@NotNull(groups = {Exportacio.class})
 	private Long id = null;	
+	
 
 	// Camps per a la importació
 	private boolean dadesBasiques;
@@ -78,6 +81,14 @@ public class ExpedientTipusExportarCommand {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Long getEntornId() {
+		return entornId;
+	}
+
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
 	}
 
 	public boolean isDadesBasiques() {

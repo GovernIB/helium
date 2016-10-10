@@ -40,8 +40,26 @@
 				<input type="hidden" name="consultaId" id="inputConsultaId" value="${expedientTipusConsultaVarCommand.consultaId}"/>
 				<input type="hidden" name="tipus" id="inputTipus" value="${expedientTipusConsultaVarCommand.tipus}"/>
 		<div class="row">
+			<div class="col-sm-10">			
+				<div class="form-group">
+					<label class="control-label col-xs-4" for="origen">Origen</label>
+					<div class="controls col-xs-8">
+						<select title="Variable" tabindex="-1" id="origen" name="origen" class="form-control select2-offscreen">
+							<option value="-2"><spring:message code="expedient.tipus.consulta.vars.origen.expedient"/></option>
+							<option value="-1"><spring:message code="expedient.tipus.consulta.vars.origen.tipus.expedient"/></option>
+							<optgroup label="<spring:message code='expedient.tipus.consulta.vars.origen.definicions.proces'/>">
+								<c:forEach items="${definicionsProces}" var="definicioProces">
+									<option value="${definicioProces.id}">${definicioProces.jbpmKey} v.${definicioProces.versio}</option>
+								</c:forEach>									
+							</optgroup>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col-sm-10">
-				<hel:inputSelect required="true" emptyOption="true" name="campId" textKey="expedient.tipus.consulta.vars.form.variable" placeholderKey="expedient.tipus.consulta.vars.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				<hel:inputSelect required="true" emptyOption="true" name="campCodi" textKey="expedient.tipus.consulta.vars.form.variable" placeholderKey="expedient.tipus.consulta.vars.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</div>
 			<div class="col-sm-2 right" id="modal-botons">
 				<button id="btnCreate" class="btn btn-primary right" type="submit" name="accio" value="crear">
@@ -61,20 +79,23 @@
 				data-url="${baseUrl}/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
-				data-default-order="4"
+				data-default-order="5"
 				data-filtre="#consultaVarFiltre"
 				class="table table-striped table-bordered table-hover">
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="campEtiqueta" data-visible="false"/>
-					<th data-col-name="campCodi" data-template="#cellConsultaVarCodiEtiquetaTemplate" data-orderable="true">
-						<spring:message code="expedient.tipus.consulta.vars.llistat.columna.variable"/>
+					<th data-col-name="codiEtiqueta" data-orderable="false"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.variable"/></th>
+					<th data-col-name="campTipus" data-orderable="false"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.tipus"/></th>
+					<th data-col-name="defprocVersio" data-visible="false"/>
+					<th data-col-name="defprocJbpmKey" data-orderable="true" data-template="#cellConsultaVarCodiEtiquetaTemplate">
+						<spring:message code="expedient.tipus.consulta.vars.llistat.columna.defincioProces"/>
 						<script id="cellConsultaVarCodiEtiquetaTemplate" type="text/x-jsrender">
-							{{:campCodi}} / {{:campEtiqueta}}
+							{{if defprocVersio >= 0}}
+								{{:defprocJbpmKey}} v.{{:defprocVersio}}
+							{{/if}}
 						</script>
 					</th>
-					<th data-col-name="campTipus"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.tipus"/></th>
 					<th data-col-name="ordre"><spring:message code="expedient.tipus.consulta.vars.llistat.columna.ordre"/></th>
 					<th data-col-name="id" width="100px" data-template="#cellConsultaVarTemplate" data-orderable="false" width="10%">
 						<script id="cellConsultaVarTemplate" type="text/x-jsrender">
@@ -93,6 +114,7 @@
 		
 		// Quan es repinta la taula aplica la reordenació
 		$('#consultaVar').on('draw.dt', function() {
+			$('#origen').select2();
 			// Posa la taula com a ordenable
 			$("#consultaVar").tableDnD({
 		    	onDragClass: "drag",
@@ -132,13 +154,18 @@
 				e.stopImmediatePropagation();
 				return false;				
 			});		    
-		  });			
+		  });		
+		// Quan es canvia la selecció de l'origen s'actualitzen les variables
+		$('#origen').change(function() {
+			$('#campCodi').select2('data', null);
+			refrescaVariables();
+		});
 	});
 
 	
 	function canviarPosicioConsultaVar( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
-		$('#consultaVar').DataTable().order([4, 'asc']);
+		$('#consultaVar').DataTable().order([5, 'asc']);
 		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var/"/>'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
@@ -171,20 +198,24 @@
 	}
 		
 	function refrescaVariables() {
-		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var/select?tipus=${tipus}"/>';
+		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/consulta/${consulta.id}/var/select"/>';
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
+			dataType: "json",
+			data: { 
+					tipus: '${tipus}' , 
+					origen: $('#origen').val() },
 			async: true,
 			success: function(data) {
-				$("#campId option").each(function(){
+				$("#campCodi option").each(function(){
 				    $(this).remove();
 				});
-				$("#campId").append($("<option/>"));
+				$("#campCodi").append($("<option/>"));
 				for (i = 0; i < data.length; i++) {
-					$("#campId").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+					$("#campCodi").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 				}
-				$("#campId").val('').change();
+				$("#campCodi").val('').change();
 			},
 			error: function(e) {
 				console.log("Error obtenint variables: " + e);

@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.v3.core.api.exportacio;
 
 import java.io.Serializable;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusParamConsultaCamp;
 
@@ -20,7 +19,6 @@ public class ConsultaCampExportacio implements Serializable {
 	private String jbpmKey;
 	private TipusConsultaCamp tipusConsultaCamp;
 	private TipusParamConsultaCamp tipusParamConsultaCamp;
-	private CampTipusDto tipusCamp;
 	private String campDescripcio;
 	private int ordre;
 
@@ -29,14 +27,12 @@ public class ConsultaCampExportacio implements Serializable {
 			String jbpmKey,
 			TipusConsultaCamp tipusConsultaCamp,
 			TipusParamConsultaCamp tipusParamConsultaCamp,
-			CampTipusDto tipusCamp,
 			String campDescripcio,
 			int ordre) {
 		this.campCodi = campCodi;
 		this.jbpmKey = jbpmKey;
 		this.tipusConsultaCamp = tipusConsultaCamp;
 		this.tipusParamConsultaCamp = tipusParamConsultaCamp;
-		this.tipusCamp = tipusCamp;
 		this.campDescripcio = campDescripcio;
 		this.ordre = ordre;
 	}
@@ -58,12 +54,6 @@ public class ConsultaCampExportacio implements Serializable {
 	}
 	public void setTipusConsultaCamp(TipusConsultaCamp tipusConsultaCamp) {
 		this.tipusConsultaCamp = tipusConsultaCamp;
-	}
-	public CampTipusDto getCampTipusDto() {
-		return tipusCamp;
-	}
-	public void setCampTipusDto(CampTipusDto tipusCamp) {
-		this.tipusCamp = tipusCamp;
 	}
 	public int getOrdre() {
 		return ordre;

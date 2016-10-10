@@ -72,9 +72,9 @@
 								<c:if test="${potEscriure}">
 									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/update"/>"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 								</c:if>
-								<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/exportar"/>"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.exportar"/></a></li>
+								<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/exportar"/>"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 								<c:if test="${potEscriure}">
-									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/importar?expedientTipusId=${expedientTipus.id}"/>"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.importar"/></a></li>
+									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/importar?expedientTipusId=${expedientTipus.id}"/>"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a></li>
 								</c:if>
 								<c:if test="${potEscriure and potEsborrar}">
 									<li class="divider"></li>

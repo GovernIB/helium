@@ -9,12 +9,12 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Validador per a la comanda d'exportació de dades del tipus d'expedient.
+ * Validador per a la comanda d'exportació de dades de la definició de procés.
  */
-@Constraint(validatedBy = ExpedientTipusExportarValidator.class)
+@Constraint(validatedBy = DefinicioProcesImportarValidator.class)
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExpedientTipusExportar {
+public @interface DefinicioProcesImportar {
 
 	String message() default "exportar.validacio";
 

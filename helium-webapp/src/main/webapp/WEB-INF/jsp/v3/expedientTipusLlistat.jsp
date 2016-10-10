@@ -21,7 +21,7 @@
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
-		<a class="btn btn-default" href="expedientTipus/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.importar"/></a>
+		<a class="btn btn-default" href="expedientTipus/importar" data-toggle="modal"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a>
 		<a class="btn btn-default" href="expedientTipus/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.nou"/></a>
 	</div>
 	<table	id="expedientTipus"
@@ -50,8 +50,8 @@
 							<ul class="dropdown-menu pull-right">
 								<li><a href="expedientTipus/{{:id}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.dissenyar"/></a></li>
 								<li><a data-toggle="modal" href="expedientTipus/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a data-toggle="modal" href="expedientTipus/{{:id}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.exportar"/></a></li>
-								<li><a data-toggle="modal" href="expedientTipus/importar?expedientTipusId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.importar"/></a></li>
+								<li><a data-toggle="modal" href="expedientTipus/{{:id}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a data-toggle="modal" href="expedientTipus/importar?expedientTipusId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a></li>
 								<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
 							</ul>

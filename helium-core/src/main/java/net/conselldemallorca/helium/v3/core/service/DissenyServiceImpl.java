@@ -44,7 +44,9 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -58,7 +60,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -76,7 +80,9 @@ import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -136,7 +142,10 @@ public class DissenyServiceImpl implements DissenyService {
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private DocumentRepository documentRepository;
-
+	@Resource
+	private EnumeracioRepository enumeracioRepository;
+	@Resource
+	private DominiRepository dominiRepository;
 
 
 	@Transactional(readOnly=true)
@@ -871,6 +880,42 @@ public class DissenyServiceImpl implements DissenyService {
 		return pagina;
 	}
 	//////////////////////
+
+	@Override
+	@Transactional(readOnly = true)
+	public EnumeracioDto enumeracioFindAmbCodi(Long entornId, String codi) {
+		EnumeracioDto ret = null;
+		logger.debug(
+				"Consultant l'enumeració per codi (" +
+				"entornId=" + entornId + ", " +
+				"codi = " + codi + ")");
+		Entorn entorn = entornRepository.findOne(entornId);
+		Enumeracio enumeracio = enumeracioRepository.findByEntornAndCodi(entorn, codi);
+		if (enumeracio != null)
+			ret = conversioTipusHelper.convertir(
+					enumeracio,
+					EnumeracioDto.class);
+		return ret; 
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DominiDto dominiFindAmbCodi(
+			Long entornId, 
+			String codi) {
+		DominiDto ret = null;
+		logger.debug(
+				"Consultant el domini per codi (" +
+				"entornId=" + entornId + ", " +
+				"codi = " + codi + ")");
+		Entorn entorn = entornRepository.findOne(entornId);
+		Domini domini = dominiRepository.findByEntornAndCodi(entorn, codi);
+		if (domini != null)
+			ret = conversioTipusHelper.convertir(
+					domini,
+					DominiDto.class);
+		return ret; 
+	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

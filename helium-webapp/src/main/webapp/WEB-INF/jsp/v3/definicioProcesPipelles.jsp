@@ -131,7 +131,7 @@
 			});
 		});
 		
-		reAdjust();
+		reAdjust();		
 	});
 	
 	function carregaTab(targetHref) {
@@ -204,6 +204,8 @@
 					<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 						<ul class="dropdown-menu">
+							<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href="../definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+							<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href="../definicioProces/importar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a></li>
 						</ul>
 					</div>
 				</div>
@@ -244,6 +246,10 @@
 					$('#contingut-detall').data('href', '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/detall');
 					$('#contingut-tasques').data('href',  '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/tasca');
 					$('#contingut-recursos').data('href',  '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/recurs');
+					$('#accioExportarDiv').remove();
+					$('#accioExportar').attr('href',  '<c:url value="/v3/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId="/>'+definicioProcesId );
+					$('#accioImportarDiv').remove();
+					$('#accioImportar').attr('href',  '<c:url value="/v3/definicioProces/importar?definicioProcesId="/>'+definicioProcesId );
 					// recarrega la pestanya activa
 					carregaTab($('#definicioProces-pipelles li#'+$('.active').attr('id')+' a').attr('href'));
 				});

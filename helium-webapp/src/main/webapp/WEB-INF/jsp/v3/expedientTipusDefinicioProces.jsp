@@ -24,8 +24,9 @@
 				data-toggle="datatable"
 				data-url="${expedientTipus.id}/definicionsProces/datatable"
 				data-paging-enabled="true"
-				data-info-type="search"
+				data-info-type="search+button"
 				data-ordering="true"
+				data-botons-template="#tableExpedientTipusDefinicioProcesButtonsTemplate"
 				data-default-order="1"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -51,6 +52,8 @@
 								<li><a href="../definicioProces/{{:jbpmKey}}" class="consultar-expedient"><span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.dissenyar"/></a></li>
 								<li><a class="btn-inicial" data-jbpmkey="{{:jbpmKey}}" href="${expedientTipus.id}/definicionsProces/{{:id}}/inicial"><span class="fa fa-flag-checkered"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.inicial"/></a></li>
 								<li><a data-toggle="modal" data-callback="callbackModaldefinicionsProces()" href="${expedientTipus.id}/definicionsProces/{{:id}}/incorporar"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.incorporar"/></a></li>
+								<li><a data-toggle="modal" href="../definicioProces/{{:jbpmKey}}/exportar"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a data-toggle="modal" href="../definicioProces/importar?definicioProcesId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a></li>
 								{{if expedientTipus != null}}
 									<li><a class="btn-delete" href="${expedientTipus.id}/definicionsProces/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.tipus.definicioProces.llistat.definicioProces.esborrar"/></a></li>
 								{{/if}}
@@ -61,6 +64,12 @@
 				</tr>
 			</thead>
 		</table>
+		<script id="tableExpedientTipusDefinicioProcesButtonsTemplate" type="text/x-jsrender">
+			<div class="botons-titol text-right">
+				<a class="btn btn-default" data-toggle="modal" data-callback="callbackModaldefinicionsProces()" data-datatable-id="expedientTipusDefinicioProces" href="../definicioProces/importar?expedientTipusId=${expedientTipus.id}">
+					<span class="fa fa-sign-in"></span> <spring:message code="comu.filtre.importar"/></a>
+			</div>
+		</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>

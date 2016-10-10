@@ -7,11 +7,14 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <c:choose>
-	<c:when test="${empty command.id}"><
-		<c:set var="titol"><spring:message code="expedient.tipus.importar.form.titol.nou"/></c:set>
+	<c:when test="${not empty command.id}"><
+		<c:set var="titol"><spring:message code="definicio.proces.importar.form.titol.definicio" arguments="${definicioProces.jbpmKey}, ${definicioProces.etiqueta}, ${definicioProces.versio}"/></c:set>
+	</c:when>
+	<c:when test="${not empty command.expedientTipusId}"><
+		<c:set var="titol"><spring:message code="definicio.proces.importar.form.titol.tipus" arguments="${expedientTipus.codi}, ${expedientTipus.nom}"/></c:set>
 	</c:when>
 	<c:otherwise>
-		<c:set var="titol"><spring:message code="expedient.tipus.importar.form.titol.modificar" arguments="${expedientTipus.codi}, ${expedientTipus.nom}"/></c:set>
+		<c:set var="titol"><spring:message code="definicio.proces.importar.form.titol.entorn" arguments="${entorn.codi}, ${entorn.nom}"/></c:set>
 	</c:otherwise>
 </c:choose>
 
@@ -100,7 +103,7 @@
 					var url = $form.attr('action'); 
 				    $.ajax({
 				           	type: "POST",
-					        url: '<c:url value="/nodeco/v3/expedientTipus/importar"/>',  
+					        url: '<c:url value="/nodeco/v3/definicioProces/importar"/>',  
 				           	data: formData,
 				            processData: false,
 				            contentType: false,
@@ -114,7 +117,6 @@
 					        beforeSend: function(){
 								$('progress').show();
 								$('#carregant').show();
-								$('#carregarButton').hide();
 					        },
 				           	success: function(data)
 				           	{
@@ -132,7 +134,6 @@
 								window.parent.$('.importar.processant').css('visibility', 'hidden');
 								$('progress').hide();
 								$('#carregant').hide();
-								$('#carregarButton').show();
 							},
 					        error: function(err){
 								webutilRefreshMissatges();
@@ -220,10 +221,12 @@
 					
 					var formData = new FormData();
 		            formData.append('file', $('#file')[0].files[0]);		            
+					formData.append("entornId", $('#entornId').val());
+					formData.append("expedientTipusId", $('#expedientTipusId').val());
 					formData.append("id", $('#id').val());
 					
 				    $.ajax({
-				        url: '<c:url value="/nodeco/v3/expedientTipus/importar/upload"/>',  
+				        url: '<c:url value="/nodeco/v3/definicioProces/importar/upload"/>',  
 				        type: 'POST',
 				        // Form data
 				        data: formData,
@@ -265,24 +268,22 @@
 				/** Funció que va incrementant la barra de progrés de la càrrega dels fitxers. */
 				function progressHandlingFunction(e){
 				    if(e.lengthComputable){
-				        if(e.loaded == e.total)
-				        	$('progress').hide();
-				        else
-					        $('progress').attr({value:e.loaded,max:e.total});
+				        $('progress').attr({value:e.loaded,max:e.total});
 				    }
 				}
 				// ]]>
 			</script>			
 		</div>
 		
+		<input type="hidden" name="entornId" id="entornId" value="${command.entornId}" />
+		<input type="hidden" name="expedientTipusId" id="expedientTipusId" value="${command.expedientTipusId}" />
 		<input type="hidden" name="id" id="id" value="${command.id}" />
 
 		<c:if test="${command.id != null}">
-			<hel:inputCheckbox name="sobreEscriure" textKey="expedient.tipus.importar.form.opcions.sobreEscriure" labelSize="6" />
-			<hel:inputCheckbox name="dadesBasiques" textKey="expedient.tipus.importar.form.opcions.dadesBasiques" labelSize="6" />
+			<hel:inputCheckbox name="sobreEscriure" textKey="definicio.proces.importar.form.opcions.sobreEscriure" labelSize="6" />
 		</c:if>
 		
-		<h4>1 <spring:message code="expedient.tipus.importar.form.carregar"/></h4>
+		<h4>1 <spring:message code="definicio.proces.importar.form.carregar"/></h4>
 		<div class="row">
 			<div class="col-sm-6">
 				<input type="file" name="file" id="file" />
@@ -290,13 +291,13 @@
 			<div class="col-sm-6">
 				<button id="carregarButton" type="button" class="btn btn-default" style="display: none;">
 					<span class="fa fa-upload"></span>
-					<spring:message code="expedient.tipus.importar.form.boto.carregar"/>
+					<spring:message code="definicio.proces.importar.form.boto.carregar"/>
 				</button>
 				<progress style="display: none;"></progress>
 			</div>
 		</div>
 		
-		<h4>2 <spring:message code="expedient.tipus.importar.form.seleccionar"/></h4>
+		<h4>2 <spring:message code="definicio.proces.importar.form.seleccionar"/></h4>
 		<div id="carregant" style="display: none; width: 10%; text-align: center;">
 			<span class="fa fa-spinner fa-pulse fa-2x fa-fw"></span>
 			<span class="sr-only"><spring:message code="comu.processant"/>...</span>

@@ -28,7 +28,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
@@ -348,8 +347,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public CampDto campFindAmbCodiPerValidarRepeticio(Long tipusExpedientId, String codi) throws NoTrobatException {
-		return delegate.campFindAmbCodiPerValidarRepeticio(tipusExpedientId, codi);
+	public CampDto campFindAmbCodi(Long tipusExpedientId, String codi) throws NoTrobatException {
+		return delegate.campFindAmbCodi(tipusExpedientId, codi);
 	}
 
 	@Override
@@ -461,6 +460,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DominiDto dominiFindAmbCodi(Long expedientTipusId, String codi) {
+		return delegate.dominiFindAmbCodi(expedientTipusId, codi);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long expedientTipusId) {
 		return delegate.documentFindAllOrdenatsPerCodi(expedientTipusId);
 	}
@@ -489,21 +494,21 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	/***********************************************/
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientTipusEnumeracioDto> enumeracioFindPerDatatable(Long expedientTipusId, String filtre,
+	public PaginaDto<EnumeracioDto> enumeracioFindPerDatatable(Long expedientTipusId, String filtre,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.enumeracioFindPerDatatable(expedientTipusId, filtre, paginacioParams);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusEnumeracioDto enumeracioCreate(Long expedientTipusId, Long entornId, ExpedientTipusEnumeracioDto enumeracio)
+	public EnumeracioDto enumeracioCreate(Long expedientTipusId, Long entornId, EnumeracioDto enumeracio)
 			throws PermisDenegatException {
 		return delegate.enumeracioCreate(expedientTipusId, entornId, enumeracio);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbCodi(Long expedientTipusId, String codi)
+	public EnumeracioDto enumeracioFindAmbCodi(Long expedientTipusId, String codi)
 			throws NoTrobatException {
 		return delegate.enumeracioFindAmbCodi(expedientTipusId, codi);
 	}
@@ -516,13 +521,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbId(Long enumeracioId) throws NoTrobatException {
+	public EnumeracioDto enumeracioFindAmbId(Long enumeracioId) throws NoTrobatException {
 		return delegate.enumeracioFindAmbId(enumeracioId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientTipusEnumeracioDto enumeracioUpdate(ExpedientTipusEnumeracioDto enumeracio)
+	public EnumeracioDto enumeracioUpdate(EnumeracioDto enumeracio)
 			throws NoTrobatException, PermisDenegatException {
 		return delegate.enumeracioUpdate(enumeracio);
 	}

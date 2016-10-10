@@ -74,6 +74,8 @@ public class ConversioTipusHelper {
 						target.setExpedientTipus(mapperFacade.map(
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
+						if (source.getCampData() != null)
+							target.setCampDataCodi(source.getCampData().getCodi());
 						return target;
 					}
 		});
@@ -195,6 +197,7 @@ public class ConversioTipusHelper {
 								ConsultaDto consulte = new ConsultaDto();
 								consulte.setId(consulta.getId());
 								consulte.setNom(consulta.getNom());
+								consulte.setCodi(consulta.getCodi());
 								target.getConsultes().add(consulte);
 							}
 						}
@@ -330,11 +333,8 @@ public class ConversioTipusHelper {
 						target.setCampDescripcio(source.getCampDescripcio());
 						if (source.getParamTipus() != null)
 							target.setParamTipus(ConsultaCampDto.TipusParamConsultaCamp.valueOf(source.getParamTipus().toString()));
-						if (source.getCamp() != null) {
-							target.setCampId(source.getCamp().getId());
-							target.setCampTipus(CampTipusDto.valueOf(source.getCamp().getTipus().toString()));
-							target.setCampEtiqueta(source.getCamp().getEtiqueta());
-						}
+						target.setDefprocJbpmKey(source.getDefprocJbpmKey());
+						target.setDefprocVersio(source.getDefprocVersio());
 						target.setOrdre(source.getOrdre());
 						return target;
 					}

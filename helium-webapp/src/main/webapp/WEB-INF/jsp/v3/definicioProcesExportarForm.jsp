@@ -6,7 +6,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
-<c:set var="titol"><spring:message code="expedient.tipus.exportar.form.titol"/></c:set>
+<c:set var="titol"><spring:message code="definicio.proces.exportar.form.titol"/></c:set>
 
 <html>
 <head>
@@ -33,7 +33,7 @@
 	</style>
 </head>
 <body>		
-	<form:form id="exportar-form" cssClass="form-horizontal" action="exportar" enctype="multipart/form-data" method="post" commandName="command" style="min-height: 500px;">
+	<form:form id="exportar-form" cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="command" style="min-height: 500px;">
 		
 		<div class="inlineLabels">
 			<script type="text/javascript">
@@ -54,6 +54,21 @@
 				});				
 
 				$(document).ready( function() {					
+					// Neteja els errors en fer submit
+					$('#exportar-form').submit(function() {
+						$('.has-error').removeClass('has-error');
+						$('p.help-block').remove();
+					});
+					// Lliga els events ajax als diferents elements de la pàgina
+					actualitzarOpcions();
+					// Quan canvia la versió escollida de la definició de procés carrega les opcions d'exportació
+					$('#id').change(function(){
+						recarregaOpcionsExportacio();
+					});
+				}); 		
+				
+				/* Al principi o quan es carrega el contingut de les opcions es lliguen els events ajax. */
+				function actualitzarOpcions() {					
 					$('table').DataTable();
 					// Event per seleccionar o des seleccionar totes les entrades
 					$('.checkAll').change(function(){
@@ -95,21 +110,11 @@
 					});		
 					// Expandeix els panells que continguin errors
 					$('.has-error').closest('.agrupacio').find('.clicable').click();
-
-					// Neteja els errors en fer submit
-					$('#exportar-form').submit(function() {
-						$('.has-error').removeClass('has-error');
-						$('p.help-block').remove();
-					});
 					// Aplica la funció select2 als controls select
 					$('select.form-control').select2({
 					    minimumResultsForSearch: -1
 					});
-					// Deshabilita la selecció de versió
-					$('#definicions-taula').find('.check').change(function() {
-						$(this).closest('tr').find('select').attr('disabled', !$(this).is(':checked'));
-					})
-				}); 				
+				} 		
 				
 				// Actualitza la icona del marcador de selecció del costat del títol de la agrupació
 				function updateMarcador( $agrupacio ) {
@@ -129,11 +134,48 @@
 					// botó de checkall					
 					$agrupacio.find('.checkAll').prop('checked', total == marcats);
 				}
+				
+				// Quan canvia la versió recarrega les opcions d'exportació
+				function recarregaOpcionsExportacio() {
+						window.parent.$('button[type="submit"]').attr('disabled', 'disabled');
+						$('#exportarOpcions').empty();						
+					    $.ajax({
+					        url: '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/exportar/"/>' + $('#id').val() + '/opcions' ,
+					        type: 'GET',
+					        //Ajax events
+					        beforeSend: function(){
+								$('#carregant').show();
+					        },
+					        success: function(data){
+					        	$('#exportarOpcions').html(data);
+								window.parent.$('button[type="submit"]').removeAttr('disabled');
+								actualitzarOpcions();
+					        },
+					        error: function(err){
+					        	console.log('Error ' + err.status + ': ' + err.statusText)
+					        },
+					        complete: function() {
+					        	$('#carregant').hide();
+								webutilRefreshMissatges();
+					        },
+					        //Options to tell jQuery not to process data or worry about content-type.
+					        cache: false,
+					        contentType: false,
+					        processData: false
+					    });
+					 }
 				// ]]>
 			</script>			
 		</div>
-				
-		<%@include file="expedientTipusExportarOpcions.jsp"%>
+		<hel:inputSelect required="false" emptyOption="false" name="id" textKey="definicio.proces.exportar.form.versio" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+		
+		<div id="exportarOpcions">
+			<%@include file="definicioProcesExportarOpcions.jsp"%>
+		</div>
+		<div id="carregant" style="display: none; width: 10%; text-align: center;">
+			<span class="fa fa-spinner fa-pulse fa-2x fa-fw"></span>
+			<span class="sr-only"><spring:message code="comu.processant"/>...</span>
+		</div>
 
 
 		<div id="modal-botons" class="well">

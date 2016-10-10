@@ -9,14 +9,15 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 /**
- * Validador per a la comanda d'exportació de dades del tipus d'expedient.
+ * Validador per a la càrrega d'un fitxer d'exportació
+ * durant la importació de dades del tipus d'expedient.
  */
-@Constraint(validatedBy = ExpedientTipusExportarValidator.class)
+@Constraint(validatedBy = DefinicioProcesUploadValidator.class)
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExpedientTipusExportar {
+public @interface DefinicioProcesUpload {
 
-	String message() default "exportar.validacio";
+	String message() default "definicio.proces.upload.validacio";
 
 	Class<?>[] groups() default {};
 

@@ -34,7 +34,7 @@ public class ExpedientTipusCampValidator implements ConstraintValidator<Expedien
 		boolean valid = true;
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (camp.getCodi() != null) {
-			CampDto repetit = expedientTipusService.campFindAmbCodiPerValidarRepeticio(
+			CampDto repetit = expedientTipusService.campFindAmbCodi(
 					camp.getExpedientTipusId(),
 					camp.getCodi());
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {

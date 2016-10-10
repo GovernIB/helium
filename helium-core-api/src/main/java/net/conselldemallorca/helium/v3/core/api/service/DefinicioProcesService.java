@@ -2,15 +2,22 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 
 /**
  * Servei per al manteniment de definicions de processos.
@@ -43,7 +50,51 @@ public interface DefinicioProcesService {
 	 * @return
 	 */
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId);
+	
+	/**
+	 * Retorna la llista de darreres versions de les definicions de procés donat l'identificador de l'entorn
+	 * i l'identificador del tipus d'expedient. Si no s'especifica el tipus d'expedient només es filtra per
+	 * entorn.
+	 * @param entornId
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public List<DefinicioProcesDto> findAll(
+			Long entornId, 
+			Long expedientTipusId);
+	/**
+	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
+	 * segons l'objecte DTO de la comanda d'exportació.
+	 * @param entornId Id de l'entorn.
+	 * @param Id de la definició de procés de la qual es realitza la exportació.
+	 * @param command Objecte amb la informació que s'ha d'incloure a l'exportació.
+	 * 
+	 * @return Objecte d'exportació serialitzable.
+	 */
+	public DefinicioProcesExportacio exportar(
+			Long entornId, 
+			Long definicioProcesId,
+			DefinicioProcesExportacioCommandDto command);
 
+	
+
+	/** Mètode per importar la informació d'un fitxer d'exportació de definicó de procés cap a una nova definició de
+	 * procés si aquesta no està especificada o una definició de procés existent. La importació es fa de 
+	 * forma selectiva segons la definicioProcesExportacioCommand.
+	 * @param entornId Especifica l'entorn de treball de l'usuari.
+	 * @param definicioProcesId Tipus d'expedient on fer la importació. Si està buit llavors es crea un de nou.
+	 * @param expedientTipusId 
+	 * @param command Llista de codis de la informació a importar.
+	 * @param importacio Objecte desserialitzat amb la informació per a la importació.
+	 * @return Retorna l'expedient tipus creat o modificat.
+	 */
+	public DefinicioProcesDto importar(
+			Long entornId, 
+			Long expedientTipusId, 
+			Long definicioProcesId, 
+			DefinicioProcesExportacioCommandDto command,
+			DefinicioProcesExportacio importacio);
+	
 	/** 
 	 * Retorna la llista de tasques de la definició de procés paginada per la datatable.
 	 * 
@@ -363,6 +414,89 @@ public interface DefinicioProcesService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId);
+	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId);	
+	
+	/**
+	 * Retorna tots els camps d'una definició de procés donat el seu identificador.
+	 * 
+	 * @param tipusExpedientId
+	 * @return Els camps del tipus d'expedient.
+	 */
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long definicioProcesId);
 
+	/**
+	 * Retorna tots els documents d'una definició de procés donat el seu identificador.
+	 * 
+	 * @param tipusExpedientId
+	 * @return Els documents del tipus d'expedient.
+	 */
+	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long definicioProcesId);
+
+	/**
+	 * Retorna els terminis per a una definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els terminis del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<TerminiDto> terminiFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Retorna les agrupacions per a una definició de procés.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param definicioProcesId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les agrupacions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<CampAgrupacioDto> agrupacioFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna les accions per a una definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 *            Atribut id del tipus d'expedient.
+	 * @return les accions del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<AccioDto> accioFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna un camp de la definicio de procés donat el seu codi.
+	 * 
+	 * @param definicioProcesId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return El camp o null si no el troba.
+	 */
+	public CampDto campFindAmbCodi(
+			Long definicioProcesId,
+			String codi);
+
+	/**
+	 * Retorna un document de la definicio de procés donat el seu codi.
+	 * 
+	 * @param definicioProcesId
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return El document o null si no el troba.
+	 */
+	public DocumentDto documentFindAmbCodi(
+			Long definicioProcesId, 
+			String codi);
 }

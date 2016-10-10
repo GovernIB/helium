@@ -19,6 +19,8 @@ public class DocumentTascaExportacio implements Serializable {
 	private boolean required;
 	private boolean readOnly;
 	private int order;
+	/** Indica si el camp està lligat al tipus d'expedient.*/
+	private boolean tipusExpedient;
 
 
 
@@ -26,11 +28,13 @@ public class DocumentTascaExportacio implements Serializable {
 			String documentCodi,
 			boolean required,
 			boolean readOnly,
-			int order) {
+			int order,
+			boolean tipusExpedient) {
 		this.documentCodi = documentCodi;
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
+		this.tipusExpedient = tipusExpedient;
 	}
 
 	public String getDocumentCodi() {
@@ -56,6 +60,16 @@ public class DocumentTascaExportacio implements Serializable {
 	}
 	public void setOrder(int order) {
 		this.order = order;
+	}
+
+
+
+	public boolean isTipusExpedient() {
+		return tipusExpedient;
+	}
+
+	public void setTipusExpedient(boolean tipusExpedient) {
+		this.tipusExpedient = tipusExpedient;
 	}
 
 

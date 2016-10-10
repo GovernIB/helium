@@ -12,15 +12,22 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 
 /**
@@ -49,8 +56,34 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DefinicioProcesDto> findAll(Long entornId, Long expedientTipusId) {
+		return delegate.findAll(entornId, expedientTipusId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesDto findById(Long definicioProcesId) {
 		return delegate.findById(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesExportacio exportar(
+			Long entornId, 
+			Long definicioProcesId,
+			DefinicioProcesExportacioCommandDto command) {
+		return delegate.exportar(entornId, definicioProcesId, command);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto importar(
+			Long entornId, 
+			Long expedientTipusId,
+			Long definicioProcesId,
+			DefinicioProcesExportacioCommandDto command, 
+			DefinicioProcesExportacio importacio) {
+		return delegate.importar(entornId, expedientTipusId, definicioProcesId, command, importacio);
 	}
 
 	@Override
@@ -210,4 +243,51 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public FirmaTascaDto tascaFirmaFindById(Long firmaTascaId) {
 		return delegate.tascaFirmaFindById(firmaTascaId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long definicioProcesId) {
+		return delegate.campFindAllOrdenatsPerCodi(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long definicioProcesId) {
+		return delegate.documentFindAllOrdenatsPerCodi(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TerminiDto> terminiFindAll(Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+		return delegate.terminiFindAll(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampAgrupacioDto> agrupacioFindAll(Long definicioProcesId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.agrupacioFindAll(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<AccioDto> accioFindAll(Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+		return delegate.accioFindAll(definicioProcesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public CampDto campFindAmbCodi(
+			Long definicioProcesId, 
+			String codi) {
+		return delegate.campFindAmbCodi(definicioProcesId, codi);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto documentFindAmbCodi(
+			Long definicioProcesId, 
+			String codi) {
+		return delegate.documentFindAmbCodi(definicioProcesId, codi);
+	}	
 }

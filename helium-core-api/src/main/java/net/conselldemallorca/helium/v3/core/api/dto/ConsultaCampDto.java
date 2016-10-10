@@ -26,7 +26,6 @@ public class ConsultaCampDto implements Serializable {
 	}
 	
 	private Long id;
-	private Long campId;
 	private String campCodi;
 	private String campEtiqueta;
 	private String campDescripcio;
@@ -55,12 +54,6 @@ public class ConsultaCampDto implements Serializable {
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public Long getCampId() {
-		return campId;
-	}
-	public void setCampId(Long campId) {
-		this.campId = campId;
 	}
 	public String getCampCodi() {
 		return campCodi;
@@ -103,6 +96,14 @@ public class ConsultaCampDto implements Serializable {
 	}
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
+	}
+	
+	/** Retorna la combinacio "codi / etiqueta" si no comença amb el prefix de l'expedient. */
+	public String getCodiEtiqueta() {
+		if (campCodi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX))
+			return campEtiqueta != null? campEtiqueta : campCodi;
+		else
+			return campCodi + (campEtiqueta != null? " / " + campEtiqueta : "");		
 	}
 
 	public TipusParamConsultaCamp getParamTipus() {

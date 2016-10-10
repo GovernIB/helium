@@ -4,7 +4,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 
 public class ExpedientTipusEnumeracioCommand {
 
@@ -42,8 +42,8 @@ public class ExpedientTipusEnumeracioCommand {
 		this.nom = nom;
 	}
 	
-	public static ExpedientTipusEnumeracioDto asExpedientTipusEnumeracioDto(ExpedientTipusEnumeracioCommand command) {
-		ExpedientTipusEnumeracioDto dto = new ExpedientTipusEnumeracioDto();
+	public static EnumeracioDto asEnumeracioDto(ExpedientTipusEnumeracioCommand command) {
+		EnumeracioDto dto = new EnumeracioDto();
 		dto.setId(command.getId());
 		dto.setCodi(command.getCodi());
 		dto.setNom(command.getNom());

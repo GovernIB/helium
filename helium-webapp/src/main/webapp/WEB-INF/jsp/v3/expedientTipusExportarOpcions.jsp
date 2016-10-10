@@ -7,6 +7,7 @@
 		<c:if test="${command != null}">
 
 		<input type="hidden" name="id" value="${command.id}" />
+		<input type="hidden" name="entornId" value="${command.entornId}" />
 
 		<c:set var="variablesErrors"><form:errors path="variables"/></c:set>
 		<c:set var="documentsErrors"><form:errors path="documents"/></c:set>

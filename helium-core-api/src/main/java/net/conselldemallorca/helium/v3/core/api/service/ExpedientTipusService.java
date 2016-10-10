@@ -18,7 +18,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
@@ -592,9 +591,9 @@ public interface ExpedientTipusService {
 	 *            El codi per a la consulta.
 	 * @return El camp del tipus d'expedient o null si no el troba.
 	 */
-	public CampDto campFindAmbCodiPerValidarRepeticio(
+	public CampDto campFindAmbCodi(
 			Long tipusExpedientId,
-			String codi) throws NoTrobatException;
+			String codi);
 
 	/**
 	 * Retorna tots els camps d'un tipus d'expedient donat el seu identificador.
@@ -876,7 +875,7 @@ public interface ExpedientTipusService {
 	
 	public ExpedientTipusDocumentDto documentFindAmbCodi(
 			Long expedientTipusId, 
-			String codi) throws NoTrobatException;
+			String codi);
 
 	public List<ExpedientTipusDocumentDto> documentFindAll(Long expedientTipusId);	
 	
@@ -1010,28 +1009,28 @@ public interface ExpedientTipusService {
 	/*****************ENUMERACIONS******************/
 	/***********************************************/
 
-	public PaginaDto<ExpedientTipusEnumeracioDto> enumeracioFindPerDatatable(
+	public PaginaDto<EnumeracioDto> enumeracioFindPerDatatable(
 			Long expedientTipusId,
 			String filtre, 
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioCreate(
+	public EnumeracioDto enumeracioCreate(
 			Long expedientTipusId, 
 			Long entornId,
-			ExpedientTipusEnumeracioDto enumeracio) throws PermisDenegatException;
+			EnumeracioDto enumeracio) throws PermisDenegatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbCodi(
+	public EnumeracioDto enumeracioFindAmbCodi(
 			Long expedientTipusId,
-			String codi) throws NoTrobatException;
+			String codi);
 	
 	public void enumeracioDelete(
 			Long enumeracioId) throws NoTrobatException, PermisDenegatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioFindAmbId(
+	public EnumeracioDto enumeracioFindAmbId(
 			Long enumeracioId) throws NoTrobatException;
 	
-	public ExpedientTipusEnumeracioDto enumeracioUpdate(
-			ExpedientTipusEnumeracioDto enumeracio) throws NoTrobatException, PermisDenegatException;
+	public EnumeracioDto enumeracioUpdate(
+			EnumeracioDto enumeracio) throws NoTrobatException, PermisDenegatException;
 	
 	/***********************************************/
 	/***************VALORS ENUMERACIO***************/
@@ -1266,6 +1265,10 @@ public interface ExpedientTipusService {
 	 */
 	public DominiDto dominiFindAmbId(Long dominiId);
 
+	public DominiDto dominiFindAmbCodi(
+			Long expedientTipusId,
+			String codi);
+	
 	/**
 	 * Crea un nou domini.
 	 * 

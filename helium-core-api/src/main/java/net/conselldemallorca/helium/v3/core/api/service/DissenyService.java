@@ -17,7 +17,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -265,4 +267,12 @@ public interface DissenyService {
 			Long entornId,
 			Long expedientTipusId,
 			Long jbpmId) throws NoTrobatException, PermisDenegatException;
+
+	public EnumeracioDto enumeracioFindAmbCodi(
+			Long entornId,
+			String codi);
+
+	public DominiDto dominiFindAmbCodi(
+			Long entornId, 
+			String codiDomini);
 }

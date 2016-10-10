@@ -57,7 +57,6 @@ public class BaseDefinicioProcesController extends BaseController {
 				DefinicioProcesExpedientDto d = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
 						entornActual.getId(), 
 						definicioProces.getId());
-				//List<CampAgrupacioDto> agrupacions = expedientTipusService.agrupacioFindAll(expedientTipusId);
 				List<ParellaCodiValorDto> versions = new ArrayList<ParellaCodiValorDto>();
 				for (IdAmbEtiqueta i : d.getListIdAmbEtiqueta()) {
 					versions.add(new ParellaCodiValorDto(i.getId().toString(), i.getEtiqueta()));

@@ -147,6 +147,8 @@ public class DefinicioProcesTascaController extends BaseDefinicioProcesControlle
 
 		DefinicioProcesTascaVariableCommand command = new DefinicioProcesTascaVariableCommand();
 		command.setTascaId(id);
+		command.setReadFrom(true);
+		command.setWriteTo(true);
 		model.addAttribute("definicioProcesTascaVariableCommand", command);
 		model.addAttribute("variables", obtenirParellesVariables(
 				definicioProcesId,

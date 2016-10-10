@@ -20,6 +20,8 @@ public class CampTascaExportacio implements Serializable {
 	private boolean required;
 	private boolean readOnly;
 	private int order;
+	/** Indica si el camp està lligat al tipus d'expedient.*/
+	private boolean tipusExpedient;
 
 
 
@@ -29,13 +31,15 @@ public class CampTascaExportacio implements Serializable {
 			boolean writeTo,
 			boolean required,
 			boolean readOnly,
-			int order) {
+			int order,
+			boolean tipusExpedient) {
 		this.campCodi = campCodi;
 		this.readFrom = readFrom;
 		this.writeTo = writeTo;
 		this.required = required;
 		this.readOnly = readOnly;
 		this.order = order;
+		this.tipusExpedient = tipusExpedient;
 	}
 
 	public String getCampCodi() {
@@ -74,9 +78,12 @@ public class CampTascaExportacio implements Serializable {
 	public void setOrder(int order) {
 		this.order = order;
 	}
+	public boolean isTipusExpedient() {
+		return tipusExpedient;
+	}
+	public void setTipusExpedient(boolean tipusExpedient) {
+		this.tipusExpedient = tipusExpedient;
+	}
 
-
-
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = -8791553619883705667L;
 }

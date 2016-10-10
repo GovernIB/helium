@@ -70,6 +70,8 @@ public class DocumentDto implements Serializable {
 	
 	private ExpedientTipusDto expedientTipus;
 
+	private String campDataCodi;
+
 	public String getCodi() {
 		return codi;
 	}
@@ -374,7 +376,15 @@ public class DocumentDto implements Serializable {
 	public void setSignatRequired(boolean signatRequired) {
 		this.signatRequired = signatRequired;
 	}
+	public void setCampDataCodi(String campDataCodi) {
+		this.campDataCodi = campDataCodi;		
+	}
+
+	public String getCampDataCodi() {
+		return campDataCodi;
+	}
 
 	private static final long serialVersionUID = 774909297938469787L;
+
 
 }

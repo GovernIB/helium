@@ -18,16 +18,20 @@ public class FirmaTascaExportacio implements Serializable {
 
 	private boolean required;
 	private int order;
+	/** Indica si el camp està lligat al tipus d'expedient.*/
+	private boolean tipusExpedient;
 
 
 
 	public FirmaTascaExportacio(
 			String documentCodi,
 			boolean required,
-			int order) {
+			int order,
+			boolean tipusExpedient) {
 		this.documentCodi = documentCodi;
 		this.required = required;
 		this.order = order;
+		this.setTipusExpedient(tipusExpedient);
 	}
 
 	public String getDocumentCodi() {
@@ -47,6 +51,16 @@ public class FirmaTascaExportacio implements Serializable {
 	}
 	public void setOrder(int order) {
 		this.order = order;
+	}
+
+
+
+	public boolean isTipusExpedient() {
+		return tipusExpedient;
+	}
+
+	public void setTipusExpedient(boolean tipusExpedient) {
+		this.tipusExpedient = tipusExpedient;
 	}
 
 

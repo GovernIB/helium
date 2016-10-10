@@ -22,7 +22,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -285,5 +287,21 @@ public class DissenyServiceBean implements DissenyService {
 				entornId, 
 				expedientTipusId, 
 				jbpmId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EnumeracioDto enumeracioFindAmbCodi(
+			Long entornId, 
+			String codi) {
+		return delegate.enumeracioFindAmbCodi(entornId, codi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DominiDto dominiFindAmbCodi(
+			Long entornId, 
+			String codiDomini) {
+		return delegate.dominiFindAmbCodi(entornId, codiDomini);
 	}
 }

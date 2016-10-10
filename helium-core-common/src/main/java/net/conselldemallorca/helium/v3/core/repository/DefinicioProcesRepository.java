@@ -196,4 +196,21 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"order by dp.etiqueta")
 	List<DefinicioProces> findAmbExpedientTipus(
 			@Param("expedientTipusId") Long expedientTipusId);	
+	
+	@Query(	"from DefinicioProces dp " +
+			"where " +
+			"   dp.entorn.id=:entornId " +
+			"	and ((:isNullExpedientTipusId = true) or ( dp.expedientTipus.id = :expedientTipusId)) " + 
+			"	and dp.versio = (" +
+			"    select " +
+			"        max(dps.versio) " +
+			"    from " +
+			"        DefinicioProces dps " +
+			"    where " +
+			"        dps.entorn.id=:entornId " +
+			"    	and dps.jbpmKey=dp.jbpmKey) ")
+	List<DefinicioProces> findByAll(
+			@Param("entornId") Long entornId,
+			@Param("isNullExpedientTipusId") boolean isNullExpedientTipusId,
+			@Param("expedientTipusId") Long expedientTipusId);
 }

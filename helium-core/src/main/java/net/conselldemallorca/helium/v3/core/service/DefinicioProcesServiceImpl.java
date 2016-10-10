@@ -14,25 +14,40 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
+import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -40,6 +55,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar definicions de procés.
@@ -50,22 +66,30 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	
 	@Resource
-	DefinicioProcesRepository definicioProcesRepository;
+	private DefinicioProcesRepository definicioProcesRepository;
 	@Resource
-	TascaRepository tascaRepository;
+	private TascaRepository tascaRepository;
 	@Resource
-	CampTascaRepository campTascaRepository;
+	private CampTascaRepository campTascaRepository;
 	@Resource
-	CampRepository campRepository;
+	private CampRepository campRepository;
 	@Resource
-	DocumentTascaRepository documentTascaRepository;
+	private DocumentTascaRepository documentTascaRepository;
 	@Resource
-	DocumentRepository documentRepository;
+	private DocumentRepository documentRepository;
 	@Resource
-	FirmaTascaRepository firmaTascaRepository;
+	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private TerminiRepository terminiRepository;
+	@Resource
+	private CampAgrupacioRepository campAgrupacioRepository;
+	@Resource
+	private AccioRepository accioRepository;
 	@Autowired
 	protected Jbpm3HeliumService jbpm3HeliumService;
 
+	@Resource
+	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private EntornHelper entornHelper;
 	@Resource
@@ -126,6 +150,90 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				jbpm3HeliumService.findSubDefinicionsProces(
 						definicioProcesId);
 		return resposta;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<DefinicioProcesDto> findAll(
+			Long entornId, 
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant la llista de definicions de processos (" +
+				"entornId = " + entornId + ", " + 
+				"expedientTipusId = " + expedientTipusId + ")");
+		List<DefinicioProces> definicions = definicioProcesRepository.findByAll(
+				entornId, 
+				expedientTipusId == null,
+				expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									definicions, 
+									DefinicioProcesDto.class);
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesExportacio exportar(
+			Long entornId, 
+			Long definicioProcesId,
+			DefinicioProcesExportacioCommandDto command) {
+		logger.debug(
+				"Exportant la definició de proces (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId = " + definicioProcesId + ", " + 
+				"command = " + command + ")");
+		// Control d'accés
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		// Obté l'objecte d'exportació
+		DefinicioProcesExportacio definicioExortacio = 
+				definicioProcesHelper.getExportacio(
+						definicioProcesId, 
+						command);
+		return definicioExortacio;
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public DefinicioProcesDto importar(
+			Long entornId, 
+			Long expedientTipusId,
+			Long definicioProcesId,
+			DefinicioProcesExportacioCommandDto command, 
+			DefinicioProcesExportacio importacio) {
+		DefinicioProcesDto ret = null;
+		logger.debug(
+				"Important una definicio de proces (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId = " + command.getExpedientTipusId() + ", " + 
+				"definicioProcesId = " + command.getId() + ", " + 
+				"command = " + command + ", " + 
+				"importacio = " + importacio + ")");
+		// Control d'accés
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		
+		DefinicioProces importat = definicioProcesHelper.importar(
+				entornId, 
+				expedientTipusId, 
+				importacio, 
+				command,
+				command.isSobreEscriure());
+		
+		if (importat != null)
+			ret = conversioTipusHelper.convertir(importat, DefinicioProcesDto.class);
+		return ret;
 	}
 	
 	/**
@@ -673,6 +781,117 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				FirmaTascaDto.class);
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampDto> campFindAllOrdenatsPerCodi(Long definicioProcesId) {
+		logger.debug(
+				"Consultant tots els camps de la definicio de proces per al desplegable " +
+				" de camps del registre (definicioProcesId=" + definicioProcesId + ")");
+		
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		if (definicioProces == null)
+			throw new NoTrobatException(DefinicioProces.class, definicioProcesId);
+		
+		List<Camp> camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		
+		return conversioTipusHelper.convertirList(
+				camps, 
+				CampDto.class);
+	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<DocumentDto> documentFindAllOrdenatsPerCodi(Long definicioProcesId) {
+		logger.debug(
+				"Consultant tots els documents de la definicio de proces per al desplegable " +
+				" de documents de la tasca a la definicio de processos (definicioProcesId=" + definicioProcesId + ")");
+				
+		List<Document> documents = documentRepository.findAmbDefinicioProces(definicioProcesId);
+		
+		return conversioTipusHelper.convertirList(
+				documents, 
+				DocumentDto.class);
+	}	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentDto documentFindAmbCodi(Long definicioProcesId, String codi) {
+		DocumentDto ret = null; 
+		logger.debug(
+				"Consultant el document del tipus d'expedient per codi (" +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"codi = " + codi + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		Document document = documentRepository.findByDefinicioProcesAndCodi(definicioProces, codi);
+		if (document != null)
+		ret = conversioTipusHelper.convertir(
+				document,
+				DocumentDto.class);
+		return ret;
+	}
+	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<TerminiDto> terminiFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Consultant tots els terminis de la definicio de proces per al desplegable " +
+				" de documents de la tasca a la definicio de processos (definicioProcesId=" + definicioProcesId + ")");
+		
+		List<Termini> terminis = terminiRepository.findByDefinicioProcesId(definicioProcesId);
+		
+		return conversioTipusHelper.convertirList(
+									terminis, 
+									TerminiDto.class);
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampAgrupacioDto> agrupacioFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+		List<CampAgrupacio> agrupacions = campAgrupacioRepository.findAmbDefinicioProcesOrdenats(definicioProcesId);
+		return conversioTipusHelper.convertirList(
+									agrupacions, 
+									CampAgrupacioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<AccioDto> accioFindAll(
+			Long definicioProcesId) throws NoTrobatException, PermisDenegatException {
+		List<Accio> accions = accioRepository.findAmbDefinicioProces(definicioProcesId);
+		return conversioTipusHelper.convertirList(
+									accions, 
+									AccioDto.class);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CampDto campFindAmbCodi(Long definicioProcesId, String codi) {
+		CampDto ret = null;
+		logger.debug(
+				"Consultant el camp de la definicio de proces per codi (" +
+				"definicioProcesId=" + definicioProcesId + ", " +
+				"codi = " + codi + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		Camp camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, codi);
+		if (camp != null)
+			ret = conversioTipusHelper.convertir(
+				camp,
+				CampDto.class);
+		return ret;
+	}	
+	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
 }

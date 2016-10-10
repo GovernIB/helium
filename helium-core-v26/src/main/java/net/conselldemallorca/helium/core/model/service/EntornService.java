@@ -251,7 +251,8 @@ public class EntornService {
 			dto.setJndiDatasource(domini.getJndiDatasource());
 			dto.setSql(domini.getSql());
 			dto.setCacheSegons(domini.getCacheSegons());
-			dto.setTimeout(domini.getTimeout().intValue());
+			if (domini.getTimeout() != null)
+				dto.setTimeout(domini.getTimeout().intValue());
 			dominisDto.add(dto);
 		}
 		entornExportacio.setDominis(dominisDto);

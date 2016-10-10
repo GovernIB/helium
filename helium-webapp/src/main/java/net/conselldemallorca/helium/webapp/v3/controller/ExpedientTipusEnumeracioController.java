@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
@@ -82,7 +82,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 				return "v3/expedientTipusEnumeracioForm";
 			} else {
 			
-				ExpedientTipusEnumeracioDto dto = ExpedientTipusEnumeracioCommand.asExpedientTipusEnumeracioDto(command);
+				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 				EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 				
 				expedientTipusService.enumeracioCreate(expedientTipusId, entornActual.getId(), dto);
@@ -106,7 +106,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) {
-		ExpedientTipusEnumeracioDto dto = expedientTipusService.enumeracioFindAmbId(id);
+		EnumeracioDto dto = expedientTipusService.enumeracioFindAmbId(id);
 		ExpedientTipusEnumeracioCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioCommand.class);
 		model.addAttribute("expedientTipusEnumeracioCommand", command);
 		return "v3/expedientTipusEnumeracioForm";
@@ -123,7 +123,7 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 			if (bindingResult.hasErrors()) {
 				return "v3/expedientTipusEnumeracioForm";
 			} else {
-				ExpedientTipusEnumeracioDto dto = ExpedientTipusEnumeracioCommand.asExpedientTipusEnumeracioDto(command);
+				EnumeracioDto dto = ExpedientTipusEnumeracioCommand.asEnumeracioDto(command);
 				expedientTipusService.enumeracioUpdate(dto);
 				
 	    		MissatgesHelper.success(
