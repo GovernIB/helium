@@ -110,6 +110,7 @@ import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 
 /**
@@ -4118,6 +4119,53 @@ public class DissenyService {
 		}
 		return resposta;
 	}
-	
+
+	/** Actualitza les plantilles dels documents de les definicions de procés que tinguin
+	 * expedients actius amb la informació dels documents plantilla de la darrera versió 
+	 * de la definició de procés.
+	 */
+	public void propagarPlantilles(
+			Long entornId,
+			Long expedientTipusId) {		
+
+		List<Document> documentsPlantilles = new ArrayList<Document>();
+		int expedientsActiusCount;
+		//	per cada darrera versió de la definició de procés del tipus d'expedient
+		for (DefinicioProces definicioDarrera : definicioProcesDao.findDarreresVersionsAmbExpedientTipus(expedientTipusId)) {
+			// Mira si hi ha documents amb plantilles
+			documentsPlantilles.clear();
+			for (Document document : definicioDarrera.getDocuments())
+				if (document.isPlantilla())
+					documentsPlantilles.add(document);
+			if (documentsPlantilles.size() > 0) {
+				// Propaga els documents per a totes les versions anteriors
+				for (DefinicioProces definicioAnterior :  definicioProcesDao.findAmbEntornExpedientTipusIJbpmKey(
+																entornId, 
+																expedientTipusId, 
+																definicioDarrera.getJbpmKey())) {
+					// comprova que sigui una versió anterior
+					if (definicioAnterior.getVersio() < definicioDarrera.getVersio()) {
+						// Comprova que tingui expedients actius
+						expedientsActiusCount = expedientDao.countAmbEntornConsultaGeneral(
+								entornId, null, null, null, null, expedientTipusId, null, null, true, false, null, null, null, FiltreAnulat.ACTIUS, null);
+						if (expedientsActiusCount > 0 ) {
+							for ( Document documentPlantilla : documentsPlantilles) {
+								Document document = documentDao.findAmbDefinicioProcesICodi(
+										definicioAnterior.getId(),
+										documentPlantilla.getCodi());
+								// Comprova si existeix
+								if (document != null && document.isPlantilla())  {
+										document.setArxiuContingut(documentPlantilla.getArxiuContingut());
+										document.setPlantilla(true);
+										documentDao.saveOrUpdate(document);
+										documentDao.flush();
+								}							
+							}						
+						}
+					}
+				}
+			}
+		}		
+	}
 	
 }

@@ -59,7 +59,8 @@ public class ExecucioMassiva implements Serializable, GenericEntity<Long> {
 		REASSIGNAR,
 		BUIDARLOG,
 		REPRENDRE_EXPEDIENT,
-		REPRENDRE
+		REPRENDRE,
+		PROPAGAR_PLANTILLES
 	}
 
 	private Long id;

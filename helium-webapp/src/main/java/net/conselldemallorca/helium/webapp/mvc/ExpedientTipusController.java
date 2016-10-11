@@ -757,6 +757,51 @@ public class ExpedientTipusController extends BaseController {
 		return "redirect:/expedientTipus/redireccioLlistat.html?expedientTipusId="+expedientTipusId;
 	}
 	
+	/** Inicia una tasca en segon pla per actualitzar les plantilles dels documents de les definicions de procés
+	 * amb la informació dels documents de la darrera versió de la definició de procés.
+	 */
+	@RequestMapping(value = "/expedientTipus/propagarPlantilles")
+	public String propagarPlantilles(
+			HttpServletRequest request,
+			ModelMap model,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setExpedientTipusId(expedientTipusId);
+				dto.setTipus(ExecucioMassivaTipus.PROPAGAR_PLANTILLES);
+				dto.setEnviarCorreu(false);
+				// Passa les id's de les darreres definicions de procés del tipus d'expedient
+				List<Long> definicioProcesIds = new ArrayList<Long>();
+				for (DefinicioProcesDto darreraVersio : dissenyService.findDarreresAmbExpedientTipusEntorn(
+						entorn.getId(), 
+						expedientTipusId,
+						false))
+					definicioProcesIds.add(darreraVersio.getId());
+				dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
+				try {
+					execucioMassivaService.crearExecucioMassiva(dto);
+//					dissenyService.propagarPlantilles(
+//							entorn.getId(),
+//							expedientTipusId);
+					missatgeInfo(request, getMessage("exptipus.info.propagar.success") );					
+				} catch (Exception e) {
+					missatgeError(request, getMessage("exptipus.info.propagar.error", new Object[] {e.getMessage()}) );					
+					logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
+				}				
+	    		return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}	
+	
 
 	private PersonaDto getResponsableDefecte(String codi) {
 		if (codi == null)
