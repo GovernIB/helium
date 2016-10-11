@@ -158,6 +158,7 @@ $(document).ready(function() {
 <%-- 				<a href="<c:url value="/definicioProces/delete.html"><c:param name="definicioProcesId" value="${registre.id}"/></c:url>" onclick="return confirmar(event)"><img src="<c:url value="/img/cross.png"/>" alt="<fmt:message key='defproc.llistat.esborrar_darrera' />" title="<fmt:message key='defproc.llistat.esborrar_darrera' />" border="0"/></a> --%>
 <%-- 			</display:column> --%>
 			<display:column title="${msg_afectats}" style="width:10%;">
+				<form></form>
 				<form action="afectats_df.html"> <%-- onsubmit="return confirmarNetejarDf(event)"> --%>
 					<input type="hidden" name="expedientTipusId" value="${expedientTipusId}"/>
 					<input type="hidden" name="definicioProcesId" value="${registre.id}"/>
