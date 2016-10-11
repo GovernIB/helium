@@ -29,7 +29,7 @@ public class DissenyHelper {
 				vell.removeIniciat(iniciat);
 				iniciat.setTermini(null);
 			}
-			terminiRepository.delete(id);
+			terminiRepository.delete(vell);
 		}
 	}
 }
