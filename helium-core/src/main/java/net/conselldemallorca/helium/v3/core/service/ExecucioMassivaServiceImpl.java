@@ -1186,18 +1186,24 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 								  (ex.getCause() instanceof DataIntegrityViolationException || "ConstraintViolationException".equalsIgnoreCase(ex.getCause().getClass().getSimpleName())) ? getErrorMsg(ex.getCause()) : 
 									  getErrorMsg(ex.getCause().getCause());
 								  
+					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+								  
 					if (msg.contains("HELIUM.FK_TASKINST_TASK"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.taskinstance");
 					if (msg.contains("HELIUM.FK_JOB_ACTION"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.job");
-					if (msg.contains("HELIUM.FK_LOG_"))
-						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
+					if (msg.contains("HELIUM.FK_LOG_")) {
+						if (GraphSession.errorsDelete.containsKey(processInstanceId))
+							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log");
+						else
+							msg = messageHelper.getMessage("error.defpro.eliminar.constraint.log_no_exp");
+					}
 					if (msg.contains("HELIUM.FK_SWL_ASSDEL") || msg.contains("HELIUM.FK_SWIMLANEINST_SL"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.swl");
 					if (msg.contains("HELIUM.FK_TRANS_PROCDEF"))
 						msg = messageHelper.getMessage("error.defpro.eliminar.constraint.procdef");
 					
-					Long processInstanceId = Long.parseLong(definicioProces.getJbpmId());
+					
 					if (GraphSession.errorsDelete.containsKey(processInstanceId)){
 						
 						msg += "####exp_afectats###" + definicioProces.getId().toString() + "###";
