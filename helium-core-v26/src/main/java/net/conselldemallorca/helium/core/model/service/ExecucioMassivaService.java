@@ -383,6 +383,8 @@ public class ExecucioMassivaService {
 			label = getMessage("expedient.eines.reassignar.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_PLANTILLES)){
 			label = getMessage("expedient.eines.propagar.plantilles", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
+		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_CONSULTES)){
+			label = getMessage("expedient.eines.propagar.consultes", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
 		} else {
 			label = tipus.name();
 		}

@@ -5,13 +5,12 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -20,7 +19,7 @@ import org.springframework.data.repository.query.Param;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface ConsultaCampRepository extends JpaRepository<Camp, Long> {
+public interface ConsultaCampRepository extends JpaRepository<ConsultaCamp, Long> {
 
 	@Query("select cc " +
 			"from ConsultaCamp cc " +

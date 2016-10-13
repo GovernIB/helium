@@ -93,6 +93,12 @@ function confirmar(e) {
 				<fmt:message key='exptipus.info.propagar.plantilles' />
 			</button>
 		</form>
+		<form style="display: inline;" action="<c:url value="/expedientTipus/propagarConsultes.html"/>" method="post" style="display: inline">
+			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+			<button type="submit" class="submitButton" title="<fmt:message key='exptipus.info.propagar.consultes.info' />">
+				<fmt:message key='exptipus.info.propagar.consultes' />
+			</button>
+		</form>
 	</div>
  
 	</security:accesscontrollist>
