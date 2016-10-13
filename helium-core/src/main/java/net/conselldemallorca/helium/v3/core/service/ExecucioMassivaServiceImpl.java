@@ -56,8 +56,10 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -92,9 +94,11 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -111,6 +115,8 @@ import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 
 	@Resource
+	private EntornRepository entornRepository;
+	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
 	private DefinicioProcesRepository definicioProcesRepository;
@@ -126,6 +132,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private PersonaRepository personaRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
+	@Resource
+	private ConsultaCampRepository consultaCampRepository;
 	@Resource
 	private CampRepository campRepository;
 	@Resource
@@ -512,7 +520,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					titol = messageHelper.getMessage("expedient.massiva.eliminar.dp") + " (" + idPerMostrar + ")";
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
 					titol = expedient.getAuxText() != null ? expedient.getAuxText() : definicioProcesRepository.findOne(expedient.getDefinicioProcesId()).getJbpmKey(); 
-				}				
+				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
+					titol = expedient.getAuxText() != null ? expedient.getAuxText() : consultaRepository.findOne(expedient.getDefinicioProcesId()).getCodi(); 
+				} 			
 				Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
 				mjson_exp.put("id", expedient.getId());
 				mjson_exp.put("titol", titol);
@@ -680,6 +690,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			label = messageHelper.getMessage("expedient.eines.reassignar.expedients");
 		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_PLANTILLES)){
 			label = messageHelper.getMessage("expedient.eines.propagar.plantilles", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
+		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_CONSULTES)){
+			label = messageHelper.getMessage("expedient.eines.propagar.consultes", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
 		} else {
 			label = tipus.name();
 		}
@@ -732,13 +744,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (ome.getExpedient() != null) {
 			expedient = ome.getExpedient();
 		} else if (tipus  != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
-					&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES){
+					&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES
+					&& tipus != ExecucioMassivaTipus.PROPAGAR_CONSULTES){
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 		
 		ExpedientTipus expedientTipus;
 		if (expedient == null 
-				&& (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC || tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) )
+				&& (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC 
+					|| tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES
+					|| tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES) )
 			expedientTipus = exm.getExpedientTipus();
 		else
 			expedientTipus = expedient.getTipus();
@@ -862,6 +877,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Propagar plantilles", "massiva", expedient_s);
 				propagarPlantilles(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Propagar plantilles", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
+				mesuresTemporalsHelper.mesuraIniciar("Propagar consultes", "massiva", expedient_s);
+				propagarConsultes(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Propagar consultes", "massiva", expedient_s);
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -1590,13 +1609,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	/** Actualitza les plantilles dels documents de les definicions de procés que tinguin
 	 * expedients actius amb la informació dels documents plantilla de la darrera versió 
 	 * de la definició de procés.
+	 * Aquest tipus d'execucions massives es programen des de la pipella d'informació del tipus
+	 * d'expedient a la interfície vella. Per a la nova interfície les consultes haurien de fer
+	 * referència a variables del propi tipus d'expedient.
 	 */
 	private void propagarPlantilles(ExecucioMassivaExpedient ome) throws Exception {
 		try {
 			int versionsCount = 0;
 			int actualitzacionsCount = 0;
-			
-			ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
 			
 			ome.setDataInici(new Date());
 			Long entornId = ome.getExecucioMassiva().getEntorn();
@@ -1637,11 +1657,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					versionsCount ++;
 				}
 			}
-			ome.setAuxText(definicioDarrera.getJbpmKey() + " (" + 
-					versionsCount + " versions, " +
-					documentsPlantilles.size() + " plantilles, " + 
-					actualitzacionsCount + " actualitzacions)");
-			ome.setEstat(estat);
+			ome.setAuxText(messageHelper.getMessage("exptipus.info.propagar.plantilles.auxText", new Object[]{
+					definicioDarrera.getJbpmKey(),
+					versionsCount,
+					documentsPlantilles.size(),
+					actualitzacionsCount}));
+			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		} catch (Exception ex) {
@@ -1649,6 +1670,79 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
+	
+	/** Actualitza els variables tipus filtre i informe de les consultes per a que facin referència
+	 * a la darrera versió de la definició de procés. L'identificador de la consulta es passa com a 
+	 * defProcId aprofitant el camp de la BBDD per no crear-ne de noves.
+	 * Aquest tipus d'execucions massives es programen des de la pipella d'informació del tipus
+	 * d'expedient a la interfície vella. Per a la nova interfície les consultes haurien de fer
+	 * referència a variables del propi tipus d'expedient.
+	 */
+	private void propagarConsultes(ExecucioMassivaExpedient ome) throws Exception {
+		try {
+			int variablesCount = 0;
+			int actualitzacionsCount = 0;
+			int errorsCount = 0;
+			StringBuilder errorMsg = new StringBuilder();
+			
+			ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+			
+			ome.setDataInici(new Date());
+			
+			Entorn entorn = entornRepository.findOne(ome.getExecucioMassiva().getEntorn());
+			// Recupera la consulta (* s'ha aprofitat l'id de la definició de procés per passar l'id de la consulta
+			Consulta consulta = consultaRepository.findById(ome.getDefinicioProcesId());
+			Camp camp;
+			// Per cada variable de tipus informe o filtre
+			for (ConsultaCamp consultaCamp : consulta.getCamps()) {
+				if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM
+						&& consultaCamp.getDefprocJbpmKey() != null) {
+					// Recupera la darrera versió de la definició de procés
+					DefinicioProces definicioDarrera = 
+							definicioProcesRepository.findDarreraVersioByEntornAndJbpmKey(
+								entorn, 
+								consultaCamp.getDefprocJbpmKey());
+					if (consultaCamp.getDefprocVersio() < definicioDarrera.getVersio()) {
+						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera, consultaCamp.getCampCodi());
+						if (camp != null) {
+							consultaCamp.setDefprocVersio(definicioDarrera.getVersio());
+							consultaCampRepository.save(consultaCamp);
+							actualitzacionsCount++;
+						} else {
+							estat = ExecucioMassivaEstat.ESTAT_ERROR;
+							// el codi del missatge es troba al fitxer messages.propeties de la 3.1
+							if (errorMsg.length() > 0)
+								errorMsg.append(". ");
+							
+							errorMsg.append(
+									messageHelper.getMessage("exptipus.info.propagar.consultes.error.camp", new Object[]{
+										consultaCamp.getCampCodi(), 
+										consultaCamp.getTipus(),
+										consulta.getCodi(),
+										consultaCamp.getDefprocJbpmKey(),
+										consultaCamp.getDefprocVersio(),
+										definicioDarrera.getVersio()}));
+							errorsCount++;
+						}
+					}
+					variablesCount++;
+				}
+			}
+			ome.setAuxText(messageHelper.getMessage("exptipus.info.propagar.consultes.auxText", new Object[]{
+					consulta.getCodi(),
+					variablesCount, 
+					actualitzacionsCount,
+					errorsCount}));
+			ome.setEstat(estat);
+			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + ome.getId() + ". No s'han pogut propagar els documents plantilla de la definició de procés", ex);
+			throw ex;
+		}
+	}	
+
 	
 
 	private double getPercent(Long value, Long total) {

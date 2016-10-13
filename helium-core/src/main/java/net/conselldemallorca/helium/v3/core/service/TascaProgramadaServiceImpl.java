@@ -60,8 +60,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					GlobalProperties.getInstance().getProperty("app.massiu.periode.execucions")); 
 		} catch (Exception ex) {}
 		
-//		while (active != active) {	//TODO: no pujar els canvis 
-		while (active) {	//TODO: no pujar els canvis 
+		while (active) {
 			try {
 				Long ome_id = execucioMassivaService.getExecucionsMassivesActiva(ultimaExecucioMassiva);
 				if (ome_id != null) {

@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.core.model.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exportacio.ExpedientTipusExportacio;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
@@ -782,12 +783,9 @@ public class ExpedientTipusController extends BaseController {
 				dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
 				try {
 					execucioMassivaService.crearExecucioMassiva(dto);
-//					dissenyService.propagarPlantilles(
-//							entorn.getId(),
-//							expedientTipusId);
-					missatgeInfo(request, getMessage("exptipus.info.propagar.success") );					
+					missatgeInfo(request, getMessage("exptipus.info.propagar.plantilles.success") );					
 				} catch (Exception e) {
-					missatgeError(request, getMessage("exptipus.info.propagar.error", new Object[] {e.getMessage()}) );					
+					missatgeError(request, getMessage("exptipus.info.propagar.plantilles.error", new Object[] {e.getMessage()}) );					
 					logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
 				}				
 	    		return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
@@ -800,6 +798,48 @@ public class ExpedientTipusController extends BaseController {
 			return "redirect:/index.html";
 		}
 	}	
+	
+	/** Inicia una tasca en segon pla per actualitzar les plantilles dels documents de les definicions de procés
+	 * amb la informació dels documents de la darrera versió de la definició de procés.
+	 */
+	@RequestMapping(value = "/expedientTipus/propagarConsultes")
+	public String propagarConsultes(
+			HttpServletRequest request,
+			ModelMap model,
+			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId) {
+		Entorn entorn = getEntornActiu(request);
+		if (entorn != null) {
+			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+			if (potDissenyarExpedientTipus(entorn, expedientTipus)) {
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setExpedientTipusId(expedientTipusId);
+				dto.setTipus(ExecucioMassivaTipus.PROPAGAR_CONSULTES);
+				dto.setEnviarCorreu(false);
+				// Passa les id's de les consultes del tipus d'expedient
+				List<Long> consultesIds = new ArrayList<Long>();
+				for (Consulta consulta : dissenyService.findConsultesAmbEntornIExpedientTipusOrdenat(
+						entorn.getId(), 
+						expedientTipusId))
+					consultesIds.add(consulta.getId());
+				// Aprofita la propietat de la llista d'ids de definicions de procés per passar les ids de les consultes
+				dto.setDefProcIds(consultesIds.toArray(new Long[consultesIds.size()]));
+				try {
+					execucioMassivaService.crearExecucioMassiva(dto);
+					missatgeInfo(request, getMessage("exptipus.info.propagar.consultes.success") );					
+				} catch (Exception e) {
+					missatgeError(request, getMessage("exptipus.info.propagar.consultes.error", new Object[] {e.getMessage()}) );					
+					logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
+				}				
+	    		return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
+			} else {
+				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
+				return "redirect:/index.html";
+			}
+		} else {
+			missatgeError(request, getMessage("error.no.entorn.selec") );
+			return "redirect:/index.html";
+		}
+	}		
 	
 
 	private PersonaDto getResponsableDefecte(String codi) {

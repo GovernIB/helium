@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
@@ -991,13 +992,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
-		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientTipusPerPipelles(
-					request,
-					expedientTipusId,
-					model,
-					"informacio");
-		}
 		// Programa la execució massiva
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExecucioMassivaDto dto = new ExecucioMassivaDto();
@@ -1015,17 +1009,56 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					request,
 					getMessage(
 							request,
-							"exptipus.info.propagar.success"));
+							"exptipus.info.propagar.plantilles.success"));
 		} catch(Exception e) {
 			MissatgesHelper.error(
 					request,
 					getMessage(
 							request,
-							"exptipus.info.propagar.error",
+							"exptipus.info.propagar.plantilles.error",
 							new Object[] {e.getMessage()}));
 		}
 		return "redirect:/v3/expedientTipus/"+expedientTipusId;
 	}
+	
+	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per 
+	 * actualitzar les plantilles dels documents de les definicions de procés
+	 * amb la informació dels documents de la darrera versió de la definició de procés. 
+	 * Aquesta acció és per mantenir compatibilitat amb els tipus d'expedient amb la informació dins de les definicions
+	 * de procés.
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/propagarConsultes")
+	public String propagarConsultes(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		// Programa la execució massiva
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setExpedientTipusId(expedientTipusId);
+		dto.setTipus(ExecucioMassivaTipusDto.PROPAGAR_CONSULTES);
+		dto.setEnviarCorreu(false);
+		// Passa les id's de les consultes del tipus d'expedient
+		List<Long> consultesIds = new ArrayList<Long>();
+		for (ConsultaDto consulta : expedientTipusService.consultaFindAll(expedientTipusId))
+			consultesIds.add(consulta.getId());
+		dto.setDefProcIds(consultesIds.toArray(new Long[consultesIds.size()]));
+		try {
+			execucioMassivaService.crearExecucioMassiva(dto);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"exptipus.info.propagar.consultes.success"));
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"exptipus.info.propagar.consultes.error",
+							new Object[] {e.getMessage()}));
+		}
+		return "redirect:/v3/expedientTipus/"+expedientTipusId;
+	}	
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
