@@ -87,6 +87,12 @@ function confirmar(e) {
 			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
 			<button type="submit" class="submitButton"><fmt:message key='defproc.info.exportar_versio' /></button>
 		</form>
+		<form style="display: inline;" action="<c:url value="/expedientTipus/propagarPlantilles.html"/>" method="post" style="display: inline">
+			<input type="hidden" name="expedientTipusId" value="${expedientTipus.id}"/>
+			<button type="submit" class="submitButton" title="<fmt:message key='exptipus.info.propagar.plantilles.info' />">
+				<fmt:message key='exptipus.info.propagar.plantilles' />
+			</button>
+		</form>
 	</div>
  
 	</security:accesscontrollist>

@@ -980,6 +980,52 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		response += "\"}";
 		return response;
 	}
+
+	/** Acció del menú de la pestanya d'informació per iniciar una tasca en segon pla per actualitzar 
+	 * les plantilles dels documents de les definicions de procés amb la informació dels documents de la darrera versió de la definició de procés.
+	 * Aquesta acció és per mantenir compatibilitat amb els tipus d'expedient amb la informació dins de les definicions
+	 * de procés.
+	 */
+	@RequestMapping(value = "/{expedientTipusId}/propagarPlantilles")
+	public String propagarPlantilles(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		if (!NodecoHelper.isNodeco(request)) {
+			return mostrarInformacioExpedientTipusPerPipelles(
+					request,
+					expedientTipusId,
+					model,
+					"informacio");
+		}
+		// Programa la execució massiva
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setExpedientTipusId(expedientTipusId);
+		dto.setTipus(ExecucioMassivaTipusDto.PROPAGAR_PLANTILLES);
+		dto.setEnviarCorreu(false);
+		// Passa les id's de les darreres definicions de procés del tipus d'expedient
+		List<Long> definicioProcesIds = new ArrayList<Long>();
+		for (DefinicioProcesDto darreraVersio : definicioProcesService.findAll(entornActual.getId(), expedientTipusId))
+			definicioProcesIds.add(darreraVersio.getId());
+		dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
+		try {
+			execucioMassivaService.crearExecucioMassiva(dto);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"exptipus.info.propagar.success"));
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"exptipus.info.propagar.error",
+							new Object[] {e.getMessage()}));
+		}
+		return "redirect:/v3/expedientTipus/"+expedientTipusId;
+	}
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

@@ -91,6 +91,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -125,6 +126,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private PersonaRepository personaRepository;
 	@Resource
 	private ConsultaRepository consultaRepository;
+	@Resource
+	private CampRepository campRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -507,8 +510,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					DefinicioProces dp = definicioProcesRepository.findOne(expedient.getDefinicioProcesId());
 					String idPerMostrar = dp != null ? dp.getIdPerMostrar() : expedient.getAuxText();
 					titol = messageHelper.getMessage("expedient.massiva.eliminar.dp") + " (" + idPerMostrar + ")";
-				}
-				
+				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
+					titol = expedient.getAuxText() != null ? expedient.getAuxText() : definicioProcesRepository.findOne(expedient.getDefinicioProcesId()).getJbpmKey(); 
+				}				
 				Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
 				mjson_exp.put("id", expedient.getId());
 				mjson_exp.put("titol", titol);
@@ -674,6 +678,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			label = messageHelper.getMessage("expedient.eines.reprendre_expedient");
 		} else if (tipus.equals(ExecucioMassivaTipus.REASSIGNAR)){
 			label = messageHelper.getMessage("expedient.eines.reassignar.expedients");
+		} else if (tipus.equals(ExecucioMassivaTipus.PROPAGAR_PLANTILLES)){
+			label = messageHelper.getMessage("expedient.eines.propagar.plantilles", new Object[] {execucioMassiva.getExpedientTipus().getCodi()});
 		} else {
 			label = tipus.name();
 		}
@@ -725,12 +731,14 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Expedient expedient = null;
 		if (ome.getExpedient() != null) {
 			expedient = ome.getExpedient();
-		} else if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC){
+		} else if (tipus  != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
+					&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES){
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 		
 		ExpedientTipus expedientTipus;
-		if (expedient == null && tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC)
+		if (expedient == null 
+				&& (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC || tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) )
 			expedientTipus = exm.getExpedientTipus();
 		else
 			expedientTipus = expedient.getTipus();
@@ -850,6 +858,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				//reassignarExpedient(ome);
 				reassignarTasca(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Reassignar", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES) {
+				mesuresTemporalsHelper.mesuraIniciar("Propagar plantilles", "massiva", expedient_s);
+				propagarPlantilles(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Propagar plantilles", "massiva", expedient_s);
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -1574,6 +1586,70 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}
+	
+	/** Actualitza les plantilles dels documents de les definicions de procés que tinguin
+	 * expedients actius amb la informació dels documents plantilla de la darrera versió 
+	 * de la definició de procés.
+	 */
+	private void propagarPlantilles(ExecucioMassivaExpedient ome) throws Exception {
+		try {
+			int versionsCount = 0;
+			int actualitzacionsCount = 0;
+			
+			ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+			
+			ome.setDataInici(new Date());
+			Long entornId = ome.getExecucioMassiva().getEntorn();
+			ExpedientTipus expedientTipus = ome.getExecucioMassiva().getExpedientTipus();
+			// Recupera la darrera versió identificada per l'ome.definicioProcesId
+			DefinicioProces definicioDarrera = definicioProcesRepository.findById(ome.getDefinicioProcesId());
+			// Mira si hi ha documents amb plantilles
+			List<Document> documentsPlantilles = new ArrayList<Document>();
+			for (Document document : definicioDarrera.getDocuments())
+				if (document.isPlantilla())
+					documentsPlantilles.add(document);
+			if (documentsPlantilles.size() > 0) {
+				int expedientsActiusCount;
+				// Propaga els documents per a totes les versions anteriors
+				for (DefinicioProces definicioAnterior :  definicioProcesRepository.findByEntornIdAndJbpmKeyOrderByVersioDesc(
+																						entornId, 
+																						definicioDarrera.getJbpmKey()))
+				{
+					if (definicioAnterior.getVersio() < definicioDarrera.getVersio()) {
+						expedientsActiusCount = expedientHelper.findByFiltreGeneral(
+								expedientTipus.getEntorn(), null, null, null, null, 
+								expedientTipus, null, 
+								true, false).size();
+						if (expedientsActiusCount > 0 ) {
+							for ( Document documentPlantilla : documentsPlantilles) {
+								Document document = documentRepository.findAmbDefinicioProcesICodi(
+										definicioAnterior.getId(), 
+										documentPlantilla.getCodi());
+								// Comprova si existeix
+								if (document != null && document.isPlantilla()) {
+									document.setArxiuContingut(documentPlantilla.getArxiuContingut());
+									documentRepository.saveAndFlush(document);
+									actualitzacionsCount++;
+								}
+							}
+						}
+					}
+					versionsCount ++;
+				}
+			}
+			ome.setAuxText(definicioDarrera.getJbpmKey() + " (" + 
+					versionsCount + " versions, " +
+					documentsPlantilles.size() + " plantilles, " + 
+					actualitzacionsCount + " actualitzacions)");
+			ome.setEstat(estat);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + ome.getId() + ". No s'han pogut propagar els documents plantilla de la definició de procés", ex);
+			throw ex;
+		}
+	}
+	
 
 	private double getPercent(Long value, Long total) {
 		if (total == 0)
