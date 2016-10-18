@@ -1626,6 +1626,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 										documentPlantilla.getCodi());
 								// Comprova si existeix
 								if (document != null && document.isPlantilla()) {
+									document.setArxiuNom(documentPlantilla.getArxiuNom());
 									document.setArxiuContingut(documentPlantilla.getArxiuContingut());
 									documentRepository.saveAndFlush(document);
 									actualitzacionsCount++;
