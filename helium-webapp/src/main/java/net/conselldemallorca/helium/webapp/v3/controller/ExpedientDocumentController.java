@@ -189,6 +189,24 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			throw new ServletException(ex);
 	    }
 	}
+	
+	@RequestMapping(value = "/{expedientId}/verificarSignatura/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
+	public String verificarSignatura(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@PathVariable String documentCodi,
+			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
+			ModelMap model) throws ServletException {
+		return verificarSignatura(
+				request, 
+				expedientId, 
+				null, 
+				documentStoreId, 
+				documentCodi, 
+				urlVerificacioCustodia, 
+				model);
+	}	
 
 	@RequestMapping(value = "/{expedientId}/verificarRegistre/{processInstanceId}/{documentStoreId}/{documentCodi}", method = RequestMethod.GET)
 	public String verificarRegistre(
