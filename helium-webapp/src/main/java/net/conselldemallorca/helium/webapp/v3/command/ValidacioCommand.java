@@ -12,9 +12,10 @@ import org.hibernate.validator.constraints.NotEmpty;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class ExpedientTipusValidacioCommand {
+public class ValidacioCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long campId;
 	private Long id;
 	
@@ -30,6 +31,12 @@ public class ExpedientTipusValidacioCommand {
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	public Long getCampId() {
 		return campId;

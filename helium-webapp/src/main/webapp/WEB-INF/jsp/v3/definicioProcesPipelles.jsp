@@ -200,6 +200,7 @@
 				<div class="col-sm-10">
 					<hel:inputSelect required="false" emptyOption="false" name="versions" textKey="definicio.proces.pipelles.definicio.proces.actual" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
+<<<<<<< HEAD
 				<div class="col-sm-2 text-right">
 					<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
@@ -209,6 +210,15 @@
 						</ul>
 					</div>
 				</div>
+=======
+<!-- 				<div class="col-sm-2 text-right"> -->
+<!-- 					<div id="versioAccions" class="dropdown" style="margin-right: -10px;"> -->
+<%-- 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> --%>
+<!-- 						<ul class="dropdown-menu"> -->
+<!-- 						</ul> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+>>>>>>> refs/heads/task_821-Nou_manteniment_dp
 			</div>
 		</form>
 
@@ -220,6 +230,7 @@
 				<ul class="nav nav-tabs pipelles" role="tablist">
 					<li id="pipella-detall"><a href="#contingut-detall" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.detalls"/></a></li>
 					<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.tasques"/></a></li>
+					<li id="pipella-variables"><a href="#contingut-variables" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.variables"/></a></li>
 					<li id="pipella-recursos"><a href="#contingut-recursos" role="tab" data-toggle="tab"><spring:message code="definicio.proces.pipelles.pipella.recursos"/></a></li>
 				</ul>
 			</div>
@@ -228,6 +239,9 @@
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/tasca"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-variables" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/variable"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-recursos" class="tab-pane" data-href="<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/recurs"/>">
@@ -245,6 +259,7 @@
 					var definicioProcesId = $(this).val();
 					$('#contingut-detall').data('href', '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/detall');
 					$('#contingut-tasques').data('href',  '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/tasca');
+					$('#contingut-variables').data('href',  '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/variables');
 					$('#contingut-recursos').data('href',  '<c:url value="/nodeco/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/recurs');
 					$('#accioExportarDiv').remove();
 					$('#accioExportar').attr('href',  '<c:url value="/v3/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId="/>'+definicioProcesId );

@@ -14,20 +14,21 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCampCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Creacio;
+import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
-import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusCamp;
+import net.conselldemallorca.helium.webapp.v3.validator.Camp;
 
 /**
  * Command per editar la informació de les varialbes dels tipus d'expedient 
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@ExpedientTipusCamp(groups = {Creacio.class, Modificacio.class})
-public class ExpedientTipusCampCommand {
+@Camp(groups = {Creacio.class, Modificacio.class})
+public class CampCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long id;
 	private Long agrupacioId;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
@@ -161,6 +162,12 @@ public class ExpedientTipusCampCommand {
 		this.expedientTipusId = expedientTipusId;
 	}
 	
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
+	}
 	public boolean isDominiIntern() {
 		return dominiIntern;
 	}
@@ -227,7 +234,7 @@ public class ExpedientTipusCampCommand {
 	public void setDominiCacheText(boolean dominiCacheText) {
 		this.dominiCacheText = dominiCacheText;
 	}
-	public static CampDto asCampDto(ExpedientTipusCampCommand command) {
+	public static CampDto asCampDto(CampCommand command) {
 		CampDto dto = new CampDto();
 		dto.setId(command.getId());
 		if(command.getAgrupacioId() != null) {

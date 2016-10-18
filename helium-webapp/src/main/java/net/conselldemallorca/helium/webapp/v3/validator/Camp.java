@@ -14,10 +14,10 @@ import javax.validation.Payload;
  * - Comprova que el codi no estigui duplicat
  */
 @Documented
-@Constraint(validatedBy = ExpedientTipusCampValidator.class)
+@Constraint(validatedBy = CampValidator.class)
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ExpedientTipusCamp {
+public @interface Camp {
 
 	String message() default "expedient.tipus.camp.validacio";
 

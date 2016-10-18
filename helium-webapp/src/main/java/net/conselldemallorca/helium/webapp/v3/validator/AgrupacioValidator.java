@@ -6,8 +6,9 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAgrupacioCommand;
+import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
 /**
@@ -15,25 +16,33 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
  * - Comprova que el codi:
  * 		- no estigui duplicat
  */
-public class ExpedientTipusAgrupacioValidator implements ConstraintValidator<ExpedientTipusAgrupacio, ExpedientTipusAgrupacioCommand>{
+public class AgrupacioValidator implements ConstraintValidator<Agrupacio, AgrupacioCommand>{
 
 	private String codiMissatge;
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
+	@Autowired
+	private DefinicioProcesService definicioProcesService;
 
 	@Override
-	public void initialize(ExpedientTipusAgrupacio anotacio) {
+	public void initialize(Agrupacio anotacio) {
 		codiMissatge = anotacio.message();
 	}
 
 	@Override
-	public boolean isValid(ExpedientTipusAgrupacioCommand agrupacio, ConstraintValidatorContext context) {
+	public boolean isValid(AgrupacioCommand agrupacio, ConstraintValidatorContext context) {
 		boolean valid = true;
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (agrupacio.getCodi() != null) {
-			CampAgrupacioDto repetit = expedientTipusService.agrupacioFindAmbCodiPerValidarRepeticio(
-					agrupacio.getExpedientTipusId(),
-					agrupacio.getCodi());
+			CampAgrupacioDto repetit;
+			if (agrupacio.getExpedientTipusId() != null && agrupacio.getDefinicioProcesId() == null)
+				repetit = expedientTipusService.agrupacioFindAmbCodiPerValidarRepeticio(
+						agrupacio.getExpedientTipusId(),
+						agrupacio.getCodi());
+			else
+				repetit = definicioProcesService.agrupacioFindAmbCodiPerValidarRepeticio(
+						agrupacio.getDefinicioProcesId(),
+						agrupacio.getCodi());
 			if(repetit != null && (agrupacio.getId() == null || !agrupacio.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
