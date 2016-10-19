@@ -781,14 +781,18 @@ public class ExpedientTipusController extends BaseController {
 						expedientTipusId,
 						false))
 					definicioProcesIds.add(darreraVersio.getId());
-				dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
-				try {
-					execucioMassivaService.crearExecucioMassiva(dto);
-					missatgeInfo(request, getMessage("exptipus.info.propagar.plantilles.success") );					
-				} catch (Exception e) {
-					missatgeError(request, getMessage("exptipus.info.propagar.plantilles.error", new Object[] {e.getMessage()}) );					
-					logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
-				}				
+				if (definicioProcesIds.isEmpty()) {
+					missatgeError(request, getMessage("exptipus.info.propagar.plantilles.error.cap"));
+				} else {
+					dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
+					try {
+						execucioMassivaService.crearExecucioMassiva(dto);
+						missatgeInfo(request, getMessage("exptipus.info.propagar.plantilles.success") );					
+					} catch (Exception e) {
+						missatgeError(request, getMessage("exptipus.info.propagar.plantilles.error", new Object[] {e.getMessage()}) );					
+						logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
+					}				
+				}
 	    		return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
@@ -822,15 +826,19 @@ public class ExpedientTipusController extends BaseController {
 						entorn.getId(), 
 						expedientTipusId))
 					consultesIds.add(consulta.getId());
-				// Aprofita la propietat de la llista d'ids de definicions de procés per passar les ids de les consultes
-				dto.setDefProcIds(consultesIds.toArray(new Long[consultesIds.size()]));
-				try {
-					execucioMassivaService.crearExecucioMassiva(dto);
-					missatgeInfo(request, getMessage("exptipus.info.propagar.consultes.success") );					
-				} catch (Exception e) {
-					missatgeError(request, getMessage("exptipus.info.propagar.consultes.error", new Object[] {e.getMessage()}) );					
-					logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
-				}				
+				if (consultesIds.isEmpty()) {
+					missatgeError(request, getMessage("exptipus.info.propagar.consultes.error.cap"));
+				} else {
+					// Aprofita la propietat de la llista d'ids de definicions de procés per passar les ids de les consultes
+					dto.setDefProcIds(consultesIds.toArray(new Long[consultesIds.size()]));
+					try {
+						execucioMassivaService.crearExecucioMassiva(dto);
+						missatgeInfo(request, getMessage("exptipus.info.propagar.consultes.success") );					
+					} catch (Exception e) {
+						missatgeError(request, getMessage("exptipus.info.propagar.consultes.error", new Object[] {e.getMessage()}) );					
+						logger.error("Error al programar la accio massiva de propagacio de plantilles", e);
+					}				
+				}
 	    		return "redirect:/expedientTipus/info.html?expedientTipusId=" + expedientTipusId;
 			} else {
 				missatgeError(request, getMessage("error.permisos.disseny.tipus.exp"));
