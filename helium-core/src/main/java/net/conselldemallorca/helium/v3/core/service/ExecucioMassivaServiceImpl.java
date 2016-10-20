@@ -186,7 +186,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if ((dto.getExpedientIds() != null && !dto.getExpedientIds().isEmpty()) ||
 			(dto.getTascaIds() != null && dto.getTascaIds().length > 0) ||
 			(dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty()) ||
-			(dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)) {
+			(dto.getDefProcIds() != null && dto.getDefProcIds().length > 0) ) {
 			String log = "Creació d'execució massiva (dataInici=" + dto.getDataInici();
 			if (dto.getExpedientTipusId() != null) log += ", expedientTipusId=" + dto.getExpedientTipusId();
 			log += ", numExpedients=";
@@ -1647,6 +1647,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 										documentPlantilla.getCodi());
 								// Comprova si existeix
 								if (document != null && document.isPlantilla()) {
+									document.setArxiuNom(documentPlantilla.getArxiuNom());
 									document.setArxiuContingut(documentPlantilla.getArxiuContingut());
 									documentRepository.saveAndFlush(document);
 									actualitzacionsCount++;
@@ -1742,7 +1743,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			throw ex;
 		}
 	}	
-
 	
 
 	private double getPercent(Long value, Long total) {
