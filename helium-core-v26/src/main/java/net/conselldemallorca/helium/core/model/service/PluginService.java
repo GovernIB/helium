@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helper.ProcesCallbackHelper;
 import net.conselldemallorca.helium.core.helperv26.DocumentHelper;
 import net.conselldemallorca.helium.core.model.dao.AlertaDao;
 import net.conselldemallorca.helium.core.model.dao.CampDao;
@@ -97,7 +98,7 @@ public class PluginService {
 	private ServiceUtils serviceUtils;
 	private MessageSource messageSource;
 	private MetricRegistry metricRegistry;
-
+	private ProcesCallbackHelper procesCallbackHelper;
 
 
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) {
@@ -240,7 +241,17 @@ public class PluginService {
 						portasignatures.setMotiuRebuig(motiuRebuig);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-					processarDocumentPendentPortasignatures(id, portasignatures);
+					
+					if (!procesCallbackHelper.isDocumentEnProces(portasignatures.getDocumentId())) {
+						procesCallbackHelper.afegirDocument(portasignatures.getDocumentId());
+						try {
+							processarDocumentPendentPortasignatures(id, portasignatures);
+						} finally {
+							if (procesCallbackHelper.isDocumentEnProces(portasignatures.getDocumentId()))
+								procesCallbackHelper.eliminarDocument(portasignatures.getDocumentId());
+						}
+					}
+					
 					return true;
 				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
 					return true;
@@ -469,7 +480,10 @@ public class PluginService {
 	public void setMetricRegistry(MetricRegistry metricRegistry) {
 		this.metricRegistry = metricRegistry;
 	}
-
+	@Autowired
+	public void setProcesCallbackHelper(ProcesCallbackHelper procesCallbackHelper) {
+		this.procesCallbackHelper = procesCallbackHelper;
+	}
 
 
 	private boolean processarDocumentPendentPortasignatures(
