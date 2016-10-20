@@ -672,23 +672,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void definicioProcesDelete(Long id) throws NoTrobatException, PermisDenegatException {
 		delegate.definicioProcesDelete(id);		
 	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
-			Long entornId,
-			Long expedientTipusId,
-			boolean incloureGlobals,
-			String filtre,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException {
-		return delegate.definicioProcesFindPerDatatable(
-				entornId,
-				expedientTipusId,
-				incloureGlobals,
-				filtre, 
-				paginacioParams);
-	}
-	
+		
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesDto> definicioFindAll(Long expedientTipusId)

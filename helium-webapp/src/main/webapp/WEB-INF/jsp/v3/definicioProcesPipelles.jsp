@@ -200,25 +200,16 @@
 				<div class="col-sm-10">
 					<hel:inputSelect required="false" emptyOption="false" name="versions" textKey="definicio.proces.pipelles.definicio.proces.actual" optionItems="${versions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
-<<<<<<< HEAD
 				<div class="col-sm-2 text-right">
 					<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 						<ul class="dropdown-menu">
 							<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href="../definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 							<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href="../definicioProces/importar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.filtre.importar"/></a></li>
+							<li><a id="accioEsborrar" href="../definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 						</ul>
 					</div>
 				</div>
-=======
-<!-- 				<div class="col-sm-2 text-right"> -->
-<!-- 					<div id="versioAccions" class="dropdown" style="margin-right: -10px;"> -->
-<%-- 						<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button> --%>
-<!-- 						<ul class="dropdown-menu"> -->
-<!-- 						</ul> -->
-<!-- 					</div> -->
-<!-- 				</div> -->
->>>>>>> refs/heads/task_821-Nou_manteniment_dp
 			</div>
 		</form>
 
@@ -265,6 +256,7 @@
 					$('#accioExportar').attr('href',  '<c:url value="/v3/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId="/>'+definicioProcesId );
 					$('#accioImportarDiv').remove();
 					$('#accioImportar').attr('href',  '<c:url value="/v3/definicioProces/importar?definicioProcesId="/>'+definicioProcesId );
+					$('#accioEsborrar').attr('href',  '<c:url value="/v3/definicioProces/${definicioProces.jbpmKey}/"/>'+definicioProcesId+'/delete' );
 					// recarrega la pestanya activa
 					carregaTab($('#definicioProces-pipelles li#'+$('.active').attr('id')+' a').attr('href'));
 				});

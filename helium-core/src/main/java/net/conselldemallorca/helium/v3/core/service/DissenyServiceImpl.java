@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,9 +12,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipInputStream;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +73,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
@@ -916,6 +921,88 @@ public class DissenyServiceImpl implements DissenyService {
 					DominiDto.class);
 		return ret; 
 	}
+
+	@Override
+	@Transactional
+	public DefinicioProcesDto updateHandlers(
+			Long entornId, 
+			String nomArxiu,
+			byte[] contingut) {
+		// Comprova el nom de l'arxiu
+		if (! nomArxiu.endsWith("ar")) {
+			throw new RuntimeException(
+					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {nomArxiu}));
+		}
+		// Obrir el .par i comprovar que és correcte
+		// Thanks to George Mournos who helped to improve this:
+		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
+		ProcessDefinition processDefinition;
+		try {
+			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		} catch (Exception e) {
+			throw new DeploymentException(
+					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
+		}
+		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+    	// Recuperar la darrera versió de la definició de procés
+		DefinicioProces darrera = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+				entornId,
+				jbpmProcessDefinition.getKey());
+		if (darrera == null)
+			throw new DeploymentException(
+					messageHelper.getMessage("definicio.proces.actualitzar.error.jbpmKey", new Object[] {jbpmProcessDefinition.getKey()}));
+		
+		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+		@SuppressWarnings("unchecked")
+		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		for (String nom : bytesMap.keySet()) 
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
+			}
+		// Actualitza els handlers de la darrera versió de la definició de procés
+		jbpmHelper.updateHandlers(
+				Long.parseLong(darrera.getJbpmId()), 
+				handlers);
+		
+		return conversioTipusHelper.convertir(darrera, DefinicioProcesDto.class);
+
+	}	
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(
+			String fitxer, 
+			byte[] contingut) {
+		DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
+
+		// Comprova el nom de l'arxiu
+		if (! fitxer.endsWith("ar")) {
+			throw new RuntimeException(
+					messageHelper.getMessage("desplegament.jbpm.accio.actualitzar.error.arxiuNom", new Object[] {fitxer}));
+		}
+		// Obrir el .par i comprovar que és correcte
+		// Thanks to George Mournos who helped to improve this:
+		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
+		ProcessDefinition processDefinition;
+		try {
+			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		} catch (Exception e) {
+			throw new DeploymentException(
+					messageHelper.getMessage("desplegament.jbpm.accio.actualitzar.error.parse"));		
+		}
+		exportacio.setNomDeploy(fitxer);
+		exportacio.setContingutDeploy(contingut);
+		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+		DefinicioProcesDto dto = new DefinicioProcesDto();
+		dto.setJbpmKey(jbpmProcessDefinition.getKey());
+		dto.setJbpmName(jbpmProcessDefinition.getName());
+		exportacio.setDefinicioProcesDto(dto);
+				
+		return exportacio;
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

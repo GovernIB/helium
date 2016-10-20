@@ -578,4 +578,16 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.existsExpedientAmbEntornTipusINumero(entornId, expedientTipusId, numero);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> findProcesInstanceIdsAmbEntornAndProcessDefinitionName(Long entornId, String jbpmKey) {
+		return delegate.findProcesInstanceIdsAmbEntornAndProcessDefinitionName(entornId, jbpmKey);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> findAmbDefinicioProcesId(Long definicioProcesId) {
+		return delegate.findAmbDefinicioProcesId(definicioProcesId);
+	}
+
 }

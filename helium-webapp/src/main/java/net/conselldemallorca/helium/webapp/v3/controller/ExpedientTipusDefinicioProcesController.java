@@ -77,7 +77,7 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientTipusService.definicioProcesFindPerDatatable(
+				definicioProcesService.findPerDatatable(
 						entornActual.getId(),
 						expedientTipusId,
 						true,

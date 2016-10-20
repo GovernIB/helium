@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -33,6 +34,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -111,6 +113,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private EntornHelper entornHelper;
+	@Resource
+	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -192,6 +196,64 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 									DefinicioProcesDto.class);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<DefinicioProcesDto> findPerDatatable(
+			Long entornId, 
+			Long expedientTipusId, 
+			boolean incloureGlobals,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant les definicions de processos per datatable (" +
+				"entornId=" + entornId + ", " +
+				"filtre=" + filtre + ")");
+
+		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
+				definicioProcesRepository.findByFiltrePaginat(
+						entornId,
+						expedientTipusId == null,
+						expedientTipusId,
+						incloureGlobals,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				DefinicioProcesDto.class);
+		// Consulta els valors pels comptadors 
+		// List< Object[String jbpmKey, Long count]>
+		List<String> paginaJbpmKeys = new ArrayList<String>();
+		for (DefinicioProcesDto d : pagina.getContingut()) {
+					paginaJbpmKeys.add(d.getJbpmKey());
+		}
+		if (paginaJbpmKeys.size() > 0) {
+			List<Object[]> countVersions = definicioProcesRepository.countVersions(
+					entornId,
+					paginaJbpmKeys); 
+			// Omple els comptadors de tipus de camps
+			String jbpmKey;
+			Long count;
+			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
+			for (DefinicioProcesDto definicio: pagina.getContingut()) {
+				for (Object[] countVersio: countVersions) {
+					jbpmKey = (String) countVersio[0];
+					if (definicio.getJbpmKey().equals(jbpmKey)) {
+						count = (Long) countVersio[1];
+						definicio.setVersioCount(count);
+						processats.add(countVersio);
+					}
+				}
+				countVersions.removeAll(processats);
+				processats.clear();
+			}		
+		}
+		return pagina;
+	}
+	
+	
 	
 	/**
 	 * {@inheritDoc}
@@ -234,8 +296,8 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		logger.debug(
 				"Important una definicio de proces (" +
 				"entornId=" + entornId + ", " +
-				"expedientTipusId = " + command.getExpedientTipusId() + ", " + 
-				"definicioProcesId = " + command.getId() + ", " + 
+				"expedientTipusId = " + expedientTipusId + ", " + 
+				"definicioProcesId = " + definicioProcesId + ", " + 
 				"command = " + command + ", " + 
 				"importacio = " + importacio + ")");
 		// Control d'accés
@@ -248,13 +310,35 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				expedientTipusId, 
 				importacio, 
 				command,
-				command.isSobreEscriure());
+				command != null ? command.isSobreEscriure() : true);
 		
 		if (importat != null)
 			ret = conversioTipusHelper.convertir(importat, DefinicioProcesDto.class);
 		return ret;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void delete(
+			Long entornId,
+			Long definicioProcesId) throws Exception {
+		logger.debug(
+				"Esborrant una definicio de proces (" +
+				"entornId=" + entornId + ", " +
+				"definicioProcesId = " + definicioProcesId + ")");
+		// Control d'accés
+		entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		jbpmHelper.esborrarDesplegament(
+				definicioProces.getJbpmId());
+		definicioProcesRepository.delete(definicioProces);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

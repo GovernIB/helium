@@ -68,6 +68,17 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public DefinicioProcesDto findById(Long definicioProcesId) {
 		return delegate.findById(definicioProcesId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<DefinicioProcesDto> findPerDatatable(
+			Long entornId, 			
+			Long expedientTipusId, 
+			boolean incloureGlobals,
+			String filtre,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findPerDatatable(entornId, expedientTipusId, incloureGlobals, filtre, paginacioParams);
+	}	
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -87,6 +98,12 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 			DefinicioProcesExportacioCommandDto command, 
 			DefinicioProcesExportacio importacio) {
 		return delegate.importar(entornId, expedientTipusId, definicioProcesId, command, importacio);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void delete(Long entornId, Long definicioProcesId) throws Exception {
+		delegate.delete(entornId, definicioProcesId);
 	}
 
 	@Override

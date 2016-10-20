@@ -108,6 +108,7 @@ import net.conselldemallorca.helium.jbpm3.command.SuspendTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
 import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
+import net.conselldemallorca.helium.jbpm3.command.UpdateHandlersCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
@@ -1973,5 +1974,20 @@ public class JbpmHelper {
 			}
 		}
 		return ex;
+	}
+	
+	/** Actualitza els recursos .class de la definició de procés indicada amb els recursos
+	 * continguts en el jbpmProcessDefinition.
+	 * @param jbpmId Identifica la definició de procés a actualtizar.
+	 * @param jbpmProcessDefinition Conté la informació amb què actualitzar els handlers.
+	 */
+	public void updateHandlers (
+			Long jbpmId, 
+			Map<String, byte[]> handlers) {
+		// Omple que command que substitueix els handlers existents
+		UpdateHandlersCommand command = new UpdateHandlersCommand(
+				jbpmId,
+				handlers);
+		commandService.execute(command);
 	}
 }

@@ -131,17 +131,18 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	@Query(	"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
-			"	and (dp.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"	and (:esNullExpedientTipusId = true or (dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"	and (:esNullFiltre = true or lower(dp.jbpmKey) like lower('%'||:filtre||'%')) " +
 			"	and dp.versio = (" +
 			"  		select max(dps.versio) " +
 			"    	from DefinicioProces dps " +
 			"    	where " +
 			"       	dps.entorn.id = :entornId " +
-			"			and (dps.expedientTipus.id = :expedientTipusId or (:incloureGlobals = true and dp.expedientTipus is null)) " +
+			"			and (:esNullExpedientTipusId = true or (dp.expedientTipus.id = :expedientTipusId) or (:incloureGlobals = true and dp.expedientTipus is null)) " +
 			"		    and dps.jbpmKey= dp.jbpmKey) ")
 	Page<DefinicioProces> findByFiltrePaginat(
 			@Param("entornId") Long entornId,
+			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("incloureGlobals") boolean incloureGlobals,
 			@Param("esNullFiltre") boolean esNullFiltre,

@@ -2613,6 +2613,39 @@ public class ExpedientServiceImpl implements ExpedientService {
 		llistaExpedientIds.removeAll(removeList);
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+			Long entornId, 
+			String jbpmKey) {
+		logger.debug("Consultant instancies de procés amb entorn i process definition name(" + 
+			"entornId = " + entornId + 
+			", jbpmKey = " + jbpmKey + ")");
+		List<String> processInstancesIds = new ArrayList<String>();
+		for (JbpmProcessInstance processInstance : 
+			jbpmHelper.findProcessInstancesWithProcessDefinitionNameAndEntorn(
+					jbpmKey, 
+					entornId))
+			processInstancesIds.add(processInstance.getId());
+		return processInstancesIds;
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> findAmbDefinicioProcesId(
+			Long definicioProcesId) {
+		logger.debug("Consultant instancies de procés amb process definition id(" + 
+			"definicioProcesId = " + definicioProcesId + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		List<String> processInstancesIds = new ArrayList<String>();
+		for (JbpmProcessInstance processInstance : jbpmHelper.findProcessInstancesWithProcessDefinitionId(definicioProces.getJbpmId()))
+			processInstancesIds.add(processInstance.getId());
+		return processInstancesIds;
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

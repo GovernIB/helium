@@ -65,6 +65,31 @@ public interface DefinicioProcesService {
 	public List<DefinicioProcesDto> findAll(
 			Long entornId, 
 			Long expedientTipusId);
+	
+	/** 
+	 * Retorna la llista de definicions de procés paginada per la datatable.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient si es volen mostrar només les de un expedient.
+	 * @param incloureGlobals 
+	 * 			  Especifica si incloure les definicions de procés amb expedientTipus null en cas d'especificar
+	 * 				un expedientTipusId.
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param string 
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina del llistat de definicions de procés.
+	 */
+	public PaginaDto<DefinicioProcesDto> findPerDatatable(
+			Long entornId, 
+			Long expedientTipusId,
+			boolean incloureGlobals, 
+			String filtre, 
+			PaginacioParamsDto paginacioParams);
+
 	/**
 	 * Mètode per crear un objecte d'exportació per al tipus d'expedient amb la informació sol·licitada
 	 * segons l'objecte DTO de la comanda d'exportació.
@@ -97,6 +122,16 @@ public interface DefinicioProcesService {
 			Long definicioProcesId, 
 			DefinicioProcesExportacioCommandDto command,
 			DefinicioProcesExportacio importacio);
+	
+	/** Mètode per despublicar una definició de procés.
+	 * 
+	 * @param entornId Identificador de l'entorn per comprovar permisos.
+	 * @param definicioProcesId Especifica la definició de procés a despublicar.
+	 * @throws Exception Es llança excepció si no s'ha pogut esborrar amb el motiu com a missatge.
+	 */
+	public void delete(
+			Long entornId,
+			Long definicioProcesId) throws Exception;
 	
 	/** 
 	 * Retorna la llista de tasques de la definició de procés paginada per la datatable.
@@ -818,6 +853,5 @@ public interface DefinicioProcesService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;
-	
+	public List<ConsultaDto> consultaFindByEntorn(Long entornId) throws NoTrobatException, PermisDenegatException;	
 }

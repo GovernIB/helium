@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 
 /**
@@ -303,5 +304,17 @@ public class DissenyServiceBean implements DissenyService {
 			Long entornId, 
 			String codiDomini) {
 		return delegate.dominiFindAmbCodi(entornId, codiDomini);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto updateHandlers(Long entornId, String nomArxiu, byte[] contingut) {
+		return delegate.updateHandlers(entornId, nomArxiu, contingut);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(String fitxer, byte[] contingut) {
+		return delegate.getDefinicioProcesExportacioFromContingut(fitxer, contingut);
 	}
 }

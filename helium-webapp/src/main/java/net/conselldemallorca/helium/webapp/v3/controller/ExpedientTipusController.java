@@ -1002,21 +1002,25 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		List<Long> definicioProcesIds = new ArrayList<Long>();
 		for (DefinicioProcesDto darreraVersio : definicioProcesService.findAll(entornActual.getId(), expedientTipusId))
 			definicioProcesIds.add(darreraVersio.getId());
-		dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
-		try {
-			execucioMassivaService.crearExecucioMassiva(dto);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"exptipus.info.propagar.plantilles.success"));
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"exptipus.info.propagar.plantilles.error",
-							new Object[] {e.getMessage()}));
+		if (definicioProcesIds.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "exptipus.info.propagar.plantilles.error.cap"));
+		} else {
+			dto.setDefProcIds(definicioProcesIds.toArray(new Long[definicioProcesIds.size()]));
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"exptipus.info.propagar.plantilles.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"exptipus.info.propagar.plantilles.error",
+								new Object[] {e.getMessage()}));
+			}			
 		}
 		return "redirect:/v3/expedientTipus/"+expedientTipusId;
 	}
@@ -1041,21 +1045,25 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		List<Long> consultesIds = new ArrayList<Long>();
 		for (ConsultaDto consulta : expedientTipusService.consultaFindAll(expedientTipusId))
 			consultesIds.add(consulta.getId());
-		dto.setDefProcIds(consultesIds.toArray(new Long[consultesIds.size()]));
-		try {
-			execucioMassivaService.crearExecucioMassiva(dto);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"exptipus.info.propagar.consultes.success"));
-		} catch(Exception e) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"exptipus.info.propagar.consultes.error",
-							new Object[] {e.getMessage()}));
+		if (consultesIds.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "exptipus.info.propagar.consultes.error.cap"));
+		} else {
+			dto.setDefProcIds(consultesIds.toArray(new Long[consultesIds.size()]));
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"exptipus.info.propagar.consultes.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"exptipus.info.propagar.consultes.error",
+								new Object[] {e.getMessage()}));
+			}
 		}
 		return "redirect:/v3/expedientTipus/"+expedientTipusId;
 	}	

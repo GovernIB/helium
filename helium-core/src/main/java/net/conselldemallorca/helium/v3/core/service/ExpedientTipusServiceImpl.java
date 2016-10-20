@@ -3055,64 +3055,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"definicioProcesId=" + id +  ")");
 		DefinicioProces entity = definicioProcesRepository.findOne(id);
 		definicioProcesRepository.delete(entity);	
-	}	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
-			Long entornId,
-			Long expedientTipusId,
-			boolean incloureGlobals,
-			String filtre,
-			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant les definicions de processos per al tipus d'expedient per datatable (" +
-				"entornId=" + entornId + ", " +
-				"expedientTipusId=" + expedientTipusId + ", " +
-				"incloureGlobals=" + incloureGlobals + ", " +
-				"filtre=" + filtre + ")");
-		
-		PaginaDto<DefinicioProcesDto> pagina = paginacioHelper.toPaginaDto(
-				definicioProcesRepository.findByFiltrePaginat(
-						entornId,
-						expedientTipusId,
-						incloureGlobals,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				DefinicioProcesDto.class);
-		// Consulta els valors pels comptadors 
-		// List< Object[String jbpmKey, Long count]>
-		List<String> paginaJbpmKeys = new ArrayList<String>();
-		for (DefinicioProcesDto d : pagina.getContingut()) {
-					paginaJbpmKeys.add(d.getJbpmKey());
-		}
-		if (paginaJbpmKeys.size() > 0) {
-			List<Object[]> countVersions = definicioProcesRepository.countVersions(
-					entornId,
-					paginaJbpmKeys); 
-			// Omple els comptadors de tipus de camps
-			String jbpmKey;
-			Long count;
-			List<Object[]> processats = new ArrayList<Object[]>();	// per esborrar la informació processada i reduir la cerca
-			for (DefinicioProcesDto definicio: pagina.getContingut()) {
-				for (Object[] countVersio: countVersions) {
-					jbpmKey = (String) countVersio[0];
-					if (definicio.getJbpmKey().equals(jbpmKey)) {
-						count = (Long) countVersio[1];
-						definicio.setVersioCount(count);
-						processats.add(countVersio);
-					}
-				}
-				countVersions.removeAll(processats);
-				processats.clear();
-			}		
-		}
-		return pagina;
 	}
 	
 	/**

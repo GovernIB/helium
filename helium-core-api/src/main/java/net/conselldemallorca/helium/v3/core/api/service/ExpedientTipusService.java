@@ -982,27 +982,6 @@ public interface ExpedientTipusService {
 			ExpedientTipusEnumeracioValorDto enumeracio) throws NoTrobatException, PermisDenegatException;
 	
 	public boolean enumeracioValorMourer(Long valorId, int posicio) throws NoTrobatException;
-
-
-	/** 
-	 * Retorna la llista de definicions de procés del tipus d'expedient paginada per la datatable.
-	 * 
-	 * @param entornId
-	 * @param expedientTipusId
-	 * @param incloureGlobals 
-	 * 
-	 * @param filtre
-	 *            Text per a filtrar els resultats.
-	 * @param paginacioParams
-	 *            Paràmetres per a la paginació dels resultats.
-	 * @return La pàgina del llistat de tipus d'expedients.
-	 */
-	public PaginaDto<DefinicioProcesDto> definicioProcesFindPerDatatable(
-			Long entornId, 
-			Long expedientTipusId,
-			boolean incloureGlobals,
-			String filtre, 
-			PaginacioParamsDto paginacioParams);
 	
 	/** 
 	 * Retorna la llista de codis de definicions de procés per poder seleccionar

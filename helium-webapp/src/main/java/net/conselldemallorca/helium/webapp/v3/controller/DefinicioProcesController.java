@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -20,23 +21,36 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand.ACCIO_JBPM;
+import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesDesplegarCommand.Desplegament;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand.Exportacio;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand.Importacio;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand.Upload;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -51,12 +65,126 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 public class DefinicioProcesController extends BaseDefinicioProcesController {
 	
 	@Autowired
-	DefinicioProcesService definicioProcesService;
+	private DefinicioProcesService definicioProcesService;
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
 	@Autowired
+	private ExpedientService expedientService;
+	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+	@Autowired
+	private ExecucioMassivaService execucioMassivaService;
+	@Autowired
+	private DissenyService dissenyService;
 	
+	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
+	@RequestMapping(method = RequestMethod.GET)
+	public String llistat(
+			HttpServletRequest request,
+			Model model) {
+		return "v3/definicioProcesLlistat";
+	}
+	
+	@RequestMapping(value="/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse datatable(
+			HttpServletRequest request,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				definicioProcesService.findPerDatatable(
+						entornActual.getId(),
+						null, // expedientTipusId
+						true, // incloure globals
+						paginacioParams.getFiltre(),
+						paginacioParams));
+	}	
+	
+	/** Mètode per esborrar la darrera versió d'una definició de procés des del llistat
+	 * de definicions de procés o el llista de definicions de procés del tipus d'expedient. */
+	@RequestMapping(value = "/{jbmpKey}/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean deleteDarreraVersió(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			Model model) {
+		boolean success = false;
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		try {
+			DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
+					entornActual.getId(), 
+					jbmpKey);
+			if (definicioProces == null)
+				throw new NoTrobatException(DefinicioProcesDto.class);
+			
+			success = this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
+		} catch (Exception e) {
+			System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+			e.printStackTrace();
+			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
+		}
+		return success;
+	}
+	
+	/** Mètode per esborrar una versió específica des del disseny de la definició de procés. */
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/delete", method = RequestMethod.GET)
+	public String delete(
+			HttpServletRequest request,
+			@PathVariable String jbmpKey,
+			@PathVariable Long definicioProcesId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		try {
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(), definicioProcesId);
+			if (definicioProces == null)
+				throw new NoTrobatException(DefinicioProcesDto.class, definicioProcesId);
+
+			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
+			
+			// TODO: si no hi ha cap altra tornar a la pàgina de definicions de procés
+
+		} catch (Exception e) {
+			System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+			e.printStackTrace();
+			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
+		}
+		// Retorna a la pàgina de pipelles		
+		return "redirect:/v3/definicioProces/"+jbmpKey;
+	}
+	
+	/** Mètode privat compartit per esborrar una definició de procés. 
+	 * @throws Exception 
+	 */
+	private boolean deleteDefinicioProces(
+			Long entornId,
+			HttpServletRequest request,
+			DefinicioProcesDto definicioProces) throws Exception {
+		boolean success = false;
+		int processosCount = expedientService.findAmbDefinicioProcesId(definicioProces.getId()).size();
+		if (processosCount == 0) 
+		{			
+			// Invoca al servei per despublicar la definició de procés
+			definicioProcesService.delete(
+					entornId,
+					definicioProces.getId());
+			MissatgesHelper.success(request, getMessage(request, "definicio.proces.delete.success", 
+					new Object[] {
+							definicioProces.getJbpmKey(),
+							definicioProces.getVersio()}));
+			success = true;
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error.processos", 
+						new Object[] {
+								definicioProces.getJbpmKey(),
+								definicioProces.getVersio(),
+								processosCount}));
+		}
+		return success;
+	}
+
 	/** Vista de les pipelles per a la definició de procés. */
 	@RequestMapping(value = "/{jbmpKey}", method = RequestMethod.GET)
 	public String pipelles(
@@ -413,6 +541,177 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			model.addAttribute("accions", exportacio.getAccions());
 		}
 	}	
+	
+	/** Modal per desplegar una definició de procés des d'un arxiu d'exportació .par de JBPM.
+	 * Si el paràmetre definicioProcesId està informat llavors el que s'està realitzant és un desplegament
+	 * sobre una definició de procés existent i es permetrà sobre escriure els handlers.
+	 * Si definicioProcesId és null i el paràmetre expedientTipusId està informat llavors el que s'està realitzant
+	 * és un desplegament dins del tipus d'expedient.
+	 * Si expedientTipusId i definicioProcesId són nuls llavors el que s'està fent és un desplegament dins l'entorn actual. */
+	@RequestMapping(value = "/desplegar", method = RequestMethod.GET)
+	public String desplegar(
+			HttpServletRequest request,
+			@RequestParam(required = false) Long expedientTipusId,
+			@RequestParam(required = false) Long definicioProcesId,
+			Model model) {
+		
+		DefinicioProcesDesplegarCommand command = new DefinicioProcesDesplegarCommand();
+		command.setAccio(ACCIO_JBPM.JBPM_DESPLEGAR);
+		command.setExpedientTipusId(expedientTipusId);
+		command.setId(definicioProcesId);
+		this.omplirModelFormulariDesplegament(command, model, request);
+		return "v3/definicioProcesDesplegarForm";
+	}	
+	
+	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
+	 * La validació es fa en el <i>DefinicioProcesImportarValidator</i>.
+	 * @param request
+	 * @param command
+	 * @param bindingResult
+	 * @param model
+	 * @see net.conselldemallorca.helium.webapp.v3.validator.DefinicioProcesImportarValidator
+	 * @return
+	 * @throws IOException 
+	 */
+	@RequestMapping(value = "/desplegar", method = RequestMethod.POST)
+	public String desplegarPost(
+			HttpServletRequest request,
+			@ModelAttribute("command")
+			@Validated(Desplegament.class)
+			DefinicioProcesDesplegarCommand command,
+			BindingResult bindingResult,
+			Model model) throws IOException {
+		if (bindingResult.hasErrors()) {
+    		this.omplirModelFormulariDesplegament(command, model, request);
+        	return "v3/definicioProcesDesplegarForm";
+        } else {
+    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+        	boolean error = false;
+        	try {
+        		if (ACCIO_JBPM.JBPM_DESPLEGAR.equals(command.getAccio())) {
+        			DefinicioProcesExportacio exportacio = 
+        					dissenyService.getDefinicioProcesExportacioFromContingut(
+            					command.getFile().getOriginalFilename(),
+        						command.getFile().getBytes()
+        					);
+        			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
+        			DefinicioProcesDto definicioProces = definicioProcesService.importar(
+            				command.getEntornId(), 
+            				command.getExpedientTipusId(), 
+            				command.getId(),
+            				null, 	// DefinicioProcesExportacioCommandDto
+            				exportacio);
+            		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
+            		if (command.isActualitzarExpedientsActius()) {
+            				// Programació de la tasca d'actualització d'expedients actius
+		        			ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		    				dto.setDataInici(new Date());
+		    				dto.setEnviarCorreu(false);
+		    				dto.setParam1(definicioProces.getJbpmKey());
+		    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
+		    				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
+		    				dto.setProcInstIds(
+		    						expedientService.findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+							    						entornActual.getId(),
+							    						definicioProces.getJbpmKey()));
+		        			try {
+		        				execucioMassivaService.crearExecucioMassiva(dto);
+		        				MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {dto.getProcInstIds().size()}));
+		        			} catch(Exception e) {
+		        				System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+		        				e.printStackTrace(System.err);
+		        				MissatgesHelper.error(
+		        						request,
+		        						getMessage(
+		        								request,
+		        								"definicio.proces.desplegar.error.actualitzarExpedientActius",
+		        								new Object[] {e.getMessage()}));
+		        				error = true;
+		        			}
+            		}
+        		} else if (ACCIO_JBPM.JBPM_ACTUALITZAR.equals(command.getAccio())){
+        			DefinicioProcesDto definicioProces = null;
+        			try {
+        				definicioProces = dissenyService.updateHandlers(
+							entornActual.getId(), 
+        					command.getFile().getOriginalFilename(),
+    						command.getFile().getBytes());
+                		MissatgesHelper.success(request, 
+                				getMessage( 
+                						request, 
+                						"definicio.proces.actualitzar.confirmacio",
+                						new Object[] {
+                								definicioProces.getJbpmKey(),
+                								definicioProces.getVersio()
+                						}));
+        			} catch (Exception e) {
+        				System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+        				e.printStackTrace(System.err);
+        				MissatgesHelper.error(
+        						request,
+        						getMessage(
+        								request,
+        								"definicio.proces.actualitzar.excepcio",
+        								new Object[] {e.getMessage()}));
+        				error = true;
+        			}
+            	}
+        	} catch (Exception e) {
+        		System.err.println("Error: (" + e.getClass() + ") " + e.getLocalizedMessage() );
+        		e.printStackTrace(System.err);
+        		MissatgesHelper.error(request, 
+        				getMessage(
+        						request, 
+        						"definicio.proces.desplegar.form.error",
+        						new Object[] {e.getLocalizedMessage()}));
+        		error = true;
+        	}
+        	if (error) {
+        		this.omplirModelFormulariDesplegament(command, model, request);
+            	return "v3/definicioProcesDesplegarForm";
+        	} else {
+        		return modalUrlTancar(false);        		
+        	}
+        }
+	}		
+	private void omplirModelFormulariDesplegament(
+			DefinicioProcesDesplegarCommand command,
+			Model model,
+			HttpServletRequest request) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
+		model.addAttribute("command", command);
+		
+		
+		if (entornActual != null) {
+			model.addAttribute("entorn", entornActual);
+			command.setEntornId(entornActual.getId());
+			if (command.getExpedientTipusId() != null) {
+				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+							entornActual.getId(),
+							command.getExpedientTipusId());
+				model.addAttribute("expedientTipus", expedientTipus);
+			}
+			if (command.getId() != null) { 
+				DefinicioProcesDto definicioProces = definicioProcesService.findById(command.getId());
+				if (definicioProces != null 
+						&& definicioProces.getEntorn().getId().equals(entornActual.getId()))
+					model.addAttribute("definicioProces", definicioProces);
+			}
+		}
+		
+		// Select de les accions jbpm
+		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
+		accions.add(new ParellaCodiValorDto(
+				DefinicioProcesDesplegarCommand.ACCIO_JBPM.JBPM_DESPLEGAR.toString(), 
+				getMessage(request, "definicio.proces.desplegar.form.accio.desplegar")));
+		accions.add(new ParellaCodiValorDto(
+				DefinicioProcesDesplegarCommand.ACCIO_JBPM.JBPM_ACTUALITZAR.toString(), 
+				getMessage(request, "definicio.proces.desplegar.form.accio.actualitzar")));
+		model.addAttribute("accionsJbpm", accions);
+		
+	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
