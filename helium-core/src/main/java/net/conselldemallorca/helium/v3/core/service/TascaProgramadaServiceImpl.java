@@ -51,7 +51,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Override
 	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
-		boolean active = true;
+		boolean active = false;
 		Long ultimaExecucioMassiva = null;
 		
 		int timeBetweenExecutions = 500;
