@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -279,7 +281,61 @@ public class DissenyService {
 			}
 		}
 	}
+	
+	/** Mètode per rebre un arxiu .par i actualitzar els handlers de la darrera versió d'una definició
+	 * de procés existent a l'entorn amb la informació dels handlers continguda a l'arxiu .par.
+	 * @param entornId
+	 * @param nomArxiu Nom per comprovar que acabi amb ar.
+	 * @param contingut Contingut del fitxe d'exportació jbpm que conté entre altra informació els handlers
+	 * per actualitzar.
+	 * @return La definició de procés actualitzada si tot ha anat bé.
+	 */
+	@CacheEvict(value = "consultaCache", allEntries=true)
+	public DefinicioProces updateHandlers(
+			Long entornId, 
+			String nomArxiu,
+			byte[] contingut) {
+		// Comprova el nom de l'arxiu
+		if (! nomArxiu.endsWith("ar")) {
+			throw new RuntimeException(
+					getServiceUtils().getMessage("desplegament.jbpm.accio.actualitzar.error.arxiuNom", new Object[] {nomArxiu}));
+		}
+		// Obrir el .par i comprovar que és correcte
+		// Thanks to George Mournos who helped to improve this:
+		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
+		ProcessDefinition processDefinition;
+		try {
+			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		} catch (Exception e) {
+			throw new DeploymentException(
+					getServiceUtils().getMessage("desplegament.jbpm.accio.actualitzar.error.parse"));		
+		}
+		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+    	// Recuperar la darrera versió de la definició de procés
+		DefinicioProces darrera = definicioProcesDao.findDarreraVersioAmbEntornIJbpmKey(
+				entornId,
+				jbpmProcessDefinition.getKey());
+		if (darrera == null)
+			throw new DeploymentException(
+					getServiceUtils().getMessage("desplegament.jbpm.accio.actualitzar.error.jbpmKey", new Object[] {jbpmProcessDefinition.getKey()}));
+		
+		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+		@SuppressWarnings("unchecked")
+		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		for (String nom : bytesMap.keySet()) 
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
+			}
+		// Actualitza els handlers de la darrera versió de la definició de procés
+		jbpmDao.updateHandlers(
+				Long.parseLong(darrera.getJbpmId()), 
+				handlers);
+		
+		return darrera;
 
+	}
+	
 	public DefinicioProcesDto getById(
 			Long id,
 			boolean ambTascaInicial) {
