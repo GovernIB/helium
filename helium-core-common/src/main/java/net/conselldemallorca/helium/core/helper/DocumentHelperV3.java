@@ -137,21 +137,20 @@ public class DocumentHelperV3 {
 					dataRegistre = df.format(documentStore.getRegistreData());
 				String numeroRegistre = documentStore.getRegistreNumero();
 				String urlComprovacioSignatura = null;
-				if (ambSegellSignatura)
-					urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
-				
-				getPdfUtils().estampar(
-						arxiuNomOriginal,
-						arxiuOrigenContingut,
-						(ambSegellSignatura) ? !documentStore.isSignat() : false,
-						urlComprovacioSignatura,
-						documentStore.isRegistrat(),
-						numeroRegistre,
-						dataRegistre,
-						documentStore.getRegistreOficinaNom(),
-						documentStore.isRegistreEntrada(),
-						vistaContingut,
-						extensioDesti);
+			    if (ambSegellSignatura && documentStore.isSignat())
+			    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
+			    getPdfUtils().estampar(
+				      arxiuNomOriginal,
+				      arxiuOrigenContingut,
+				      (ambSegellSignatura) ? documentStore.isSignat() : false,
+				      urlComprovacioSignatura,
+				      documentStore.isRegistrat(),
+				      numeroRegistre,
+				      dataRegistre,
+				      documentStore.getRegistreOficinaNom(),
+				      documentStore.isRegistreEntrada(),
+				      vistaContingut,
+				      extensioDesti);
 				resposta.setContingut(vistaContingut.toByteArray());
 			} catch (SistemaExternConversioDocumentException ex) {
 				logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
@@ -1073,7 +1072,7 @@ public class DocumentHelperV3 {
 								getPdfUtils().estampar(
 										arxiuOrigenNom,
 										arxiuOrigenContingut,
-										(ambSegellSignatura) ? !document.isSignat() : false,
+										(ambSegellSignatura) ? document.isSignat() : false,
 										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
 										document.isRegistrat(),
 										numeroRegistre,
