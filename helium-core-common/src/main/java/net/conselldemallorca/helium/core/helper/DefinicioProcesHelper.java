@@ -434,7 +434,7 @@ public class DefinicioProcesHelper {
 				if (importAll || command.getAccions().contains(accioExportat.getCodi())){
 					accio = null;
 					if (definicioProcesExisteix) {
-						accio = accioRepository.findByDefinicioProcesAndCodi(definicio, accioExportat.getCodi());
+						accio = accioRepository.findByDefinicioProcesIdAndCodi(definicio.getId(), accioExportat.getCodi());
 					}
 					if (accio == null || sobreEscriure) {
 						if (accio == null) {

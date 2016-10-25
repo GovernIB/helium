@@ -63,13 +63,17 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 	
 	@Query(	"from Document d " +
 			"where " +
-			"   d.expedientTipus.id = :expedientTipusId " +
+			"   (d.expedientTipus.id = :expedientTipusId or d.expedientTipus.id is null) " +
+			"   and (d.definicioProces.id = :definicioProcesId or d.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(d.codi) like lower('%'||:filtre||'%') or lower(d.nom) like lower('%'||:filtre||'%')) ")
 	public Page<Document> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
 	
-	List<Document> findByExpedientTipusOrderByCodiAsc(ExpedientTipus expedientTipus);
+	public List<Document> findByExpedientTipusIdOrderByCodiAsc(Long expedientTipusId);
+	
+	public List<Document> findByDefinicioProcesIdOrderByCodiAsc(Long definicioProcesId);
 }

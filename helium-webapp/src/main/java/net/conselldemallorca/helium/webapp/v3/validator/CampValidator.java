@@ -7,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
@@ -23,9 +22,7 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 
 	private String codiMissatge;
 	@Autowired
-	private ExpedientTipusService expedientTipusService;
-	@Autowired
-	private DefinicioProcesService definicioProcesService;
+	private CampService campService;
 
 	@Override
 	public void initialize(Camp anotacio) {
@@ -37,17 +34,10 @@ public class CampValidator implements ConstraintValidator<Camp, CampCommand>{
 		boolean valid = true;
 		// Comprova si ja hi ha una variable del tipus d'expedient amb el mateix codi
 		if (camp.getCodi() != null) {
-			CampDto repetit;
-			if (camp.getExpedientTipusId() != null && camp.getDefinicioProcesId() == null)
-				repetit = expedientTipusService.campFindAmbCodi(
+			CampDto repetit = campService.findAmbCodi(
 						camp.getExpedientTipusId(),
-						camp.getCodi());
-			else
-				repetit = definicioProcesService.campFindAmbCodiPerValidarRepeticio(
 						camp.getDefinicioProcesId(),
-						camp.getCodi());
-				
-			
+						camp.getCodi());				
 			if(repetit != null && (camp.getId() == null || !camp.getId().equals(repetit.getId()))) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))

@@ -60,6 +60,12 @@ public class DissenyServiceBean implements DissenyService {
 		return delegate.findEstatByExpedientTipus(expedientTipusId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId) {
+		return delegate.findAccionsJbpmOrdenades(definicioProcesId);
+	}
+
 	/**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual te permisos de lectura.
 	 * 

@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusAccio;
 public class ExpedientTipusAccioCommand {
 	
 	private Long expedientTipusId;
+	private Long definicioProcesId;
 	private Long id;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class, Modificacio.class})
@@ -48,6 +49,12 @@ public class ExpedientTipusAccioCommand {
 	}
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
+	}
+	public Long getDefinicioProcesId() {
+		return definicioProcesId;
+	}
+	public void setDefinicioProcesId(Long definicioProcesId) {
+		this.definicioProcesId = definicioProcesId;
 	}
 	public Long getId() {
 		return id;

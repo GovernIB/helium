@@ -18,11 +18,15 @@ import org.springframework.web.bind.annotation.InitBinder;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.service.AccioService;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -43,6 +47,14 @@ public class BaseExpedientTipusController extends BaseController {
 	protected DissenyService dissenyService;
 	@Autowired
 	protected DefinicioProcesService definicioProcesService;
+	@Autowired
+	protected CampService campService;
+	@Autowired
+	protected DocumentService documentService;
+	@Autowired
+	protected AccioService accioService;
+	@Autowired
+	protected TerminiService terminiService;
 	@Autowired
 	protected ExpedientTipusHelper expedientTipusHelper;
 

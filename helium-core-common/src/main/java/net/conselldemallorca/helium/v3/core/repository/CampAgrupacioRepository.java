@@ -74,8 +74,8 @@ public interface CampAgrupacioRepository extends JpaRepository<CampAgrupacio, Lo
 						 @Param("definicioProcesId") Long definicioProcesId);
 
 	/** Per trobar codis repetits. */
-	CampAgrupacio findByExpedientTipusAndCodi(ExpedientTipus expedientTipus, String codi);	
-	CampAgrupacio findByDefinicioProcesAndCodi(DefinicioProces definicioProces, String codi);	
+	CampAgrupacio findByExpedientTipusIdAndCodi(Long expedientTipusId, String codi);	
+	CampAgrupacio findByDefinicioProcesIdAndCodi(Long definicioProcesId, String codi);	
 		
 	@Query(	"from CampAgrupacio a " +
 			"where " +

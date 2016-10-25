@@ -40,10 +40,12 @@ public interface TerminiRepository extends JpaRepository<Termini, Long> {
 
 	@Query(	"from Termini t " +
 			"where " +
-			"   t.expedientTipus.id = :expedientTipusId " +
+			"   (t.expedientTipus.id = :expedientTipusId or t.expedientTipus.id is null) " +
+			"   and (t.definicioProces.id = :definicioProcesId or t.definicioProces.id is null) " +
 			"	and (:esNullFiltre = true or lower(t.codi) like lower('%'||:filtre||'%') or lower(t.nom) like lower('%'||:filtre||'%')) ")
 	Page<Termini> findByFiltrePaginat(
 			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("definicioProcesId") Long definicioProcesId,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);	

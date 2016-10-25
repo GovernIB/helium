@@ -11,12 +11,10 @@
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <script src="<c:url value="/js/webutil.modal.js"/>"></script>
 
-<c:url var="urlDatatable" value="/v3/expedientTipus/${expedientTipus.id}/terminis/datatable"/>
-
 <c:choose>
-	<c:when test="${not empty expedientTipus}">
+	<c:when test="${not empty expedientTipus && empty definicioProcesId && not empty expedientTipus || not empty definicioProcesId}">
 
-		<c:if test="${!expedientTipus.ambInfoPropia}">
+		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
@@ -25,7 +23,7 @@
 
 		<table	id="expedientTipusTermini"
 				data-toggle="datatable"
-				data-url="${urlDatatable}"
+				data-url="${baseUrl}/termini/datatable"
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-ordering="true"
@@ -43,8 +41,8 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalTerminis()" href="${expedientTipus.id}/termini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${expedientTipus.id}/termini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a data-toggle="modal" data-callback="callbackModalTerminis()" href="${baseUrl}/termini/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a href="${baseUrl}/termini/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.camp.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -54,10 +52,10 @@
 		</table>
 		<script id="tableButtonsTerminiTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/termini/new" data-toggle="modal" data-callback="callbackModalTerminis()" data-datatable-id="expedientTipusTermini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="defproc.termllist.nou_term"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/termini/new" data-toggle="modal" data-callback="callbackModalTerminis()" data-datatable-id="expedientTipusTermini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="defproc.termllist.nou_term"/></a>
 			</div>
 		</script>
-		<script id="rowhrefTemplate" type="text/x-jsrender">${expedientTipus.id}/termini/update/{{:id}}</script>
+		<script id="rowhrefTemplate" type="text/x-jsrender">${baseUrl}/termini/update/{{:id}}</script>
 	</c:when>
 	<c:otherwise>
 		<div class="well well-small"><spring:message code='expedient.dada.expedient.cap'/></div>

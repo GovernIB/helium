@@ -491,7 +491,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		} else if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_TIPUS_EXPEDIENT){
 			// Variables del tipus d'expedient
 			// Obté totes les variables del tipus d'expedient
-			List<CampDto> variables = expedientTipusService.campFindAllOrdenatsPerCodi(expedientTipusId);
+			List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
 				resposta.add(new ParellaCodiValorDto(
@@ -501,7 +501,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 		} else {
 			// Variables de la definició de procés
 			// Obté totes les variables del tipus d'expedient
-			List<CampDto> variables = definicioProcesService.campFindAllOrdenatsPerCodi(origen);
+			List<CampDto> variables = campService.findAllOrdenatsPerCodi(origen, null);
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
 				resposta.add(new ParellaCodiValorDto(

@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Objecte de domini que representa un camp de la definició de procés.
@@ -34,7 +32,6 @@ public class CampDto implements Serializable {
 	
 	private DefinicioProcesDto definicioProces;
 	private ExpedientTipusDto expedientTipus;
-	private List<ValidacioDto> validacions = new ArrayList<ValidacioDto>();
 	
 	// Dades consulta
 	private EnumeracioDto enumeracio;
@@ -207,12 +204,6 @@ public class CampDto implements Serializable {
 		} catch (Exception ex) {
 			return text;
 		}
-	}
-	public List<ValidacioDto> getValidacions() {
-		return validacions;
-	}
-	public void setValidacions(List<ValidacioDto> validacions) {
-		this.validacions = validacions;
 	}
 	public CampAgrupacioDto getAgrupacio() {
 		return agrupacio;

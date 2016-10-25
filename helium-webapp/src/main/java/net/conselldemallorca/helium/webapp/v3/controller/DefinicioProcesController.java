@@ -35,8 +35,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacioCommandDto;
-import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
-import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -65,8 +63,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 public class DefinicioProcesController extends BaseDefinicioProcesController {
 	
 	@Autowired
-	private DefinicioProcesService definicioProcesService;
-	@Autowired
 	private ExpedientTipusService expedientTipusService;
 	@Autowired
 	private ExpedientService expedientService;
@@ -74,8 +70,6 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	@Autowired
-	private DissenyService dissenyService;
 	
 	/** Accés al llistat de definicions de procés de l'entorn des del menú de disseny. */
 	@RequestMapping(method = RequestMethod.GET)
@@ -144,8 +138,14 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 
 			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
 			
-			// TODO: si no hi ha cap altra tornar a la pàgina de definicions de procés
-
+			// Cerca la darrera definició de procés per codi jbpm
+			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
+					entornActual.getId(), 
+					jbmpKey);
+			// Si no n'hi ha cap llavors torna al llistat
+			if (definicioProces == null)
+				return "redirect:/v3/definicioProces";
+			
 		} catch (Exception e) {
 			System.err.println("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -389,11 +389,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			model.addAttribute("versions", versions);
 		}
 		model.addAttribute("tasques", definicioProcesService.tascaFindAll(definicioProcesId));
-		model.addAttribute("variables", definicioProcesService.campFindAllOrdenatsPerCodi(definicioProcesId));
-		model.addAttribute("documents", definicioProcesService.documentFindAllOrdenatsPerCodi(definicioProcesId));
+		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(null, definicioProcesId));
+		model.addAttribute("documents", documentService.findAll(null, definicioProcesId));
 		model.addAttribute("terminis", definicioProcesService.terminiFindAll(definicioProcesId));
-		model.addAttribute("agrupacions", definicioProcesService.agrupacioFindAll(definicioProcesId));
-		model.addAttribute("accions", definicioProcesService.accioFindAll(definicioProcesId));
+		model.addAttribute("agrupacions", campService.agrupacioFindAll(null, definicioProcesId));
+		model.addAttribute("accions", accioService.findAll(null, definicioProcesId));
 	}	
 	
 	

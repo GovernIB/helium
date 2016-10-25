@@ -14,9 +14,9 @@
 
 
 <c:choose>
-	<c:when test="${not empty expedientTipus}">
+	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
 
-		<c:if test="${!expedientTipus.ambInfoPropia}">
+		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
@@ -25,7 +25,7 @@
 
 		<table	id="expedientTipusDocument"
 				data-toggle="datatable"
-				data-url="${expedientTipus.id}/document/datatable"
+				data-url="${baseUrl}/document/datatable"
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-ordering="true"
@@ -54,10 +54,10 @@
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
 									{{if arxiuNom != null }}
-										<li><a href="${expedientTipus.id}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
+										<li><a href="${baseUrl}/document/{{:id}}/download" ><span class="fa fa-file"></span>&nbsp;Descarregar</a></li>
 									{{/if}}
-									<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${expedientTipus.id}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-									<li><a href="${expedientTipus.id}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li><a data-toggle="modal" data-callback="callbackModalDocuments()" href="${baseUrl}/document/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${baseUrl}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.document.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</ul>
 							</div>
 						</script>
@@ -68,7 +68,7 @@
 		</table>
 		<script id="tableButtonsDocumentTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nou_camp" class="btn btn-default" href="${expedientTipus.id}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
+				<a id="nou_camp" class="btn btn-default" href="${baseUrl}/document/new" data-toggle="modal" data-callback="callbackModalDocuments()" data-datatable-id="expedientTipusDomini"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.document.llistat.accio.nova"/></a>
 			</div>
 		</script>
 		
@@ -85,7 +85,7 @@ $(document).ready(function() {
 });
 
 function refrescaTaulaDocuments() {
-	$('#expedientTipusDocument').webutilDatatable('refresh-url', '${expedientTipus.id}/document/datatable');
+	$('#expedientTipusDocument').webutilDatatable('refresh-url', '${baseUrl}/document/datatable');
 }
 
 function callbackModalDocuments() {

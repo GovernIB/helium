@@ -75,7 +75,9 @@ public class ConversioTipusHelper {
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
 						if (source.getCampData() != null)
-							target.setCampDataCodi(source.getCampData().getCodi());
+							target.setCampData(mapperFacade.map(
+									source.getCampData(), 
+									CampDto.class));
 						return target;
 					}
 		});

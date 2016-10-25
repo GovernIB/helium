@@ -22,13 +22,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -43,6 +44,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 	private ExpedientTipusService expedientTipusService;
 	@Autowired
 	protected DefinicioProcesService definicioProcesService;
+	@Autowired
+	protected CampService campService;
+	@Autowired
+	DocumentService documentService;
 	
 	@Override
 	public void initialize(ExpedientTipusExportar anotacio) {
@@ -81,7 +86,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			
 			// Variables
 			Map<String, CampDto> campsMap = new HashMap<String, CampDto>();
-			for (CampDto camp : expedientTipusService.campFindAllOrdenatsPerCodi(command.getId()))
+			for (CampDto camp : campService.findAllOrdenatsPerCodi(command.getId(), null))
 				campsMap.put(camp.getCodi(), camp);
 			CampDto camp;
 			for (String campCodi : command.getVariables()) {
@@ -99,7 +104,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 				}					
 				if (camp.getTipus() == CampTipusDto.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
-					for (CampDto membre : expedientTipusService.campRegistreFindMembresAmbRegistreId(camp.getId()))
+					for (CampDto membre : campService.registreFindMembresAmbRegistreId(camp.getId()))
 						if (!command.getVariables().contains(membre.getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
@@ -158,10 +163,10 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 			}
 			
 			// Documents
-			Map<String, ExpedientTipusDocumentDto> documentsMap = new HashMap<String, ExpedientTipusDocumentDto>();
-			for (ExpedientTipusDocumentDto document : expedientTipusService.documentFindAll(command.getId()))
+			Map<String, DocumentDto> documentsMap = new HashMap<String, DocumentDto>();
+			for (DocumentDto document : documentService.findAll(command.getId(), null))
 				documentsMap.put(document.getCodi(), document);
-			ExpedientTipusDocumentDto document;
+			DocumentDto document;
 			for (String documentCodi : command.getDocuments()) {
 				document = documentsMap.get(documentCodi);
 				if (document.getCampData() != null
@@ -229,7 +234,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						&& command.getDefinicionsVersions().get(definicioProces.getJbpmKey()).equals(definicioProces.getVersio())) {
 					// Comprova les dependències de les variables.
 					// Només comprova les consultes, perquè les enumeracions i dominis poden ser globals de l'entorn
-					for (CampDto campDp : definicioProcesService.campFindAllOrdenatsPerCodi(definicioProces.getId())) {
+					for (CampDto campDp : campService.findAllOrdenatsPerCodi(null, definicioProces.getId())) {
 						// Afegeix el codi del camp al conjunt de camps
 						campCodis.add(campDp.getCodi());
 						if (campDp.getConsulta() != null
@@ -290,7 +295,7 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 								valid = false;
 							}
 						// Guarda els codis dels documents de la definició de procés
-						for(DocumentDto d : definicioProcesService.documentFindAllOrdenatsPerCodi(definicioProces.getId()))
+						for(DocumentDto d : documentService.findAll(null, definicioProces.getId()))
 							documentsCodis.add(d.getCodi());
 					}
 				}

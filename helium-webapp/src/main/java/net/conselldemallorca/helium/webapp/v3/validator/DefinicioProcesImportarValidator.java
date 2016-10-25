@@ -21,7 +21,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.CampTascaExportacio;
@@ -31,8 +30,10 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentTascaExportac
 import net.conselldemallorca.helium.v3.core.api.exportacio.FirmaTascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -66,6 +67,10 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 	ExpedientTipusService expedientTipusService;
 	@Autowired
 	DefinicioProcesService definicioProcesService;
+	@Autowired
+	CampService campService;
+	@Autowired
+	DocumentService documentService;
 	@Autowired
 	DissenyService dissenyService;
 	@Autowired
@@ -314,8 +319,9 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 						CampDto campDto = null;
 						if (isAmbInfoPropia) {
 							// Comprova que el camp estigui al tipus d'expedient
-							campDto = expedientTipusService.campFindAmbCodi(
-									expedientTipus.getId(), 
+							campDto = campService.findAmbCodi(
+									expedientTipus.getId(),
+									null,
 									tascaCamp.getCampCodi());
 							if (campDto == null) {
 								context.buildConstraintViolationWithTemplate(
@@ -332,7 +338,7 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 							if (! command.getVariables().contains(tascaCamp.getCampCodi())) {
 								// comprova que el camp existeixi en la definició de procés destí
 								if (command.getId() != null)
-									campDto = definicioProcesService.campFindAmbCodi(command.getId(), tascaCamp.getCampCodi());
+									campDto = campService.findAmbCodi(null, command.getId(), tascaCamp.getCampCodi());
 								if (campDto == null) {
 									context.buildConstraintViolationWithTemplate(
 											MessageHelper.getInstance().getMessage(
@@ -350,8 +356,9 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 					for (DocumentTascaExportacio documentCamp : tasca.getDocuments()) {
 						if (isAmbInfoPropia) {
 							// Comprova que el camp estigui al tipus d'expedient
-							ExpedientTipusDocumentDto document = expedientTipusService.documentFindAmbCodi(
+							DocumentDto document =documentService.findAmbCodi(
 									expedientTipus.getId(), 
+									null,
 									documentCamp.getDocumentCodi());
 							if (document == null) {
 								context.buildConstraintViolationWithTemplate(
@@ -369,7 +376,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								// comprova que el camp existeixi en la definició de procés destí
 								DocumentDto document = null;
 								if (command.getId() != null)
-									document = definicioProcesService.documentFindAmbCodi(
+									document = documentService.findAmbCodi(
+											null,
 											command.getId(), 
 											documentCamp.getDocumentCodi());
 								if (document == null) {
@@ -389,8 +397,9 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 					for (FirmaTascaExportacio firmaCamp : tasca.getFirmes()) {
 						if (isAmbInfoPropia) {
 							// Comprova que el camp estigui al tipus d'expedient
-							ExpedientTipusDocumentDto document = expedientTipusService.documentFindAmbCodi(
+							DocumentDto document =documentService.findAmbCodi(
 									expedientTipus.getId(), 
+									null,
 									firmaCamp.getDocumentCodi());
 							if (document == null) {
 								context.buildConstraintViolationWithTemplate(
@@ -408,7 +417,8 @@ public class DefinicioProcesImportarValidator implements ConstraintValidator<Def
 								// comprova que el camp existeixi en la definició de procés destí
 								DocumentDto document = null;
 								if (command.getId() != null)
-									document = definicioProcesService.documentFindAmbCodi(
+									document = documentService.findAmbCodi(
+											null,
 											command.getId(), 
 											firmaCamp.getDocumentCodi());
 								if (document == null) {

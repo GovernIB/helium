@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
@@ -34,13 +34,12 @@ import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
- * Controlador per a la pipella de variables del tipus d'expedient.
+ * Controlador per a la pipella de terminis de la definició de procés.
  * 
- * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller
-@RequestMapping("/v3/expedientTipus")
-public class ExpedientTipusTerminiController extends BaseExpedientTipusController {
+@Controller(value = "definicioProcesTerminiControllerV3")
+@RequestMapping("/v3/definicioProces")
+public class DefinicioProcesTerminiController extends BaseDefinicioProcesController {
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
@@ -54,51 +53,52 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		return resposta;
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/terminis")
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/terminis")
 	public String documents(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientTipusPerPipelles(
+			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
-					expedientTipusId,
+					jbmpKey,
 					model,
 					"terminis");
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
-					entornActual.getId(),
-					expedientTipusId);
-			model.addAttribute("expedientTipus", expedientTipus);
-			model.addAttribute("baseUrl", expedientTipus.getId());
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
+					definicioProcesId);
+			model.addAttribute("definicioProces", definicioProces);
+			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
-
 		return "v3/expedientTipusTermini";
 	}
 
-	@RequestMapping(value="/{expedientTipusId}/termini/datatable", method = RequestMethod.GET)
+	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/termini/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
 				terminiService.findPerDatatable(
-						expedientTipusId,
 						null,
+						definicioProcesId,
 						paginacioParams.getFiltre(),
 						paginacioParams));		
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/termini/new", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/new", method = RequestMethod.GET)
 	public String nou(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
@@ -106,21 +106,21 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 		return "v3/expedientTipusTerminiForm";
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/termini/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@Validated(ExpedientTipusTerminiCommand.Creacio.class) ExpedientTipusTerminiCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	model.addAttribute("expedientTipusId", expedientTipusId);
         	return "v3/expedientTipusTerminiForm";
         } else {
         	// Verificar permisos
     		terminiService.create(
-    				expedientTipusId,
     				null,
+    				definicioProcesId,
     				conversioTipusHelper.convertir(
     						command,
     						TerminiDto.class));    		
@@ -134,10 +134,11 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         }
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/termini/{id}/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
 		TerminiDto dto = terminiService.findAmbId(id);
@@ -145,19 +146,18 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 				dto,
 				ExpedientTipusTerminiCommand.class);
 		model.addAttribute("expedientTipusTerminiCommand", command);
-		model.addAttribute("expedientTipusId", expedientTipusId);
 		return "v3/expedientTipusTerminiForm";
 	}
-	@RequestMapping(value = "/{expedientTipusId}/termini/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			@Validated(ExpedientTipusTerminiCommand.Modificacio.class) ExpedientTipusTerminiCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	model.addAttribute("expedientTipusId", expedientTipusId);
         	return "v3/expedientTipusTerminiForm";
         } else {
         	terminiService.update(
@@ -173,11 +173,12 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
         }
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/termini/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/termini/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean borrar(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
 		try {

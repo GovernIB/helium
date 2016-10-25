@@ -16,9 +16,9 @@
 
 
 <c:choose>
-	<c:when test="${not empty expedientTipus}">
+	<c:when test="${not empty expedientTipus || not empty definicioProcesId}">
 
-		<c:if test="${!expedientTipus.ambInfoPropia}">
+		<c:if test="${not empty expedientTipus && empty definicioProcesId && !expedientTipus.ambInfoPropia}">
 			<div class="alert alert-warning">
 				<span class="fa fa-exclamation-triangle"></span>
 				<spring:message code="expedient.tipus.ambInfoPropia.avis" arguments="${ambInfoPropiaText}"></spring:message>
@@ -28,11 +28,11 @@
 		<table	id="expedientTipusAccio"
 				data-rowId="id"
 				data-toggle="datatable"
-				data-url="${expedientTipus.id}/accio/datatable"
+				data-url="${baseUrl}/accio/datatable"
 				data-paging-enabled="true"
 				data-info-type="search+button"
 				data-ordering="true"
-				data-default-order="3"
+				data-default-order="1"
 				data-botons-template="#tableButtonsAccionsTemplate"
 				class="table table-striped table-bordered table-hover">
 			<thead>
@@ -40,15 +40,18 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.accio.llistat.columna.codi"/></th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.accio.llistat.columna.nom"/></th>
-					<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
+					<c:if test="${not empty expedientTipus}">
+						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
+						<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
+					</c:if>
 					<th data-col-name="jbpmAction"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
 					<th data-col-name="id" data-template="#cellAccionsAccioTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsAccioTemplate" type="text/x-jsrender">
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" data-callback="callbackModalAccions()" href="${expedientTipus.id}/accio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-								<li><a href="${expedientTipus.id}/accio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.accio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a data-toggle="modal" data-callback="callbackModalAccions()" href="${baseUrl}/accio/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+								<li><a href="${baseUrl}/accio/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.accio.llistat.accio.esborrar.confirmacio"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>
@@ -58,7 +61,7 @@
 		</table>
 		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
-				<a id="nova_accio" class="btn btn-default" href="${expedientTipus.id}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
+				<a id="nova_accio" class="btn btn-default" href="${baseUrl}/accio/new" data-toggle="modal" data-callback="callbackModalAccions()" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
 			</div>
 		</script>
 	</c:when>

@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -30,93 +30,86 @@ import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
- * Controlador per a la pipella d'accions del tipus d'expedient.
+ * Controlador per a la pipella d'accions de la definició de procés.
  * 
- * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller
-@RequestMapping("/v3/expedientTipus")
-public class ExpedientTipusAccioController extends BaseExpedientTipusController {
+@Controller(value = "definicioProcesAccioControllerV3")
+@RequestMapping("/v3/definicioProces")
+public class DefinicioProcesAccioController extends BaseDefinicioProcesController {
 
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
-	@RequestMapping(value = "/{expedientTipusId}/accions")
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accions")
 	public String accions(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			Model model) {
 		if (!NodecoHelper.isNodeco(request)) {
-			return mostrarInformacioExpedientTipusPerPipelles(
+			return mostrarInformacioDefinicioProcesPerPipelles(
 					request,
-					expedientTipusId,
+					jbmpKey,
 					model,
 					"accions");
 		}
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
-			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
-					entornActual.getId(),
-					expedientTipusId);
-			model.addAttribute("expedientTipus", expedientTipus);
-			model.addAttribute("baseUrl", expedientTipus.getId());
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornActual.getId(),
+					definicioProcesId);
+			model.addAttribute("definicioProces", definicioProces);
+			model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "v3/expedientTipusAccio";
 	}
 	
-	@RequestMapping(value="/{expedientTipusId}/accio/datatable", method = RequestMethod.GET)
+	@RequestMapping(value="/{jbmpKey}/{definicioProcesId}/accio/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse datatable(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
 				accioService.findPerDatatable(
-						expedientTipusId,
 						null,
+						definicioProcesId,
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}	
 			
-	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/new", method = RequestMethod.GET)
 	public String nova(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusAccioCommand command = new ExpedientTipusAccioCommand();
-		command.setExpedientTipusId(expedientTipusId);
+		command.setDefinicioProcesId(definicioProcesId);
+		command.setDefprocJbpmKey(jbmpKey);
 		model.addAttribute("expedientTipusAccioCommand", command);
-		model.addAttribute("definicionsProces", 
-				expedientTipusService.definicioProcesFindJbjmKey(
-						entornActual.getId(), 
-						expedientTipusId, 
-						true));
+		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
 		return "v3/expedientTipusAccioForm";
 	}
-	@RequestMapping(value = "/{expedientTipusId}/accio/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/new", method = RequestMethod.POST)
 	public String novaPost(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@Validated(ExpedientTipusAccioCommand.Creacio.class) ExpedientTipusAccioCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		model.addAttribute("definicionsProces", 
-    				expedientTipusService.definicioProcesFindJbjmKey(
-    						entornActual.getId(), 
-    						expedientTipusId, 
-    						true));
+    		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
         	return "v3/expedientTipusAccioForm";
         } else {
         	// Verificar permisos
         	accioService.create(
-    				expedientTipusId,
     				null,
+    				definicioProcesId,
         			ExpedientTipusAccioCommand.asAccioDto(command));    		
     		MissatgesHelper.success(
 					request, 
@@ -127,40 +120,32 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
         }
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/update", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/update", method = RequestMethod.GET)
 	public String modificar(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AccioDto dto = accioService.findAmbId(id);
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
 		model.addAttribute("expedientTipusAccioCommand", command);
-		model.addAttribute("definicionsProces", 
-				expedientTipusService.definicioProcesFindJbjmKey(
-						entornActual.getId(), 
-						expedientTipusId, 
-						true));
+		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
 		return "v3/expedientTipusAccioForm";
 	}
-	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/update", method = RequestMethod.POST)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			@Validated(ExpedientTipusAccioCommand.Modificacio.class) ExpedientTipusAccioCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		model.addAttribute("definicionsProces", 
-    				expedientTipusService.definicioProcesFindJbjmKey(
-    						entornActual.getId(), 
-    						expedientTipusId, 
-    						true));
+    		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
         	return "v3/expedientTipusAccioForm";
         } else {
         	accioService.update(
@@ -174,11 +159,12 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
         }
 	}
 	
-	@RequestMapping(value = "/{expedientTipusId}/accio/{id}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/accio/{id}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean delete(
 			HttpServletRequest request,
-			@PathVariable Long expedientTipusId,
+			@PathVariable String jbmpKey, 
+			@PathVariable Long definicioProcesId, 
 			@PathVariable Long id,
 			Model model) {
 		
@@ -197,10 +183,10 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 					getMessage(
 							request,
 							"expedient.tipus.accio.llistat.accio.esborrar.error"));
-			logger.error("S'ha produit un error al intentar eliminar la accio amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
+			logger.error("S'ha produit un error al intentar eliminar la accio amb id '" + id + "' de la definció de procés amb id '" + definicioProcesId, e);
 			return false;
 		}
 	}
 		
-	private static final Log logger = LogFactory.getLog(ExpedientTipusAccioController.class);
+	private static final Log logger = LogFactory.getLog(DefinicioProcesAccioController.class);
 }

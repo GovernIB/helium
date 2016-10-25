@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.ValidacioService;
 import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand;
@@ -47,6 +48,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesVariableController extends BaseDefinicioProcesController {
 
+	@Autowired
+	protected CampService campService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
@@ -82,10 +85,15 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@RequestParam(required = false) Long agrupacioId, 
 			Model model) {
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		return DatatablesHelper.getDatatableResponse(request, null,
-				definicioProcesService.campFindPerDatatable(entornActual.getId(), definicioProcesId, agrupacioId,
-						paginacioParams.getFiltre(), paginacioParams),
+		return DatatablesHelper.getDatatableResponse(
+				request, 
+				null,
+				campService.findPerDatatable(
+						null, 
+						definicioProcesId, 
+						agrupacioId,
+						paginacioParams.getFiltre(), 
+						paginacioParams),
 				"id");
 	}
 	
@@ -126,7 +134,8 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
         	return "v3/expedientTipusVariableForm";
         } else {
         	// Verificar permisos
-    		definicioProcesService.campCreate(
+    		campService.create(
+    				null,
     				definicioProcesId,
         			CampCommand.asCampDto(command));    		
     		MissatgesHelper.success(
@@ -146,7 +155,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		CampDto dto = definicioProcesService.campFindAmbId(id);
+		CampDto dto = campService.findAmbId(id);
 		CampCommand command = conversioTipusHelper.convertir(
 				dto,
 				CampCommand.class);
@@ -181,7 +190,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
     				model);
         	return "v3/expedientTipusVariableForm";
         } else {
-        	definicioProcesService.campUpdate(
+        	campService.update(
         			CampCommand.asCampDto(command));
     		MissatgesHelper.success(
 					request, 
@@ -211,7 +220,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long id,
 			@PathVariable int posicio) {
 		
-		return definicioProcesService.campMourePosicio(id, posicio);
+		return campService.mourePosicio(id, posicio);
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{id}/agrupar/{agrupacioId}", method = RequestMethod.GET)
@@ -224,7 +233,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long agrupacioId,
 			Model model) {
 		
-		return definicioProcesService.campAfegirAgrupacio(id, agrupacioId);
+		return campService.afegirAgrupacio(id, agrupacioId);
 	}
 	
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{id}/desagrupar", method = RequestMethod.GET)
@@ -236,7 +245,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long id,
 			Model model) {
 		
-		return definicioProcesService.campRemoureAgrupacio(id);
+		return campService.remoureAgrupacio(id);
 	}
 
 	@RequestMapping(value = "/{jbmpKey}/{definicioProcesId}/variable/{id}/delete", method = RequestMethod.GET)
@@ -250,7 +259,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 		
 		// Valida que la variable no s'utilitzi en cap registre o consulta
 		try {
-			definicioProcesService.campDelete(id);
+			campService.delete(id);
 			
 			MissatgesHelper.success(
 					request,
@@ -281,7 +290,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 		
 		model.addAttribute("basicUrl", ("definicioProces" + "/" + jbmpKey + "/" + definicioProcesId.toString()));
 		model.addAttribute("definicioProcesId", definicioProcesId);
-		model.addAttribute("camp", definicioProcesService.campFindAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(campId));
 
 		ValidacioCommand command = new ValidacioCommand();
 		command.setDefinicioProcesId(definicioProcesId);
@@ -319,7 +328,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@Validated(ValidacioCommand.Creacio.class) ValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", definicioProcesService.campFindAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
         	model.addAttribute("mostraCreate", true);
         	return "v3/expedientTipusValidacio";
@@ -349,7 +358,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@Validated(ValidacioCommand.Modificacio.class) ValidacioCommand command,
 			BindingResult bindingResult,
 			Model model) {
-		model.addAttribute("camp", definicioProcesService.campFindAmbId(campId));
+		model.addAttribute("camp", campService.findAmbId(campId));
         if (bindingResult.hasErrors()) {
         	model.addAttribute("mostraUpdate", true);
         	return "v3/expedientTipusValidacio";
@@ -441,7 +450,6 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdAndEntorn(entornId,
 				definicioProcesId);
 		model.addAttribute("definicioProces", definicioProces);
-//		model.addAttribute("baseUrl", (definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		
 		if (definicioProces.getExpedientTipus() != null) {
 			Long expedientTipusId = definicioProces.getExpedientTipus().getId();
@@ -471,7 +479,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 	}
 
 	private List<ParellaCodiValorDto> obtenirParellesAgrupacions(Long definicioProcesId) {
-		List<CampAgrupacioDto> agrupacions = definicioProcesService.agrupacioFindAll(definicioProcesId);
+		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(null, definicioProcesId);
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (CampAgrupacioDto agrupacio : agrupacions) {
 			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
@@ -517,7 +525,8 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(request, null, 
-				definicioProcesService.agrupacioFindPerDatatable(
+				campService.agrupacioFindPerDatatable(
+						null,
 						definicioProcesId, 
 						paginacioParams.getFiltre(), 
 						paginacioParams), 
@@ -548,7 +557,9 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			return "v3/expedientTipusAgrupacioForm";
 		} else {
 			// Verificar permisos
-			definicioProcesService.agrupacioCreate(definicioProcesId,
+			campService.agrupacioCreate(
+					null,
+					definicioProcesId,
 					conversioTipusHelper.convertir(command, CampAgrupacioDto.class));
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.campAgrupacio.controller.creat"));
 			return modalUrlTancar(false);
@@ -562,7 +573,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id, 
 			Model model) {
-		CampAgrupacioDto dto = definicioProcesService.agrupacioFindAmbId(id);
+		CampAgrupacioDto dto = campService.agrupacioFindAmbId(id);
 		AgrupacioCommand command = conversioTipusHelper.convertir(dto,
 				AgrupacioCommand.class);
 		model.addAttribute("agrupacioCommand", command);
@@ -580,7 +591,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 		if (bindingResult.hasErrors()) {
 			return "v3/expedientTipusAgrupacioForm";
 		} else {
-			definicioProcesService.agrupacioUpdate(conversioTipusHelper.convertir(command, CampAgrupacioDto.class));
+			campService.agrupacioUpdate(conversioTipusHelper.convertir(command, CampAgrupacioDto.class));
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.campAgrupacio.controller.modificat"));
 			return modalUrlTancar(false);
 		}
@@ -595,7 +606,7 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long id, Model model) {
 
 		try {
-			definicioProcesService.agrupacioDelete(id);
+			campService.agrupacioDelete(id);
 
 			MissatgesHelper.success(request,
 					getMessage(request, "expedient.tipus.camp.llistat.agrupacio.boto.esborrar.correcte"));
@@ -628,8 +639,8 @@ public class DefinicioProcesVariableController extends BaseDefinicioProcesContro
 			@PathVariable Long definicioProcesId,
 			@PathVariable Long id, @PathVariable int posicio) {
 
-		return definicioProcesService.agrupacioMourePosicio(id, posicio);
+		return campService.agrupacioMourePosicio(id, posicio);
 	}
 
-	private static final Log logger = LogFactory.getLog(ExpedientTipusVariableController.class);
+	private static final Log logger = LogFactory.getLog(DefinicioProcesVariableController.class);
 }

@@ -302,4 +302,9 @@ public interface DissenyService {
 	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(
 			String fitxer, 
 			byte[] contingut);
+
+	/** Retorna el nom de les accions JBPM de la definició de procés ordenades alfabèticament. 
+	 * Serveix per tenir una lllista dels noms dels seus handlers. 
+	 */
+	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
 }

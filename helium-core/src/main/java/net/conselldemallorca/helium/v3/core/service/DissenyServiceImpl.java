@@ -181,6 +181,18 @@ public class DissenyServiceImpl implements DissenyService {
 				EstatDto.class);
 	}
 	
+	@Transactional(readOnly=true)
+	@Override
+	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId) {
+		logger.debug("Consulta de les accions JBPM d'una definicio de proces(" +
+					"defincioProcesId = " + definicioProcesId + ")");
+		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		List<String> accions = jbpmHelper.listActions(definicioProces.getJbpmId());
+		Collections.sort(accions);
+		return accions;
+	}
+
+	
 	private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto) {	
 		JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProcesDto.getJbpmId());
 		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
@@ -981,7 +993,7 @@ public class DissenyServiceImpl implements DissenyService {
 		// Comprova el nom de l'arxiu
 		if (! fitxer.endsWith("ar")) {
 			throw new RuntimeException(
-					messageHelper.getMessage("desplegament.jbpm.accio.actualitzar.error.arxiuNom", new Object[] {fitxer}));
+					messageHelper.getMessage("definicio.proces.actualitzar.error.arxiuNom", new Object[] {fitxer}));
 		}
 		// Obrir el .par i comprovar que és correcte
 		// Thanks to George Mournos who helped to improve this:
@@ -991,7 +1003,7 @@ public class DissenyServiceImpl implements DissenyService {
 			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
 		} catch (Exception e) {
 			throw new DeploymentException(
-					messageHelper.getMessage("desplegament.jbpm.accio.actualitzar.error.parse"));		
+					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
 		}
 		exportacio.setNomDeploy(fitxer);
 		exportacio.setContingutDeploy(contingut);

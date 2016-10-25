@@ -22,8 +22,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.service.AccioService;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -38,6 +42,14 @@ public class BaseDefinicioProcesController extends BaseController {
 	protected DefinicioProcesService definicioProcesService;
 	@Autowired
 	protected DissenyService dissenyService;
+	@Autowired
+	protected CampService campService;
+	@Autowired
+	protected DocumentService documentService;
+	@Autowired
+	protected AccioService accioService;
+	@Autowired
+	protected TerminiService terminiService;
 	
 	protected String mostrarInformacioDefinicioProcesPerPipelles(
 			HttpServletRequest request,

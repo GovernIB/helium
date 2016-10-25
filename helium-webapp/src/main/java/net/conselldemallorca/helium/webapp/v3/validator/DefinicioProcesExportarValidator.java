@@ -15,7 +15,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.DefinicioProcesExportarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -27,6 +29,10 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 public class DefinicioProcesExportarValidator implements ConstraintValidator<DefinicioProcesExportar, DefinicioProcesExportarCommand>{
 
 	private String codiMissatge;
+	@Autowired
+	private CampService campService;
+	@Autowired
+	private DocumentService documentService;
 	@Autowired
 	protected DefinicioProcesService definicioProcesService;
 	@Autowired
@@ -44,7 +50,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 		if (command.getId() != null) {
 			// Variables
 			Map<String, CampDto> campsMap = new HashMap<String, CampDto>();
-			for (CampDto camp : definicioProcesService.campFindAllOrdenatsPerCodi(command.getId()))
+			for (CampDto camp : campService.findAllOrdenatsPerCodi(null, command.getId()))
 				campsMap.put(camp.getCodi(), camp);
 			CampDto camp;
 			for (String campCodi : command.getVariables()) {
@@ -62,7 +68,7 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 				}					
 				if (camp.getTipus() == CampTipusDto.REGISTRE) {
 					// Comprova que les variables de tipus registre exportades tinguin les seves variables exportables.
-					for (CampDto membre : expedientTipusService.campRegistreFindMembresAmbRegistreId(camp.getId()))
+					for (CampDto membre : campService.registreFindMembresAmbRegistreId(camp.getId()))
 						if (!command.getVariables().contains(membre.getCodi())) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(
@@ -76,18 +82,18 @@ public class DefinicioProcesExportarValidator implements ConstraintValidator<Def
 			}				
 			// Documents
 			Map<String, DocumentDto> documentsMap = new HashMap<String, DocumentDto>();
-			for (DocumentDto document : definicioProcesService.documentFindAllOrdenatsPerCodi(command.getId()))
+			for (DocumentDto document : documentService.findAll(null, command.getId()))
 				documentsMap.put(document.getCodi(), document);
 			DocumentDto document;
 			for (String documentCodi : command.getDocuments()) {
 				document = documentsMap.get(documentCodi);
-				if (document.getCampDataCodi() != null
-					&& !command.getVariables().contains(document.getCampDataCodi())) {
+				if (document.getCampData() != null
+					&& !command.getVariables().contains(document.getCampData().getCodi())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage(
 									this.codiMissatge + ".document.variable", 
 									new Object[] {	document.getCodi(), 
-											document.getCampDataCodi()}))
+											document.getCampData().getCodi()}))
 					.addNode("documents")
 					.addConstraintViolation();
 					valid = false;

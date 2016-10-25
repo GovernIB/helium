@@ -379,8 +379,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model, 
 			ExpedientTipusDto dto) {
 		model.addAttribute("estats", dto.getEstats());
-		model.addAttribute("variables", expedientTipusService.campFindAllOrdenatsPerCodi(expedientTipusId));
-		model.addAttribute("agrupacions", expedientTipusService.agrupacioFindAll(expedientTipusId));
+		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
+		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null));
 		
 		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi jbpm
 		Map<String, List<Integer>> versionsMap = new HashMap<String, List<Integer>>();
@@ -409,9 +409,9 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("definicionsVersions", versionsMap);
 		model.addAttribute("darreresVersions", darreresVersionsMap);
 		model.addAttribute("enumeracions", expedientTipusService.enumeracioFindAll(expedientTipusId));
-		model.addAttribute("documents", expedientTipusService.documentFindAllOrdenatsPerCodi(expedientTipusId));
-		model.addAttribute("terminis", expedientTipusService.terminiFindAll(expedientTipusId));
-		model.addAttribute("accions", expedientTipusService.accioFindAll(expedientTipusId));
+		model.addAttribute("documents", documentService.findAll(expedientTipusId, null));
+		model.addAttribute("terminis", terminiService.findAll(expedientTipusId, null));
+		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));
 		model.addAttribute("dominis", expedientTipusService.dominiFindAll(expedientTipusId));
 		model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
 	}	
