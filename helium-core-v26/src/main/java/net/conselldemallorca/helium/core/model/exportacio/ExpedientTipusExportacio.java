@@ -38,6 +38,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
+	private boolean notificacionsActivades;
 	private String responsableDefecteCodi;
 	
 	public ExpedientTipusExportacio(
@@ -186,6 +187,14 @@ public class ExpedientTipusExportacio implements Serializable {
 
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
+
+	public boolean isNotificacionsActivades() {
+		return notificacionsActivades;
+	}
+
+	public void setNotificacionsActivades(boolean notificacionsActivades) {
+		this.notificacionsActivades = notificacionsActivades;
 	}
 
 	public String getResponsableDefecteCodi() {

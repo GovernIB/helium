@@ -22,6 +22,7 @@ public class ExpedientTipusSistraCommand {
 	private String codiSistra;
 	private TipusMapeig tipus;*/
 
+	private boolean notificacionsActivades;
 
 
 	public ExpedientTipusSistraCommand() {}
@@ -45,6 +46,14 @@ public class ExpedientTipusSistraCommand {
 	}
 	public void setCodiTramit(String codiTramit) {
 		this.codiTramit = codiTramit;
+	}
+
+	public boolean isNotificacionsActivades() {
+		return notificacionsActivades;
+	}
+
+	public void setNotificacionsActivades(boolean notificacionsActivades) {
+		this.notificacionsActivades = notificacionsActivades;
 	}
 
 	/*public List<MapeigSistra> getMapeigSistras() {

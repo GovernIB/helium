@@ -94,6 +94,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 		entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
+		entity.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 		if (expedientTipus.isReiniciarCadaAny()) {
 			for (int i = 0; i < sequenciesAny.size(); i++) {
 				SequenciaAny anyEntity = new SequenciaAny(
@@ -141,6 +142,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 		entity.setRestringirPerGrup(expedientTipus.isRestringirPerGrup());
 		entity.setSeleccionarAny(expedientTipus.isSeleccionarAny());
+		entity.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 		while (entity.getSequenciaAny().size() > 0) {
 			SequenciaAny s = entity.getSequenciaAny().get(entity.getSequenciaAny().firstKey());			
 			entity.getSequenciaAny().remove(s.getAny());

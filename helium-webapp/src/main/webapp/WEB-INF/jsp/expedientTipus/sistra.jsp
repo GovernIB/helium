@@ -39,7 +39,7 @@ function mostrarOcultar(objid) {
 			<c:import url="../common/formElement.jsp">
 				<c:param name="property" value="actiu"/>
 				<c:param name="type" value="checkbox"/>
-				<c:param name="label">Activar</c:param>
+				<c:param name="label">Activar tràmits</c:param>
 				<c:param name="onclick">mostrarOcultar('infoIntegracio')</c:param>
 			</c:import>
 			<div id="infoIntegracio"<c:if test="${not command.actiu}"> style="display:none"</c:if>>
@@ -69,6 +69,16 @@ function mostrarOcultar(objid) {
 					</div>
 				</div>
 				
+			</div>
+			
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="notificacionsActivades"/>
+				<c:param name="type" value="checkbox"/>
+				<c:param name="label">Activar Notificacions</c:param>
+				<c:param name="onclick">mostrarOcultar('infoNotificacions')</c:param>
+			</c:import>
+			<div id="infoNotificacions"<c:if test="${not command.notificacionsActivades}"> style="display:none"</c:if>>
+				<p>info notificacions</p>
 			</div>
 		
 		</div>

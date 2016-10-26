@@ -75,6 +75,8 @@ public class ExpedientTipusSistraController extends BaseController {
 			} else {
 				command.setActiu(false);
 			}
+			
+			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 		}
 		return command;
 	}
@@ -137,7 +139,7 @@ public class ExpedientTipusSistraController extends BaseController {
 			        	} else {
 			        		expedientTipus.setSistraTramitCodi(null);
 			        	}
-			        	
+			        	expedientTipus.setNotificacionsActivades(command.isNotificacionsActivades());
 		        		dissenyService.updateExpedientTipus(expedientTipus);
 			        	missatgeInfo(request, getMessage("info.informacio.guardat"));
 			        	status.setComplete();

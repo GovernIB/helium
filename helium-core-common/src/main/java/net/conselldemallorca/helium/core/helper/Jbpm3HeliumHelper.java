@@ -10,6 +10,17 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.hibernate.Hibernate;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -97,17 +108,6 @@ import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
-import org.hibernate.Hibernate;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
-
 /**
  * Service que implementa la funcionalitat necessària per
  * a integrar Helium i jBPM.
@@ -174,7 +174,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource
 	private MailHelper mailHelper;
 	@Resource
-	private NotificacioElectronicaHelper notificacioElectronicaHelper;
+	private NotificacioHelper notificacioElectronicaHelper;
 
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -1350,32 +1350,41 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			registreNotificacio.setDocuments(documents);
 		}
-		RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
+		
+		try {
+			RespostaAnotacioRegistre respostaPlugin = pluginHelper.tramitacioRegistrarNotificacio(
 				registreNotificacio,
 				expedient);
-		if (respostaPlugin.isOk()) {
-			RegistreIdDto resposta = new RegistreIdDto();
-			resposta.setNumero(respostaPlugin.getNumero());
-			resposta.setData(respostaPlugin.getData());
-			ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
-			referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
-			referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
-			resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
-			return resposta;
-		} else {
-			throw new SistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					"(Registre data de justificant)", 
-					"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+		
+			if (respostaPlugin.isOk()) {
+				RegistreIdDto resposta = new RegistreIdDto();
+				resposta.setNumero(respostaPlugin.getNumero());
+				resposta.setData(respostaPlugin.getData());
+				ReferenciaRDSJustificanteDto referenciaRDSJustificante = new ReferenciaRDSJustificanteDto();
+				referenciaRDSJustificante.setClave(respostaPlugin.getReferenciaRDSJustificante().getClave());
+				referenciaRDSJustificante.setCodigo(respostaPlugin.getReferenciaRDSJustificante().getCodigo());
+				resposta.setReferenciaRDSJustificante(referenciaRDSJustificante);			
+				return resposta;
+			} else {
+	//			throw new SistemaExternException(
+	//					expedient.getEntorn().getId(),
+	//					expedient.getEntorn().getCodi(), 
+	//					expedient.getEntorn().getNom(), 
+	//					expedient.getId(), 
+	//					expedient.getTitol(), 
+	//					expedient.getNumero(), 
+	//					expedient.getTipus().getId(), 
+	//					expedient.getTipus().getCodi(), 
+	//					expedient.getTipus().getNom(), 
+	//					"(Registre data de justificant)", 
+	//					"[" + respostaPlugin.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
+				System.out.println("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + ". Ha estat denegada.");
+			}
+		} catch (Exception e) {
+			System.out.println("No ha estat possible crear la notificació eletrònica per l'expedient " + expedient.getTitol() + 
+					", per un error en l'enviament de les dades");
 		}
+		return null;
 	}
 
 	@Override

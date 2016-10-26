@@ -82,6 +82,26 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	
+	private boolean notificacionsActivades;
+	@MaxLength(9)
+	private String notificacioOrganCodi;
+	@MaxLength(4)
+	private String notificacioOficinaCodi;
+//	@MaxLength(9)
+//	private String notificacioUnitatAdministrativa;
+//	@MaxLength(30)
+//	private String notificacioCodiProcediment;
+//	@MaxLength(256)
+//	private String avisTitol;
+//	@MaxLength(1024)
+//	private String avisText;
+//	@MaxLength(200)
+//	private String avisTextSms;
+//	@MaxLength(256)
+//	private String oficiTitol;
+//	@MaxLength(1024)
+//	private String oficiText;
+	
 
 	@MaxLength(64)
 	private String sistraTramitCodi;
@@ -288,6 +308,86 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
 	}
+	
+	@Column(name="notificacions_activades")
+	public boolean isNotificacionsActivades() {
+		return notificacionsActivades;
+	}
+	public void setNotificacionsActivades(boolean notificacionsActivades) {
+		this.notificacionsActivades = notificacionsActivades;
+	}
+	
+	@Column(name="notificacio_organcodi", length = 9)
+	public String getNotificacioOrganCodi() {
+		return notificacioOrganCodi;
+	}
+	public void setNotificacioOrganCodi(String notificacioOrganCodi) {
+		this.notificacioOrganCodi = notificacioOrganCodi;
+	}
+	
+	@Column(name="notificacio_oficinacodi", length = 4)
+	public String getNotificacioOficinaCodi() {
+		return notificacioOficinaCodi;
+	}
+	public void setNotificacioOficinaCodi(String notificacioOficinaCodi) {
+		this.notificacioOficinaCodi = notificacioOficinaCodi;
+	}
+//	
+//	@Column(name="notificacio_unitatadmin", length = 9)
+//	public String getNotificacioUnitatAdministrativa() {
+//		return notificacioUnitatAdministrativa;
+//	}
+//	public void setNotificacioUnitatAdministrativa(String notificacioUnitatAdministrativa) {
+//		this.notificacioUnitatAdministrativa = notificacioUnitatAdministrativa;
+//	}
+//	
+//	@Column(name="notificacio_codproc", length = 30)
+//	public String getNotificacioCodiProcediment() {
+//		return notificacioCodiProcediment;
+//	}
+//	public void setNotificacioCodiProcediment(String notificacioCodiProcediment) {
+//		this.notificacioCodiProcediment = notificacioCodiProcediment;
+//	}
+//	
+//	@Column(name="notificacio_avistitol", length = 256)
+//	public String getAvisTitol() {
+//		return avisTitol;
+//	}
+//	public void setAvisTitol(String avisTitol) {
+//		this.avisTitol = avisTitol;
+//	}
+//	
+//	@Column(name="notificacio_avistext", length = 1024)
+//	public String getAvisText() {
+//		return avisText;
+//	}
+//	public void setAvisText(String avisText) {
+//		this.avisText = avisText;
+//	}
+//	
+//	@Column(name="notificacio_avistextsms", length = 200)
+//	public String getAvisTextSms() {
+//		return avisTextSms;
+//	}
+//	public void setAvisTextSms(String avisTextSms) {
+//		this.avisTextSms = avisTextSms;
+//	}
+//	
+//	@Column(name="notificacio_oficititol", length = 256)
+//	public String getOficiTitol() {
+//		return oficiTitol;
+//	}
+//	public void setOficiTitol(String oficiTitol) {
+//		this.oficiTitol = oficiTitol;
+//	}
+//	
+//	@Column(name="notificacio_oficitext", length = 1024)
+//	public String getOficiText() {
+//		return oficiText;
+//	}
+//	public void setOficiText(String oficiText) {
+//		this.oficiText = oficiText;
+//	}
 	
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {

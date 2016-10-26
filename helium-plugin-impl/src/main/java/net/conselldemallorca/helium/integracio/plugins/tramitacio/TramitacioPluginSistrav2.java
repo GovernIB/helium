@@ -74,6 +74,7 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 			expediente.setIdioma(request.getIdioma());
 			expediente.setDescripcion(request.getDescripcio());
 			expediente.setAutenticado(request.isAutenticat());
+			
 			/*
 			- Amb delegat
 			BANTEL			HELIUM			ZONAPER
@@ -126,6 +127,27 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 							new QName("avisoSMS"),
 							String.class,
 							request.getAvisosSMS()));
+			
+			
+			
+			//hardcoded
+			expediente.setIdentificadorProcedimiento(
+					new JAXBElement<String>(
+							new QName("identificadorProcedimiento"),
+							String.class,
+							"TS0010REGT"));
+			
+			configuracionAvisos.setHabilitarAvisos(
+					new JAXBElement<Boolean>(
+							new QName("habilitarAvisos"),
+							Boolean.class,
+							new Boolean(true)));
+			//////////////////////
+			
+			
+			
+			
+			
 			expediente.setConfiguracionAvisos(
 					new JAXBElement<ConfiguracionAvisosExpediente>(
 							new QName("configuracionAvisos"),
@@ -361,6 +383,36 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 									new QName("nombreLocalidad"),
 									String.class,
 									registreNotificacio.getDadesInteressat().getMunicipiNom()));
+				
+				
+				//hardcoded
+				datosInteresado.setCodigoProvincia(
+						new JAXBElement<String>(
+								new QName("codigoProvincia"),
+								String.class,
+								"07"));
+				
+				datosInteresado.setNombreProvincia(
+						new JAXBElement<String>(
+								new QName("nombreProvincia"),
+								String.class,
+								"Illes Balears"));
+				
+				datosInteresado.setCodigoPais(
+						new JAXBElement<String>(
+								new QName("codigoPais"),
+								String.class,
+								"ES"));
+				
+				datosInteresado.setNombrePais(
+						new JAXBElement<String>(
+								new QName("nombrePais"),
+								String.class,
+								"España"));
+				////
+				
+				
+				
 				datosRegistroSalida.setDatosInteresado(datosInteresado);
 			}
 			if (registreNotificacio.getDadesRepresentat() != null) {
@@ -826,9 +878,9 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 	}
 	
 	private BackofficeFacade getRegtelClient() {
-		String url = GlobalProperties.getInstance().getProperty("app.registre.plugin.url");
-		String userName = GlobalProperties.getInstance().getProperty("app.registre.plugin.username");
-		String password = GlobalProperties.getInstance().getProperty("app.registre.plugin.password");
+		String url = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.url");
+		String userName = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.username");
+		String password = GlobalProperties.getInstance().getProperty("app.tramitacio.plugin.sistra.client.regtel.password");
 		Object wsClientProxy = WsClientUtils.getWsClientProxy(
 				BackofficeFacade.class,
 				url,

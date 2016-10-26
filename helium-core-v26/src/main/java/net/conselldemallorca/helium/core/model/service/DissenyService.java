@@ -1461,6 +1461,7 @@ public class DissenyService {
 		dto.setSeleccionarAny(expedientTipus.isSeleccionarAny());
 		dto.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 		dto.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
+		dto.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 		dto.setResponsableDefecteCodi(expedientTipus.getResponsableDefecteCodi());
 		dto.setSistraTramitCodi(expedientTipus.getSistraTramitCodi());
 		dto.setFormextUrl(expedientTipus.getFormextUrl());
@@ -1607,6 +1608,7 @@ public class DissenyService {
 		expedientTipus.setSeleccionarAny(exportacio.isSeleccionarAny());
 		expedientTipus.setAmbRetroaccio(exportacio.isAmbRetroaccio());
 		expedientTipus.setReindexacioAsincrona(exportacio.isReindexacioAsincrona());
+		expedientTipus.setNotificacionsActivades(exportacio.isNotificacionsActivades());
 		expedientTipus.setResponsableDefecteCodi(exportacio.getResponsableDefecteCodi());
 		expedientTipus.setSistraTramitCodi(exportacio.getSistraTramitCodi());
 		expedientTipus.setJbpmProcessDefinitionKey(exportacio.getJbpmProcessDefinitionKey());

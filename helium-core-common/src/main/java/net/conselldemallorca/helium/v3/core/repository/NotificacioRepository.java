@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import net.conselldemallorca.helium.core.model.hibernate.NotifElectronica;
+import net.conselldemallorca.helium.core.model.hibernate.Nofiticacio;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -13,11 +13,11 @@ import net.conselldemallorca.helium.core.model.hibernate.NotifElectronica;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public interface NotifElectronicaRepository extends JpaRepository<NotifElectronica, Long> {
+public interface NotificacioRepository extends JpaRepository<Nofiticacio, Long> {
 
-	NotifElectronica findByNumeroAndRdsCodiAndRdsClave(
-			String numero,
-			Long rdsCodi,
-			String rdsClave);
+//	Nofiticacio findByNumeroAndRdsCodiAndRdsClave(
+//			String numero,
+//			Long rdsCodi,
+//			String rdsClave);
 
 }

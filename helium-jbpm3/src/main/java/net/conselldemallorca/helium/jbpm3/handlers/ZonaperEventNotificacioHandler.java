@@ -130,13 +130,17 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 				executionContext,
 				remitentCodiEntitat,
 				varRemitentCodiEntitat));		
+//		anotacio.setOficinaCodi((String)getValorOVariable(
+//				executionContext,
+//				oficina,
+//				varOficina) + "-" + (String)getValorOVariable(
+//						executionContext,
+//						oficinaFisica,
+//						varOficinaFisica));
 		anotacio.setOficinaCodi((String)getValorOVariable(
 				executionContext,
 				oficina,
-				varOficina) + "-" + (String)getValorOVariable(
-						executionContext,
-						oficinaFisica,
-						varOficinaFisica));
+				varOficina));
 		anotacio.setInteressatEntitatCodi(
 				(String)getValorOVariable(
 						executionContext,
