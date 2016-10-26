@@ -380,7 +380,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 					
 //				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 				Object[] params = new Object[1];
-				params[0] = ((ExecucioAccioCommand) command).getAccioId();
+				params[0] = ((ExecucioAccioCommand) command).getAccioCodi();
 //				params[1] = auth.getCredentials();
 //				List<String> rols = new ArrayList<String>();
 //				for (GrantedAuthority gauth : auth.getAuthorities()) {

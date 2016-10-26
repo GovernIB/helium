@@ -58,4 +58,7 @@ public interface AccioRepository extends JpaRepository<Accio, Long> {
 			+ "order by a.codi")
 	public List<Accio> findAmbExpedientTipus(@Param("expedientTipusId")Long expedientTipusId);	
 
+	public Accio findByCodiAndDefinicioProces(
+			String codi,
+			DefinicioProces definicioProces);
 }
