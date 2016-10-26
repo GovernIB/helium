@@ -56,6 +56,7 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
@@ -89,6 +90,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
+import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
@@ -132,6 +134,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ConsultaCampRepository consultaCampRepository;
 	@Resource
 	private CampRepository campRepository;
+	@Resource
+	private AccioRepository accioRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -1328,14 +1332,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		try {
 			ome.setDataInici(new Date());
 			Object param2 = deserialize(ome.getExecucioMassiva().getParam2());
-			Long accioId;
+			String accioCodi;
 			if (param2 instanceof Object[]) {
-				accioId = (Long)((Object[])param2)[0];
+				accioCodi = (String)((Object[])param2)[0];
 			} else {
-				accioId = (Long)param2;
+				accioCodi = (String)param2;
 			}
 			
-			expedientService.accioExecutar(exp.getId(), exp.getProcessInstanceId(), accioId);
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(exp.getProcessInstanceId());
+			Accio accio = accioRepository.findByCodiAndDefinicioProces(accioCodi, definicioProces);
+			
+			expedientService.accioExecutar(exp.getId(), exp.getProcessInstanceId(), accio.getId());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
