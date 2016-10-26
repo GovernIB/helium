@@ -10,17 +10,17 @@ package net.conselldemallorca.helium.webapp.v3.command;
  */
 public class ExecucioAccioCommand {
 
-	private String accioId;
+	private String accioCodi;
 
 
 
 	public ExecucioAccioCommand() {}
 
-	public String getAccioId() {
-		return accioId;
+	public String getAccioCodi() {
+		return accioCodi;
 	}
-	public void setAccioId(String accioId) {
-		this.accioId = accioId;
+	public void setAccioCodi(String accioCodi) {
+		this.accioCodi = accioCodi;
 	}
 
 }
