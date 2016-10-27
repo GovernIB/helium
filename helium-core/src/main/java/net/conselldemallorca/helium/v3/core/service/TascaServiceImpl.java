@@ -597,6 +597,29 @@ public class TascaServiceImpl implements TascaService {
 					documentData);
 		}
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentDto getDocumentPerDocumentCodi(
+			String tascaId,
+			String documentCodi) {
+		logger.debug("Obtenint contingut de l'arxiu per l'tasca (" +
+				"tascaId=" + tascaId + ", " +
+				"documentCodi=" + documentCodi + ")");
+		DocumentDto document = null;
+		JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
+				tascaId,
+				true,
+				true);
+		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
+		if (documentStore != null) {
+			document = documentHelper.getDocumentVista(
+					documentStore.getId(), 
+					true,
+					true);
+		}
+		return document;
+	}
 
 	@Override
 	@Transactional(readOnly = true)

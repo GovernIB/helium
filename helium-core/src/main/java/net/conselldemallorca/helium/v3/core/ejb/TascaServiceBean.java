@@ -13,6 +13,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -310,6 +311,16 @@ public class TascaServiceBean implements TascaService {
 				tascaId,
 				documentCodi);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto getDocumentPerDocumentCodi(
+			String tascaId, 
+			String documentCodi) {
+		return delegate.getDocumentPerDocumentCodi(
+				tascaId, 
+				documentCodi);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -382,4 +393,5 @@ public class TascaServiceBean implements TascaService {
 	public void completarMassiu(String tascaId, String outcome) throws NoTrobatException, ValidacioException {
 		delegate.completarMassiu(tascaId, outcome);
 	}
+
 }
