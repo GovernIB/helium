@@ -63,6 +63,16 @@ public class AplicacioServiceImpl implements AplicacioService {
 	public PersonaDto findPersonaAmbCodi(String codi) {
 		return pluginHelper.personaFindAmbCodi(codi);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PersonaDto findPersonaActual() {
+		String usuariActual = usuariActualHelper.getUsuariActual();
+		return pluginHelper.personaFindAmbCodi(usuariActual);
+	}
 
 	/**
 	 * {@inheritDoc}

@@ -31,6 +31,14 @@ public interface AplicacioService {
 	 * @return la informació de la persona
 	 */
 	public PersonaDto findPersonaAmbCodi(String codi) throws NoTrobatException, SistemaExternException;
+	
+	/**
+	 * Retorna informació de la persona actual.
+	 * 
+	 * @param codi el codi de la persona
+	 * @return la informació de la persona
+	 */
+	public PersonaDto findPersonaActual() throws NoTrobatException, SistemaExternException;
 
 	/**
 	 * Retorna una llista de persones que tenen una part del nom que
