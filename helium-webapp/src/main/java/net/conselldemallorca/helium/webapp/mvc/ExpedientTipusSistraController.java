@@ -77,6 +77,15 @@ public class ExpedientTipusSistraController extends BaseController {
 			}
 			
 			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
+			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
+			command.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+			command.setNotificacioUnitatAdministrativa(expedientTipus.getNotificacioUnitatAdministrativa());
+			command.setNotificacioCodiProcediment(expedientTipus.getNotificacioCodiProcediment());
+			command.setNotificacioAvisTitol(expedientTipus.getNotificacioAvisTitol());
+			command.setNotificacioAvisText(expedientTipus.getNotificacioAvisText());
+			command.setNotificacioAvisTextSms(expedientTipus.getNotificacioAvisTextSms());
+			command.setNotificacioOficiTitol(expedientTipus.getNotificacioOficiTitol());
+			command.setNotificacioOficiText(expedientTipus.getNotificacioOficiText());
 		}
 		return command;
 	}
@@ -140,6 +149,16 @@ public class ExpedientTipusSistraController extends BaseController {
 			        		expedientTipus.setSistraTramitCodi(null);
 			        	}
 			        	expedientTipus.setNotificacionsActivades(command.isNotificacionsActivades());
+			        	expedientTipus.setNotificacioOrganCodi(command.getNotificacioOrganCodi());
+			        	expedientTipus.setNotificacioOficinaCodi(command.getNotificacioOficinaCodi());
+			        	expedientTipus.setNotificacioUnitatAdministrativa(command.getNotificacioUnitatAdministrativa());
+			        	expedientTipus.setNotificacioCodiProcediment(command.getNotificacioCodiProcediment());
+			        	expedientTipus.setNotificacioAvisTitol(command.getNotificacioAvisTitol());
+			        	expedientTipus.setNotificacioAvisText(command.getNotificacioAvisText());
+						expedientTipus.setNotificacioAvisTextSms(command.getNotificacioAvisTextSms());
+						expedientTipus.setNotificacioOficiTitol(command.getNotificacioOficiTitol());
+						expedientTipus.setNotificacioOficiText(command.getNotificacioOficiText());
+						
 		        		dissenyService.updateExpedientTipus(expedientTipus);
 			        	missatgeInfo(request, getMessage("info.informacio.guardat"));
 			        	status.setComplete();

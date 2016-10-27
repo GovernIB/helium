@@ -21,7 +21,7 @@ import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 public class NotificacioHelper {
 
 	@Resource
-	private NotificacioRepository notifElectronicaRepository;
+	private NotificacioRepository notificacioRepository;
 
 
 
@@ -31,25 +31,25 @@ public class NotificacioHelper {
 			Date data,
 			String RDSClave,
 			Long RDSCodigo) {
-		Nofiticacio notifElectronica = new Nofiticacio();
-//		notifElectronica.setNumero(numero);
-//		notifElectronica.setDataEnviament(data);
-//		notifElectronica.setRdsClave(RDSClave);
-//		notifElectronica.setRdsCodi(RDSCodigo);
-//		notifElectronica.setExpedientId(expedientId);
-		return notifElectronicaRepository.save(notifElectronica);
+		Nofiticacio notificacio = new Nofiticacio();
+//		notificacio.setNumero(numero);
+//		notificacio.setDataEnviament(data);
+//		notificacio.setRdsClave(RDSClave);
+//		notificacio.setRdsCodi(RDSCodigo);
+//		notificacio.setExpedientId(expedientId);
+		return notificacioRepository.save(notificacio);
 	}
 
 	public boolean delete(
 			String numero,
 			String clave,
 			Long codigo) {
-//		Nofiticacio notifElectronica = notifElectronicaRepository.findByNumeroAndRdsCodiAndRdsClave(
+//		Nofiticacio notificacio = notificacioRepository.findByNumeroAndRdsCodiAndRdsClave(
 //				numero,
 //				codigo,
 //				clave);
-//		if (notifElectronica != null) {
-//			notifElectronicaRepository.delete(notifElectronica);
+//		if (notificacio != null) {
+//			notificacioRepository.delete(notificacio);
 //			return true;
 //		}
 		return false;

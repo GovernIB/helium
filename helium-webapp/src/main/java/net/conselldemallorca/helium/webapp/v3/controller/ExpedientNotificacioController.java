@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -48,7 +48,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbId(expedientId);
-		List<RegistreNotificacioDto> notificacions = new ArrayList<RegistreNotificacioDto>();
+		List<NotificacioDto> notificacions = new ArrayList<NotificacioDto>();
 		
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("tokens",notificacions);
