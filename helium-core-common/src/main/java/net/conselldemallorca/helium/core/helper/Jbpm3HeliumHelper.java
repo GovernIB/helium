@@ -10,6 +10,17 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.hibernate.Hibernate;
+import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.core.common.ExpedientIniciantDto;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -96,17 +107,6 @@ import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
-
-import org.hibernate.Hibernate;
-import org.jbpm.graph.exe.ProcessInstanceExpedient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.codahale.metrics.MetricRegistry;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -834,7 +834,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
 		if (termini == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		terminiHelper.cancelar(terminiIniciatId, data);
+		terminiHelper.cancelar(terminiIniciatId, data, false);
 	}
 
 	@Override
@@ -847,7 +847,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
 		if (termini == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		terminiHelper.pausar(terminiIniciatId, data);
+		terminiHelper.pausar(terminiIniciatId, data, false);
 	}
 
 	@Override
@@ -860,7 +860,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		TerminiIniciat termini = terminiHelper.findTerminiIniciatById(terminiIniciatId);
 		if (termini == null)
 			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		terminiHelper.continuar(terminiIniciatId, data);
+		terminiHelper.continuar(terminiIniciatId, data, false);
 	}
 
 	@Override

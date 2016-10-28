@@ -183,17 +183,32 @@ public class TerminiHelper {
 		return conversioTipusHelper.convertir(terminiObj, TerminiIniciatDto.class);
 	}
 
-	public void pausar(Long terminiIniciatId, Date data) {
+	public void pausar(Long terminiIniciatId, Date data, boolean crearRegistre) {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findOne(terminiIniciatId);
+		if (terminiIniciat == null)
+			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
-			throw new IllegalStateException(
-					messageHelper.getMessage("error.terminiService.noIniciat"));
+			throw new IllegalStateException(messageHelper.getMessage("error.terminiService.noIniciat"));
 		terminiIniciat.setDataAturada(data);
 		suspendTimers(terminiIniciat);
+		
+		if (crearRegistre) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(terminiIniciat.getProcessInstanceId());
+			if (expedient == null)
+				throw new NoTrobatException(Expedient.class);
+			
+			crearRegistreTermini(
+						expedient.getId(),
+						expedient.getProcessInstanceId(),
+						Registre.Accio.ATURAR,
+						SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 	}
 
-	public void continuar(Long terminiIniciatId, Date data) {
+	public void continuar(Long terminiIniciatId, Date data, boolean crearRegistre) {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findOne(terminiIniciatId);
+		if (terminiIniciat == null)
+			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
 		if (terminiIniciat.getDataAturada() == null)
 			throw new IllegalStateException(
 					messageHelper.getMessage("error.terminiService.noPausat"));
@@ -201,15 +216,41 @@ public class TerminiHelper {
 		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
 		terminiIniciat.setDataAturada(null);
 		resumeTimers(terminiIniciat);
+		
+		if (crearRegistre) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(terminiIniciat.getProcessInstanceId());
+			if (expedient == null)
+				throw new NoTrobatException(Expedient.class);
+			
+			crearRegistreTermini(
+						expedient.getId(),
+						expedient.getProcessInstanceId(),
+						Registre.Accio.REPRENDRE,
+						SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 	}
 
-	public void cancelar(Long terminiIniciatId, Date data) {
+	public void cancelar(Long terminiIniciatId, Date data, boolean crearRegistre) {
 		TerminiIniciat terminiIniciat = terminiIniciatRepository.findOne(terminiIniciatId);
+		if (terminiIniciat == null)
+			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
 		if (terminiIniciat.getDataInici() == null)
 			throw new IllegalStateException(
 					messageHelper.getMessage("error.terminiService.noIniciat"));
 		terminiIniciat.setDataCancelacio(data);
 		suspendTimers(terminiIniciat);
+		
+		if (crearRegistre) {
+			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(terminiIniciat.getProcessInstanceId());
+			if (expedient == null)
+				throw new NoTrobatException(Expedient.class);
+			
+			crearRegistreTermini(
+						expedient.getId(),
+						expedient.getProcessInstanceId(),
+						Registre.Accio.CANCELAR,
+						SecurityContextHolder.getContext().getAuthentication().getName());
+		}
 	}
 
 	public Date getDataFiTermini(

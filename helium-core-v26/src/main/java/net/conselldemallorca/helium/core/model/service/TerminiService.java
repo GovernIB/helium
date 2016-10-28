@@ -73,7 +73,6 @@ public class TerminiService {
 			registreDao.crearRegistreAturarTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId().toString(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
@@ -91,7 +90,6 @@ public class TerminiService {
 			registreDao.crearRegistreReprendreTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId().toString(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
@@ -107,7 +105,6 @@ public class TerminiService {
 			registreDao.crearRegistreCancelarTermini(
 					getExpedientForProcessInstanceId(processInstanceId).getId(),
 					processInstanceId,
-					terminiIniciat.getTermini().getId().toString(),
 					SecurityContextHolder.getContext().getAuthentication().getName());
 		}
 	}
@@ -250,12 +247,10 @@ public class TerminiService {
 					registreDao.crearRegistreAturarTermini(
 							getExpedientForProcessInstanceId(processInstanceId).getId(),
 							processInstanceId,
-							terminiIniciat.getTermini().getId().toString(),
 							SecurityContextHolder.getContext().getAuthentication().getName());
 					registreDao.crearRegistreIniciarTermini(
 							getExpedientForProcessInstanceId(processInstanceId).getId(),
 							processInstanceId,
-							terminiIniciat.getTermini().getId().toString(),
 							SecurityContextHolder.getContext().getAuthentication().getName());
 				}
 			}

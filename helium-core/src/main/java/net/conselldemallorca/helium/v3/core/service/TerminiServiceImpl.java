@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +16,6 @@ import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Festiu;
-import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -116,69 +114,19 @@ public class TerminiServiceImpl implements TerminiService {
 	@Transactional
 	@Override
 	public void pausar(Long terminiIniciatId, Date data) {
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
-		if (terminiIniciat == null)
-			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		
-		if (terminiIniciat.getDataInici() == null)
-			throw new ValidacioException( messageHelper.getMessage("error.terminiService.noIniciat") );
-		terminiIniciat.setDataAturada(data);
-		suspendTimers(terminiIniciat);
-		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		if (expedient != null) {
-			crearRegistreTermini(
-					expedient.getId(),
-					processInstanceId,
-					Registre.Accio.ATURAR,
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		}
+		terminiHelper.pausar(terminiIniciatId, data, true);
 	}
 		
 	@Transactional
 	@Override
 	public void continuar(Long terminiIniciatId, Date data) {
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
-		if (terminiIniciat == null)
-			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		
-		if (terminiIniciat.getDataAturada() == null)
-			throw new ValidacioException( messageHelper.getMessage("error.terminiService.noPausat") );
-		int diesAturat = terminiIniciat.getNumDiesAturadaActual(data);
-		terminiIniciat.setDiesAturat(terminiIniciat.getDiesAturat() + diesAturat);
-		terminiIniciat.setDataAturada(null);
-		resumeTimers(terminiIniciat);
-		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		if (expedient != null) {
-			crearRegistreTermini(
-					expedient.getId(),
-					processInstanceId,
-					Registre.Accio.REPRENDRE,
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		}
+		terminiHelper.continuar(terminiIniciatId, data, true);
 	}
 		
 	@Transactional
 	@Override
 	public void cancelar(Long terminiIniciatId, Date data) throws IllegalStateException {
-		TerminiIniciat terminiIniciat = terminiIniciatRepository.findById(terminiIniciatId);
-		if (terminiIniciat == null)
-			throw new NoTrobatException(TerminiIniciat.class, terminiIniciatId);
-		
-		if (terminiIniciat.getDataInici() == null)
-			throw new ValidacioException( messageHelper.getMessage("error.terminiService.noIniciat") );
-		terminiIniciat.setDataCancelacio(data);
-		suspendTimers(terminiIniciat);
-		String processInstanceId = terminiIniciat.getProcessInstanceId();
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		if (expedient != null) {
-			crearRegistreTermini(
-					expedient.getId(),
-					processInstanceId,
-					Registre.Accio.CANCELAR,
-					SecurityContextHolder.getContext().getAuthentication().getName());
-		}
+		terminiHelper.cancelar(terminiIniciatId, data, true);
 	}
 	
 	@Transactional
@@ -225,32 +173,5 @@ public class TerminiServiceImpl implements TerminiService {
 		} else {
 			throw new ValidacioException("No s'ha trobat el dia festiu");
 		}
-	}
-	
-
-	private void suspendTimers(TerminiIniciat terminiIniciat) {
-		for (long timerId : terminiIniciat.getTimerIdsArray())
-			jbpmHelper.suspendTimer(timerId, new Date(Long.MAX_VALUE));
-
-	}
-	private void resumeTimers(TerminiIniciat terminiIniciat) {
-		for (long timerId : terminiIniciat.getTimerIdsArray())
-			jbpmHelper.resumeTimer(timerId, terminiIniciat.getDataFi());
-	}
-
-	private Registre crearRegistreTermini(
-			Long expedientId,
-			String processInstanceId,
-			Registre.Accio accio,
-			String responsableCodi) {
-		Registre registre = new Registre(
-				new Date(),
-				expedientId,
-				responsableCodi.toString(),
-				accio,
-				Registre.Entitat.TERMINI,
-				expedientId.toString());
-		registre.setProcessInstanceId(processInstanceId);
-		return registreRepository.save(registre);
 	}
 }
