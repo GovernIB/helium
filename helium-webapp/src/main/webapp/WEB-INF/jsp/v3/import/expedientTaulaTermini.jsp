@@ -21,7 +21,7 @@
 </c:if>
 		<c:set var="iniciat" value=""/>
 		<c:forEach var="ini" items="${iniciats_termini}">
-			<c:if test="${termini.id == ini.termini.id and empty inidataCancelacio}">
+			<c:if test="${termini.id == ini.termini.id and empty ini.dataCancelacio}">
 				<c:set var="iniciat" value="${ini}"/>
 			</c:if>
 		</c:forEach>
@@ -29,11 +29,17 @@
 			<td>${termini.nom}</td>
 			<td>
 				<c:choose>
-					<c:when test="${not empty iniciat}">${iniciat.durada}</c:when>
+					<c:when test="${not empty iniciat}">
+						${iniciat.durada}
+					</c:when>
 					<c:otherwise>
 						<c:choose>
-							<c:when test="${termini.duradaPredefinida}">${termini.durada}</c:when>
-							<c:otherwise>Sense especificar</c:otherwise>
+							<c:when test="${termini.duradaPredefinida}">
+								${termini.durada}
+							</c:when>
+							<c:otherwise>
+								Sense especificar
+							</c:otherwise>
 						</c:choose>
 					</c:otherwise>
 				</c:choose>
@@ -51,7 +57,7 @@
 				<c:choose>
 					<c:when test="${empty iniciat}">
 						<c:set var="trobat" value="${false}"/>
-						<c:forEach var="ini" items="${iniciats.value}">
+						<c:forEach var="ini" items="${iniciats_termini}">
 							<c:if test="${termini.id == ini.termini.id and not empty ini.dataCancelacio}">
 								<spring:message code="expedient.termini.estat.cancelat"/>
 								<c:set var="trobat" value="${true}"/>
@@ -61,7 +67,7 @@
 					</c:when>
 					<c:otherwise>
 						<c:choose>
-							<c:when test="${not empty iniciat and not empty iniciat.dataAturada}"><spring:message code="expedient.termini.estat.aturat"/></c:when>
+							<c:when test="${not empty iniciat.dataAturada}"><spring:message code="expedient.termini.estat.aturat"/></c:when>
 							<c:otherwise><spring:message code="expedient.termini.estat.actiu"/></c:otherwise>
 						</c:choose>
 					</c:otherwise>

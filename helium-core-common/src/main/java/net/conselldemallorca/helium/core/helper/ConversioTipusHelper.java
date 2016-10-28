@@ -212,6 +212,7 @@ public class ConversioTipusHelper {
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
+						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.getTeNumero());
@@ -269,6 +270,7 @@ public class ConversioTipusHelper {
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setReindexacioAsincrona(source.isReindexacioAsincrona());
+						target.setDiesNoLaborables(source.getDiesNoLaborables());
 						target.setSequencia(source.getSequencia());
 						target.setSequenciaDefault(source.getSequenciaDefault());
 						target.setTeNumero(source.isTeNumero());

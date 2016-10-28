@@ -52,6 +52,7 @@ function confirmar(e) {
 		<dt>Reindexa asíncronament?</dt><dd><c:choose><c:when test="${expedientTipus.reindexacioAsincrona}">Si</c:when><c:otherwise>No</c:otherwise></c:choose></dd>
 		<c:if test="${not empty expedientTipus.responsableDefecteCodi}"><dt>Responsable per defecte</dt><dd>${responsableDefecte.nomSencer}</dd></c:if>
 		<c:if test="${not empty definicioProcesInicial}"><dt>Definició de procés inicial</dt><dd>${definicioProcesInicial.jbpmName}</dd></c:if>
+		<c:if test="${not empty expedientTipus.diesNoLaborables}"><dt>Dies no laborables</dt><dd>${expedientTipus.diesNoLaborables}</dd></c:if>
 	</dl>
 	<div style="clear: both"></div>
 	<br/>

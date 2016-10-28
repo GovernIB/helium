@@ -39,6 +39,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	private String responsableDefecteCodi;
+	private String diesNoLaborables;
 	
 	public ExpedientTipusExportacio(
 			String codi,
@@ -193,6 +194,14 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setResponsableDefecteCodi(String responsableDefecteCodi) {
 		this.responsableDefecteCodi = responsableDefecteCodi;
+	}
+
+	public String getDiesNoLaborables() {
+		return diesNoLaborables;
+	}
+
+	public void setDiesNoLaborables(String diesNoLaborables) {
+		this.diesNoLaborables = diesNoLaborables;
 	}
 
 	private static final long serialVersionUID = 1L;
