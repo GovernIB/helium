@@ -82,7 +82,8 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	
-
+	private String diesNoLaborables;
+	
 	@MaxLength(64)
 	private String sistraTramitCodi;
 	@MaxLength(2048)
@@ -288,7 +289,13 @@ public class ExpedientTipus implements Serializable, GenericEntity<Long> {
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
 	}
-	
+	@Column(name="dies_no_labs")
+	public String getDiesNoLaborables() {
+		return diesNoLaborables;
+	}
+	public void setDiesNoLaborables(String diesNoLaborables) {
+		this.diesNoLaborables = diesNoLaborables;
+	}
 	@Column(name="sistra_codtra", length=64, unique=true)
 	public String getSistraTramitCodi() {
 		return sistraTramitCodi;

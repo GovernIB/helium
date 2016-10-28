@@ -117,7 +117,7 @@ public class ExpedientTerminiController extends BaseController {
 						terminiId,
 						id,
 						new Date(),
-						true);
+						false);
 				missatgeInfo(request, getMessage("info.termini.iniciat") );
 			} catch (Exception ex) {
 				missatgeError(request, getMessage("error.iniciar.termini"), ex.getLocalizedMessage());
