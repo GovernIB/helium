@@ -202,6 +202,11 @@
 					<c:param name="label"><fmt:message key="expedient.tipus.form.reindexacio_asincrona"/></c:param>
 				</c:import>
 			</security:accesscontrollist>
+			<c:import url="../common/formElement.jsp">
+				<c:param name="property" value="diesNoLaborables"/>
+				<c:param name="comment" value="Dies no laborables de la setmana (1:dilluns, ..., 7:diumenge), separats per coma (..6,7..)"/>
+				<c:param name="label"><fmt:message key="expedient.tipus.form.die_no_labs"/></c:param>
+			</c:import>
 		</div>
 		<c:import url="../common/formElement.jsp">
 			<c:param name="type" value="buttons"/>

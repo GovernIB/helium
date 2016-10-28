@@ -6,12 +6,12 @@ package net.conselldemallorca.helium.jbpm3.handlers;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.jbpm.JbpmException;
+import org.jbpm.graph.exe.ExecutionContext;
+
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-
-import org.jbpm.JbpmException;
-import org.jbpm.graph.exe.ExecutionContext;
 
 /**
  * Handler per calcular la data d'inici d'un termini.
@@ -53,14 +53,16 @@ public class TerminiCalcularDataIniciHandler extends AbstractHeliumActionHandler
 						vt.getAnys(),
 						vt.getMesos(),
 						vt.getDies(),
-						termini.isLaborable());
+						termini.isLaborable(),
+						String.valueOf(executionContext.getProcessInstance().getId()));
 			} else {
 				dataInici = Jbpm3HeliumBridge.getInstanceService().terminiCalcularDataInici(
 						getDataFi(executionContext),
 						termini.getAnys(),
 						termini.getMesos(),
 						termini.getDies(),
-						termini.isLaborable());
+						termini.isLaborable(),
+						String.valueOf(executionContext.getProcessInstance().getId()));
 			}
 			if (executionContext.getTaskInstance() != null)
 				executionContext.getTaskInstance().setVariableLocally(varDataInici, dataInici);
