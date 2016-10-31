@@ -1069,7 +1069,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
-				true);
+				false);
 	}
 
 	@Override

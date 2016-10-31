@@ -210,12 +210,12 @@ public class DocumentHelperV3 {
 					dataRegistre = df.format(documentStore.getRegistreData());
 				String numeroRegistre = documentStore.getRegistreNumero();
 				String urlComprovacioSignatura = null;
-			    if (ambSegellSignatura && documentStore.isSignat())
+			    if (ambSegellSignatura)
 			    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStoreId);
 			    getPdfUtils().estampar(
 				      arxiuNomOriginal,
 				      arxiuOrigenContingut,
-				      (ambSegellSignatura) ? documentStore.isSignat() : false,
+				      (ambSegellSignatura) ? !documentStore.isSignat() : false,
 				      urlComprovacioSignatura,
 				      documentStore.isRegistrat(),
 				      numeroRegistre,
@@ -1113,7 +1113,7 @@ public class DocumentHelperV3 {
 								getPdfUtils().estampar(
 										arxiuOrigenNom,
 										arxiuOrigenContingut,
-										(ambSegellSignatura) ? document.isSignat() : false,
+										(ambSegellSignatura) ? !document.isSignat() : false,
 										(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
 										document.isRegistrat(),
 										numeroRegistre,
