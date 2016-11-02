@@ -10,6 +10,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.model.hibernate.Nofiticacio;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 
 /**
@@ -21,22 +25,31 @@ import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 public class NotificacioHelper {
 
 	@Resource
-	private NotificacioRepository notificacioRepository;
-
+	NotificacioRepository notificacioRepository;
+	@Resource
+	ExpedientRepository expedientRepository;
+	@Resource
+	ExpedientHelper expedientHelper;
+	@Resource
+	DocumentStoreRepository documentStoreRepository;
 
 
 	public Nofiticacio create(
-			Long expedientId,
-			String numero,
-			Date data,
-			String RDSClave,
-			Long RDSCodigo) {
+			ExpedientDto expedient,
+			DocumentEnviamentEstatEnumDto estat,
+			String registreNumero,
+			String assumpte,
+			Date dataEnviament,
+			Date dataRecepcio) {
 		Nofiticacio notificacio = new Nofiticacio();
-//		notificacio.setNumero(numero);
-//		notificacio.setDataEnviament(data);
-//		notificacio.setRdsClave(RDSClave);
-//		notificacio.setRdsCodi(RDSCodigo);
-//		notificacio.setExpedientId(expedientId);
+		notificacio.setExpedient(expedientRepository.findOne(expedient.getId()));
+		notificacio.setEstat(estat);
+		notificacio.setRegistreNumero(registreNumero);
+		notificacio.setAssumpte(assumpte);
+		notificacio.setDataEnviament(dataEnviament);
+		notificacio.setDataRecepcio(dataRecepcio);
+//		notificacio.setDocument(documentStoreRepository.findById(Long.parseLong(document.getAdjuntId())));
+		
 		return notificacioRepository.save(notificacio);
 	}
 

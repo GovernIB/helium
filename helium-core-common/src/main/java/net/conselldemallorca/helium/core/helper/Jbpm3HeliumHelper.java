@@ -62,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
@@ -1435,23 +1436,25 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void notificacioGuardar(
-			Long expedientId,
-			String numero,
-			Date data,
-			String RDSClave,
-			Long RDSCodigo) {
-		logger.debug("Guardant una notificació de l'expedient (" +
-				"expedientId=" + expedientId + ", " +
-				"numero=" + numero + ", " +
-				"data=" + data + ", " +
-				"RDSClave=" + RDSClave + ", " +
-				"RDSCodigo=" + RDSCodigo + ")");
+			ExpedientDto expedient,
+			DocumentEnviamentEstatEnumDto estat,
+			String registreNumero,
+			String assumpte,
+			Date dataEnviament,
+			Date dataRecepcio) {
+//		logger.debug("Guardant una notificació de l'expedient (" +
+//				"expedientId=" + expedientId + ", " +
+//				"numero=" + numero + ", " +
+//				"data=" + data + ", " +
+//				"RDSClave=" + RDSClave + ", " +
+//				"RDSCodigo=" + RDSCodigo + ")");
 		notificacioElectronicaHelper.create(
-				expedientId,
-				numero,
-				data,
-				RDSClave,
-				RDSCodigo);
+				expedient,
+				estat,
+				registreNumero,
+				assumpte,
+				dataEnviament,
+				dataRecepcio);
 	}
 
 	@Override

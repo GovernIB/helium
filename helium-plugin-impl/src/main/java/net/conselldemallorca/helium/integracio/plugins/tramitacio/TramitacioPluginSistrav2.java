@@ -127,25 +127,16 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 							new QName("avisoSMS"),
 							String.class,
 							request.getAvisosSMS()));
-			
-			
-			
-			//hardcoded
-			expediente.setIdentificadorProcedimiento(
-					new JAXBElement<String>(
-							new QName("identificadorProcedimiento"),
-							String.class,
-							"TS0010REGT"));
-			
 			configuracionAvisos.setHabilitarAvisos(
 					new JAXBElement<Boolean>(
 							new QName("habilitarAvisos"),
 							Boolean.class,
-							new Boolean(true)));
-			//////////////////////
-			
-			
-			
+							request.isAvisosHabilitat()));
+			expediente.setIdentificadorProcedimiento(
+					new JAXBElement<String>(
+							new QName("identificadorProcedimiento"),
+							String.class,
+							request.getCodiProcediment()));
 			
 			
 			expediente.setConfiguracionAvisos(
@@ -383,35 +374,6 @@ public class TramitacioPluginSistrav2 implements TramitacioPlugin {
 									new QName("nombreLocalidad"),
 									String.class,
 									registreNotificacio.getDadesInteressat().getMunicipiNom()));
-				
-				
-				//hardcoded
-				datosInteresado.setCodigoProvincia(
-						new JAXBElement<String>(
-								new QName("codigoProvincia"),
-								String.class,
-								"07"));
-				
-				datosInteresado.setNombreProvincia(
-						new JAXBElement<String>(
-								new QName("nombreProvincia"),
-								String.class,
-								"Illes Balears"));
-				
-				datosInteresado.setCodigoPais(
-						new JAXBElement<String>(
-								new QName("codigoPais"),
-								String.class,
-								"ES"));
-				
-				datosInteresado.setNombrePais(
-						new JAXBElement<String>(
-								new QName("nombrePais"),
-								String.class,
-								"España"));
-				////
-				
-				
 				
 				datosRegistroSalida.setDatosInteresado(datosInteresado);
 			}

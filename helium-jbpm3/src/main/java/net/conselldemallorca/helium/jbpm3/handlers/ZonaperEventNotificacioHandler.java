@@ -9,16 +9,18 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.JbpmException;
+import org.jbpm.graph.exe.ExecutionContext;
+import org.springframework.security.crypto.codec.Base64;
+
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacioElectronica;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-
-import org.jbpm.JbpmException;
-import org.jbpm.graph.exe.ExecutionContext;
-import org.springframework.security.crypto.codec.Base64;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 
 /**
  * Handler per a interactuar amb el registre de sortida.
@@ -32,6 +34,10 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varRepresentatNif;
 	private String representatNom;
 	private String varRepresentatNom;
+	private String representatLlin1;
+	private String varRepresentatLlin1;
+	private String representatLlin2;
+	private String varRepresentatLlin2;
 	private String oficina;
 	private String varOficina;
 	private String oficinaFisica;
@@ -52,10 +58,20 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varDestinatariCodiEntitat;
 	private String destinatariNomEntitat;
 	private String varDestinatariNomEntitat;
+	
 	private String destinatariCodiGeografic;
 	private String varDestinatariCodiGeografic;
 	private String destinatariNomGeografic;
 	private String varDestinatariNomGeografic;
+	private String destinatariCodiProvincia;
+	private String varDestinatariCodiProvincia;
+	private String destinatariNomProvincia;
+	private String varDestinatariNomProvincia;
+	private String destinatariCodiPais;
+	private String varDestinatariCodiPais;
+	private String destinatariNomPais;
+	private String varDestinatariNomPais;
+	
 	private String destinatariRegistreNumero;
 	private String varDestinatariRegistreNumero;
 	private String destinatariRegistreAny;
@@ -78,8 +94,10 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	private String varUnitatAdministrativa;
 	private String avisTitol;
 	private String varAvisTitol;
-	private String varAvisText;
 	private String avisText;
+	private String varAvisText;
+	private String avisTextSms;
+	private String varAvisTextSms;
 
 	private String notificacioOficiTitol;
 	private String varNotificacioOficiTitol;
@@ -95,6 +113,8 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	
 	public void execute(ExecutionContext executionContext) throws Exception {		
 		ExpedientDto expedient = getExpedientActual(executionContext);
+		ExpedientTipusDto expedientTipus = expedient.getTipus();
+		
 		expedient.setTramitExpedientIdentificador(expedient.getIdentificador());
 		if (expedient.getTramitExpedientIdentificador() == null)
 			throw new JbpmException(
@@ -107,40 +127,42 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		
 		String identificador = expedient.getNumeroIdentificador();
 		String clau = new Long(System.currentTimeMillis()).toString();
+		
 		anotacio.setExpedientIdentificador(identificador);
 		anotacio.setExpedientClau(clau);
-		String ua = (String)getValorOVariable(
-				executionContext,
-				unitatAdministrativa,
-				varUnitatAdministrativa);
+		
+		String ua = expedientTipus.getNotificacioUnitatAdministrativa();
 		if (ua != null)
 			anotacio.setExpedientUnitatAdministrativa(ua);
 		else if (expedient.getUnitatAdministrativa() != null)
 			anotacio.setExpedientUnitatAdministrativa(String.valueOf(expedient.getUnitatAdministrativa()));
+		
+		anotacio.setOrganCodi(expedientTipus.getNotificacioOrganCodi());		
+		anotacio.setOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
+		
+		
+		/*
+		 * DADES INTERESSAT
+		 */
 		anotacio.setInteressatNif((String)getValorOVariable(
 				executionContext,
 				representatNif,
 				varRepresentatNif));
+		
 		anotacio.setInteressatNomAmbCognoms(
 				(String)getValorOVariable(
 						executionContext,
 						representatNom,
-						varRepresentatNom));
-		anotacio.setOrganCodi((String)getValorOVariable(
-				executionContext,
-				remitentCodiEntitat,
-				varRemitentCodiEntitat));		
-//		anotacio.setOficinaCodi((String)getValorOVariable(
-//				executionContext,
-//				oficina,
-//				varOficina) + "-" + (String)getValorOVariable(
-//						executionContext,
-//						oficinaFisica,
-//						varOficinaFisica));
-		anotacio.setOficinaCodi((String)getValorOVariable(
-				executionContext,
-				oficina,
-				varOficina));
+						varRepresentatNom) + " " +
+				(String)getValorOVariable(
+						executionContext,
+						representatLlin1,
+						varRepresentatLlin1) + " " +
+				(String)getValorOVariable(
+						executionContext,
+						representatLlin2,
+						varRepresentatLlin2));
+		
 		anotacio.setInteressatEntitatCodi(
 				(String)getValorOVariable(
 						executionContext,
@@ -156,6 +178,32 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 						executionContext,
 						destinatariNomGeografic,
 						varDestinatariNomGeografic));
+		
+		anotacio.setInteressatProvinciaCodi(
+				(String)getValorOVariable(
+						executionContext,
+						destinatariCodiProvincia,
+						varDestinatariCodiProvincia));
+		anotacio.setInteressatProvinciaNom(
+				(String)getValorOVariable(
+						executionContext,
+						destinatariNomProvincia,
+						varDestinatariNomProvincia));
+		
+		anotacio.setInteressatPaisCodi(
+				(String)getValorOVariable(
+						executionContext,
+						destinatariCodiPais,
+						varDestinatariCodiPais));
+		anotacio.setInteressatPaisNom(
+				(String)getValorOVariable(
+						executionContext,
+						destinatariNomPais,
+						varDestinatariNomPais));
+		
+		////////////////////////
+		
+		
 		String idiomaExtracte = (String)getValorOVariable(
 				executionContext,
 				documentIdiomaExtracte,
@@ -168,6 +216,9 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 						documentTipus,
 						varDocumentTipus));
 		anotacio.setNotificacioJustificantRecepcio(true);
+		
+		
+		
 		DocumentInfo documentInfo = null;
 		List<DocumentInfo> annexos = new ArrayList<DocumentInfo>();
 		String doc = (String)getValorOVariable(
@@ -184,29 +235,65 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 			}
 		}
 		
-		anotacio.setNotificacioOficiTitol(
-				(String)getValorOVariable(
-						executionContext,
-						notificacioOficiTitol,
-						varNotificacioOficiTitol));
 		
-		anotacio.setNotificacioOficiText(
-				(String)getValorOVariable(
-						executionContext,
-						notificacioOficiText,
-						varNotificacioOficiText));
 		
-		anotacio.setNotificacioAvisTitol(
-				(String)getValorOVariable(
-						executionContext,
-						avisTitol,
-						varAvisTitol));
+		/*
+		 * SEGMENT PER A TITOLS I TEXTES
+		 */
+		String valorOficiTitol = null;
+		if (expedientTipus.getNotificacioOficiTitol() != null && !expedientTipus.getNotificacioOficiTitol().isEmpty())
+			valorOficiTitol = expedientTipus.getNotificacioOficiTitol();
+		else
+			valorOficiTitol = (String)getValorOVariable(
+					executionContext,
+					notificacioOficiTitol,
+					varNotificacioOficiTitol);
+		anotacio.setNotificacioOficiTitol(valorOficiTitol);
 		
-		anotacio.setNotificacioAvisText(
-				(String)getValorOVariable(
-						executionContext,
-						avisText,
-						varAvisText));
+		
+		String valorOficiText = null;
+		if (expedientTipus.getNotificacioOficiText() != null && !expedientTipus.getNotificacioOficiText().isEmpty())
+			valorOficiText = expedientTipus.getNotificacioOficiText();
+		else
+			valorOficiText = (String)getValorOVariable(
+					executionContext,
+					notificacioOficiText,
+					varNotificacioOficiText);
+		anotacio.setNotificacioOficiText(valorOficiText);
+		
+		
+		String valorAvisTitol = null;
+		if (expedientTipus.getNotificacioAvisTitol() != null && !expedientTipus.getNotificacioAvisTitol().isEmpty())
+			valorAvisTitol = expedientTipus.getNotificacioAvisTitol();
+		else
+			valorAvisTitol = (String)getValorOVariable(
+					executionContext,
+					avisTitol,
+					varAvisTitol);
+		anotacio.setNotificacioAvisTitol(valorAvisTitol);
+		
+		String valorAvisText = null;
+		if (expedientTipus.getNotificacioAvisText() != null && !expedientTipus.getNotificacioAvisText().isEmpty())
+			valorAvisText = expedientTipus.getNotificacioAvisText();
+		else
+			valorAvisText = (String)getValorOVariable(
+					executionContext,
+					avisText,
+					varAvisText);
+		anotacio.setNotificacioAvisText(valorAvisText);
+		
+		String valorAvisTextSms = null;
+		if (expedientTipus.getNotificacioAvisTextSms() != null && !expedientTipus.getNotificacioAvisTextSms().isEmpty())
+			valorAvisTextSms = expedientTipus.getNotificacioAvisTextSms();
+		else
+			valorAvisTextSms = (String)getValorOVariable(
+					executionContext,
+					avisTextSms,
+					varAvisTextSms);
+		anotacio.setNotificacioAvisTextSms(valorAvisTextSms);
+		//////////////////////////////////////////////////////////////////////
+		
+		
 		
 		if (varNotificacioSubsanacioTramitIdentificador != null && !varNotificacioSubsanacioTramitIdentificador.isEmpty()) {
 			anotacio.setNotificacioSubsanacioTramitIdentificador(
@@ -232,11 +319,12 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 		if (resposta != null) {			
 			
 			Jbpm3HeliumBridge.getInstanceService().notificacioGuardar(
-					expedient.getId(),
+					expedient, 
+					DocumentEnviamentEstatEnumDto.ENVIAT_OK, 
 					resposta.getNumero(),
-					resposta.getData(),
-					resposta.getReferenciaRDSJustificante().getClave(),
-					resposta.getReferenciaRDSJustificante().getCodigo());
+					anotacio.getAnotacioAssumpte(), 
+					anotacio.getData(), 
+					resposta.getData());
 			List<String> parametres = new ArrayList<String>();
 			
 			DadesNotificacioElectronica dadesNotificacioElectronica = new DadesNotificacioElectronica();
@@ -494,5 +582,47 @@ public class ZonaperEventNotificacioHandler extends BasicActionHandler implement
 	}
 	public void setVarReferenciaRDSJustificanteCodigo(String varReferenciaRDSJustificanteCodigo) {
 		this.varReferenciaRDSJustificanteCodigo = varReferenciaRDSJustificanteCodigo;
+	}
+	public void setRepresentatLlin1(String representatLlin1) {
+		this.representatLlin1 = representatLlin1;
+	}
+	public void setVarRepresentatLlin1(String varRepresentatLlin1) {
+		this.varRepresentatLlin1 = varRepresentatLlin1;
+	}
+	public void setRepresentatLlin2(String representatLlin2) {
+		this.representatLlin2 = representatLlin2;
+	}
+	public void setVarRepresentatLlin2(String varRepresentatLlin2) {
+		this.varRepresentatLlin2 = varRepresentatLlin2;
+	}
+	public void setAvisTextSms(String avisTextSms) {
+		this.avisTextSms = avisTextSms;
+	}
+	public void setVarAvisTextSms(String varAvisTextSms) {
+		this.varAvisTextSms = varAvisTextSms;
+	}
+	public void setDestinatariCodiProvincia(String destinatariCodiProvincia) {
+		this.destinatariCodiProvincia = destinatariCodiProvincia;
+	}
+	public void setVarDestinatariCodiProvincia(String varDestinatariCodiProvincia) {
+		this.varDestinatariCodiProvincia = varDestinatariCodiProvincia;
+	}
+	public void setDestinatariNomProvincia(String destinatariNomProvincia) {
+		this.destinatariNomProvincia = destinatariNomProvincia;
+	}
+	public void setVarDestinatariNomProvincia(String varDestinatariNomProvincia) {
+		this.varDestinatariNomProvincia = varDestinatariNomProvincia;
+	}
+	public void setDestinatariCodiPais(String destinatariCodiPais) {
+		this.destinatariCodiPais = destinatariCodiPais;
+	}
+	public void setVarDestinatariCodiPais(String varDestinatariCodiPais) {
+		this.varDestinatariCodiPais = varDestinatariCodiPais;
+	}
+	public void setDestinatariNomPais(String destinatariNomPais) {
+		this.destinatariNomPais = destinatariNomPais;
+	}
+	public void setVarDestinatariNomPais(String varDestinatariNomPais) {
+		this.varDestinatariNomPais = varDestinatariNomPais;
 	}
 }

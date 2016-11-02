@@ -538,10 +538,11 @@ public class PluginHelper {
 		zonaperExpedient.setRepresentantNif(registreNotificacio.getDadesInteressat().getNif());
 		zonaperExpedient.setRepresentatNif(registreNotificacio.getDadesInteressat().getNif());
 		zonaperExpedient.setRepresentatNom(registreNotificacio.getDadesInteressat().getNomAmbCognoms());
-		zonaperExpedient.setAvisosHabilitat(expedient.isAvisosHabilitats());
+		zonaperExpedient.setAvisosHabilitat(true);
 		zonaperExpedient.setAvisosEmail(expedient.getAvisosEmail());
 		zonaperExpedient.setAvisosSMS(expedient.getAvisosMobil());
 		zonaperExpedient.setDescripcio(expedient.getTitol());
+		zonaperExpedient.setCodiProcediment(expedient.getTipus().getNotificacioCodiProcediment());
 		
 		
 		PublicarExpedientRequest request = conversioTipusHelper.convertir(

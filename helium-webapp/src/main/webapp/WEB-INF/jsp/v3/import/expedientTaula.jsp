@@ -148,9 +148,6 @@
 							<c:when test="${fn:endsWith(dada['class'].name, 'AccioDto')}">								
 								<%@ include file="expedientTaulaAccio.jsp" %>
 							</c:when>
-							<c:when test="${fn:endsWith(dada['class'].name, 'NotificacioDto')}">								
-								<%@ include file="expedientTaulaNotificacio.jsp" %>
-							</c:when>
 							<c:otherwise>[Tipus desconegut]</c:otherwise>
 						</c:choose>
 						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>

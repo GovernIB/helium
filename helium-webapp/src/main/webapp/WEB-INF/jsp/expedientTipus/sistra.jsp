@@ -100,29 +100,24 @@ function mostrarOcultar(objid) {
 				</c:import>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="notificacioAvisTitol"/>
-					<c:param name="required" value="${true}"/>
 					<c:param name="label">Títol d'avís</c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="notificacioAvisText"/>
-					<c:param name="required" value="${true}"/>
 					<c:param name="type" value="textarea"/>
 					<c:param name="label">Text d'avís</c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="notificacioAvisTextSms"/>
-					<c:param name="required" value="${true}"/>
 					<c:param name="type" value="textarea"/>
 					<c:param name="label">Text SMS d'avís</c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="notificacioOficiTitol"/>
-					<c:param name="required" value="${true}"/>
 					<c:param name="label">Títol d'ofici</c:param>
 				</c:import>
 				<c:import url="../common/formElement.jsp">
 					<c:param name="property" value="notificacioOficiText"/>
-					<c:param name="required" value="${true}"/>
 					<c:param name="type" value="textarea"/>
 					<c:param name="label">Text d'ofici</c:param>
 				</c:import>

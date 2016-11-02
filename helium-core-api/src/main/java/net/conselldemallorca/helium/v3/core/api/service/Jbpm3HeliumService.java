@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.codahale.metrics.MetricRegistry;
+
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
@@ -14,6 +16,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -39,8 +42,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
-
-import com.codahale.metrics.MetricRegistry;
 
 
 /**
@@ -755,11 +756,13 @@ public interface Jbpm3HeliumService {
 			Long expedientId) throws SistemaExternException, NoTrobatException;
 
 	public void notificacioGuardar(
-			Long expedientId,
-			String numero,
-			Date data,
-			String RDSClave,
-			Long RDSCodigo);
+			ExpedientDto expedient,
+			DocumentEnviamentEstatEnumDto estat,
+			String registreNumero,
+			String assumpte,
+			Date dataEnviament,
+			Date dataRecepcio
+			);
 
 	public boolean notificacioEsborrar(
 			String numero,
